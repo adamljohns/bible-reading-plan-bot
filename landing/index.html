@@ -206,7 +206,7 @@
                 </div>
                 <div class="tier-card" onclick="selectTier('deep')">
                     <h3>Deep Devotional</h3>
-                    <p>Full Blossom Up assessment. 50+ questions for maximum personalization.</p>
+                    <p>Comprehensive assessment. 50+ questions for maximum personalization.</p>
                     <span class="badge">Maximum Depth</span>
                 </div>
             </div>
@@ -275,6 +275,7 @@
         // ═══════════════════════════════════════════
 
         const basicQuestions = [
+            // 10 unconditional questions (always visible)
             { id: 'firstName', question: "What's your first name?", type: 'text', placeholder: 'Enter your first name' },
             { id: 'maritalStatus', question: "Are you married?", type: 'radio', options: ['Yes', 'No'] },
             { id: 'wifeName', question: "What's your wife's name?", type: 'text', placeholder: "Enter your wife's name", showIf: () => formData.maritalStatus === 'Yes' },
@@ -282,12 +283,16 @@
             { id: 'childrenCount', question: "How many children?", type: 'slider', min: 1, max: 12, showIf: () => formData.hasChildren === 'Yes' },
             { id: 'children', question: "Tell us about your children", type: 'children', showIf: () => formData.hasChildren === 'Yes' },
             { id: 'denomination', question: "What church tradition are you part of?", type: 'radio', options: ['Baptist', 'Presbyterian/Reformed', 'Non-Denominational', 'Catholic', 'Methodist', 'Pentecostal', 'Anglican', 'Other'] },
+            { id: 'bibleVersion', question: "Preferred Bible translation?", type: 'radio', options: ['NKJV', 'ESV', 'NASB', 'CSB', 'NIV', 'NLT', 'KJV', 'Blended (multiple)'] },
             { id: 'readingPace', question: "How much time can you give daily?", type: 'radio', options: ['10-15 minutes', '20-30 minutes', '30-45 minutes', '45+ minutes'] },
+            { id: 'spiritualGoal', question: "What's your primary spiritual goal right now?", type: 'radio', options: ['Deeper knowledge of Scripture', 'Becoming a better husband/father', 'Breaking a sin pattern', 'Growing in prayer life', 'Finding direction/purpose'] },
+            { id: 'startDate', question: "When would you like to start?", type: 'date' },
             { id: 'deliveryMethod', question: "How would you like to receive readings?", type: 'radio', options: ['Email', 'Telegram', 'Download daily PDFs'] },
             { id: 'contact', question: "What's your contact info?", type: 'contact' }
         ];
 
         const amplifiedQuestions = [
+            // 20 unconditional + 5 conditional = 25 total; minimum 20 visible for any path
             { id: 'firstName', question: "What's your first name?", type: 'text', placeholder: 'Enter your first name' },
             { id: 'lastName', question: "What's your last name?", type: 'text', placeholder: 'Enter your last name' },
             { id: 'maritalStatus', question: "Are you married?", type: 'radio', options: ['Yes', 'No', 'Widowed', 'Divorced'] },
@@ -306,6 +311,9 @@
             { id: 'occupation', question: "What do you do for work?", type: 'text', placeholder: 'e.g., Electrician, Software Engineer, Pastor' },
             { id: 'location', question: "Where are you located?", type: 'text', placeholder: 'City, State (or Country)', hint: 'Helps contextualize civic/cultural applications' },
             { id: 'hobbies', question: "What are your hobbies or interests?", type: 'text', placeholder: 'e.g., Hunting, Woodworking, Music, Coaching' },
+            { id: 'seasonOfLife', question: "What season of life are you in?", type: 'radio', options: ['Young adult — finding my way', 'Newlywed — building a marriage', 'Young family — raising little ones', 'Established family — teens/young adults', 'Empty nest — kids launched', 'Retirement — new chapter'] },
+            { id: 'prayerLife', question: "How would you describe your prayer life?", type: 'radio', options: ['Consistent — daily', 'Inconsistent — a few times a week', 'Rare — mostly emergencies', 'Non-existent — want to start'] },
+            { id: 'bibleReadingHistory', question: "How would you describe your Bible reading history?", type: 'radio', options: ['Read through multiple times', 'Read through once', 'Read regularly but not cover-to-cover', 'Read occasionally', 'Rarely / Just starting'] },
             { id: 'startDate', question: "When would you like to start?", type: 'date' },
             { id: 'deliveryMethod', question: "How would you like to receive readings?", type: 'radio', options: ['Email', 'Telegram', 'Download daily PDFs'] },
             { id: 'contact', question: "What's your contact info?", type: 'contact' }
@@ -362,7 +370,7 @@
             { id: 'biggestFear', question: "What's your biggest fear as a man?", type: 'radio', hint: 'Helps us speak to your deepest needs.', options: ['Failing my family', 'Not living up to my potential', 'Financial ruin', 'Losing my health', 'Being found out as a fraud', 'Dying without legacy', 'Prefer not to say'] },
             { id: 'seasonOfLife', question: "What season of life are you in?", type: 'radio', options: ['Young adult — finding my way', 'Newlywed — building a marriage', 'Young family — raising little ones', 'Established family — teens/young adults', 'Empty nest — kids are launched', 'Retirement — new chapter', 'Rebuilding — after loss or crisis'] },
 
-            // Practical & Preferences (41-50)
+            // Practical & Preferences (41-50+)
             { id: 'readingPace', question: "How much time can you give daily to readings?", type: 'radio', options: ['10-15 minutes', '20-30 minutes', '30-45 minutes', '45-60 minutes', '60+ minutes'] },
             { id: 'bestReadingTime', question: "When are you most alert for Scripture reading?", type: 'radio', options: ['Early morning (5-7 AM)', 'Morning (7-9 AM)', 'Midday (11 AM-1 PM)', 'Afternoon (2-4 PM)', 'Evening (7-9 PM)', 'Late night (after 9 PM)'] },
             { id: 'journaling', question: "Do you journal or take notes on your readings?", type: 'radio', options: ['Yes — consistently', 'Sometimes', 'No — but I want to start', 'No — not my thing'] },
@@ -370,7 +378,23 @@
             { id: 'familyDevotions', question: "Do you lead family devotions?", type: 'radio', options: ['Yes — regularly', 'Sometimes', 'No — want to start', 'No — not applicable'] },
             { id: 'topBooksOfBible', question: "What are your favorite books of the Bible?", type: 'text', placeholder: 'e.g., Romans, Psalms, Genesis, John', hint: 'Optional — helps personalize emphasis' },
             { id: 'avoidTopics', question: "Any topics you'd prefer we handle with extra sensitivity?", type: 'text', placeholder: 'Optional — leave blank if none', hint: 'We can adjust tone on sensitive areas' },
+
+            // Health & Stewardship (48-54)
+            { id: 'physicalHealth', question: "How would you rate your physical health?", type: 'radio', options: ['Excellent — I train regularly', 'Good — active but could improve', 'Fair — want to get healthier', 'Poor — health is a struggle', 'Dealing with chronic issues'] },
+            { id: 'fitnessGoal', question: "Do you have a fitness or body stewardship goal?", type: 'text', placeholder: 'e.g., Lose 20 lbs, run a 5K, just move more', hint: 'Your body is a temple — we can integrate stewardship reminders' },
+            { id: 'sleepHabits', question: "How is your sleep?", type: 'radio', options: ['Solid — 7-8 hours consistently', 'Okay — 5-6 hours most nights', 'Poor — struggle to sleep well', 'Irregular — shift work or inconsistent'] },
+            { id: 'financialStewardship', question: "How would you describe your financial stewardship?", type: 'radio', options: ['Disciplined — budget, save, tithe', 'Working on it — some good habits', 'Struggling — debt or disorganized', 'Crisis — need major changes', 'Prefer not to say'] },
+            { id: 'tithingPractice', question: "Do you tithe or give regularly to your church?", type: 'radio', options: ['Yes — 10%+ consistently', 'Yes — but less than 10%', 'Occasionally', 'Not currently', 'Prefer not to say'] },
+            { id: 'screenTime', question: "How much non-work screen time do you average daily?", type: 'radio', options: ['Under 1 hour', '1-2 hours', '2-4 hours', '4+ hours', 'No idea'] },
+            { id: 'addictionHistory', question: "Have you struggled with any addictions?", type: 'radio', hint: 'Completely confidential. Helps us include relevant Scripture.', options: ['No', 'Yes — in recovery', 'Yes — currently struggling', 'Prefer not to say'] },
+
+            // Vision & Legacy (55-62)
+            { id: 'fiveYearVision', question: "Where do you see yourself in 5 years?", type: 'textarea', placeholder: 'Spiritually, professionally, relationally...', hint: 'Helps us align your readings with your trajectory' },
             { id: 'legacyStatement', question: "In one sentence, what legacy do you want to leave?", type: 'textarea', placeholder: 'What do you want your family to say about you?', hint: 'This becomes the north star for your personalized reflections.' },
+            { id: 'greaterPurpose', question: "What do you believe God is calling you to?", type: 'textarea', placeholder: 'Ministry, business, family mission, community impact...', hint: 'Optional — helps shape the Citizen\'s Stand readings' },
+            { id: 'biggestRegret', question: "What is your biggest regret as a man?", type: 'radio', hint: 'Helps us know where you need restoration.', options: ['Time wasted', 'Relationship I damaged', 'Opportunity I missed', 'Sin I harbored too long', 'Not leading my family sooner', 'No major regrets', 'Prefer not to say'] },
+            { id: 'menYouAdmire', question: "Name a man (living or historical) you deeply admire", type: 'text', placeholder: 'e.g., My father, Charles Spurgeon, David Goggins', hint: 'Helps calibrate archetype tone' },
+            { id: 'howDidYouHear', question: "How did you hear about this plan?", type: 'radio', options: ['Friend / word of mouth', 'Church', 'Social media', 'Web search', 'Telegram', 'Other'] },
             { id: 'deliveryMethod', question: "How would you like to receive your readings?", type: 'radio', options: ['Email', 'Telegram', 'Download daily PDFs'] },
             { id: 'contact', question: "What's your contact info?", type: 'contact' }
         ];
