@@ -184,6 +184,7 @@
             <div class="logo-container">
                 <img src="assets/logo.png" alt="USMC Ministries Logo" style="max-width: 280px; width: 100%; height: auto; margin-bottom: 15px; display: block; margin-left: auto; margin-right: auto;" onerror="this.style.display='none'">
                 <div class="logo-subtext">Uniting, Serving, Mentoring and Counseling Ministries</div>
+                <div style="color: var(--gray); font-size: 0.85rem; margin-top: 8px; max-width: 400px; margin-left: auto; margin-right: auto; line-height: 1.5;">Helping men become better husbands, fathers, and citizens as they follow Jesus.</div>
             </div>
 
             <h1>The Watchman's Bible Reading Plan</h1>
@@ -238,6 +239,7 @@
                 <div style="text-align: center; margin-top: 40px;">
                     <h3 style="color: var(--gold); margin-bottom: 20px;">Your Plan is Ready!</h3>
                     <button class="download-button" onclick="downloadConfig()">📥 Download Your Plan</button>
+                    <div id="upgradeOption" style="margin-top: 25px;"></div>
                 </div>
             </div>
 
@@ -253,7 +255,7 @@
                     <a href="https://cash.app/$USMCministries" target="_blank" class="donation-btn cashapp">💲 Cash App</a>
                     <a href="https://www.venmo.com/u/USMCMinistries" target="_blank" class="donation-btn venmo">💳 Venmo</a>
                 </div>
-                <p class="donation-zelle">Zelle: 540-684-7107 &nbsp;|&nbsp; Mail: 501 Caroline St, Fredericksburg VA 22401</p>
+                <p class="donation-zelle"><span style="background: #6D1ED4; color: #fff; padding: 3px 10px; border-radius: 4px; font-weight: 600; font-size: 0.9rem;">Zelle</span> <span style="color: var(--gold); font-weight: 600;">540-684-7107</span></p>
             </div>
         </section>
     </div>
@@ -305,8 +307,8 @@
             { id: 'denomination', question: "What church tradition are you part of?", type: 'radio', options: ['Baptist', 'Reformed Baptist', 'Presbyterian/Reformed', 'Non-Denominational', 'Catholic', 'Methodist', 'Pentecostal', 'Anglican', 'Lutheran', 'Other'] },
             { id: 'theologicalLean', question: "Which best describes your theological approach?", type: 'radio', options: ['Calvinist / Reformed', 'Arminian', 'Somewhere in between', 'Not sure / No preference'] },
             { id: 'bibleVersion', question: "Preferred Bible translation?", type: 'radio', options: ['NKJV', 'ESV', 'NASB', 'CSB', 'NIV', 'NLT', 'KJV', 'Blended (multiple translations)'] },
-            { id: 'spiritualGoal', question: "What's your primary spiritual goal right now?", type: 'radio', options: ['Deeper knowledge of Scripture', 'Becoming a better husband', 'Becoming a better father', 'Breaking a sin pattern', 'Growing in prayer life', 'Preparing for leadership/ministry', 'Finding direction/purpose'] },
-            { id: 'struggle', question: "What area do you most struggle with?", type: 'radio', hint: 'This stays private — it helps us target encouragement.', options: ['Anger / Patience', 'Lust / Purity', 'Pride / Humility', 'Fear / Anxiety', 'Laziness / Discipline', 'Finances / Stewardship', 'Addiction', 'Prefer not to say'] },
+            { id: 'spiritualGoal', question: "What are your top spiritual goals right now?", type: 'checkbox', hint: 'Select up to 3.', maxSelect: 3, options: ['Deeper knowledge of Scripture', 'Becoming a better husband', 'Becoming a better father', 'Breaking a sin pattern', 'Growing in prayer life', 'Preparing for leadership/ministry', 'Finding direction/purpose'] },
+            { id: 'struggle', question: "What areas do you most struggle with?", type: 'checkbox', hint: 'Select up to 3. This stays private — helps us target encouragement.', maxSelect: 3, options: ['Anger / Patience', 'Lust / Purity', 'Pride / Humility', 'Fear / Anxiety', 'Laziness / Discipline', 'Finances / Stewardship', 'Addiction', 'Prefer not to say'] },
             { id: 'readingPace', question: "How much time can you give daily?", type: 'radio', options: ['10-15 minutes', '20-30 minutes', '30-45 minutes', '45+ minutes'] },
             { id: 'occupation', question: "What do you do for work?", type: 'text', placeholder: 'e.g., Electrician, Software Engineer, Pastor' },
             { id: 'location', question: "Where are you located?", type: 'text', placeholder: 'City, State (or Country)', hint: 'Helps contextualize civic/cultural applications' },
@@ -507,7 +509,15 @@
             if (!formData[field]) formData[field] = [];
             const idx = formData[field].indexOf(value);
             if (idx > -1) { formData[field].splice(idx, 1); el.classList.remove('selected'); }
-            else { formData[field].push(value); el.classList.add('selected'); }
+            else {
+                // Enforce maxSelect if set on the question
+                const q = activeSteps[currentStep];
+                if (q && q.maxSelect && formData[field].length >= q.maxSelect) {
+                    alert('You can select up to ' + q.maxSelect + ' options.');
+                    return;
+                }
+                formData[field].push(value); el.classList.add('selected');
+            }
         }
 
         function renderChildren() {
@@ -593,6 +603,32 @@
             if (currentStep > 0) renderStep(currentStep - 1);
         }
 
+        function upgradeTier() {
+            // Carry all existing answers forward
+            const currentTier = selectedTier;
+            if (currentTier === 'basic') {
+                selectedTier = 'amplified';
+            } else if (currentTier === 'amplified') {
+                selectedTier = 'deep';
+            } else { return; }
+            formData.tier = selectedTier;
+            // Find the first NEW question (not already answered)
+            buildActiveSteps();
+            let startAt = 0;
+            for (let i = 0; i < activeSteps.length; i++) {
+                if (formData[activeSteps[i].id] === undefined || formData[activeSteps[i].id] === '') {
+                    startAt = i;
+                    break;
+                }
+                startAt = i + 1;
+            }
+            document.getElementById('previewSection').classList.remove('active');
+            document.getElementById('previewSection').style.display = 'none';
+            document.getElementById('formSection').style.display = 'block';
+            document.getElementById('formSection').classList.add('active');
+            renderStep(startAt);
+        }
+
         function showPreview() {
             localStorage.setItem('watchmanPlan', JSON.stringify(formData));
             document.getElementById('formSection').style.display = 'none';
@@ -629,6 +665,16 @@
                         <p style="margin-top:10px">Seek the welfare of your city, ${firstName}. Pray for it.</p>
                     </div>
                 </div>`;
+
+            // Show upgrade option if not already at deepest tier
+            const upgradeDiv = document.getElementById('upgradeOption');
+            if (selectedTier === 'basic') {
+                upgradeDiv.innerHTML = '<p style="color: var(--gray); margin-bottom: 10px;">Want more personalization?</p><button onclick="upgradeTier()" style="background: transparent; border: 1px solid var(--gold); color: var(--gold); padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: 600;">⬆️ Upgrade to Amplified (10 more questions)</button>';
+            } else if (selectedTier === 'amplified') {
+                upgradeDiv.innerHTML = '<p style="color: var(--gray); margin-bottom: 10px;">Want the deepest personalization?</p><button onclick="upgradeTier()" style="background: transparent; border: 1px solid var(--gold); color: var(--gold); padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: 600;">⬆️ Upgrade to Deep Devotional (30+ more questions)</button>';
+            } else {
+                upgradeDiv.innerHTML = '';
+            }
         }
 
         function downloadConfig() {
