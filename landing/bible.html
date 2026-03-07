@@ -239,7 +239,15 @@
             salvation:'H3444',covenant:'H1285',mercy:'H2617',truth:'H571',fear:'H3374',
             glory:'H3519',peace:'H7965',love:'H160',holy:'H6918',praise:'H1984',
             refuge:'H4268',shield:'H4043',dwell:'H3427',shadow:'H6738',angels:'H4397',
-            faithfulness:'H530',pestilence:'H1698'
+            faithfulness:'H530',pestilence:'H1698',
+            trust:'H982',heart:'H3820',understanding:'H998',ways:'H1870',paths:'H734',
+            acknowledge:'H3045',direct:'H3474',wisdom:'H2451',knowledge:'H1847',
+            sin:'H2403',repent:'H5162',forgive:'H5545',bless:'H1288',grace:'H2580',
+            hope:'H8615',strength:'H5797',word:'H1697',command:'H6680',law:'H8451',
+            servant:'H5650',king:'H4428',judge:'H8199',righteous:'H6662',
+            deliver:'H5337',redeem:'H1350',light:'H216',darkness:'H2822',
+            earth:'H776',heaven:'H8064',life:'H2416',death:'H4194',
+            blood:'H1818',sacrifice:'H2077',prayer:'H8605'
         };
         const STRONGS_NT = {
             lord:'G2962',god:'G2316',spirit:'G4151',soul:'G5590',righteousness:'G1343',
@@ -262,7 +270,41 @@
             G4991:'soteria — salvation',G4102:'pistis — faith, trust',G5485:'charis — grace, unmerited favor',
             G225:'aletheia — truth, reality',G26:'agape — unconditional love',
             G1391:'doxa — glory, splendor',G1515:'eirene — peace',G40:'hagios — holy, sacred',
-            G4352:'proskyneo — to worship, bow before'
+            G4352:'proskyneo — to worship, bow before',
+            H982:'batach — to trust, rely on, be confident in',
+            H3820:'lev — heart, mind, inner person',
+            H998:'binah — understanding, discernment, insight',
+            H1870:'derek — way, road, path, journey of life',
+            H734:'orach — path, way (poetic — course of life)',
+            H3045:'yada — to know intimately, acknowledge',
+            H3474:'yashar — to make straight, direct, lead rightly',
+            H2451:'chokmah — wisdom (skill for living)',
+            H1847:'daath — knowledge, perception, discernment',
+            H2403:'chattath — sin, missing the mark',
+            H5162:'nacham — to repent, be sorry, comfort',
+            H5545:'salach — to forgive, pardon (God alone)',
+            H1288:'barak — to bless, kneel, praise',
+            H2580:'chen — grace, favor',
+            H8615:'tiqvah — hope, expectation',
+            H5797:'oz — strength, might, power',
+            H1697:'dabar — word, thing, matter',
+            H6680:'tsavah — to command, charge',
+            H8451:'torah — instruction, teaching, law',
+            H5650:'eved — servant, worshiper',
+            H4428:'melek — king, ruler',
+            H8199:'shaphat — to judge, govern',
+            H6662:'tsaddiq — righteous, just',
+            H5337:'natsal — to deliver, rescue',
+            H1350:'gaal — to redeem, kinsman-redeemer',
+            H216:'or — light',
+            H2822:'choshek — darkness',
+            H776:'erets — earth, land',
+            H8064:'shamayim — heaven, sky',
+            H2416:'chay — life, living',
+            H4194:'maveth — death',
+            H1818:'dam — blood',
+            H2077:'zevach — sacrifice, offering',
+            H8605:'tephillah — prayer, intercession'
         };
 
         function parseRef(ref) {
@@ -283,7 +325,7 @@
                 const r = await fetch(`${API}/${trans}/${bookId}/${ch}/${v}/`);
                 if (!r.ok) return null;
                 const d = await r.json();
-                return d.text ? d.text.replace(/<[^>]+>/g,'').trim() : null;
+                return d.text ? d.text.replace(/<[^>]+>/g,'').replace(/[\u24B6-\u24FF\u2460-\u2473]/g,'').replace(/\s{2,}/g,' ').trim() : null;
             } catch { return null; }
         }
 
@@ -359,9 +401,9 @@
                     amps.push({ label: 'AMP', text: texts.AMP });
                 }
 
-                // Strongs
+                // Strongs (with verse reference)
                 const st = findStrongs(texts.NKJV, ref.isOT);
-                st.forEach(s => { if (!seenStrongs.has(s.num)) { allStrongs.push(s); seenStrongs.add(s.num); } });
+                st.forEach(s => { if (!seenStrongs.has(s.num)) { s.vref = v; allStrongs.push(s); seenStrongs.add(s.num); } });
 
                 // Clarity
                 const cl = findArchaic(texts.NKJV);
@@ -393,7 +435,8 @@
                 const testament = ref.isOT ? 'Hebrew' : 'Greek';
                 html += `<div class="strongs-section"><h4>📖 Interlinear ${testament} Roots</h4>`;
                 allStrongs.forEach(s => {
-                    html += `<span class="strongs-entry"><span class="strongs-def">${s.def}</span> <span class="strongs-num">(${s.num})</span></span>`;
+                    const vr = s.vref ? ` <span style="color:#666;font-size:0.75rem;">(v.${s.vref})</span>` : '';
+                    html += `<span class="strongs-entry"><span class="strongs-def">${s.def}</span> <span class="strongs-num">(${s.num})</span>${vr}</span>`;
                 });
                 html += '</div>';
             }
