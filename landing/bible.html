@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MoopBible Translation Engine — USMC Ministries</title>
+    <title>The MOOP Bible Translation Engine V3.1 — USMC Ministries</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -66,6 +66,29 @@
         }
         .quick-link:hover { background: #333; border-color: var(--gold); }
 
+        /* Navigation Arrows */
+        .nav-arrows {
+            display: flex; justify-content: space-between; align-items: center;
+            margin: 15px 0; padding: 0 10px;
+        }
+        .nav-arrow {
+            background: transparent; border: 2px solid var(--gold); color: var(--gold);
+            width: 48px; height: 48px; border-radius: 50%; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.3s;
+        }
+        .nav-arrow:hover {
+            background: var(--gold); color: #000; transform: scale(1.1);
+            box-shadow: 0 0 15px rgba(212,175,55,0.4);
+        }
+        .nav-arrow:disabled { opacity: 0.3; cursor: not-allowed; }
+        .nav-arrow:disabled:hover { background: transparent; color: var(--gold); transform: none; box-shadow: none; }
+        .nav-arrow svg { width: 20px; height: 20px; fill: currentColor; }
+        .nav-ref {
+            color: var(--gold); font-family: 'Playfair Display', serif;
+            font-size: 1.1rem; text-align: center;
+        }
+
         #results { margin-top: 20px; }
         .result-card {
             background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px;
@@ -95,10 +118,12 @@
             display: inline-block; background: #1a1a1a; padding: 8px 14px;
             border-radius: 6px; margin: 4px; font-size: 0.85rem; border: 1px solid #2a2a2a;
         }
-        .strongs-hebrew { color: var(--gold); font-size: 1.1rem; }
-        .strongs-trans { color: #aaa; font-style: italic; }
         .strongs-def { color: var(--white); }
-        .strongs-num { color: #666; font-size: 0.8rem; }
+        .strongs-link {
+            color: var(--gold); text-decoration: none; border-bottom: 1px dotted var(--gold);
+            transition: all 0.3s; font-size: 0.8rem;
+        }
+        .strongs-link:hover { color: var(--gold-light); border-bottom-style: solid; }
 
         .clarity-section {
             background: rgba(212,175,55,0.05); border-radius: 8px; padding: 15px;
@@ -107,11 +132,17 @@
         .clarity-section h4 { color: var(--gold); margin-bottom: 8px; }
         .clarity-note { font-size: 0.9rem; color: #bbb; margin: 5px 0; }
         .clarity-word { color: var(--gold); font-weight: 600; }
+        .clarity-link {
+            color: var(--gold); text-decoration: none; border-bottom: 1px dotted var(--gold);
+            transition: all 0.3s;
+        }
+        .clarity-link:hover { color: var(--gold-light); border-bottom-style: solid; }
 
         .engine-info {
             text-align: center; color: var(--gray); font-size: 0.8rem;
             margin-top: 20px; padding-top: 15px; border-top: 1px solid #222;
         }
+        .engine-info a { color: var(--gold); text-decoration: none; }
 
         .loading {
             text-align: center; padding: 40px; color: var(--gold);
@@ -131,6 +162,7 @@
             .container { padding: 15px; }
             .search-box { flex-direction: column; }
             .search-btn { width: 100%; }
+            .nav-arrow { width: 40px; height: 40px; }
         }
     </style>
 </head>
@@ -138,12 +170,12 @@
     <div class="container">
         <section class="hero">
             <img src="assets/logo.png" alt="USMC Ministries" onerror="this.style.display='none'">
-            <h1>MoopBible Translation Engine</h1>
-            <p class="subtitle">9 Translations · Interlinear Hebrew & Greek · Strong's Concordance</p>
+            <h1>The MOOP Bible Translation Engine</h1>
+            <p class="subtitle">V3.1 · 9 Translations · Interlinear Hebrew &amp; Greek · Strong's Concordance</p>
             <p class="desc">
                 Type any Bible reference below. The engine blends 9 English translations with
                 NKJV as the primary voice, surfaces meaningful divergences, and provides
-                original-language roots for theologically significant words.
+                original-language roots with links to full word studies.
             </p>
         </section>
 
@@ -169,11 +201,14 @@
     </div>
 
     <footer>
-        <p>Built by <a href="index.html">USMC Ministries</a> · Powered by the MoopBible Translation Engine v2.0</p>
+        <p>Built by <a href="index.html">USMC Ministries</a> · <a href="usmc-ministries.html">About</a> · Powered by The MOOP Bible Translation Engine V3.1</p>
         <p style="margin-top: 5px;">NKJV 33% · ESV 12% · NASB 12% · CSB 10% · NLT 9% · KJV 7% · WEB 7% · AMP 3% · MSG 2% · Interlinear 5%</p>
         <p style="margin-top: 8px; font-size: 0.75rem;">
             Scripture: NKJV © Thomas Nelson · ESV © Crossway · NASB © Lockman · NLT © Tyndale ·
             CSB © Holman · AMP © Lockman · MSG © NavPress · KJV & WEB: Public Domain
+        </p>
+        <p style="margin-top: 5px; font-size: 0.75rem;">
+            Word studies powered by <a href="https://www.stepbible.org/" target="_blank">STEP Bible</a> (Tyndale House, Cambridge)
         </p>
     </footer>
 
@@ -183,6 +218,10 @@
         const DISPLAY = { CSB17: 'CSB' };
         const WEIGHTS = { NKJV:0.33, ESV:0.12, NASB:0.12, CSB17:0.10, NLT:0.09, KJV:0.07, WEB:0.07, AMP:0.03, MSG:0.02 };
         const AMP_PRIORITY = ['ESV','NASB','CSB17','AMP','NLT','MSG'];
+
+        // Navigation state
+        let currentRef = null;
+        let isFullChapter = false;
 
         const BOOKS = {
             genesis:1,gen:1,gn:1,exodus:2,exod:2,ex:2,leviticus:3,lev:3,numbers:4,num:4,
@@ -219,19 +258,19 @@
         });
 
         const ARCHAIC = {
-            begotten: ['monogenēs (μονογενής)', 'unique, one-of-a-kind — not "created" but "uniquely born"'],
-            propitiation: ['hilasmos (ἱλασμός)', 'atoning sacrifice — payment satisfying God\'s justice'],
-            sanctification: ['hagiasmos (ἁγιασμός)', 'being set apart — ongoing process of becoming holy'],
-            longsuffering: ['makrothymia (μακροθυμία)', 'patience under provocation — endurance without retaliation'],
-            lovingkindness: ['chesed (חֶסֶד)', 'covenant faithfulness — loyal love that keeps promises'],
-            supplication: ['deēsis (δέησις)', 'urgent, specific prayer — not casual but earnest petition'],
-            buckler: ['magen (מָגֵן)', 'shield — defensive covering, God as protector'],
-            pestilence: ['dever (דֶּבֶר)', 'plague/deadly disease — swift, devastating epidemic'],
-            firmament: ['raqia (רָקִיעַ)', 'expanse — the stretched-out sky, not a solid dome'],
-            selah: ['selah (סֶלָה)', 'pause and reflect — a musical direction to stop and consider'],
-            vanity: ['hevel (הֶבֶל)', 'vapor/breath — fleeting, meaningless, like chasing wind'],
-            verily: ['amēn (ἀμήν)', 'truly, certainly — "I\'m telling you the absolute truth"'],
-            wrath: ['orge (ὀργή)', 'settled, righteous anger — judicial displeasure, not rage'],
+            begotten: ['monogenēs (μονογενής)', 'unique, one-of-a-kind — not "created" but "uniquely born"', 'G3439'],
+            propitiation: ['hilasmos (ἱλασμός)', 'atoning sacrifice — payment satisfying God\'s justice', 'G2434'],
+            sanctification: ['hagiasmos (ἁγιασμός)', 'being set apart — ongoing process of becoming holy', 'G38'],
+            longsuffering: ['makrothymia (μακροθυμία)', 'patience under provocation — endurance without retaliation', 'G3115'],
+            lovingkindness: ['chesed (חֶסֶד)', 'covenant faithfulness — loyal love that keeps promises', 'H2617'],
+            supplication: ['deēsis (δέησις)', 'urgent, specific prayer — not casual but earnest petition', 'G1162'],
+            buckler: ['magen (מָגֵן)', 'shield — defensive covering, God as protector', 'H4043'],
+            pestilence: ['dever (דֶּבֶר)', 'plague/deadly disease — swift, devastating epidemic', 'H1698'],
+            firmament: ['raqia (רָקִיעַ)', 'expanse — the stretched-out sky, not a solid dome', 'H7549'],
+            selah: ['selah (סֶלָה)', 'pause and reflect — a musical direction to stop and consider', 'H5542'],
+            vanity: ['hevel (הֶבֶל)', 'vapor/breath — fleeting, meaningless, like chasing wind', 'H1892'],
+            verily: ['amēn (ἀμήν)', 'truly, certainly — "I\'m telling you the absolute truth"', 'G281'],
+            wrath: ['orge (ὀργή)', 'settled, righteous anger — judicial displeasure, not rage', 'G3709'],
         };
 
         const STRONGS_OT = {
@@ -307,6 +346,10 @@
             H8605:'tephillah — prayer, intercession'
         };
 
+        function stepBibleUrl(num) {
+            return 'https://www.stepbible.org/?q=strong=' + num;
+        }
+
         function parseRef(ref) {
             const m = ref.trim().match(/^(\d?\s?[a-zA-Z\s]+?)\s*(\d+)(?:\s*:\s*(\d+))?(?:\s*-\s*(\d+))?$/i);
             if (!m) return null;
@@ -316,8 +359,9 @@
             const ch = parseInt(m[2]);
             const sv = m[3] ? parseInt(m[3]) : 1;
             const ev = m[4] ? parseInt(m[4]) : (m[3] ? sv : 200);
+            const fullChapter = !m[3];
             return { bookId, chapter: ch, startVerse: sv, endVerse: ev, isOT: bookId <= 39,
-                     display: BOOK_NAMES[bookId].replace(/\b\w/g,c=>c.toUpperCase()) };
+                     display: BOOK_NAMES[bookId].replace(/\b\w/g,c=>c.toUpperCase()), fullChapter };
         }
 
         async function fetchVerse(bookId, ch, v, trans) {
@@ -339,11 +383,47 @@
             return overlap / total;
         }
 
+        // BTE 3.1: Check for 3+ consecutive word overlap
+        function hasConsecutiveOverlap(text1, text2, minWords) {
+            minWords = minWords || 3;
+            const words1 = text1.toLowerCase().replace(/[^\w\s]/g,'').split(/\s+/).filter(w => w.length > 0);
+            const words2str = text2.toLowerCase().replace(/[^\w\s]/g,'').split(/\s+/).filter(w => w.length > 0).join(' ');
+            for (let i = 0; i <= words1.length - minWords; i++) {
+                const phrase = words1.slice(i, i + minWords).join(' ');
+                if (words2str.includes(phrase)) return true;
+            }
+            return false;
+        }
+
+        // BTE 3.1: Merge similar amplifications
+        function mergeAmplifications(amps) {
+            if (amps.length <= 1) return amps;
+            const merged = [];
+            const used = new Set();
+            for (let i = 0; i < amps.length; i++) {
+                if (used.has(i)) continue;
+                let current = { label: amps[i].label, text: amps[i].text };
+                for (let j = i + 1; j < amps.length; j++) {
+                    if (used.has(j)) continue;
+                    if (hasConsecutiveOverlap(current.text, amps[j].text, 3)) {
+                        current.label += ' | ' + amps[j].label;
+                        if (amps[j].text.length > current.text.length) {
+                            current.text = amps[j].text;
+                        }
+                        used.add(j);
+                    }
+                }
+                merged.push(current);
+                used.add(i);
+            }
+            return merged;
+        }
+
         function findArchaic(text) {
             const found = [];
             const lower = text.toLowerCase();
-            Object.entries(ARCHAIC).forEach(([word, [origin, meaning]]) => {
-                if (lower.includes(word)) found.push({ word, origin, meaning });
+            Object.entries(ARCHAIC).forEach(([word, data]) => {
+                if (lower.includes(word)) found.push({ word, origin: data[0], meaning: data[1], strongs: data[2] });
             });
             return found;
         }
@@ -362,11 +442,57 @@
             return found.slice(0, 5);
         }
 
+        // BTE 3.1: Navigation
+        function navigatePrev() {
+            if (!currentRef) return;
+            if (isFullChapter) {
+                if (currentRef.chapter > 1) {
+                    document.getElementById('refInput').value = currentRef.display + ' ' + (currentRef.chapter - 1);
+                    lookupVerse();
+                }
+            } else {
+                if (currentRef.startVerse > 1) {
+                    document.getElementById('refInput').value = currentRef.display + ' ' + currentRef.chapter + ':' + (currentRef.startVerse - 1);
+                    lookupVerse();
+                } else if (currentRef.chapter > 1) {
+                    document.getElementById('refInput').value = currentRef.display + ' ' + (currentRef.chapter - 1);
+                    lookupVerse();
+                }
+            }
+        }
+
+        function navigateNext() {
+            if (!currentRef) return;
+            if (isFullChapter) {
+                document.getElementById('refInput').value = currentRef.display + ' ' + (currentRef.chapter + 1);
+                lookupVerse();
+            } else {
+                var nextV = currentRef.endVerse + 1;
+                document.getElementById('refInput').value = currentRef.display + ' ' + currentRef.chapter + ':' + nextV;
+                lookupVerse();
+            }
+        }
+
+        function renderNavArrows(rangeStr) {
+            return '<div class="nav-arrows">' +
+                '<button class="nav-arrow" onclick="navigatePrev()" title="Previous" aria-label="Previous">' +
+                '<svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>' +
+                '</button>' +
+                '<span class="nav-ref">' + rangeStr + '</span>' +
+                '<button class="nav-arrow" onclick="navigateNext()" title="Next" aria-label="Next">' +
+                '<svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>' +
+                '</button>' +
+                '</div>';
+        }
+
         async function lookupVerse() {
             const input = document.getElementById('refInput').value.trim();
             if (!input) return;
             const ref = parseRef(input);
             if (!ref) { showError('Could not parse that reference. Try "Psalm 23" or "John 3:16".'); return; }
+
+            currentRef = ref;
+            isFullChapter = ref.fullChapter;
 
             document.getElementById('searchBtn').disabled = true;
             document.getElementById('results').innerHTML = '<div class="loading">📖 Fetching from 9 translations...</div>';
@@ -378,14 +504,13 @@
             const seenClarity = new Set();
 
             for (let v = ref.startVerse; v <= ref.endVerse; v++) {
-                // Fetch all translations in parallel
                 const promises = TRANSLATIONS.map(t => fetchVerse(ref.bookId, ref.chapter, v, t));
                 const results = await Promise.all(promises);
 
                 const texts = {};
                 TRANSLATIONS.forEach((t, i) => { if (results[i]) texts[t] = results[i]; });
 
-                if (!texts.NKJV) break; // End of chapter
+                if (!texts.NKJV) break;
 
                 // Build amplifications
                 const amps = [];
@@ -396,65 +521,80 @@
                         amps.push({ label: dn, text: texts[t] });
                     }
                 });
-                // Always check AMP for brackets
                 if (texts.AMP && texts.AMP.includes('[') && !amps.find(a => a.label === 'AMP')) {
                     amps.push({ label: 'AMP', text: texts.AMP });
                 }
 
-                // Strongs (with verse reference)
+                // BTE 3.1: Merge redundant amplifications
+                const mergedAmps = mergeAmplifications(amps);
+
                 const st = findStrongs(texts.NKJV, ref.isOT);
                 st.forEach(s => { if (!seenStrongs.has(s.num)) { s.vref = v; allStrongs.push(s); seenStrongs.add(s.num); } });
 
-                // Clarity
                 const cl = findArchaic(texts.NKJV);
                 cl.forEach(c => { if (!seenClarity.has(c.word)) { allClarity.push(c); seenClarity.add(c.word); } });
 
-                allVerses.push({ num: v, text: texts.NKJV, amps: amps.slice(0, 2) });
+                allVerses.push({ num: v, text: texts.NKJV, amps: mergedAmps.slice(0, 2) });
             }
 
             if (!allVerses.length) { showError('No verses found. Check the reference.'); return; }
 
-            // Update end verse
             const lastVerse = allVerses[allVerses.length - 1].num;
-            const rangeStr = allVerses.length === 1
-                ? `${ref.display} ${ref.chapter}:${ref.startVerse}`
-                : `${ref.display} ${ref.chapter}:${ref.startVerse}-${lastVerse}`;
+            currentRef.endVerse = lastVerse;
 
-            let html = `<div class="result-card"><div class="result-header">${rangeStr}</div>`;
+            const rangeStr = allVerses.length === 1
+                ? ref.display + ' ' + ref.chapter + ':' + ref.startVerse
+                : (isFullChapter
+                    ? ref.display + ' ' + ref.chapter
+                    : ref.display + ' ' + ref.chapter + ':' + ref.startVerse + '-' + lastVerse);
+
+            // Top nav arrows
+            let html = renderNavArrows(rangeStr);
+            html += '<div class="result-card"><div class="result-header">' + rangeStr + '</div>';
 
             allVerses.forEach(v => {
-                html += `<div class="verse-block"><span class="verse-num">${v.num}</span> <span class="verse-text">${v.text}</span>`;
+                html += '<div class="verse-block"><span class="verse-num">' + v.num + '</span> <span class="verse-text">' + v.text + '</span>';
                 v.amps.forEach(a => {
-                    html += `<div class="amplification"><span class="amp-label">${a.label}:</span> ${a.text}</div>`;
+                    html += '<div class="amplification"><span class="amp-label">' + a.label + ':</span> ' + a.text + '</div>';
                 });
                 html += '</div>';
             });
 
-            // Strongs section
+            // Strongs section with StepBible hyperlinks
             if (allStrongs.length) {
                 const testament = ref.isOT ? 'Hebrew' : 'Greek';
-                html += `<div class="strongs-section"><h4>📖 Interlinear ${testament} Roots</h4>`;
+                html += '<div class="strongs-section"><h4>📖 Interlinear ' + testament + ' Roots</h4>';
                 allStrongs.forEach(s => {
-                    const vr = s.vref ? ` <span style="color:#666;font-size:0.75rem;">(v.${s.vref})</span>` : '';
-                    html += `<span class="strongs-entry"><span class="strongs-def">${s.def}</span> <span class="strongs-num">(${s.num})</span>${vr}</span>`;
+                    const vr = s.vref ? ' <span style="color:#666;font-size:0.75rem;">(v.' + s.vref + ')</span>' : '';
+                    const url = stepBibleUrl(s.num);
+                    html += '<span class="strongs-entry"><span class="strongs-def">' + s.def + '</span> ' +
+                        '<a class="strongs-link" href="' + url + '" target="_blank" title="View full word study on STEP Bible">(' + s.num + ')</a>' + vr + '</span>';
                 });
                 html += '</div>';
             }
 
-            // Clarity notes
+            // Clarity notes with StepBible hyperlinks
             if (allClarity.length) {
                 html += '<div class="clarity-section"><h4>💡 Clarity Notes</h4>';
                 allClarity.forEach(c => {
-                    html += `<div class="clarity-note"><span class="clarity-word">"${c.word}"</span> → ${c.origin}: ${c.meaning}</div>`;
+                    const strongsLink = c.strongs
+                        ? ' <a class="clarity-link" href="' + stepBibleUrl(c.strongs) + '" target="_blank" title="View on STEP Bible">' + c.strongs + '</a>'
+                        : '';
+                    html += '<div class="clarity-note"><span class="clarity-word">"' + c.word + '"</span> → ' + c.origin + ': ' + c.meaning + strongsLink + '</div>';
                 });
                 html += '</div>';
             }
 
-            html += `<div class="engine-info">MoopBible v2.0 · 9 translations · Interlinear ${ref.isOT?'Hebrew':'Greek'} backbone</div>`;
+            html += '<div class="engine-info">The MOOP Bible Translation Engine V3.1 · 9 translations · Interlinear ' +
+                (ref.isOT ? 'Hebrew' : 'Greek') + ' backbone · <a href="https://www.stepbible.org/" target="_blank">STEP Bible</a></div>';
             html += '</div>';
+
+            // Bottom nav arrows
+            html += renderNavArrows(rangeStr);
 
             document.getElementById('results').innerHTML = html;
             document.getElementById('searchBtn').disabled = false;
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
         function quickLook(ref) {
@@ -463,7 +603,7 @@
         }
 
         function showError(msg) {
-            document.getElementById('results').innerHTML = `<div class="error">${msg}</div>`;
+            document.getElementById('results').innerHTML = '<div class="error">' + msg + '</div>';
             document.getElementById('searchBtn').disabled = false;
         }
 
