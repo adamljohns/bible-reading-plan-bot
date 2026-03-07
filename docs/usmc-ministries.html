@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>USMC Ministries — Uniting, Serving, Mentoring & Counseling</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg-dark: #000000;
+            --bg-card: #111111;
+            --gold: #D4AF37;
+            --gold-light: #F4D470;
+            --white: #FFFFFF;
+            --gray: #888888;
+            --border: #333333;
+            --scarlet: #CC0000;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--white);
+            min-height: 100vh;
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+        }
+        h1, h2, h3 { font-family: 'Playfair Display', serif; font-weight: 700; }
+        .container { max-width: 800px; margin: 0 auto; padding: 20px; flex: 1; }
+
+        .hero { text-align: center; padding: 40px 20px; animation: fadeIn 1s ease-in; }
+        .hero h1 { font-size: clamp(2rem, 5vw, 3rem); color: var(--white); margin-bottom: 10px; }
+        .acronym { color: var(--gold); font-size: 1.2rem; font-weight: 600; letter-spacing: 2px; margin-bottom: 30px; }
+        .mission-verse {
+            font-style: italic; color: var(--gray); max-width: 600px;
+            margin: 0 auto 40px; font-size: 1rem; line-height: 1.8;
+        }
+        .mission-verse span { color: var(--gold); font-style: normal; font-size: 0.9rem; }
+
+        .pillar-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin: 40px 0; }
+        .pillar-card {
+            background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px;
+            padding: 30px; transition: all 0.3s ease;
+        }
+        .pillar-card:hover { border-color: var(--gold); box-shadow: 0 0 20px rgba(212,175,55,0.1); }
+        .pillar-letter {
+            font-size: 2.5rem; font-weight: 800; color: var(--scarlet);
+            font-family: 'Playfair Display', serif; margin-bottom: 5px;
+        }
+        .pillar-word { color: var(--gold); font-size: 1.3rem; font-weight: 700; margin-bottom: 10px; }
+        .pillar-desc { color: var(--gray); font-size: 0.95rem; line-height: 1.6; }
+
+        .section-card {
+            background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px;
+            padding: 30px; margin: 30px 0; text-align: center;
+        }
+        .section-card h2 { color: var(--gold); margin-bottom: 15px; }
+        .section-card p { color: var(--gray); line-height: 1.8; margin-bottom: 15px; }
+
+        .cta-button {
+            display: inline-block; background: var(--gold); color: #000; border: none;
+            padding: 16px 36px; font-size: 1.1rem; font-weight: 600; border-radius: 50px;
+            cursor: pointer; text-decoration: none; transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(212,175,55,0.3); margin: 10px;
+        }
+        .cta-button:hover { background: var(--gold-light); transform: translateY(-2px); }
+        .cta-button.outline {
+            background: transparent; border: 2px solid var(--gold); color: var(--gold);
+            box-shadow: none;
+        }
+        .cta-button.outline:hover { background: rgba(212,175,55,0.1); }
+        .cta-button.telegram { background: #0088cc; color: #fff; box-shadow: 0 4px 20px rgba(0,136,204,0.3); }
+        .cta-button.telegram:hover { background: #006da4; }
+
+        .donation-section {
+            background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px;
+            padding: 30px; margin: 30px 0; text-align: center;
+        }
+        .donation-section h3 { color: var(--gold); margin-bottom: 15px; }
+        .donation-section p { color: var(--gray); margin-bottom: 20px; line-height: 1.6; font-size: 0.95rem; }
+        .donation-buttons { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; }
+        .donation-btn {
+            padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: 600;
+            font-size: 1rem; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 8px;
+        }
+        .donation-btn.cashapp { background: #00D632; color: #fff; }
+        .donation-btn.cashapp:hover { background: #00b82b; transform: translateY(-2px); }
+        .donation-btn.venmo { background: #3D95CE; color: #fff; }
+        .donation-btn.venmo:hover { background: #2d7eb5; transform: translateY(-2px); }
+        .donation-zelle { color: var(--gray); font-size: 0.85rem; margin-top: 15px; }
+
+        .cross-divider { text-align: center; color: var(--gold); font-size: 1.5rem; margin: 30px 0; }
+
+        footer { text-align: center; padding: 40px 20px; color: var(--gray); font-size: 0.9rem; border-top: 1px solid #333; margin-top: auto; }
+        footer a { color: var(--gold); text-decoration: none; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @media (max-width: 768px) { .container { padding: 15px; } .pillar-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <section class="hero">
+            <img src="assets/logo.png" alt="USMC Ministries Logo" style="max-width: 280px; width: 100%; height: auto; margin-bottom: 15px; display: block; margin-left: auto; margin-right: auto;" onerror="this.style.display='none'">
+            <h1>USMC Ministries</h1>
+            <p class="acronym">Uniting · Serving · Mentoring · Counseling</p>
+            <p class="mission-verse">
+                "Iron sharpens iron, and one man sharpens another."<br>
+                <span>— Proverbs 27:17</span>
+            </p>
+            <p style="color: var(--gray); max-width: 600px; margin: 0 auto; font-size: 1.1rem; line-height: 1.8;">
+                USMC Ministries exists to help men become better <strong style="color: var(--white);">husbands</strong>,
+                <strong style="color: var(--white);">fathers</strong>, and <strong style="color: var(--white);">citizens</strong>
+                as they follow Jesus — through intentional discipleship, brotherhood, and accountability.
+            </p>
+        </section>
+
+        <div class="cross-divider">✠</div>
+
+        <!-- Four Pillars -->
+        <h2 style="text-align: center; color: var(--gold); margin-bottom: 10px;">The Four Pillars</h2>
+        <p style="text-align: center; color: var(--gray); margin-bottom: 30px;">Each letter represents a pillar of our ministry calling.</p>
+
+        <div class="pillar-grid">
+            <div class="pillar-card">
+                <div class="pillar-letter">U</div>
+                <div class="pillar-word">Uniting</div>
+                <p class="pillar-desc">
+                    Bringing men together across denominations, backgrounds, and walks of life.
+                    We believe the body of Christ is strongest when brothers lock shields —
+                    not when they build walls between their churches.
+                </p>
+            </div>
+            <div class="pillar-card">
+                <div class="pillar-letter">S</div>
+                <div class="pillar-word">Serving</div>
+                <p class="pillar-desc">
+                    Leading by example through selfless service — to our families, our churches,
+                    and our communities. A man who serves like Christ transforms everything he touches.
+                </p>
+            </div>
+            <div class="pillar-card">
+                <div class="pillar-letter">M</div>
+                <div class="pillar-word">Mentoring</div>
+                <p class="pillar-desc">
+                    Older men investing in younger men. Experienced fathers guiding new fathers.
+                    Seasoned leaders pouring into emerging ones. Titus 2 in action —
+                    the ancient model of passing the torch.
+                </p>
+            </div>
+            <div class="pillar-card">
+                <div class="pillar-letter">C</div>
+                <div class="pillar-word">Counseling</div>
+                <p class="pillar-desc">
+                    Biblical counseling for men navigating hard seasons — marriage struggles,
+                    identity crises, grief, addiction recovery, and spiritual warfare.
+                    Not therapy. Brotherhood with truth.
+                </p>
+            </div>
+        </div>
+
+        <div class="cross-divider">✝</div>
+
+        <!-- About the Founder -->
+        <div class="section-card">
+            <h2>About the Founder</h2>
+            <p>
+                USMC Ministries was founded by <strong style="color: var(--white);">Adam "MOOP" Johns</strong>,
+                a Marine Corps veteran, ordained minister, and SYMBIS/DNA certified facilitator.
+                MOOP stands for <strong style="color: var(--gold);">Marine On Own Program</strong> —
+                a call sign earned in service that now represents a life fully surrendered to Christ's program.
+            </p>
+            <p>
+                After 20+ years of military service, Adam answered the call to help men lead their families
+                with the same discipline, intentionality, and sacrifice they bring to their professional lives —
+                but anchored in Scripture and empowered by the Holy Spirit.
+            </p>
+        </div>
+
+        <!-- The Watchman's Bible Reading Plan -->
+        <div class="section-card">
+            <h2>The Watchman's Bible Reading Plan</h2>
+            <p>
+                Our flagship offering — a personalized, five-daily-reading system powered by the
+                <strong style="color: var(--gold);">MOOP Bible Translation Engine 3.0</strong>.
+                Each day delivers Scripture through Morning Wisdom, Husband's Post, Father's Charge,
+                Citizen's Stand, and Evening Peace — tailored to your family, your struggles, and your calling.
+            </p>
+            <a href="index.html" class="cta-button">📖 Start Your Plan</a>
+        </div>
+
+        <!-- Join the Community -->
+        <div class="section-card">
+            <h2>Join the Brotherhood</h2>
+            <p>
+                Connect with other men pursuing Christ-centered leadership.
+                Our Telegram community is where we share daily readings, prayer requests,
+                encouragement, and real talk about the battles we face.
+            </p>
+            <a href="https://t.me/USMCMinistries" target="_blank" class="cta-button telegram">✈️ Join on Telegram</a>
+        </div>
+
+        <!-- Donate -->
+        <div class="donation-section">
+            <h3>Support This Ministry</h3>
+            <p>
+                USMC Ministries is a labor of love — funded entirely by the generosity of those
+                who believe in equipping men to lead their families and communities for Christ.
+                If this work has blessed you, would you consider being a blessing in return?
+            </p>
+            <div class="donation-buttons">
+                <a href="https://cash.app/$USMCministries" target="_blank" class="donation-btn cashapp">💲 Cash App</a>
+                <a href="https://www.venmo.com/u/USMCMinistries" target="_blank" class="donation-btn venmo">💳 Venmo</a>
+            </div>
+            <p class="donation-zelle">
+                <span style="background: #6D1ED4; color: #fff; padding: 3px 10px; border-radius: 4px; font-weight: 600; font-size: 0.9rem;">Zelle</span>
+                <span style="color: var(--gold); font-weight: 600;">540-684-7107</span>
+            </p>
+        </div>
+    </div>
+
+    <footer>
+        <div class="cross-divider">✝</div>
+        <p><a href="index.html">The Watchman's Bible Reading Plan</a> · Powered by the <a href="index.html">MOOP Bible Translation Engine 3.0</a></p>
+        <p style="margin-top: 10px; font-size: 0.85rem;">Uniting, Serving, Mentoring & Counseling Ministries</p>
+    </footer>
+</body>
+</html>
