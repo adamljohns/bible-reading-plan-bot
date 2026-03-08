@@ -577,29 +577,46 @@
             viewMode = 'verse';
             var bookId = currentRef.bookId;
             var ch = currentRef.chapter;
-            var v = currentRef.startVerse + (delta * 3);
             var maxV = BIBLE_INDEX[bookId] ? BIBLE_INDEX[bookId][ch - 1] : 200;
-
-            if (v > maxV) {
-                ch++;
-                var maxCh = BIBLE_INDEX[bookId] ? BIBLE_INDEX[bookId].length : 999;
-                if (ch > maxCh) {
-                    bookId++;
-                    if (bookId > 66) return;
-                    ch = 1;
+            var startV, endV;
+            
+            if (delta > 0) {
+                // Forward: show next 3 verses as a range
+                startV = currentRef.endVerse ? currentRef.endVerse + 1 : currentRef.startVerse + 1;
+                if (startV > maxV) {
+                    ch++;
+                    var maxCh = BIBLE_INDEX[bookId] ? BIBLE_INDEX[bookId].length : 999;
+                    if (ch > maxCh) {
+                        bookId++;
+                        if (bookId > 66) return;
+                        ch = 1;
+                    }
+                    maxV = BIBLE_INDEX[bookId] ? BIBLE_INDEX[bookId][ch - 1] : 200;
+                    startV = 1;
                 }
-                v = 1;
-            } else if (v < 1) {
-                ch--;
-                if (ch < 1) {
-                    bookId--;
-                    if (bookId < 1) return;
-                    ch = BIBLE_INDEX[bookId] ? BIBLE_INDEX[bookId].length : 1;
+                endV = Math.min(startV + 2, maxV);
+            } else {
+                // Backward: show prev 3 verses as a range
+                endV = currentRef.startVerse - 1;
+                if (endV < 1) {
+                    ch--;
+                    if (ch < 1) {
+                        bookId--;
+                        if (bookId < 1) return;
+                        ch = BIBLE_INDEX[bookId] ? BIBLE_INDEX[bookId].length : 1;
+                    }
+                    maxV = BIBLE_INDEX[bookId] ? BIBLE_INDEX[bookId][ch - 1] : 200;
+                    endV = maxV;
                 }
-                v = BIBLE_INDEX[bookId] ? BIBLE_INDEX[bookId][ch - 1] : 1;
+                startV = Math.max(endV - 2, 1);
             }
-
-            document.getElementById('refInput').value = BOOK_NAMES[bookId].replace(/\b\w/g, c => c.toUpperCase()) + ' ' + ch + ':' + v;
+            
+            var bookName = BOOK_NAMES[bookId].replace(/\b\w/g, c => c.toUpperCase());
+            if (startV === endV) {
+                document.getElementById('refInput').value = bookName + ' ' + ch + ':' + startV;
+            } else {
+                document.getElementById('refInput').value = bookName + ' ' + ch + ':' + startV + '-' + endV;
+            }
             lookupVerse();
         }
 
