@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:title" content="The First Officer's Desk — USMC Ministries">
+    <meta property="og:description" content="Maria's command center — photography, home, family, and household management.">
+    <meta property="og:image" content="https://usmcmin.org/assets/og/og-main.png">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://usmcmin.org/first-officer.html">
+    <title>The First Officer's Desk — USMC Ministries</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg-dark: #000000;
+            --bg-card: #111111;
+            --bg-card-hover: #1a1a1a;
+            --gold: #D4AF37;
+            --gold-light: #F4D470;
+            --white: #FFFFFF;
+            --gray: #888888;
+            --gray-light: #aaaaaa;
+            --border: #333333;
+            --green: #4CAF50;
+            --red: #f44336;
+            --blue: #2196F3;
+            --rose: #e91e8c;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--white);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+        h1, h2, h3, h4 { font-family: 'Playfair Display', serif; font-weight: 700; }
+
+        .header {
+            text-align: center; padding: 25px 20px 15px;
+            border-bottom: 1px solid var(--border);
+        }
+        .header img { max-width: 120px; height: auto; margin-bottom: 8px; }
+        .header h1 { font-size: 1.8rem; color: var(--white); margin-bottom: 4px; }
+        .header .subtitle { color: var(--gold); font-size: 0.95rem; }
+        .header .date { color: var(--gray); font-size: 0.85rem; margin-top: 4px; }
+
+        .nav-back {
+            display: inline-flex; align-items: center; gap: 6px;
+            color: var(--gold); text-decoration: none; font-size: 0.85rem;
+            border: 1px solid rgba(212,175,55,0.3); padding: 5px 14px;
+            border-radius: 20px; margin-top: 10px;
+            transition: all 0.2s;
+        }
+        .nav-back:hover { background: rgba(212,175,55,0.1); border-color: var(--gold); }
+
+        .grid {
+            max-width: 900px; margin: 0 auto; padding: 15px;
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .card {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 12px; padding: 18px; cursor: pointer;
+            transition: all 0.3s; position: relative; overflow: hidden;
+        }
+        .card:hover { background: var(--bg-card-hover); border-color: var(--gold); transform: translateY(-2px); }
+        .card.expanded { grid-column: 1 / -1; }
+        .card-icon { font-size: 1.5rem; margin-bottom: 8px; }
+        .card-title {
+            font-family: 'Playfair Display', serif; color: var(--gold);
+            font-size: 1.1rem; margin-bottom: 8px;
+        }
+        .card-brief { color: var(--gray-light); font-size: 0.85rem; line-height: 1.5; }
+        .card-detail {
+            display: none; margin-top: 15px; padding-top: 15px;
+            border-top: 1px solid var(--border); color: var(--white);
+            font-size: 0.9rem; line-height: 1.7;
+        }
+        .card.expanded .card-detail { display: block; animation: fadeIn 0.3s ease; }
+        .card-badge {
+            position: absolute; top: 12px; right: 12px;
+            background: var(--gold); color: #000; font-size: 0.7rem;
+            padding: 2px 8px; border-radius: 10px; font-weight: 600;
+        }
+        .card-badge.alert { background: var(--red); color: #fff; }
+        .card-badge.ok { background: var(--green); color: #fff; }
+        .card-badge.rose { background: var(--rose); color: #fff; }
+
+        .full-width { grid-column: 1 / -1; }
+
+        .action-item {
+            display: flex; align-items: flex-start; gap: 10px;
+            padding: 8px 0; border-bottom: 1px solid #222;
+        }
+        .action-check {
+            width: 20px; height: 20px; border: 2px solid var(--gold);
+            border-radius: 4px; flex-shrink: 0; margin-top: 2px; cursor: pointer;
+            transition: all 0.2s;
+        }
+        .action-check.done { background: var(--gold); }
+        .action-text { font-size: 0.9rem; }
+        .action-tag { color: var(--gray); font-size: 0.75rem; }
+
+        .schedule-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 6px 0; border-bottom: 1px solid #1a1a1a;
+        }
+        .schedule-time { color: var(--gold); font-weight: 600; font-size: 0.85rem; min-width: 80px; }
+        .schedule-event { color: var(--white); font-size: 0.85rem; flex: 1; }
+        .schedule-tag {
+            font-size: 0.7rem; padding: 2px 8px; border-radius: 10px;
+            background: #222; color: var(--gray);
+        }
+
+        .info-block {
+            background: rgba(212,175,55,0.06); border-left: 3px solid var(--gold);
+            padding: 10px 14px; border-radius: 0 8px 8px 0; margin: 8px 0;
+            font-size: 0.85rem;
+        }
+        .info-label { color: var(--gold); font-weight: 600; font-size: 0.8rem; margin-bottom: 4px; }
+
+        .kid-pill {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: #1a1a1a; border: 1px solid var(--border);
+            border-radius: 20px; padding: 4px 12px; margin: 3px;
+            font-size: 0.8rem; color: var(--gray-light);
+        }
+        .kid-pill .age { color: var(--gold); font-weight: 600; }
+
+        .stat { display: inline-block; margin-right: 15px; }
+        .stat-value { color: var(--gold); font-weight: 600; font-size: 1.1rem; }
+        .stat-label { color: var(--gray); font-size: 0.75rem; }
+
+        .placeholder-block {
+            background: #0a0a0a; border: 1px dashed #333;
+            border-radius: 8px; padding: 14px; margin: 8px 0;
+            text-align: center; color: var(--gray); font-size: 0.85rem;
+        }
+
+        footer {
+            text-align: center; padding: 25px 20px; color: var(--gray);
+            font-size: 0.8rem; border-top: 1px solid #222; margin-top: 20px;
+        }
+        footer a { color: var(--gold); text-decoration: none; }
+
+        .print-btn {
+            display: inline-block; background: transparent; border: 1px solid var(--border);
+            color: var(--gray); padding: 6px 16px; border-radius: 6px; cursor: pointer;
+            font-size: 0.8rem; margin-top: 8px; transition: all 0.3s;
+        }
+        .print-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        @media (max-width: 600px) {
+            .grid { grid-template-columns: 1fr; }
+            .header h1 { font-size: 1.4rem; }
+            .card.expanded { grid-column: 1; }
+        }
+
+        @media print {
+            body { background: #fff; color: #000; }
+            .card { border: 1px solid #ccc; background: #fafafa; break-inside: avoid; }
+            .card-title { color: #8B6914; }
+            .card-detail { display: block !important; }
+            .header { border-bottom: 2px solid #8B6914; }
+            .print-btn, .nav-back { display: none; }
+            .info-block { border-left-color: #8B6914; background: #fef9e7; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img src="assets/logo.png" alt="USMC Ministries" onerror="this.style.display='none'">
+        <h1>The First Officer's Desk</h1>
+        <p class="subtitle">First Officer · Johns Family Ship</p>
+        <p class="date" id="dateDisplay"></p>
+        <br>
+        <a href="wheelhouse.html" class="nav-back">← Captain's Wheelhouse</a>
+        &nbsp;
+        <button class="print-btn" onclick="window.print()">🖨️ Print Today's Brief</button>
+    </div>
+
+    <div class="grid">
+
+        <!-- Photography Schedule -->
+        <div class="card" onclick="toggleCard(this)" id="card-photo">
+            <div class="card-icon">📸</div>
+            <div class="card-title">Photography Schedule</div>
+            <div class="card-badge ok">On Shoot</div>
+            <div class="card-brief">
+                <div class="schedule-row"><span class="schedule-time">Today</span><span class="schedule-event">Out on a photoshoot 📍</span></div>
+                <div class="schedule-row"><span class="schedule-time">Studio</span><span class="schedule-event">Bow &amp; Arrow Photography</span></div>
+            </div>
+            <div class="card-detail">
+                <h4 style="color:var(--gold); margin-bottom:10px;">Bow &amp; Arrow Photography Studio</h4>
+                <div class="info-block">
+                    <div class="info-label">🌐 Website</div>
+                    <a href="https://bowandarrowphotographystudio.com" target="_blank" style="color:var(--gold);">bowandarrowphotographystudio.com</a>
+                </div>
+                <div class="schedule-row"><span class="schedule-time">Today</span><span class="schedule-event">Active photoshoot — Maria in the field</span><span class="schedule-tag">shoot day</span></div>
+                <div class="schedule-row"><span class="schedule-time">Next</span><span class="schedule-event">Review + edit session after shoot</span><span class="schedule-tag">post</span></div>
+                <div class="schedule-row"><span class="schedule-time">Gallery</span><span class="schedule-event">Client delivery queue pending</span><span class="schedule-tag">delivery</span></div>
+                <div class="placeholder-block" style="margin-top:12px;">
+                    📅 Connect Calendly / booking system for live shoot schedule
+                </div>
+                <p style="color:var(--gray); font-size:0.8rem; margin-top:10px;">
+                    Portfolio · Booking inquiries · Editing queue — connect gallery software for live status
+                </p>
+            </div>
+        </div>
+
+        <!-- Home Status -->
+        <div class="card" onclick="toggleCard(this)" id="card-home">
+            <div class="card-icon">🏠</div>
+            <div class="card-title">Home Status</div>
+            <div class="card-badge ok">Tiffany Cleaning</div>
+            <div class="card-brief">
+                <div class="schedule-row"><span class="schedule-time">JPJ House</span><span class="schedule-event">501 Caroline St</span></div>
+                <div class="schedule-row"><span class="schedule-time">Today</span><span class="schedule-event">Tiffany cleaning the house</span></div>
+            </div>
+            <div class="card-detail">
+                <h4 style="color:var(--gold); margin-bottom:10px;">JPJ House — 501 Caroline St</h4>
+                <div class="info-block">
+                    <div class="info-label">🧹 Cleaning Today</div>
+                    Tiffany is on-site. CashApp her after she's done.
+                </div>
+                <h4 style="color:var(--gold); margin: 12px 0 8px;">🔧 Maintenance Items</h4>
+                <div class="action-item">
+                    <div class="action-check" onclick="event.stopPropagation();this.classList.toggle('done')"></div>
+                    <div><span class="action-text">Review any maintenance requests from Tiffany</span><br><span class="action-tag">🏠 Home</span></div>
+                </div>
+                <div class="action-item">
+                    <div class="action-check" onclick="event.stopPropagation();this.classList.toggle('done')"></div>
+                    <div><span class="action-text">Check HVAC filters — replace if needed</span><br><span class="action-tag">🏠 Maintenance</span></div>
+                </div>
+                <div class="action-item">
+                    <div class="action-check" onclick="event.stopPropagation();this.classList.toggle('done')"></div>
+                    <div><span class="action-text">Outdoor area walkthrough (yard, porch)</span><br><span class="action-tag">🏡 Exterior</span></div>
+                </div>
+                <div class="action-item">
+                    <div class="action-check" onclick="event.stopPropagation();this.classList.toggle('done')"></div>
+                    <div><span class="action-text">Appliance check — nothing broken?</span><br><span class="action-tag">🔧 Maintenance</span></div>
+                </div>
+                <div class="placeholder-block" style="margin-top:12px;">
+                    📋 Add maintenance items here as they come up
+                </div>
+            </div>
+        </div>
+
+        <!-- Kids Overview -->
+        <div class="card" onclick="toggleCard(this)" id="card-kids">
+            <div class="card-icon">👨‍👧‍👦</div>
+            <div class="card-title">Kids Overview</div>
+            <div class="card-brief">
+                <div style="margin-bottom:6px;">
+                    <span class="kid-pill">Gideon <span class="age">19</span></span>
+                    <span class="kid-pill">Boaz <span class="age">14</span></span>
+                    <span class="kid-pill">Shiloh <span class="age">5</span></span>
+                </div>
+                <p style="font-size:0.8rem; color:var(--gray-light);">All hands on deck · See Crew Quarters for details</p>
+            </div>
+            <div class="card-detail">
+                <h4 style="color:var(--gold); margin-bottom:10px;">Crew Status</h4>
+
+                <div class="info-block">
+                    <div class="info-label">⚓ Gideon (19) — The Navigator</div>
+                    Playing soccer. Adult responsibilities growing. Check in on work/school plans.
+                </div>
+
+                <div class="info-block">
+                    <div class="info-label">⚙️ Boaz (14) — The Helmsman</div>
+                    Gymnastics athlete. <strong style="color:var(--gold);">Sleep schedule challenge</strong> — self-wake goal: 0615–0630.
+                    Captain backup knock: 0645. Working on phone discipline.
+                </div>
+
+                <div class="info-block">
+                    <div class="info-label">🔭 Shiloh (5) — The Lookout</div>
+                    <strong style="color:var(--gold);">iPad time: 10 min max.</strong> Attending church class.
+                    Loves play time and learning new things.
+                </div>
+
+                <p style="margin-top:12px; font-size:0.85rem;">
+                    <a href="crew-quarters.html" style="color:var(--gold); text-decoration:none;">⚓ Open Crew Quarters (full detail) →</a>
+                </p>
+            </div>
+        </div>
+
+        <!-- Shopping & Household -->
+        <div class="card" onclick="toggleCard(this)" id="card-shopping">
+            <div class="card-icon">🛒</div>
+            <div class="card-title">Shopping &amp; Household</div>
+            <div class="card-brief">
+                <div class="schedule-row"><span class="schedule-time">Walmart</span><span class="schedule-event">~$400–500/week groceries</span></div>
+                <div class="schedule-row"><span class="schedule-time">Amazon</span><span class="schedule-event">Subscribe &amp; Save rotation</span></div>
+                <div class="schedule-row"><span class="schedule-time">Melaleuca</span><span class="schedule-event">Monthly wellness order</span></div>
+            </div>
+            <div class="card-detail">
+                <h4 style="color:var(--gold); margin-bottom:10px;">Weekly Grocery Run</h4>
+                <div class="info-block">
+                    <div class="info-label">🛒 Walmart — ~$400–500/week</div>
+                    Primary grocery source. Large family, premium foods. Keep receipts.
+                </div>
+
+                <h4 style="color:var(--gold); margin: 12px 0 8px;">🥗 Dietary Notes</h4>
+                <div class="schedule-row"><span class="schedule-time">Gluten-Free</span><span class="schedule-event">Mixed needs — some family members require GF</span></div>
+                <div class="schedule-row"><span class="schedule-time">Proteins</span><span class="schedule-event">Premium quality — grass-fed, pasture-raised when possible</span></div>
+                <div class="schedule-row"><span class="schedule-time">Produce</span><span class="schedule-event">Organic preferred for Dirty Dozen items</span></div>
+
+                <h4 style="color:var(--gold); margin: 12px 0 8px;">📦 Amazon Subscribe &amp; Save</h4>
+                <div class="action-item">
+                    <div class="action-check" onclick="event.stopPropagation();this.classList.toggle('done')"></div>
+                    <div><span class="action-text">Check upcoming S&amp;S deliveries — any changes needed?</span><br><span class="action-tag">📦 Amazon</span></div>
+                </div>
+                <div class="action-item">
+                    <div class="action-check" onclick="event.stopPropagation();this.classList.toggle('done')"></div>
+                    <div><span class="action-text">Review quantities — family needs may have shifted</span><br><span class="action-tag">📦 Amazon</span></div>
+                </div>
+
+                <h4 style="color:var(--gold); margin: 12px 0 8px;">🧴 Melaleuca</h4>
+                <div class="info-block">
+                    <div class="info-label">Monthly Wellness Order</div>
+                    Cleaning products, supplements, and wellness items.
+                    Check monthly order window — adjust quantities as needed.
+                </div>
+
+                <div class="placeholder-block">
+                    📝 Add current shopping list items here each week
+                </div>
+            </div>
+        </div>
+
+        <!-- Marriage Corner -->
+        <div class="card" onclick="toggleCard(this)" id="card-marriage">
+            <div class="card-icon">💑</div>
+            <div class="card-title">Marriage Corner</div>
+            <div class="card-badge rose">Priority</div>
+            <div class="card-brief">
+                <p>Shared calendar, date nights &amp; connection</p>
+                <p style="font-size:0.8rem; color:var(--gray); margin-top:4px;">Your most important partnership</p>
+            </div>
+            <div class="card-detail">
+                <h4 style="color:var(--gold); margin-bottom:10px;">Shared Life Management</h4>
+
+                <div class="info-block">
+                    <div class="info-label">📅 Shared Calendar</div>
+                    <div class="placeholder-block" style="margin-top:6px; text-align:left;">
+                        Connect Google Calendar for live family schedule sync
+                    </div>
+                </div>
+
+                <div class="info-block">
+                    <div class="info-label">🌹 Date Night Planning</div>
+                    <div class="placeholder-block" style="margin-top:6px; text-align:left;">
+                        Next date night: TBD — plan something intentional
+                    </div>
+                </div>
+
+                <h4 style="color:var(--gold); margin: 12px 0 8px;">💬 Communication Notes</h4>
+                <div class="action-item">
+                    <div class="action-check" onclick="event.stopPropagation();this.classList.toggle('done')"></div>
+                    <div><span class="action-text">Family meeting tonight — be intentional with connection time</span><br><span class="action-tag">💑 Marriage</span></div>
+                </div>
+                <div class="action-item">
+                    <div class="action-check" onclick="event.stopPropagation();this.classList.toggle('done')"></div>
+                    <div><span class="action-text">Share something encouraging with Adam today</span><br><span class="action-tag">💑 Marriage</span></div>
+                </div>
+                <div class="action-item">
+                    <div class="action-check" onclick="event.stopPropagation();this.classList.toggle('done')"></div>
+                    <div><span class="action-text">Weekly check-in: What does each of us need this week?</span><br><span class="action-tag">💑 Check-in</span></div>
+                </div>
+
+                <div class="placeholder-block" style="margin-top:12px;">
+                    ✍️ Notes, prayer requests, and things to talk about go here
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Items (full-width) -->
+        <div class="card full-width" onclick="toggleCard(this)" id="card-actions">
+            <div class="card-icon">📋</div>
+            <div class="card-title">Action Items</div>
+            <div class="card-brief">
+                <div class="action-item">
+                    <div class="action-check" onclick="event.stopPropagation();this.classList.toggle('done')"></div>
+                    <div><span class="action-text">Enjoy the photoshoot — you're doing great work!</span><br><span class="action-tag">📸 Photography</span></div>
+                </div>
+                <div class="action-item">
+                    <div class="action-check" onclick="event.stopPropagation();this.classList.toggle('done')"></div>
+                    <div><span class="action-text">Family meeting tonight — agenda ready?</span><br><span class="action-tag">👨‍👩‍👧‍👦 Family</span></div>
+                </div>
+                <div class="action-item">
+                    <div class="action-check" onclick="event.stopPropagation();this.classList.toggle('done')"></div>
+                    <div><span class="action-text">Confirm Tiffany finished + CashApp payment</span><br><span class="action-tag">🏠 Home</span></div>
+                </div>
+            </div>
+            <div class="card-detail">
+                <h4 style="color:var(--gold); margin-bottom:10px;">Full To-Do List</h4>
+                <div class="action-item">
+                    <div class="action-check" onclick="event.stopPropagation();this.classList.toggle('done')"></div>
+                    <div><span class="action-text">Check Shiloh's iPad time limit — enforced?</span><br><span class="action-tag">👧 Shiloh</span></div>
+                </div>
+                <div class="action-item">
+                    <div class="action-check" onclick="event.stopPropagation();this.classList.toggle('done')"></div>
+                    <div><span class="action-text">Review Boaz's wake-up progress this week</span><br><span class="action-tag">👦 Boaz</span></div>
+                </div>
+                <div class="action-item">
+                    <div class="action-check" onclick="event.stopPropagation();this.classList.toggle('done')"></div>
+                    <div><span class="action-text">Review upcoming Walmart grocery needs</span><br><span class="action-tag">🛒 Shopping</span></div>
+                </div>
+                <div class="action-item">
+                    <div class="action-check" onclick="event.stopPropagation();this.classList.toggle('done')"></div>
+                    <div><span class="action-text">Check Amazon Subscribe &amp; Save upcoming shipments</span><br><span class="action-tag">📦 Amazon</span></div>
+                </div>
+                <div class="action-item">
+                    <div class="action-check" onclick="event.stopPropagation();this.classList.toggle('done')"></div>
+                    <div><span class="action-text">Plan intentional date night this week</span><br><span class="action-tag">💑 Marriage</span></div>
+                </div>
+                <div class="action-item">
+                    <div class="action-check" onclick="event.stopPropagation();this.classList.toggle('done')"></div>
+                    <div><span class="action-text">Update Bow &amp; Arrow booking calendar if needed</span><br><span class="action-tag">📸 Photography</span></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <footer>
+        <div class="cross-divider">✝</div>
+        <p>The First Officer's Desk · <a href="usmc-ministries.html">USMC Ministries</a> · Powered by Mini Moop</p>
+        <p style="margin-top:5px; font-size:0.75rem;">Uniting, Serving, Mentoring and Counseling Ministries</p>
+        <p style="margin-top:8px;">
+            <a href="wheelhouse.html">← Captain's Wheelhouse</a> ·
+            <a href="crew-quarters.html">⚓ Crew Quarters</a>
+        </p>
+    </footer>
+
+    <script>
+        // Set date
+        const now = new Date();
+        const opts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById('dateDisplay').textContent = now.toLocaleDateString('en-US', opts);
+
+        // Toggle card expansion
+        function toggleCard(card) {
+            card.classList.toggle('expanded');
+        }
+    </script>
+</body>
+</html>
