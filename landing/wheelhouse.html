@@ -95,6 +95,8 @@
             transition: all 0.2s;
         }
         .action-check.done { background: var(--gold); }
+        .action-item.completed .action-text { text-decoration: line-through; color: var(--gray); }
+        .action-item.completed .action-tag { text-decoration: line-through; }
         .action-text { font-size: 0.9rem; }
         .action-tag { color: var(--gray); font-size: 0.75rem; }
 
@@ -358,7 +360,7 @@
                     <div class="action-item"><span style="color:var(--gold);">•</span><span class="action-text">Business building tip</span></div>
                     <div class="action-item"><span style="color:var(--gold);">•</span><span class="action-text">Integration with fit20, B&A, and ministry</span></div>
                 </div>
-                <p style="color:var(--gray); font-size:0.8rem; margin-top:10px;">Tell Mini Moop about your Melaleuca goals to activate this module</p>
+                <p style="color:var(--gray); font-size:0.8rem; margin-top:10px;">Tell MbPro about your Melaleuca goals to activate this module</p>
             </div>
         </div>
 
@@ -368,43 +370,43 @@
             <div class="card-title">Top Actions</div>
             <div class="card-brief" id="actions-brief">
                 <div class="action-item">
-                    <div class="action-check" onclick="event.stopPropagation();this.classList.toggle('done')"></div>
+                    <div class="action-check" onclick="event.stopPropagation();completeAction(this)"></div>
                     <div><span class="action-text">CashApp Tiffany for cleaning (Apts 6 & 8 + house)</span><br><span class="action-tag">🏠 Bow & Arrow</span></div>
                 </div>
                 <div class="action-item">
-                    <div class="action-check" onclick="event.stopPropagation();this.classList.toggle('done')"></div>
+                    <div class="action-check" onclick="event.stopPropagation();completeAction(this)"></div>
                     <div><span class="action-text">Family meeting tonight — set the week ahead</span><br><span class="action-tag">👨‍👩‍👧‍👦 Family Captain</span></div>
                 </div>
                 <div class="action-item">
-                    <div class="action-check" onclick="event.stopPropagation();this.classList.toggle('done')"></div>
+                    <div class="action-check" onclick="event.stopPropagation();completeAction(this)"></div>
                     <div><span class="action-text">Enable Private API helper in BlueBubbles</span><br><span class="action-tag">🤖 Tech</span></div>
                 </div>
             </div>
             <div class="card-detail">
                 <h4 style="color:var(--gold); margin-bottom:10px;">Queued Tasks</h4>
                 <div class="action-item">
-                    <div class="action-check" onclick="event.stopPropagation();this.classList.toggle('done')"></div>
+                    <div class="action-check" onclick="event.stopPropagation();completeAction(this)"></div>
                     <div><span class="action-text">Approve Apple Notes automation popup on MBP</span><br><span class="action-tag">🤖 Tech</span></div>
                 </div>
                 <div class="action-item">
-                    <div class="action-check" onclick="event.stopPropagation();this.classList.toggle('done')"></div>
+                    <div class="action-check" onclick="event.stopPropagation();completeAction(this)"></div>
                     <div><span class="action-text">Fix iMac Remote Login (restart + re-toggle)</span><br><span class="action-tag">🖥️ Infrastructure</span></div>
                 </div>
                 <div class="action-item">
-                    <div class="action-check" onclick="event.stopPropagation();this.classList.toggle('done')"></div>
+                    <div class="action-check" onclick="event.stopPropagation();completeAction(this)"></div>
                     <div><span class="action-text">Set up Google Calendar OAuth for live schedule</span><br><span class="action-tag">📅 Integration</span></div>
                 </div>
                 <div class="action-item">
-                    <div class="action-check" onclick="event.stopPropagation();this.classList.toggle('done')"></div>
+                    <div class="action-check" onclick="event.stopPropagation();completeAction(this)"></div>
                     <div><span class="action-text">Do something intentional for Maria</span><br><span class="action-tag">💑 Marriage</span></div>
                 </div>
             </div>
         </div>
 
-        <!-- Mini Moop Status -->
+        <!-- MbPro Status -->
         <div class="card full-width" onclick="toggleCard(this)" id="card-minimoop" style="border-color: rgba(212,175,55,0.3);">
             <div class="card-icon">🤖</div>
-            <div class="card-title">Mini Moop Status</div>
+            <div class="card-title">MbPro Status</div>
             <div class="card-brief">
                 <div class="stat"><span class="stat-value">14%</span> <span class="stat-label">API used</span></div>
                 <div class="stat"><span class="stat-value">4</span> <span class="stat-label">channels</span></div>
@@ -431,7 +433,7 @@
 
     <footer>
         <div class="cross-divider">✝</div>
-        <p>The Captain's Wheelhouse · <a href="usmc-ministries.html">USMC Ministries</a> · Powered by Mini Moop</p>
+        <p>The Captain's Wheelhouse · <a href="usmc-ministries.html">USMC Ministries</a> · Powered by MbPro</p>
         <p style="margin-top:5px; font-size:0.75rem;">Uniting, Serving, Mentoring and Counseling Ministries</p>
     </footer>
 
@@ -482,6 +484,46 @@
 
         // Auto-refresh weather every 30 min
         setInterval(loadWeather, 1800000);
+
+        // Action completion with strikethrough + save to localStorage
+        function completeAction(checkEl) {
+            checkEl.classList.toggle('done');
+            const item = checkEl.closest('.action-item');
+            item.classList.toggle('completed');
+
+            // Save completed state
+            const text = item.querySelector('.action-text').textContent;
+            let completed = JSON.parse(localStorage.getItem('wh-completed') || '[]');
+            if (item.classList.contains('completed')) {
+                if (!completed.includes(text)) completed.push(text);
+            } else {
+                completed = completed.filter(t => t !== text);
+            }
+            localStorage.setItem('wh-completed', JSON.stringify(completed));
+
+            // Fade out completed items after 2 seconds
+            if (item.classList.contains('completed')) {
+                setTimeout(() => {
+                    item.style.opacity = '0.4';
+                    item.style.transition = 'opacity 0.5s';
+                }, 2000);
+            } else {
+                item.style.opacity = '1';
+            }
+        }
+
+        // Restore completed state on load
+        (function restoreCompleted() {
+            const completed = JSON.parse(localStorage.getItem('wh-completed') || '[]');
+            document.querySelectorAll('.action-item').forEach(item => {
+                const text = item.querySelector('.action-text');
+                if (text && completed.includes(text.textContent)) {
+                    item.classList.add('completed');
+                    item.querySelector('.action-check').classList.add('done');
+                    item.style.opacity = '0.4';
+                }
+            });
+        })();
     </script>
 </body>
 </html>
