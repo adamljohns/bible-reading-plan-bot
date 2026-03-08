@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta property="og:title" content="MOOP Bible Translation Engine V3.1">
+    <meta property="og:title" content="MOOP Bible Translation Engine V3.2">
     <meta property="og:description" content="9 English translations blended with interlinear Hebrew and Greek roots. Strong's Concordance links. Built for deep word study.">
     <meta property="og:image" content="https://usmcmin.org/assets/og/og-bible.png">
     <meta property="og:image:width" content="1200">
@@ -11,11 +11,11 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://usmcmin.org/bible.html">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="MOOP Bible Translation Engine V3.1">
+    <meta name="twitter:title" content="MOOP Bible Translation Engine V3.2">
     <meta name="twitter:description" content="9 English translations blended with interlinear Hebrew and Greek roots. Strong's Concordance links. Built for deep word study.">
     <meta name="twitter:image" content="https://usmcmin.org/assets/og/og-bible.png">
     <meta name="description" content="9 English translations blended with interlinear Hebrew and Greek roots. Strong's Concordance links. Built for deep word study.">
-    <title>The MOOP Bible Translation Engine V3.1 — USMC Ministries</title>
+    <title>The MOOP Bible Translation Engine V3.2 — USMC Ministries</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -96,6 +96,24 @@
         .nav-arrow:disabled { opacity: 0.3; cursor: not-allowed; }
         .nav-arrow:disabled:hover { background: transparent; color: var(--gold); transform: none; box-shadow: none; }
         .nav-arrow svg { width: 20px; height: 20px; fill: currentColor; }
+        .nav-btn-wrap {
+            display: flex; flex-direction: column; align-items: center; gap: 4px;
+        }
+        .nav-label {
+            color: var(--gray); font-size: 0.65rem; text-transform: uppercase;
+            letter-spacing: 0.5px; font-family: 'Inter', sans-serif;
+        }
+        .verse-num.clickable { cursor: pointer; transition: all 0.3s; padding: 2px 6px; border-radius: 4px; }
+        .verse-num.clickable:hover { background: rgba(212,175,55,0.2); color: var(--gold-light); }
+        .trans-indicator {
+            color: var(--gray); font-size: 0.85rem; font-family: 'Inter', sans-serif;
+            font-weight: 400; margin-left: 8px;
+        }
+        .lexicon-footer {
+            text-align: center; color: var(--gray); font-size: 0.8rem;
+            margin: 10px 0; padding: 8px; border-top: 1px solid #222;
+        }
+        .lexicon-footer a { color: var(--gold); text-decoration: none; }
         .nav-ref {
             color: var(--gold); font-family: 'Playfair Display', serif;
             font-size: 1.1rem; text-align: center;
@@ -183,7 +201,7 @@
         <section class="hero">
             <img src="assets/logo.png" alt="USMC Ministries" onerror="this.style.display='none'">
             <h1>The MOOP Bible Translation Engine</h1>
-            <p class="subtitle">V3.1 · 9 Translations · Interlinear Hebrew &amp; Greek · Strong's Concordance</p>
+            <p class="subtitle">V3.2 · 9 Translations · Interlinear Hebrew &amp; Greek · Strong's Concordance</p>
             <p class="desc">
                 Type any Bible reference below. The engine blends 9 English translations with
                 NKJV as the primary voice, surfaces meaningful divergences, and provides
@@ -213,14 +231,15 @@
     </div>
 
     <footer>
-        <p>Built by <a href="usmc-ministries.html">USMC Ministries</a> · <a href="index.html">📖 Bible Reading Plan</a> · Powered by The MOOP Bible Translation Engine V3.1</p>
+        <p>Built by <a href="usmc-ministries.html">USMC Ministries</a> · <a href="index.html">📖 Bible Reading Plan</a> · Powered by The MOOP Bible Translation Engine V3.2</p>
         <p style="margin-top: 5px;">NKJV 33% · ESV 12% · NASB 12% · CSB 10% · NLT 9% · KJV 7% · WEB 7% · AMP 3% · MSG 2% · Interlinear 5%</p>
         <p style="margin-top: 8px; font-size: 0.75rem;">
             Scripture: NKJV © Thomas Nelson · ESV © Crossway · NASB © Lockman · NLT © Tyndale ·
             CSB © Holman · AMP © Lockman · MSG © NavPress · KJV & WEB: Public Domain
         </p>
         <p style="margin-top: 5px; font-size: 0.75rem;">
-            Word studies powered by <a href="https://www.stepbible.org/" target="_blank">STEP Bible</a> (Tyndale House, Cambridge)
+            Hebrew word studies: <a href="https://www.stepbible.org/" target="_blank">STEP Bible</a> (Tyndale House) ·
+            Greek word studies: <a href="https://www.blueletterbible.org/" target="_blank">Blue Letter Bible</a>
         </p>
     </footer>
 
@@ -234,6 +253,7 @@
         // Navigation state
         let currentRef = null;
         let isFullChapter = false;
+        let viewMode = 'chapter'; // 'chapter' or 'verse'
 
         const BOOKS = {
             genesis:1,gen:1,gn:1,exodus:2,exod:2,ex:2,leviticus:3,lev:3,numbers:4,num:4,
@@ -459,47 +479,76 @@
             return found.slice(0, 5);
         }
 
-        // BTE 3.1: Navigation
-        function navigatePrev() {
+        // BTE 3.2: Navigation System
+        const LEFT_SVG = '<svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>';
+        const RIGHT_SVG = '<svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>';
+
+        function navChapter(delta) {
             if (!currentRef) return;
-            if (isFullChapter) {
-                if (currentRef.chapter > 1) {
-                    document.getElementById('refInput').value = currentRef.display + ' ' + (currentRef.chapter - 1);
-                    lookupVerse();
-                }
+            var newCh = currentRef.chapter + delta;
+            if (newCh < 1) return;
+            viewMode = 'chapter';
+            document.getElementById('refInput').value = currentRef.display + ' ' + newCh;
+            lookupVerse();
+        }
+
+        function navVerse(delta) {
+            if (!currentRef) return;
+            viewMode = 'verse';
+            var newV = currentRef.startVerse + delta;
+            var newCh = currentRef.chapter;
+            if (newV < 1) { newCh--; if (newCh < 1) return; newV = 200; }
+            document.getElementById('refInput').value = currentRef.display + ' ' + newCh + ':' + newV;
+            lookupVerse();
+        }
+
+        function nav3Verses(delta) {
+            if (!currentRef) return;
+            viewMode = 'verse';
+            var newV = currentRef.startVerse + (delta * 3);
+            var newCh = currentRef.chapter;
+            if (newV < 1) { newCh--; if (newCh < 1) return; newV = 200; }
+            document.getElementById('refInput').value = currentRef.display + ' ' + newCh + ':' + newV;
+            lookupVerse();
+        }
+
+        function goToVerse(ch, v) {
+            if (!currentRef) return;
+            viewMode = 'verse';
+            document.getElementById('refInput').value = currentRef.display + ' ' + ch + ':' + v;
+            lookupVerse();
+        }
+
+        function renderTopNav(rangeStr) {
+            if (viewMode === 'chapter') {
+                return '<div class="nav-arrows">' +
+                    '<div class="nav-btn-wrap"><button class="nav-arrow" onclick="navChapter(-1)" title="Previous Chapter">' + LEFT_SVG + '</button><span class="nav-label">prev ch</span></div>' +
+                    '<span class="nav-ref">' + rangeStr + '</span>' +
+                    '<div class="nav-btn-wrap"><button class="nav-arrow" onclick="navChapter(1)" title="Next Chapter">' + RIGHT_SVG + '</button><span class="nav-label">nxt ch</span></div>' +
+                    '</div>';
             } else {
-                if (currentRef.startVerse > 1) {
-                    document.getElementById('refInput').value = currentRef.display + ' ' + currentRef.chapter + ':' + (currentRef.startVerse - 1);
-                    lookupVerse();
-                } else if (currentRef.chapter > 1) {
-                    document.getElementById('refInput').value = currentRef.display + ' ' + (currentRef.chapter - 1);
-                    lookupVerse();
-                }
+                return '<div class="nav-arrows">' +
+                    '<div class="nav-btn-wrap"><button class="nav-arrow" onclick="navVerse(-1)" title="Previous Verse">' + LEFT_SVG + '</button><span class="nav-label">prev vs</span></div>' +
+                    '<span class="nav-ref">' + rangeStr + '</span>' +
+                    '<div class="nav-btn-wrap"><button class="nav-arrow" onclick="navVerse(1)" title="Next Verse">' + RIGHT_SVG + '</button><span class="nav-label">nxt vs</span></div>' +
+                    '</div>';
             }
         }
 
-        function navigateNext() {
-            if (!currentRef) return;
-            if (isFullChapter) {
-                document.getElementById('refInput').value = currentRef.display + ' ' + (currentRef.chapter + 1);
-                lookupVerse();
+        function renderBottomNav(rangeStr) {
+            if (viewMode === 'chapter') {
+                return '<div class="nav-arrows">' +
+                    '<div class="nav-btn-wrap"><button class="nav-arrow" onclick="navVerse(-1)" title="Previous Verse">' + LEFT_SVG + '</button><span class="nav-label">prev vs</span></div>' +
+                    '<span class="nav-ref">' + rangeStr + '</span>' +
+                    '<div class="nav-btn-wrap"><button class="nav-arrow" onclick="navVerse(1)" title="Next Verse">' + RIGHT_SVG + '</button><span class="nav-label">nxt vs</span></div>' +
+                    '</div>';
             } else {
-                var nextV = currentRef.endVerse + 1;
-                document.getElementById('refInput').value = currentRef.display + ' ' + currentRef.chapter + ':' + nextV;
-                lookupVerse();
+                return '<div class="nav-arrows">' +
+                    '<div class="nav-btn-wrap"><button class="nav-arrow" onclick="nav3Verses(-1)" title="Back 3 Verses">' + LEFT_SVG + '</button><span class="nav-label">prev 3vs</span></div>' +
+                    '<span class="nav-ref">' + rangeStr + '</span>' +
+                    '<div class="nav-btn-wrap"><button class="nav-arrow" onclick="nav3Verses(1)" title="Forward 3 Verses">' + RIGHT_SVG + '</button><span class="nav-label">nxt 3vs</span></div>' +
+                    '</div>';
             }
-        }
-
-        function renderNavArrows(rangeStr) {
-            return '<div class="nav-arrows">' +
-                '<button class="nav-arrow" onclick="navigatePrev()" title="Previous" aria-label="Previous">' +
-                '<svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>' +
-                '</button>' +
-                '<span class="nav-ref">' + rangeStr + '</span>' +
-                '<button class="nav-arrow" onclick="navigateNext()" title="Next" aria-label="Next">' +
-                '<svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>' +
-                '</button>' +
-                '</div>';
         }
 
         async function lookupVerse() {
@@ -510,6 +559,9 @@
 
             currentRef = ref;
             isFullChapter = ref.fullChapter;
+            // Set viewMode based on input (unless already set by nav functions)
+            if (isFullChapter && viewMode !== 'verse') viewMode = 'chapter';
+            else if (!isFullChapter) viewMode = 'verse';
 
             document.getElementById('searchBtn').disabled = true;
             document.getElementById('results').innerHTML = '<div class="loading">📖 Fetching from 9 translations...</div>';
@@ -520,6 +572,12 @@
             const seenStrongs = new Set();
             const seenClarity = new Set();
 
+            // BTE 3.2: Track translation agreements for indicator
+            const transAgreements = {};
+            TRANSLATIONS.forEach(t => { if (t !== 'NKJV') transAgreements[t] = 0; });
+            const transFetched = {};
+            TRANSLATIONS.forEach(t => { if (t !== 'NKJV') transFetched[t] = 0; });
+
             for (let v = ref.startVerse; v <= ref.endVerse; v++) {
                 const promises = TRANSLATIONS.map(t => fetchVerse(ref.bookId, ref.chapter, v, t));
                 const results = await Promise.all(promises);
@@ -529,18 +587,29 @@
 
                 if (!texts.NKJV) break;
 
+                // Track fetched translations
+                TRANSLATIONS.forEach(t => { if (t !== 'NKJV' && texts[t]) transFetched[t]++; });
+
                 // Build amplifications
                 const amps = [];
+                const ampTranslations = new Set();
                 AMP_PRIORITY.forEach(t => {
                     if (!texts[t]) return;
                     if (similarity(texts.NKJV, texts[t]) < 0.65) {
                         const dn = DISPLAY[t] || t;
                         amps.push({ label: dn, text: texts[t] });
+                        ampTranslations.add(t);
                     }
                 });
                 if (texts.AMP && texts.AMP.includes('[') && !amps.find(a => a.label === 'AMP')) {
                     amps.push({ label: 'AMP', text: texts.AMP });
+                    ampTranslations.add('AMP');
                 }
+
+                // BTE 3.2: Track agreements (not shown as amplification = agrees with NKJV)
+                TRANSLATIONS.forEach(t => {
+                    if (t !== 'NKJV' && texts[t] && !ampTranslations.has(t)) transAgreements[t]++;
+                });
 
                 // BTE 3.1: Merge redundant amplifications
                 const mergedAmps = mergeAmplifications(amps);
@@ -559,6 +628,33 @@
             const lastVerse = allVerses[allVerses.length - 1].num;
             currentRef.endVerse = lastVerse;
 
+            // BTE 3.2: Determine secondary translation for indicator
+            let secondaryTrans = 'ESV';
+            let bestScore = -1;
+            Object.entries(transAgreements).forEach(function(entry) {
+                var t = entry[0], count = entry[1];
+                var weight = WEIGHTS[t] || 0;
+                var score = count * 10 + weight * 100;
+                if (score > bestScore && transFetched[t] > 0) {
+                    bestScore = score;
+                    secondaryTrans = DISPLAY[t] || t;
+                }
+            });
+            const transIndicator = ' <span class="trans-indicator">(NKJV|' + secondaryTrans + ')</span>';
+
+            // BTE 3.2: Apply Strong's limits based on view mode
+            const verseCount = allVerses.length;
+            var maxStrongs, maxClarity;
+            if (viewMode === 'chapter') {
+                maxStrongs = Math.min(7, Math.max(1, Math.ceil(verseCount / 2)));
+                maxClarity = Math.min(7, Math.max(2, Math.ceil(verseCount / 4)));
+            } else {
+                maxStrongs = Math.min(5, Math.max(2, allStrongs.length));
+                maxClarity = Math.min(2, allClarity.length);
+            }
+            const limitedStrongs = allStrongs.slice(0, maxStrongs);
+            const limitedClarity = allClarity.slice(0, maxClarity);
+
             const rangeStr = allVerses.length === 1
                 ? ref.display + ' ' + ref.chapter + ':' + ref.startVerse
                 : (isFullChapter
@@ -566,48 +662,60 @@
                     : ref.display + ' ' + ref.chapter + ':' + ref.startVerse + '-' + lastVerse);
 
             // Top nav arrows
-            let html = renderNavArrows(rangeStr);
-            html += '<div class="result-card"><div class="result-header">' + rangeStr + '</div>';
+            let html = renderTopNav(rangeStr);
+            html += '<div class="result-card"><div class="result-header">' + rangeStr + transIndicator + '</div>';
 
-            allVerses.forEach(v => {
-                html += '<div class="verse-block"><span class="verse-num">' + v.num + '</span> <span class="verse-text">' + v.text + '</span>';
-                v.amps.forEach(a => {
+            // BTE 3.2: Verses — clickable in chapter mode
+            allVerses.forEach(function(v) {
+                if (viewMode === 'chapter') {
+                    html += '<div class="verse-block"><span class="verse-num clickable" onclick="goToVerse(' + ref.chapter + ',' + v.num + ')" title="View verse ' + v.num + ' in detail">' + v.num + '</span> <span class="verse-text">' + v.text + '</span>';
+                } else {
+                    html += '<div class="verse-block"><span class="verse-num">' + v.num + '</span> <span class="verse-text">' + v.text + '</span>';
+                }
+                v.amps.forEach(function(a) {
                     html += '<div class="amplification"><span class="amp-label">' + a.label + ':</span> ' + a.text + '</div>';
                 });
                 html += '</div>';
             });
 
-            // Strongs section with StepBible hyperlinks
-            if (allStrongs.length) {
+            // Strongs section (limited)
+            if (limitedStrongs.length) {
                 const testament = ref.isOT ? 'Hebrew' : 'Greek';
                 html += '<div class="strongs-section"><h4>📖 Interlinear ' + testament + ' Roots</h4>';
-                allStrongs.forEach(s => {
+                limitedStrongs.forEach(function(s) {
                     const vr = s.vref ? ' <span style="color:#666;font-size:0.75rem;">(v.' + s.vref + ')</span>' : '';
                     const url = stepBibleUrl(s.num);
                     html += '<span class="strongs-entry"><span class="strongs-def">' + s.def + '</span> ' +
-                        '<a class="strongs-link" href="' + url + '" target="_blank" title="View full word study on STEP Bible">(' + s.num + ')</a>' + vr + '</span>';
+                        '<a class="strongs-link" href="' + url + '" target="_blank" title="View full word study">(' + s.num + ')</a>' + vr + '</span>';
                 });
                 html += '</div>';
             }
 
-            // Clarity notes with StepBible hyperlinks
-            if (allClarity.length) {
+            // Clarity notes (limited)
+            if (limitedClarity.length) {
                 html += '<div class="clarity-section"><h4>💡 Clarity Notes</h4>';
-                allClarity.forEach(c => {
+                limitedClarity.forEach(function(c) {
                     const strongsLink = c.strongs
-                        ? ' <a class="clarity-link" href="' + stepBibleUrl(c.strongs) + '" target="_blank" title="View on STEP Bible">' + c.strongs + '</a>'
+                        ? ' <a class="clarity-link" href="' + stepBibleUrl(c.strongs) + '" target="_blank" title="View word study">' + c.strongs + '</a>'
                         : '';
                     html += '<div class="clarity-note"><span class="clarity-word">"' + c.word + '"</span> → ' + c.origin + ': ' + c.meaning + strongsLink + '</div>';
                 });
                 html += '</div>';
             }
 
-            html += '<div class="engine-info">The MOOP Bible Translation Engine V3.1 · 9 translations · Interlinear ' +
-                (ref.isOT ? 'Hebrew' : 'Greek') + ' backbone · <a href="https://www.stepbible.org/" target="_blank">STEP Bible</a></div>';
+            // BTE 3.2: Lexicon footer (OT → StepBible, NT → BLB)
+            if (ref.isOT) {
+                html += '<div class="lexicon-footer">Word studies: <a href="https://www.stepbible.org/" target="_blank">STEP Bible</a> (Tyndale House, Cambridge)</div>';
+            } else {
+                html += '<div class="lexicon-footer">Word studies: <a href="https://www.blueletterbible.org/" target="_blank">Blue Letter Bible</a></div>';
+            }
+
+            html += '<div class="engine-info">The MOOP Bible Translation Engine V3.2 · 9 translations · Interlinear ' +
+                (ref.isOT ? 'Hebrew' : 'Greek') + ' backbone</div>';
             html += '</div>';
 
             // Bottom nav arrows
-            html += renderNavArrows(rangeStr);
+            html += renderBottomNav(rangeStr);
 
             document.getElementById('results').innerHTML = html;
             document.getElementById('searchBtn').disabled = false;
