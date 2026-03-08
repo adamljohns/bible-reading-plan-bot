@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:title" content="The Captain's Wheelhouse — USMC Ministries">
+    <meta property="og:description" content="Daily command center for the Family Captain. Weather, calendar, markets, Airbnb, Bible, fitness, and action items.">
+    <meta property="og:image" content="https://usmcmin.org/assets/og/og-main.png">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://usmcmin.org/wheelhouse.html">
+    <title>The Captain's Wheelhouse — USMC Ministries</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg-dark: #000000;
+            --bg-card: #111111;
+            --bg-card-hover: #1a1a1a;
+            --gold: #D4AF37;
+            --gold-light: #F4D470;
+            --white: #FFFFFF;
+            --gray: #888888;
+            --gray-light: #aaaaaa;
+            --border: #333333;
+            --green: #4CAF50;
+            --red: #f44336;
+            --blue: #2196F3;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--white);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+        h1, h2, h3, h4 { font-family: 'Playfair Display', serif; font-weight: 700; }
+
+        .header {
+            text-align: center; padding: 25px 20px 15px;
+            border-bottom: 1px solid var(--border);
+        }
+        .header img { max-width: 120px; height: auto; margin-bottom: 8px; }
+        .header h1 { font-size: 1.8rem; color: var(--white); margin-bottom: 4px; }
+        .header .subtitle { color: var(--gold); font-size: 0.95rem; }
+        .header .date { color: var(--gray); font-size: 0.85rem; margin-top: 4px; }
+
+        .grid {
+            max-width: 900px; margin: 0 auto; padding: 15px;
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .card {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 12px; padding: 18px; cursor: pointer;
+            transition: all 0.3s; position: relative; overflow: hidden;
+        }
+        .card:hover { background: var(--bg-card-hover); border-color: var(--gold); transform: translateY(-2px); }
+        .card.expanded { grid-column: 1 / -1; }
+        .card-icon { font-size: 1.5rem; margin-bottom: 8px; }
+        .card-title {
+            font-family: 'Playfair Display', serif; color: var(--gold);
+            font-size: 1.1rem; margin-bottom: 8px;
+        }
+        .card-brief { color: var(--gray-light); font-size: 0.85rem; line-height: 1.5; }
+        .card-detail {
+            display: none; margin-top: 15px; padding-top: 15px;
+            border-top: 1px solid var(--border); color: var(--white);
+            font-size: 0.9rem; line-height: 1.7;
+        }
+        .card.expanded .card-detail { display: block; animation: fadeIn 0.3s ease; }
+        .card-badge {
+            position: absolute; top: 12px; right: 12px;
+            background: var(--gold); color: #000; font-size: 0.7rem;
+            padding: 2px 8px; border-radius: 10px; font-weight: 600;
+        }
+        .card-badge.alert { background: var(--red); color: #fff; }
+        .card-badge.ok { background: var(--green); color: #fff; }
+
+        .full-width { grid-column: 1 / -1; }
+        .stat { display: inline-block; margin-right: 15px; }
+        .stat-value { color: var(--gold); font-weight: 600; font-size: 1.1rem; }
+        .stat-label { color: var(--gray); font-size: 0.75rem; }
+        .stat-change.up { color: var(--green); }
+        .stat-change.down { color: var(--red); }
+
+        .action-item {
+            display: flex; align-items: flex-start; gap: 10px;
+            padding: 8px 0; border-bottom: 1px solid #222;
+        }
+        .action-check {
+            width: 20px; height: 20px; border: 2px solid var(--gold);
+            border-radius: 4px; flex-shrink: 0; margin-top: 2px; cursor: pointer;
+            transition: all 0.2s;
+        }
+        .action-check.done { background: var(--gold); }
+        .action-text { font-size: 0.9rem; }
+        .action-tag { color: var(--gray); font-size: 0.75rem; }
+
+        .schedule-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 6px 0; border-bottom: 1px solid #1a1a1a;
+        }
+        .schedule-time { color: var(--gold); font-weight: 600; font-size: 0.85rem; min-width: 70px; }
+        .schedule-event { color: var(--white); font-size: 0.85rem; flex: 1; }
+        .schedule-tag {
+            font-size: 0.7rem; padding: 2px 8px; border-radius: 10px;
+            background: #222; color: var(--gray);
+        }
+
+        .verse-block {
+            background: rgba(212,175,55,0.08); border-left: 3px solid var(--gold);
+            padding: 12px 15px; border-radius: 0 8px 8px 0; margin: 8px 0;
+        }
+        .verse-ref { color: var(--gold); font-weight: 600; font-size: 0.85rem; }
+
+        .audio-player {
+            display: flex; align-items: center; gap: 10px; margin-top: 10px;
+            background: #0a0a0a; padding: 10px 15px; border-radius: 8px;
+        }
+        .audio-btn {
+            background: var(--gold); color: #000; border: none;
+            width: 36px; height: 36px; border-radius: 50%; cursor: pointer;
+            font-size: 1rem; display: flex; align-items: center; justify-content: center;
+        }
+        .audio-label { color: var(--gray); font-size: 0.8rem; }
+
+        .market-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 6px 0; border-bottom: 1px solid #1a1a1a;
+        }
+        .market-name { color: var(--white); font-weight: 500; font-size: 0.9rem; }
+        .market-price { color: var(--gold); font-weight: 600; }
+        .market-change { font-size: 0.8rem; padding: 2px 6px; border-radius: 4px; }
+        .market-change.up { color: var(--green); background: rgba(76,175,80,0.1); }
+        .market-change.down { color: var(--red); background: rgba(244,67,54,0.1); }
+
+        footer {
+            text-align: center; padding: 25px 20px; color: var(--gray);
+            font-size: 0.8rem; border-top: 1px solid #222; margin-top: 20px;
+        }
+        footer a { color: var(--gold); text-decoration: none; }
+
+        .print-btn {
+            display: inline-block; background: transparent; border: 1px solid var(--border);
+            color: var(--gray); padding: 6px 16px; border-radius: 6px; cursor: pointer;
+            font-size: 0.8rem; margin-top: 8px; transition: all 0.3s;
+        }
+        .print-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @media (max-width: 600px) {
+            .grid { grid-template-columns: 1fr; }
+            .header h1 { font-size: 1.4rem; }
+        }
+        @media print {
+            body { background: #fff; color: #000; }
+            .card { border: 1px solid #ccc; background: #fafafa; break-inside: avoid; }
+            .card-title { color: #8B6914; }
+            .card-detail { display: block !important; }
+            .header { border-bottom: 2px solid #8B6914; }
+            .print-btn { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img src="assets/logo.png" alt="USMC Ministries" onerror="this.style.display='none'">
+        <h1>The Captain's Wheelhouse</h1>
+        <p class="subtitle">Daily Command Center · USMC Ministries</p>
+        <p class="date" id="dateDisplay"></p>
+        <button class="print-btn" onclick="window.print()">🖨️ Print Today's Brief</button>
+    </div>
+
+    <div class="grid" id="dashboard">
+
+        <!-- Weather -->
+        <div class="card" onclick="toggleCard(this)" id="card-weather">
+            <div class="card-icon">🌤️</div>
+            <div class="card-title">Weather</div>
+            <div class="card-brief" id="weather-brief">Loading Fredericksburg forecast...</div>
+            <div class="card-detail" id="weather-detail">
+                <div id="weather-full">Loading detailed forecast...</div>
+            </div>
+        </div>
+
+        <!-- Calendar -->
+        <div class="card" onclick="toggleCard(this)" id="card-calendar">
+            <div class="card-icon">📅</div>
+            <div class="card-title">Today's Schedule</div>
+            <div class="card-badge">Sunday</div>
+            <div class="card-brief" id="calendar-brief">
+                <div class="schedule-row"><span class="schedule-time">AM</span><span class="schedule-event">Church with Gideon & Shiloh</span></div>
+                <div class="schedule-row"><span class="schedule-time">PM</span><span class="schedule-event">Family time · Maria returns from photoshoot</span></div>
+                <div class="schedule-row"><span class="schedule-time">Eve</span><span class="schedule-event">Family meeting</span></div>
+            </div>
+            <div class="card-detail" id="calendar-detail">
+                <h4 style="color:var(--gold); margin-bottom:10px;">Full Week Ahead</h4>
+                <div class="schedule-row"><span class="schedule-time">Mon</span><span class="schedule-event">fit20 · Melaleuca Monday</span><span class="schedule-tag">work</span></div>
+                <div class="schedule-row"><span class="schedule-time">Tue</span><span class="schedule-event">fit20 · Apt 6 guest check-in</span><span class="schedule-tag">airbnb</span></div>
+                <div class="schedule-row"><span class="schedule-time">Wed</span><span class="schedule-event">fit20</span><span class="schedule-tag">work</span></div>
+                <div class="schedule-row"><span class="schedule-time">Thu</span><span class="schedule-event">fit20</span><span class="schedule-tag">work</span></div>
+                <div class="schedule-row"><span class="schedule-time">Fri</span><span class="schedule-event">fit20</span><span class="schedule-tag">work</span></div>
+                <div class="schedule-row"><span class="schedule-time">Sat</span><span class="schedule-event">Boaz gymnastics?</span><span class="schedule-tag">family</span></div>
+                <p style="color:var(--gray); font-size:0.8rem; margin-top:10px;">📎 Connect Google Calendar for live updates</p>
+            </div>
+        </div>
+
+        <!-- Markets -->
+        <div class="card" onclick="toggleCard(this)" id="card-markets">
+            <div class="card-icon">💰</div>
+            <div class="card-title">Markets</div>
+            <div class="card-badge ok">Sabbath</div>
+            <div class="card-brief" id="markets-brief">
+                <p style="color:var(--gray); font-style:italic;">Markets closed · No C5iSR update on Sundays</p>
+                <p style="color:var(--gray); font-size:0.8rem; margin-top:5px;">Last close prices load Mon-Sat</p>
+            </div>
+            <div class="card-detail" id="markets-detail">
+                <div id="markets-full">
+                    <div class="market-row"><span class="market-name">₿ Bitcoin</span><span class="market-price" id="btc-price">--</span><span class="market-change" id="btc-change">--</span></div>
+                    <div class="market-row"><span class="market-name">Ξ Ethereum</span><span class="market-price" id="eth-price">--</span><span class="market-change" id="eth-change">--</span></div>
+                    <div class="market-row"><span class="market-name">🥇 Gold</span><span class="market-price" id="gold-price">--</span><span class="market-change" id="gold-change">--</span></div>
+                    <div class="market-row"><span class="market-name">📈 S&P 500</span><span class="market-price" id="sp-price">--</span><span class="market-change" id="sp-change">--</span></div>
+                    <p style="color:var(--gray); font-size:0.75rem; margin-top:10px;">Powered by C5iSR LLC · <a href="#" style="color:var(--gold);">Full analysis →</a></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bible Reading -->
+        <div class="card" onclick="toggleCard(this)" id="card-bible">
+            <div class="card-icon">📖</div>
+            <div class="card-title">Bible Reading</div>
+            <div class="card-brief">
+                <div class="verse-block">
+                    <div class="verse-ref">Today's Readings</div>
+                    <p style="font-size:0.85rem; color:#ccc; margin-top:5px;">Morning Wisdom · Husband's Post · Father's Charge · Citizen's Stand · Evening Peace</p>
+                </div>
+            </div>
+            <div class="card-detail" id="bible-detail">
+                <p style="margin-bottom:10px;">5 readings delivered daily to Telegram:</p>
+                <div class="schedule-row"><span class="schedule-time">0600</span><span class="schedule-event">Morning Wisdom (Proverbs/Psalms)</span></div>
+                <div class="schedule-row"><span class="schedule-time">0700</span><span class="schedule-event">Husband's Post (Marriage)</span></div>
+                <div class="schedule-row"><span class="schedule-time">1100</span><span class="schedule-event">Father's Charge (Parenting)</span></div>
+                <div class="schedule-row"><span class="schedule-time">1500</span><span class="schedule-event">Citizen's Stand (Civic/Cultural)</span></div>
+                <div class="schedule-row"><span class="schedule-time">2100</span><span class="schedule-event">Evening Peace (Rest/Reflection)</span></div>
+                <div class="audio-player">
+                    <button class="audio-btn" title="Coming in BTE 4.0">▶</button>
+                    <div><span style="color:var(--white); font-size:0.9rem;">Audio Readings</span><br><span class="audio-label">ElevenLabs TTS · Coming in V4.0</span></div>
+                </div>
+                <p style="margin-top:12px;"><a href="bible.html" style="color:var(--gold); text-decoration:none;">Open MOOP Bible Translation Engine V3.2 →</a></p>
+            </div>
+        </div>
+
+        <!-- Airbnb -->
+        <div class="card" onclick="toggleCard(this)" id="card-airbnb">
+            <div class="card-icon">🏠</div>
+            <div class="card-title">Airbnb · Bow & Arrow</div>
+            <div class="card-badge" id="airbnb-badge">5 listings</div>
+            <div class="card-brief" id="airbnb-brief">
+                <div class="schedule-row"><span class="schedule-time">Today</span><span class="schedule-event">Tiffany cleaning Apts 6 & 8 + house</span></div>
+                <div class="schedule-row"><span class="schedule-time">💳</span><span class="schedule-event">CashApp Tiffany after cleaning</span></div>
+            </div>
+            <div class="card-detail" id="airbnb-detail">
+                <h4 style="color:var(--gold); margin-bottom:10px;">Active Listings</h4>
+                <div class="schedule-row"><span class="schedule-event">Two Historic DwnTwn Apts (2Br/2Ba)</span><span class="schedule-tag">active</span></div>
+                <div class="schedule-row"><span class="schedule-event">Boho-Modern Large Apt for 7</span><span class="schedule-tag">active</span></div>
+                <div class="schedule-row"><span class="schedule-event">Spacious Apt #6, 209 Hanover</span><span class="schedule-tag">active</span></div>
+                <div class="schedule-row"><span class="schedule-event">Historic DnTwn Apt #8</span><span class="schedule-tag">active</span></div>
+                <div class="schedule-row"><span class="schedule-event">Prof Row Cottage 3Br/1Ba</span><span class="schedule-tag">active</span></div>
+                <p style="color:var(--gray); font-size:0.8rem; margin-top:10px;">40+ upcoming reservations · 159 unread messages · Building code: 3-5-2-4</p>
+                <p style="margin-top:8px;"><span style="color:var(--gold);">Cleaners:</span> Tiffany K. (primary) · Amanda Davis (backup) · Gideon (weekday coverage)</p>
+            </div>
+        </div>
+
+        <!-- fit20 -->
+        <div class="card" onclick="toggleCard(this)" id="card-fit20">
+            <div class="card-icon">💪</div>
+            <div class="card-title">fit20</div>
+            <div class="card-brief">
+                <p>Studio Coordinator · Cosner's Corner</p>
+                <p style="font-size:0.8rem; color:var(--gray);">NASM CPT, CNC, WLS, PES</p>
+            </div>
+            <div class="card-detail" id="fit20-detail">
+                <h4 style="color:var(--gold); margin-bottom:10px;">This Week</h4>
+                <p style="color:var(--gray);">Connect Google Calendar for live fit20 schedule</p>
+                <p style="margin-top:10px;"><a href="fitness.html" style="color:var(--gold); text-decoration:none;">Open Fitness Intake Form →</a></p>
+            </div>
+        </div>
+
+        <!-- Health -->
+        <div class="card" onclick="toggleCard(this)" id="card-health">
+            <div class="card-icon">❤️</div>
+            <div class="card-title">Health Deck</div>
+            <div class="card-brief" id="health-brief">
+                <div class="stat"><span class="stat-value">196</span> <span class="stat-label">lbs</span></div>
+                <div class="stat"><span class="stat-value">17%</span> <span class="stat-label">BF</span></div>
+                <div class="stat"><span class="stat-value">83</span> <span class="stat-label">sleep</span></div>
+            </div>
+            <div class="card-detail" id="health-detail">
+                <h4 style="color:var(--gold); margin-bottom:10px;">Today's Log — March 8, 2026</h4>
+                <div class="schedule-row"><span class="schedule-time">Weight</span><span class="schedule-event">196 lbs <span class="stat-change down">↓ 5-7 lbs from last week</span></span></div>
+                <div class="schedule-row"><span class="schedule-time">Body Fat</span><span class="schedule-event">17.0% <span class="stat-change down">↓ 0.6%</span></span></div>
+                <div class="schedule-row"><span class="schedule-time">Sleep</span><span class="schedule-event">Score 83 · 7h 5m · CPAP + mouth tape</span></div>
+                <div class="schedule-row"><span class="schedule-time">Deep</span><span class="schedule-event">2h 23m</span></div>
+                <div class="schedule-row"><span class="schedule-time">Light</span><span class="schedule-event">3h 14m</span></div>
+                <div class="schedule-row"><span class="schedule-time">REM</span><span class="schedule-event">1h 28m</span></div>
+                <p style="color:var(--gray); font-size:0.8rem; margin-top:10px;">Target: 170g protein · 2300-2800 cal · Supplements: Lion's Mane, Ashwagandha, Magnesium</p>
+            </div>
+        </div>
+
+        <!-- Email -->
+        <div class="card" onclick="toggleCard(this)" id="card-email">
+            <div class="card-icon">📧</div>
+            <div class="card-title">Email</div>
+            <div class="card-badge alert">4,500+</div>
+            <div class="card-brief">
+                <p>bowandarrowstudiollc@gmail.com — triage in progress</p>
+                <p style="font-size:0.8rem; color:var(--gray);">adamjohns@fit20usa.com — 59 unread</p>
+            </div>
+            <div class="card-detail" id="email-detail">
+                <p>Mining cron is batch-deleting spam and starring actionable items.</p>
+                <p style="margin-top:8px; color:var(--gray);">50 OnePay spam trashed so far. Continuing rotation through senders.</p>
+                <p style="margin-top:8px;">Watching for: <span style="color:var(--gold);">Grok data download email</span></p>
+            </div>
+        </div>
+
+        <!-- Melaleuca -->
+        <div class="card" onclick="toggleCard(this)" id="card-melaleuca">
+            <div class="card-icon">🧴</div>
+            <div class="card-title">Melaleuca Monday</div>
+            <div class="card-brief">
+                <p style="color:var(--gray); font-style:italic;">Next update: Tomorrow (Monday)</p>
+            </div>
+            <div class="card-detail" id="melaleuca-detail">
+                <h4 style="color:var(--gold); margin-bottom:10px;">Weekly Integration Plan</h4>
+                <p>Melaleuca Monday fires every week with:</p>
+                <div style="margin-top:8px;">
+                    <div class="action-item"><span style="color:var(--gold);">•</span><span class="action-text">Product of the week to mention in conversations</span></div>
+                    <div class="action-item"><span style="color:var(--gold);">•</span><span class="action-text">Business building tip</span></div>
+                    <div class="action-item"><span style="color:var(--gold);">•</span><span class="action-text">Integration with fit20, B&A, and ministry</span></div>
+                </div>
+                <p style="color:var(--gray); font-size:0.8rem; margin-top:10px;">Tell Mini Moop about your Melaleuca goals to activate this module</p>
+            </div>
+        </div>
+
+        <!-- Top Actions -->
+        <div class="card full-width" onclick="toggleCard(this)" id="card-actions">
+            <div class="card-icon">🎯</div>
+            <div class="card-title">Top Actions</div>
+            <div class="card-brief" id="actions-brief">
+                <div class="action-item">
+                    <div class="action-check" onclick="event.stopPropagation();this.classList.toggle('done')"></div>
+                    <div><span class="action-text">CashApp Tiffany for cleaning (Apts 6 & 8 + house)</span><br><span class="action-tag">🏠 Bow & Arrow</span></div>
+                </div>
+                <div class="action-item">
+                    <div class="action-check" onclick="event.stopPropagation();this.classList.toggle('done')"></div>
+                    <div><span class="action-text">Family meeting tonight — set the week ahead</span><br><span class="action-tag">👨‍👩‍👧‍👦 Family Captain</span></div>
+                </div>
+                <div class="action-item">
+                    <div class="action-check" onclick="event.stopPropagation();this.classList.toggle('done')"></div>
+                    <div><span class="action-text">Enable Private API helper in BlueBubbles</span><br><span class="action-tag">🤖 Tech</span></div>
+                </div>
+            </div>
+            <div class="card-detail">
+                <h4 style="color:var(--gold); margin-bottom:10px;">Queued Tasks</h4>
+                <div class="action-item">
+                    <div class="action-check" onclick="event.stopPropagation();this.classList.toggle('done')"></div>
+                    <div><span class="action-text">Approve Apple Notes automation popup on MBP</span><br><span class="action-tag">🤖 Tech</span></div>
+                </div>
+                <div class="action-item">
+                    <div class="action-check" onclick="event.stopPropagation();this.classList.toggle('done')"></div>
+                    <div><span class="action-text">Fix iMac Remote Login (restart + re-toggle)</span><br><span class="action-tag">🖥️ Infrastructure</span></div>
+                </div>
+                <div class="action-item">
+                    <div class="action-check" onclick="event.stopPropagation();this.classList.toggle('done')"></div>
+                    <div><span class="action-text">Set up Google Calendar OAuth for live schedule</span><br><span class="action-tag">📅 Integration</span></div>
+                </div>
+                <div class="action-item">
+                    <div class="action-check" onclick="event.stopPropagation();this.classList.toggle('done')"></div>
+                    <div><span class="action-text">Do something intentional for Maria</span><br><span class="action-tag">💑 Marriage</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mini Moop Status -->
+        <div class="card full-width" onclick="toggleCard(this)" id="card-minimoop" style="border-color: rgba(212,175,55,0.3);">
+            <div class="card-icon">🤖</div>
+            <div class="card-title">Mini Moop Status</div>
+            <div class="card-brief">
+                <div class="stat"><span class="stat-value">14%</span> <span class="stat-label">API used</span></div>
+                <div class="stat"><span class="stat-value">4</span> <span class="stat-label">channels</span></div>
+                <div class="stat"><span class="stat-value">127</span> <span class="stat-label">context files</span></div>
+                <div class="stat"><span class="stat-value">11</span> <span class="stat-label">cron jobs</span></div>
+            </div>
+            <div class="card-detail">
+                <h4 style="color:var(--gold); margin-bottom:10px;">System Status</h4>
+                <div class="schedule-row"><span class="schedule-time">Model</span><span class="schedule-event">Claude Opus 4-6 (Discord) · Sonnet 4-6 (Telegram/crons)</span></div>
+                <div class="schedule-row"><span class="schedule-time">Channels</span><span class="schedule-event">Discord ✅ · Telegram ✅ · iMessage ✅ · Web 🔧</span></div>
+                <div class="schedule-row"><span class="schedule-time">Machines</span><span class="schedule-event">MBP ✅ · Mac Mini ✅ · iMac ⚠️ (SSH pending)</span></div>
+                <div class="schedule-row"><span class="schedule-time">Mining</span><span class="schedule-event">Rotating every 20min (ChatGPT → Amazon → Seminary → Email → Telegram)</span></div>
+                <div class="schedule-row"><span class="schedule-time">Budget</span><span class="schedule-event">15%/day target · Resets Saturday 0600</span></div>
+                <p style="color:var(--gray); font-size:0.8rem; margin-top:10px;">
+                    <a href="index.html" style="color:var(--gold);">Bible Intake</a> ·
+                    <a href="bible.html" style="color:var(--gold);">MOOP Bible</a> ·
+                    <a href="fitness.html" style="color:var(--gold);">Fitness Intake</a> ·
+                    <a href="usmc-ministries.html" style="color:var(--gold);">About</a> ·
+                    <a href="retirement.html" style="color:var(--gold);">Retirement</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="cross-divider">✝</div>
+        <p>The Captain's Wheelhouse · <a href="usmc-ministries.html">USMC Ministries</a> · Powered by Mini Moop</p>
+        <p style="margin-top:5px; font-size:0.75rem;">Uniting, Serving, Mentoring and Counseling Ministries</p>
+    </footer>
+
+    <script>
+        // Set date
+        const now = new Date();
+        const opts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById('dateDisplay').textContent = now.toLocaleDateString('en-US', opts);
+
+        // Toggle card expansion
+        function toggleCard(card) {
+            card.classList.toggle('expanded');
+        }
+
+        // Fetch weather
+        async function loadWeather() {
+            try {
+                const brief = await fetch('https://wttr.in/Fredericksburg+VA?format=%c+%t+%w').then(r => r.text());
+                document.getElementById('weather-brief').textContent = brief.trim() + ' · Fredericksburg, VA';
+
+                const detail = await fetch('https://wttr.in/Fredericksburg+VA?format=%c+%C%0aTemp:+%t+(feels+%f)%0aWind:+%w%0aHumidity:+%h%0aSunrise:+%S+·+Sunset:+%s%0aPrecipitation:+%p').then(r => r.text());
+                document.getElementById('weather-full').innerHTML = '<pre style="color:#ccc; font-family:Inter,sans-serif; white-space:pre-wrap; font-size:0.85rem;">' + detail + '</pre>';
+            } catch(e) {
+                document.getElementById('weather-brief').textContent = 'Weather unavailable';
+            }
+        }
+
+        // Fetch markets (Mon-Sat only)
+        async function loadMarkets() {
+            const day = now.getDay();
+            if (day === 0) return; // Sunday — skip
+
+            document.querySelector('#card-markets .card-badge').textContent = 'LIVE';
+            document.querySelector('#card-markets .card-badge').className = 'card-badge ok';
+            document.getElementById('markets-brief').innerHTML = '<p>Loading market data...</p>';
+
+            // We'll use a simple proxy or placeholder — real data requires API keys
+            // For now, show placeholder with structure ready for live data
+            document.getElementById('markets-brief').innerHTML = `
+                <div class="market-row"><span class="market-name">₿ BTC</span><span class="market-price">Loading...</span></div>
+                <div class="market-row"><span class="market-name">Ξ ETH</span><span class="market-price">Loading...</span></div>
+            `;
+        }
+
+        // Initialize
+        loadWeather();
+        loadMarkets();
+
+        // Auto-refresh weather every 30 min
+        setInterval(loadWeather, 1800000);
+    </script>
+</body>
+</html>
