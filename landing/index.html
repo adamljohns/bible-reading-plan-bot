@@ -229,6 +229,13 @@
             </div>
 
             <button id="startBtn" class="cta-button" onclick="startForm()">Begin Intake</button>
+            <div style="margin-top: 20px; padding: 15px; border: 1px solid #333; border-radius: 8px; max-width: 400px; margin-left: auto; margin-right: auto;">
+                <p style="color: var(--gray); font-size: 0.85rem; margin-bottom: 8px;">Already have a plan? Enter your email to pull up your answers:</p>
+                <div style="display: flex; gap: 8px;">
+                    <input type="email" id="emailLookup" placeholder="your@email.com" style="flex:1; background: #111; border: 1px solid #333; color: #fff; padding: 8px 12px; border-radius: 6px; font-size: 0.9rem;">
+                    <button onclick="lookupByEmail()" style="background: var(--gold); color: #000; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.85rem;">Look Up</button>
+                </div>
+            </div>
         </section>
 
         <!-- Form Section -->
@@ -288,7 +295,7 @@
 
     <footer>
         <div class="cross-divider">✝</div>
-        <p>Built by <a href="usmc-ministries.html">USMC Ministries</a> • <a href="bible.html">🔍 MOOP Bible</a> • Powered by The MOOP Bible Translation Engine V3.1</p>
+        <p>Built by <a href="usmc-ministries.html">USMC Ministries</a> • <a href="bible.html">🔍 MOOP Bible</a> • Powered by The MOOP Bible Translation Engine V3.2</p>
         <p style="margin-top: 10px; font-size: 0.85rem;">Uniting, Serving, Mentoring and Counseling Ministries</p>
     </footer>
 
@@ -321,21 +328,13 @@
 
         const amplifiedQuestions = [
             // 20 unconditional + 5 conditional = 25 total; minimum 20 visible for any path
-            { id: 'firstName', question: "What's your first name?", type: 'text', placeholder: 'Enter your first name' },
+            // BTE 3.2: Inherits Basic answers — only asks NEW questions not covered in Basic
             { id: 'lastName', question: "What's your last name?", type: 'text', placeholder: 'Enter your last name' },
-            { id: 'maritalStatus', question: "Are you married?", type: 'radio', options: ['Yes', 'No', 'Widowed', 'Divorced'] },
-            { id: 'wifeName', question: "What's your wife's name?", type: 'text', placeholder: "Enter your wife's name", showIf: () => formData.maritalStatus === 'Yes' },
-            { id: 'wifeBirthday', question: "When is your wife's birthday?", type: 'text', placeholder: 'MM/DD', hint: 'For birthday Scripture blessings', showIf: () => formData.maritalStatus === 'Yes' },
-            { id: 'hasChildren', question: "Do you have children?", type: 'radio', options: ['Yes', 'No'] },
-            { id: 'childrenCount', question: "How many children?", type: 'slider', min: 1, max: 12, showIf: () => formData.hasChildren === 'Yes' },
-            { id: 'children', question: "Tell us about your children", type: 'children', showIf: () => formData.hasChildren === 'Yes' },
+            { id: 'wifeBirthday', question: "When is your wife's birthday?", type: 'text', placeholder: 'MM/DD', hint: 'For birthday Scripture blessings', showIf: () => formData.maritalStatus === 'Yes' || formData.maritalStatus === 'Married' },
             { id: 'archetype', question: "Which best describes your primary role?", type: 'radio', hint: 'This shapes the tone and application of your readings.', options: ['Captain — Military / First Responder leader', 'Maestro — Creative / Musician / Artist', 'General Contractor — Builder / Trades / Craftsman', 'CEO / CFO — Business executive or entrepreneur', 'Pastor / Minister — Vocational ministry', 'Professor — Educator / Academic', 'Other'] },
-            { id: 'denomination', question: "What church tradition are you part of?", type: 'radio', options: ['Baptist', 'Reformed Baptist', 'Presbyterian/Reformed', 'Non-Denominational', 'Catholic', 'Methodist', 'Pentecostal', 'Anglican', 'Lutheran', 'Other'] },
             { id: 'theologicalLean', question: "Which best describes your theological approach?", type: 'radio', options: ['Calvinist / Reformed', 'Arminian', 'Somewhere in between', 'Not sure / No preference'] },
-            { id: 'bibleVersion', question: "Preferred Bible translation?", type: 'radio', options: ['NKJV', 'ESV', 'NASB', 'CSB', 'NIV', 'NLT', 'KJV', 'Blended (multiple translations)'] },
             { id: 'spiritualGoal', question: "What are your top spiritual goals right now?", type: 'checkbox', hint: 'Select up to 3.', maxSelect: 3, options: ['Deeper knowledge of Scripture', 'Becoming a better husband', 'Becoming a better father', 'Breaking a sin pattern', 'Growing in prayer life', 'Preparing for leadership/ministry', 'Finding direction/purpose'] },
             { id: 'struggle', question: "What areas do you most struggle with?", type: 'checkbox', hint: 'Select up to 3. This stays private — helps us target encouragement.', maxSelect: 3, options: ['Anger / Patience', 'Lust / Purity', 'Pride / Humility', 'Fear / Anxiety', 'Laziness / Discipline', 'Finances / Stewardship', 'Addiction', 'Prefer not to say'] },
-            { id: 'readingPace', question: "How much time can you give daily?", type: 'radio', options: ['10-15 minutes', '20-30 minutes', '30-45 minutes', '45+ minutes'] },
             { id: 'occupation', question: "What do you do for work?", type: 'text', placeholder: 'e.g., Electrician, Software Engineer, Pastor' },
             { id: 'location', question: "Where are you located?", type: 'text', placeholder: 'City, State (or Country)', hint: 'Helps contextualize civic/cultural applications' },
             { id: 'hobbies', question: "What are your hobbies or interests?", type: 'text', placeholder: 'e.g., Hunting, Woodworking, Music, Coaching' },
@@ -348,41 +347,45 @@
         ];
 
         const deepQuestions = [
-            // Identity & Background (1-8)
-            { id: 'firstName', question: "What's your first name?", type: 'text', placeholder: 'Enter your first name' },
-            { id: 'lastName', question: "What's your last name?", type: 'text', placeholder: 'Enter your last name' },
+            // BTE 3.2: Deep inherits all Basic + Amplified answers.
+            // Only questions with NEW ids or deeper options are shown.
+            // The buildActiveSteps function will skip already-answered questions.
+
+            // Identity & Background (new questions only)
+            { id: 'firstName', question: "What's your first name?", type: 'text', placeholder: 'Enter your first name', skipIfAnswered: true },
+            { id: 'lastName', question: "What's your last name?", type: 'text', placeholder: 'Enter your last name', skipIfAnswered: true },
             { id: 'age', question: "How old are you?", type: 'number', placeholder: 'Your age', min: 13, max: 120 },
-            { id: 'occupation', question: "What do you do for work?", type: 'text', placeholder: 'e.g., Electrician, Software Engineer, Pastor' },
-            { id: 'location', question: "Where are you located?", type: 'text', placeholder: 'City, State (or Country)' },
+            { id: 'occupation', question: "What do you do for work?", type: 'text', placeholder: 'e.g., Electrician, Software Engineer, Pastor', skipIfAnswered: true },
+            { id: 'location', question: "Where are you located?", type: 'text', placeholder: 'City, State (or Country)', skipIfAnswered: true },
             { id: 'militaryService', question: "Have you served in the military?", type: 'radio', options: ['Yes — Active Duty', 'Yes — Veteran', 'Yes — Reserve/Guard', 'No'] },
             { id: 'militaryBranch', question: "Which branch?", type: 'radio', options: ['Army', 'Navy', 'Marine Corps', 'Air Force', 'Coast Guard', 'Space Force'], showIf: () => formData.militaryService && formData.militaryService.startsWith('Yes') },
-            { id: 'hobbies', question: "What are your hobbies or interests?", type: 'textarea', placeholder: 'Hunting, woodworking, music, coaching, reading, fitness...' },
+            { id: 'hobbies', question: "What are your hobbies or interests?", type: 'textarea', placeholder: 'Hunting, woodworking, music, coaching, reading, fitness...', skipIfAnswered: true },
 
-            // Family (9-18)
-            { id: 'maritalStatus', question: "What is your marital status?", type: 'radio', options: ['Married', 'Single', 'Widowed', 'Divorced', 'Separated'] },
-            { id: 'wifeName', question: "What's your wife's name?", type: 'text', placeholder: "Wife's name", showIf: () => formData.maritalStatus === 'Married' },
-            { id: 'wifeBirthday', question: "When is your wife's birthday?", type: 'text', placeholder: 'MM/DD', showIf: () => formData.maritalStatus === 'Married' },
-            { id: 'marriageYears', question: "How many years have you been married?", type: 'number', placeholder: 'Years married', min: 0, max: 75, showIf: () => formData.maritalStatus === 'Married' },
-            { id: 'marriageStrength', question: "How would you rate your marriage right now?", type: 'radio', showIf: () => formData.maritalStatus === 'Married', options: ['Strong — we\'re thriving', 'Good — room to grow', 'Struggling — need help', 'In crisis', 'Prefer not to say'] },
-            { id: 'hasChildren', question: "Do you have children?", type: 'radio', options: ['Yes', 'No'] },
-            { id: 'childrenCount', question: "How many children?", type: 'slider', min: 1, max: 12, showIf: () => formData.hasChildren === 'Yes' },
+            // Family (deeper questions — marital, children already answered)
+            { id: 'maritalStatus', question: "What is your marital status?", type: 'radio', options: ['Married', 'Single', 'Widowed', 'Divorced', 'Separated'], skipIfAnswered: true },
+            { id: 'wifeName', question: "What's your wife's name?", type: 'text', placeholder: "Wife's name", showIf: () => formData.maritalStatus === 'Married' || formData.maritalStatus === 'Yes', skipIfAnswered: true },
+            { id: 'wifeBirthday', question: "When is your wife's birthday?", type: 'text', placeholder: 'MM/DD', showIf: () => formData.maritalStatus === 'Married' || formData.maritalStatus === 'Yes', skipIfAnswered: true },
+            { id: 'marriageYears', question: "How many years have you been married?", type: 'number', placeholder: 'Years married', min: 0, max: 75, showIf: () => formData.maritalStatus === 'Married' || formData.maritalStatus === 'Yes' },
+            { id: 'marriageStrength', question: "How would you rate your marriage right now?", type: 'radio', showIf: () => formData.maritalStatus === 'Married' || formData.maritalStatus === 'Yes', options: ['Strong — we\'re thriving', 'Good — room to grow', 'Struggling — need help', 'In crisis', 'Prefer not to say'] },
+            { id: 'hasChildren', question: "Do you have children?", type: 'radio', options: ['Yes', 'No'], skipIfAnswered: true },
+            { id: 'childrenCount', question: "How many children?", type: 'slider', min: 1, max: 12, showIf: () => formData.hasChildren === 'Yes', skipIfAnswered: true },
             { id: 'children', question: "Tell us about each child", type: 'children', hint: 'Name, birthday, and a focus area for each', showIf: () => formData.hasChildren === 'Yes' },
             { id: 'childFocusAreas', question: "What focus areas matter most for your children?", type: 'checkbox', showIf: () => formData.hasChildren === 'Yes', options: ['Character development', 'Academic discipline', 'Spiritual formation', 'Emotional health', 'Physical fitness', 'Social skills', 'Screen time management', 'Purpose & calling'] },
             { id: 'otherFamily', question: "Any other family for birthday readings?", type: 'otherFamily', hint: 'Parents, grandparents, siblings, etc.' },
 
-            // Archetype & Role (19-24)
-            { id: 'archetype', question: "Which archetype fits you best?", type: 'radio', hint: 'This shapes the voice and application of every reading.', options: ['Captain — Military / First Responder leader', 'Maestro — Creative / Musician / Artist', 'General Contractor — Builder / Trades / Craftsman', 'CEO / CFO — Business executive or entrepreneur', 'Pastor / Minister — Vocational ministry', 'Professor — Educator / Academic', 'Shepherd — Quiet, steady, servant-hearted', 'Warrior-Poet — Blend of strength and sensitivity', 'Other'] },
+            // Archetype & Role
+            { id: 'archetype', question: "Which archetype fits you best?", type: 'radio', hint: 'This shapes the voice and application of every reading.', skipIfAnswered: true, options: ['Captain — Military / First Responder leader', 'Maestro — Creative / Musician / Artist', 'General Contractor — Builder / Trades / Craftsman', 'CEO / CFO — Business executive or entrepreneur', 'Pastor / Minister — Vocational ministry', 'Professor — Educator / Academic', 'Shepherd — Quiet, steady, servant-hearted', 'Warrior-Poet — Blend of strength and sensitivity', 'Other'] },
             { id: 'leadershipRoles', question: "What leadership roles do you hold?", type: 'checkbox', options: ['Husband / Head of household', 'Father', 'Church deacon / elder', 'Small group / Bible study leader', 'Business owner / manager', 'Coach / mentor', 'Community leader', 'None currently'] },
             { id: 'mentoringOthers', question: "Are you currently discipling or mentoring other men?", type: 'radio', options: ['Yes — actively', 'Informally / sometimes', 'No — but I want to', 'No — not at this time'] },
             { id: 'hasMentor', question: "Do you have a mentor or accountability partner?", type: 'radio', options: ['Yes', 'No — but I want one', 'No'] },
             { id: 'communityInvolvement', question: "What groups or communities are you part of?", type: 'textarea', placeholder: 'Church small group, men\'s group, CBMC, military fellowship, fraternity...' },
             { id: 'lifeVerse', question: "Do you have a life verse? If so, what is it?", type: 'text', placeholder: 'e.g., Luke 14:33 or Proverbs 3:5-6', hint: 'Optional — leave blank if you don\'t have one yet' },
 
-            // Theology & Faith (25-32)
-            { id: 'denomination', question: "What church tradition are you part of?", type: 'radio', options: ['Baptist', 'Reformed Baptist', 'Presbyterian/Reformed', 'Non-Denominational', 'Catholic', 'Methodist', 'Pentecostal', 'Anglican', 'Lutheran', 'Other'] },
+            // Theology & Faith
+            { id: 'denomination', question: "What church tradition are you part of?", type: 'radio', skipIfAnswered: true, options: ['Baptist', 'Reformed Baptist', 'Presbyterian/Reformed', 'Non-Denominational', 'Catholic', 'Methodist', 'Pentecostal', 'Anglican', 'Lutheran', 'Other'] },
             { id: 'churchName', question: "What church do you attend?", type: 'text', placeholder: 'Church name (optional)', hint: 'Optional' },
-            { id: 'theologicalLean', question: "Which best describes your theological approach?", type: 'radio', options: ['Calvinist / Reformed', 'Arminian', 'Somewhere in between', 'Not sure / No preference'] },
-            { id: 'bibleVersion', question: "Preferred Bible translation?", type: 'radio', options: ['NKJV', 'ESV', 'NASB', 'CSB', 'NIV', 'NLT', 'KJV', 'Blended (multiple translations)'] },
+            { id: 'theologicalLean', question: "Which best describes your theological approach?", type: 'radio', skipIfAnswered: true, options: ['Calvinist / Reformed', 'Arminian', 'Somewhere in between', 'Not sure / No preference'] },
+            { id: 'bibleVersion', question: "Preferred Bible translation?", type: 'radio', skipIfAnswered: true, options: ['NKJV', 'ESV', 'NASB', 'CSB', 'NIV', 'NLT', 'KJV', 'Blended (multiple translations)'] },
             { id: 'salvationYear', question: "When did you come to faith in Christ?", type: 'text', placeholder: 'Year or approximate (e.g., 2005, childhood, college)', hint: 'Helps calibrate spiritual maturity of content' },
             { id: 'baptized', question: "Have you been baptized?", type: 'radio', options: ['Yes — believer\'s baptism', 'Yes — as an infant', 'No — not yet', 'Prefer not to say'] },
             { id: 'spiritualGifts', question: "What spiritual gifts do you believe you have?", type: 'checkbox', options: ['Teaching', 'Leadership', 'Hospitality', 'Giving', 'Encouragement', 'Mercy', 'Wisdom', 'Discernment', 'Evangelism', 'Service', 'Not sure'] },
@@ -448,7 +451,13 @@
         }
 
         function buildActiveSteps() {
-            activeSteps = getQuestions().filter(q => !q.showIf || q.showIf());
+            activeSteps = getQuestions().filter(q => {
+                // BTE 3.2: Skip questions already answered from previous tiers
+                if (q.skipIfAnswered && formData[q.id] !== undefined && formData[q.id] !== '' && formData[q.id] !== null) return false;
+                // Skip if conditional and condition not met
+                if (q.showIf && !q.showIf()) return false;
+                return true;
+            });
         }
 
         function startForm() {
@@ -655,6 +664,39 @@
             renderStep(startAt);
         }
 
+        // BTE 3.2: Email lookup to restore previous answers
+        function lookupByEmail() {
+            const emailInput = document.getElementById('emailLookup');
+            if (!emailInput || !emailInput.value.trim()) { alert('Enter your email to look up your plan.'); return; }
+            const email = emailInput.value.trim();
+            // Try Mac Mini server first, fallback to localStorage
+            fetch('http://192.168.1.166:8080/api/bible-intake?email=' + encodeURIComponent(email))
+                .then(r => r.ok ? r.json() : Promise.reject('not found'))
+                .then(data => {
+                    if (data && data.user) {
+                        formData = { ...data.user, tier: data.tier || 'basic' };
+                        selectedTier = formData.tier;
+                        alert('Welcome back, ' + (formData.firstName || 'brother') + '! Your answers have been restored.');
+                        showPreview();
+                    } else { alert('No plan found for that email. Start a new one!'); }
+                })
+                .catch(() => {
+                    // Fallback to localStorage
+                    const saved = localStorage.getItem('watchmanPlan');
+                    if (saved) {
+                        const parsed = JSON.parse(saved);
+                        if (parsed.contact === email || parsed.email === email) {
+                            formData = parsed;
+                            selectedTier = formData.tier || 'basic';
+                            alert('Found your saved plan locally!');
+                            showPreview();
+                            return;
+                        }
+                    }
+                    alert('No plan found for that email. Start fresh below!');
+                });
+        }
+
         function showPreview() {
             localStorage.setItem('watchmanPlan', JSON.stringify(formData));
             document.getElementById('formSection').style.display = 'none';
@@ -691,6 +733,33 @@
                         <p style="margin-top:10px">Seek the welfare of your city, ${firstName}. Pray for it.</p>
                     </div>
                 </div>`;
+
+            // BTE 3.2: Answer Summary (Blossom-style)
+            let summaryHtml = '<div style="margin-top:30px; background:#0a0a0a; border:1px solid #333; border-radius:12px; padding:25px;"><h3 style="color:var(--gold); margin-bottom:15px; font-family:Playfair Display,serif;">📋 Your Plan Summary</h3>';
+            const summaryFields = [
+                ['Name', [formData.firstName, formData.lastName].filter(Boolean).join(' ')],
+                ['Tier', (formData.tier || '').charAt(0).toUpperCase() + (formData.tier || '').slice(1)],
+                ['Marital Status', formData.maritalStatus],
+                ['Wife', formData.wifeName],
+                ['Children', (formData.children || []).map(c => c.name + (c.gender ? ' (' + c.gender + ')' : '')).join(', ')],
+                ['Church', formData.denomination],
+                ['Translation', formData.bibleVersion],
+                ['Reading Pace', formData.readingPace],
+                ['Spiritual Goal', Array.isArray(formData.spiritualGoal) ? formData.spiritualGoal.join(', ') : formData.spiritualGoal],
+                ['Season of Life', formData.seasonOfLife],
+                ['Calling', formData.archetype],
+                ['Location', formData.location],
+                ['Occupation', formData.occupation],
+                ['Delivery', formData.deliveryMethod],
+                ['Start Date', formData.startDate],
+            ];
+            summaryFields.forEach(function(pair) {
+                if (pair[1] && pair[1] !== 'undefined') {
+                    summaryHtml += '<div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #222;"><span style="color:var(--gray);">' + pair[0] + '</span><span style="color:#fff; text-align:right; max-width:60%;">' + pair[1] + '</span></div>';
+                }
+            });
+            summaryHtml += '</div>';
+            document.getElementById('previewContent').innerHTML += summaryHtml;
 
             // Show upgrade option if not already at deepest tier
             const upgradeDiv = document.getElementById('upgradeOption');
