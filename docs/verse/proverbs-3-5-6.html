@@ -483,8 +483,39 @@
         const LEFT_SVG = '<svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>';
         const RIGHT_SVG = '<svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>';
 
+
+        let viewMode = 'verse';
+        let isFullChapter = false;
+
+        function navChapter(delta) {
+            if (!currentRef) return;
+            var newCh = currentRef.chapter + delta;
+            if (newCh < 1) return;
+            viewMode = 'chapter';
+            document.getElementById('refInput').value = currentRef.display + ' ' + newCh;
+            lookupVerse();
+        }
+
+        function nav3Verses(delta) {
+            if (!currentRef) return;
+            viewMode = 'verse';
+            var newV = currentRef.startVerse + (delta * 3);
+            var newCh = currentRef.chapter;
+            if (newV < 1) { newCh--; if (newCh < 1) return; newV = 200; }
+            document.getElementById('refInput').value = currentRef.display + ' ' + newCh + ':' + newV;
+            lookupVerse();
+        }
+
+        function goToVerse(ch, v) {
+            if (!currentRef) return;
+            viewMode = 'verse';
+            document.getElementById('refInput').value = currentRef.display + ' ' + ch + ':' + v;
+            lookupVerse();
+        }
+
         function navVerse(delta) {
             if (!currentRef) return;
+            viewMode = 'verse';
             var newV = currentRef.startVerse + delta;
             var newCh = currentRef.chapter;
             if (newV < 1) { newCh--; if (newCh < 1) return; newV = 200; }
@@ -492,12 +523,38 @@
             lookupVerse();
         }
 
-        function renderNav(rangeStr) {
-            return '<div class="nav-arrows">' +
-                '<div class="nav-btn-wrap"><button class="nav-arrow" onclick="navVerse(-1)" title="Previous Verse">' + LEFT_SVG + '</button><span class="nav-label">prev vs</span></div>' +
-                '<span class="nav-ref">' + rangeStr + '</span>' +
-                '<div class="nav-btn-wrap"><button class="nav-arrow" onclick="navVerse(1)" title="Next Verse">' + RIGHT_SVG + '</button><span class="nav-label">next vs</span></div>' +
-                '</div>';
+        function renderNav(rangeStr, position) {
+            if (position === 'top') {
+                // Top nav: chapter nav (if chapter mode) or verse nav
+                if (viewMode === 'chapter') {
+                    return '<div class="nav-arrows">' +
+                        '<div class="nav-btn-wrap"><button class="nav-arrow" onclick="navChapter(-1)" title="Previous Chapter">' + LEFT_SVG + '</button><span class="nav-label">prev ch</span></div>' +
+                        '<span class="nav-ref">' + rangeStr + '</span>' +
+                        '<div class="nav-btn-wrap"><button class="nav-arrow" onclick="navChapter(1)" title="Next Chapter">' + RIGHT_SVG + '</button><span class="nav-label">nxt ch</span></div>' +
+                        '</div>';
+                } else {
+                    return '<div class="nav-arrows">' +
+                        '<div class="nav-btn-wrap"><button class="nav-arrow" onclick="navVerse(-1)" title="Previous Verse">' + LEFT_SVG + '</button><span class="nav-label">prev vs</span></div>' +
+                        '<span class="nav-ref">' + rangeStr + '</span>' +
+                        '<div class="nav-btn-wrap"><button class="nav-arrow" onclick="navVerse(1)" title="Next Verse">' + RIGHT_SVG + '</button><span class="nav-label">nxt vs</span></div>' +
+                        '</div>';
+                }
+            } else {
+                // Bottom nav: verse nav (if chapter) or 3-verse nav
+                if (viewMode === 'chapter') {
+                    return '<div class="nav-arrows">' +
+                        '<div class="nav-btn-wrap"><button class="nav-arrow" onclick="navVerse(-1)" title="Previous Verse">' + LEFT_SVG + '</button><span class="nav-label">prev vs</span></div>' +
+                        '<span class="nav-ref">' + rangeStr + '</span>' +
+                        '<div class="nav-btn-wrap"><button class="nav-arrow" onclick="navVerse(1)" title="Next Verse">' + RIGHT_SVG + '</button><span class="nav-label">nxt vs</span></div>' +
+                        '</div>';
+                } else {
+                    return '<div class="nav-arrows">' +
+                        '<div class="nav-btn-wrap"><button class="nav-arrow" onclick="nav3Verses(-1)" title="Back 3 Verses">' + LEFT_SVG + '</button><span class="nav-label">prev 3vs</span></div>' +
+                        '<span class="nav-ref">' + rangeStr + '</span>' +
+                        '<div class="nav-btn-wrap"><button class="nav-arrow" onclick="nav3Verses(1)" title="Forward 3 Verses">' + RIGHT_SVG + '</button><span class="nav-label">nxt 3vs</span></div>' +
+                        '</div>';
+                }
+            }
         }
 
         async function lookupVerse() {
@@ -506,6 +563,9 @@
             const ref = parseRef(input);
             if (!ref) { document.getElementById('results').innerHTML = '<div class="error">Could not parse that reference. Try "John 3:16" or "Romans 8:28-30".</div>'; return; }
             currentRef = ref;
+            isFullChapter = ref.fullChapter;
+            if (isFullChapter && viewMode !== 'verse') viewMode = 'chapter';
+            else if (!isFullChapter) viewMode = 'verse';
             document.getElementById('searchBtn').disabled = true;
             document.getElementById('results').innerHTML = '<div class="loading">📖 Fetching from 9 translations...</div>';
 
@@ -577,11 +637,11 @@
                 ? ref.display + ' ' + ref.chapter + ':' + ref.startVerse
                 : ref.display + ' ' + ref.chapter + ':' + ref.startVerse + '-' + lastVerse;
 
-            let html = renderNav(rangeStr);
+            let html = renderNav(rangeStr, 'top');
             html += '<div class="result-card"><div class="result-header">' + rangeStr + transIndicator + '</div>';
 
             allVerses.forEach(v => {
-                html += '<div class="verse-block"><span class="verse-num">' + v.num + '</span> <span class="verse-text">' + v.text + '</span>';
+                html += '<div class="verse-block"><span class="verse-num clickable" onclick="goToVerse(' + ref.chapter + ',' + v.num + ')" title="View verse ' + v.num + ' in detail">' + v.num + '</span> <span class="verse-text">' + v.text + '</span>';
                 v.amps.forEach(a => {
                     html += '<div class="amplification"><span class="amp-label">' + a.label + ':</span> ' + a.text + '</div>';
                 });
@@ -610,13 +670,13 @@
             }
 
             if (ref.isOT) {
-                html += '<div class="lexicon-footer">Word studies: <a href="https://www.stepbible.org/" target="_blank">STEP Bible</a> (Tyndale House, Cambridge)</div>';
+                html += '<div class="lexicon-footer">Word studies: <a href="https://www.stepbible.org/?q=version=THOT" target="_blank">STEP Bible</a> (Tyndale House, Cambridge)</div>';
             } else {
                 html += '<div class="lexicon-footer">Word studies: <a href="https://www.blueletterbible.org/" target="_blank">Blue Letter Bible</a></div>';
             }
             html += '<div class="engine-info">The MOOP Bible Translation Engine V3.2 · 9 translations · Interlinear ' + (ref.isOT ? 'Hebrew' : 'Greek') + ' backbone</div>';
             html += '</div>';
-            html += renderNav(rangeStr);
+            html += renderNav(rangeStr, 'bottom');
 
             document.getElementById('results').innerHTML = html;
             document.getElementById('searchBtn').disabled = false;
