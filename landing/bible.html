@@ -201,7 +201,7 @@
         <section class="hero">
             <img src="assets/logo.png" alt="U.S.M.C. Ministries" onerror="this.style.display='none'">
             <h1>The MOOP Bible Translation Engine</h1>
-            <p class="subtitle">V3.2 · 9 Translations · Interlinear Hebrew &amp; Greek · Strong's Concordance</p>
+            <p class="subtitle">V3.3 · 9 Translations · Interlinear Hebrew &amp; Greek · Strong's Concordance</p>
             <p class="desc">
                 Type any Bible reference below. The engine blends 9 English translations with
                 NKJV as the primary voice, surfaces meaningful divergences, and provides
@@ -924,6 +924,16 @@
         document.getElementById('refInput').addEventListener('keydown', e => {
             if (e.key === 'Enter') lookupVerse();
         });
+
+        // Auto-lookup from URL ?ref= parameter (for Chronological Bible links)
+        (function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const refParam = urlParams.get('ref');
+            if (refParam) {
+                document.getElementById('refInput').value = decodeURIComponent(refParam);
+                lookupVerse();
+            }
+        })();
     </script>
 </body>
 </html>
