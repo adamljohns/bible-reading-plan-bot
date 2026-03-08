@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Fitness Coaching Intake — USMC Ministries</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root { --bg: #0a0a0a; --card: #111; --gold: #D4AF37; --gold-light: #F4D470; --white: #e8e8e8; --gray: #888; --border: #333; --green: #27AE60; --red: #E74C3C; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--white); min-height: 100vh; }
+        h1,h2,h3 { font-family: 'Playfair Display', serif; }
+
+        .hero {
+            text-align: center; padding: 50px 20px 30px;
+            background: linear-gradient(180deg, rgba(39,174,96,0.1) 0%, transparent 100%);
+            border-bottom: 1px solid var(--border);
+        }
+        .hero h1 { font-size: 1.8rem; color: var(--green); margin-bottom: 8px; }
+        .hero .subtitle { color: var(--gray); font-size: 0.95rem; }
+        .hero .certs { color: var(--gold); font-size: 0.8rem; margin-top: 12px; }
+
+        .container { max-width: 650px; margin: 0 auto; padding: 20px; }
+
+        /* Progress bar */
+        .progress-wrap { margin: 20px 0; }
+        .progress-bar { height: 6px; background: #222; border-radius: 3px; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--green); border-radius: 3px; transition: width 0.4s ease; }
+        .progress-text { text-align: center; color: var(--gray); font-size: 0.8rem; margin-top: 6px; }
+
+        /* Sections */
+        .section { display: none; }
+        .section.active { display: block; }
+        .section-card {
+            background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+            padding: 25px; margin: 15px 0;
+        }
+        .section-card h2 { color: var(--green); font-size: 1.2rem; margin-bottom: 15px; }
+        .section-card h3 { color: var(--gold); font-size: 1rem; margin: 15px 0 10px; }
+
+        /* Form elements */
+        .field { margin: 14px 0; }
+        .field label { display: block; color: var(--gray); font-size: 0.85rem; margin-bottom: 6px; }
+        .field input, .field textarea, .field select {
+            width: 100%; background: #0a0a0a; border: 1px solid var(--border); border-radius: 8px;
+            color: var(--white); padding: 12px; font-family: 'Inter', sans-serif; font-size: 0.95rem;
+        }
+        .field input:focus, .field textarea:focus, .field select:focus { border-color: var(--green); outline: none; }
+        .field textarea { min-height: 70px; resize: vertical; }
+        .field select { -webkit-appearance: none; }
+
+        .radio-group { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+        .radio-option {
+            background: #0a0a0a; border: 1px solid var(--border); border-radius: 8px;
+            padding: 10px 16px; cursor: pointer; font-size: 0.9rem; transition: all 0.3s;
+            flex: 1; min-width: 120px; text-align: center;
+        }
+        .radio-option.selected { border-color: var(--green); background: rgba(39,174,96,0.1); color: var(--green); }
+        .radio-option:hover { border-color: var(--green); }
+
+        .checkbox-group { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+        .checkbox-option {
+            background: #0a0a0a; border: 1px solid var(--border); border-radius: 8px;
+            padding: 8px 14px; cursor: pointer; font-size: 0.85rem; transition: all 0.3s;
+        }
+        .checkbox-option.selected { border-color: var(--gold); background: rgba(212,175,55,0.1); color: var(--gold); }
+
+        /* Buttons */
+        .btn-row { display: flex; gap: 10px; margin-top: 20px; }
+        .btn {
+            flex: 1; padding: 14px; border-radius: 10px; font-weight: 700; font-size: 1rem;
+            cursor: pointer; font-family: 'Inter', sans-serif; border: none; transition: all 0.3s;
+        }
+        .btn-next { background: var(--green); color: #fff; }
+        .btn-next:hover { background: #2ecc71; }
+        .btn-back { background: transparent; border: 2px solid var(--border); color: var(--gray); }
+        .btn-back:hover { border-color: var(--green); color: var(--green); }
+        .btn-submit { background: var(--gold); color: #000; }
+
+        /* PAR-Q warning */
+        .parq-warning {
+            background: rgba(231,76,60,0.1); border: 1px solid var(--red); border-radius: 8px;
+            padding: 15px; margin: 15px 0; display: none;
+        }
+        .parq-warning p { color: var(--red); font-size: 0.9rem; }
+
+        /* Results */
+        .results-card {
+            background: var(--card); border: 1px solid var(--green); border-radius: 12px;
+            padding: 25px; margin: 15px 0;
+        }
+        .metric { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #222; }
+        .metric-label { color: var(--gray); }
+        .metric-value { color: var(--green); font-weight: 700; }
+
+        footer { text-align: center; padding: 30px; color: var(--gray); font-size: 0.85rem; border-top: 1px solid var(--border); margin-top: 30px; }
+        footer a { color: var(--gold); text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <h1>💪 Fitness Coaching Intake</h1>
+        <p class="subtitle">Christ-Centered Strength · Discipline · Longevity</p>
+        <p class="certs">NASM CPT · CNC · WLS · PES Certified</p>
+    </div>
+
+    <div class="container">
+        <div class="progress-wrap">
+            <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:12.5%"></div></div>
+            <p class="progress-text" id="progressText">Step 1 of 8</p>
+        </div>
+
+        <!-- Section 1: Personal Info -->
+        <div class="section active" id="sec-1">
+            <div class="section-card">
+                <h2>👤 Personal Information</h2>
+                <div class="field"><label>First Name</label><input type="text" id="firstName" placeholder="Your first name"></div>
+                <div class="field"><label>Last Name</label><input type="text" id="lastName" placeholder="Your last name"></div>
+                <div class="field"><label>Age</label><input type="number" id="age" placeholder="Age" min="13" max="100"></div>
+                <div class="field">
+                    <label>Gender</label>
+                    <div class="radio-group" data-field="gender">
+                        <div class="radio-option" onclick="selectRadio(this,'gender')">Male</div>
+                        <div class="radio-option" onclick="selectRadio(this,'gender')">Female</div>
+                    </div>
+                </div>
+                <div class="field"><label>Email</label><input type="email" id="email" placeholder="your@email.com"></div>
+                <div class="field"><label>Phone</label><input type="tel" id="phone" placeholder="(555) 555-5555"></div>
+            </div>
+            <div class="btn-row"><div style="flex:1"></div><button class="btn btn-next" onclick="nextSec()">Next →</button></div>
+        </div>
+
+        <!-- Section 2: PAR-Q -->
+        <div class="section" id="sec-2">
+            <div class="section-card">
+                <h2>🏥 PAR-Q Health Screening</h2>
+                <p style="color:var(--gray);font-size:0.85rem;margin-bottom:15px;">Physical Activity Readiness Questionnaire — please answer honestly.</p>
+                <div class="field">
+                    <label>Has your doctor ever said you have a heart condition?</label>
+                    <div class="radio-group" data-field="parq1">
+                        <div class="radio-option" onclick="selectRadio(this,'parq1')">Yes</div>
+                        <div class="radio-option" onclick="selectRadio(this,'parq1')">No</div>
+                    </div>
+                </div>
+                <div class="field">
+                    <label>Do you feel pain in your chest during physical activity?</label>
+                    <div class="radio-group" data-field="parq2">
+                        <div class="radio-option" onclick="selectRadio(this,'parq2')">Yes</div>
+                        <div class="radio-option" onclick="selectRadio(this,'parq2')">No</div>
+                    </div>
+                </div>
+                <div class="field">
+                    <label>Do you lose balance due to dizziness or lose consciousness?</label>
+                    <div class="radio-group" data-field="parq3">
+                        <div class="radio-option" onclick="selectRadio(this,'parq3')">Yes</div>
+                        <div class="radio-option" onclick="selectRadio(this,'parq3')">No</div>
+                    </div>
+                </div>
+                <div class="field">
+                    <label>Do you have a bone or joint problem that could be worsened by exercise?</label>
+                    <div class="radio-group" data-field="parq4">
+                        <div class="radio-option" onclick="selectRadio(this,'parq4')">Yes</div>
+                        <div class="radio-option" onclick="selectRadio(this,'parq4')">No</div>
+                    </div>
+                </div>
+                <div class="field">
+                    <label>Are you currently taking medication for blood pressure or a heart condition?</label>
+                    <div class="radio-group" data-field="parq5">
+                        <div class="radio-option" onclick="selectRadio(this,'parq5')">Yes</div>
+                        <div class="radio-option" onclick="selectRadio(this,'parq5')">No</div>
+                    </div>
+                </div>
+                <div class="field">
+                    <label>Is there any other reason you should not engage in physical activity?</label>
+                    <div class="radio-group" data-field="parq6">
+                        <div class="radio-option" onclick="selectRadio(this,'parq6')">Yes</div>
+                        <div class="radio-option" onclick="selectRadio(this,'parq6')">No</div>
+                    </div>
+                </div>
+                <div class="parq-warning" id="parqWarning">
+                    <p>⚠️ Based on your answers, please consult a physician before beginning an exercise program. We'll still complete the intake, but medical clearance is recommended.</p>
+                </div>
+            </div>
+            <div class="btn-row"><button class="btn btn-back" onclick="prevSec()">← Back</button><button class="btn btn-next" onclick="nextSec()">Next →</button></div>
+        </div>
+
+        <!-- Section 3: Body Composition -->
+        <div class="section" id="sec-3">
+            <div class="section-card">
+                <h2>📏 Body Composition</h2>
+                <div class="field"><label>Height (inches)</label><input type="number" id="height" placeholder="e.g., 70" min="48" max="96"></div>
+                <div class="field"><label>Current Weight (lbs)</label><input type="number" id="weight" placeholder="e.g., 200" min="80" max="500"></div>
+                <div class="field"><label>Goal Weight (lbs)</label><input type="number" id="goalWeight" placeholder="e.g., 185"></div>
+                <div class="field"><label>Body Fat % (if known)</label><input type="number" id="bodyFat" placeholder="e.g., 18" step="0.1"></div>
+                <div class="field"><label>Waist Circumference (inches)</label><input type="number" id="waist" placeholder="e.g., 34" step="0.5"></div>
+            </div>
+            <div class="btn-row"><button class="btn btn-back" onclick="prevSec()">← Back</button><button class="btn btn-next" onclick="nextSec()">Next →</button></div>
+        </div>
+
+        <!-- Section 4: Fitness History -->
+        <div class="section" id="sec-4">
+            <div class="section-card">
+                <h2>🏋️ Training History</h2>
+                <div class="field">
+                    <label>Current activity level</label>
+                    <div class="radio-group" data-field="activityLevel">
+                        <div class="radio-option" onclick="selectRadio(this,'activityLevel')">Sedentary</div>
+                        <div class="radio-option" onclick="selectRadio(this,'activityLevel')">Light (1-2x/wk)</div>
+                        <div class="radio-option" onclick="selectRadio(this,'activityLevel')">Moderate (3-4x/wk)</div>
+                        <div class="radio-option" onclick="selectRadio(this,'activityLevel')">Active (5+/wk)</div>
+                    </div>
+                </div>
+                <div class="field">
+                    <label>Training experience</label>
+                    <div class="radio-group" data-field="experience">
+                        <div class="radio-option" onclick="selectRadio(this,'experience')">Beginner</div>
+                        <div class="radio-option" onclick="selectRadio(this,'experience')">Intermediate</div>
+                        <div class="radio-option" onclick="selectRadio(this,'experience')">Advanced</div>
+                    </div>
+                </div>
+                <div class="field"><label>Current exercise routine (if any)</label><textarea id="currentRoutine" placeholder="Describe what you currently do..."></textarea></div>
+                <div class="field"><label>Past injuries or limitations</label><textarea id="injuries" placeholder="Knee surgery, back pain, etc."></textarea></div>
+            </div>
+            <div class="btn-row"><button class="btn btn-back" onclick="prevSec()">← Back</button><button class="btn btn-next" onclick="nextSec()">Next →</button></div>
+        </div>
+
+        <!-- Section 5: Goals -->
+        <div class="section" id="sec-5">
+            <div class="section-card">
+                <h2>🎯 Goals & Motivation</h2>
+                <div class="field">
+                    <label>Primary goals (select all that apply)</label>
+                    <div class="checkbox-group" data-field="goals">
+                        <div class="checkbox-option" onclick="toggleCheck(this)">Fat Loss</div>
+                        <div class="checkbox-option" onclick="toggleCheck(this)">Muscle Gain</div>
+                        <div class="checkbox-option" onclick="toggleCheck(this)">Strength</div>
+                        <div class="checkbox-option" onclick="toggleCheck(this)">Endurance</div>
+                        <div class="checkbox-option" onclick="toggleCheck(this)">Flexibility</div>
+                        <div class="checkbox-option" onclick="toggleCheck(this)">Energy</div>
+                        <div class="checkbox-option" onclick="toggleCheck(this)">Pain Relief</div>
+                        <div class="checkbox-option" onclick="toggleCheck(this)">Longevity</div>
+                        <div class="checkbox-option" onclick="toggleCheck(this)">Sports Performance</div>
+                    </div>
+                </div>
+                <div class="field"><label>What does success look like in 90 days?</label><textarea id="successVision" placeholder="Be specific — what will be different?"></textarea></div>
+                <div class="field"><label>What's held you back before?</label><textarea id="barriers" placeholder="Time, motivation, injury, knowledge..."></textarea></div>
+            </div>
+            <div class="btn-row"><button class="btn btn-back" onclick="prevSec()">← Back</button><button class="btn btn-next" onclick="nextSec()">Next →</button></div>
+        </div>
+
+        <!-- Section 6: Nutrition -->
+        <div class="section" id="sec-6">
+            <div class="section-card">
+                <h2>🥗 Nutrition Profile</h2>
+                <div class="field">
+                    <label>How would you describe your current diet?</label>
+                    <div class="radio-group" data-field="dietQuality">
+                        <div class="radio-option" onclick="selectRadio(this,'dietQuality')">Poor</div>
+                        <div class="radio-option" onclick="selectRadio(this,'dietQuality')">Fair</div>
+                        <div class="radio-option" onclick="selectRadio(this,'dietQuality')">Good</div>
+                        <div class="radio-option" onclick="selectRadio(this,'dietQuality')">Excellent</div>
+                    </div>
+                </div>
+                <div class="field"><label>Meals per day</label><input type="number" id="mealsPerDay" placeholder="e.g., 3" min="1" max="8"></div>
+                <div class="field"><label>Daily water intake (oz)</label><input type="number" id="waterIntake" placeholder="e.g., 64"></div>
+                <div class="field"><label>Dietary restrictions or allergies</label><input type="text" id="dietRestrictions" placeholder="Gluten-free, dairy-free, etc."></div>
+                <div class="field"><label>Current supplements</label><textarea id="supplements" placeholder="Protein, creatine, multivitamin, etc."></textarea></div>
+                <div class="field"><label>Daily protein estimate (grams)</label><input type="number" id="proteinIntake" placeholder="e.g., 120"></div>
+            </div>
+            <div class="btn-row"><button class="btn btn-back" onclick="prevSec()">← Back</button><button class="btn btn-next" onclick="nextSec()">Next →</button></div>
+        </div>
+
+        <!-- Section 7: Lifestyle -->
+        <div class="section" id="sec-7">
+            <div class="section-card">
+                <h2>😴 Lifestyle & Recovery</h2>
+                <div class="field"><label>Average hours of sleep</label><input type="number" id="sleep" placeholder="e.g., 7" min="1" max="14" step="0.5"></div>
+                <div class="field">
+                    <label>Sleep quality</label>
+                    <div class="radio-group" data-field="sleepQuality">
+                        <div class="radio-option" onclick="selectRadio(this,'sleepQuality')">Poor</div>
+                        <div class="radio-option" onclick="selectRadio(this,'sleepQuality')">Fair</div>
+                        <div class="radio-option" onclick="selectRadio(this,'sleepQuality')">Good</div>
+                        <div class="radio-option" onclick="selectRadio(this,'sleepQuality')">Excellent</div>
+                    </div>
+                </div>
+                <div class="field">
+                    <label>Stress level (1-10)</label>
+                    <input type="range" id="stressLevel" min="1" max="10" value="5" oninput="document.getElementById('stressVal').textContent=this.value" style="width:100%">
+                    <div style="text-align:center;color:var(--gold);font-weight:700;font-size:1.2rem;" id="stressVal">5</div>
+                </div>
+                <div class="field">
+                    <label>Occupation type</label>
+                    <div class="radio-group" data-field="occupation">
+                        <div class="radio-option" onclick="selectRadio(this,'occupation')">Desk/Sedentary</div>
+                        <div class="radio-option" onclick="selectRadio(this,'occupation')">Active/Physical</div>
+                        <div class="radio-option" onclick="selectRadio(this,'occupation')">Mixed</div>
+                    </div>
+                </div>
+                <div class="field"><label>Anything else your coach should know?</label><textarea id="additionalNotes" placeholder="Family commitments, travel schedule, faith goals, etc."></textarea></div>
+            </div>
+            <div class="btn-row"><button class="btn btn-back" onclick="prevSec()">← Back</button><button class="btn btn-next" onclick="nextSec()">Next →</button></div>
+        </div>
+
+        <!-- Section 8: Summary -->
+        <div class="section" id="sec-8">
+            <div class="section-card">
+                <h2>✅ Review & Submit</h2>
+                <div id="summaryContent"></div>
+            </div>
+            <div class="btn-row"><button class="btn btn-back" onclick="prevSec()">← Back</button><button class="btn btn-submit" onclick="submitForm()">⚓ Submit Intake</button></div>
+        </div>
+
+        <!-- Completion -->
+        <div class="section" id="sec-done">
+            <div class="results-card">
+                <h2 style="color:var(--green);text-align:center;">🎯 Intake Complete!</h2>
+                <p style="text-align:center;color:var(--gray);margin:15px 0;">Your information has been saved. Coach MOOP will review and reach out within 24 hours.</p>
+                <div id="estimatesSection"></div>
+            </div>
+            <div style="text-align:center;margin-top:20px;">
+                <p style="color:var(--gold);font-style:italic;">"Do you not know that your bodies are temples of the Holy Spirit?"</p>
+                <p style="color:var(--gray);font-size:0.85rem;margin-top:5px;">— 1 Corinthians 6:19 (NKJV)</p>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p><a href="usmc-ministries.html">USMC Ministries</a> · <a href="index.html">Bible Reading Plan</a> · <a href="bible.html">MOOP Bible</a></p>
+        <p style="margin-top:8px;">NASM CPT · CNC · WLS · PES Certified</p>
+    </footer>
+
+    <script>
+        let currentSec = 1;
+        const totalSec = 8;
+        const formData = {};
+
+        function selectRadio(el, field) {
+            el.parentElement.querySelectorAll('.radio-option').forEach(o => o.classList.remove('selected'));
+            el.classList.add('selected');
+            formData[field] = el.textContent.trim();
+            // PAR-Q warning
+            if (field.startsWith('parq')) checkParq();
+        }
+
+        function toggleCheck(el) {
+            el.classList.toggle('selected');
+        }
+
+        function checkParq() {
+            const yesCount = ['parq1','parq2','parq3','parq4','parq5','parq6'].filter(f => formData[f] === 'Yes').length;
+            document.getElementById('parqWarning').style.display = yesCount > 0 ? 'block' : 'none';
+        }
+
+        function nextSec() {
+            if (currentSec >= totalSec) return;
+            document.getElementById('sec-' + currentSec).classList.remove('active');
+            currentSec++;
+            document.getElementById('sec-' + currentSec).classList.add('active');
+            updateProgress();
+            if (currentSec === totalSec) buildSummary();
+            window.scrollTo(0, 0);
+        }
+
+        function prevSec() {
+            if (currentSec <= 1) return;
+            document.getElementById('sec-' + currentSec).classList.remove('active');
+            currentSec--;
+            document.getElementById('sec-' + currentSec).classList.add('active');
+            updateProgress();
+            window.scrollTo(0, 0);
+        }
+
+        function updateProgress() {
+            const pct = (currentSec / totalSec) * 100;
+            document.getElementById('progressFill').style.width = pct + '%';
+            document.getElementById('progressText').textContent = 'Step ' + currentSec + ' of ' + totalSec;
+        }
+
+        function getVal(id) { const el = document.getElementById(id); return el ? el.value : ''; }
+
+        function buildSummary() {
+            const goals = [];
+            document.querySelectorAll('[data-field="goals"] .selected').forEach(e => goals.push(e.textContent));
+            const html = `
+                <div class="metric"><span class="metric-label">Name</span><span class="metric-value">${getVal('firstName')} ${getVal('lastName')}</span></div>
+                <div class="metric"><span class="metric-label">Age / Gender</span><span class="metric-value">${getVal('age')} / ${formData.gender||'—'}</span></div>
+                <div class="metric"><span class="metric-label">Height / Weight</span><span class="metric-value">${getVal('height')}" / ${getVal('weight')} lbs</span></div>
+                <div class="metric"><span class="metric-label">Goal Weight</span><span class="metric-value">${getVal('goalWeight')} lbs</span></div>
+                <div class="metric"><span class="metric-label">Body Fat %</span><span class="metric-value">${getVal('bodyFat')||'Not provided'}%</span></div>
+                <div class="metric"><span class="metric-label">Activity Level</span><span class="metric-value">${formData.activityLevel||'—'}</span></div>
+                <div class="metric"><span class="metric-label">Experience</span><span class="metric-value">${formData.experience||'—'}</span></div>
+                <div class="metric"><span class="metric-label">Goals</span><span class="metric-value">${goals.join(', ')||'—'}</span></div>
+                <div class="metric"><span class="metric-label">Diet Quality</span><span class="metric-value">${formData.dietQuality||'—'}</span></div>
+                <div class="metric"><span class="metric-label">Sleep</span><span class="metric-value">${getVal('sleep')}h (${formData.sleepQuality||'—'})</span></div>
+                <div class="metric"><span class="metric-label">Stress</span><span class="metric-value">${getVal('stressLevel')||5}/10</span></div>
+            `;
+            document.getElementById('summaryContent').innerHTML = html;
+        }
+
+        function submitForm() {
+            // Calculate estimates
+            const wt = parseFloat(getVal('weight')) || 0;
+            const ht = parseFloat(getVal('height')) || 0;
+            const age = parseFloat(getVal('age')) || 30;
+            const isMale = formData.gender !== 'Female';
+
+            // BMI
+            const bmi = ht > 0 ? ((wt / (ht * ht)) * 703).toFixed(1) : '—';
+
+            // BMR (Mifflin-St Jeor)
+            const htCm = ht * 2.54;
+            const wtKg = wt * 0.4536;
+            let bmr = isMale ? (10 * wtKg + 6.25 * htCm - 5 * age + 5) : (10 * wtKg + 6.25 * htCm - 5 * age - 161);
+            bmr = Math.round(bmr);
+
+            // Activity multiplier
+            const actMult = {'Sedentary':1.2,'Light (1-2x/wk)':1.375,'Moderate (3-4x/wk)':1.55,'Active (5+/wk)':1.725};
+            const tdee = Math.round(bmr * (actMult[formData.activityLevel] || 1.4));
+
+            // Protein target (1g per lb goal weight)
+            const proteinTarget = Math.round(parseFloat(getVal('goalWeight')) || wt * 0.8);
+
+            const estHtml = `
+                <h3 style="color:var(--green);margin:20px 0 10px;">📊 Initial Estimates</h3>
+                <div class="metric"><span class="metric-label">BMI</span><span class="metric-value">${bmi}</span></div>
+                <div class="metric"><span class="metric-label">BMR (Mifflin-St Jeor)</span><span class="metric-value">${bmr} cal/day</span></div>
+                <div class="metric"><span class="metric-label">Est. TDEE</span><span class="metric-value">${tdee} cal/day</span></div>
+                <div class="metric"><span class="metric-label">Protein Target</span><span class="metric-value">${proteinTarget}g/day</span></div>
+                <p style="color:var(--gray);font-size:0.8rem;margin-top:15px;">*These are estimates. Your coach will refine targets based on your full profile.</p>
+            `;
+            document.getElementById('estimatesSection').innerHTML = estHtml;
+
+            // Save to localStorage
+            const allData = { ...formData };
+            ['firstName','lastName','age','email','phone','height','weight','goalWeight','bodyFat','waist',
+             'currentRoutine','injuries','successVision','barriers','mealsPerDay','waterIntake',
+             'dietRestrictions','supplements','proteinIntake','sleep','stressLevel','additionalNotes'].forEach(id => {
+                allData[id] = getVal(id);
+            });
+            const goals = [];
+            document.querySelectorAll('[data-field="goals"] .selected').forEach(e => goals.push(e.textContent));
+            allData.goals = goals;
+            allData.bmi = bmi;
+            allData.bmr = bmr;
+            allData.tdee = tdee;
+            allData.proteinTarget = proteinTarget;
+            allData.submittedAt = new Date().toISOString();
+            localStorage.setItem('fitness_intake_' + (getVal('firstName')||'anon'), JSON.stringify(allData));
+
+            // Download JSON
+            const blob = new Blob([JSON.stringify(allData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `intake-${(getVal('firstName')||'client').toLowerCase()}-${(getVal('lastName')||'').toLowerCase()}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+
+            // Show done
+            document.getElementById('sec-' + currentSec).classList.remove('active');
+            document.getElementById('sec-done').classList.add('active');
+            document.getElementById('progressFill').style.width = '100%';
+            document.getElementById('progressText').textContent = 'Complete!';
+            window.scrollTo(0, 0);
+        }
+    </script>
+</body>
+</html>
