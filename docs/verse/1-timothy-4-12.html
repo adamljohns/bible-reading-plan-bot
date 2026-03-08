@@ -551,6 +551,22 @@
         const LEFT_SVG = '<svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>';
         const RIGHT_SVG = '<svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>';
 
+        // Boundary detection - hide nav at start/end of Bible
+        function isStartOfBible(bookId, ch, v) {
+            return bookId === 1 && ch === 1 && v <= 1;
+        }
+        function isEndOfBible(bookId, ch, v) {
+            var maxV = BIBLE_INDEX[66] ? BIBLE_INDEX[66][BIBLE_INDEX[66].length - 1] : 21;
+            return bookId === 66 && ch === BIBLE_INDEX[66].length && v >= maxV;
+        }
+        function isFirstChapter(bookId, ch) {
+            return bookId === 1 && ch <= 1;
+        }
+        function isLastChapter(bookId, ch) {
+            return bookId === 66 && ch >= (BIBLE_INDEX[66] ? BIBLE_INDEX[66].length : 22);
+        }
+
+
         function navChapter(delta) {
             if (!currentRef) return;
             var bookId = currentRef.bookId;
@@ -692,6 +708,32 @@
             }
         }
 
+        
+        function updateNavBoundaries() {
+            if (!currentRef) return;
+            var bookId = currentRef.bookId;
+            var ch = currentRef.chapter;
+            var sv = currentRef.startVerse;
+            var ev = currentRef.endVerse || sv;
+            var maxV = BIBLE_INDEX[bookId] ? BIBLE_INDEX[bookId][ch - 1] : 200;
+            var maxCh = BIBLE_INDEX[bookId] ? BIBLE_INDEX[bookId].length : 999;
+            
+            // Disable prev buttons at Genesis 1:1
+            document.querySelectorAll('.nav-arrow').forEach(function(btn) {
+                var title = btn.getAttribute('title') || '';
+                if (title.includes('Previous') || title.includes('Back') || title.includes('prev')) {
+                    if (isStartOfBible(bookId, ch, sv)) {
+                        btn.disabled = true;
+                    }
+                }
+                if (title.includes('Next') || title.includes('Forward') || title.includes('nxt')) {
+                    if (isEndOfBible(bookId, ch, ev)) {
+                        btn.disabled = true;
+                    }
+                }
+            });
+        }
+
         async function lookupVerse() {
             const input = document.getElementById('refInput').value.trim();
             if (!input) return;
@@ -814,6 +856,7 @@
             html += renderNav(rangeStr, 'bottom');
 
             document.getElementById('results').innerHTML = html;
+            updateNavBoundaries();
             document.getElementById('searchBtn').disabled = false;
             document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
