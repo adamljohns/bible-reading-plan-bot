@@ -132,7 +132,10 @@
             background: var(--gold); color: #000; border: none;
             width: 36px; height: 36px; border-radius: 50%; cursor: pointer;
             font-size: 1rem; display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; transition: background 0.2s, transform 0.15s;
         }
+        .audio-btn:hover { background: var(--gold-light); transform: scale(1.1); }
+        .audio-btn:active { transform: scale(0.95); }
         .audio-label { color: var(--gray); font-size: 0.8rem; }
 
         .market-row {
@@ -184,6 +187,65 @@
             .header { border-bottom: 2px solid #8B6914; }
             .print-btn { display: none; }
         }
+
+        /* Loading spinner */
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .spinner {
+            display: inline-block; width: 14px; height: 14px;
+            border: 2px solid rgba(212,175,55,0.2);
+            border-top-color: var(--gold); border-radius: 50%;
+            animation: spin 0.8s linear infinite; vertical-align: middle;
+            margin-right: 6px;
+        }
+        .loading-row {
+            display: flex; align-items: center; padding: 4px 0;
+            color: var(--gray); font-size: 0.85rem;
+        }
+
+        /* Last updated */
+        .last-updated { color: var(--gray); font-size: 0.72rem; margin-top: 3px; }
+
+        /* Mobile tweaks 320-430px */
+        @media (max-width: 430px) {
+            .grid { padding: 10px; gap: 10px; }
+            .card { padding: 14px 12px; }
+            .card-title { font-size: 1rem; }
+            .market-row { flex-wrap: wrap; gap: 2px; }
+            .market-name { font-size: 0.85rem; }
+            .market-price { font-size: 0.9rem; }
+            .crew-links { gap: 7px; padding: 0 10px; }
+            .crew-link { font-size: 0.78rem; padding: 6px 12px; }
+            .stat { margin-right: 8px; }
+            .stat-value { font-size: 1rem; }
+            .header { padding: 18px 12px 12px; }
+            .header h1 { font-size: 1.3rem; }
+            .schedule-time { min-width: 55px; font-size: 0.8rem; }
+            .schedule-event { font-size: 0.82rem; }
+            .audio-player { padding: 8px 12px; }
+        }
+
+        /* Audio modal */
+        .modal-overlay {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.85); z-index: 1000;
+            align-items: center; justify-content: center;
+            padding: 20px;
+        }
+        .modal-overlay.show { display: flex; animation: fadeIn 0.2s ease; }
+        .modal-box {
+            background: var(--bg-card); border: 1px solid var(--gold);
+            border-radius: 16px; padding: 32px 28px; max-width: 380px;
+            width: 100%; text-align: center;
+        }
+        .modal-icon { font-size: 2.5rem; margin-bottom: 12px; }
+        .modal-box h3 { color: var(--gold); font-family: 'Playfair Display', serif; font-size: 1.35rem; margin-bottom: 10px; }
+        .modal-box p { color: var(--gray-light); line-height: 1.6; margin-bottom: 22px; font-size: 0.9rem; }
+        .modal-close {
+            background: var(--gold); color: #000; border: none;
+            padding: 10px 30px; border-radius: 8px; font-weight: 700;
+            cursor: pointer; font-size: 0.9rem; transition: background 0.2s;
+        }
+        .modal-close:hover { background: var(--gold-light); }
     </style>
 </head>
 <body>
@@ -192,6 +254,7 @@
         <h1>The Captain's Wheelhouse</h1>
         <p class="subtitle">Daily Command Center · USMC Ministries</p>
         <p class="date" id="dateDisplay"></p>
+        <p class="last-updated" id="lastUpdated"></p>
         <button class="print-btn" onclick="window.print()">🖨️ Print Today's Brief</button>
         <button class="print-btn" onclick="quickPrint()" title="Send directly to default printer via CUPS">⚡ Quick Print</button>
     </div>
@@ -250,6 +313,7 @@
                     <div class="market-row"><span class="market-name">₿ Bitcoin</span><span class="market-price" id="btc-price">--</span><span class="market-change" id="btc-change">--</span></div>
                     <div class="market-row"><span class="market-name">Ξ Ethereum</span><span class="market-price" id="eth-price">--</span><span class="market-change" id="eth-change">--</span></div>
                     <div class="market-row"><span class="market-name">🥇 Gold</span><span class="market-price" id="gold-price">--</span><span class="market-change" id="gold-change">--</span></div>
+                    <div class="market-row"><span class="market-name">🥈 Silver</span><span class="market-price" id="silver-price">--</span><span class="market-change" id="silver-change">--</span></div>
                     <div class="market-row"><span class="market-name">📈 S&P 500</span><span class="market-price" id="sp-price">--</span><span class="market-change" id="sp-change">--</span></div>
                     <p style="color:var(--gray); font-size:0.75rem; margin-top:10px;">Powered by C5iSR LLC · <a href="#" style="color:var(--gold);">Full analysis →</a></p>
                 </div>
@@ -274,7 +338,7 @@
                 <div class="schedule-row"><span class="schedule-time">1500</span><span class="schedule-event">Citizen's Stand (Civic/Cultural)</span></div>
                 <div class="schedule-row"><span class="schedule-time">2100</span><span class="schedule-event">Evening Peace (Rest/Reflection)</span></div>
                 <div class="audio-player">
-                    <button class="audio-btn" title="Coming in BTE 4.0">▶</button>
+                    <button class="audio-btn" onclick="event.stopPropagation(); showAudioModal()" title="Audio Readings — Coming in V4.0">▶</button>
                     <div><span style="color:var(--white); font-size:0.9rem;">Audio Readings</span><br><span class="audio-label">ElevenLabs TTS · Coming in V4.0</span></div>
                 </div>
                 <p style="margin-top:12px;"><a href="bible.html" style="color:var(--gold); text-decoration:none;">Open MOOP Bible Translation Engine V3.4 →</a></p>
@@ -446,11 +510,23 @@
         <p style="margin-top:5px; font-size:0.75rem;">Uniting, Serving, Mentoring and Counseling Ministries</p>
     </footer>
 
+    <!-- Audio Modal -->
+    <div class="modal-overlay" id="audioModal" onclick="hideAudioModal()">
+        <div class="modal-box" onclick="event.stopPropagation()">
+            <div class="modal-icon">🎧</div>
+            <h3>Audio Readings</h3>
+            <p>ElevenLabs TTS audio for all 5 daily Bible readings is coming in <strong style="color:var(--gold);">MOOP Bible Translation Engine V4.0</strong>.<br><br>Voice: Brian — Deep, Resonant &amp; Comforting.</p>
+            <button class="modal-close" onclick="hideAudioModal()">Got It</button>
+        </div>
+    </div>
+
     <script>
-        // Set date
+        // Set date & last-updated timestamp
         const now = new Date();
         const opts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
         document.getElementById('dateDisplay').textContent = now.toLocaleDateString('en-US', opts);
+        document.getElementById('lastUpdated').textContent =
+            'Last updated: ' + now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
 
         // Toggle card expansion
         function toggleCard(card) {
@@ -470,21 +546,124 @@
             }
         }
 
+        // Format helpers
+        function fmtUSD(n) { return '$' + Math.round(n).toLocaleString('en-US'); }
+        function fmtPct(n) { return (n >= 0 ? '+' : '') + n.toFixed(2) + '%'; }
+        function upDown(n) { return n >= 0 ? 'up' : 'down'; }
+        function setMarketRow(priceId, changeId, price, change) {
+            const pEl = document.getElementById(priceId);
+            const cEl = document.getElementById(changeId);
+            if (pEl) pEl.textContent = price;
+            if (cEl && change !== null) {
+                cEl.textContent = change;
+                cEl.className = 'market-change ' + (change.startsWith('+') ? 'up' : 'down');
+            }
+        }
+
         // Fetch markets (Mon-Sat only)
         async function loadMarkets() {
             const day = now.getDay();
-            if (day === 0) return; // Sunday — skip
+            if (day === 0) return; // Sunday — Sabbath, skip
 
-            document.querySelector('#card-markets .card-badge').textContent = 'LIVE';
-            document.querySelector('#card-markets .card-badge').className = 'card-badge ok';
-            document.getElementById('markets-brief').innerHTML = '<p>Loading market data...</p>';
+            const badge = document.querySelector('#card-markets .card-badge');
+            badge.textContent = 'LIVE';
+            badge.className = 'card-badge ok';
 
-            // We'll use a simple proxy or placeholder — real data requires API keys
-            // For now, show placeholder with structure ready for live data
+            // Show spinner while loading
             document.getElementById('markets-brief').innerHTML = `
-                <div class="market-row"><span class="market-name">₿ BTC</span><span class="market-price">Loading...</span></div>
-                <div class="market-row"><span class="market-name">Ξ ETH</span><span class="market-price">Loading...</span></div>
+                <div class="loading-row"><span class="spinner"></span> Fetching live prices…</div>
             `;
+            // Also update detail placeholders with spinner text
+            ['btc-price','eth-price','gold-price','silver-price'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.innerHTML = '<span class="spinner"></span>';
+            });
+
+            let cryptoOk = false, metalsOk = false;
+            let btcPrice, btcChange, ethPrice, ethChange, goldPrice, silverPrice;
+
+            // --- Crypto via CoinGecko (no key needed) ---
+            try {
+                const res = await fetch(
+                    'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd&include_24hr_change=true',
+                    { headers: { 'Accept': 'application/json' } }
+                );
+                if (res.ok) {
+                    const data = await res.json();
+                    btcPrice   = data.bitcoin?.usd;
+                    btcChange  = data.bitcoin?.usd_24h_change;
+                    ethPrice   = data.ethereum?.usd;
+                    ethChange  = data.ethereum?.usd_24h_change;
+                    if (btcPrice) {
+                        setMarketRow('btc-price','btc-change', fmtUSD(btcPrice), fmtPct(btcChange));
+                        setMarketRow('eth-price','eth-change', fmtUSD(ethPrice), fmtPct(ethChange));
+                        cryptoOk = true;
+                    }
+                }
+            } catch(e) { console.warn('CoinGecko fetch failed:', e); }
+
+            // --- Metals via metals.live (no key needed) ---
+            try {
+                const res = await fetch('https://api.metals.live/v1/spot/gold,silver');
+                if (res.ok) {
+                    const data = await res.json();
+                    // Returns array: [{gold: price}, {silver: price}]
+                    if (Array.isArray(data)) {
+                        data.forEach(item => {
+                            if (item.gold   !== undefined) goldPrice   = item.gold;
+                            if (item.silver !== undefined) silverPrice = item.silver;
+                        });
+                    } else if (data.gold) {
+                        goldPrice   = data.gold;
+                        silverPrice = data.silver;
+                    }
+                    if (goldPrice) {
+                        const gEl = document.getElementById('gold-price');
+                        if (gEl) gEl.textContent = '$' + goldPrice.toFixed(2) + '/oz';
+                        const gcEl = document.getElementById('gold-change');
+                        if (gcEl) { gcEl.textContent = ''; gcEl.className = 'market-change'; }
+                        metalsOk = true;
+                    }
+                    if (silverPrice) {
+                        const sEl = document.getElementById('silver-price');
+                        if (sEl) sEl.textContent = '$' + silverPrice.toFixed(2) + '/oz';
+                        const scEl = document.getElementById('silver-change');
+                        if (scEl) { scEl.textContent = ''; scEl.className = 'market-change'; }
+                    }
+                }
+            } catch(e) { console.warn('Metals.live fetch failed:', e); }
+
+            // Update brief summary
+            if (cryptoOk) {
+                let briefHTML = '';
+                if (btcPrice) briefHTML += `
+                    <div class="market-row">
+                        <span class="market-name">₿ BTC</span>
+                        <span class="market-price">${fmtUSD(btcPrice)}</span>
+                        <span class="market-change ${upDown(btcChange)}">${fmtPct(btcChange)}</span>
+                    </div>`;
+                if (ethPrice) briefHTML += `
+                    <div class="market-row">
+                        <span class="market-name">Ξ ETH</span>
+                        <span class="market-price">${fmtUSD(ethPrice)}</span>
+                        <span class="market-change ${upDown(ethChange)}">${fmtPct(ethChange)}</span>
+                    </div>`;
+                if (goldPrice) briefHTML += `
+                    <div class="market-row">
+                        <span class="market-name">🥇 Gold</span>
+                        <span class="market-price">$${goldPrice.toFixed(0)}/oz</span>
+                    </div>`;
+                document.getElementById('markets-brief').innerHTML = briefHTML ||
+                    '<p style="color:var(--red);">Price data unavailable</p>';
+            } else {
+                document.getElementById('markets-brief').innerHTML =
+                    '<p style="color:var(--red); font-size:0.85rem;">⚠️ Market data unavailable — check connection</p>';
+                // Clear spinners in detail
+                ['btc-price','eth-price','gold-price','silver-price'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.textContent = 'N/A';
+                });
+            }
         }
 
         // Dynamic daily schedule — updates automatically based on current day
@@ -601,8 +780,14 @@
         loadMarkets();
         loadSchedule();
 
-        // Auto-refresh weather every 30 min
-        setInterval(loadWeather, 1800000);
+        // Auto-refresh weather every 30 min, update timestamp
+        setInterval(function() {
+            loadWeather();
+            loadMarkets();
+            const ts = new Date();
+            document.getElementById('lastUpdated').textContent =
+                'Last updated: ' + ts.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+        }, 1800000);
 
         // Action completion with strikethrough + green + save to localStorage
         function completeAction(checkEl) {
@@ -650,6 +835,18 @@
                 }
             });
         })();
+
+        // Audio modal
+        function showAudioModal() {
+            document.getElementById('audioModal').classList.add('show');
+        }
+        function hideAudioModal() {
+            document.getElementById('audioModal').classList.remove('show');
+        }
+        // Close modal on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') hideAudioModal();
+        });
 
         // Quick Print - generates a clean print-optimized version
         function quickPrint() {
