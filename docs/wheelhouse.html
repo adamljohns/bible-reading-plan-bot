@@ -482,9 +482,119 @@
             `;
         }
 
+        // Dynamic daily schedule — updates automatically based on current day
+        function loadSchedule() {
+            const day = now.getDay(); // 0=Sun, 1=Mon, 2=Tue, 3=Wed, 4=Thu, 5=Fri, 6=Sat
+            const dayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+
+            // Weekly recurring schedule — update this object as routines change
+            const weekSchedule = {
+                0: { // Sunday
+                    badge: 'Sunday',
+                    badgeClass: 'card-badge',
+                    rows: [
+                        { time: 'AM',  event: 'Church with Gideon & Shiloh' },
+                        { time: 'PM',  event: 'Family time · First Officer\'s Quarters' },
+                        { time: 'Eve', event: 'Family meeting' }
+                    ]
+                },
+                1: { // Monday
+                    badge: 'Monday',
+                    badgeClass: 'card-badge ok',
+                    rows: [
+                        { time: 'AM',      event: 'fit20', tag: 'work' },
+                        { time: 'Midday',  event: 'Melaleuca Monday', tag: 'work' },
+                        { time: 'Eve',     event: 'MbPro planning · C5iSR review' }
+                    ]
+                },
+                2: { // Tuesday
+                    badge: 'Tuesday',
+                    badgeClass: 'card-badge ok',
+                    rows: [
+                        { time: 'AM',  event: 'fit20', tag: 'work' }
+                    ]
+                },
+                3: { // Wednesday
+                    badge: 'Wednesday',
+                    badgeClass: 'card-badge ok',
+                    rows: [
+                        { time: 'AM',  event: 'fit20', tag: 'work' }
+                    ]
+                },
+                4: { // Thursday
+                    badge: 'Thursday',
+                    badgeClass: 'card-badge ok',
+                    rows: [
+                        { time: 'AM',  event: 'fit20', tag: 'work' }
+                    ]
+                },
+                5: { // Friday
+                    badge: 'Friday',
+                    badgeClass: 'card-badge ok',
+                    rows: [
+                        { time: 'AM',  event: 'fit20', tag: 'work' }
+                    ]
+                },
+                6: { // Saturday
+                    badge: 'Saturday',
+                    badgeClass: 'card-badge',
+                    rows: [
+                        { time: 'AM',  event: 'Boaz gymnastics?', tag: 'family' },
+                        { time: 'PM',  event: 'Family time' }
+                    ]
+                }
+            };
+
+            const sched = weekSchedule[day];
+            if (!sched) return;
+
+            // Update badge
+            const badge = document.querySelector('#card-calendar .card-badge');
+            if (badge) {
+                badge.textContent = sched.badge;
+                badge.className = sched.badgeClass;
+            }
+
+            // Build today's schedule rows
+            const html = sched.rows.map(r =>
+                `<div class="schedule-row">
+                    <span class="schedule-time">${r.time}</span>
+                    <span class="schedule-event">${r.event}</span>
+                    ${r.tag ? `<span class="schedule-tag">${r.tag}</span>` : ''}
+                </div>`
+            ).join('');
+            document.getElementById('calendar-brief').innerHTML = html;
+
+            // Update week-ahead detail — highlight today, show remaining week
+            const daysOfWeek = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+            const briefLabels = {
+                0: 'Church · Family day',
+                1: 'fit20 · Melaleuca Monday',
+                2: 'fit20',
+                3: 'fit20',
+                4: 'fit20',
+                5: 'fit20',
+                6: 'Boaz gymnastics?'
+            };
+            const tagMap = { 0: 'family', 1: 'work', 2: 'work', 3: 'work', 4: 'work', 5: 'work', 6: 'family' };
+
+            let weekHtml = '<h4 style="color:var(--gold); margin-bottom:10px;">Full Week</h4>';
+            for (let i = 0; i < 7; i++) {
+                const isToday = i === day;
+                weekHtml += `<div class="schedule-row" ${isToday ? 'style="background:rgba(212,175,55,0.1); border-radius:4px; padding:2px 4px;"' : ''}>
+                    <span class="schedule-time" ${isToday ? 'style="color:var(--gold-light);"' : ''}>${daysOfWeek[i]}${isToday ? ' ◀' : ''}</span>
+                    <span class="schedule-event">${briefLabels[i]}</span>
+                    <span class="schedule-tag">${tagMap[i]}</span>
+                </div>`;
+            }
+            weekHtml += '<p style="color:var(--gray); font-size:0.8rem; margin-top:10px;">📎 Connect Google Calendar for live updates</p>';
+            document.getElementById('calendar-detail').innerHTML = weekHtml;
+        }
+
         // Initialize
         loadWeather();
         loadMarkets();
+        loadSchedule();
 
         // Auto-refresh weather every 30 min
         setInterval(loadWeather, 1800000);
