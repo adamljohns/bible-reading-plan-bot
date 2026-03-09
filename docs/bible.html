@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta property="og:title" content="MOOP Bible Translation Engine V3.3">
+    <meta property="og:title" content="MOOP Bible Translation Engine V3.4">
     <meta property="og:description" content="9 English translations blended with interlinear Hebrew and Greek roots. Strong's Concordance links. Built for deep word study.">
     <meta property="og:image" content="https://usmcmin.org/assets/og/og-bible.png">
     <meta property="og:image:width" content="1200">
@@ -11,11 +11,11 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://usmcmin.org/bible.html">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="MOOP Bible Translation Engine V3.3">
+    <meta name="twitter:title" content="MOOP Bible Translation Engine V3.4">
     <meta name="twitter:description" content="9 English translations blended with interlinear Hebrew and Greek roots. Strong's Concordance links. Built for deep word study.">
     <meta name="twitter:image" content="https://usmcmin.org/assets/og/og-bible.png">
     <meta name="description" content="9 English translations blended with interlinear Hebrew and Greek roots. Strong's Concordance links. Built for deep word study.">
-    <title>The MOOP Bible Translation Engine V3.3 — USMC Ministries</title>
+    <title>The MOOP Bible Translation Engine V3.4 — USMC Ministries</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -201,7 +201,7 @@
         <section class="hero">
             <img src="assets/logo.png" alt="U.S.M.C. Ministries" onerror="this.style.display='none'">
             <h1>The MOOP Bible Translation Engine</h1>
-            <p class="subtitle">V3.3 · 9 Translations · Interlinear Hebrew &amp; Greek · Strong's Concordance</p>
+            <p class="subtitle">V3.4 · 9 Translations · Interlinear Hebrew &amp; Greek · Strong's Concordance</p>
             <p class="desc">
                 Type any Bible reference below. The engine blends 9 English translations with
                 NKJV as the primary voice, surfaces meaningful divergences, and provides
@@ -231,7 +231,7 @@
     </div>
 
     <footer>
-        <p>Built by <a href="usmc-ministries.html">U.S.M.C. Ministries</a> · <a href="index.html">📖 Bible Reading Plan</a> · Powered by The MOOP Bible Translation Engine V3.3</p>
+        <p>Built by <a href="usmc-ministries.html">U.S.M.C. Ministries</a> · <a href="index.html">📖 Bible Reading Plan</a> · Powered by The MOOP Bible Translation Engine V3.4</p>
         <p style="margin-top: 5px;">NKJV 33% · ESV 12% · NASB 12% · CSB 10% · NLT 9% · KJV 7% · WEB 7% · AMP 3% · MSG 2% · Interlinear 5%</p>
         <p style="margin-top: 8px; font-size: 0.75rem;">
             Scripture: NKJV © Thomas Nelson · ESV © Crossway · NASB © Lockman · NLT © Tyndale ·
@@ -245,6 +245,7 @@
 
     <script>
         const API = 'https://bolls.life/get-verse';
+        const CHAPTER_API = 'https://bolls.life/get-chapter';
         const TRANSLATIONS = ['NKJV','KJV','ESV','NASB','NLT','WEB','CSB17','AMP','MSG'];
         const DISPLAY = { CSB17: 'CSB' };
         const WEIGHTS = { NKJV:0.33, ESV:0.12, NASB:0.12, CSB17:0.10, NLT:0.09, KJV:0.07, WEB:0.07, AMP:0.03, MSG:0.02 };
@@ -252,8 +253,7 @@
 
         // Navigation state
         let currentRef = null;
-        let isFullChapter = false;
-        let viewMode = 'chapter'; // 'chapter' or 'verse'
+        let currentViewMode = 'verse'; // 'chapter' | 'verse' | 'range'
 
         const BOOKS = {
             genesis:1,gen:1,gn:1,exodus:2,exod:2,ex:2,leviticus:3,lev:3,numbers:4,num:4,
@@ -481,6 +481,45 @@
             } catch { return null; }
         }
 
+        async function fetchChapterData(bookId, ch, trans) {
+            try {
+                const r = await fetch(`${CHAPTER_API}/${trans}/${bookId}/${ch}/`);
+                if (!r.ok) return null;
+                const data = await r.json();
+                if (!Array.isArray(data)) return null;
+                const result = {};
+                data.forEach(function(v) {
+                    result[v.verse] = v.text ? v.text.replace(/<[^>]+>/g,'').replace(/[\u24B6-\u24FF\u2460-\u2473]/g,'').replace(/\s{2,}/g,' ').trim() : null;
+                });
+                return result;
+            } catch { return null; }
+        }
+
+        function renderToggleButton() {
+            var btnStyle = 'background:transparent;border:1px solid #333;border-radius:6px;padding:6px 16px;cursor:pointer;font-size:0.85rem;font-family:\'Inter\',sans-serif;';
+            if (currentViewMode === 'chapter') {
+                return '<div style="text-align:center;margin:8px 0 16px;"><button onclick="switchToVerseMode()" style="' + btnStyle + '"><span style="color:#888;">Read </span><span style="color:#D4AF37;font-weight:600;">Verse by Verse</span></button></div>';
+            } else {
+                return '<div style="text-align:center;margin:8px 0 16px;"><button onclick="switchToChapterMode()" style="' + btnStyle + '"><span style="color:#888;">Read </span><span style="color:#D4AF37;font-weight:600;">Full Chapter</span></button></div>';
+            }
+        }
+
+        function switchToVerseMode() {
+            if (!currentRef) return;
+            currentViewMode = 'verse';
+            var bookName = BOOK_NAMES[currentRef.bookId].replace(/\b\w/g, c => c.toUpperCase());
+            document.getElementById('refInput').value = bookName + ' ' + currentRef.chapter + ':1';
+            lookupVerse();
+        }
+
+        function switchToChapterMode() {
+            if (!currentRef) return;
+            currentViewMode = 'chapter';
+            var bookName = BOOK_NAMES[currentRef.bookId].replace(/\b\w/g, c => c.toUpperCase());
+            document.getElementById('refInput').value = bookName + ' ' + currentRef.chapter;
+            lookupVerse();
+        }
+
         function similarity(a, b) {
             const wa = new Set(a.toLowerCase().replace(/[^\w\s]/g,'').split(/\s+/));
             const wb = new Set(b.toLowerCase().replace(/[^\w\s]/g,'').split(/\s+/));
@@ -571,10 +610,10 @@
 
 
 
-        // BTE v3.3: BIBLE_INDEX-aware navigation
+        // BTE v3.4: BIBLE_INDEX-aware navigation
         function navVerse(delta) {
             if (!currentRef) return;
-            viewMode = 'verse';
+            currentViewMode = 'verse';
             var bookId = currentRef.bookId;
             var ch = currentRef.chapter;
             var v = currentRef.startVerse + delta;
@@ -619,14 +658,14 @@
                 newCh = BIBLE_INDEX[bookId] ? BIBLE_INDEX[bookId].length : 1;
             }
 
-            viewMode = 'chapter';
+            currentViewMode = 'chapter';
             document.getElementById('refInput').value = BOOK_NAMES[bookId].replace(/\b\w/g, c => c.toUpperCase()) + ' ' + newCh;
             lookupVerse();
         }
 
         function nav3Verses(delta) {
             if (!currentRef) return;
-            viewMode = 'verse';
+            currentViewMode = 'range';
             var bookId = currentRef.bookId;
             var ch = currentRef.chapter;
             var maxV = BIBLE_INDEX[bookId] ? BIBLE_INDEX[bookId][ch - 1] : 200;
@@ -676,39 +715,39 @@
 
         function goToVerse(ch, v) {
             if (!currentRef) return;
-            viewMode = 'verse';
+            currentViewMode = 'verse';
             document.getElementById('refInput').value = currentRef.display + ' ' + ch + ':' + v;
             lookupVerse();
         }
 
         function renderTopNav(rangeStr) {
-            if (viewMode === 'chapter') {
+            if (currentViewMode === 'chapter') {
                 return '<div class="nav-arrows">' +
-                    '<div class="nav-btn-wrap"><button class="nav-arrow" onclick="navChapter(-1)" title="Previous Chapter">' + LEFT_SVG + '</button><span class="nav-label">prev ch</span></div>' +
+                    '<div class="nav-btn-wrap"><button class="nav-arrow" onclick="navChapter(-1)" title="Previous Chapter">' + LEFT_SVG + '</button><span class="nav-label">Prev Chapter</span></div>' +
                     '<span class="nav-ref">' + rangeStr + '</span>' +
-                    '<div class="nav-btn-wrap"><button class="nav-arrow" onclick="navChapter(1)" title="Next Chapter">' + RIGHT_SVG + '</button><span class="nav-label">nxt ch</span></div>' +
+                    '<div class="nav-btn-wrap"><button class="nav-arrow" onclick="navChapter(1)" title="Next Chapter">' + RIGHT_SVG + '</button><span class="nav-label">Next Chapter</span></div>' +
                     '</div>';
             } else {
                 return '<div class="nav-arrows">' +
-                    '<div class="nav-btn-wrap"><button class="nav-arrow" onclick="navVerse(-1)" title="Previous Verse">' + LEFT_SVG + '</button><span class="nav-label">prev vs</span></div>' +
+                    '<div class="nav-btn-wrap"><button class="nav-arrow" onclick="navVerse(-1)" title="Previous Verse">' + LEFT_SVG + '</button><span class="nav-label">Prev Verse</span></div>' +
                     '<span class="nav-ref">' + rangeStr + '</span>' +
-                    '<div class="nav-btn-wrap"><button class="nav-arrow" onclick="navVerse(1)" title="Next Verse">' + RIGHT_SVG + '</button><span class="nav-label">nxt vs</span></div>' +
+                    '<div class="nav-btn-wrap"><button class="nav-arrow" onclick="navVerse(1)" title="Next Verse">' + RIGHT_SVG + '</button><span class="nav-label">Next Verse</span></div>' +
                     '</div>';
             }
         }
 
         function renderBottomNav(rangeStr) {
-            if (viewMode === 'chapter') {
+            if (currentViewMode === 'chapter') {
                 return '<div class="nav-arrows">' +
-                    '<div class="nav-btn-wrap"><button class="nav-arrow" onclick="navVerse(-1)" title="Previous Verse">' + LEFT_SVG + '</button><span class="nav-label">prev vs</span></div>' +
+                    '<div class="nav-btn-wrap"><button class="nav-arrow" onclick="navChapter(-1)" title="Previous Chapter">' + LEFT_SVG + '</button><span class="nav-label">Prev Chapter</span></div>' +
                     '<span class="nav-ref">' + rangeStr + '</span>' +
-                    '<div class="nav-btn-wrap"><button class="nav-arrow" onclick="navVerse(1)" title="Next Verse">' + RIGHT_SVG + '</button><span class="nav-label">nxt vs</span></div>' +
+                    '<div class="nav-btn-wrap"><button class="nav-arrow" onclick="navChapter(1)" title="Next Chapter">' + RIGHT_SVG + '</button><span class="nav-label">Next Chapter</span></div>' +
                     '</div>';
             } else {
                 return '<div class="nav-arrows">' +
-                    '<div class="nav-btn-wrap"><button class="nav-arrow" onclick="nav3Verses(-1)" title="Back 3 Verses">' + LEFT_SVG + '</button><span class="nav-label">prev 3vs</span></div>' +
+                    '<div class="nav-btn-wrap"><button class="nav-arrow" onclick="nav3Verses(-1)" title="Back 3 Verses">' + LEFT_SVG + '</button><span class="nav-label">Back 3 Verses</span></div>' +
                     '<span class="nav-ref">' + rangeStr + '</span>' +
-                    '<div class="nav-btn-wrap"><button class="nav-arrow" onclick="nav3Verses(1)" title="Forward 3 Verses">' + RIGHT_SVG + '</button><span class="nav-label">nxt 3vs</span></div>' +
+                    '<div class="nav-btn-wrap"><button class="nav-arrow" onclick="nav3Verses(1)" title="Forward 3 Verses">' + RIGHT_SVG + '</button><span class="nav-label">Fwd 3 Verses</span></div>' +
                     '</div>';
             }
         }
@@ -720,21 +759,17 @@
             var ch = currentRef.chapter;
             var sv = currentRef.startVerse;
             var ev = currentRef.endVerse || sv;
-            var maxV = BIBLE_INDEX[bookId] ? BIBLE_INDEX[bookId][ch - 1] : 200;
-            var maxCh = BIBLE_INDEX[bookId] ? BIBLE_INDEX[bookId].length : 999;
-            
-            // Disable prev buttons at Genesis 1:1
+
             document.querySelectorAll('.nav-arrow').forEach(function(btn) {
                 var title = btn.getAttribute('title') || '';
-                if (title.includes('Previous') || title.includes('Back') || title.includes('prev')) {
-                    if (isStartOfBible(bookId, ch, sv)) {
-                        btn.disabled = true;
-                    }
-                }
-                if (title.includes('Next') || title.includes('Forward') || title.includes('nxt')) {
-                    if (isEndOfBible(bookId, ch, ev)) {
-                        btn.disabled = true;
-                    }
+                var isPrev = title.includes('Previous') || title.includes('Back');
+                var isNext = title.includes('Next') || title.includes('Forward');
+                if (currentViewMode === 'chapter') {
+                    if (isPrev && isFirstChapter(bookId, ch)) btn.disabled = true;
+                    if (isNext && isLastChapter(bookId, ch)) btn.disabled = true;
+                } else {
+                    if (isPrev && isStartOfBible(bookId, ch, sv)) btn.disabled = true;
+                    if (isNext && isEndOfBible(bookId, ch, ev)) btn.disabled = true;
                 }
             });
         }
@@ -746,10 +781,15 @@
             if (!ref) { showError('Could not parse that reference. Try "Psalm 23" or "John 3:16".'); return; }
 
             currentRef = ref;
-            isFullChapter = ref.fullChapter;
-            // Set viewMode based on input (unless already set by nav functions)
-            if (isFullChapter && viewMode !== 'verse') viewMode = 'chapter';
-            else if (!isFullChapter) viewMode = 'verse';
+
+            // BTE v3.4: Detect view mode from parsed reference
+            if (ref.fullChapter) {
+                currentViewMode = 'chapter';
+            } else if (ref.endVerse > ref.startVerse && ref.endVerse < 200) {
+                currentViewMode = 'range';
+            } else {
+                currentViewMode = 'verse';
+            }
 
             document.getElementById('searchBtn').disabled = true;
             document.getElementById('results').innerHTML = '<div class="loading">📖 Fetching from 9 translations...</div>';
@@ -759,56 +799,85 @@
             const allClarity = [];
             const seenStrongs = new Set();
             const seenClarity = new Set();
-
-            // BTE 3.2: Track translation agreements for indicator
             const transAgreements = {};
             TRANSLATIONS.forEach(t => { if (t !== 'NKJV') transAgreements[t] = 0; });
             const transFetched = {};
             TRANSLATIONS.forEach(t => { if (t !== 'NKJV') transFetched[t] = 0; });
 
-            for (let v = ref.startVerse; v <= ref.endVerse; v++) {
-                const promises = TRANSLATIONS.map(t => fetchVerse(ref.bookId, ref.chapter, v, t));
-                const results = await Promise.all(promises);
+            if (currentViewMode === 'chapter') {
+                // BTE v3.4: Use chapter API endpoint — 9 parallel calls instead of verse-by-verse
+                const chapterPromises = TRANSLATIONS.map(t => fetchChapterData(ref.bookId, ref.chapter, t));
+                const chapterResults = await Promise.all(chapterPromises);
+                const chapterTexts = {};
+                TRANSLATIONS.forEach((t, i) => { chapterTexts[t] = chapterResults[i] || {}; });
 
-                const texts = {};
-                TRANSLATIONS.forEach((t, i) => { if (results[i]) texts[t] = results[i]; });
+                const verseNums = Object.keys(chapterTexts.NKJV).map(Number).sort((a, b) => a - b);
+                for (const vn of verseNums) {
+                    const texts = {};
+                    TRANSLATIONS.forEach(t => { if (chapterTexts[t][vn]) texts[t] = chapterTexts[t][vn]; });
+                    if (!texts.NKJV) continue;
 
-                if (!texts.NKJV) break;
+                    TRANSLATIONS.forEach(t => { if (t !== 'NKJV' && texts[t]) transFetched[t]++; });
 
-                // Track fetched translations
-                TRANSLATIONS.forEach(t => { if (t !== 'NKJV' && texts[t]) transFetched[t]++; });
-
-                // Build amplifications
-                const amps = [];
-                const ampTranslations = new Set();
-                AMP_PRIORITY.forEach(t => {
-                    if (!texts[t]) return;
-                    if (similarity(texts.NKJV, texts[t]) < 0.65) {
-                        const dn = DISPLAY[t] || t;
-                        amps.push({ label: dn, text: texts[t] });
-                        ampTranslations.add(t);
+                    const amps = [];
+                    const ampTranslations = new Set();
+                    AMP_PRIORITY.forEach(t => {
+                        if (!texts[t]) return;
+                        if (similarity(texts.NKJV, texts[t]) < 0.65) {
+                            amps.push({ label: DISPLAY[t] || t, text: texts[t] });
+                            ampTranslations.add(t);
+                        }
+                    });
+                    if (texts.AMP && texts.AMP.includes('[') && !amps.find(a => a.label === 'AMP')) {
+                        amps.push({ label: 'AMP', text: texts.AMP });
+                        ampTranslations.add('AMP');
                     }
-                });
-                if (texts.AMP && texts.AMP.includes('[') && !amps.find(a => a.label === 'AMP')) {
-                    amps.push({ label: 'AMP', text: texts.AMP });
-                    ampTranslations.add('AMP');
+                    TRANSLATIONS.forEach(t => {
+                        if (t !== 'NKJV' && texts[t] && !ampTranslations.has(t)) transAgreements[t]++;
+                    });
+
+                    const mergedAmps = mergeAmplifications(amps);
+                    const st = findStrongs(texts.NKJV, ref.isOT);
+                    st.forEach(s => { if (!seenStrongs.has(s.num)) { s.vref = vn; allStrongs.push(s); seenStrongs.add(s.num); } });
+                    const cl = findArchaic(texts.NKJV);
+                    cl.forEach(c => { if (!seenClarity.has(c.word)) { allClarity.push(c); seenClarity.add(c.word); } });
+                    allVerses.push({ num: vn, text: texts.NKJV, amps: mergedAmps.slice(0, 2) });
                 }
+            } else {
+                // Verse/range: fetch verse by verse
+                for (let v = ref.startVerse; v <= ref.endVerse; v++) {
+                    const promises = TRANSLATIONS.map(t => fetchVerse(ref.bookId, ref.chapter, v, t));
+                    const results = await Promise.all(promises);
+                    const texts = {};
+                    TRANSLATIONS.forEach((t, i) => { if (results[i]) texts[t] = results[i]; });
+                    if (!texts.NKJV) break;
 
-                // BTE 3.2: Track agreements (not shown as amplification = agrees with NKJV)
-                TRANSLATIONS.forEach(t => {
-                    if (t !== 'NKJV' && texts[t] && !ampTranslations.has(t)) transAgreements[t]++;
-                });
+                    TRANSLATIONS.forEach(t => { if (t !== 'NKJV' && texts[t]) transFetched[t]++; });
 
-                // BTE 3.1: Merge redundant amplifications
-                const mergedAmps = mergeAmplifications(amps);
+                    const amps = [];
+                    const ampTranslations = new Set();
+                    AMP_PRIORITY.forEach(t => {
+                        if (!texts[t]) return;
+                        if (similarity(texts.NKJV, texts[t]) < 0.65) {
+                            amps.push({ label: DISPLAY[t] || t, text: texts[t] });
+                            ampTranslations.add(t);
+                        }
+                    });
+                    if (texts.AMP && texts.AMP.includes('[') && !amps.find(a => a.label === 'AMP')) {
+                        amps.push({ label: 'AMP', text: texts.AMP });
+                        ampTranslations.add('AMP');
+                    }
+                    TRANSLATIONS.forEach(t => {
+                        if (t !== 'NKJV' && texts[t] && !ampTranslations.has(t)) transAgreements[t]++;
+                    });
 
-                const st = findStrongs(texts.NKJV, ref.isOT);
-                st.forEach(s => { if (!seenStrongs.has(s.num)) { s.vref = v; allStrongs.push(s); seenStrongs.add(s.num); } });
-
-                const cl = findArchaic(texts.NKJV);
-                cl.forEach(c => { if (!seenClarity.has(c.word)) { allClarity.push(c); seenClarity.add(c.word); } });
-
-                allVerses.push({ num: v, text: texts.NKJV, amps: mergedAmps.slice(0, 2) });
+                    const mergedAmps = mergeAmplifications(amps);
+                    const st = findStrongs(texts.NKJV, ref.isOT);
+                    st.forEach(s => { if (!seenStrongs.has(s.num)) { s.vref = v; allStrongs.push(s); seenStrongs.add(s.num); } });
+                    const cl = findArchaic(texts.NKJV);
+                    cl.forEach(c => { if (!seenClarity.has(c.word)) { allClarity.push(c); seenClarity.add(c.word); } });
+                    allVerses.push({ num: v, text: texts.NKJV, amps: mergedAmps.slice(0, 2) });
+                }
             }
 
             if (!allVerses.length) { showError('No verses found. Check the reference.'); return; }
@@ -816,7 +885,7 @@
             const lastVerse = allVerses[allVerses.length - 1].num;
             currentRef.endVerse = lastVerse;
 
-            // BTE 3.2: Determine secondary translation for indicator
+            // Determine secondary translation indicator
             let secondaryTrans = 'ESV';
             let bestScore = -1;
             Object.entries(transAgreements).forEach(function(entry) {
@@ -830,10 +899,10 @@
             });
             const transIndicator = ' <span class="trans-indicator">(NKJV|' + secondaryTrans + ')</span>';
 
-            // BTE 3.2: Apply Strong's limits based on view mode
+            // Apply Strong's limits based on view mode
             const verseCount = allVerses.length;
             var maxStrongs, maxClarity;
-            if (viewMode === 'chapter') {
+            if (currentViewMode === 'chapter') {
                 maxStrongs = Math.min(7, Math.max(1, Math.ceil(verseCount / 2)));
                 maxClarity = Math.min(7, Math.max(2, Math.ceil(verseCount / 4)));
             } else {
@@ -843,30 +912,29 @@
             const limitedStrongs = allStrongs.slice(0, maxStrongs);
             const limitedClarity = allClarity.slice(0, maxClarity);
 
-            const rangeStr = allVerses.length === 1
-                ? ref.display + ' ' + ref.chapter + ':' + ref.startVerse
-                : (isFullChapter
-                    ? ref.display + ' ' + ref.chapter
+            const rangeStr = (currentViewMode === 'chapter')
+                ? ref.display + ' ' + ref.chapter
+                : (allVerses.length === 1
+                    ? ref.display + ' ' + ref.chapter + ':' + ref.startVerse
                     : ref.display + ' ' + ref.chapter + ':' + ref.startVerse + '-' + lastVerse);
 
-            // Top nav arrows
+            // Build HTML
             let html = renderTopNav(rangeStr);
-            html += '<div class="result-card"><div class="result-header">' + rangeStr + transIndicator + '</div>';
+            html += '<div class="result-card">';
+            html += '<div class="result-header">' + rangeStr + transIndicator + '</div>';
 
-            // BTE 3.2: Verses — clickable in chapter mode
+            // BTE v3.4: Toggle button (Read Full Chapter / Read Verse by Verse)
+            html += renderToggleButton();
+
+            // BTE v3.4: Verse blocks — verse numbers always clickable
             allVerses.forEach(function(v) {
-                if (viewMode === 'chapter') {
-                    html += '<div class="verse-block"><span class="verse-num clickable" onclick="goToVerse(' + ref.chapter + ',' + v.num + ')" title="View verse ' + v.num + ' in detail">' + v.num + '</span> <span class="verse-text">' + v.text + '</span>';
-                } else {
-                    html += '<div class="verse-block"><span class="verse-num">' + v.num + '</span> <span class="verse-text">' + v.text + '</span>';
-                }
+                html += '<div class="verse-block"><span class="verse-num clickable" onclick="goToVerse(' + ref.chapter + ',' + v.num + ')" title="View verse ' + v.num + ' in detail">' + v.num + '</span> <span class="verse-text">' + v.text + '</span>';
                 v.amps.forEach(function(a) {
                     html += '<div class="amplification"><span class="amp-label">' + a.label + ':</span> ' + a.text + '</div>';
                 });
                 html += '</div>';
             });
 
-            // Strongs section (limited)
             if (limitedStrongs.length) {
                 const testament = ref.isOT ? 'Hebrew' : 'Greek';
                 html += '<div class="strongs-section"><h4>📖 Interlinear ' + testament + ' Roots</h4>';
@@ -879,7 +947,6 @@
                 html += '</div>';
             }
 
-            // Clarity notes (limited)
             if (limitedClarity.length) {
                 html += '<div class="clarity-section"><h4>💡 Clarity Notes</h4>';
                 limitedClarity.forEach(function(c) {
@@ -891,18 +958,15 @@
                 html += '</div>';
             }
 
-            // BTE 3.2: Lexicon footer (OT → StepBible, NT → BLB)
             if (ref.isOT) {
                 html += '<div class="lexicon-footer">Word studies: <a href="https://www.stepbible.org/" target="_blank">STEP Bible</a> (Tyndale House, Cambridge)</div>';
             } else {
                 html += '<div class="lexicon-footer">Word studies: <a href="https://www.blueletterbible.org/" target="_blank">Blue Letter Bible</a></div>';
             }
 
-            html += '<div class="engine-info">The MOOP Bible Translation Engine V3.3 · 9 translations · Interlinear ' +
+            html += '<div class="engine-info">The MOOP Bible Translation Engine V3.4 · 9 translations · Interlinear ' +
                 (ref.isOT ? 'Hebrew' : 'Greek') + ' backbone</div>';
             html += '</div>';
-
-            // Bottom nav arrows
             html += renderBottomNav(rangeStr);
 
             document.getElementById('results').innerHTML = html;
