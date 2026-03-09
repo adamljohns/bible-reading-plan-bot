@@ -94,9 +94,11 @@
             border-radius: 4px; flex-shrink: 0; margin-top: 2px; cursor: pointer;
             transition: all 0.2s;
         }
-        .action-check.done { background: var(--gold); }
-        .action-item.completed .action-text { text-decoration: line-through; color: var(--gray); }
-        .action-item.completed .action-tag { text-decoration: line-through; }
+        .action-check.done { background: var(--green); border-color: var(--green); }
+        .action-check.done::after { content: '✓'; color: #fff; font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+        .action-item.completed .action-text { text-decoration: line-through; color: #4CAF50; }
+        .action-item.completed .action-tag { text-decoration: line-through; color: var(--gray); }
+        label.checked { text-decoration: line-through; color: #4CAF50; }
         .action-text { font-size: 0.9rem; }
         .action-tag { color: var(--gray); font-size: 0.75rem; }
 
@@ -214,7 +216,7 @@
             <div class="card-badge">Sunday</div>
             <div class="card-brief" id="calendar-brief">
                 <div class="schedule-row"><span class="schedule-time">AM</span><span class="schedule-event">Church with Gideon & Shiloh</span></div>
-                <div class="schedule-row"><span class="schedule-time">PM</span><span class="schedule-event">Family time · Maria returns from photoshoot</span></div>
+                <div class="schedule-row"><span class="schedule-time">PM</span><span class="schedule-event">Family time · First Officer's Quarters</span></div>
                 <div class="schedule-row"><span class="schedule-time">Eve</span><span class="schedule-event">Family meeting</span></div>
             </div>
             <div class="card-detail" id="calendar-detail">
@@ -362,7 +364,7 @@
                     <div class="action-item"><span style="color:var(--gold);">•</span><span class="action-text">Business building tip</span></div>
                     <div class="action-item"><span style="color:var(--gold);">•</span><span class="action-text">Integration with fit20, B&A, and ministry</span></div>
                 </div>
-                <p style="color:var(--gray); font-size:0.8rem; margin-top:10px;">Tell MbPro about your Melaleuca goals to activate this module</p>
+                <p style="color:var(--gray); font-size:0.8rem; margin-top:10px;">Tell MOOPbot Pro about your Melaleuca goals to activate this module</p>
             </div>
         </div>
 
@@ -405,10 +407,10 @@
             </div>
         </div>
 
-        <!-- MbPro Status -->
+        <!-- MOOPbot Pro Status -->
         <div class="card full-width" onclick="toggleCard(this)" id="card-minimoop" style="border-color: rgba(212,175,55,0.3);">
             <div class="card-icon">🤖</div>
-            <div class="card-title">MbPro Status</div>
+            <div class="card-title">MOOPbot Pro Status</div>
             <div class="card-brief">
                 <div class="stat"><span class="stat-value">14%</span> <span class="stat-label">API used</span></div>
                 <div class="stat"><span class="stat-value">4</span> <span class="stat-label">channels</span></div>
@@ -435,7 +437,7 @@
 
     <footer>
         <div class="cross-divider">✝</div>
-        <p>The Captain's Wheelhouse · <a href="usmc-ministries.html">U.S.M.C. Ministries</a> · <a href="chronological.html">📅 Chronological</a> · Powered by MbPro</p>
+        <p>The Captain's Wheelhouse · <a href="usmc-ministries.html">U.S.M.C. Ministries</a> · <a href="chronological.html">📅 Chronological</a> · Powered by MOOPbot Pro</p>
         <p style="margin-top:5px; font-size:0.75rem;">Uniting, Serving, Mentoring and Counseling Ministries</p>
     </footer>
 
@@ -487,28 +489,28 @@
         // Auto-refresh weather every 30 min
         setInterval(loadWeather, 1800000);
 
-        // Action completion with strikethrough + save to localStorage
+        // Action completion with strikethrough + green + save to localStorage
         function completeAction(checkEl) {
             checkEl.classList.toggle('done');
             const item = checkEl.closest('.action-item');
             item.classList.toggle('completed');
 
-            // Save completed state
+            // Save completed state using wheelhouse-* namespace
             const text = item.querySelector('.action-text').textContent;
-            let completed = JSON.parse(localStorage.getItem('wh-completed') || '[]');
+            let completed = JSON.parse(localStorage.getItem('wheelhouse-completed') || '[]');
             if (item.classList.contains('completed')) {
                 if (!completed.includes(text)) completed.push(text);
             } else {
                 completed = completed.filter(t => t !== text);
             }
-            localStorage.setItem('wh-completed', JSON.stringify(completed));
+            localStorage.setItem('wheelhouse-completed', JSON.stringify(completed));
 
-            // Fade out completed items after 2 seconds
+            // Subtle fade for completed items
             if (item.classList.contains('completed')) {
                 setTimeout(() => {
-                    item.style.opacity = '0.4';
+                    item.style.opacity = '0.5';
                     item.style.transition = 'opacity 0.5s';
-                }, 2000);
+                }, 1500);
             } else {
                 item.style.opacity = '1';
             }
@@ -516,13 +518,20 @@
 
         // Restore completed state on load
         (function restoreCompleted() {
-            const completed = JSON.parse(localStorage.getItem('wh-completed') || '[]');
+            // Migrate old key if present
+            const oldData = localStorage.getItem('wh-completed');
+            if (oldData) {
+                localStorage.setItem('wheelhouse-completed', oldData);
+                localStorage.removeItem('wh-completed');
+            }
+            const completed = JSON.parse(localStorage.getItem('wheelhouse-completed') || '[]');
             document.querySelectorAll('.action-item').forEach(item => {
                 const text = item.querySelector('.action-text');
                 if (text && completed.includes(text.textContent)) {
                     item.classList.add('completed');
-                    item.querySelector('.action-check').classList.add('done');
-                    item.style.opacity = '0.4';
+                    const check = item.querySelector('.action-check');
+                    if (check) check.classList.add('done');
+                    item.style.opacity = '0.5';
                 }
             });
         })();
@@ -565,7 +574,7 @@
             });
 
             content += `<div class="verse">"As for me and my house, we will serve the Lord." — Joshua 24:15</div>`;
-            content += `<footer>Generated by MbPro · usmcmin.org/wheelhouse.html</footer>`;
+            content += `<footer>Generated by MOOPbot Pro · usmcmin.org/wheelhouse.html</footer>`;
             content += `</body></html>`;
 
             printWindow.document.write(content);
