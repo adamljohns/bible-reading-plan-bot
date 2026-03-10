@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-touch-icon.png">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta property="og:title" content="Serving Intake — U.S.M.C. Ministries">
+    <meta property="og:description" content="Ministry & Outreach Partnership. Serve alongside USMC Ministries with your gifts, skills, and calling.">
+    <meta property="og:image" content="https://usmcmin.org/assets/og/og-serving.png">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://usmcmin.org/serving-intake.html">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="description" content="Serving Intake — U.S.M.C. Ministries. Ministry & Outreach Partnership. Serve with your gifts.">
+    <title>Serving Intake — USMC Ministries</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #0a0a0a;
+            --card: #111;
+            --gold: #D4AF37;
+            --gold-light: #F4D470;
+            --gold-dim: rgba(212,175,55,0.12);
+            --white: #e8e8e8;
+            --gray: #888;
+            --border: #333;
+        }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--white); min-height: 100vh; }
+        h1,h2,h3 { font-family: 'Playfair Display', serif; }
+
+        .hero {
+            text-align: center;
+            padding: 50px 20px 30px;
+            background: linear-gradient(180deg, rgba(212,175,55,0.10) 0%, transparent 100%);
+            border-bottom: 1px solid var(--border);
+        }
+        .hero h1 { font-size: 1.9rem; color: var(--gold); margin-bottom: 8px; line-height: 1.2; }
+        .hero .subtitle { color: var(--gray); font-size: 0.95rem; margin-top: 6px; letter-spacing: 0.02em; }
+        .hero .tagline { color: var(--white); font-size: 0.9rem; font-style: italic; margin-top: 8px; opacity: 0.75; }
+        .hero .certs { display: inline-flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 14px; }
+        .cert-badge {
+            background: var(--gold-dim);
+            border: 1px solid var(--gold);
+            color: var(--gold);
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            padding: 4px 10px;
+            border-radius: 20px;
+        }
+
+        .container { max-width: 650px; margin: 0 auto; padding: 20px; }
+
+        .progress-wrap { margin: 20px 0; }
+        .progress-bar { height: 6px; background: #222; border-radius: 3px; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--gold); border-radius: 3px; transition: width 0.4s ease; }
+        .progress-text { text-align: center; color: var(--gray); font-size: 0.8rem; margin-top: 6px; }
+
+        .section { display: none; }
+        .section.active { display: block; }
+        .section-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 25px;
+            margin: 15px 0;
+        }
+        .section-card h2 { color: var(--gold); font-size: 1.2rem; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+        .section-card .section-desc { color: var(--gray); font-size: 0.82rem; margin-bottom: 18px; line-height: 1.5; }
+        .section-card h3 { color: var(--gold-light); font-size: 0.95rem; margin: 18px 0 8px; }
+
+        .field { margin: 14px 0; }
+        .field label { display: block; color: var(--gray); font-size: 0.85rem; margin-bottom: 6px; }
+        .field input, .field textarea, .field select {
+            width: 100%;
+            background: #0a0a0a;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--white);
+            padding: 12px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            transition: border-color 0.2s;
+        }
+        .field input:focus, .field textarea:focus, .field select:focus { border-color: var(--gold); outline: none; box-shadow: 0 0 0 2px var(--gold-dim); }
+        .field textarea { min-height: 70px; resize: vertical; }
+        .field select { -webkit-appearance: none; cursor: pointer; }
+
+        .radio-group { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+        .radio-option {
+            background: #0a0a0a;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 16px;
+            cursor: pointer;
+            font-size: 0.88rem;
+            transition: all 0.2s;
+            flex: 1;
+            min-width: 110px;
+            text-align: center;
+            user-select: none;
+        }
+        .radio-option.selected { border-color: var(--gold); background: var(--gold-dim); color: var(--gold); font-weight: 600; }
+        .radio-option:hover { border-color: var(--gold); }
+
+        .checkbox-group { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+        .checkbox-option {
+            background: #0a0a0a;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 14px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+            user-select: none;
+        }
+        .checkbox-option.selected { border-color: var(--gold); background: var(--gold-dim); color: var(--gold); font-weight: 600; }
+        .checkbox-option:hover { border-color: var(--gold); }
+
+        .btn-row { display: flex; gap: 10px; margin-top: 20px; }
+        .btn {
+            flex: 1;
+            padding: 14px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            border: none;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .btn-next { background: var(--gold); color: #000; }
+        .btn-next:hover { background: var(--gold-light); }
+        .btn-back { background: transparent; border: 2px solid var(--border); color: var(--gray); }
+        .btn-back:hover { border-color: var(--gold); color: var(--gold); }
+        .btn-submit { background: var(--gold); color: #000; }
+        .btn-submit:hover { background: var(--gold-light); }
+        .site-icon { vertical-align: middle; }
+
+        .gifts-category {
+            margin-bottom: 18px;
+        }
+        .gifts-category-label {
+            font-size: 0.75rem;
+            color: var(--gold);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .metric { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #222; gap: 10px; }
+        .metric:last-child { border-bottom: none; }
+        .metric-label { color: var(--gray); font-size: 0.9rem; }
+        .metric-value { color: var(--gold); font-weight: 700; font-size: 0.9rem; text-align: right; max-width: 60%; word-break: break-word; }
+
+        .results-card { background: var(--card); border: 1px solid var(--gold); border-radius: 12px; padding: 28px; margin: 15px 0; }
+        .completion-header { text-align: center; margin-bottom: 20px; }
+        .completion-header h2 { color: var(--gold); font-size: 1.5rem; margin-bottom: 8px; }
+        .completion-header p { color: var(--gray); font-size: 0.95rem; }
+
+        .coaching-note {
+            background: var(--gold-dim);
+            border-left: 3px solid var(--gold);
+            border-radius: 0 8px 8px 0;
+            padding: 15px 18px;
+            margin: 18px 0;
+        }
+        .coaching-note .note-label { color: var(--gold); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 6px; }
+        .coaching-note p { color: var(--white); font-size: 0.92rem; line-height: 1.6; }
+
+        .scripture-card {
+            background: #0a0a0a;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 18px 20px;
+            margin: 18px 0;
+            text-align: center;
+        }
+        .scripture-card .verse-text { color: var(--white); font-family: 'Playfair Display', serif; font-size: 1rem; font-style: italic; line-height: 1.6; margin-bottom: 8px; }
+        .scripture-card .verse-ref { color: var(--gold); font-size: 0.82rem; }
+
+        .cta-block {
+            background: var(--gold);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 18px 0;
+            text-align: center;
+        }
+        .cta-block p { color: #000; font-weight: 700; font-size: 1rem; margin-bottom: 12px; }
+        .cta-block a {
+            display: inline-block;
+            background: #000;
+            color: var(--gold);
+            font-weight: 700;
+            font-size: 0.95rem;
+            padding: 12px 28px;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: opacity 0.2s;
+        }
+        .cta-block a:hover { opacity: 0.85; }
+
+        footer { text-align: center; padding: 30px; color: var(--gray); font-size: 0.85rem; border-top: 1px solid var(--border); margin-top: 30px; }
+        footer a { color: var(--gold); text-decoration: none; }
+        footer a:hover { opacity: 0.8; }
+        footer .footer-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-bottom: 10px; }
+        footer .footer-bottom { margin-top: 10px; color: #555; font-size: 0.78rem; }
+
+        .hint { color: #555; font-size: 0.78rem; margin-top: 4px; font-style: italic; }
+
+        @media (max-width: 430px) {
+            .hero h1 { font-size: 1.5rem; }
+            .radio-option { min-width: 90px; font-size: 0.82rem; padding: 8px 10px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ══ HERO ══ -->
+<div class="hero">
+    <h1><img src="/assets/icons/icon-cross.svg" class="site-icon" alt="" width="24" height="24"> Serving Intake</h1>
+    <p class="tagline">For even the Son of Man did not come to be served, but to serve — Mark 10:45</p>
+    <p class="subtitle">Ministry & Outreach Partnership · USMC Ministries · Fredericksburg, VA</p>
+    <div class="certs">
+        <span class="cert-badge">Open to All</span>
+        <span class="cert-badge">Gifts-Based</span>
+        <span class="cert-badge">Local & Remote</span>
+    </div>
+</div>
+
+<div class="container">
+    <div class="progress-wrap">
+        <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:14.3%"></div></div>
+        <p class="progress-text" id="progressText">Step 1 of 7</p>
+    </div>
+
+    <!-- ══ SECTION 1: About You ══ -->
+    <div class="section active" id="sec-1">
+        <div class="section-card">
+            <h2><img src="/assets/icons/icon-person.svg" class="site-icon" alt="" width="20" height="20"> About You</h2>
+            <p class="section-desc">This intake is for anyone — men and women — who want to serve alongside USMC Ministries. Tell us who you are.</p>
+            <div class="field"><label>First Name *</label><input type="text" id="firstName" placeholder="Your first name"></div>
+            <div class="field"><label>Last Name</label><input type="text" id="lastName" placeholder="Your last name"></div>
+            <div class="field"><label>Age</label><input type="number" id="age" placeholder="Your age" min="13" max="100"></div>
+            <div class="field"><label>Email</label><input type="email" id="email" placeholder="your@email.com"></div>
+            <div class="field"><label>Phone</label><input type="tel" id="phone" placeholder="(555) 555-5555"></div>
+            <div class="field"><label>City / State</label><input type="text" id="location" placeholder="e.g., Fredericksburg, VA"></div>
+            <div class="field">
+                <label>Military background?</label>
+                <div class="radio-group" data-field="military">
+                    <div class="radio-option" onclick="selectRadio(this,'military')">Yes</div>
+                    <div class="radio-option" onclick="selectRadio(this,'military')">No</div>
+                </div>
+            </div>
+            <div id="militaryDetails" style="display:none;">
+                <div class="field"><label>Branch</label>
+                    <select id="branch">
+                        <option value="">Select branch...</option>
+                        <option>USMC</option>
+                        <option>Army</option>
+                        <option>Navy</option>
+                        <option>Air Force</option>
+                        <option>Coast Guard</option>
+                        <option>Space Force</option>
+                        <option>National Guard</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="btn-row"><div style="flex:1"></div><button class="btn btn-next" onclick="nextSec()">Next →</button></div>
+    </div>
+
+    <!-- ══ SECTION 2: Gifts & Skills ══ -->
+    <div class="section" id="sec-2">
+        <div class="section-card">
+            <h2>🎁 Gifts & Skills</h2>
+            <p class="section-desc">God equips those He calls. Let's find out how He's equipped you — both spiritually and practically. Select everything that applies.</p>
+
+            <h3>Spiritual Gifts</h3>
+            <div class="gifts-category">
+                <div class="gifts-category-label">✝️ Word & Teaching</div>
+                <div class="checkbox-group" data-field="spiritualGifts">
+                    <div class="checkbox-option" onclick="toggleCheck(this)">Teaching</div>
+                    <div class="checkbox-option" onclick="toggleCheck(this)">Preaching</div>
+                    <div class="checkbox-option" onclick="toggleCheck(this)">Evangelism</div>
+                    <div class="checkbox-option" onclick="toggleCheck(this)">Prophecy</div>
+                </div>
+            </div>
+            <div class="gifts-category">
+                <div class="gifts-category-label">🙏 Service & Support</div>
+                <div class="checkbox-group" data-field="spiritualGifts">
+                    <div class="checkbox-option" onclick="toggleCheck(this)">Hospitality</div>
+                    <div class="checkbox-option" onclick="toggleCheck(this)">Mercy / Helps</div>
+                    <div class="checkbox-option" onclick="toggleCheck(this)">Administration</div>
+                    <div class="checkbox-option" onclick="toggleCheck(this)">Leadership</div>
+                    <div class="checkbox-option" onclick="toggleCheck(this)">Intercession</div>
+                    <div class="checkbox-option" onclick="toggleCheck(this)">Giving / Generosity</div>
+                </div>
+            </div>
+
+            <h3>Practical Skills</h3>
+            <div class="checkbox-group" data-field="practicalSkills">
+                <div class="checkbox-option" onclick="toggleCheck(this)">Carpentry / Construction</div>
+                <div class="checkbox-option" onclick="toggleCheck(this)">Photography / Video</div>
+                <div class="checkbox-option" onclick="toggleCheck(this)">Tech / Web / Design</div>
+                <div class="checkbox-option" onclick="toggleCheck(this)">Finance / Accounting</div>
+                <div class="checkbox-option" onclick="toggleCheck(this)">Music / Worship</div>
+                <div class="checkbox-option" onclick="toggleCheck(this)">Writing / Content</div>
+                <div class="checkbox-option" onclick="toggleCheck(this)">Coaching / Training</div>
+                <div class="checkbox-option" onclick="toggleCheck(this)">Counseling / Listening</div>
+                <div class="checkbox-option" onclick="toggleCheck(this)">Event planning</div>
+                <div class="checkbox-option" onclick="toggleCheck(this)">Social media</div>
+                <div class="checkbox-option" onclick="toggleCheck(this)">Medical / Healthcare</div>
+                <div class="checkbox-option" onclick="toggleCheck(this)">Teaching / Education</div>
+            </div>
+
+            <div class="field"><label>Any other gifts or skills we should know about?</label>
+                <textarea id="otherGifts" placeholder="Tell us what you bring to the table that isn't listed above."></textarea>
+            </div>
+        </div>
+        <div class="btn-row"><button class="btn btn-back" onclick="prevSec()">← Back</button><button class="btn btn-next" onclick="nextSec()">Next →</button></div>
+    </div>
+
+    <!-- ══ SECTION 3: Availability ══ -->
+    <div class="section" id="sec-3">
+        <div class="section-card">
+            <h2>🗓️ Availability</h2>
+            <p class="section-desc">We work with what you have. No pressure to give what you don't have — but let's be realistic about capacity.</p>
+            <div class="field">
+                <label>Hours per week you can realistically give</label>
+                <div class="radio-group" data-field="hoursPerWeek">
+                    <div class="radio-option" onclick="selectRadio(this,'hoursPerWeek')">Under 2 hrs</div>
+                    <div class="radio-option" onclick="selectRadio(this,'hoursPerWeek')">2–5 hrs</div>
+                    <div class="radio-option" onclick="selectRadio(this,'hoursPerWeek')">5–10 hrs</div>
+                    <div class="radio-option" onclick="selectRadio(this,'hoursPerWeek')">10+ hrs</div>
+                </div>
+            </div>
+            <div class="field">
+                <label>Location preference</label>
+                <div class="radio-group" data-field="locationPref">
+                    <div class="radio-option" onclick="selectRadio(this,'locationPref')">Local — FXBG area</div>
+                    <div class="radio-option" onclick="selectRadio(this,'locationPref')">Remote only</div>
+                    <div class="radio-option" onclick="selectRadio(this,'locationPref')">Both / Flexible</div>
+                </div>
+            </div>
+            <div class="field">
+                <label>Best times for serving / volunteering</label>
+                <div class="checkbox-group" data-field="availableTimes">
+                    <div class="checkbox-option" onclick="toggleCheck(this)">Weekday mornings</div>
+                    <div class="checkbox-option" onclick="toggleCheck(this)">Weekday evenings</div>
+                    <div class="checkbox-option" onclick="toggleCheck(this)">Saturday</div>
+                    <div class="checkbox-option" onclick="toggleCheck(this)">Sunday</div>
+                    <div class="checkbox-option" onclick="toggleCheck(this)">Flexible / Anytime</div>
+                </div>
+            </div>
+            <div class="field">
+                <label>Availability start date</label>
+                <div class="radio-group" data-field="startDate">
+                    <div class="radio-option" onclick="selectRadio(this,'startDate')">Immediately</div>
+                    <div class="radio-option" onclick="selectRadio(this,'startDate')">Within 30 days</div>
+                    <div class="radio-option" onclick="selectRadio(this,'startDate')">1–3 months</div>
+                    <div class="radio-option" onclick="selectRadio(this,'startDate')">Just exploring</div>
+                </div>
+            </div>
+        </div>
+        <div class="btn-row"><button class="btn btn-back" onclick="prevSec()">← Back</button><button class="btn btn-next" onclick="nextSec()">Next →</button></div>
+    </div>
+
+    <!-- ══ SECTION 4: Ministry Passion ══ -->
+    <div class="section" id="sec-4">
+        <div class="section-card">
+            <h2>🔥 Ministry Passion</h2>
+            <p class="section-desc">God-given passion drives sustainable service. What breaks your heart? What lights you up? That's usually where He wants you.</p>
+            <div class="field">
+                <label>Which U.S.M.C. pillar resonates most with you?</label>
+                <div class="radio-group" data-field="pillarPassion">
+                    <div class="radio-option" onclick="selectRadio(this,'pillarPassion')">U — Uniting (Brotherhood/Mentoring)</div>
+                    <div class="radio-option" onclick="selectRadio(this,'pillarPassion')">S — Serving (Outreach/Ministry)</div>
+                    <div class="radio-option" onclick="selectRadio(this,'pillarPassion')">M — Mentoring (Discipleship)</div>
+                    <div class="radio-option" onclick="selectRadio(this,'pillarPassion')">C — Counseling (Pastoral Care)</div>
+                </div>
+            </div>
+            <div class="field"><label>What mission breaks your heart? What do you feel called to do?</label>
+                <textarea id="missionBurden" placeholder="Veterans struggling? Fatherless homes? Broken marriages? Unreached communities? Tell us what God has put on your heart."></textarea>
+            </div>
+            <div class="field"><label>Who are you most passionate about serving?</label>
+                <div class="checkbox-group" data-field="serveWho">
+                    <div class="checkbox-option" onclick="toggleCheck(this)">Veterans / Military families</div>
+                    <div class="checkbox-option" onclick="toggleCheck(this)">Men in general</div>
+                    <div class="checkbox-option" onclick="toggleCheck(this)">Couples / Families</div>
+                    <div class="checkbox-option" onclick="toggleCheck(this)">Youth / Young adults</div>
+                    <div class="checkbox-option" onclick="toggleCheck(this)">Women</div>
+                    <div class="checkbox-option" onclick="toggleCheck(this)">The unchurched</div>
+                    <div class="checkbox-option" onclick="toggleCheck(this)">The hurting / marginalized</div>
+                </div>
+            </div>
+        </div>
+        <div class="btn-row"><button class="btn btn-back" onclick="prevSec()">← Back</button><button class="btn btn-next" onclick="nextSec()">Next →</button></div>
+    </div>
+
+    <!-- ══ SECTION 5: Experience ══ -->
+    <div class="section" id="sec-5">
+        <div class="section-card">
+            <h2>📖 Ministry Experience</h2>
+            <p class="section-desc">We want to know where you've served — not to gatekeep, but to understand your background and build on it. No experience is too small.</p>
+            <div class="field"><label>Previous ministry or volunteer experience</label>
+                <textarea id="ministryExperience" placeholder="Church roles, mission trips, community service, mentoring, coaching, etc. Give us the highlights."></textarea>
+            </div>
+            <div class="field"><label>What did you learn from those experiences?</label>
+                <textarea id="ministryLessons" placeholder="What worked? What didn't? What would you do differently? What shaped you?"></textarea>
+            </div>
+            <div class="field">
+                <label>Have you led or co-led anything in ministry context?</label>
+                <div class="radio-group" data-field="hasLed">
+                    <div class="radio-option" onclick="selectRadio(this,'hasLed')">Yes — led teams/groups</div>
+                    <div class="radio-option" onclick="selectRadio(this,'hasLed')">Co-led / supported</div>
+                    <div class="radio-option" onclick="selectRadio(this,'hasLed')">No — I'm starting out</div>
+                </div>
+            </div>
+        </div>
+        <div class="btn-row"><button class="btn btn-back" onclick="prevSec()">← Back</button><button class="btn btn-next" onclick="nextSec()">Next →</button></div>
+    </div>
+
+    <!-- ══ SECTION 6: Calling Statement ══ -->
+    <div class="section" id="sec-6">
+        <div class="section-card">
+            <h2>🕊️ Your Calling Statement</h2>
+            <p class="section-desc">This is the most important section. No polish needed — just honesty and heart. Why here? Why now?</p>
+            <div class="field"><label>In your own words: why do you want to serve with USMC Ministries?</label>
+                <textarea id="whyServeHere" placeholder="Tell us your story. What drew you here? What are you hoping to give and build?" style="min-height: 100px;"></textarea>
+            </div>
+            <div class="field"><label>What has God put on your heart? Share your calling — in whatever form it's taken shape.</label>
+                <textarea id="callingStatement" placeholder="This doesn't have to be polished. The rough draft of your calling is welcome here." style="min-height: 100px;"></textarea>
+            </div>
+            <div class="field"><label>Anything else you want Adam to know?</label>
+                <textarea id="additionalNotes" placeholder="Open floor."></textarea>
+            </div>
+        </div>
+        <div class="btn-row"><button class="btn btn-back" onclick="prevSec()">← Back</button><button class="btn btn-next" onclick="nextSec()">Next →</button></div>
+    </div>
+
+    <!-- ══ SECTION 7: Review & Submit ══ -->
+    <div class="section" id="sec-7">
+        <div class="section-card">
+            <h2>✅ Review & Submit</h2>
+            <p class="section-desc">Review your serving intake below, then submit. Adam will reach out within 48 hours to connect.</p>
+            <div id="summaryContent"></div>
+        </div>
+        <div class="btn-row">
+            <button class="btn btn-back" onclick="prevSec()">← Back</button>
+            <button class="btn btn-submit" onclick="submitForm()">🙌 Submit Serving Intake</button>
+        </div>
+    </div>
+
+    <!-- ══ COMPLETION ══ -->
+    <div class="section" id="sec-done">
+        <div class="results-card">
+            <div class="completion-header">
+                <h2>🙌 Welcome to the Mission</h2>
+                <p>Your serving intake is submitted. Adam will reach out within 48 hours.</p>
+            </div>
+
+            <div class="scripture-card">
+                <div class="verse-text">"For even the Son of Man did not come to be served, but to serve, and to give his life as a ransom for many."</div>
+                <div class="verse-ref">— Mark 10:45</div>
+            </div>
+
+            <div class="coaching-note">
+                <div class="note-label">A Word from the Ministry</div>
+                <p>Serving isn't a box you check — it's a life you choose. The fact that you're here means God's already at work in you. We're honored to fight alongside you. Let's build something that outlasts us.</p>
+            </div>
+
+            <div class="cta-block">
+                <p>Want to connect before we get you placed?</p>
+                <a href="https://cal.com/usmcministries2022/serving" target="_blank" rel="noopener">📅 Schedule a Serving Conversation</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ══ FOOTER ══ -->
+<footer>
+    <div class="footer-links">
+        <a href="index.html"><img src="/assets/icons/icon-book.svg" class="site-icon" alt="" width="16" height="16"> Home</a>
+        <a href="usmc-ministries.html"><img src="/assets/icons/icon-anchor.svg" class="site-icon" alt="" width="16" height="16"> U.S.M.C. Ministries</a>
+        <a href="fitness.html"><img src="/assets/icons/icon-fitness.svg" class="site-icon" alt="" width="16" height="16"> Fitness</a>
+        <a href="mentoring.html"><img src="/assets/icons/icon-target.svg" class="site-icon" alt="" width="16" height="16"> Mentoring</a>
+        <a href="about.html"><img src="/assets/icons/icon-person.svg" class="site-icon" alt="" width="16" height="16"> About</a>
+    </div>
+    <div class="footer-bottom">Serving Intake · U.S.M.C. Ministries · Ministry & Outreach · Fredericksburg, VA</div>
+</footer>
+
+<script>
+    let currentSec = 1;
+    const totalSec = 7;
+    const formData = {};
+
+    function selectRadio(el, field) {
+        el.parentElement.querySelectorAll('.radio-option').forEach(o => o.classList.remove('selected'));
+        el.classList.add('selected');
+        formData[field] = el.textContent.trim();
+        if (field === 'military') {
+            document.getElementById('militaryDetails').style.display = formData.military === 'Yes' ? 'block' : 'none';
+        }
+    }
+
+    function toggleCheck(el) { el.classList.toggle('selected'); }
+
+    function nextSec() {
+        if (currentSec >= totalSec) return;
+        document.getElementById('sec-' + currentSec).classList.remove('active');
+        currentSec++;
+        document.getElementById('sec-' + currentSec).classList.add('active');
+        updateProgress();
+        if (currentSec === totalSec) buildSummary();
+        window.scrollTo(0, 0);
+    }
+
+    function prevSec() {
+        if (currentSec <= 1) return;
+        document.getElementById('sec-' + currentSec).classList.remove('active');
+        currentSec--;
+        document.getElementById('sec-' + currentSec).classList.add('active');
+        updateProgress();
+        window.scrollTo(0, 0);
+    }
+
+    function updateProgress() {
+        const pct = (currentSec / totalSec) * 100;
+        document.getElementById('progressFill').style.width = pct + '%';
+        document.getElementById('progressText').textContent = 'Step ' + currentSec + ' of ' + totalSec;
+    }
+
+    function getVal(id) {
+        const el = document.getElementById(id);
+        return el ? el.value.trim() : '';
+    }
+
+    function getChecked(field) {
+        const items = [];
+        document.querySelectorAll('[data-field="' + field + '"] .selected').forEach(e => items.push(e.textContent.trim()));
+        return items;
+    }
+
+    function buildSummary() {
+        const rows = [
+            ['Name', (getVal('firstName') + ' ' + getVal('lastName')).trim() || '—'],
+            ['Age', getVal('age') || '—'],
+            ['Email', getVal('email') || '—'],
+            ['Location', getVal('location') || '—'],
+            ['Military Background', formData.military || '—'],
+            ['Branch', getVal('branch') || '—'],
+            ['Hours Per Week', formData.hoursPerWeek || '—'],
+            ['Location Preference', formData.locationPref || '—'],
+            ['Start Date', formData.startDate || '—'],
+            ['Pillar Passion', formData.pillarPassion || '—'],
+            ['Has Led', formData.hasLed || '—'],
+            ['Spiritual Gifts', getChecked('spiritualGifts').join(', ') || '—'],
+            ['Practical Skills', getChecked('practicalSkills').join(', ') || '—'],
+            ['Serve Who', getChecked('serveWho').join(', ') || '—'],
+            ['Available Times', getChecked('availableTimes').join(', ') || '—'],
+        ];
+
+        document.getElementById('summaryContent').innerHTML = rows.map(([label, val]) =>
+            `<div class="metric"><span class="metric-label">${label}</span><span class="metric-value">${val}</span></div>`
+        ).join('');
+    }
+
+    function submitForm() {
+        const allData = { ...formData, formType: 'serving-intake' };
+        ['firstName','lastName','age','email','phone','location','otherGifts',
+         'missionBurden','ministryExperience','ministryLessons','whyServeHere',
+         'callingStatement','additionalNotes'].forEach(id => {
+            allData[id] = getVal(id);
+        });
+        allData.branch = getVal('branch');
+        allData.spiritualGifts = getChecked('spiritualGifts');
+        allData.practicalSkills = getChecked('practicalSkills');
+        allData.serveWho = getChecked('serveWho');
+        allData.availableTimes = getChecked('availableTimes');
+        allData.submittedAt = new Date().toISOString();
+
+        localStorage.setItem('serving_intake_' + (getVal('firstName') || 'anon').toLowerCase(), JSON.stringify(allData));
+
+        const WEBHOOK_URL = 'PASTE_APPS_SCRIPT_URL_HERE';
+        if (WEBHOOK_URL && !WEBHOOK_URL.startsWith('PASTE')) {
+            fetch(WEBHOOK_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(allData)
+            }).catch(() => {});
+        }
+
+        document.getElementById('sec-' + currentSec).classList.remove('active');
+        document.getElementById('sec-done').classList.add('active');
+        document.getElementById('progressFill').style.width = '100%';
+        document.getElementById('progressText').textContent = 'Complete! 🙌';
+        window.scrollTo(0, 0);
+    }
+</script>
+</body>
+</html>
