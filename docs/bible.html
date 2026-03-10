@@ -256,7 +256,7 @@
         const DISPLAY = { CSB17: 'CSB', NRSVCE: 'NRSV' };
         // BTE v4.0: Weights adjusted to accommodate NIV (1%) and NRSV (4%); total remains 0.95 (5% interlinear implied)
         const WEIGHTS = { NKJV:0.33, ESV:0.11, NASB:0.11, CSB17:0.09, NLT:0.08, KJV:0.07, WEB:0.06, AMP:0.03, MSG:0.02, NIV:0.01, NRSVCE:0.04 };
-        // BTE v5.0: AMP_PRIORITY removed — divergence-weighted selection now uses WEIGHTS directly
+        // BTE v4.0: Hard threshold removed — pure weighted-divergence score, sanity floor only (sim > 0.85)
 
         // Navigation state
         let currentRef = null;
@@ -826,13 +826,13 @@
 
                     TRANSLATIONS.forEach(t => { if (t !== 'NKJV' && texts[t]) transFetched[t]++; });
 
-                    // BTE v5.0: Divergence-weighted parallel selection — score = WEIGHTS[t] × (1 - similarity)
+                    // BTE v4.0: Pure weighted-divergence parallel selection — score = WEIGHTS[t] × (1 - similarity), no hard threshold
                     const ampCandidates = [];
                     const ampTransKeys = new Set();
                     TRANSLATIONS.forEach(t => {
                         if (t === 'NKJV' || !texts[t]) return;
                         const sim = similarity(texts.NKJV, texts[t]);
-                        if (sim >= 0.60) return; // raw similarity must be < 0.60
+                        if (sim > 0.85) return; // Sanity floor only: skip near-identical translations (BTE v4.0)
                         const w = WEIGHTS[t] || 0;
                         let score = w * (1 - sim);
                         // AMP bracket bonus: ×1.2 for intentional amplification markers [...]
@@ -858,7 +858,7 @@
                         if (t !== 'NKJV' && texts[t] && !ampTransKeys.has(t)) transAgreements[t]++;
                     });
 
-                    // BTE v5.0: Only show parallel block if we have weighted-divergent candidates
+                    // BTE v4.0: Only show parallel block if we have weighted-divergent candidates
                     const mergedAmps = amps.length > 0 ? mergeAmplifications(amps) : [];
                     const st = findStrongs(texts.NKJV, ref.isOT);
                     st.forEach(s => { if (!seenStrongs.has(s.num)) { s.vref = vn; allStrongs.push(s); seenStrongs.add(s.num); } });
@@ -877,13 +877,13 @@
 
                     TRANSLATIONS.forEach(t => { if (t !== 'NKJV' && texts[t]) transFetched[t]++; });
 
-                    // BTE v5.0: Divergence-weighted parallel selection — score = WEIGHTS[t] × (1 - similarity)
+                    // BTE v4.0: Pure weighted-divergence parallel selection — score = WEIGHTS[t] × (1 - similarity), no hard threshold
                     const ampCandidates = [];
                     const ampTransKeys = new Set();
                     TRANSLATIONS.forEach(t => {
                         if (t === 'NKJV' || !texts[t]) return;
                         const sim = similarity(texts.NKJV, texts[t]);
-                        if (sim >= 0.60) return; // raw similarity must be < 0.60
+                        if (sim > 0.85) return; // Sanity floor only: skip near-identical translations (BTE v4.0)
                         const w = WEIGHTS[t] || 0;
                         let score = w * (1 - sim);
                         // AMP bracket bonus: ×1.2 for intentional amplification markers [...]
@@ -909,7 +909,7 @@
                         if (t !== 'NKJV' && texts[t] && !ampTransKeys.has(t)) transAgreements[t]++;
                     });
 
-                    // BTE v5.0: Only show parallel block if we have weighted-divergent candidates
+                    // BTE v4.0: Only show parallel block if we have weighted-divergent candidates
                     const mergedAmps = amps.length > 0 ? mergeAmplifications(amps) : [];
                     const st = findStrongs(texts.NKJV, ref.isOT);
                     st.forEach(s => { if (!seenStrongs.has(s.num)) { s.vref = v; allStrongs.push(s); seenStrongs.add(s.num); } });
