@@ -256,7 +256,7 @@
         const DISPLAY = { CSB17: 'CSB', NRSVCE: 'NRSV' };
         // BTE v4.0: Weights adjusted to accommodate NIV (1%) and NRSV (4%); total remains 0.95 (5% interlinear implied)
         const WEIGHTS = { NKJV:0.33, ESV:0.11, NASB:0.11, CSB17:0.09, NLT:0.08, KJV:0.07, WEB:0.06, AMP:0.03, MSG:0.02, NIV:0.01, NRSVCE:0.04 };
-        const AMP_PRIORITY = ['ESV','NASB','NRSVCE','CSB17','AMP','NLT','NIV','MSG'];
+        const AMP_PRIORITY = ['NIV','NRSVCE','NLT','AMP','MSG','ESV','NASB','CSB17'];
 
         // Navigation state
         let currentRef = null;
@@ -826,24 +826,39 @@
 
                     TRANSLATIONS.forEach(t => { if (t !== 'NKJV' && texts[t]) transFetched[t]++; });
 
-                    const amps = [];
+                    // BTE v4.0: Collect all candidates under 0.50 threshold, pick most divergent
+                    const ampCandidates = [];
                     const ampTranslations = new Set();
                     AMP_PRIORITY.forEach(t => {
                         if (!texts[t]) return;
-                        if (similarity(texts.NKJV, texts[t]) < 0.65) {
-                            amps.push({ label: DISPLAY[t] || t, text: texts[t] });
-                            ampTranslations.add(t);
+                        const sim = similarity(texts.NKJV, texts[t]);
+                        if (sim < 0.50) {
+                            ampCandidates.push({ label: DISPLAY[t] || t, text: texts[t], sim: sim });
                         }
                     });
-                    if (texts.AMP && texts.AMP.includes('[') && !amps.find(a => a.label === 'AMP')) {
-                        amps.push({ label: 'AMP', text: texts.AMP });
-                        ampTranslations.add('AMP');
+                    // AMP bracket special case: include if it has brackets even if sim >= 0.50
+                    if (texts.AMP && texts.AMP.includes('[') && !ampCandidates.find(a => a.label === 'AMP')) {
+                        ampCandidates.push({ label: 'AMP', text: texts.AMP, sim: similarity(texts.NKJV, texts.AMP) });
+                    }
+                    // Sort by ascending similarity (most different first)
+                    ampCandidates.sort((a, b) => a.sim - b.sim);
+                    // Pick the most divergent; include ties within 5% (up to 3 total)
+                    const amps = [];
+                    if (ampCandidates.length > 0) {
+                        const lowestSim = ampCandidates[0].sim;
+                        for (const c of ampCandidates) {
+                            if (c.sim <= lowestSim + 0.05 && amps.length < 3) {
+                                amps.push({ label: c.label, text: c.text });
+                                ampTranslations.add(c.label);
+                            } else { break; }
+                        }
                     }
                     TRANSLATIONS.forEach(t => {
-                        if (t !== 'NKJV' && texts[t] && !ampTranslations.has(t)) transAgreements[t]++;
+                        if (t !== 'NKJV' && texts[t] && !ampTranslations.has(DISPLAY[t] || t)) transAgreements[t]++;
                     });
 
-                    const mergedAmps = mergeAmplifications(amps);
+                    // BTE v4.0: Only merge/show if we have candidates; label reflects actual translations
+                    const mergedAmps = amps.length > 0 ? mergeAmplifications(amps) : [];
                     const st = findStrongs(texts.NKJV, ref.isOT);
                     st.forEach(s => { if (!seenStrongs.has(s.num)) { s.vref = vn; allStrongs.push(s); seenStrongs.add(s.num); } });
                     const cl = findArchaic(texts.NKJV);
@@ -861,24 +876,39 @@
 
                     TRANSLATIONS.forEach(t => { if (t !== 'NKJV' && texts[t]) transFetched[t]++; });
 
-                    const amps = [];
+                    // BTE v4.0: Collect all candidates under 0.50 threshold, pick most divergent
+                    const ampCandidates = [];
                     const ampTranslations = new Set();
                     AMP_PRIORITY.forEach(t => {
                         if (!texts[t]) return;
-                        if (similarity(texts.NKJV, texts[t]) < 0.65) {
-                            amps.push({ label: DISPLAY[t] || t, text: texts[t] });
-                            ampTranslations.add(t);
+                        const sim = similarity(texts.NKJV, texts[t]);
+                        if (sim < 0.50) {
+                            ampCandidates.push({ label: DISPLAY[t] || t, text: texts[t], sim: sim });
                         }
                     });
-                    if (texts.AMP && texts.AMP.includes('[') && !amps.find(a => a.label === 'AMP')) {
-                        amps.push({ label: 'AMP', text: texts.AMP });
-                        ampTranslations.add('AMP');
+                    // AMP bracket special case: include if it has brackets even if sim >= 0.50
+                    if (texts.AMP && texts.AMP.includes('[') && !ampCandidates.find(a => a.label === 'AMP')) {
+                        ampCandidates.push({ label: 'AMP', text: texts.AMP, sim: similarity(texts.NKJV, texts.AMP) });
+                    }
+                    // Sort by ascending similarity (most different first)
+                    ampCandidates.sort((a, b) => a.sim - b.sim);
+                    // Pick the most divergent; include ties within 5% (up to 3 total)
+                    const amps = [];
+                    if (ampCandidates.length > 0) {
+                        const lowestSim = ampCandidates[0].sim;
+                        for (const c of ampCandidates) {
+                            if (c.sim <= lowestSim + 0.05 && amps.length < 3) {
+                                amps.push({ label: c.label, text: c.text });
+                                ampTranslations.add(c.label);
+                            } else { break; }
+                        }
                     }
                     TRANSLATIONS.forEach(t => {
-                        if (t !== 'NKJV' && texts[t] && !ampTranslations.has(t)) transAgreements[t]++;
+                        if (t !== 'NKJV' && texts[t] && !ampTranslations.has(DISPLAY[t] || t)) transAgreements[t]++;
                     });
 
-                    const mergedAmps = mergeAmplifications(amps);
+                    // BTE v4.0: Only merge/show if we have candidates; label reflects actual translations
+                    const mergedAmps = amps.length > 0 ? mergeAmplifications(amps) : [];
                     const st = findStrongs(texts.NKJV, ref.isOT);
                     st.forEach(s => { if (!seenStrongs.has(s.num)) { s.vref = v; allStrongs.push(s); seenStrongs.add(s.num); } });
                     const cl = findArchaic(texts.NKJV);
