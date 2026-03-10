@@ -566,12 +566,28 @@
                      display: BOOK_NAMES[bookId].replace(/\b\w/g,c=>c.toUpperCase()), fullChapter };
         }
 
+        // Strip Strong's concordance numbers (e.g. "son1121" → "son") and KJV marginal notes
+        function cleanVerseText(text) {
+            if (!text) return text;
+            // Remove HTML tags
+            text = text.replace(/<[^>]+>/g, '');
+            // Remove circled letter annotations
+            text = text.replace(/[\u24B6-\u24FF\u2460-\u2473]/g, '');
+            // Strip Strong's numbers: digits (2-5) immediately following a letter (KJV, WEB)
+            text = text.replace(/([a-zA-Z])(\d{2,5})(?=[\s,;:.!?'")\-]|$)/g, '$1');
+            // Remove KJV inline marginal notes: ": Heb. ...", ": Gr. ...", "; or, ..."
+            text = text.replace(/\s*[;:]\s*(Heb\.|Gr\.|or,|that is,)[^;:.]*(?=[;:.]|$)/g, '');
+            // Collapse extra spaces
+            text = text.replace(/\s{2,}/g, ' ').trim();
+            return text;
+        }
+
         async function fetchVerse(bookId, ch, v, trans) {
             try {
                 const r = await fetch(`${API}/${trans}/${bookId}/${ch}/${v}/`);
                 if (!r.ok) return null;
                 const d = await r.json();
-                return d.text ? d.text.replace(/<[^>]+>/g,'').replace(/[\u24B6-\u24FF\u2460-\u2473]/g,'').replace(/\s{2,}/g,' ').trim() : null;
+                return d.text ? cleanVerseText(d.text) : null;
             } catch { return null; }
         }
 
@@ -583,7 +599,7 @@
                 if (!Array.isArray(data)) return null;
                 const result = {};
                 data.forEach(function(v) {
-                    result[v.verse] = v.text ? v.text.replace(/<[^>]+>/g,'').replace(/[\u24B6-\u24FF\u2460-\u2473]/g,'').replace(/\s{2,}/g,' ').trim() : null;
+                    result[v.verse] = v.text ? cleanVerseText(v.text) : null;
                 });
                 return result;
             } catch { return null; }
@@ -943,7 +959,7 @@
                     let primaryText = texts.NKJV; // default
                     if (assignedTrans !== 'NKJV') {
                         const cached = verseCache[cacheKey];
-                        const altText = cached && cached[assignedTrans];
+                        const altText = cached && cached[assignedTrans] ? cleanVerseText(cached[assignedTrans]) : null;
                         if (altText && altText.trim()) {
                             primaryText = altText;
                         } else if (texts[assignedTrans]) {
@@ -1017,7 +1033,7 @@
                     let primaryTextV = texts.NKJV; // default
                     if (assignedTransV !== 'NKJV') {
                         const cachedV = verseCache[cacheKeyV];
-                        const altTextV = cachedV && cachedV[assignedTransV];
+                        const altTextV = cachedV && cachedV[assignedTransV] ? cleanVerseText(cachedV[assignedTransV]) : null;
                         if (altTextV && altTextV.trim()) {
                             primaryTextV = altTextV;
                         } else if (texts[assignedTransV]) {
