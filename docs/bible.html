@@ -114,6 +114,10 @@
             color: var(--gray); font-size: 0.85rem; font-family: 'Inter', sans-serif;
             font-weight: 400; margin-left: 8px;
         }
+        .trans-label {
+            color: #888; font-size: 0.68rem; margin-left: 6px;
+            font-family: 'Inter', sans-serif; font-weight: 400; letter-spacing: 0.03em;
+        }
         .lexicon-footer {
             text-align: center; color: var(--gray); font-size: 0.8rem;
             margin: 10px 0; padding: 8px; border-top: 1px solid #222;
@@ -891,14 +895,22 @@
 
                     TRANSLATIONS.forEach(t => { if (t !== 'NKJV' && texts[t]) transFetched[t]++; });
 
-                    // BTE v4.1: Rotation — pick assigned translation from cache, fall back to NKJV
+                    // BTE v4.6: Rotation — pick assigned translation from cache, fall back to live fetch, then NKJV
                     const cacheKey = `${ref.bookId}_${ref.chapter}_${vn}`;
                     const assignedTrans = translationMap[vnIdx] || 'NKJV';
-                    const primaryText = (verseCache[cacheKey] && verseCache[cacheKey][assignedTrans])
-                        ? verseCache[cacheKey][assignedTrans]
-                        : texts.NKJV;
+                    let primaryText = texts.NKJV; // default
+                    if (assignedTrans !== 'NKJV') {
+                        const cached = verseCache[cacheKey];
+                        const altText = cached && cached[assignedTrans];
+                        if (altText && altText.trim()) {
+                            primaryText = altText;
+                        } else if (texts[assignedTrans]) {
+                            primaryText = texts[assignedTrans]; // fall back to live fetched
+                        }
+                        // if still falsy, primaryText stays as texts.NKJV (already set)
+                    }
                     const transLabel = (assignedTrans !== 'NKJV')
-                        ? `<span style="color:#888;font-size:0.7rem;margin-left:6px">[${DISPLAY[assignedTrans] || assignedTrans}]</span>`
+                        ? `<span class="trans-label">[${DISPLAY[assignedTrans] || assignedTrans}]</span>`
                         : '';
 
                     // BTE v4.0: AMP parallel block (weighted-divergence — keep as-is)
@@ -956,15 +968,23 @@
 
                     TRANSLATIONS.forEach(t => { if (t !== 'NKJV' && texts[t]) transFetched[t]++; });
 
-                    // BTE v4.1: Rotation — assigned translation from cache
+                    // BTE v4.6: Rotation — assigned translation from cache, fall back to live fetch, then NKJV
                     const cacheKeyV = `${ref.bookId}_${ref.chapter}_${v}`;
                     const vOffset = v - ref.startVerse;
                     const assignedTransV = buildTranslationMap(ref.endVerse - ref.startVerse + 1)[vOffset] || 'NKJV';
-                    const primaryTextV = (verseCache[cacheKeyV] && verseCache[cacheKeyV][assignedTransV])
-                        ? verseCache[cacheKeyV][assignedTransV]
-                        : texts.NKJV;
+                    let primaryTextV = texts.NKJV; // default
+                    if (assignedTransV !== 'NKJV') {
+                        const cachedV = verseCache[cacheKeyV];
+                        const altTextV = cachedV && cachedV[assignedTransV];
+                        if (altTextV && altTextV.trim()) {
+                            primaryTextV = altTextV;
+                        } else if (texts[assignedTransV]) {
+                            primaryTextV = texts[assignedTransV]; // fall back to live fetched
+                        }
+                        // if still falsy, primaryTextV stays as texts.NKJV (already set)
+                    }
                     const transLabelV = (assignedTransV !== 'NKJV')
-                        ? `<span style="color:#888;font-size:0.7rem;margin-left:6px">[${DISPLAY[assignedTransV] || assignedTransV}]</span>`
+                        ? `<span class="trans-label">[${DISPLAY[assignedTransV] || assignedTransV}]</span>`
                         : '';
 
                     // BTE v4.0: AMP parallel block (keep as-is)
