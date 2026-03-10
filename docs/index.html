@@ -465,13 +465,23 @@
         }
 
         function buildActiveSteps() {
-            activeSteps = getQuestions().filter(q => {
+            let steps = getQuestions().filter(q => {
                 // BTE 3.2: Skip questions already answered from previous tiers
                 if (q.skipIfAnswered && formData[q.id] !== undefined && formData[q.id] !== '' && formData[q.id] !== null) return false;
                 // Skip if conditional and condition not met
                 if (q.showIf && !q.showIf()) return false;
                 return true;
             });
+            // BTE v4.0: Inject "Save Your Progress" email gate after step 2 (index 1)
+            // Only shown once; removed from activeSteps once formData.emailSaveDone is true
+            if (!formData.emailSaveDone && steps.length >= 2) {
+                steps.splice(2, 0, {
+                    id: '_emailSave',
+                    type: 'email_save',
+                    question: 'Save Your Progress'
+                });
+            }
+            activeSteps = steps;
         }
 
         function startForm() {
@@ -491,6 +501,8 @@
             document.getElementById('progressFill').style.width = ((step + 1) / total * 100) + '%';
             document.getElementById('stepIndicator').textContent = `Step ${step + 1} of ${total}`;
             document.getElementById('backBtn').classList.toggle('hidden', step === 0);
+            // BTE v4.0: Hide the default Continue button on the email save step (it has its own buttons)
+            document.getElementById('nextBtn').classList.toggle('hidden', q.type === 'email_save');
 
             let html = `<div class="question">${q.question}</div>`;
             if (q.hint) html += `<div class="question-hint">${q.hint}</div>`;
@@ -539,6 +551,26 @@
                     const cType = formData.deliveryMethod === 'Email' ? 'email' : 'text';
                     const cPlaceholder = formData.deliveryMethod === 'Email' ? 'your@email.com' : '@yourusername';
                     html += `<div class="input-wrapper"><input type="${cType}" id="stepInput" placeholder="${cPlaceholder}" value="${formData[q.id] || ''}"></div>`;
+                    break;
+                case 'email_save':
+                    // BTE v4.0: Inline email capture gate — not a modal, fits the survey aesthetic
+                    html = `
+                    <div style="text-align:center; padding: 10px 0 20px;">
+                        <div style="font-size:2rem; margin-bottom:14px;">📬</div>
+                        <h2 style="font-family:'Playfair Display',serif; color:var(--gold); font-size:clamp(1.5rem,4vw,2rem); margin-bottom:12px;">Save Your Progress</h2>
+                        <p style="color:var(--gray); font-size:0.95rem; margin-bottom:28px; max-width:420px; margin-left:auto; margin-right:auto; line-height:1.7;">
+                            Enter your email to save your answers and get a reminder if you don't finish.
+                        </p>
+                        <div class="input-wrapper" style="max-width:380px; margin:0 auto 8px;">
+                            <input type="email" id="emailSaveInput" placeholder="your@email.com" style="text-align:center;" value="${formData.emailSave || ''}">
+                        </div>
+                        <div id="emailSaveStatus" style="font-size:0.9rem; margin-bottom:20px; min-height:22px;"></div>
+                        <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+                            <button onclick="saveEmail()" style="background:var(--gold);color:#000;border:none;padding:14px 32px;border-radius:8px;font-weight:600;font-size:1rem;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.3s;">Save &amp; Continue</button>
+                            <button onclick="skipEmail()" style="background:transparent;color:var(--gray);border:1px solid #444;padding:14px 24px;border-radius:8px;font-size:0.9rem;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.3s;">Skip for Now</button>
+                        </div>
+                        <p style="color:#444; font-size:0.75rem; margin-top:20px;">🔒 Your email is never shared or sold.</p>
+                    </div>`;
                     break;
             }
 
@@ -637,8 +669,41 @@
                         if (!formData.children[i] || !formData.children[i].name) { alert('Please fill in all children names.'); return false; }
                     }
                     break;
+                case 'email_save':
+                    // BTE v4.0: Email save step — handled by saveEmail()/skipEmail() inline buttons, always passes validation
+                    break;
             }
             return true;
+        }
+
+        // BTE v4.0: Email save / skip handlers
+        function saveEmail() {
+            const emailInput = document.getElementById('emailSaveInput');
+            const statusEl = document.getElementById('emailSaveStatus');
+            const email = emailInput ? emailInput.value.trim() : '';
+            if (!email || !email.includes('@') || !email.includes('.')) {
+                if (statusEl) { statusEl.textContent = 'Please enter a valid email address.'; statusEl.style.color = '#ff4444'; }
+                return;
+            }
+            formData.emailSave = email;
+            // Try to notify backend (gracefully handles unavailability)
+            fetch('http://192.168.1.166:8080/api/save-email', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: email, answers: formData, timestamp: new Date().toISOString() })
+            }).catch(function() { /* backend unavailable — fail silently */ });
+            // Show confirmation then advance
+            if (statusEl) { statusEl.textContent = '✓ Saved!'; statusEl.style.color = '#4CAF50'; }
+            setTimeout(function() {
+                formData.emailSaveDone = true;
+                // buildActiveSteps() will remove the email step; renderStep at same index now points to next real step
+                renderStep(currentStep);
+            }, 800);
+        }
+
+        function skipEmail() {
+            formData.emailSaveDone = true;
+            renderStep(currentStep);
         }
 
         function nextStep() {
