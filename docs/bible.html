@@ -258,6 +258,13 @@
         const WEIGHTS = { NKJV:0.33, ESV:0.11, NASB:0.11, CSB17:0.09, NLT:0.08, KJV:0.07, WEB:0.06, AMP:0.03, MSG:0.02, NIV:0.01, NRSVCE:0.04 };
         // BTE v4.0: Hard threshold removed — pure weighted-divergence score, sanity floor only (sim > 0.85)
 
+        // BTE v4.1: Pre-generated blended parallels (loaded at startup, zero-latency at lookup)
+        let pregenParallels = {};
+        fetch('assets/blended-parallels.json')
+            .then(r => r.ok ? r.json() : {})
+            .then(data => { pregenParallels = data; console.log(`BTE: ${Object.keys(data).length.toLocaleString()} pre-blended verses loaded`); })
+            .catch(() => { console.log('BTE: no pre-blended parallels found, using live weighted-divergence'); });
+
         // Navigation state
         let currentRef = null;
         let currentViewMode = 'verse'; // 'chapter' | 'verse' | 'range'
@@ -826,6 +833,13 @@
 
                     TRANSLATIONS.forEach(t => { if (t !== 'NKJV' && texts[t]) transFetched[t]++; });
 
+                    // BTE v4.1: Check pre-generated blend first (zero API cost, instant)
+                    const pregenKey = `${ref.bookId}_${ref.chapter}_${vn}`;
+                    let mergedAmps;
+                    if (pregenParallels[pregenKey]) {
+                        mergedAmps = [{ label: 'Blended', text: pregenParallels[pregenKey] }];
+                        TRANSLATIONS.forEach(t => { if (t !== 'NKJV' && texts[t]) transFetched[t]++; });
+                    } else {
                     // BTE v4.0: Pure weighted-divergence parallel selection — score = WEIGHTS[t] × (1 - similarity), no hard threshold
                     const ampCandidates = [];
                     const ampTransKeys = new Set();
@@ -861,7 +875,8 @@
                     // BTE v4.0: Sort parallel translations by weight descending (display order + label order)
                     amps.sort((a, b) => (WEIGHTS[b.key] || 0) - (WEIGHTS[a.key] || 0));
                     // BTE v4.0: Only show parallel block if we have weighted-divergent candidates
-                    const mergedAmps = amps.length > 0 ? mergeAmplifications(amps) : [];
+                    mergedAmps = amps.length > 0 ? mergeAmplifications(amps) : [];
+                    } // end pregen fallback
                     const st = findStrongs(texts.NKJV, ref.isOT);
                     st.forEach(s => { if (!seenStrongs.has(s.num)) { s.vref = vn; allStrongs.push(s); seenStrongs.add(s.num); } });
                     const cl = findArchaic(texts.NKJV);
@@ -879,6 +894,12 @@
 
                     TRANSLATIONS.forEach(t => { if (t !== 'NKJV' && texts[t]) transFetched[t]++; });
 
+                    // BTE v4.1: Check pre-generated blend first (zero API cost, instant)
+                    const pregenKeyV = `${ref.bookId}_${ref.chapter}_${v}`;
+                    let mergedAmpsV;
+                    if (pregenParallels[pregenKeyV]) {
+                        mergedAmpsV = [{ label: 'Blended', text: pregenParallels[pregenKeyV] }];
+                    } else {
                     // BTE v4.0: Pure weighted-divergence parallel selection — score = WEIGHTS[t] × (1 - similarity), no hard threshold
                     const ampCandidates = [];
                     const ampTransKeys = new Set();
@@ -914,7 +935,9 @@
                     // BTE v4.0: Sort parallel translations by weight descending (display order + label order)
                     amps.sort((a, b) => (WEIGHTS[b.key] || 0) - (WEIGHTS[a.key] || 0));
                     // BTE v4.0: Only show parallel block if we have weighted-divergent candidates
-                    const mergedAmps = amps.length > 0 ? mergeAmplifications(amps) : [];
+                    mergedAmpsV = amps.length > 0 ? mergeAmplifications(amps) : [];
+                    } // end pregen fallback
+                    const mergedAmps = mergedAmpsV;
                     const st = findStrongs(texts.NKJV, ref.isOT);
                     st.forEach(s => { if (!seenStrongs.has(s.num)) { s.vref = v; allStrongs.push(s); seenStrongs.add(s.num); } });
                     const cl = findArchaic(texts.NKJV);
