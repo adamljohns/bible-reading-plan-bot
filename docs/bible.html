@@ -246,16 +246,18 @@
 </head>
 <body>
     <div class="container">
-        <section class="hero">
-            <img src="assets/logo.png" alt="U.S.M.C. Ministries" onerror="this.style.display='none'">
-            <h1>The MOOP Bible Translation Engine</h1>
-            <p class="subtitle">V4.6 · 11 Translations · Interlinear Hebrew &amp; Greek · Strong's Concordance</p>
-            <p class="desc">
-                Type any Bible reference below. The engine blends 11 English translations with
-                NKJV as the primary voice, surfaces meaningful divergences, and provides
-                original-language roots with links to full word studies.
-            </p>
-        </section>
+        <div id="home-panel">
+            <section class="hero">
+                <img src="assets/logo.png" alt="U.S.M.C. Ministries" onerror="this.style.display='none'">
+                <h1>The MOOP Bible Translation Engine</h1>
+                <p class="subtitle">V4.6 · 11 Translations · Interlinear Hebrew &amp; Greek · Strong's Concordance</p>
+                <p class="desc">
+                    Type any Bible reference below. The engine blends 11 English translations with
+                    NKJV as the primary voice, surfaces meaningful divergences, and provides
+                    original-language roots with links to full word studies.
+                </p>
+            </section>
+        </div>
 
         <div class="search-box">
             <input type="text" id="refInput" placeholder="e.g., Psalm 91, John 3:16, Romans 8:28-30"
@@ -263,15 +265,33 @@
             <button class="search-btn" id="searchBtn" onclick="lookupVerse()">Look Up</button>
         </div>
 
-        <!-- BTE v4.6: Bible Navigator (OT/NT → Category → Book → Chapter) -->
-        <div id="bibleNav" style="text-align:center; margin-bottom:30px;"></div>
+        <div id="back-to-home" style="display:none; text-align:left; margin-bottom:12px;">
+            <button onclick="showHome()" style="background:none; border:none; color:#D4AF37; cursor:pointer; font-size:0.9rem; padding:0;">← New Search</button>
+        </div>
+
+        <div id="home-panel-lower">
+            <div class="quick-links" style="margin-bottom:20px;">
+                <span>Try:&nbsp;</span>
+                <span class="quick-link" onclick="tryRef('Psalm 23')">Psalm 23</span>
+                <span class="quick-link" onclick="tryRef('John 3:16')">John 3:16</span>
+                <span class="quick-link" onclick="tryRef('Romans 8:28')">Romans 8:28</span>
+                <span class="quick-link" onclick="tryRef('Jeremiah 29:11')">Jeremiah 29:11</span>
+                <span class="quick-link" onclick="tryRef('Proverbs 3:5-6')">Proverbs 3:5-6</span>
+                <span class="quick-link" onclick="tryRef('Psalm 91')">Psalm 91</span>
+                <span class="quick-link" onclick="tryRef('Ephesians 6:10-18')">Ephesians 6:10-18</span>
+                <span class="quick-link" onclick="tryRef('2 Timothy 1:7')">2 Timothy 1:7</span>
+            </div>
+
+            <!-- BTE v4.6: Bible Navigator (OT/NT → Category → Book → Chapter) -->
+            <div id="bibleNav" style="text-align:center; margin-bottom:30px;"></div>
+        </div>
 
         <div id="results"></div>
     </div>
 
     <footer>
         <p>Built by <a href="usmc-ministries.html"><img src="/assets/icons/icon-anchor.svg" class="site-icon" alt="anchor" width="20" height="20"> U.S.M.C. Ministries</a> · <a href="mentoring.html"><img src="/assets/icons/icon-target.svg" class="site-icon" alt="target" width="20" height="20"> Mentoring</a> · <a href="index.html"><img src="/assets/icons/icon-book.svg" class="site-icon" alt="book" width="20" height="20"> Bible Reading Plan</a> · <a href="about.html"><img src="/assets/icons/icon-person.svg" class="site-icon" alt="person" width="20" height="20"> About</a> · Powered by The MOOP Bible Translation Engine V4.6</p>
-        <p style="margin-top: 5px;">NKJV 33% · ESV 11% · NASB 11% · CSB 9% · NLT 8% · KJV 7% · WEB 6% · NRSV 4% · AMP 3% · MSG 2% · NIV 1% · Interlinear 5%</p>
+        <p style="margin-top: 5px;">NKJV 33% · ESV 12% · NASB 12% · CSB 10% · NLT 9% · KJV 7% · WEB 7% · NRSV 4% · AMP 3% · MSG 2% · NIV 1% · Interlinear 5%</p>
         <p style="margin-top: 8px; font-size: 0.75rem;">
             Scripture: NKJV © Thomas Nelson · ESV © Crossway · NASB © Lockman · NLT © Tyndale ·
             CSB © Holman · AMP © Lockman · MSG © NavPress · NIV © Biblica · NRSV © NCC · KJV &amp; WEB: Public Domain
@@ -848,11 +868,33 @@
             });
         }
 
+        function showResults() {
+            document.getElementById('home-panel').style.display = 'none';
+            document.getElementById('home-panel-lower').style.display = 'none';
+            document.getElementById('back-to-home').style.display = 'block';
+        }
+
+        function showHome() {
+            document.getElementById('home-panel').style.display = 'block';
+            document.getElementById('home-panel-lower').style.display = 'block';
+            document.getElementById('back-to-home').style.display = 'none';
+            document.getElementById('results').innerHTML = '';
+            document.getElementById('refInput').value = '';
+            document.getElementById('refInput').focus();
+        }
+
+        function tryRef(ref) {
+            document.getElementById('refInput').value = ref;
+            lookupVerse();
+        }
+
         async function lookupVerse() {
             const input = document.getElementById('refInput').value.trim();
             if (!input) return;
             const ref = parseRef(input);
             if (!ref) { showError('Could not parse that reference. Try "Psalm 23" or "John 3:16".'); return; }
+
+            showResults();
 
             currentRef = ref;
 
@@ -866,7 +908,7 @@
             }
 
             document.getElementById('searchBtn').disabled = true;
-            document.getElementById('results').innerHTML = '<div class="loading"><img src="/assets/icons/icon-book.svg" class="site-icon" alt="book" width="20" height="20"> Fetching from 11 translations...</div>';
+            document.getElementById('results').innerHTML = '<div class="loading"><img src="/assets/icons/icon-book.svg" class="site-icon" alt="book" width="20" height="20"> Loading 11 translations...</div>';
 
             const allVerses = [];
             const allStrongs = [];
