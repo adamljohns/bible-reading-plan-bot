@@ -713,6 +713,27 @@
 
         function showPreview() {
             localStorage.setItem('watchmanPlan', JSON.stringify(formData));
+
+            // Webhook: Telegram + Email + Google Sheet
+            const WEBHOOK_URL = 'PASTE_APPS_SCRIPT_URL_HERE';
+            if (WEBHOOK_URL && !WEBHOOK_URL.startsWith('PASTE')) {
+                fetch(WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        formType: 'Bible Reading Plan Signup',
+                        name: [formData.firstName, formData.lastName].filter(Boolean).join(' '),
+                        email: formData.contact || formData.email || '',
+                        tier: formData.tier || '',
+                        maritalStatus: formData.maritalStatus || '',
+                        wifeName: formData.wifeName || '',
+                        children: (formData.children || []).map(c => c.name).join(', '),
+                        denomination: formData.denomination || '',
+                        bibleVersion: formData.bibleVersion || '',
+                        submittedAt: new Date().toISOString()
+                    })
+                }).catch(() => {});
+            }
             document.getElementById('formSection').style.display = 'none';
             document.getElementById('previewSection').classList.add('active');
 
