@@ -1074,6 +1074,46 @@
         const key = 'fitness_intake_' + (getVal('firstName') || 'anon').toLowerCase();
         localStorage.setItem(key, JSON.stringify(allData));
 
+        // ── Webhook: Telegram + Email + Google Sheet ──────────────
+        const WEBHOOK_URL = 'PASTE_APPS_SCRIPT_URL_HERE';
+        if (WEBHOOK_URL && !WEBHOOK_URL.startsWith('PASTE')) {
+            const payload = {
+                name: (allData.firstName || '') + ' ' + (allData.lastName || ''),
+                gender: formData.gender || '',
+                age: allData.age || '',
+                height: allData.height || '',
+                weight: allData.weight || '',
+                bmi: allData.bmi || '',
+                primaryGoal: formData.primaryGoal || '',
+                goals: allData.additionalGoals || '',
+                trainingModality: formData.trainingModality || '',
+                experience: formData.experience || '',
+                weeklySessions: formData.weeklySessions || '',
+                dailySteps: formData.dailySteps || '',
+                proteinIntake: formData.proteinIntake || '',
+                sleepHours: allData.sleep || '',
+                sleepQuality: formData.sleepQuality || '',
+                trackHRV: formData.trackHRV || '',
+                hrvBaseline: allData.hrvBaseline || '',
+                cpap: formData.cpap || '',
+                recoveryMethods: (allData.recoveryMods || []).join(', '),
+                readiness: allData.readinessScore || '',
+                motivation: formData.motivation || '',
+                barriers: (allData.pastBarriers || []).join(', '),
+                goalTimeline: formData.goalTimeline || '',
+                goalStatement: allData.successVision || '',
+                additionalNotes: allData.additionalNotes || '',
+                email: allData.email || '',
+                phone: allData.phone || '',
+                submittedAt: allData.submittedAt
+            };
+            fetch(WEBHOOK_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            }).catch(() => {}); // silent fail — form still works if webhook is down
+        }
+
         // Download JSON
         try {
             const blob = new Blob([JSON.stringify(allData, null, 2)], { type: 'application/json' });
