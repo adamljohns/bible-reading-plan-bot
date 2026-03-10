@@ -206,7 +206,7 @@
         <section class="hero">
             <img src="assets/logo.png" alt="U.S.M.C. Ministries" onerror="this.style.display='none'">
             <h1>The MOOP Bible Translation Engine</h1>
-            <p class="subtitle">V4.0 · 11 Translations · Interlinear Hebrew &amp; Greek · Strong's Concordance</p>
+            <p class="subtitle">V5.0 · 11 Translations · Interlinear Hebrew &amp; Greek · Strong's Concordance</p>
             <p class="desc">
                 Type any Bible reference below. The engine blends 11 English translations with
                 NKJV as the primary voice, surfaces meaningful divergences, and provides
@@ -256,7 +256,7 @@
         const DISPLAY = { CSB17: 'CSB', NRSVCE: 'NRSV' };
         // BTE v4.0: Weights adjusted to accommodate NIV (1%) and NRSV (4%); total remains 0.95 (5% interlinear implied)
         const WEIGHTS = { NKJV:0.33, ESV:0.11, NASB:0.11, CSB17:0.09, NLT:0.08, KJV:0.07, WEB:0.06, AMP:0.03, MSG:0.02, NIV:0.01, NRSVCE:0.04 };
-        const AMP_PRIORITY = ['NIV','NRSVCE','NLT','AMP','MSG','ESV','NASB','CSB17'];
+        // BTE v5.0: AMP_PRIORITY removed — divergence-weighted selection now uses WEIGHTS directly
 
         // Navigation state
         let currentRef = null;
@@ -826,38 +826,39 @@
 
                     TRANSLATIONS.forEach(t => { if (t !== 'NKJV' && texts[t]) transFetched[t]++; });
 
-                    // BTE v4.0: Collect all candidates under 0.50 threshold, pick most divergent
+                    // BTE v5.0: Divergence-weighted parallel selection — score = WEIGHTS[t] × (1 - similarity)
                     const ampCandidates = [];
-                    const ampTranslations = new Set();
-                    AMP_PRIORITY.forEach(t => {
-                        if (!texts[t]) return;
+                    const ampTransKeys = new Set();
+                    TRANSLATIONS.forEach(t => {
+                        if (t === 'NKJV' || !texts[t]) return;
                         const sim = similarity(texts.NKJV, texts[t]);
-                        if (sim < 0.50) {
-                            ampCandidates.push({ label: DISPLAY[t] || t, text: texts[t], sim: sim });
-                        }
+                        if (sim >= 0.60) return; // raw similarity must be < 0.60
+                        const w = WEIGHTS[t] || 0;
+                        let score = w * (1 - sim);
+                        // AMP bracket bonus: ×1.2 for intentional amplification markers [...]
+                        if (t === 'AMP' && texts[t].includes('[')) score *= 1.2;
+                        ampCandidates.push({ key: t, label: DISPLAY[t] || t, text: texts[t], sim, score });
                     });
-                    // AMP bracket special case: include if it has brackets even if sim >= 0.50
-                    if (texts.AMP && texts.AMP.includes('[') && !ampCandidates.find(a => a.label === 'AMP')) {
-                        ampCandidates.push({ label: 'AMP', text: texts.AMP, sim: similarity(texts.NKJV, texts.AMP) });
-                    }
-                    // Sort by ascending similarity (most different first)
-                    ampCandidates.sort((a, b) => a.sim - b.sim);
-                    // Pick the most divergent; include ties within 5% (up to 3 total)
+                    // Sort by divergenceScore descending (highest = most weight-adjusted difference)
+                    ampCandidates.sort((a, b) => b.score - a.score);
+                    // Pick top 1; include 2nd if within 15% of top score
                     const amps = [];
-                    if (ampCandidates.length > 0) {
-                        const lowestSim = ampCandidates[0].sim;
-                        for (const c of ampCandidates) {
-                            if (c.sim <= lowestSim + 0.05 && amps.length < 3) {
-                                amps.push({ label: c.label, text: c.text });
-                                ampTranslations.add(c.label);
-                            } else { break; }
+                    if (ampCandidates.length > 0 && ampCandidates[0].score > 0) {
+                        amps.push({ label: ampCandidates[0].label, text: ampCandidates[0].text });
+                        ampTransKeys.add(ampCandidates[0].key);
+                        if (ampCandidates.length > 1) {
+                            const threshold = ampCandidates[0].score * 0.85;
+                            if (ampCandidates[1].score >= threshold) {
+                                amps.push({ label: ampCandidates[1].label, text: ampCandidates[1].text });
+                                ampTransKeys.add(ampCandidates[1].key);
+                            }
                         }
                     }
                     TRANSLATIONS.forEach(t => {
-                        if (t !== 'NKJV' && texts[t] && !ampTranslations.has(DISPLAY[t] || t)) transAgreements[t]++;
+                        if (t !== 'NKJV' && texts[t] && !ampTransKeys.has(t)) transAgreements[t]++;
                     });
 
-                    // BTE v4.0: Only merge/show if we have candidates; label reflects actual translations
+                    // BTE v5.0: Only show parallel block if we have weighted-divergent candidates
                     const mergedAmps = amps.length > 0 ? mergeAmplifications(amps) : [];
                     const st = findStrongs(texts.NKJV, ref.isOT);
                     st.forEach(s => { if (!seenStrongs.has(s.num)) { s.vref = vn; allStrongs.push(s); seenStrongs.add(s.num); } });
@@ -876,38 +877,39 @@
 
                     TRANSLATIONS.forEach(t => { if (t !== 'NKJV' && texts[t]) transFetched[t]++; });
 
-                    // BTE v4.0: Collect all candidates under 0.50 threshold, pick most divergent
+                    // BTE v5.0: Divergence-weighted parallel selection — score = WEIGHTS[t] × (1 - similarity)
                     const ampCandidates = [];
-                    const ampTranslations = new Set();
-                    AMP_PRIORITY.forEach(t => {
-                        if (!texts[t]) return;
+                    const ampTransKeys = new Set();
+                    TRANSLATIONS.forEach(t => {
+                        if (t === 'NKJV' || !texts[t]) return;
                         const sim = similarity(texts.NKJV, texts[t]);
-                        if (sim < 0.50) {
-                            ampCandidates.push({ label: DISPLAY[t] || t, text: texts[t], sim: sim });
-                        }
+                        if (sim >= 0.60) return; // raw similarity must be < 0.60
+                        const w = WEIGHTS[t] || 0;
+                        let score = w * (1 - sim);
+                        // AMP bracket bonus: ×1.2 for intentional amplification markers [...]
+                        if (t === 'AMP' && texts[t].includes('[')) score *= 1.2;
+                        ampCandidates.push({ key: t, label: DISPLAY[t] || t, text: texts[t], sim, score });
                     });
-                    // AMP bracket special case: include if it has brackets even if sim >= 0.50
-                    if (texts.AMP && texts.AMP.includes('[') && !ampCandidates.find(a => a.label === 'AMP')) {
-                        ampCandidates.push({ label: 'AMP', text: texts.AMP, sim: similarity(texts.NKJV, texts.AMP) });
-                    }
-                    // Sort by ascending similarity (most different first)
-                    ampCandidates.sort((a, b) => a.sim - b.sim);
-                    // Pick the most divergent; include ties within 5% (up to 3 total)
+                    // Sort by divergenceScore descending (highest = most weight-adjusted difference)
+                    ampCandidates.sort((a, b) => b.score - a.score);
+                    // Pick top 1; include 2nd if within 15% of top score
                     const amps = [];
-                    if (ampCandidates.length > 0) {
-                        const lowestSim = ampCandidates[0].sim;
-                        for (const c of ampCandidates) {
-                            if (c.sim <= lowestSim + 0.05 && amps.length < 3) {
-                                amps.push({ label: c.label, text: c.text });
-                                ampTranslations.add(c.label);
-                            } else { break; }
+                    if (ampCandidates.length > 0 && ampCandidates[0].score > 0) {
+                        amps.push({ label: ampCandidates[0].label, text: ampCandidates[0].text });
+                        ampTransKeys.add(ampCandidates[0].key);
+                        if (ampCandidates.length > 1) {
+                            const threshold = ampCandidates[0].score * 0.85;
+                            if (ampCandidates[1].score >= threshold) {
+                                amps.push({ label: ampCandidates[1].label, text: ampCandidates[1].text });
+                                ampTransKeys.add(ampCandidates[1].key);
+                            }
                         }
                     }
                     TRANSLATIONS.forEach(t => {
-                        if (t !== 'NKJV' && texts[t] && !ampTranslations.has(DISPLAY[t] || t)) transAgreements[t]++;
+                        if (t !== 'NKJV' && texts[t] && !ampTransKeys.has(t)) transAgreements[t]++;
                     });
 
-                    // BTE v4.0: Only merge/show if we have candidates; label reflects actual translations
+                    // BTE v5.0: Only show parallel block if we have weighted-divergent candidates
                     const mergedAmps = amps.length > 0 ? mergeAmplifications(amps) : [];
                     const st = findStrongs(texts.NKJV, ref.isOT);
                     st.forEach(s => { if (!seenStrongs.has(s.num)) { s.vref = v; allStrongs.push(s); seenStrongs.add(s.num); } });
