@@ -844,12 +844,12 @@
                     // Pick top 1; include 2nd if within 15% of top score
                     const amps = [];
                     if (ampCandidates.length > 0 && ampCandidates[0].score > 0) {
-                        amps.push({ label: ampCandidates[0].label, text: ampCandidates[0].text });
+                        amps.push({ key: ampCandidates[0].key, label: ampCandidates[0].label, text: ampCandidates[0].text });
                         ampTransKeys.add(ampCandidates[0].key);
                         if (ampCandidates.length > 1) {
                             const threshold = ampCandidates[0].score * 0.85;
                             if (ampCandidates[1].score >= threshold) {
-                                amps.push({ label: ampCandidates[1].label, text: ampCandidates[1].text });
+                                amps.push({ key: ampCandidates[1].key, label: ampCandidates[1].label, text: ampCandidates[1].text });
                                 ampTransKeys.add(ampCandidates[1].key);
                             }
                         }
@@ -858,6 +858,8 @@
                         if (t !== 'NKJV' && texts[t] && !ampTransKeys.has(t)) transAgreements[t]++;
                     });
 
+                    // BTE v4.0: Sort parallel translations by weight descending (display order + label order)
+                    amps.sort((a, b) => (WEIGHTS[b.key] || 0) - (WEIGHTS[a.key] || 0));
                     // BTE v4.0: Only show parallel block if we have weighted-divergent candidates
                     const mergedAmps = amps.length > 0 ? mergeAmplifications(amps) : [];
                     const st = findStrongs(texts.NKJV, ref.isOT);
@@ -895,12 +897,12 @@
                     // Pick top 1; include 2nd if within 15% of top score
                     const amps = [];
                     if (ampCandidates.length > 0 && ampCandidates[0].score > 0) {
-                        amps.push({ label: ampCandidates[0].label, text: ampCandidates[0].text });
+                        amps.push({ key: ampCandidates[0].key, label: ampCandidates[0].label, text: ampCandidates[0].text });
                         ampTransKeys.add(ampCandidates[0].key);
                         if (ampCandidates.length > 1) {
                             const threshold = ampCandidates[0].score * 0.85;
                             if (ampCandidates[1].score >= threshold) {
-                                amps.push({ label: ampCandidates[1].label, text: ampCandidates[1].text });
+                                amps.push({ key: ampCandidates[1].key, label: ampCandidates[1].label, text: ampCandidates[1].text });
                                 ampTransKeys.add(ampCandidates[1].key);
                             }
                         }
@@ -909,6 +911,8 @@
                         if (t !== 'NKJV' && texts[t] && !ampTransKeys.has(t)) transAgreements[t]++;
                     });
 
+                    // BTE v4.0: Sort parallel translations by weight descending (display order + label order)
+                    amps.sort((a, b) => (WEIGHTS[b.key] || 0) - (WEIGHTS[a.key] || 0));
                     // BTE v4.0: Only show parallel block if we have weighted-divergent candidates
                     const mergedAmps = amps.length > 0 ? mergeAmplifications(amps) : [];
                     const st = findStrongs(texts.NKJV, ref.isOT);
