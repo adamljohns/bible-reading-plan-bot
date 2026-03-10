@@ -258,12 +258,38 @@
         const WEIGHTS = { NKJV:0.33, ESV:0.11, NASB:0.11, CSB17:0.09, NLT:0.08, KJV:0.07, WEB:0.06, AMP:0.03, MSG:0.02, NIV:0.01, NRSVCE:0.04 };
         // BTE v4.0: Hard threshold removed — pure weighted-divergence score, sanity floor only (sim > 0.85)
 
-        // BTE v4.1: Pre-generated blended parallels (loaded at startup, zero-latency at lookup)
+        // BTE v4.1: Pre-generated blended parallels (kept for legacy fallback)
         let pregenParallels = {};
         fetch('assets/blended-parallels.json')
             .then(r => r.ok ? r.json() : {})
             .then(data => { pregenParallels = data; console.log(`BTE: ${Object.keys(data).length.toLocaleString()} pre-blended verses loaded`); })
             .catch(() => { console.log('BTE: no pre-blended parallels found, using live weighted-divergence'); });
+
+        // BTE v4.1: Multi-translation verse cache (raw per-translation text, all 66 books)
+        let verseCache = {};
+        fetch('assets/verse-cache.json')
+            .then(r => r.ok ? r.json() : {})
+            .then(data => { verseCache = data; console.log(`BTE: ${Object.keys(data).length.toLocaleString()} verse-cache entries loaded`); })
+            .catch(() => { console.log('BTE: verse-cache not found, NKJV only mode'); });
+
+        // BTE v4.1: Bresenham-style translation distributor
+        // Returns array of translation keys (one per verse), spread evenly by weight
+        function buildTranslationMap(verseCount) {
+            const map = [];
+            const accum = {};
+            for (const t of TRANSLATIONS) accum[t] = 0;
+            for (let i = 0; i < verseCount; i++) {
+                let best = 'NKJV';
+                let bestVal = -1;
+                for (const t of TRANSLATIONS) {
+                    accum[t] += (WEIGHTS[t] || 0);
+                    if (accum[t] > bestVal) { bestVal = accum[t]; best = t; }
+                }
+                map.push(best);
+                accum[best] -= 1;
+            }
+            return map;
+        }
 
         // Navigation state
         let currentRef = null;
@@ -826,15 +852,27 @@
                 TRANSLATIONS.forEach((t, i) => { chapterTexts[t] = chapterResults[i] || {}; });
 
                 const verseNums = Object.keys(chapterTexts.NKJV).map(Number).sort((a, b) => a - b);
-                for (const vn of verseNums) {
+                // BTE v4.1: Build per-verse translation rotation map for this chapter
+                const translationMap = buildTranslationMap(verseNums.length);
+                verseNums.forEach((vn, vnIdx) => {
                     const texts = {};
                     TRANSLATIONS.forEach(t => { if (chapterTexts[t][vn]) texts[t] = chapterTexts[t][vn]; });
-                    if (!texts.NKJV) continue;
+                    if (!texts.NKJV) return; // skip verse (continue equivalent in forEach)
 
                     TRANSLATIONS.forEach(t => { if (t !== 'NKJV' && texts[t]) transFetched[t]++; });
 
-                    // BTE v4.1: Check pre-generated blend first (zero API cost, instant)
-                    const pregenKey = `${ref.bookId}_${ref.chapter}_${vn}`;
+                    // BTE v4.1: Rotation — pick assigned translation from cache, fall back to NKJV
+                    const cacheKey = `${ref.bookId}_${ref.chapter}_${vn}`;
+                    const assignedTrans = translationMap[vnIdx] || 'NKJV';
+                    const primaryText = (verseCache[cacheKey] && verseCache[cacheKey][assignedTrans])
+                        ? verseCache[cacheKey][assignedTrans]
+                        : texts.NKJV;
+                    const transLabel = (assignedTrans !== 'NKJV')
+                        ? `<span style="color:#888;font-size:0.7rem;margin-left:6px">[${DISPLAY[assignedTrans] || assignedTrans}]</span>`
+                        : '';
+
+                    // BTE v4.0: AMP parallel block (weighted-divergence — keep as-is)
+                    const pregenKey = cacheKey;
                     let mergedAmps;
                     if (pregenParallels[pregenKey]) {
                         mergedAmps = [{ label: 'Blended', text: pregenParallels[pregenKey] }];
@@ -846,16 +884,13 @@
                     TRANSLATIONS.forEach(t => {
                         if (t === 'NKJV' || !texts[t]) return;
                         const sim = similarity(texts.NKJV, texts[t]);
-                        if (sim > 0.85) return; // Sanity floor only: skip near-identical translations (BTE v4.0)
+                        if (sim > 0.85) return;
                         const w = WEIGHTS[t] || 0;
                         let score = w * (1 - sim);
-                        // AMP bracket bonus: ×1.2 for intentional amplification markers [...]
                         if (t === 'AMP' && texts[t].includes('[')) score *= 1.2;
                         ampCandidates.push({ key: t, label: DISPLAY[t] || t, text: texts[t], sim, score });
                     });
-                    // Sort by divergenceScore descending (highest = most weight-adjusted difference)
                     ampCandidates.sort((a, b) => b.score - a.score);
-                    // Pick top 1; include 2nd if within 15% of top score
                     const amps = [];
                     if (ampCandidates.length > 0 && ampCandidates[0].score > 0) {
                         amps.push({ key: ampCandidates[0].key, label: ampCandidates[0].label, text: ampCandidates[0].text });
@@ -871,18 +906,15 @@
                     TRANSLATIONS.forEach(t => {
                         if (t !== 'NKJV' && texts[t] && !ampTransKeys.has(t)) transAgreements[t]++;
                     });
-
-                    // BTE v4.0: Sort parallel translations by weight descending (display order + label order)
                     amps.sort((a, b) => (WEIGHTS[b.key] || 0) - (WEIGHTS[a.key] || 0));
-                    // BTE v4.0: Only show parallel block if we have weighted-divergent candidates
                     mergedAmps = amps.length > 0 ? mergeAmplifications(amps) : [];
                     } // end pregen fallback
                     const st = findStrongs(texts.NKJV, ref.isOT);
                     st.forEach(s => { if (!seenStrongs.has(s.num)) { s.vref = vn; allStrongs.push(s); seenStrongs.add(s.num); } });
                     const cl = findArchaic(texts.NKJV);
                     cl.forEach(c => { if (!seenClarity.has(c.word)) { allClarity.push(c); seenClarity.add(c.word); } });
-                    allVerses.push({ num: vn, text: texts.NKJV, amps: mergedAmps.slice(0, 2) });
-                }
+                    allVerses.push({ num: vn, text: primaryText, transLabel: transLabel, amps: mergedAmps.slice(0, 2) });
+                });
             } else {
                 // Verse/range: fetch verse by verse
                 for (let v = ref.startVerse; v <= ref.endVerse; v++) {
@@ -894,28 +926,36 @@
 
                     TRANSLATIONS.forEach(t => { if (t !== 'NKJV' && texts[t]) transFetched[t]++; });
 
-                    // BTE v4.1: Check pre-generated blend first (zero API cost, instant)
-                    const pregenKeyV = `${ref.bookId}_${ref.chapter}_${v}`;
+                    // BTE v4.1: Rotation — assigned translation from cache
+                    const cacheKeyV = `${ref.bookId}_${ref.chapter}_${v}`;
+                    const vOffset = v - ref.startVerse;
+                    const assignedTransV = buildTranslationMap(ref.endVerse - ref.startVerse + 1)[vOffset] || 'NKJV';
+                    const primaryTextV = (verseCache[cacheKeyV] && verseCache[cacheKeyV][assignedTransV])
+                        ? verseCache[cacheKeyV][assignedTransV]
+                        : texts.NKJV;
+                    const transLabelV = (assignedTransV !== 'NKJV')
+                        ? `<span style="color:#888;font-size:0.7rem;margin-left:6px">[${DISPLAY[assignedTransV] || assignedTransV}]</span>`
+                        : '';
+
+                    // BTE v4.0: AMP parallel block (keep as-is)
+                    const pregenKeyV = cacheKeyV;
                     let mergedAmpsV;
                     if (pregenParallels[pregenKeyV]) {
                         mergedAmpsV = [{ label: 'Blended', text: pregenParallels[pregenKeyV] }];
                     } else {
-                    // BTE v4.0: Pure weighted-divergence parallel selection — score = WEIGHTS[t] × (1 - similarity), no hard threshold
+                    // BTE v4.0: Pure weighted-divergence parallel selection
                     const ampCandidates = [];
                     const ampTransKeys = new Set();
                     TRANSLATIONS.forEach(t => {
                         if (t === 'NKJV' || !texts[t]) return;
                         const sim = similarity(texts.NKJV, texts[t]);
-                        if (sim > 0.85) return; // Sanity floor only: skip near-identical translations (BTE v4.0)
+                        if (sim > 0.85) return;
                         const w = WEIGHTS[t] || 0;
                         let score = w * (1 - sim);
-                        // AMP bracket bonus: ×1.2 for intentional amplification markers [...]
                         if (t === 'AMP' && texts[t].includes('[')) score *= 1.2;
                         ampCandidates.push({ key: t, label: DISPLAY[t] || t, text: texts[t], sim, score });
                     });
-                    // Sort by divergenceScore descending (highest = most weight-adjusted difference)
                     ampCandidates.sort((a, b) => b.score - a.score);
-                    // Pick top 1; include 2nd if within 15% of top score
                     const amps = [];
                     if (ampCandidates.length > 0 && ampCandidates[0].score > 0) {
                         amps.push({ key: ampCandidates[0].key, label: ampCandidates[0].label, text: ampCandidates[0].text });
@@ -931,10 +971,7 @@
                     TRANSLATIONS.forEach(t => {
                         if (t !== 'NKJV' && texts[t] && !ampTransKeys.has(t)) transAgreements[t]++;
                     });
-
-                    // BTE v4.0: Sort parallel translations by weight descending (display order + label order)
                     amps.sort((a, b) => (WEIGHTS[b.key] || 0) - (WEIGHTS[a.key] || 0));
-                    // BTE v4.0: Only show parallel block if we have weighted-divergent candidates
                     mergedAmpsV = amps.length > 0 ? mergeAmplifications(amps) : [];
                     } // end pregen fallback
                     const mergedAmps = mergedAmpsV;
@@ -942,7 +979,7 @@
                     st.forEach(s => { if (!seenStrongs.has(s.num)) { s.vref = v; allStrongs.push(s); seenStrongs.add(s.num); } });
                     const cl = findArchaic(texts.NKJV);
                     cl.forEach(c => { if (!seenClarity.has(c.word)) { allClarity.push(c); seenClarity.add(c.word); } });
-                    allVerses.push({ num: v, text: texts.NKJV, amps: mergedAmps.slice(0, 2) });
+                    allVerses.push({ num: v, text: primaryTextV, transLabel: transLabelV, amps: mergedAmps.slice(0, 2) });
                 }
             }
 
@@ -994,7 +1031,7 @@
 
             // BTE v3.4: Verse blocks — verse numbers always clickable
             allVerses.forEach(function(v) {
-                html += '<div class="verse-block"><span class="verse-num clickable" onclick="goToVerse(' + ref.chapter + ',' + v.num + ')" title="View verse ' + v.num + ' in detail">' + v.num + '</span> <span class="verse-text">' + v.text + '</span>';
+                html += '<div class="verse-block"><span class="verse-num clickable" onclick="goToVerse(' + ref.chapter + ',' + v.num + ')" title="View verse ' + v.num + ' in detail">' + v.num + '</span> <span class="verse-text">' + v.text + '</span>' + (v.transLabel || '');
                 v.amps.forEach(function(a) {
                     html += '<div class="amplification"><span class="amp-label">' + a.label + ':</span> ' + a.text + '</div>';
                 });
