@@ -8,7 +8,7 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-touch-icon.png">
     <link rel="manifest" href="/manifest.json">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta property="og:title" content="MOOP Bible Translation Engine V4.6">
+    <meta property="og:title" content="MOOP Bible Translation Engine V4.7">
     <meta property="og:description" content="11 English translations blended with interlinear Hebrew and Greek roots. Strong's Concordance links. Built for deep word study.">
     <meta property="og:image" content="https://usmcmin.org/assets/og/og-bible.png">
     <meta property="og:image:width" content="1200">
@@ -16,11 +16,11 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://usmcmin.org/bible.html">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="MOOP Bible Translation Engine V4.6">
+    <meta name="twitter:title" content="MOOP Bible Translation Engine V4.7">
     <meta name="twitter:description" content="11 English translations blended with interlinear Hebrew and Greek roots. Strong's Concordance links. Built for deep word study.">
     <meta name="twitter:image" content="https://usmcmin.org/assets/og/og-bible.png">
     <meta name="description" content="11 English translations blended with interlinear Hebrew and Greek roots. Strong's Concordance links. Built for deep word study.">
-    <title>The MOOP Bible Translation Engine V4.6 — USMC Ministries</title>
+    <title>The MOOP Bible Translation Engine V4.7 — USMC Ministries</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -204,7 +204,7 @@
             .nav-arrow { width: 40px; height: 40px; }
         }
 
-        /* BTE v4.6: Bible Navigator styles */
+        /* BTE v4.7: Bible Navigator styles */
         #bibleNav { animation: fadeIn 0.3s ease-in; }
         .bnav-title {
             color: var(--gold); font-family: 'Playfair Display', serif;
@@ -250,7 +250,7 @@
             <section class="hero">
                 <img src="assets/logo.png" alt="U.S.M.C. Ministries" onerror="this.style.display='none'">
                 <h1>The MOOP Bible Translation Engine</h1>
-                <p class="subtitle">V4.6 · 11 Translations · Interlinear Hebrew &amp; Greek · Strong's Concordance</p>
+                <p class="subtitle">V4.7 · 11 Translations · Interlinear Hebrew &amp; Greek · Strong's Concordance</p>
                 <p class="desc">
                     Type any Bible reference below. The engine blends 11 English translations with
                     NKJV as the primary voice, surfaces meaningful divergences, and provides
@@ -282,7 +282,7 @@
                 <span class="quick-link" onclick="tryRef('2 Timothy 1:7')">2 Timothy 1:7</span>
             </div>
 
-            <!-- BTE v4.6: Bible Navigator (OT/NT → Category → Book → Chapter) -->
+            <!-- BTE v4.7: Bible Navigator (OT/NT → Category → Book → Chapter) -->
             <div id="bibleNav" style="text-align:center; margin-bottom:30px;"></div>
         </div>
 
@@ -290,7 +290,7 @@
     </div>
 
     <footer>
-        <p>Built by <a href="usmc-ministries.html"><img src="/assets/icons/icon-anchor.svg" class="site-icon" alt="anchor" width="20" height="20"> U.S.M.C. Ministries</a> · <a href="mentoring.html"><img src="/assets/icons/icon-target.svg" class="site-icon" alt="target" width="20" height="20"> Mentoring</a> · <a href="index.html"><img src="/assets/icons/icon-book.svg" class="site-icon" alt="book" width="20" height="20"> Bible Reading Plan</a> · <a href="about.html"><img src="/assets/icons/icon-person.svg" class="site-icon" alt="person" width="20" height="20"> About</a> · Powered by The MOOP Bible Translation Engine V4.6</p>
+        <p>Built by <a href="usmc-ministries.html"><img src="/assets/icons/icon-anchor.svg" class="site-icon" alt="anchor" width="20" height="20"> U.S.M.C. Ministries</a> · <a href="mentoring.html"><img src="/assets/icons/icon-target.svg" class="site-icon" alt="target" width="20" height="20"> Mentoring</a> · <a href="index.html"><img src="/assets/icons/icon-book.svg" class="site-icon" alt="book" width="20" height="20"> Bible Reading Plan</a> · <a href="about.html"><img src="/assets/icons/icon-person.svg" class="site-icon" alt="person" width="20" height="20"> About</a> · Powered by The MOOP Bible Translation Engine V4.7</p>
         <p style="margin-top: 5px;">NKJV 33% · ESV 12% · NASB 12% · CSB 10% · NLT 9% · KJV 7% · WEB 7% · NRSV 4% · AMP 3% · MSG 2% · NIV 1% · Interlinear 5%</p>
         <p style="margin-top: 8px; font-size: 0.75rem;">
             Scripture: NKJV © Thomas Nelson · ESV © Crossway · NASB © Lockman · NLT © Tyndale ·
@@ -676,6 +676,53 @@
             return merged;
         }
 
+        // BTE v4.7: Build parallels with per-mode caps
+        // mode: 'chapter' (max 1) | 'range' 3-verse (2 default, 3 if top score >0.25)
+        //       | 'verse' single (3-4 default, 5-6 if high divergence, cap 6)
+        // Merged "ESV | CSB" blocks count as ONE slot — greedy fill handles this.
+        function buildParallels(texts, baseText, mode) {
+            // Score every non-primary translation
+            const ampCandidates = [];
+            TRANSLATIONS.forEach(t => {
+                if (t === 'NKJV' || !texts[t]) return;
+                const sim = similarity(baseText, texts[t]);
+                if (sim > 0.85) return;
+                const w = WEIGHTS[t] || 0;
+                let score = w * (1 - sim);
+                if (t === 'AMP' && texts[t].includes('[')) score *= 1.2;
+                ampCandidates.push({ key: t, label: DISPLAY[t] || t, text: texts[t], sim, score });
+            });
+            ampCandidates.sort((a, b) => b.score - a.score);
+
+            // Determine hard cap by mode
+            let hardCap;
+            if (mode === 'chapter') {
+                hardCap = 1;
+            } else if (mode === 'range') {
+                // 3-verse mode: 2 parallels, bump to 3 if highest divergence > 0.25
+                const topScore = ampCandidates.length > 0 ? ampCandidates[0].score : 0;
+                hardCap = topScore > 0.25 ? 3 : 2;
+            } else {
+                // Single-verse mode: 3-4 default; scale up to 5-6 for high divergence
+                const highDivCount = ampCandidates.filter(c => c.score > 0.20).length;
+                if (highDivCount >= 3) hardCap = 6;
+                else if (highDivCount >= 1) hardCap = 5;
+                else hardCap = 4;
+            }
+
+            // Greedy fill: add candidates until merged-block count reaches hardCap
+            // If two candidates merge (near-identical text), they occupy ONE slot,
+            // so we keep pulling from the list to reach the target.
+            const taken = [];
+            for (const c of ampCandidates) {
+                if (c.score <= 0) break;
+                taken.push({ key: c.key, label: c.label, text: c.text });
+                const merged = mergeAmplifications(taken);
+                if (merged.length >= hardCap) return merged.slice(0, hardCap);
+            }
+            return mergeAmplifications(taken);
+        }
+
         function findArchaic(text) {
             const found = [];
             const lower = text.toLowerCase();
@@ -953,7 +1000,7 @@
 
                     TRANSLATIONS.forEach(t => { if (t !== 'NKJV' && texts[t]) transFetched[t]++; });
 
-                    // BTE v4.6: Rotation — pick assigned translation from cache, fall back to live fetch, then NKJV
+                    // BTE v4.7: Rotation — pick assigned translation from cache, fall back to live fetch, then NKJV
                     const cacheKey = `${ref.bookId}_${ref.chapter}_${vn}`;
                     const assignedTrans = translationMap[vnIdx] || 'NKJV';
                     let primaryText = texts.NKJV; // default
@@ -971,49 +1018,24 @@
                         ? `<span class="trans-label">[${DISPLAY[assignedTrans] || assignedTrans}]</span>`
                         : '';
 
-                    // BTE v4.0: AMP parallel block (weighted-divergence — keep as-is)
+                    // BTE v4.7: Parallel block — chapter mode: max 1 parallel per verse
                     const pregenKey = cacheKey;
                     let mergedAmps;
                     if (pregenParallels[pregenKey]) {
                         mergedAmps = [{ label: 'Blended', text: pregenParallels[pregenKey] }];
                         TRANSLATIONS.forEach(t => { if (t !== 'NKJV' && texts[t]) transFetched[t]++; });
                     } else {
-                    // BTE v4.0: Pure weighted-divergence parallel selection — score = WEIGHTS[t] × (1 - similarity), no hard threshold
-                    const ampCandidates = [];
-                    const ampTransKeys = new Set();
-                    TRANSLATIONS.forEach(t => {
-                        if (t === 'NKJV' || !texts[t]) return;
-                        const sim = similarity(texts.NKJV, texts[t]);
-                        if (sim > 0.85) return;
-                        const w = WEIGHTS[t] || 0;
-                        let score = w * (1 - sim);
-                        if (t === 'AMP' && texts[t].includes('[')) score *= 1.2;
-                        ampCandidates.push({ key: t, label: DISPLAY[t] || t, text: texts[t], sim, score });
-                    });
-                    ampCandidates.sort((a, b) => b.score - a.score);
-                    const amps = [];
-                    if (ampCandidates.length > 0 && ampCandidates[0].score > 0) {
-                        amps.push({ key: ampCandidates[0].key, label: ampCandidates[0].label, text: ampCandidates[0].text });
-                        ampTransKeys.add(ampCandidates[0].key);
-                        if (ampCandidates.length > 1) {
-                            const threshold = ampCandidates[0].score * 0.85;
-                            if (ampCandidates[1].score >= threshold) {
-                                amps.push({ key: ampCandidates[1].key, label: ampCandidates[1].label, text: ampCandidates[1].text });
-                                ampTransKeys.add(ampCandidates[1].key);
-                            }
-                        }
-                    }
-                    TRANSLATIONS.forEach(t => {
-                        if (t !== 'NKJV' && texts[t] && !ampTransKeys.has(t)) transAgreements[t]++;
-                    });
-                    amps.sort((a, b) => (WEIGHTS[b.key] || 0) - (WEIGHTS[a.key] || 0));
-                    mergedAmps = amps.length > 0 ? mergeAmplifications(amps) : [];
+                        mergedAmps = buildParallels(texts, texts.NKJV, 'chapter');
+                        const shownLabels = mergedAmps.map(a => a.label).join(' | ');
+                        TRANSLATIONS.forEach(t => {
+                            if (t !== 'NKJV' && texts[t] && !shownLabels.includes(DISPLAY[t] || t)) transAgreements[t]++;
+                        });
                     } // end pregen fallback
                     const st = findStrongs(texts.NKJV, ref.isOT);
                     st.forEach(s => { if (!seenStrongs.has(s.num)) { s.vref = vn; allStrongs.push(s); seenStrongs.add(s.num); } });
                     const cl = findArchaic(texts.NKJV);
                     cl.forEach(c => { if (!seenClarity.has(c.word)) { allClarity.push(c); seenClarity.add(c.word); } });
-                    allVerses.push({ num: vn, text: primaryText, transLabel: transLabel, amps: mergedAmps.slice(0, 2) });
+                    allVerses.push({ num: vn, text: primaryText, transLabel: transLabel, amps: mergedAmps });
                 });
             } else {
                 // Verse/range: fetch verse by verse
@@ -1026,7 +1048,7 @@
 
                     TRANSLATIONS.forEach(t => { if (t !== 'NKJV' && texts[t]) transFetched[t]++; });
 
-                    // BTE v4.6: Rotation — assigned translation from cache, fall back to live fetch, then NKJV
+                    // BTE v4.7: Rotation — assigned translation from cache, fall back to live fetch, then NKJV
                     const cacheKeyV = `${ref.bookId}_${ref.chapter}_${v}`;
                     const vOffset = v - ref.startVerse;
                     const assignedTransV = buildTranslationMap(ref.endVerse - ref.startVerse + 1)[vOffset] || 'NKJV';
@@ -1045,49 +1067,24 @@
                         ? `<span class="trans-label">[${DISPLAY[assignedTransV] || assignedTransV}]</span>`
                         : '';
 
-                    // BTE v4.0: AMP parallel block (keep as-is)
+                    // BTE v4.7: Parallel block — mode-aware (range=2-3, verse=3-6)
                     const pregenKeyV = cacheKeyV;
                     let mergedAmpsV;
                     if (pregenParallels[pregenKeyV]) {
                         mergedAmpsV = [{ label: 'Blended', text: pregenParallels[pregenKeyV] }];
                     } else {
-                    // BTE v4.0: Pure weighted-divergence parallel selection
-                    const ampCandidates = [];
-                    const ampTransKeys = new Set();
-                    TRANSLATIONS.forEach(t => {
-                        if (t === 'NKJV' || !texts[t]) return;
-                        const sim = similarity(texts.NKJV, texts[t]);
-                        if (sim > 0.85) return;
-                        const w = WEIGHTS[t] || 0;
-                        let score = w * (1 - sim);
-                        if (t === 'AMP' && texts[t].includes('[')) score *= 1.2;
-                        ampCandidates.push({ key: t, label: DISPLAY[t] || t, text: texts[t], sim, score });
-                    });
-                    ampCandidates.sort((a, b) => b.score - a.score);
-                    const amps = [];
-                    if (ampCandidates.length > 0 && ampCandidates[0].score > 0) {
-                        amps.push({ key: ampCandidates[0].key, label: ampCandidates[0].label, text: ampCandidates[0].text });
-                        ampTransKeys.add(ampCandidates[0].key);
-                        if (ampCandidates.length > 1) {
-                            const threshold = ampCandidates[0].score * 0.85;
-                            if (ampCandidates[1].score >= threshold) {
-                                amps.push({ key: ampCandidates[1].key, label: ampCandidates[1].label, text: ampCandidates[1].text });
-                                ampTransKeys.add(ampCandidates[1].key);
-                            }
-                        }
-                    }
-                    TRANSLATIONS.forEach(t => {
-                        if (t !== 'NKJV' && texts[t] && !ampTransKeys.has(t)) transAgreements[t]++;
-                    });
-                    amps.sort((a, b) => (WEIGHTS[b.key] || 0) - (WEIGHTS[a.key] || 0));
-                    mergedAmpsV = amps.length > 0 ? mergeAmplifications(amps) : [];
+                        mergedAmpsV = buildParallels(texts, texts.NKJV, currentViewMode);
+                        const shownLabelsV = mergedAmpsV.map(a => a.label).join(' | ');
+                        TRANSLATIONS.forEach(t => {
+                            if (t !== 'NKJV' && texts[t] && !shownLabelsV.includes(DISPLAY[t] || t)) transAgreements[t]++;
+                        });
                     } // end pregen fallback
                     const mergedAmps = mergedAmpsV;
                     const st = findStrongs(texts.NKJV, ref.isOT);
                     st.forEach(s => { if (!seenStrongs.has(s.num)) { s.vref = v; allStrongs.push(s); seenStrongs.add(s.num); } });
                     const cl = findArchaic(texts.NKJV);
                     cl.forEach(c => { if (!seenClarity.has(c.word)) { allClarity.push(c); seenClarity.add(c.word); } });
-                    allVerses.push({ num: v, text: primaryTextV, transLabel: transLabelV, amps: mergedAmps.slice(0, 2) });
+                    allVerses.push({ num: v, text: primaryTextV, transLabel: transLabelV, amps: mergedAmps });
                 }
             }
 
@@ -1175,7 +1172,7 @@
                 html += '<div class="lexicon-footer">Word studies: <a href="https://www.blueletterbible.org/" target="_blank">Blue Letter Bible</a></div>';
             }
 
-            html += '<div class="engine-info">The MOOP Bible Translation Engine V4.6 · 11 translations · Interlinear ' +
+            html += '<div class="engine-info">The MOOP Bible Translation Engine V4.7 · 11 translations · Interlinear ' +
                 (ref.isOT ? 'Hebrew' : 'Greek') + ' backbone</div>';
             html += '</div>';
             html += renderBottomNav(rangeStr);
@@ -1210,7 +1207,7 @@
             }
         })();
 
-        // ── BTE v4.6: Bible Navigator ──────────────────────────────────────────
+        // ── BTE v4.7: Bible Navigator ──────────────────────────────────────────
         (function() {
             var navState = { level: 'top', testament: null, category: null, book: null, chStart: 1, chEnd: 1 };
 
