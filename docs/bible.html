@@ -326,12 +326,21 @@
             .then(data => { pregenParallels = data; console.log(`BTE: ${Object.keys(data).length.toLocaleString()} pre-blended verses loaded`); })
             .catch(() => { console.log('BTE: no pre-blended parallels found, using live weighted-divergence'); });
 
-        // BTE v4.1: Multi-translation verse cache (raw per-translation text, all 66 books)
+        // BTE v4.1→v4.2: Lazy-loaded verse cache (per-book chunks instead of 21MB monolith)
         let verseCache = {};
-        fetch('assets/verse-cache.json')
-            .then(r => r.ok ? r.json() : {})
-            .then(data => { verseCache = data; console.log(`BTE: ${Object.keys(data).length.toLocaleString()} verse-cache entries loaded`); })
-            .catch(() => { console.log('BTE: verse-cache not found, NKJV only mode'); });
+        const _loadedBooks = new Set();
+        async function ensureBookLoaded(bookId) {
+            if (_loadedBooks.has(bookId)) return;
+            _loadedBooks.add(bookId);
+            try {
+                const r = await fetch(`assets/verse-chunks/book-${bookId}.json`);
+                if (r.ok) {
+                    const data = await r.json();
+                    Object.assign(verseCache, data);
+                    console.log(`BTE: book ${bookId} loaded (${Object.keys(data).length} verses)`);
+                }
+            } catch(e) { console.log(`BTE: chunk book-${bookId} not available`); }
+        }
 
         // BTE v4.1: Bresenham-style translation distributor
         // Returns array of translation keys (one per verse), spread evenly by weight
@@ -1131,6 +1140,9 @@
             if (!ref) { showError('Could not parse that reference. Try "Psalm 23" or "John 3:16".'); return; }
 
             showResults();
+
+            // BTE v4.2: Lazy-load verse cache for this book
+            await ensureBookLoaded(ref.bookId);
 
             currentRef = ref;
 
