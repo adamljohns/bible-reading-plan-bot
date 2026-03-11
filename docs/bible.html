@@ -312,6 +312,13 @@
         const WEIGHTS = { NKJV:0.33, ESV:0.11, NASB:0.11, CSB17:0.09, NLT:0.08, KJV:0.07, WEB:0.06, AMP:0.03, MSG:0.02, NIV:0.01, NRSVCE:0.04 };
         // BTE v4.0: Hard threshold removed — pure weighted-divergence score, sanity floor only (sim > 0.85)
 
+        // BTE v4.7: Verse overrides — specific verses with preferred rendering
+        // Key format: bookId_chapter_verse (e.g. "20_3_6" = Proverbs 3:6)
+        // These take precedence over NKJV and the rotation cache.
+        const VERSE_OVERRIDES = {
+            '20_3_6': 'In all your ways, know Him, and He will direct your paths.',
+        };
+
         // BTE v4.1: Pre-generated blended parallels (kept for legacy fallback)
         let pregenParallels = {};
         fetch('assets/blended-parallels.json')
@@ -1169,8 +1176,8 @@
                     // BTE v4.7: Rotation — pick assigned translation from cache, fall back to live fetch, then NKJV
                     const cacheKey = `${ref.bookId}_${ref.chapter}_${vn}`;
                     const assignedTrans = translationMap[vnIdx] || 'NKJV';
-                    let primaryText = texts.NKJV; // default
-                    if (assignedTrans !== 'NKJV') {
+                    let primaryText = VERSE_OVERRIDES[cacheKey] || texts.NKJV; // check overrides first
+                    if (!VERSE_OVERRIDES[cacheKey] && assignedTrans !== 'NKJV') {
                         const cached = verseCache[cacheKey];
                         const altText = cached && cached[assignedTrans] ? cleanVerseText(cached[assignedTrans]) : null;
                         if (altText && altText.trim()) {
@@ -1218,8 +1225,8 @@
                     const cacheKeyV = `${ref.bookId}_${ref.chapter}_${v}`;
                     const vOffset = v - ref.startVerse;
                     const assignedTransV = buildTranslationMap(ref.endVerse - ref.startVerse + 1)[vOffset] || 'NKJV';
-                    let primaryTextV = texts.NKJV; // default
-                    if (assignedTransV !== 'NKJV') {
+                    let primaryTextV = VERSE_OVERRIDES[cacheKeyV] || texts.NKJV; // check overrides first
+                    if (!VERSE_OVERRIDES[cacheKeyV] && assignedTransV !== 'NKJV') {
                         const cachedV = verseCache[cacheKeyV];
                         const altTextV = cachedV && cachedV[assignedTransV] ? cleanVerseText(cachedV[assignedTransV]) : null;
                         if (altTextV && altTextV.trim()) {
