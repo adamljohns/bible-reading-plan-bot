@@ -306,37 +306,51 @@
         <div class="card full-width" onclick="toggleCard(this)" id="card-actions">
             <div class="card-icon"><img src="/assets/icons/icon-target.svg" class="site-icon" alt="target" width="20" height="20"></div>
             <div class="card-title">Top Actions</div>
-            <div class="card-brief" id="actions-brief">
-                <div class="action-item">
+            <div id="actions-brief" class="card-brief">
+                <!-- Priority tasks — updated Mar 11 2026 -->
+                <div class="action-item" data-task-id="print-virginia-lease">
                     <div class="action-check" onclick="event.stopPropagation();completeAction(this)"></div>
-                    <div><span class="action-text">CashApp Tiffany for cleaning (Apts 6 & 8 + house)</span><br><span class="action-tag"><img src="/assets/icons/icon-home.svg" class="site-icon" alt="home" width="20" height="20"> Bow & Arrow</span></div>
+                    <div><span class="action-text">Print Virginia Van Alstine lease agreement (PDF on phone → HP DeskJet)</span><br><span class="action-tag"><img src="/assets/icons/icon-home.svg" class="site-icon" alt="home" width="20" height="20"> Bow &amp; Arrow · due today</span></div>
                 </div>
-                <div class="action-item">
+                <div class="action-item" data-task-id="send-drywall-email">
                     <div class="action-check" onclick="event.stopPropagation();completeAction(this)"></div>
-                    <div><span class="action-text">Family meeting tonight — set the week ahead</span><br><span class="action-tag">👨‍👩‍👧‍👦 Family Captain</span></div>
+                    <div><span class="action-text">Send drywall email to Jaime + Jorge (draft + PDF ready — need their emails)</span><br><span class="action-tag"><img src="/assets/icons/icon-home.svg" class="site-icon" alt="home" width="20" height="20"> Bow &amp; Arrow</span></div>
                 </div>
-                <div class="action-item">
+                <div class="action-item" data-task-id="mike-young-email">
                     <div class="action-check" onclick="event.stopPropagation();completeAction(this)"></div>
-                    <div><span class="action-text">Enable Private API helper in BlueBubbles</span><br><span class="action-tag">🤖 Tech</span></div>
+                    <div><span class="action-text">Find Mike Young's email → send Noble Warriors partnership ask</span><br><span class="action-tag">⚓ Ministry</span></div>
+                </div>
+                <div class="action-item" data-task-id="gmail-oauth-bow-arrow">
+                    <div class="action-check" onclick="event.stopPropagation();completeAction(this)"></div>
+                    <div><span class="action-text">Set up Gmail OAuth — Bow &amp; Arrow account (2 min at computer)</span><br><span class="action-tag">🤖 Tech</span></div>
                 </div>
             </div>
-            <div class="card-detail">
+            <div class="card-detail" id="actions-queued">
                 <h4 style="color:var(--gold); margin-bottom:10px;">Queued Tasks</h4>
-                <div class="action-item">
-                    <div class="action-check" onclick="event.stopPropagation();completeAction(this)"></div>
-                    <div><span class="action-text">Approve Apple Notes automation popup on MBP</span><br><span class="action-tag">🤖 Tech</span></div>
-                </div>
-                <div class="action-item">
+                <div class="action-item" data-task-id="imac-remote-login">
                     <div class="action-check" onclick="event.stopPropagation();completeAction(this)"></div>
                     <div><span class="action-text">Fix iMac Remote Login (restart + re-toggle)</span><br><span class="action-tag">🖥️ Infrastructure</span></div>
                 </div>
-                <div class="action-item">
+                <div class="action-item" data-task-id="google-calendar-oauth">
                     <div class="action-check" onclick="event.stopPropagation();completeAction(this)"></div>
                     <div><span class="action-text">Set up Google Calendar OAuth for live schedule</span><br><span class="action-tag"><img src="/assets/icons/icon-calendar.svg" class="site-icon" alt="calendar" width="20" height="20"> Integration</span></div>
                 </div>
-                <div class="action-item">
+                <div class="action-item" data-task-id="oauth-token-switch">
+                    <div class="action-check" onclick="event.stopPropagation();completeAction(this)"></div>
+                    <div><span class="action-text">Test OAuth token switch → 5x subscription (after good plan session)</span><br><span class="action-tag">🤖 Tech</span></div>
+                </div>
+                <div class="action-item" data-task-id="maria-intentional">
                     <div class="action-check" onclick="event.stopPropagation();completeAction(this)"></div>
                     <div><span class="action-text">Do something intentional for Maria</span><br><span class="action-tag">💑 Marriage</span></div>
+                </div>
+                <div class="action-item" data-task-id="suno-creed-song">
+                    <div class="action-check" onclick="event.stopPropagation();completeAction(this)"></div>
+                    <div><span class="action-text">Finish Suno creed song (account ready — pick style and generate)</span><br><span class="action-tag">🎵 Ministry / Fun</span></div>
+                </div>
+                <hr style="border-color:rgba(212,175,55,0.2);margin:12px 0;">
+                <div id="completed-today-section" style="display:none;">
+                    <h4 style="color:#4CAF50; margin-bottom:8px; font-size:0.85rem;">✅ Completed Today</h4>
+                    <div id="completed-today-list"></div>
                 </div>
             </div>
         </div>
@@ -815,49 +829,75 @@
                 'Last updated: ' + ts.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
         }, 1800000);
 
-        // Action completion with strikethrough + green + save to localStorage
+        // ── Task Completion System ──────────────────────────────────────────
+        // Tasks stored with today's date. On refresh:
+        //   Completed TODAY  → sink to "Completed Today" section at bottom
+        //   Completed BEFORE today → removed (auto-expire overnight)
+        //   Weekly log preserved for end-of-week review
+
+        const TASK_KEY = 'wh_tasks_v2';
+        const LOG_KEY  = 'wh_weekly_log';
+        const todayStr = new Date().toDateString();
+
+        function getTaskStore() {
+            const raw = JSON.parse(localStorage.getItem(TASK_KEY) || '{}');
+            Object.keys(raw).forEach(id => { if (raw[id].date !== todayStr) delete raw[id]; });
+            return raw;
+        }
+        function saveTaskStore(store) { localStorage.setItem(TASK_KEY, JSON.stringify(store)); }
+
+        function logCompletion(taskId, text, tag) {
+            const log = JSON.parse(localStorage.getItem(LOG_KEY) || '[]');
+            log.push({ date: todayStr, time: new Date().toLocaleTimeString(), id: taskId, text, tag });
+            while (log.length > 500) log.shift();
+            localStorage.setItem(LOG_KEY, JSON.stringify(log));
+        }
+
         function completeAction(checkEl) {
-            checkEl.classList.toggle('done');
             const item = checkEl.closest('.action-item');
-            item.classList.toggle('completed');
+            const taskId = item.dataset.taskId || item.querySelector('.action-text').textContent.slice(0, 40).replace(/\s+/g, '-').toLowerCase();
+            const store = getTaskStore();
+            const isNowDone = !item.classList.contains('completed');
 
-            // Save completed state using wheelhouse-* namespace
-            const text = item.querySelector('.action-text').textContent;
-            let completed = JSON.parse(localStorage.getItem('wheelhouse-completed') || '[]');
-            if (item.classList.contains('completed')) {
-                if (!completed.includes(text)) completed.push(text);
-            } else {
-                completed = completed.filter(t => t !== text);
-            }
-            localStorage.setItem('wheelhouse-completed', JSON.stringify(completed));
+            checkEl.classList.toggle('done', isNowDone);
+            item.classList.toggle('completed', isNowDone);
 
-            // Subtle fade for completed items
-            if (item.classList.contains('completed')) {
+            if (isNowDone) {
+                const text = item.querySelector('.action-text').textContent;
+                const tag  = item.querySelector('.action-tag') ? item.querySelector('.action-tag').textContent : '';
+                store[taskId] = { date: todayStr, text, tag };
+                saveTaskStore(store);
+                logCompletion(taskId, text, tag);
                 setTimeout(() => {
-                    item.style.opacity = '0.5';
-                    item.style.transition = 'opacity 0.5s';
-                }, 1500);
+                    const dest = document.getElementById('completed-today-list');
+                    if (dest) {
+                        dest.appendChild(item);
+                        document.getElementById('completed-today-section').style.display = 'block';
+                        const detail = document.getElementById('actions-queued');
+                        if (detail && detail.style.display === 'none') detail.style.display = 'block';
+                    }
+                }, 500);
             } else {
+                delete store[taskId];
+                saveTaskStore(store);
+                const brief = document.getElementById('actions-brief');
+                if (brief) brief.appendChild(item);
                 item.style.opacity = '1';
             }
         }
 
-        // Restore completed state on load
-        (function restoreCompleted() {
-            // Migrate old key if present
-            const oldData = localStorage.getItem('wh-completed');
-            if (oldData) {
-                localStorage.setItem('wheelhouse-completed', oldData);
-                localStorage.removeItem('wh-completed');
-            }
-            const completed = JSON.parse(localStorage.getItem('wheelhouse-completed') || '[]');
-            document.querySelectorAll('.action-item').forEach(item => {
-                const text = item.querySelector('.action-text');
-                if (text && completed.includes(text.textContent)) {
+        // Restore task states on page load (date-aware)
+        (function restoreTaskStates() {
+            const store = getTaskStore();
+            if (Object.keys(store).length === 0) return;
+            const dest = document.getElementById('completed-today-list');
+            const section = document.getElementById('completed-today-section');
+            document.querySelectorAll('.action-item[data-task-id]').forEach(item => {
+                if (store[item.dataset.taskId]) {
                     item.classList.add('completed');
                     const check = item.querySelector('.action-check');
                     if (check) check.classList.add('done');
-                    item.style.opacity = '0.5';
+                    if (dest) { dest.appendChild(item); if (section) section.style.display = 'block'; }
                 }
             });
         })();
