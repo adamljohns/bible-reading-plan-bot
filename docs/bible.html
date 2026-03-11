@@ -488,7 +488,23 @@
         const STRONGS_NT = {
             lord:'G2962',god:'G2316',spirit:'G4151',soul:'G5590',righteousness:'G1343',
             salvation:'G4991',faith:'G4102',grace:'G5485',truth:'G225',love:'G26',
-            glory:'G1391',peace:'G1515',holy:'G40',worship:'G4352'
+            glory:'G1391',peace:'G1515',holy:'G40',worship:'G4352',
+            // Extended NT lexicon — ensures panels render across diverse passages
+            earth:'G1093',heaven:'G3772',above:'G509',world:'G2889',life:'G2222',
+            eternal:'G166',word:'G3056',light:'G5457',darkness:'G4655',
+            believe:'G4100',receive:'G2983',witness:'G3140',testimony:'G3141',
+            father:'G3962',son:'G5207',born:'G1080',water:'G5204',
+            kingdom:'G932',power:'G1411',sin:'G266',blood:'G129',
+            death:'G2288',resurrection:'G386',judgment:'G2920',
+            pray:'G4336',prayer:'G4335',forgive:'G863',
+            increase:'G837',decrease:'G1641',
+            heart:'G2588',mind:'G3563',body:'G4983',flesh:'G4561',
+            angel:'G32',church:'G1577',servant:'G1401',master:'G2962',
+            commandment:'G1785',law:'G3551',promise:'G1860',covenant:'G1242',
+            prophet:'G4396',apostle:'G652',disciple:'G3101',baptize:'G907',
+            name:'G3686',glory:'G1391',king:'G935',bread:'G740',
+            mercy:'G1656',comfort:'G3870',humble:'G5011',exalt:'G5312',
+            fear:'G5401',hope:'G1680',joy:'G5479',suffer:'G3958'
         };
         const STRONGS_DEFS = {
             H3068:'YHWH — the self-existent, covenant-keeping God',H430:'Elohim — God (plural of majesty)',
@@ -540,7 +556,63 @@
             H4194:'maveth — death',
             H1818:'dam — blood',
             H2077:'zevach — sacrifice, offering',
-            H8605:'tephillah — prayer, intercession'
+            H8605:'tephillah — prayer, intercession',
+            // NT Strong's definitions
+            G1093:'gē — earth, land, soil, the physical world',
+            G3772:'ouranos — heaven, the sky, God\'s dwelling place',
+            G509:'anōthen — from above, anew, from the beginning',
+            G2889:'kosmos — world, the ordered universe and its inhabitants',
+            G2222:'zōē — life (divine, eternal — the very life of God)',
+            G166:'aiōnios — eternal, age-lasting, beyond time',
+            G3056:'logos — Word, reason, divine self-expression',
+            G5457:'phōs — light, illumination, revelation',
+            G4655:'skotos — darkness, spiritual blindness',
+            G4100:'pisteuō — to believe, trust, commit oneself to',
+            G2983:'lambanō — to take, receive, accept',
+            G3140:'martyreō — to testify, bear witness, affirm',
+            G3141:'martyria — testimony, witness, evidence',
+            G3962:'patēr — father (God\'s relational nearness)',
+            G5207:'huios — son, heir, the one who shares the Father\'s nature',
+            G1080:'gennaō — to beget, give birth, be born of',
+            G5204:'hydōr — water',
+            G932:'basileia — kingdom, reign, rule of God',
+            G1411:'dynamis — power, ability, miracle',
+            G266:'hamartia — sin, missing the mark',
+            G129:'haima — blood, life-force',
+            G2288:'thanatos — death, separation from God',
+            G386:'anastasis — resurrection, rising from the dead',
+            G2920:'krisis — judgment, decision, the decisive moment',
+            G4336:'proseuchomai — to pray, worship directed toward God',
+            G4335:'proseuchē — prayer, a dedicated place or act of prayer',
+            G863:'aphiēmi — to forgive, release, send away',
+            G837:'auxanō — to grow, increase, expand',
+            G1641:'elattoō — to make less, decrease, diminish',
+            G2588:'kardia — heart, the center of inner life',
+            G3563:'nous — mind, understanding, moral reasoning',
+            G4983:'sōma — body, the physical self',
+            G4561:'sarx — flesh, human nature apart from God',
+            G32:'angelos — angel, messenger',
+            G1577:'ekklēsia — church, assembly, called-out community',
+            G1401:'doulos — servant, slave, bond-servant',
+            G1785:'entolē — commandment, charge',
+            G3551:'nomos — law, Torah, the rule of order',
+            G1860:'epaggelia — promise, announcement',
+            G1242:'diathēkē — covenant, testament, binding agreement',
+            G4396:'prophētēs — prophet, one who speaks for God',
+            G652:'apostolos — apostle, sent one',
+            G3101:'mathētēs — disciple, learner, student',
+            G907:'baptizō — to baptize, immerse, wash',
+            G3686:'onoma — name, identity, authority',
+            G935:'basileus — king, ruler',
+            G740:'artos — bread, loaf',
+            G1656:'eleos — mercy, compassion, steadfast love',
+            G3870:'parakaleō — to comfort, encourage, exhort',
+            G5011:'tapeinos — humble, lowly',
+            G5312:'hypsoō — to exalt, lift up, elevate',
+            G5401:'phobos — fear, reverence, awe',
+            G1680:'elpis — hope, confident expectation',
+            G5479:'chara — joy, delight',
+            G3958:'paschō — to suffer, experience, endure'
         };
 
         function stepBibleUrl(num) {
@@ -1108,14 +1180,22 @@
             const transIndicator = ' <span class="trans-indicator">(NKJV|' + secondaryTrans + ')</span>';
 
             // Apply Strong's limits based on view mode
+            // chapter: ~4-6 words (proportional to chapter length)
+            // range (3-verse): 4-8 words across all 3 verses, up to 4 clarity notes
+            // verse (single): 6-10 words, up to 6 clarity notes
             const verseCount = allVerses.length;
             var maxStrongs, maxClarity;
             if (currentViewMode === 'chapter') {
                 maxStrongs = Math.min(7, Math.max(1, Math.ceil(verseCount / 2)));
                 maxClarity = Math.min(7, Math.max(2, Math.ceil(verseCount / 4)));
+            } else if (currentViewMode === 'range') {
+                // 3-verse mode: aggregate across verses, cap at 8 words, 4 clarity notes
+                maxStrongs = Math.min(8, Math.max(4, allStrongs.length));
+                maxClarity = Math.min(4, allClarity.length);
             } else {
-                maxStrongs = Math.min(5, Math.max(2, allStrongs.length));
-                maxClarity = Math.min(2, allClarity.length);
+                // Single verse: most detail — 6-10 words, up to 6 clarity notes
+                maxStrongs = Math.min(10, Math.max(6, allStrongs.length));
+                maxClarity = Math.min(6, allClarity.length);
             }
             const limitedStrongs = allStrongs.slice(0, maxStrongs);
             const limitedClarity = allClarity.slice(0, maxClarity);
