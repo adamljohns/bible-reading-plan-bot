@@ -737,7 +737,13 @@
         // Strip Strong's concordance numbers (e.g. "son1121" → "son") and KJV marginal notes
         function cleanVerseText(text) {
             if (!text) return text;
-            // Remove HTML tags
+            // BTE v4.2: Remove <sup>...</sup> cross-reference notes FIRST (before tag stripping)
+            text = text.replace(/<sup>[^<]*<\/sup>/gi, '');
+            // Remove Strong's number tags: <S>1234</S>
+            text = text.replace(/<S>\d+<\/S>/g, '');
+            // Replace <br> and <br/> with space (preserve word boundaries in poetry)
+            text = text.replace(/<br\s*\/?>/gi, ' ');
+            // Remove remaining HTML tags (but preserve spacing)
             text = text.replace(/<[^>]+>/g, '');
             // Remove circled letter annotations
             text = text.replace(/[\u24B6-\u24FF\u2460-\u2473]/g, '');
@@ -745,6 +751,8 @@
             text = text.replace(/([a-zA-Z])(\d{2,5})(?=[\s,;:.!?'")\-]|$)/g, '$1');
             // Remove KJV inline marginal notes: ": Heb. ...", ": Gr. ...", "; or, ..."
             text = text.replace(/\s*[;:]\s*(Heb\.|Gr\.|or,|that is,)[^;:.]*(?=[;:.]|$)/g, '');
+            // Fix missing space after punctuation (comma, period, semicolon, colon)
+            text = text.replace(/([,;:.!?])([A-Za-z])/g, '$1 $2');
             // Collapse extra spaces
             text = text.replace(/\s{2,}/g, ' ').trim();
             return text;
