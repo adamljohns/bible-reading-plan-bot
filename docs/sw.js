@@ -1,10 +1,8 @@
-// U.S.M.C. Ministries — Service Worker for PWA
-const CACHE_NAME = 'usmc-v1';
+const CACHE_NAME = 'usmc-v2';
 const PRECACHE = [
-  '/',
-  '/docs/wheelhouse.html',
-  '/docs/chronological.html', 
-  '/docs/bible.html',
+  '/wheelhouse.html',
+  '/chronological.html',
+  '/bible.html',
   '/manifest.json'
 ];
 
@@ -18,22 +16,16 @@ self.addEventListener('install', e => {
 
 self.addEventListener('activate', e => {
   e.waitUntil(
-    caches.keys().then(keys => 
+    caches.keys().then(keys =>
       Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
     ).then(() => self.clients.claim())
   );
 });
 
 self.addEventListener('fetch', e => {
-  // Network-first for API calls and JSON data
   if (e.request.url.includes('bolls.life') || e.request.url.includes('.json')) {
-    e.respondWith(
-      fetch(e.request).catch(() => caches.match(e.request))
-    );
+    e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
     return;
   }
-  // Cache-first for static assets
-  e.respondWith(
-    caches.match(e.request).then(cached => cached || fetch(e.request))
-  );
+  e.respondWith(caches.match(e.request).then(cached => cached || fetch(e.request)));
 });
