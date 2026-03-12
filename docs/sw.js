@@ -1,17 +1,9 @@
-const CACHE_NAME = 'usmc-v2';
-const PRECACHE = [
-  '/wheelhouse.html',
-  '/chronological.html',
-  '/bible.html',
-  '/manifest.json'
-];
+// U.S.M.C. Ministries — Service Worker v3
+// Network-first for everything, cache as backup only
+const CACHE_NAME = 'usmc-v3';
 
 self.addEventListener('install', e => {
-  e.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(PRECACHE))
-      .then(() => self.skipWaiting())
-  );
+  self.skipWaiting();
 });
 
 self.addEventListener('activate', e => {
@@ -23,9 +15,20 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
-  if (e.request.url.includes('bolls.life') || e.request.url.includes('.json')) {
-    e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
-    return;
-  }
-  e.respondWith(caches.match(e.request).then(cached => cached || fetch(e.request)));
+  // Skip non-GET requests
+  if (e.request.method !== 'GET') return;
+  
+  // Network-first for everything
+  e.respondWith(
+    fetch(e.request)
+      .then(response => {
+        // Cache successful responses for offline fallback
+        if (response.ok && response.type === 'basic') {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(e.request, clone));
+        }
+        return response;
+      })
+      .catch(() => caches.match(e.request))
+  );
 });
