@@ -1184,9 +1184,8 @@
                 TRANSLATIONS.forEach((t, i) => { chapterTexts[t] = chapterResults[i] || {}; });
 
                 const verseNums = Object.keys(chapterTexts.NKJV).map(Number).sort((a, b) => a - b);
-                // BTE v4.8: Full chapter mode — primary text is ALWAYS NKJV (or verse override).
-                // Translation rotation belongs in the parallel section only.
-                // Verse/range modes retain rotation for shorter reads.
+                // BTE v4.1: Build per-verse translation rotation map for this chapter
+                const translationMap = buildTranslationMap(verseNums.length);
                 verseNums.forEach((vn, vnIdx) => {
                     const texts = {};
                     TRANSLATIONS.forEach(t => { if (chapterTexts[t][vn]) texts[t] = chapterTexts[t][vn]; });
@@ -1194,10 +1193,23 @@
 
                     TRANSLATIONS.forEach(t => { if (t !== 'NKJV' && texts[t]) transFetched[t]++; });
 
-                    // BTE v4.8: Chapter mode — primary is ALWAYS NKJV (respect verse overrides)
+                    // BTE v4.7: Rotation — pick assigned translation from cache, fall back to live fetch, then NKJV
                     const cacheKey = `${ref.bookId}_${ref.chapter}_${vn}`;
-                    let primaryText = VERSE_OVERRIDES[cacheKey] || texts.NKJV;
-                    const transLabel = '';
+                    const assignedTrans = translationMap[vnIdx] || 'NKJV';
+                    let primaryText = VERSE_OVERRIDES[cacheKey] || texts.NKJV; // check overrides first
+                    if (!VERSE_OVERRIDES[cacheKey] && assignedTrans !== 'NKJV') {
+                        const cached = verseCache[cacheKey];
+                        const altText = cached && cached[assignedTrans] ? cleanVerseText(cached[assignedTrans]) : null;
+                        if (altText && altText.trim()) {
+                            primaryText = altText;
+                        } else if (texts[assignedTrans]) {
+                            primaryText = texts[assignedTrans]; // fall back to live fetched
+                        }
+                        // if still falsy, primaryText stays as texts.NKJV (already set)
+                    }
+                    const transLabel = (assignedTrans !== 'NKJV')
+                        ? `<span class="trans-label">[${DISPLAY[assignedTrans] || assignedTrans}]</span>`
+                        : '';
 
                     // BTE v4.7: Parallel block — chapter mode: max 1 parallel per verse
                     const pregenKey = cacheKey;
