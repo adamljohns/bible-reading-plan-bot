@@ -319,6 +319,15 @@
             '20_3_6': 'In all your ways, know Him, and He will direct your paths.',
         };
 
+        // BTE v4.8: MOOP Translation — blended primary rendering
+        // Takes NKJV as base, weaves in clarifying words from ESV/NASB/NLT/etc.
+        // Reads as one natural voice. Falls back to NKJV where not yet generated.
+        let moopTranslation = {};
+        fetch('assets/moop-translation.json')
+            .then(r => r.ok ? r.json() : {})
+            .then(data => { moopTranslation = data; console.log(`BTE v4.8: ${Object.keys(data).length.toLocaleString()} MOOP Translation verses loaded`); })
+            .catch(() => { console.log('BTE: no MOOP Translation found, using NKJV fallback'); });
+
         // BTE v4.1: Pre-generated blended parallels (kept for legacy fallback)
         let pregenParallels = {};
         fetch('assets/blended-parallels.json')
@@ -1193,23 +1202,20 @@
 
                     TRANSLATIONS.forEach(t => { if (t !== 'NKJV' && texts[t]) transFetched[t]++; });
 
-                    // BTE v4.7: Rotation — pick assigned translation from cache, fall back to live fetch, then NKJV
+                    // BTE v4.8: Primary text priority — MOOP Translation > Verse Override > NKJV
+                    // No more rotation in chapter mode. The blended MOOP Translation IS the primary voice.
                     const cacheKey = `${ref.bookId}_${ref.chapter}_${vn}`;
-                    const assignedTrans = translationMap[vnIdx] || 'NKJV';
-                    let primaryText = VERSE_OVERRIDES[cacheKey] || texts.NKJV; // check overrides first
-                    if (!VERSE_OVERRIDES[cacheKey] && assignedTrans !== 'NKJV') {
-                        const cached = verseCache[cacheKey];
-                        const altText = cached && cached[assignedTrans] ? cleanVerseText(cached[assignedTrans]) : null;
-                        if (altText && altText.trim()) {
-                            primaryText = altText;
-                        } else if (texts[assignedTrans]) {
-                            primaryText = texts[assignedTrans]; // fall back to live fetched
-                        }
-                        // if still falsy, primaryText stays as texts.NKJV (already set)
+                    let primaryText;
+                    let transLabel = '';
+                    if (VERSE_OVERRIDES[cacheKey]) {
+                        primaryText = VERSE_OVERRIDES[cacheKey];
+                    } else if (moopTranslation[cacheKey]) {
+                        primaryText = moopTranslation[cacheKey];
+                    } else {
+                        // Fallback: NKJV for verses not yet in MOOP Translation
+                        primaryText = texts.NKJV;
+                        transLabel = '<span class="trans-label">[NKJV]</span>';
                     }
-                    const transLabel = (assignedTrans !== 'NKJV')
-                        ? `<span class="trans-label">[${DISPLAY[assignedTrans] || assignedTrans}]</span>`
-                        : '';
 
                     // BTE v4.7: Parallel block — chapter mode: max 1 parallel per verse
                     const pregenKey = cacheKey;
@@ -1241,24 +1247,19 @@
 
                     TRANSLATIONS.forEach(t => { if (t !== 'NKJV' && texts[t]) transFetched[t]++; });
 
-                    // BTE v4.7: Rotation — assigned translation from cache, fall back to live fetch, then NKJV
+                    // BTE v4.8: Primary text priority — same as chapter mode
+                    // MOOP Translation > Verse Override > NKJV
                     const cacheKeyV = `${ref.bookId}_${ref.chapter}_${v}`;
-                    const vOffset = v - ref.startVerse;
-                    const assignedTransV = buildTranslationMap(ref.endVerse - ref.startVerse + 1)[vOffset] || 'NKJV';
-                    let primaryTextV = VERSE_OVERRIDES[cacheKeyV] || texts.NKJV; // check overrides first
-                    if (!VERSE_OVERRIDES[cacheKeyV] && assignedTransV !== 'NKJV') {
-                        const cachedV = verseCache[cacheKeyV];
-                        const altTextV = cachedV && cachedV[assignedTransV] ? cleanVerseText(cachedV[assignedTransV]) : null;
-                        if (altTextV && altTextV.trim()) {
-                            primaryTextV = altTextV;
-                        } else if (texts[assignedTransV]) {
-                            primaryTextV = texts[assignedTransV]; // fall back to live fetched
-                        }
-                        // if still falsy, primaryTextV stays as texts.NKJV (already set)
+                    let primaryTextV;
+                    let transLabelV = '';
+                    if (VERSE_OVERRIDES[cacheKeyV]) {
+                        primaryTextV = VERSE_OVERRIDES[cacheKeyV];
+                    } else if (moopTranslation[cacheKeyV]) {
+                        primaryTextV = moopTranslation[cacheKeyV];
+                    } else {
+                        primaryTextV = texts.NKJV;
+                        transLabelV = '<span class="trans-label">[NKJV]</span>';
                     }
-                    const transLabelV = (assignedTransV !== 'NKJV')
-                        ? `<span class="trans-label">[${DISPLAY[assignedTransV] || assignedTransV}]</span>`
-                        : '';
 
                     // BTE v4.7: Parallel block — mode-aware (range=2-3, verse=3-6)
                     const pregenKeyV = cacheKeyV;
