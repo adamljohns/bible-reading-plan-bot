@@ -9,6 +9,10 @@
     <meta property="og:image" content="https://usmcmin.org/assets/blog-fxbg-stgeorge.jpg">
     <meta property="og:url" content="https://usmcmin.org/blog-christian-localism.html">
     <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Rooted Where God Planted Me — Applying Christian Localism in Fredericksburg">
+    <meta name="twitter:description" content="Without rootedness in a real place, conservatism is just ideology — and ideology doesn't survive. People will fight for their home.">
+    <meta name="twitter:image" content="https://usmcmin.org/assets/blog-fxbg-stgeorge.jpg">
+    <meta name="twitter:site" content="@Just_A_Man67">
     <title>Rooted Where God Planted Me — USMC Ministries</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
@@ -246,6 +250,103 @@
             margin-bottom: 0;
         }
 
+        /* Subscribe Widget */
+        .subscribe-widget {
+            margin-top: 48px;
+            padding: 36px 32px;
+            background: var(--bg-card);
+            border: 1px solid var(--gold);
+            border-radius: 14px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .subscribe-widget::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at top, rgba(212,175,55,0.07) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .subscribe-widget .sw-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: var(--gold);
+            margin-bottom: 10px;
+        }
+        .subscribe-widget h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+        .subscribe-widget .sw-desc {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+            line-height: 1.6;
+            max-width: 480px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .subscribe-form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            max-width: 540px;
+            margin: 0 auto;
+        }
+        .subscribe-form input {
+            flex: 1 1 180px;
+            padding: 12px 16px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 0.95rem;
+            font-family: 'Inter', sans-serif;
+            transition: border-color 0.3s;
+            outline: none;
+        }
+        .subscribe-form input:focus {
+            border-color: var(--gold);
+        }
+        .subscribe-form input::placeholder {
+            color: var(--text-muted);
+        }
+        .subscribe-form button {
+            padding: 12px 24px;
+            background: var(--gold);
+            color: #000;
+            font-weight: 700;
+            font-size: 0.95rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.1s;
+            font-family: 'Inter', sans-serif;
+            white-space: nowrap;
+        }
+        .subscribe-form button:hover { background: var(--gold-light); }
+        .subscribe-form button:active { transform: scale(0.97); }
+        .subscribe-form button:disabled { opacity: 0.6; cursor: not-allowed; }
+        .sw-message {
+            margin-top: 14px;
+            font-size: 0.9rem;
+            min-height: 1.4em;
+        }
+        .sw-message.success { color: #4caf50; }
+        .sw-message.error   { color: var(--scarlet); }
+        .sw-fallback {
+            margin-top: 12px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            display: none;
+        }
+        .sw-fallback a { color: var(--gold); }
+
         /* Footer */
         .blog-footer {
             text-align: center;
@@ -465,6 +566,21 @@
                 <p style="margin-top:8px;"><a href="about.html">About the Founder</a> · <a href="links.html">Connect</a></p>
             </div>
         </div>
+        <!-- Subscribe Widget -->
+        <div class="subscribe-widget" id="subscribe">
+            <div class="sw-label">Stay in the Fight</div>
+            <h3>Subscribe for More</h3>
+            <p class="sw-desc">Get notified when new articles drop. No spam. Just Christ-centered content for men who lead.</p>
+            <form class="subscribe-form" id="subscribeForm" onsubmit="handleSubscribe(event)">
+                <input type="text" id="subName" placeholder="Your name (optional)" autocomplete="name">
+                <input type="email" id="subEmail" placeholder="Your email address" required autocomplete="email">
+                <button type="submit" id="subBtn">Subscribe</button>
+            </form>
+            <div class="sw-message" id="swMessage"></div>
+            <p class="sw-fallback" id="swFallback">
+                Server offline? <a href="mailto:usmcministries2022@gmail.com?subject=Subscribe%20to%20USMC%20Ministries&body=Please%20add%20me%20to%20the%20USMC%20Ministries%20newsletter.%0A%0AName%3A%20%0AEmail%3A%20">Email us directly</a> to subscribe.
+            </p>
+        </div>
     </article>
 
     <!-- Footer -->
@@ -476,5 +592,59 @@
         <a href="links.html">Connect</a>
         <p class="copyright">© 2026 Adam Johns / USMC Ministries · Fredericksburg, VA · All Rights Reserved · V4.8</p>
     </footer>
+    <script>
+    // ── Subscribe Form Handler ────────────────────────────────────────────────
+    const SUBSCRIBE_URL = 'http://localhost:3847/subscribe';
+    const TIMEOUT_MS    = 6000; // 6s — if server doesn't respond, show fallback
+
+    async function handleSubscribe(e) {
+      e.preventDefault();
+      const btn   = document.getElementById('subBtn');
+      const msg   = document.getElementById('swMessage');
+      const fall  = document.getElementById('swFallback');
+      const email = document.getElementById('subEmail').value.trim();
+      const name  = document.getElementById('subName').value.trim();
+
+      msg.className   = 'sw-message';
+      msg.textContent = '';
+      fall.style.display = 'none';
+      btn.disabled    = true;
+      btn.textContent = 'Sending…';
+
+      try {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+
+        const res = await fetch(SUBSCRIBE_URL, {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ email, name, source: 'blog-christian-localism' }),
+          signal:  controller.signal
+        });
+        clearTimeout(timer);
+
+        const data = await res.json();
+
+        if (data.success) {
+          msg.className   = 'sw-message success';
+          msg.textContent = '✅ ' + data.message;
+          document.getElementById('subscribeForm').reset();
+        } else {
+          msg.className   = 'sw-message error';
+          msg.textContent = '⚠️ ' + (data.error || 'Something went wrong.');
+        }
+
+      } catch (err) {
+        // Server offline or network error — show mailto fallback
+        msg.className   = 'sw-message error';
+        msg.textContent = 'Could not reach the server right now.';
+        fall.style.display = 'block';
+        console.warn('Subscribe server unavailable:', err.message);
+      } finally {
+        btn.disabled    = false;
+        btn.textContent = 'Subscribe';
+      }
+    }
+    </script>
 </body>
 </html>
