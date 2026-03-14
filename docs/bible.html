@@ -842,18 +842,22 @@
             return false;
         }
 
-        // BTE 3.1: Merge similar amplifications
+        // BTE 3.1 → v4.8: Merge similar amplifications
+        // Cap merged labels at 3 translations per block to prevent mega-blocks
         function mergeAmplifications(amps) {
             if (amps.length <= 1) return amps;
             const merged = [];
             const used = new Set();
             for (let i = 0; i < amps.length; i++) {
                 if (used.has(i)) continue;
+                let labels = [amps[i].label];
                 let current = { label: amps[i].label, text: amps[i].text };
                 for (let j = i + 1; j < amps.length; j++) {
                     if (used.has(j)) continue;
+                    if (labels.length >= 3) break; // BTE v4.8: max 3 translations per merged block
                     if (hasConsecutiveOverlap(current.text, amps[j].text, 3)) {
-                        current.label += ' | ' + amps[j].label;
+                        labels.push(amps[j].label);
+                        current.label = labels.join(' | ');
                         if (amps[j].text.length > current.text.length) {
                             current.text = amps[j].text;
                         }
