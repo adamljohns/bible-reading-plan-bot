@@ -328,7 +328,7 @@
         // Takes NKJV as base, weaves in clarifying words from ESV/NASB/NLT/etc.
         // Reads as one natural voice. Falls back to NKJV where not yet generated.
         let moopTranslation = {};
-        fetch('assets/moop-translation.json')
+        fetch('assets/moop-translation.json?v=' + Date.now())
             .then(r => r.ok ? r.json() : {})
             .then(data => { moopTranslation = data; console.log(`BTE v4.8: ${Object.keys(data).length.toLocaleString()} MOOP Translation verses loaded`); })
             .catch(() => { console.log('BTE: no MOOP Translation found, using NKJV fallback'); });
@@ -1680,15 +1680,35 @@
                 navState.level = level;
                 if (testament !== undefined) navState.testament = testament;
                 if (category !== undefined) navState.category = category;
+
+                // UX: Single-book categories skip straight to chapter grid
+                if (level === 'category' && category) {
+                    var cats = navState.testament === 'OT' ? OT : NT;
+                    var catName = decodeURIComponent(category);
+                    var catData = cats[catName];
+                    if (Array.isArray(catData) && catData.length === 1) {
+                        // Only one book in this category — skip to chapters
+                        bnavBook(catData[0], catData[0]);
+                        return;
+                    }
+                }
+
                 renderNav();
             };
 
-            // Show chapter grid instead of jumping straight to 1:1
+            // Show chapter grid — or skip straight to verses for single-chapter books
             window.bnavBook = function(bookClean, bookLabel) {
                 var range = parseChapterRange(bookLabel || '');
                 var totalChapters = BOOK_CHAPTERS[bookClean] || 1;
                 var start = range ? range.start : 1;
                 var end = range ? range.end : totalChapters;
+
+                // UX: Single-chapter books skip straight to verses
+                if (start === end) {
+                    bnavChapter(bookClean, start);
+                    return;
+                }
+
                 navState.level = 'chapter';
                 navState.book = bookClean;
                 navState.chStart = start;
