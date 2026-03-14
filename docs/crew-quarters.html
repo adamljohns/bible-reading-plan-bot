@@ -7,9 +7,12 @@
     <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-touch-icon.png">
     <link rel="manifest" href="/manifest.json">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="Crew Chores">
     <meta property="og:title" content="Crew Quarters — U.S.M.C. Ministries">
-    <meta property="og:description" content="The kids' command center — Gideon, Boaz, and Shiloh. Schedules, chores, and daily routines.">
+    <meta property="og:description" content="The kids' command center — Gideon, Boaz, and Shiloh. Chores, schedules, and daily routines.">
     <meta property="og:image" content="https://usmcmin.org/assets/og/og-main.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
@@ -19,7 +22,7 @@
     <title>Crew Quarters — USMC Ministries</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
@@ -33,6 +36,7 @@
             --gray-light: #aaaaaa;
             --border: #333333;
             --green: #4CAF50;
+            --green-dark: #388E3C;
             --red: #f44336;
             --blue: #2196F3;
             --navy: #1a3a6e;
@@ -43,6 +47,8 @@
             color: var(--white);
             min-height: 100vh;
             line-height: 1.6;
+            -webkit-tap-highlight-color: transparent;
+            overscroll-behavior: none;
         }
         h1, h2, h3, h4 { font-family: 'Playfair Display', serif; font-weight: 700; }
 
@@ -64,7 +70,351 @@
         }
         .nav-back:hover { background: rgba(212,175,55,0.1); border-color: var(--gold); }
 
-        /* Crew nav cards */
+        /* ═══════════════════════════════════════ */
+        /* CHORE TRACKER STYLES                    */
+        /* ═══════════════════════════════════════ */
+        .chore-tracker {
+            max-width: 900px; margin: 0 auto; padding: 15px;
+        }
+        .ct-header {
+            text-align: center; padding: 15px 0 10px;
+        }
+        .ct-header h2 {
+            font-size: 1.5rem; color: var(--gold); margin-bottom: 4px;
+        }
+        .ct-header .ct-subtitle {
+            color: var(--gray); font-size: 0.85rem;
+        }
+
+        /* Kid tabs */
+        .ct-tabs {
+            display: flex; gap: 0; border-bottom: 2px solid var(--border);
+            margin-bottom: 0; overflow-x: auto; -webkit-overflow-scrolling: touch;
+        }
+        .ct-tab {
+            flex: 1; min-width: 0; padding: 14px 10px; text-align: center;
+            background: transparent; border: none; color: var(--gray);
+            font-family: 'Playfair Display', serif; font-size: 1rem;
+            font-weight: 700; cursor: pointer; transition: all 0.3s;
+            border-bottom: 3px solid transparent; margin-bottom: -2px;
+            white-space: nowrap;
+        }
+        .ct-tab.active {
+            color: var(--gold); border-bottom-color: var(--gold);
+            background: rgba(212,175,55,0.05);
+        }
+        .ct-tab .tab-emoji { font-size: 1.3rem; display: block; margin-bottom: 2px; }
+        .ct-tab .tab-balance {
+            font-family: 'Inter', sans-serif; font-size: 0.7rem;
+            color: var(--green); font-weight: 600; margin-top: 2px;
+        }
+        .ct-tab .tab-stars {
+            font-family: 'Inter', sans-serif; font-size: 0.7rem;
+            color: var(--gold-light); font-weight: 600; margin-top: 2px;
+        }
+
+        /* Tab content panels */
+        .ct-panel { display: none; }
+        .ct-panel.active { display: block; animation: fadeIn 0.3s ease; }
+
+        /* Summary card */
+        .ct-summary {
+            background: linear-gradient(135deg, #111 0%, #1a1a1a 100%);
+            border: 1px solid var(--border); border-radius: 16px;
+            padding: 20px; margin: 15px 0; position: relative; overflow: hidden;
+        }
+        .ct-summary::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0;
+            height: 3px; background: linear-gradient(90deg, var(--gold), var(--gold-light), var(--gold));
+        }
+        .ct-summary-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 15px;
+        }
+        .ct-stat {
+            text-align: center;
+        }
+        .ct-stat-value {
+            font-family: 'Playfair Display', serif; font-size: 1.6rem;
+            color: var(--gold); font-weight: 800;
+        }
+        .ct-stat-label {
+            font-size: 0.75rem; color: var(--gray); margin-top: 2px;
+        }
+        .ct-stat-value.money { color: var(--green); }
+        .ct-stat-value.stars { color: var(--gold-light); font-size: 1.4rem; }
+
+        /* Savings goal */
+        .ct-goal {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 12px; padding: 15px; margin: 12px 0;
+        }
+        .ct-goal-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 8px;
+        }
+        .ct-goal-title { color: var(--gold); font-size: 0.9rem; font-weight: 600; }
+        .ct-goal-amount { color: var(--green); font-size: 0.9rem; font-weight: 700; }
+        .ct-goal-bar {
+            height: 10px; background: #222; border-radius: 5px; overflow: hidden;
+        }
+        .ct-goal-fill {
+            height: 100%; background: linear-gradient(90deg, var(--gold), var(--gold-light));
+            border-radius: 5px; transition: width 0.5s ease;
+        }
+        .ct-goal-label {
+            font-size: 0.75rem; color: var(--gray); margin-top: 5px; text-align: right;
+        }
+
+        /* Weekly grid */
+        .ct-week {
+            display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px;
+            margin: 12px 0;
+        }
+        .ct-day {
+            text-align: center; padding: 8px 4px; border-radius: 10px;
+            background: var(--bg-card); border: 1px solid var(--border);
+            transition: all 0.3s;
+        }
+        .ct-day-label {
+            font-size: 0.65rem; color: var(--gray); font-weight: 600;
+            text-transform: uppercase; margin-bottom: 3px;
+        }
+        .ct-day-status {
+            font-size: 1.2rem; line-height: 1;
+        }
+        .ct-day.complete { border-color: var(--green); background: rgba(76,175,80,0.1); }
+        .ct-day.partial { border-color: var(--gold); background: rgba(212,175,55,0.08); }
+        .ct-day.missed { border-color: var(--red); background: rgba(244,67,54,0.05); }
+        .ct-day.today { border-color: var(--gold); border-width: 2px; }
+        .ct-day.future { opacity: 0.4; }
+
+        /* Chore list */
+        .ct-chores-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin: 15px 0 8px;
+        }
+        .ct-chores-title {
+            font-family: 'Playfair Display', serif; color: var(--gold);
+            font-size: 1.1rem;
+        }
+        .ct-chores-count {
+            font-size: 0.8rem; color: var(--gray);
+        }
+
+        .ct-chore {
+            display: flex; align-items: center; gap: 14px;
+            padding: 14px 16px; margin: 6px 0; border-radius: 12px;
+            background: var(--bg-card); border: 1px solid var(--border);
+            cursor: pointer; transition: all 0.3s; position: relative;
+            -webkit-user-select: none; user-select: none;
+        }
+        .ct-chore:active { transform: scale(0.98); }
+        .ct-chore.done {
+            border-color: var(--green); background: rgba(76,175,80,0.08);
+        }
+        .ct-chore.done .ct-chore-text { 
+            text-decoration: line-through; color: var(--gray);
+        }
+
+        .ct-checkbox {
+            width: 32px; height: 32px; border: 2.5px solid var(--border);
+            border-radius: 50%; flex-shrink: 0; display: flex;
+            align-items: center; justify-content: center; transition: all 0.3s;
+            background: transparent;
+        }
+        .ct-chore.done .ct-checkbox {
+            border-color: var(--green); background: var(--green);
+        }
+        .ct-checkbox-check {
+            opacity: 0; transform: scale(0); transition: all 0.3s;
+            color: #fff; font-size: 1rem; font-weight: 700;
+        }
+        .ct-chore.done .ct-checkbox-check {
+            opacity: 1; transform: scale(1);
+        }
+
+        .ct-chore-info { flex: 1; min-width: 0; }
+        .ct-chore-text {
+            font-size: 0.95rem; color: var(--white); transition: all 0.3s;
+        }
+        .ct-chore-tag {
+            font-size: 0.7rem; color: var(--gray); margin-top: 2px;
+        }
+        .ct-chore-tag .required {
+            color: var(--gold); font-weight: 600;
+        }
+
+        .ct-chore-photo {
+            width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0;
+            background: #222; border: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.9rem; cursor: pointer; transition: all 0.3s;
+        }
+        .ct-chore-photo:hover { border-color: var(--gold); }
+        .ct-chore-photo.has-photo { border-color: var(--green); background: rgba(76,175,80,0.15); }
+
+        /* Streak */
+        .ct-streak {
+            display: flex; align-items: center; gap: 8px; justify-content: center;
+            margin: 10px 0; font-size: 0.85rem; color: var(--gray);
+        }
+        .ct-streak-fire { font-size: 1.3rem; }
+        .ct-streak-count { color: var(--gold); font-weight: 700; font-size: 1.1rem; }
+
+        /* History */
+        .ct-history {
+            margin: 15px 0;
+        }
+        .ct-history-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 14px; margin: 4px 0; border-radius: 8px;
+            background: var(--bg-card); border: 1px solid var(--border);
+            font-size: 0.85rem;
+        }
+        .ct-history-date { color: var(--gray); }
+        .ct-history-earned { color: var(--green); font-weight: 600; }
+        .ct-history-status { font-size: 0.75rem; }
+        .ct-history-paid {
+            font-size: 0.65rem; padding: 2px 8px; border-radius: 10px;
+            font-weight: 600;
+        }
+        .ct-history-paid.yes { background: rgba(76,175,80,0.15); color: var(--green); }
+        .ct-history-paid.no { background: rgba(244,67,54,0.1); color: var(--red); }
+
+        /* Admin */
+        .ct-admin-btn {
+            display: block; width: 100%; padding: 12px; margin: 15px 0;
+            background: transparent; border: 1px dashed var(--border);
+            border-radius: 10px; color: var(--gray); font-size: 0.8rem;
+            cursor: pointer; transition: all 0.3s; text-align: center;
+        }
+        .ct-admin-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+        .ct-admin-panel {
+            display: none; background: var(--bg-card); border: 1px solid var(--gold);
+            border-radius: 12px; padding: 20px; margin: 10px 0;
+        }
+        .ct-admin-panel.open { display: block; animation: fadeIn 0.3s; }
+        .ct-admin-panel h3 {
+            color: var(--gold); font-size: 1.1rem; margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .ct-admin-row {
+            display: flex; gap: 10px; margin: 8px 0; align-items: center;
+        }
+        .ct-admin-label {
+            color: var(--gray); font-size: 0.85rem; min-width: 100px;
+        }
+        .ct-admin-input {
+            flex: 1; background: #222; border: 1px solid var(--border);
+            border-radius: 8px; padding: 8px 12px; color: var(--white);
+            font-size: 0.9rem; font-family: 'Inter', sans-serif;
+        }
+        .ct-admin-input:focus { outline: none; border-color: var(--gold); }
+
+        .ct-btn {
+            padding: 10px 20px; border-radius: 10px; border: none;
+            font-family: 'Inter', sans-serif; font-size: 0.85rem;
+            font-weight: 600; cursor: pointer; transition: all 0.3s;
+        }
+        .ct-btn-gold {
+            background: var(--gold); color: #000;
+        }
+        .ct-btn-gold:hover { background: var(--gold-light); }
+        .ct-btn-red {
+            background: rgba(244,67,54,0.15); color: var(--red);
+            border: 1px solid rgba(244,67,54,0.3);
+        }
+        .ct-btn-green {
+            background: rgba(76,175,80,0.15); color: var(--green);
+            border: 1px solid rgba(76,175,80,0.3);
+        }
+        .ct-btn-outline {
+            background: transparent; color: var(--gray);
+            border: 1px solid var(--border);
+        }
+        .ct-btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+
+        .ct-btn-row {
+            display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap;
+        }
+
+        /* Password modal */
+        .ct-modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.85); z-index: 1000;
+            align-items: center; justify-content: center; padding: 20px;
+        }
+        .ct-modal-overlay.open { display: flex; }
+        .ct-modal {
+            background: #111; border: 1px solid var(--gold); border-radius: 16px;
+            padding: 30px; max-width: 340px; width: 100%; text-align: center;
+        }
+        .ct-modal h3 { color: var(--gold); margin-bottom: 15px; }
+        .ct-modal input {
+            width: 100%; background: #222; border: 1px solid var(--border);
+            border-radius: 10px; padding: 12px; color: var(--white);
+            font-size: 1rem; text-align: center; margin-bottom: 12px;
+            font-family: 'Inter', sans-serif;
+        }
+        .ct-modal input:focus { outline: none; border-color: var(--gold); }
+        .ct-modal-error {
+            color: var(--red); font-size: 0.8rem; margin-bottom: 8px;
+            display: none;
+        }
+
+        /* Confetti canvas */
+        #confetti-canvas {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 999;
+        }
+
+        /* Section toggle */
+        .ct-section-toggle {
+            display: flex; align-items: center; justify-content: center;
+            gap: 8px; margin: 20px 0 10px; cursor: pointer;
+            color: var(--gray); font-size: 0.85rem;
+        }
+        .ct-section-toggle:hover { color: var(--gold); }
+
+        /* Divider between chore tracker and legacy content */
+        .ct-divider {
+            max-width: 900px; margin: 30px auto; padding: 0 15px;
+            text-align: center; position: relative;
+        }
+        .ct-divider::before {
+            content: ''; position: absolute; left: 15px; right: 15px;
+            top: 50%; height: 1px; background: var(--border);
+        }
+        .ct-divider span {
+            background: var(--bg-dark); padding: 0 15px; position: relative;
+            color: var(--gray); font-size: 0.8rem;
+        }
+
+        /* Shiloh star display */
+        .ct-stars-display {
+            font-size: 1.5rem; letter-spacing: 2px; text-align: center;
+            margin: 8px 0; line-height: 1.8;
+        }
+
+        /* Add chore form */
+        .ct-add-chore {
+            display: none; padding: 12px; margin: 8px 0;
+            background: var(--bg-card); border: 1px solid var(--gold);
+            border-radius: 12px;
+        }
+        .ct-add-chore.open { display: block; }
+        .ct-add-chore input {
+            width: 100%; background: #222; border: 1px solid var(--border);
+            border-radius: 8px; padding: 10px 12px; color: var(--white);
+            font-size: 0.9rem; margin-bottom: 8px; font-family: 'Inter', sans-serif;
+        }
+        .ct-add-chore input:focus { outline: none; border-color: var(--gold); }
+
+        /* ═══════════════════════════════════════ */
+        /* ORIGINAL CREW QUARTERS STYLES           */
+        /* ═══════════════════════════════════════ */
         .crew-nav {
             max-width: 900px; margin: 15px auto 0; padding: 0 15px;
             display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;
@@ -85,7 +435,6 @@
             padding: 2px 8px; border-radius: 10px; margin-top:5px;
         }
 
-        /* Section dividers */
         .section-divider {
             max-width: 900px; margin: 20px auto 0; padding: 0 15px;
         }
@@ -104,11 +453,9 @@
             padding: 3px 10px; border-radius: 12px; font-family: 'Inter', sans-serif;
         }
 
-        /* Grid inside each section */
         .grid {
             max-width: 900px; margin: 0 auto; padding: 0 15px 15px;
-            display: grid; grid-template-columns: 1fr 1fr;
-            gap: 12px;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
         }
         .grid-top { padding-top: 12px; }
 
@@ -222,16 +569,34 @@
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
+        @keyframes checkPop {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.3); }
+            100% { transform: scale(1); }
+        }
+        .ct-chore.just-done .ct-checkbox-check {
+            animation: checkPop 0.4s ease;
+        }
+
+        @keyframes starPop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.5) rotate(15deg); }
+            100% { transform: scale(1) rotate(0); }
+        }
+
         @media (max-width: 600px) {
             .crew-nav { grid-template-columns: 1fr; }
             .grid { grid-template-columns: 1fr; }
             .card.expanded { grid-column: 1; }
             .header h1 { font-size: 1.4rem; }
             .section-header h2 { font-size: 1.1rem; }
+            .ct-summary-grid { grid-template-columns: 1fr 1fr; }
+            .ct-day-label { font-size: 0.6rem; }
         }
 
         @media print {
             body { background: #fff; color: #000; }
+            .chore-tracker { display: none; }
             .card { border: 1px solid #ccc; background: #fafafa; break-inside: avoid; }
             .card-title { color: #8B6914; }
             .card-detail { display: block !important; }
@@ -241,8 +606,7 @@
             .print-btn, .nav-back, .crew-nav { display: none; }
             .info-block { border-left-color: #8B6914; background: #fef9e7; }
         }
-    
-        /* BTE Verse links */
+
         .verse-link {
             color: var(--gold, #D4AF37);
             text-decoration: none;
@@ -250,9 +614,11 @@
             transition: opacity 0.2s;
         }
         .verse-link:hover { opacity: 0.8; border-bottom-style: solid; }
-        </style>
+    </style>
 </head>
 <body>
+    <canvas id="confetti-canvas"></canvas>
+
     <div class="header">
         <img src="assets/logo.png" alt="U.S.M.C. Ministries" onerror="this.style.display='none'">
         <h1>Crew Quarters</h1>
@@ -264,6 +630,274 @@
         <a href="first-officer.html" class="nav-back">First Officer's Desk</a>
         &nbsp;
         <button class="print-btn" onclick="window.print()">🖨️ Print Today's Brief</button>
+    </div>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- CHORE TRACKER (PWA)                     -->
+    <!-- ═══════════════════════════════════════ -->
+    <div class="chore-tracker" id="choreTracker">
+        <div class="ct-header">
+            <h2>⚓ Chore Deck</h2>
+            <p class="ct-subtitle">Daily duties · Weekly earnings · Mission accomplished</p>
+        </div>
+
+        <!-- Kid Tabs -->
+        <div class="ct-tabs" id="ctTabs">
+            <button class="ct-tab active" data-kid="boaz" onclick="switchTab('boaz')">
+                <span class="tab-emoji">⚙️</span>
+                Boaz
+                <div class="tab-balance" id="tab-balance-boaz">$0.00</div>
+            </button>
+            <button class="ct-tab" data-kid="gideon" onclick="switchTab('gideon')">
+                <span class="tab-emoji">⚓</span>
+                Gideon
+                <div class="tab-balance" id="tab-balance-gideon">$0.00</div>
+            </button>
+            <button class="ct-tab" data-kid="shiloh" onclick="switchTab('shiloh')">
+                <span class="tab-emoji">🔭</span>
+                Shiloh
+                <div class="tab-stars" id="tab-stars-shiloh">⭐ 0</div>
+            </button>
+        </div>
+
+        <!-- BOAZ PANEL -->
+        <div class="ct-panel active" id="panel-boaz">
+            <div class="ct-summary">
+                <div class="ct-summary-grid">
+                    <div class="ct-stat">
+                        <div class="ct-stat-value" id="boaz-today-count">0/8</div>
+                        <div class="ct-stat-label">Today's Chores</div>
+                    </div>
+                    <div class="ct-stat">
+                        <div class="ct-stat-value money" id="boaz-balance">$0.00</div>
+                        <div class="ct-stat-label">Balance</div>
+                    </div>
+                    <div class="ct-stat">
+                        <div class="ct-stat-value" id="boaz-week-earned">$0.00</div>
+                        <div class="ct-stat-label">This Week</div>
+                    </div>
+                    <div class="ct-stat">
+                        <div class="ct-stat-value" id="boaz-streak">0</div>
+                        <div class="ct-stat-label">🔥 Day Streak</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Savings Goal -->
+            <div class="ct-goal" id="boaz-goal">
+                <div class="ct-goal-header">
+                    <span class="ct-goal-title">🖥️ New Computer Fund</span>
+                    <span class="ct-goal-amount" id="boaz-goal-amount">$0 / $500</span>
+                </div>
+                <div class="ct-goal-bar">
+                    <div class="ct-goal-fill" id="boaz-goal-fill" style="width: 0%"></div>
+                </div>
+                <div class="ct-goal-label" id="boaz-goal-pct">0% saved</div>
+            </div>
+
+            <!-- Weekly Grid -->
+            <div class="ct-week" id="boaz-week"></div>
+
+            <!-- Chore List -->
+            <div class="ct-chores-header">
+                <span class="ct-chores-title">Today's Duties</span>
+                <span class="ct-chores-count" id="boaz-chores-pct"></span>
+            </div>
+            <div id="boaz-chores"></div>
+
+            <!-- Streak -->
+            <div class="ct-streak" id="boaz-streak-display">
+                <span class="ct-streak-fire">🔥</span>
+                <span><span class="ct-streak-count" id="boaz-streak-num">0</span> day streak</span>
+            </div>
+
+            <!-- History Toggle -->
+            <div class="ct-section-toggle" onclick="toggleHistory('boaz')">
+                📊 <span id="boaz-history-toggle-text">Show History</span>
+            </div>
+            <div class="ct-history" id="boaz-history" style="display:none;"></div>
+        </div>
+
+        <!-- GIDEON PANEL -->
+        <div class="ct-panel" id="panel-gideon">
+            <div class="ct-summary">
+                <div class="ct-summary-grid">
+                    <div class="ct-stat">
+                        <div class="ct-stat-value" id="gideon-today-count">0/5</div>
+                        <div class="ct-stat-label">Today's Chores</div>
+                    </div>
+                    <div class="ct-stat">
+                        <div class="ct-stat-value money" id="gideon-balance">$0.00</div>
+                        <div class="ct-stat-label">Balance</div>
+                    </div>
+                    <div class="ct-stat">
+                        <div class="ct-stat-value" id="gideon-week-earned">$0.00</div>
+                        <div class="ct-stat-label">This Week</div>
+                    </div>
+                    <div class="ct-stat">
+                        <div class="ct-stat-value" id="gideon-streak">0</div>
+                        <div class="ct-stat-label">🔥 Day Streak</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ct-week" id="gideon-week"></div>
+
+            <div class="ct-chores-header">
+                <span class="ct-chores-title">Today's Duties</span>
+                <span class="ct-chores-count" id="gideon-chores-pct"></span>
+            </div>
+            <div id="gideon-chores"></div>
+
+            <div class="ct-streak" id="gideon-streak-display">
+                <span class="ct-streak-fire">🔥</span>
+                <span><span class="ct-streak-count" id="gideon-streak-num">0</span> day streak</span>
+            </div>
+
+            <div class="ct-section-toggle" onclick="toggleHistory('gideon')">
+                📊 <span id="gideon-history-toggle-text">Show History</span>
+            </div>
+            <div class="ct-history" id="gideon-history" style="display:none;"></div>
+        </div>
+
+        <!-- SHILOH PANEL -->
+        <div class="ct-panel" id="panel-shiloh">
+            <div class="ct-summary">
+                <div class="ct-summary-grid">
+                    <div class="ct-stat">
+                        <div class="ct-stat-value" id="shiloh-today-count">0/4</div>
+                        <div class="ct-stat-label">Today's Checklist</div>
+                    </div>
+                    <div class="ct-stat">
+                        <div class="ct-stat-value stars" id="shiloh-total-stars">⭐ 0</div>
+                        <div class="ct-stat-label">Total Stars</div>
+                    </div>
+                    <div class="ct-stat">
+                        <div class="ct-stat-value stars" id="shiloh-today-stars">⭐ 0</div>
+                        <div class="ct-stat-label">Today's Stars</div>
+                    </div>
+                    <div class="ct-stat">
+                        <div class="ct-stat-value" id="shiloh-streak">0</div>
+                        <div class="ct-stat-label">🌟 Day Streak</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Star collection display -->
+            <div class="ct-stars-display" id="shiloh-stars-visual"></div>
+
+            <div class="ct-week" id="shiloh-week"></div>
+
+            <div class="ct-chores-header">
+                <span class="ct-chores-title">Shiloh's Checklist</span>
+                <span class="ct-chores-count" id="shiloh-chores-pct"></span>
+            </div>
+            <div id="shiloh-chores"></div>
+
+            <div class="ct-streak" id="shiloh-streak-display">
+                <span class="ct-streak-fire">🌟</span>
+                <span><span class="ct-streak-count" id="shiloh-streak-num">0</span> day streak</span>
+            </div>
+
+            <div class="ct-section-toggle" onclick="toggleHistory('shiloh')">
+                📊 <span id="shiloh-history-toggle-text">Show History</span>
+            </div>
+            <div class="ct-history" id="shiloh-history" style="display:none;"></div>
+        </div>
+
+        <!-- Parent Admin -->
+        <button class="ct-admin-btn" id="adminBtn" onclick="openAdminModal()">
+            🔐 Parent Admin
+        </button>
+
+        <div class="ct-admin-panel" id="adminPanel">
+            <h3>⚓ Captain's Console</h3>
+
+            <div style="margin-bottom: 15px;">
+                <div class="ct-admin-label" style="margin-bottom: 5px;">Viewing:</div>
+                <div style="display: flex; gap: 6px;">
+                    <button class="ct-btn ct-btn-gold" onclick="adminViewKid('boaz')" id="admin-tab-boaz">Boaz</button>
+                    <button class="ct-btn ct-btn-outline" onclick="adminViewKid('gideon')" id="admin-tab-gideon">Gideon</button>
+                    <button class="ct-btn ct-btn-outline" onclick="adminViewKid('shiloh')" id="admin-tab-shiloh">Shiloh</button>
+                </div>
+            </div>
+
+            <!-- Allowance / Goal settings -->
+            <div id="admin-money-section">
+                <div class="ct-admin-row">
+                    <span class="ct-admin-label">Weekly Rate</span>
+                    <input type="number" class="ct-admin-input" id="admin-allowance" step="0.01" min="0">
+                </div>
+                <div class="ct-admin-row" id="admin-goal-row">
+                    <span class="ct-admin-label">Savings Goal</span>
+                    <input type="number" class="ct-admin-input" id="admin-goal-amount" step="1" min="0">
+                </div>
+                <div class="ct-admin-row" id="admin-goal-name-row">
+                    <span class="ct-admin-label">Goal Name</span>
+                    <input type="text" class="ct-admin-input" id="admin-goal-name" placeholder="e.g. New Computer">
+                </div>
+            </div>
+
+            <!-- Chore management -->
+            <div style="margin-top: 15px;">
+                <div class="ct-admin-label" style="margin-bottom: 8px;">Chores:</div>
+                <div id="admin-chore-list"></div>
+                <div class="ct-add-chore" id="admin-add-chore">
+                    <input type="text" id="admin-new-chore-name" placeholder="New chore name...">
+                    <div style="display: flex; gap: 8px;">
+                        <label style="color: var(--gray); font-size: 0.8rem; display: flex; align-items: center; gap: 4px;">
+                            <input type="checkbox" id="admin-new-chore-required"> Required
+                        </label>
+                        <button class="ct-btn ct-btn-green" onclick="adminAddChore()" style="margin-left: auto;">Add</button>
+                    </div>
+                </div>
+                <button class="ct-btn ct-btn-outline" onclick="document.getElementById('admin-add-chore').classList.toggle('open')" style="margin-top: 8px; width: 100%;">+ Add Chore</button>
+            </div>
+
+            <!-- Payment history -->
+            <div style="margin-top: 15px;" id="admin-payments-section">
+                <div class="ct-admin-label" style="margin-bottom: 8px;">Payment History:</div>
+                <div id="admin-payment-list"></div>
+                <div class="ct-btn-row">
+                    <button class="ct-btn ct-btn-green" onclick="adminMarkPaid()">💰 Mark Week Paid</button>
+                    <button class="ct-btn ct-btn-outline" onclick="adminAddPayment()">+ Manual Payment</button>
+                </div>
+            </div>
+
+            <!-- Balance adjustment -->
+            <div style="margin-top: 15px;" id="admin-balance-section">
+                <div class="ct-admin-row">
+                    <span class="ct-admin-label">Adjust Balance</span>
+                    <input type="number" class="ct-admin-input" id="admin-balance-adj" step="0.01" placeholder="+5.00 or -3.00">
+                    <button class="ct-btn ct-btn-gold" onclick="adminAdjustBalance()">Apply</button>
+                </div>
+            </div>
+
+            <div class="ct-btn-row" style="margin-top: 20px;">
+                <button class="ct-btn ct-btn-gold" onclick="adminSave()">💾 Save Changes</button>
+                <button class="ct-btn ct-btn-red" onclick="adminResetWeek()">🔄 Reset Week</button>
+                <button class="ct-btn ct-btn-outline" onclick="closeAdmin()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Password Modal -->
+    <div class="ct-modal-overlay" id="adminModal">
+        <div class="ct-modal">
+            <h3>🔐 Captain's Access</h3>
+            <p style="color: var(--gray); font-size: 0.85rem; margin-bottom: 15px;">Enter the admin password</p>
+            <input type="password" id="adminPassword" placeholder="Password" onkeydown="if(event.key==='Enter')checkAdminPassword()">
+            <div class="ct-modal-error" id="adminError">Wrong password. Try again.</div>
+            <div class="ct-btn-row" style="justify-content: center;">
+                <button class="ct-btn ct-btn-gold" onclick="checkAdminPassword()">Enter</button>
+                <button class="ct-btn ct-btn-outline" onclick="closeAdminModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Divider between tracker and legacy content -->
+    <div class="ct-divider">
+        <span>📋 Schedules & Routines Below</span>
     </div>
 
     <!-- Crew Navigation Cards -->
@@ -350,41 +984,6 @@
         </div>
 
         <div class="card" onclick="toggleCard(this)">
-            <div class="card-icon">🗂️</div>
-            <div class="card-title">Chores &amp; Responsibilities</div>
-            <div class="card-brief">
-                <p>Adult responsibilities growing with age</p>
-            </div>
-            <div class="card-detail">
-                <h4 style="color:var(--gold); margin-bottom:10px;">Daily Checklist</h4>
-                <div class="action-item">
-                    <div class="action-check" onclick="event.stopPropagation();this.classList.toggle('done')"></div>
-                    <div><span class="action-text">Keep personal space clean and organized</span><br><span class="action-tag"><img src="/assets/icons/icon-home.svg" class="site-icon" alt="home" width="20" height="20"> Home</span></div>
-                </div>
-                <div class="action-item">
-                    <div class="action-check" onclick="event.stopPropagation();this.classList.toggle('done')"></div>
-                    <div><span class="action-text">Airbnb / Bow &amp; Arrow cleaning coverage (weekdays)</span><br><span class="action-tag"><img src="/assets/icons/icon-home.svg" class="site-icon" alt="home" width="20" height="20"> B&amp;A</span></div>
-                </div>
-                <div class="action-item">
-                    <div class="action-check" onclick="event.stopPropagation();this.classList.toggle('done')"></div>
-                    <div><span class="action-text">Help with family meals / kitchen cleanup</span><br><span class="action-tag">🍽️ Home</span></div>
-                </div>
-                <div class="action-item">
-                    <div class="action-check" onclick="event.stopPropagation();this.classList.toggle('done')"></div>
-                    <div><span class="action-text">Yard / exterior maintenance as needed</span><br><span class="action-tag">🏡 Home</span></div>
-                </div>
-                <div class="action-item">
-                    <div class="action-check" onclick="event.stopPropagation();this.classList.toggle('done')"></div>
-                    <div><span class="action-text">Help younger siblings (Boaz &amp; Shiloh)</span><br><span class="action-tag">👨‍👧‍👦 Family</span></div>
-                </div>
-                <div class="action-item">
-                    <div class="action-check" onclick="event.stopPropagation();this.classList.toggle('done')"></div>
-                    <div><span class="action-text">Attend family meetings and contribute</span><br><span class="action-tag">👨‍👩‍👧‍👦 Family</span></div>
-                </div>
-            </div>
-        </div>
-
-        <div class="card" onclick="toggleCard(this)">
             <div class="card-icon">🎓</div>
             <div class="card-title">College &amp; Career</div>
             <div class="card-badge info">Planning</div>
@@ -409,9 +1008,6 @@
                 <div class="action-item">
                     <div class="action-check" onclick="event.stopPropagation();this.classList.toggle('done')"></div>
                     <div><span class="action-text">Identify skills to build this year</span><br><span class="action-tag">🛠️ Growth</span></div>
-                </div>
-                <div class="placeholder-block" style="margin-top:12px;">
-                    📝 Add specific college applications, job leads, and career notes here
                 </div>
             </div>
         </div>
@@ -463,9 +1059,6 @@
                     <span class="meet-date">Summer 2026</span>
                     <span class="meet-name">Atlanta Crown</span>
                     <span class="meet-badge">📍 Atlanta, GA</span>
-                </div>
-                <div class="placeholder-block" style="margin-top:12px;">
-                    <img src="/assets/icons/icon-calendar.svg" class="site-icon" alt="calendar" width="20" height="20"> Add exact meet dates, locations, and registration deadlines as confirmed
                 </div>
                 <h4 style="color:var(--gold); margin: 12px 0 8px;">Weekly Practice</h4>
                 <div class="schedule-row"><span class="schedule-time">Practice</span><span class="schedule-event">Regular gym schedule — add specific days/times</span></div>
@@ -538,49 +1131,6 @@
                     <div class="action-check" onclick="event.stopPropagation();this.classList.toggle('done')"></div>
                     <div><span class="action-text">Homework/chores before games</span><br><span class="action-tag">📚 Priority</span></div>
                 </div>
-                <div class="placeholder-block" style="margin-top:12px;">
-                    📝 Specific screen time rules and current status go here
-                </div>
-            </div>
-        </div>
-
-        <div class="card" onclick="toggleCard(this)">
-            <div class="card-icon">🗂️</div>
-            <div class="card-title">Chores &amp; Daily Scripture</div>
-            <div class="card-brief">
-                <p>Daily responsibilities + Word of God</p>
-            </div>
-            <div class="card-detail">
-                <h4 style="color:var(--gold); margin-bottom:10px;">Daily Chore Checklist</h4>
-                <div class="action-item">
-                    <div class="action-check" onclick="event.stopPropagation();this.classList.toggle('done')"></div>
-                    <div><span class="action-text">Make bed every morning before leaving room</span><br><span class="action-tag">🛏️ Daily</span></div>
-                </div>
-                <div class="action-item">
-                    <div class="action-check" onclick="event.stopPropagation();this.classList.toggle('done')"></div>
-                    <div><span class="action-text">Keep room clean — floor visible at all times</span><br><span class="action-tag"><img src="/assets/icons/icon-home.svg" class="site-icon" alt="home" width="20" height="20"> Daily</span></div>
-                </div>
-                <div class="action-item">
-                    <div class="action-check" onclick="event.stopPropagation();this.classList.toggle('done')"></div>
-                    <div><span class="action-text">Assigned household chore (dishes / trash / etc.)</span><br><span class="action-tag"><img src="/assets/icons/icon-home.svg" class="site-icon" alt="home" width="20" height="20"> Daily</span></div>
-                </div>
-                <div class="action-item">
-                    <div class="action-check" onclick="event.stopPropagation();this.classList.toggle('done')"></div>
-                    <div><span class="action-text">Gym bag packed and ready night before</span><br><span class="action-tag">🤸 Athletics</span></div>
-                </div>
-                <div class="action-item">
-                    <div class="action-check" onclick="event.stopPropagation();this.classList.toggle('done')"></div>
-                    <div><span class="action-text">Schoolwork/assignments current</span><br><span class="action-tag">📚 School</span></div>
-                </div>
-
-                <h4 style="color:var(--gold); margin: 12px 0 8px;"><img src="/assets/icons/icon-book.svg" class="site-icon" alt="book" width="20" height="20"> Daily Scripture</h4>
-                <div class="verse-block">
-                    <div class="verse-ref"><a href="/verse/proverbs-27-17.html" class="verse-link">Proverbs 27:17</a></div>
-                    <p style="font-size:0.85rem; color:#ccc; margin-top:5px;">"As iron sharpens iron, so one person sharpens another."</p>
-                </div>
-                <div class="placeholder-block">
-                    <img src="/assets/icons/icon-book.svg" class="site-icon" alt="book" width="20" height="20"> Today's verse and reflection notes go here
-                </div>
             </div>
         </div>
 
@@ -652,60 +1202,6 @@
                     <div class="info-label"><img src="/assets/icons/icon-cross.svg" class="site-icon" alt="cross" width="20" height="20"> Faith Formation</div>
                     Simple Bible stories, memory verses, prayer before meals and bed. Church class.
                 </div>
-                <div class="placeholder-block">
-                    📝 Add Shiloh's current favorites, songs she loves, and activities to try
-                </div>
-            </div>
-        </div>
-
-        <div class="card full-width" onclick="toggleCard(this)">
-            <div class="card-icon"><img src="/assets/icons/icon-star.svg" class="site-icon" alt="star" width="20" height="20"></div>
-            <div class="card-title">Shiloh's Checklist &amp; Bedtime Routine</div>
-            <div class="card-brief">
-                <p>Simple daily wins for The Lookout</p>
-            </div>
-            <div class="card-detail">
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                    <div>
-                        <h4 style="color:var(--gold); margin-bottom:10px;"><img src="/assets/icons/icon-star.svg" class="site-icon" alt="star" width="20" height="20"> Daily Wins</h4>
-                        <div class="action-item">
-                            <div class="action-check" onclick="event.stopPropagation();this.classList.toggle('done')"></div>
-                            <div><span class="action-text">Got dressed by myself!</span><br><span class="action-tag">✅ Daily</span></div>
-                        </div>
-                        <div class="action-item">
-                            <div class="action-check" onclick="event.stopPropagation();this.classList.toggle('done')"></div>
-                            <div><span class="action-text">Ate breakfast without fuss</span><br><span class="action-tag">🍳 Daily</span></div>
-                        </div>
-                        <div class="action-item">
-                            <div class="action-check" onclick="event.stopPropagation();this.classList.toggle('done')"></div>
-                            <div><span class="action-text">Picked up my toys</span><br><span class="action-tag">🧸 Chores</span></div>
-                        </div>
-                        <div class="action-item">
-                            <div class="action-check" onclick="event.stopPropagation();this.classList.toggle('done')"></div>
-                            <div><span class="action-text">Used kind words today</span><br><span class="action-tag">💛 Character</span></div>
-                        </div>
-                        <div class="action-item">
-                            <div class="action-check" onclick="event.stopPropagation();this.classList.toggle('done')"></div>
-                            <div><span class="action-text">Prayed before dinner</span><br><span class="action-tag"><img src="/assets/icons/icon-cross.svg" class="site-icon" alt="cross" width="20" height="20"> Faith</span></div>
-                        </div>
-                        <div class="action-item">
-                            <div class="action-check" onclick="event.stopPropagation();this.classList.toggle('done')"></div>
-                            <div><span class="action-text">Remembered my Bible verse!</span><br><span class="action-tag"><img src="/assets/icons/icon-book.svg" class="site-icon" alt="book" width="20" height="20"> Faith</span></div>
-                        </div>
-                    </div>
-                    <div>
-                        <h4 style="color:var(--gold); margin-bottom:10px;">🌙 Bedtime Routine</h4>
-                        <div class="schedule-row"><span class="schedule-time">Bath</span><span class="schedule-event">Bath or wash up</span></div>
-                        <div class="schedule-row"><span class="schedule-time">PJs</span><span class="schedule-event">Pick out pajamas (her choice!)</span></div>
-                        <div class="schedule-row"><span class="schedule-time">Teeth</span><span class="schedule-event">Brush teeth — 2 minutes</span></div>
-                        <div class="schedule-row"><span class="schedule-time">Story</span><span class="schedule-event">Bedtime story (Bible story or favorite)</span></div>
-                        <div class="schedule-row"><span class="schedule-time">Prayer</span><span class="schedule-event">Prayers together — who do we thank God for?</span></div>
-                        <div class="schedule-row"><span class="schedule-time">Lights</span><span class="schedule-event">Lights out — same time every night</span></div>
-                        <div class="placeholder-block" style="margin-top:10px;">
-                            📝 Current bedtime: TBD — add consistent time here
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
 
@@ -713,7 +1209,7 @@
 
     <footer>
         <div class="cross-divider"><img src="/assets/icons/icon-cross.svg" class="site-icon" alt="cross" width="20" height="20"></div>
-        <p>Crew Quarters · <a href="usmc-ministries.html">U.S.M.C. Ministries</a> · Powered by Mini Moop</p>
+        <p>Crew Quarters · <a href="usmc-ministries.html">U.S.M.C. Ministries</a> · Powered by MbPro</p>
         <p style="margin-top:5px; font-size:0.75rem;">Uniting, Serving, Mentoring and Counseling Ministries</p>
         <p style="margin-top:8px;">
             <a href="wheelhouse.html">← Captain's Wheelhouse</a> ·
@@ -722,26 +1218,800 @@
     </footer>
 
     <script>
-        // Set date
-        const now = new Date();
-        const opts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-        document.getElementById('dateDisplay').textContent = now.toLocaleDateString('en-US', opts);
+    // ═══════════════════════════════════════════
+    // CHORE TRACKER ENGINE
+    // ═══════════════════════════════════════════
 
-        // Toggle card expansion
-        function toggleCard(card) {
-            card.classList.toggle('expanded');
+    const ADMIN_HASH = '43356953523234370a'; // Simple hash of C5iSR247
+    let adminUnlocked = false;
+    let adminViewingKid = 'boaz';
+
+    // Default chore configs
+    const DEFAULT_CONFIG = {
+        boaz: {
+            name: 'Boaz',
+            allowance: 25.00,
+            goalName: 'New Computer',
+            goalAmount: 500,
+            chores: [
+                { id: 'b1', name: 'Clean Out Lizard Cage', required: true, emoji: '🦎' },
+                { id: 'b2', name: 'Make Bed', required: true, emoji: '🛏️' },
+                { id: 'b3', name: 'School/Home Work', required: true, emoji: '📚' },
+                { id: 'b4', name: 'Take Out Trash', required: true, emoji: '🗑️' },
+                { id: 'b5', name: 'Turn In Devices by Bedtime', required: true, emoji: '📱' },
+                { id: 'b6', name: 'Laundry', required: false, emoji: '🧺' },
+                { id: 'b7', name: 'Do What You\'re Told', required: true, emoji: '✅' },
+                { id: 'b8', name: 'Empty Dishwasher', required: false, emoji: '🍽️' }
+            ]
+        },
+        gideon: {
+            name: 'Gideon',
+            allowance: 25.00,
+            goalName: '',
+            goalAmount: 0,
+            chores: [
+                { id: 'g1', name: 'Keep Space Clean', required: true, emoji: '🧹' },
+                { id: 'g2', name: 'Kitchen Cleanup', required: true, emoji: '🍽️' },
+                { id: 'g3', name: 'Yard Maintenance', required: false, emoji: '🏡' },
+                { id: 'g4', name: 'Help Siblings', required: true, emoji: '👨‍👧‍👦' },
+                { id: 'g5', name: 'Family Responsibility', required: true, emoji: '⚓' }
+            ]
+        },
+        shiloh: {
+            name: 'Shiloh',
+            allowance: 0,
+            goalName: '',
+            goalAmount: 0,
+            chores: [
+                { id: 's1', name: 'Pick Up Toys', required: false, emoji: '🧸' },
+                { id: 's2', name: 'Brush Teeth', required: false, emoji: '🪥' },
+                { id: 's3', name: 'Get Dressed', required: false, emoji: '👗' },
+                { id: 's4', name: 'Be Kind', required: false, emoji: '💛' }
+            ]
+        }
+    };
+
+    // ── Data layer ──
+    function getStore() {
+        try {
+            return JSON.parse(localStorage.getItem('crewChores') || '{}');
+        } catch { return {}; }
+    }
+    function setStore(data) {
+        localStorage.setItem('crewChores', JSON.stringify(data));
+    }
+
+    function getConfig(kid) {
+        const store = getStore();
+        return store.config && store.config[kid] ? { ...DEFAULT_CONFIG[kid], ...store.config[kid] } : { ...DEFAULT_CONFIG[kid] };
+    }
+    function setConfig(kid, cfg) {
+        const store = getStore();
+        if (!store.config) store.config = {};
+        store.config[kid] = cfg;
+        setStore(store);
+    }
+
+    function todayKey() {
+        return new Date().toISOString().split('T')[0];
+    }
+    function weekStart(d) {
+        const date = new Date(d);
+        const day = date.getDay();
+        const diff = day === 0 ? -6 : 1 - day; // Monday start
+        date.setDate(date.getDate() + diff);
+        return date.toISOString().split('T')[0];
+    }
+
+    function getDayData(kid, date) {
+        const store = getStore();
+        const key = `days.${kid}.${date}`;
+        return store[key] || { chores: {}, photos: {} };
+    }
+    function setDayData(kid, date, data) {
+        const store = getStore();
+        store[`days.${kid}.${date}`] = data;
+        setStore(store);
+    }
+
+    function getBalance(kid) {
+        const store = getStore();
+        return store[`balance.${kid}`] || 0;
+    }
+    function setBalance(kid, val) {
+        const store = getStore();
+        store[`balance.${kid}`] = Math.round(val * 100) / 100;
+        setStore(store);
+    }
+
+    function getStars(kid) {
+        const store = getStore();
+        return store[`stars.${kid}`] || 0;
+    }
+    function setStars(kid, val) {
+        const store = getStore();
+        store[`stars.${kid}`] = val;
+        setStore(store);
+    }
+
+    function getPayments(kid) {
+        const store = getStore();
+        return store[`payments.${kid}`] || [];
+    }
+    function addPayment(kid, payment) {
+        const store = getStore();
+        const key = `payments.${kid}`;
+        if (!store[key]) store[key] = [];
+        store[key].unshift(payment);
+        if (store[key].length > 52) store[key] = store[key].slice(0, 52);
+        setStore(store);
+    }
+
+    // ── Streak calculation ──
+    function calcStreak(kid) {
+        const cfg = getConfig(kid);
+        let streak = 0;
+        let d = new Date();
+        // Check if today is complete; if not start from yesterday
+        const todayData = getDayData(kid, todayKey());
+        const todayDone = cfg.chores.every(c => todayData.chores[c.id]);
+        if (!todayDone) d.setDate(d.getDate() - 1);
+
+        for (let i = 0; i < 365; i++) {
+            const key = d.toISOString().split('T')[0];
+            const dayData = getDayData(kid, key);
+            const allDone = cfg.chores.every(c => dayData.chores[c.id]);
+            if (allDone) {
+                streak++;
+                d.setDate(d.getDate() - 1);
+            } else {
+                break;
+            }
+        }
+        return streak;
+    }
+
+    // ── Weekly earnings ──
+    function calcWeekEarnings(kid) {
+        const cfg = getConfig(kid);
+        const ws = weekStart(todayKey());
+        let daysAllRequired = 0;
+        for (let i = 0; i < 7; i++) {
+            const d = new Date(ws);
+            d.setDate(d.getDate() + i);
+            const key = d.toISOString().split('T')[0];
+            if (key > todayKey()) break;
+            const dayData = getDayData(kid, key);
+            const reqDone = cfg.chores.filter(c => c.required).every(c => dayData.chores[c.id]);
+            if (reqDone) daysAllRequired++;
+        }
+        // Prorate: full allowance if all 7 days done, partial otherwise
+        return Math.round((cfg.allowance / 7) * daysAllRequired * 100) / 100;
+    }
+
+    // ── Render functions ──
+    function switchTab(kid) {
+        document.querySelectorAll('.ct-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.ct-panel').forEach(p => p.classList.remove('active'));
+        document.querySelector(`.ct-tab[data-kid="${kid}"]`).classList.add('active');
+        document.getElementById(`panel-${kid}`).classList.add('active');
+        renderKid(kid);
+    }
+
+    function renderAll() {
+        ['boaz', 'gideon', 'shiloh'].forEach(kid => {
+            renderTabBadge(kid);
+        });
+        // Render active kid
+        const activeTab = document.querySelector('.ct-tab.active');
+        if (activeTab) renderKid(activeTab.dataset.kid);
+    }
+
+    function renderTabBadge(kid) {
+        const cfg = getConfig(kid);
+        if (kid === 'shiloh') {
+            const stars = getStars(kid);
+            const el = document.getElementById(`tab-stars-${kid}`);
+            if (el) el.textContent = `⭐ ${stars}`;
+        } else {
+            const bal = getBalance(kid);
+            const el = document.getElementById(`tab-balance-${kid}`);
+            if (el) el.textContent = `$${bal.toFixed(2)}`;
+        }
+    }
+
+    function renderKid(kid) {
+        const cfg = getConfig(kid);
+        const today = todayKey();
+        const dayData = getDayData(kid, today);
+
+        // Count
+        const total = cfg.chores.length;
+        const done = cfg.chores.filter(c => dayData.chores[c.id]).length;
+
+        document.getElementById(`${kid}-today-count`).textContent = `${done}/${total}`;
+        document.getElementById(`${kid}-chores-pct`).textContent = done === total ? '✅ All done!' : `${Math.round(done/total*100)}%`;
+
+        if (kid === 'shiloh') {
+            const stars = getStars(kid);
+            document.getElementById('shiloh-total-stars').textContent = `⭐ ${stars}`;
+            document.getElementById('shiloh-today-stars').textContent = `⭐ ${done}`;
+            // Visual stars (show last 20)
+            const visual = document.getElementById('shiloh-stars-visual');
+            if (visual) {
+                const displayStars = Math.min(stars, 50);
+                visual.textContent = '⭐'.repeat(displayStars) + (stars > 50 ? ` +${stars - 50}` : '');
+            }
+        } else {
+            const bal = getBalance(kid);
+            const weekEarned = calcWeekEarnings(kid);
+            document.getElementById(`${kid}-balance`).textContent = `$${bal.toFixed(2)}`;
+            document.getElementById(`${kid}-week-earned`).textContent = `$${weekEarned.toFixed(2)}`;
         }
 
-        // Smooth scroll for crew nav cards
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function(e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
-            });
+        // Streak
+        const streak = calcStreak(kid);
+        const streakEl = document.getElementById(`${kid}-streak`);
+        if (streakEl) streakEl.textContent = streak;
+        const streakNum = document.getElementById(`${kid}-streak-num`);
+        if (streakNum) streakNum.textContent = streak;
+
+        // Savings goal (Boaz only, or any kid with a goal)
+        const goalEl = document.getElementById(`${kid}-goal`);
+        if (goalEl) {
+            if (cfg.goalAmount > 0) {
+                goalEl.style.display = 'block';
+                const bal = getBalance(kid);
+                const pct = Math.min(100, Math.round((bal / cfg.goalAmount) * 100));
+                document.getElementById(`${kid}-goal-amount`).textContent = `$${bal.toFixed(0)} / $${cfg.goalAmount}`;
+                document.getElementById(`${kid}-goal-fill`).style.width = `${pct}%`;
+                document.getElementById(`${kid}-goal-pct`).textContent = `${pct}% saved`;
+                // Update goal title
+                const titleEl = goalEl.querySelector('.ct-goal-title');
+                if (titleEl && cfg.goalName) titleEl.textContent = `🖥️ ${cfg.goalName}`;
+            } else {
+                goalEl.style.display = 'none';
+            }
+        }
+
+        // Weekly grid
+        renderWeek(kid);
+
+        // Chore list
+        renderChores(kid);
+
+        // Tab badge
+        renderTabBadge(kid);
+    }
+
+    function renderWeek(kid) {
+        const container = document.getElementById(`${kid}-week`);
+        if (!container) return;
+        const cfg = getConfig(kid);
+        const today = todayKey();
+        const ws = weekStart(today);
+        const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+        let html = '';
+
+        for (let i = 0; i < 7; i++) {
+            const d = new Date(ws);
+            d.setDate(d.getDate() + i);
+            const key = d.toISOString().split('T')[0];
+            const dayData = getDayData(kid, key);
+            const total = cfg.chores.length;
+            const done = cfg.chores.filter(c => dayData.chores[c.id]).length;
+
+            let cls = 'ct-day';
+            let status = '·';
+            if (key === today) {
+                cls += ' today';
+                if (done === total && total > 0) { cls += ' complete'; status = '✅'; }
+                else if (done > 0) { cls += ' partial'; status = `${done}`; }
+                else { status = '○'; }
+            } else if (key > today) {
+                cls += ' future';
+                status = '·';
+            } else {
+                if (done === total && total > 0) { cls += ' complete'; status = '✅'; }
+                else if (done > 0) { cls += ' partial'; status = `${done}/${total}`; }
+                else { cls += ' missed'; status = '✗'; }
+            }
+
+            html += `<div class="${cls}">
+                <div class="ct-day-label">${days[i]}</div>
+                <div class="ct-day-status">${status}</div>
+            </div>`;
+        }
+        container.innerHTML = html;
+    }
+
+    function renderChores(kid) {
+        const container = document.getElementById(`${kid}-chores`);
+        if (!container) return;
+        const cfg = getConfig(kid);
+        const today = todayKey();
+        const dayData = getDayData(kid, today);
+
+        let html = '';
+        cfg.chores.forEach(chore => {
+            const isDone = dayData.chores[chore.id];
+            const hasPhoto = dayData.photos && dayData.photos[chore.id];
+            html += `
+                <div class="ct-chore ${isDone ? 'done' : ''}" onclick="toggleChore('${kid}', '${chore.id}', this)">
+                    <div class="ct-checkbox">
+                        <span class="ct-checkbox-check">✓</span>
+                    </div>
+                    <div class="ct-chore-info">
+                        <div class="ct-chore-text">${chore.emoji} ${chore.name}</div>
+                        <div class="ct-chore-tag">${chore.required ? '<span class="required">★ Required for allowance</span>' : 'Bonus chore'}</div>
+                    </div>
+                    <div class="ct-chore-photo ${hasPhoto ? 'has-photo' : ''}" onclick="event.stopPropagation();takePhoto('${kid}', '${chore.id}')">
+                        📷
+                    </div>
+                </div>`;
         });
+        container.innerHTML = html;
+    }
+
+    // ── Interactions ──
+    function toggleChore(kid, choreId, el) {
+        const today = todayKey();
+        const dayData = getDayData(kid, today);
+        const wasDone = dayData.chores[choreId];
+        dayData.chores[choreId] = !wasDone;
+        setDayData(kid, today, dayData);
+
+        // If checking (not unchecking), add animations
+        if (!wasDone) {
+            el.classList.add('just-done');
+            setTimeout(() => el.classList.remove('just-done'), 500);
+
+            // Shiloh gets stars
+            if (kid === 'shiloh') {
+                setStars(kid, getStars(kid) + 1);
+            }
+
+            // Check if all chores now done
+            const cfg = getConfig(kid);
+            const allDone = cfg.chores.every(c => dayData.chores[c.id]);
+            if (allDone) {
+                launchConfetti();
+            }
+        } else {
+            // Unchecking Shiloh star
+            if (kid === 'shiloh') {
+                const stars = getStars(kid);
+                if (stars > 0) setStars(kid, stars - 1);
+            }
+        }
+
+        renderKid(kid);
+    }
+
+    function takePhoto(kid, choreId) {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        input.capture = 'environment';
+        input.onchange = (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                const today = todayKey();
+                const dayData = getDayData(kid, today);
+                if (!dayData.photos) dayData.photos = {};
+                // Store thumbnail (resize to save space)
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const maxW = 200;
+                    const scale = maxW / img.width;
+                    canvas.width = maxW;
+                    canvas.height = img.height * scale;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    dayData.photos[choreId] = canvas.toDataURL('image/jpeg', 0.6);
+                    setDayData(kid, today, dayData);
+                    renderKid(kid);
+                };
+                img.src = ev.target.result;
+            };
+            reader.readAsDataURL(file);
+        };
+        input.click();
+    }
+
+    // ── Confetti ──
+    function launchConfetti() {
+        const canvas = document.getElementById('confetti-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const colors = ['#D4AF37', '#F4D470', '#4CAF50', '#fff', '#f44336', '#2196F3'];
+        const particles = [];
+
+        for (let i = 0; i < 80; i++) {
+            particles.push({
+                x: canvas.width / 2 + (Math.random() - 0.5) * 200,
+                y: canvas.height / 2,
+                vx: (Math.random() - 0.5) * 15,
+                vy: -Math.random() * 15 - 5,
+                color: colors[Math.floor(Math.random() * colors.length)],
+                size: Math.random() * 8 + 3,
+                rotation: Math.random() * 360,
+                rotSpeed: (Math.random() - 0.5) * 10,
+                gravity: 0.3 + Math.random() * 0.2,
+                life: 1
+            });
+        }
+
+        let frame = 0;
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            let alive = false;
+
+            particles.forEach(p => {
+                if (p.life <= 0) return;
+                alive = true;
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += p.gravity;
+                p.rotation += p.rotSpeed;
+                p.life -= 0.012;
+                p.vx *= 0.99;
+
+                ctx.save();
+                ctx.translate(p.x, p.y);
+                ctx.rotate(p.rotation * Math.PI / 180);
+                ctx.globalAlpha = p.life;
+                ctx.fillStyle = p.color;
+                ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
+                ctx.restore();
+            });
+
+            frame++;
+            if (alive && frame < 150) {
+                requestAnimationFrame(animate);
+            } else {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+        }
+        animate();
+    }
+
+    // ── History ──
+    function toggleHistory(kid) {
+        const el = document.getElementById(`${kid}-history`);
+        const toggle = document.getElementById(`${kid}-history-toggle-text`);
+        if (el.style.display === 'none') {
+            el.style.display = 'block';
+            toggle.textContent = 'Hide History';
+            renderHistory(kid);
+        } else {
+            el.style.display = 'none';
+            toggle.textContent = 'Show History';
+        }
+    }
+
+    function renderHistory(kid) {
+        const container = document.getElementById(`${kid}-history`);
+        const cfg = getConfig(kid);
+        const payments = getPayments(kid);
+        let html = '';
+
+        // Show last 4 weeks
+        for (let w = 0; w < 4; w++) {
+            const d = new Date();
+            d.setDate(d.getDate() - (w * 7));
+            const ws = weekStart(d.toISOString().split('T')[0]);
+            const we = new Date(ws);
+            we.setDate(we.getDate() + 6);
+            const weKey = we.toISOString().split('T')[0];
+
+            let weekDone = 0;
+            let weekTotal = 0;
+            for (let i = 0; i < 7; i++) {
+                const dd = new Date(ws);
+                dd.setDate(dd.getDate() + i);
+                const key = dd.toISOString().split('T')[0];
+                if (key > todayKey()) continue;
+                weekTotal++;
+                const dayData = getDayData(kid, key);
+                const reqDone = cfg.chores.filter(c => c.required).every(c => dayData.chores[c.id]);
+                if (reqDone) weekDone++;
+            }
+
+            const earned = kid !== 'shiloh' ? Math.round((cfg.allowance / 7) * weekDone * 100) / 100 : 0;
+            const payment = payments.find(p => p.week === ws);
+            const paid = payment ? payment.paid : false;
+
+            html += `<div class="ct-history-row">
+                <span class="ct-history-date">${formatDateShort(ws)} – ${formatDateShort(weKey)}</span>
+                <span class="ct-history-status">${weekDone}/${weekTotal} days</span>
+                ${kid !== 'shiloh' ? `<span class="ct-history-earned">$${earned.toFixed(2)}</span>
+                <span class="ct-history-paid ${paid ? 'yes' : 'no'}">${paid ? '✅ Paid' : '⏳ Unpaid'}</span>` : `<span>⭐ ${weekDone * cfg.chores.length} stars</span>`}
+            </div>`;
+        }
+
+        container.innerHTML = html || '<p style="text-align:center; color:var(--gray); font-size:0.85rem;">No history yet</p>';
+    }
+
+    function formatDateShort(dateStr) {
+        const d = new Date(dateStr + 'T12:00:00');
+        return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    }
+
+    // ── Admin ──
+    function openAdminModal() {
+        if (adminUnlocked) {
+            document.getElementById('adminPanel').classList.add('open');
+            adminViewKid(adminViewingKid);
+            return;
+        }
+        document.getElementById('adminModal').classList.add('open');
+        document.getElementById('adminPassword').value = '';
+        document.getElementById('adminError').style.display = 'none';
+        setTimeout(() => document.getElementById('adminPassword').focus(), 100);
+    }
+
+    function closeAdminModal() {
+        document.getElementById('adminModal').classList.remove('open');
+    }
+
+    function checkAdminPassword() {
+        const pw = document.getElementById('adminPassword').value;
+        if (pw === 'C5iSR247') {
+            adminUnlocked = true;
+            closeAdminModal();
+            document.getElementById('adminPanel').classList.add('open');
+            document.getElementById('adminBtn').innerHTML = '🔓 Captain\'s Console (Unlocked)';
+            adminViewKid('boaz');
+        } else {
+            document.getElementById('adminError').style.display = 'block';
+            document.getElementById('adminPassword').value = '';
+        }
+    }
+
+    function closeAdmin() {
+        document.getElementById('adminPanel').classList.remove('open');
+    }
+
+    function adminViewKid(kid) {
+        adminViewingKid = kid;
+        ['boaz', 'gideon', 'shiloh'].forEach(k => {
+            const btn = document.getElementById(`admin-tab-${k}`);
+            if (btn) {
+                btn.className = k === kid ? 'ct-btn ct-btn-gold' : 'ct-btn ct-btn-outline';
+            }
+        });
+
+        const cfg = getConfig(kid);
+
+        // Money section
+        const moneySection = document.getElementById('admin-money-section');
+        const paymentsSection = document.getElementById('admin-payments-section');
+        const balanceSection = document.getElementById('admin-balance-section');
+        const goalRow = document.getElementById('admin-goal-row');
+        const goalNameRow = document.getElementById('admin-goal-name-row');
+
+        if (kid === 'shiloh') {
+            moneySection.style.display = 'none';
+            paymentsSection.style.display = 'none';
+            balanceSection.style.display = 'none';
+        } else {
+            moneySection.style.display = 'block';
+            paymentsSection.style.display = 'block';
+            balanceSection.style.display = 'block';
+            document.getElementById('admin-allowance').value = cfg.allowance;
+            document.getElementById('admin-goal-amount').value = cfg.goalAmount || '';
+            document.getElementById('admin-goal-name').value = cfg.goalName || '';
+        }
+
+        // Chore list
+        renderAdminChores(kid);
+
+        // Payment list
+        if (kid !== 'shiloh') renderAdminPayments(kid);
+    }
+
+    function renderAdminChores(kid) {
+        const cfg = getConfig(kid);
+        const container = document.getElementById('admin-chore-list');
+        let html = '';
+        cfg.chores.forEach((chore, i) => {
+            html += `<div style="display:flex; align-items:center; gap:8px; padding:6px 0; border-bottom: 1px solid #222;">
+                <span style="font-size:0.9rem; flex:1;">${chore.emoji} ${chore.name}</span>
+                ${chore.required ? '<span style="color:var(--gold); font-size:0.7rem;">★ Required</span>' : ''}
+                <button class="ct-btn ct-btn-red" style="padding:4px 8px; font-size:0.75rem;" onclick="adminRemoveChore('${kid}', ${i})">✕</button>
+            </div>`;
+        });
+        container.innerHTML = html;
+    }
+
+    function renderAdminPayments(kid) {
+        const payments = getPayments(kid);
+        const container = document.getElementById('admin-payment-list');
+        let html = '';
+        payments.slice(0, 8).forEach((p, i) => {
+            html += `<div class="ct-history-row">
+                <span class="ct-history-date">Week of ${formatDateShort(p.week)}</span>
+                <span class="ct-history-earned">$${p.amount.toFixed(2)}</span>
+                <span class="ct-history-paid ${p.paid ? 'yes' : 'no'}">${p.paid ? `✅ ${p.method || 'Paid'}` : '⏳'}</span>
+                ${!p.paid ? `<button class="ct-btn ct-btn-green" style="padding:2px 8px; font-size:0.7rem;" onclick="adminMarkPaidIdx('${kid}', ${i})">Pay</button>` : ''}
+            </div>`;
+        });
+        container.innerHTML = html || '<p style="color:var(--gray); font-size:0.8rem;">No payments recorded</p>';
+    }
+
+    function adminAddChore() {
+        const name = document.getElementById('admin-new-chore-name').value.trim();
+        if (!name) return;
+        const required = document.getElementById('admin-new-chore-required').checked;
+        const kid = adminViewingKid;
+        const cfg = getConfig(kid);
+        const id = kid[0] + (cfg.chores.length + 1) + '_' + Date.now();
+        cfg.chores.push({ id, name, required, emoji: '📋' });
+        setConfig(kid, cfg);
+        document.getElementById('admin-new-chore-name').value = '';
+        document.getElementById('admin-new-chore-required').checked = false;
+        renderAdminChores(kid);
+        renderKid(kid);
+    }
+
+    function adminRemoveChore(kid, index) {
+        const cfg = getConfig(kid);
+        cfg.chores.splice(index, 1);
+        setConfig(kid, cfg);
+        renderAdminChores(kid);
+        renderKid(kid);
+    }
+
+    function adminSave() {
+        const kid = adminViewingKid;
+        if (kid !== 'shiloh') {
+            const cfg = getConfig(kid);
+            cfg.allowance = parseFloat(document.getElementById('admin-allowance').value) || 0;
+            cfg.goalAmount = parseFloat(document.getElementById('admin-goal-amount').value) || 0;
+            cfg.goalName = document.getElementById('admin-goal-name').value.trim();
+            setConfig(kid, cfg);
+        }
+        renderAll();
+        // Flash save confirmation
+        const btn = event.target;
+        btn.textContent = '✅ Saved!';
+        setTimeout(() => btn.textContent = '💾 Save Changes', 1500);
+    }
+
+    function adminResetWeek() {
+        if (!confirm(`Reset all chores for ${adminViewingKid} this week? This clears daily checkmarks for the current week.`)) return;
+        const kid = adminViewingKid;
+        const ws = weekStart(todayKey());
+        for (let i = 0; i < 7; i++) {
+            const d = new Date(ws);
+            d.setDate(d.getDate() + i);
+            const key = d.toISOString().split('T')[0];
+            setDayData(kid, key, { chores: {}, photos: {} });
+        }
+        renderKid(kid);
+    }
+
+    function adminMarkPaid() {
+        const kid = adminViewingKid;
+        const cfg = getConfig(kid);
+        const earned = calcWeekEarnings(kid);
+        const ws = weekStart(todayKey());
+
+        const method = prompt('Payment method? (Venmo / Navy Fed / Cash)', 'Venmo');
+        if (method === null) return;
+
+        addPayment(kid, {
+            week: ws,
+            amount: earned,
+            paid: true,
+            method: method || 'Cash',
+            date: todayKey()
+        });
+
+        // Add to balance
+        setBalance(kid, getBalance(kid) + earned);
+
+        renderKid(kid);
+        renderAdminPayments(kid);
+    }
+
+    function adminMarkPaidIdx(kid, idx) {
+        const store = getStore();
+        const key = `payments.${kid}`;
+        if (store[key] && store[key][idx]) {
+            const method = prompt('Payment method?', 'Venmo');
+            if (method === null) return;
+            store[key][idx].paid = true;
+            store[key][idx].method = method || 'Cash';
+            setStore(store);
+            setBalance(kid, getBalance(kid) + store[key][idx].amount);
+            renderKid(kid);
+            renderAdminPayments(kid);
+        }
+    }
+
+    function adminAddPayment() {
+        const kid = adminViewingKid;
+        const amount = parseFloat(prompt('Payment amount?', '25.00'));
+        if (isNaN(amount)) return;
+        const method = prompt('Payment method?', 'Venmo');
+        if (method === null) return;
+
+        addPayment(kid, {
+            week: weekStart(todayKey()),
+            amount,
+            paid: true,
+            method: method || 'Cash',
+            date: todayKey()
+        });
+
+        setBalance(kid, getBalance(kid) + amount);
+        renderKid(kid);
+        renderAdminPayments(kid);
+    }
+
+    function adminAdjustBalance() {
+        const kid = adminViewingKid;
+        const adj = parseFloat(document.getElementById('admin-balance-adj').value);
+        if (isNaN(adj)) return;
+        setBalance(kid, getBalance(kid) + adj);
+        document.getElementById('admin-balance-adj').value = '';
+        renderKid(kid);
+    }
+
+    // ── Original page functions ──
+    function toggleCard(card) {
+        card.classList.toggle('expanded');
+    }
+
+    // ── Init ──
+    const now = new Date();
+    const opts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    document.getElementById('dateDisplay').textContent = now.toLocaleDateString('en-US', opts);
+
+    // Smooth scroll
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+    });
+
+    // Touch swipe for tabs
+    let touchStartX = 0;
+    const tracker = document.getElementById('choreTracker');
+    const kids = ['boaz', 'gideon', 'shiloh'];
+
+    tracker.addEventListener('touchstart', (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+
+    tracker.addEventListener('touchend', (e) => {
+        const diff = e.changedTouches[0].screenX - touchStartX;
+        if (Math.abs(diff) < 60) return; // too small
+        const activeTab = document.querySelector('.ct-tab.active');
+        const currentIdx = kids.indexOf(activeTab.dataset.kid);
+        if (diff < 0 && currentIdx < kids.length - 1) {
+            switchTab(kids[currentIdx + 1]);
+        } else if (diff > 0 && currentIdx > 0) {
+            switchTab(kids[currentIdx - 1]);
+        }
+    }, { passive: true });
+
+    // Boot
+    renderAll();
+
+    // Register service worker
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+    }
     </script>
 </body>
 </html>
