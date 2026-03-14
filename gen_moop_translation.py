@@ -72,7 +72,7 @@ Return ONLY the blended verse text."""
         'content-type': 'application/json'
     }
     body = {
-        'model': 'claude-sonnet-4-5',
+        'model': 'claude-haiku-3-5',  # BTE v4.8: Use Haiku for bulk generation (cost-efficient)
         'max_tokens': 250,
         'messages': [{'role': 'user', 'content': prompt}]
     }
