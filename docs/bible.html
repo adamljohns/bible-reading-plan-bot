@@ -209,7 +209,7 @@
             .nav-arrow { width: 40px; height: 40px; }
         }
 
-        /* BTE v4.7: Bible Navigator styles */
+        /* BTE v4.8: Bible Navigator styles */
         #bibleNav { animation: fadeIn 0.3s ease-in; }
         .bnav-title {
             color: var(--gold); font-family: 'Playfair Display', serif;
@@ -287,7 +287,7 @@
                 <span class="quick-link" onclick="tryRef('2 Timothy 1:7')">2 Timothy 1:7</span>
             </div>
 
-            <!-- BTE v4.7: Bible Navigator (OT/NT → Category → Book → Chapter) -->
+            <!-- BTE v4.8: Bible Navigator (OT/NT → Category → Book → Chapter) -->
             <div id="bibleNav" style="text-align:center; margin-bottom:30px;"></div>
         </div>
 
@@ -317,7 +317,7 @@
         const WEIGHTS = { NKJV:0.33, ESV:0.11, NASB:0.11, CSB17:0.09, NLT:0.08, KJV:0.07, WEB:0.06, AMP:0.03, MSG:0.02, NIV:0.01, NRSVCE:0.04 };
         // BTE v4.0: Hard threshold removed — pure weighted-divergence score, sanity floor only (sim > 0.85)
 
-        // BTE v4.7: Verse overrides — specific verses with preferred rendering
+        // BTE v4.8: Verse overrides — specific verses with preferred rendering
         // Key format: bookId_chapter_verse (e.g. "20_3_6" = Proverbs 3:6)
         // These take precedence over NKJV and the rotation cache.
         const VERSE_OVERRIDES = {
@@ -498,7 +498,7 @@
             vanity: ['hevel (הֶבֶל)', 'vapor/breath — fleeting, meaningless, like chasing wind', 'H1892'],
             verily: ['amēn (ἀμήν)', 'truly, certainly — "I\'m telling you the absolute truth"', 'G281'],
             wrath: ['orge (ὀργή)', 'settled, righteous anger — judicial displeasure, not rage', 'G3709'],
-            // BTE v4.7: Expanded theological vocabulary (~40 terms)
+            // BTE v4.8: Expanded theological vocabulary (~40 terms)
             justification: ['dikaioō (δικαίωσις)', 'the act of God declaring a sinner righteous — a legal verdict, not a gradual process', 'G1347'],
             redemption: ['apolytrōsis (ἀπολύτρωσις)', 'buying back a slave — Christ paid the ransom price to free us from sin\'s bondage', 'G629'],
             atonement: ['kippur (כִּפֻּר)', 'covering of sin — Yom Kippur means "Day of Covering," pointing to Christ\'s once-for-all sacrifice', 'H3725'],
@@ -749,7 +749,7 @@
             G3958:'paschō — to suffer, experience, endure'
         };
 
-        // BTE v4.7: Contextual clarity notes auto-generated from Strong's entries
+        // BTE v4.8: Contextual clarity notes auto-generated from Strong's entries
         // Keyed by Strong's number → rich explanatory note shown in Clarity Notes section
         const STRONGS_CLARITY = {
             // Old Testament — most frequently matched keys
@@ -934,7 +934,7 @@
             return merged;
         }
 
-        // BTE v4.7: Build parallels with per-mode caps
+        // BTE v4.8: Build parallels with per-mode caps
         // mode: 'chapter' (max 1) | 'range' 3-verse (2 default, 3 if top score >0.25)
         //       | 'verse' single (3-4 default, 5-6 if high divergence, cap 6)
         // Merged "ESV | CSB" blocks count as ONE slot — greedy fill handles this.
@@ -1001,10 +1001,10 @@
                     found.push({ num, def: STRONGS_DEFS[num] || num });
                 }
             });
-            return found.slice(0, 15); // BTE v4.7: raised cap; mode-based limits applied at render time
+            return found.slice(0, 15); // BTE v4.8: raised cap; mode-based limits applied at render time
         }
 
-        // BTE v4.7: Auto-generate clarity notes from Strong's entries found in the passage
+        // BTE v4.8: Auto-generate clarity notes from Strong's entries found in the passage
         // Supplements the ARCHAIC dict — fires even when no archaic word is present
         function clarityFromStrongs(strongsEntries) {
             const notes = [];
@@ -1291,7 +1291,7 @@
                         transLabel = '<span class="trans-label">[NKJV]</span>';
                     }
 
-                    // BTE v4.7: Parallel block — chapter mode: max 1 parallel per verse
+                    // BTE v4.8: Parallel block — chapter mode: max 1 parallel per verse
                     const pregenKey = cacheKey;
                     let mergedAmps;
                     if (pregenParallels[pregenKey]) {
@@ -1337,7 +1337,7 @@
                         transLabelV = '<span class="trans-label">[NKJV]</span>';
                     }
 
-                    // BTE v4.7: Parallel block — mode-aware (range=2-3, verse=3-6)
+                    // BTE v4.8: Parallel block — mode-aware (range=2-3, verse=3-6)
                     const pregenKeyV = cacheKeyV;
                     let mergedAmpsV;
                     if (pregenParallels[pregenKeyV]) {
@@ -1400,7 +1400,7 @@
             }
             const limitedStrongs = allStrongs.slice(0, maxStrongs);
 
-            // BTE v4.7: Merge auto-generated Strong's clarity notes into allClarity
+            // BTE v4.8: Merge auto-generated Strong's clarity notes into allClarity
             // This ensures at least some clarity notes appear even when no archaic words trigger
             clarityFromStrongs(limitedStrongs).forEach(function(c) {
                 if (!seenClarity.has(c.strongs)) {
@@ -1455,7 +1455,7 @@
                     const strongsLink = c.strongs
                         ? ' <a class="clarity-link" href="' + stepBibleUrl(c.strongs) + '" target="_blank" title="View word study">' + c.strongs + '</a>'
                         : '';
-                    // BTE v4.7: origin is empty for Strong's-derived notes — skip the colon separator
+                    // BTE v4.8: origin is empty for Strong's-derived notes — skip the colon separator
                     const originPart = c.origin ? c.origin + ': ' : '';
                     html += '<div class="clarity-note"><span class="clarity-word">"' + c.word + '"</span> → ' + originPart + c.meaning + strongsLink + '</div>';
                 });
@@ -1559,7 +1559,7 @@
             }
         })();
 
-        // ── BTE v4.7: Bible Navigator ──────────────────────────────────────────
+        // ── BTE v4.8: Bible Navigator ──────────────────────────────────────────
         (function() {
             var navState = { level: 'top', testament: null, category: null, book: null, chStart: 1, chEnd: 1 };
 
