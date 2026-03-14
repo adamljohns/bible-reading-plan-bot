@@ -1145,7 +1145,8 @@
         function goToVerse(ch, v) {
             if (!currentRef) return;
             currentViewMode = 'verse';
-            document.getElementById('refInput').value = currentRef.display + ' ' + ch + ':' + v;
+            var goBookName = BOOK_NAMES[currentRef.bookId].replace(/\b\w/g, function(c){return c.toUpperCase();});
+            document.getElementById('refInput').value = goBookName + ' ' + ch + ':' + v;
             lookupVerse();
         }
 
@@ -1426,7 +1427,8 @@
             // BTE v3.4: Verse blocks — verse numbers always clickable
             // BTE v4.8: Share button on each verse
             allVerses.forEach(function(v) {
-                var shareRef = ref.book + ' ' + ref.chapter + ':' + v.num;
+                var shareBookName = (BOOK_NAMES[ref.bookId] || '').replace(/\b\w/g, function(c){return c.toUpperCase();});
+                var shareRef = shareBookName + ' ' + ref.chapter + ':' + v.num;
                 html += '<div class="verse-block"><span class="verse-num clickable" onclick="goToVerse(' + ref.chapter + ',' + v.num + ')" title="View verse ' + v.num + ' in detail">' + v.num + '</span> <span class="verse-text">' + v.text + '</span>' + (v.transLabel || '');
                 html += ' <span class="share-btn" onclick="shareVerse(\'' + shareRef.replace(/'/g, "\\'") + '\', this)" title="Copy shareable link">🔗</span>';
                 v.amps.forEach(function(a) {
