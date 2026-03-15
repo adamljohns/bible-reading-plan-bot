@@ -1446,7 +1446,9 @@
 
             // BTE v3.4: Toggle button (Read Full Chapter / Read Verse by Verse)
             html += renderToggleButton();
-            html += '<div style="text-align:right;font-size:0.75em;color:#888;margin:-5px 0 8px;"><img src="assets/icons/shield-handshake.png" alt="share" width="14" height="14" style="vertical-align:middle;opacity:0.6;margin-right:3px;">Tap to copy shareable link</div>';
+            // OT books 1-39 use cord/rope icon, NT books 40-66 use handshake
+            var shareIcon = (ref.bookId <= 39) ? 'assets/icons/shield-cord.png' : 'assets/icons/shield-handshake.png';
+            html += '<div style="text-align:right;font-size:0.75em;color:#888;margin:-5px 0 8px;"><img src="' + shareIcon + '" alt="share" width="14" height="14" style="vertical-align:middle;opacity:0.6;margin-right:3px;">Tap to copy shareable link</div>';
 
             // BTE v3.4: Verse blocks — verse numbers always clickable
             // BTE v4.8: Share button on each verse
@@ -1454,7 +1456,7 @@
                 var shareBookName = (BOOK_NAMES[ref.bookId] || '').replace(/\b\w/g, function(c){return c.toUpperCase();});
                 var shareRef = shareBookName + ' ' + ref.chapter + ':' + v.num;
                 html += '<div class="verse-block"><span class="verse-num clickable" onclick="goToVerse(' + ref.chapter + ',' + v.num + ')" title="View verse ' + v.num + ' in detail">' + v.num + '</span> <span class="verse-text">' + v.text + '</span>' + (v.transLabel || '');
-                html += ' <span class="share-btn" onclick="shareVerse(\'' + shareRef.replace(/'/g, "\\'") + '\', this)" title="Tap to copy shareable link for this verse"><img src="assets/icons/shield-handshake.png" class="site-icon" alt="share" width="20" height="20"></span>';
+                html += ' <span class="share-btn" data-testament="' + (ref.bookId <= 39 ? 'ot' : 'nt') + '" onclick="shareVerse(\'' + shareRef.replace(/'/g, "\\'") + '\', this)" title="Tap to copy shareable link for this verse"><img src="' + shareIcon + '" class="site-icon" alt="share" width="20" height="20"></span>';
                 v.amps.forEach(function(a) {
                     html += '<div class="amplification"><span class="amp-label">' + a.label + ':</span> ' + a.text + '</div>';
                 });
@@ -1534,20 +1536,22 @@
             } else {
                 url = 'https://usmcmin.org/bible.html?ref=' + encodeURIComponent(verseRef);
             }
+            // Determine correct icon based on testament
+            var isOT = btn.getAttribute('data-testament') === 'ot';
+            var restoreIcon = isOT ? 'assets/icons/shield-cord.png' : 'assets/icons/shield-handshake.png';
             navigator.clipboard.writeText(url).then(function() {
                 btn.classList.add('copied');
-                btn.textContent = '<img src="assets/icons/shield-star.png" class="site-icon" alt="star" width="20" height="20">';
+                btn.innerHTML = '<img src="assets/icons/shield-star.png" class="site-icon" alt="copied" width="20" height="20">';
                 showToast('Link copied: ' + verseRef);
-                setTimeout(function() { btn.innerHTML = '<img src="assets/icons/shield-handshake.png" class="site-icon" alt="share" width="20" height="20">';  btn.classList.remove('copied'); }, 2000);
+                setTimeout(function() { btn.innerHTML = '<img src="' + restoreIcon + '" class="site-icon" alt="share" width="20" height="20">'; btn.classList.remove('copied'); }, 2000);
             }).catch(function() {
-                // Fallback for older browsers
                 var ta = document.createElement('textarea');
                 ta.value = url; ta.style.position = 'fixed'; ta.style.opacity = '0';
                 document.body.appendChild(ta); ta.select(); document.execCommand('copy');
                 document.body.removeChild(ta);
-                btn.textContent = '<img src="assets/icons/shield-star.png" class="site-icon" alt="star" width="20" height="20">';
+                btn.innerHTML = '<img src="assets/icons/shield-star.png" class="site-icon" alt="copied" width="20" height="20">';
                 showToast('Link copied: ' + verseRef);
-                setTimeout(function() { btn.innerHTML = '<img src="assets/icons/shield-handshake.png" class="site-icon" alt="share" width="20" height="20">';  }, 2000);
+                setTimeout(function() { btn.innerHTML = '<img src="' + restoreIcon + '" class="site-icon" alt="share" width="20" height="20">'; }, 2000);
             });
         }
 
