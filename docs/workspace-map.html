@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MbPro Workspace Map v2.0 — Adam Johns</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0d1117; color: #c9d1d9; min-height: 100vh; padding: 24px; }
+  h1 { font-size: 22px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+  .subtitle { font-size: 13px; color: #8b949e; margin-bottom: 28px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+  .card { background: #161b22; border: 1px solid #30363d; border-radius: 10px; padding: 16px; }
+  .card.accent-green  { border-left: 3px solid #3fb950; }
+  .card.accent-gold   { border-left: 3px solid #e3b341; }
+  .card.accent-purple { border-left: 3px solid #bc8cff; }
+  .card.accent-blue   { border-left: 3px solid #58a6ff; }
+  .card.accent-red    { border-left: 3px solid #f85149; }
+  .card.accent-cyan   { border-left: 3px solid #39d353; }
+  .card.accent-orange { border-left: 3px solid #f0883e; }
+  .card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid #21262d; }
+  .card-icon { font-size: 20px; }
+  .card-title { font-size: 15px; font-weight: 600; color: #fff; }
+  .card-path { font-size: 11px; color: #6e7681; font-family: monospace; margin-top: 1px; }
+  .file-list { list-style: none; }
+  .file-item { display: flex; align-items: center; gap: 8px; padding: 4px 0; font-size: 12.5px; border-bottom: 1px solid #21262d; }
+  .file-item:last-child { border-bottom: none; }
+  .file-icon { font-size: 13px; flex-shrink: 0; }
+  .file-name { color: #c9d1d9; flex: 1; }
+  .file-name a { color: #58a6ff; text-decoration: none; }
+  .file-name a:hover { text-decoration: underline; }
+  .badge { font-size: 10px; padding: 1px 6px; border-radius: 10px; font-weight: 500; flex-shrink: 0; }
+  .badge-sent    { background: #1f4a2e; color: #3fb950; }
+  .badge-pdf     { background: #3a1a1a; color: #f85149; }
+  .badge-new     { background: #1a2e4a; color: #58a6ff; }
+  .badge-active  { background: #3a2e0d; color: #e3b341; }
+  .badge-live    { background: #2e1a3a; color: #bc8cff; }
+  .badge-green   { background: #0f2d1a; color: #3fb950; }
+  .badge-gold    { background: #2d2200; color: #e3b341; }
+  .badge-purple  { background: #1e0d30; color: #bc8cff; }
+  .badge-orange  { background: #2d1a00; color: #f0883e; }
+  .badge-warn    { background: #3a1a00; color: #f0883e; }
+  .subdir { margin-top: 8px; padding: 8px; background: #0d1117; border-radius: 6px; border-left: 3px solid #30363d; }
+  .subdir-title { font-size: 11px; color: #8b949e; font-family: monospace; margin-bottom: 6px; }
+  .progress-wrap { margin-top: 10px; }
+  .progress-label { display: flex; justify-content: space-between; font-size: 11px; color: #8b949e; margin-bottom: 4px; }
+  .progress-label span:last-child { color: #3fb950; font-weight: 600; }
+  .bar { height: 6px; background: #21262d; border-radius: 3px; overflow: hidden; margin-bottom: 6px; }
+  .bar-fill { height: 100%; border-radius: 3px; }
+  .bar-green  { background: linear-gradient(90deg, #1f6b35, #3fb950); }
+  .bar-gold   { background: linear-gradient(90deg, #7a5a00, #e3b341); }
+  .bar-blue   { background: linear-gradient(90deg, #0c3068, #58a6ff); }
+  .bar-purple { background: linear-gradient(90deg, #3a1060, #bc8cff); }
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #8b949e; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .section-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #8b949e; margin: 24px 0 10px 0; display: flex; align-items: center; gap: 8px; }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: #21262d; }
+  .stats-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 24px; }
+  .stat { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 12px 16px; flex: 1; min-width: 110px; }
+  .stat-num { font-size: 24px; font-weight: 700; color: #fff; }
+  .stat-label { font-size: 11px; color: #8b949e; margin-top: 2px; }
+  .stat.s-green  { border-top: 2px solid #3fb950; }
+  .stat.s-gold   { border-top: 2px solid #e3b341; }
+  .stat.s-purple { border-top: 2px solid #bc8cff; }
+  .stat.s-blue   { border-top: 2px solid #58a6ff; }
+  .stat.s-orange { border-top: 2px solid #f0883e; }
+  .infobox { margin-top: 10px; font-size: 11px; color: #8b949e; line-height: 1.6; }
+  .tag-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  .tag { font-size: 10px; padding: 2px 8px; border-radius: 10px; background: #21262d; color: #8b949e; }
+  .status-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 4px; }
+  .dot-green  { background: #3fb950; }
+  .dot-yellow { background: #e3b341; }
+  .dot-red    { background: #f85149; }
+  .dot-blue   { background: #58a6ff; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+  .mini-stat { background: #0d1117; border-radius: 6px; padding: 8px; text-align: center; }
+  .mini-stat-num { font-size: 18px; font-weight: 700; color: #fff; }
+  .mini-stat-label { font-size: 10px; color: #8b949e; }
+</style>
+</head>
+<body>
+
+<h1>🗂️ MbPro Workspace Map <span style="font-size:14px;color:#3fb950;font-weight:400;">v2.0</span></h1>
+<p class="subtitle">Adam Johns · 501 Caroline St, Fredericksburg VA · Last updated: March 15, 2026 · <span style="color:#3fb950;">●</span> Live systems running</p>
+
+<!-- ===== TOP STATS ===== -->
+<div class="stats-row">
+  <div class="stat s-blue"><div class="stat-num">2</div><div class="stat-label">Job Apps Sent</div></div>
+  <div class="stat s-blue"><div class="stat-num">82</div><div class="stat-label">Skills Installed</div></div>
+  <div class="stat s-green"><div class="stat-num">14</div><div class="stat-label">Memory Days Logged</div></div>
+  <div class="stat s-green"><div class="stat-num">21</div><div class="stat-label">Email Auto-Rules</div></div>
+  <div class="stat s-gold"><div class="stat-num">4</div><div class="stat-label">Finance Ledgers</div></div>
+  <div class="stat s-gold"><div class="stat-num">730+</div><div class="stat-label">Airbnb Reviews 5★</div></div>
+  <div class="stat s-purple"><div class="stat-num">149</div><div class="stat-label">WordPress Posts</div></div>
+  <div class="stat s-purple"><div class="stat-num">28</div><div class="stat-label">Shield Icons</div></div>
+  <div class="stat s-orange"><div class="stat-num">399</div><div class="stat-label">ChatGPT Archives</div></div>
+</div>
+
+<!-- ===== EMAIL AUTOPILOT ===== -->
+<div class="section-label">📧 Email Autopilot System — <span style="color:#3fb950;">LIVE</span></div>
+<div class="grid">
+
+  <div class="card accent-green">
+    <div class="card-header">
+      <span class="card-icon">🤖</span>
+      <div>
+        <div class="card-title">Email Autopilot</div>
+        <div class="card-path">~/Documents/email-autopilot/</div>
+      </div>
+    </div>
+    <ul class="file-list">
+      <li class="file-item"><span class="file-icon">🐍</span><span class="file-name">email-autopilot.py</span><span class="badge badge-green">Core Engine</span></li>
+      <li class="file-item"><span class="file-icon">📋</span><span class="file-name">email-rules.json</span><span class="badge badge-active">21 rules</span></li>
+      <li class="file-item"><span class="file-icon">📓</span><span class="file-name">autopilot.log</span><span class="badge badge-new">Live logs</span></li>
+    </ul>
+    <div class="progress-wrap">
+      <div class="progress-label"><span>iCloud Inbox (2,074 → 1,955)</span><span>94%</span></div>
+      <div class="bar"><div class="bar-fill bar-green" style="width:94%"></div></div>
+      <div class="progress-label"><span>Gmail Personal</span><span>7 processed</span></div>
+      <div class="bar"><div class="bar-fill bar-blue" style="width:88%"></div></div>
+      <div class="progress-label"><span>Gmail B&amp;A (500+)</span><span>Active</span></div>
+      <div class="bar"><div class="bar-fill bar-gold" style="width:62%"></div></div>
+    </div>
+    <div class="infobox">
+      <span class="status-dot dot-green"></span><strong>LIVE</strong> — 9 folders created · 21 auto-archive rules<br>
+      Auto-trash enabled · Action-flagging active<br>
+      📁 Folders: ACTION-Required, A, B, C, D, E, F, G + Archive<br>
+      🔄 Replaces: old manual email triage cron
+    </div>
+  </div>
+
+  <div class="card accent-green">
+    <div class="card-header">
+      <span class="card-icon">📊</span>
+      <div>
+        <div class="card-title">Accounts Managed</div>
+        <div class="card-path">3 accounts · IMAP + Gmail API</div>
+      </div>
+    </div>
+    <ul class="file-list">
+      <li class="file-item"><span class="file-icon">📧</span><span class="file-name">iCloud (adamljohns@icloud.com)</span><span class="badge badge-green">2,074 → 1,955</span></li>
+      <li class="file-item"><span class="file-icon">📧</span><span class="file-name">Gmail Personal (adam.l.johns@gmail.com)</span><span class="badge badge-green">7 processed</span></li>
+      <li class="file-item"><span class="file-icon">📧</span><span class="file-name">Gmail B&amp;A (bowandarrowstudiollc@)</span><span class="badge badge-active">500+ queue</span></li>
+    </ul>
+    <div class="two-col">
+      <div class="mini-stat"><div class="mini-stat-num" style="color:#3fb950;">21</div><div class="mini-stat-label">Auto-Rules</div></div>
+      <div class="mini-stat"><div class="mini-stat-num" style="color:#e3b341;">9</div><div class="mini-stat-label">Folders</div></div>
+      <div class="mini-stat"><div class="mini-stat-num" style="color:#58a6ff;">119</div><div class="mini-stat-label">Archived Today</div></div>
+      <div class="mini-stat"><div class="mini-stat-num" style="color:#bc8cff;">3</div><div class="mini-stat-label">Accounts</div></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ===== JOB SEARCH ===== -->
+<div class="section-label">📋 Job Search — In Progress</div>
+<div class="grid">
+
+  <div class="card accent-blue">
+    <div class="card-header">
+      <span class="card-icon">⛪</span>
+      <div>
+        <div class="card-title">Fawn Lake Church Application</div>
+        <div class="card-path">workspace/fawn-lake-church-application/</div>
+      </div>
+    </div>
+    <ul class="file-list">
+      <li class="file-item"><span class="file-icon">📄</span><span class="file-name">COVER-LETTER.md</span><span class="badge badge-sent">✉️ Sent</span></li>
+      <li class="file-item"><span class="file-icon">📋</span><span class="file-name">JOB-DESCRIPTION.md</span><span class="badge badge-new">Research</span></li>
+      <li class="file-item"><span class="file-icon">✝️</span><span class="file-name">PASTORAL-PHILOSOPHY.md</span><span class="badge badge-new">Ready</span></li>
+    </ul>
+    <div class="infobox">📍 10127 Plank Rd, Spotsylvania · 17 mi · Non-denom church plant, 35 members</div>
+  </div>
+
+  <div class="card accent-blue">
+    <div class="card-header">
+      <span class="card-icon">🏛️</span>
+      <div>
+        <div class="card-title">St. George's Episcopal Application</div>
+        <div class="card-path">workspace/st-georges-application/</div>
+      </div>
+    </div>
+    <ul class="file-list">
+      <li class="file-item"><span class="file-icon">📄</span><span class="file-name">COVER-LETTER.md</span><span class="badge badge-sent">✉️ Sent</span></li>
+    </ul>
+    <div class="infobox">📍 905 Princess Anne St — 0.4 mi · $70–90K · Associate Rector · Rolling apps</div>
+  </div>
+
+  <div class="card accent-blue">
+    <div class="card-header">
+      <span class="card-icon">📑</span>
+      <div>
+        <div class="card-title">Resumes</div>
+        <div class="card-path">workspace/</div>
+      </div>
+    </div>
+    <ul class="file-list">
+      <li class="file-item"><span class="file-icon">📄</span><span class="file-name">adam-johns-pastoral-resume.md</span><span class="badge badge-active">Primary</span></li>
+      <li class="file-item"><span class="file-icon">📕</span><span class="file-name">adam-johns-pastoral-resume.pdf</span><span class="badge badge-sent">✉️ Sent x2</span></li>
+      <li class="file-item"><span class="file-icon">📄</span><span class="file-name">adam-johns-resume.md</span><span class="badge badge-new">General</span></li>
+      <li class="file-item"><span class="file-icon">📄</span><span class="file-name">adam-johns-resume-va-chaplain.md</span><span class="badge badge-new">Federal</span></li>
+      <li class="file-item"><span class="file-icon">📕</span><span class="file-name">adam-johns-resume-va-chaplain.pdf</span><span class="badge badge-new">Federal PDF</span></li>
+    </ul>
+  </div>
+
+  <div class="card accent-blue">
+    <div class="card-header">
+      <span class="card-icon">🔍</span>
+      <div>
+        <div class="card-title">Job Search Results</div>
+        <div class="card-path">workspace/job-search-results.md</div>
+      </div>
+    </div>
+    <ul class="file-list">
+      <li class="file-item"><span class="file-icon">✅</span><span class="file-name">Fawn Lake Church — Spotsylvania (17 mi)</span><span class="badge badge-sent">Applied</span></li>
+      <li class="file-item"><span class="file-icon">✅</span><span class="file-name">St. George's Episcopal — Downtown (0.4 mi)</span><span class="badge badge-sent">Applied</span></li>
+      <li class="file-item"><span class="file-icon">📌</span><span class="file-name">SC3 Student Minister — Stafford (9 mi)</span><span class="badge badge-active">Next</span></li>
+      <li class="file-item"><span class="file-icon">📌</span><span class="file-name">Ebenezer UMC Youth Dir — Stafford (8 mi)</span><span class="badge badge-active">Next</span></li>
+      <li class="file-item"><span class="file-icon">⚠️</span><span class="file-name">VA Chaplain Baltimore — GS-12 $102K</span><span class="badge badge-pdf">Too far</span></li>
+    </ul>
+    <div class="infobox">Also on file: DD-214 · dd214.pdf</div>
+  </div>
+
+</div>
+
+<!-- ===== FINANCE ===== -->
+<div class="section-label">💰 Finance — 4-Ledger System</div>
+<div class="grid">
+
+  <div class="card accent-gold">
+    <div class="card-header">
+      <span class="card-icon">📒</span>
+      <div>
+        <div class="card-title">4-Ledger Finance System</div>
+        <div class="card-path">~/Documents/Finance/Ledgers/</div>
+      </div>
+    </div>
+    <ul class="file-list">
+      <li class="file-item"><span class="file-icon">📄</span><span class="file-name">personal-ledger.md</span><span class="badge badge-gold">Personal</span></li>
+      <li class="file-item"><span class="file-icon">📄</span><span class="file-name">bow-arrow-ledger.md</span><span class="badge badge-gold">B&amp;A LLC</span></li>
+      <li class="file-item"><span class="file-icon">📄</span><span class="file-name">c5isr-ledger.md</span><span class="badge badge-gold">C5iSR LLC</span></li>
+      <li class="file-item"><span class="file-icon">📄</span><span class="file-name">usmc-ministries-ledger.md</span><span class="badge badge-gold">Ministry</span></li>
+    </ul>
+    <div class="infobox">
+      Created: March 14, 2026<br>
+      Replaces: scattered spreadsheets<br>
+      Format: Markdown ledgers (income / expenses / notes)
+    </div>
+    <div class="two-col" style="margin-top:10px;">
+      <div class="mini-stat"><div class="mini-stat-num" style="color:#e3b341;">4</div><div class="mini-stat-label">Entities</div></div>
+      <div class="mini-stat"><div class="mini-stat-num" style="color:#3fb950;">Mar 14</div><div class="mini-stat-label">Created</div></div>
+    </div>
+  </div>
+
+  <div class="card accent-gold">
+    <div class="card-header">
+      <span class="card-icon">🏠</span>
+      <div>
+        <div class="card-title">Bow &amp; Arrow Airbnb</div>
+        <div class="card-path">workspace/drafts/airbnb/</div>
+      </div>
+    </div>
+    <ul class="file-list">
+      <li class="file-item"><span class="file-icon">📄</span><span class="file-name">airbnb-inbox-brief.txt</span></li>
+      <li class="file-item"><span class="file-icon">📄</span><span class="file-name">fredericksburg-demand-research.md</span></li>
+      <li class="file-item"><span class="file-icon">📄</span><span class="file-name">greg-reply.txt</span><span class="badge badge-new">Guest</span></li>
+      <li class="file-item"><span class="file-icon">📄</span><span class="file-name">jaime-service-animal-reply.txt</span><span class="badge badge-new">Guest</span></li>
+      <li class="file-item"><span class="file-icon">📄</span><span class="file-name">landlord-drywall-email-mar11.txt</span></li>
+      <li class="file-item"><span class="file-icon">📄</span><span class="file-name">listing-title-research.md</span></li>
+      <li class="file-item"><span class="file-icon">📕</span><span class="file-name">maintenance-report.pdf</span><span class="badge badge-active">10 photos</span></li>
+    </ul>
+    <div class="infobox">7 properties · 5 active · 730+ reviews · 5.00⭐ · ~$7,766/mo (Mar 2026)</div>
+  </div>
+
+</div>
+
+<!-- ===== BOW & ARROW SUBSCRIBE SERVER ===== -->
+<div class="section-label">🔗 Subscribe Server — USMC Min</div>
+<div class="grid">
+
+  <div class="card accent-cyan">
+    <div class="card-header">
+      <span class="card-icon">🖥️</span>
+      <div>
+        <div class="card-title">usmcmin-subscribe-server</div>
+        <div class="card-path">~/usmcmin-subscribe-server/</div>
+      </div>
+    </div>
+    <ul class="file-list">
+      <li class="file-item"><span class="file-icon">🟡</span><span class="file-name">Port 3847</span><span class="badge badge-warn">Not yet service</span></li>
+      <li class="file-item"><span class="file-icon">🗄️</span><span class="file-name">SQLite backend</span><span class="badge badge-new">Lightweight DB</span></li>
+      <li class="file-item"><span class="file-icon">🔗</span><span class="file-name">POST /subscribe</span><span class="badge badge-green">Built</span></li>
+      <li class="file-item"><span class="file-icon">🔗</span><span class="file-name">GET /subscribers</span><span class="badge badge-green">Built</span></li>
+      <li class="file-item"><span class="file-icon">🔗</span><span class="file-name">POST /wheelhouse-update</span><span class="badge badge-green">Built</span></li>
+    </ul>
+    <div class="infobox">
+      <span class="status-dot dot-yellow"></span><strong>Status:</strong> Built · Not running as system service yet<br>
+      Target: usmcmin.org subscriber management<br>
+      Next step: launchd plist / pm2 persistent service
+    </div>
+  </div>
+
+</div>
+
+<!-- ===== FIT20 ===== -->
+<div class="section-label">💪 fit20 — Cosner's Corner</div>
+<div class="grid">
+
+  <div class="card">
+    <div class="card-header">
+      <span class="card-icon">🏋️</span>
+      <div>
+        <div class="card-title">fit20 Presentation</div>
+        <div class="card-path">workspace/fit20-presentation/</div>
+      </div>
+    </div>
+    <ul class="file-list">
+      <li class="file-item"><span class="file-icon">🌐</span><span class="file-name">index.html</span><span class="badge badge-active">7-slide deck</span></li>
+    </ul>
+    <div class="infobox">fit20 vs Orangetheory · delivered to Rebecca (COO)</div>
+  </div>
+
+</div>
+
+<!-- ===== MINISTRY ===== -->
+<div class="section-label">✝️ USMC Ministries & Ministry Writing</div>
+<div class="grid">
+
+  <div class="card accent-purple">
+    <div class="card-header">
+      <span class="card-icon">🪖</span>
+      <div>
+        <div class="card-title">USMC Ministries</div>
+        <div class="card-path">workspace/usmc-ministries/</div>
+      </div>
+    </div>
+    <ul class="file-list">
+      <li class="file-item"><span class="file-icon">📄</span><span class="file-name">consultation-sop.md</span></li>
+    </ul>
+    <div class="infobox">Founder &amp; Lead Pastor · Fredericksburg VA<br>Men's discipleship + counseling · usmcmin.org</div>
+  </div>
+
+  <div class="card accent-purple">
+    <div class="card-header">
+      <span class="card-icon">✉️</span>
+      <div>
+        <div class="card-title">Ministry Email Drafts</div>
+        <div class="card-path">workspace/email-drafts/ · workspace/drafts/ministry/</div>
+      </div>
+    </div>
+    <ul class="file-list">
+      <li class="file-item"><span class="file-icon">📄</span><span class="file-name">men-of-valor-brad-smith.txt</span></li>
+      <li class="file-item"><span class="file-icon">📄</span><span class="file-name">noble-warriors-mike-young.txt</span></li>
+      <li class="file-item"><span class="file-icon">📄</span><span class="file-name">tun-tavern-fellowship.txt</span></li>
+      <li class="file-item"><span class="file-icon">📄</span><span class="file-name">email-brad-smith-men-of-valor.txt</span></li>
+    </ul>
+  </div>
+
+  <div class="card accent-purple">
+    <div class="card-header">
+      <span class="card-icon">📝</span>
+      <div>
+        <div class="card-title">WordPress Blog — 149 Posts</div>
+        <div class="card-path">adamljohns.wordpress.com → usmcmin.org/blog.html</div>
+      </div>
+    </div>
+    <ul class="file-list">
+      <li class="file-item"><span class="file-icon">📅</span><span class="file-name">Sept 2012 – March 2026 · 149 posts total</span><span class="badge badge-purple">Live</span></li>
+      <li class="file-item"><span class="file-icon">✍️</span><span class="file-name">"Rooted Where God Planted Me"</span><span class="badge badge-new">Mar 2026</span></li>
+      <li class="file-item"><span class="file-icon">✍️</span><span class="file-name">"When Your AI Reads the Bible Better Than You"</span><span class="badge badge-new">Mar 2026</span></li>
+      <li class="file-item"><span class="file-icon">✍️</span><span class="file-name">"Marine On Own Program"</span><span class="badge badge-new">Mar 2026</span></li>
+    </ul>
+    <div class="tag-row">
+      <span class="tag">spiritual formation</span><span class="tag">marriage</span><span class="tag">mentoring</span>
+      <span class="tag">retirement</span><span class="tag">freedom</span>
+    </div>
+    <div class="infobox" style="margin-top:8px;">Migration target: usmcmin.org/blog.html</div>
+  </div>
+
+  <div class="card accent-purple">
+    <div class="card-header">
+      <span class="card-icon">📚</span>
+      <div>
+        <div class="card-title">Seminary Papers &amp; Book Projects</div>
+        <div class="card-path">workspace/ · ~/Documents/</div>
+      </div>
+    </div>
+    <ul class="file-list">
+      <li class="file-item"><span class="file-icon">📕</span><span class="file-name">civil-disobedience-paper.pdf</span><span class="badge badge-new">CLCM 510</span></li>
+      <li class="file-item"><span class="file-icon">📕</span><span class="file-name">imago-dei-paper.pdf</span><span class="badge badge-new">CLCM 510</span></li>
+      <li class="file-item"><span class="file-icon">📎</span><span class="file-name">apol-expansion.docx</span><span class="badge badge-new">Apologetics</span></li>
+      <li class="file-item"><span class="file-icon">📕</span><span class="file-name">CLCM 510 Research Paper (3 parts)</span></li>
+      <li class="file-item" style="background:#0f1a2a;border-radius:4px;padding:6px 4px;">
+        <span class="file-icon">📖</span>
+        <span class="file-name" style="color:#58a6ff;font-weight:600;">"BCDP-1: Spiritual Warfighting"</span>
+        <span class="badge badge-new">Book WIP</span>
+      </li>
+      <li class="file-item" style="background:#1a0f2a;border-radius:4px;padding:6px 4px;">
+        <span class="file-icon">📖</span>
+        <span class="file-name" style="color:#bc8cff;font-weight:600;">"Forsaking All Others"</span>
+        <span class="badge badge-purple">Book WIP</span>
+      </li>
+    </ul>
+    <div class="infobox" style="margin-top:8px;">
+      BCDP-1 = MCDP-1 Warfighting framework applied to spiritual life<br>
+      Forsaking All Others = pornography freedom for husbands<br>
+      Source material: ChatGPT archive (c5isr + family-captain distilled)
+    </div>
+  </div>
+
+</div>
+
+<!-- ===== BIBLE / WHEELHOUSE ===== -->
+<div class="section-label">📖 Bible Reading Plan, Wheelhouse &amp; Icon Library</div>
+<div class="grid">
+
+  <div class="card accent-blue">
+    <div class="card-header">
+      <span class="card-icon">⚓</span>
+      <div>
+        <div class="card-title">bible-reading-plan-bot (GitHub Repo)</div>
+        <div class="card-path">workspace/bible-reading-plan-bot/ → adamljohns.github.io</div>
+      </div>
+    </div>
+    <ul class="file-list">
+      <li class="file-item"><span class="file-icon">🌐</span><span class="file-name">docs/wheelhouse.html</span><span class="badge badge-live">Live</span></li>
+      <li class="file-item"><span class="file-icon">🌐</span><span class="file-name">docs/bible.html</span><span class="badge badge-live">Live</span></li>
+      <li class="file-item"><span class="file-icon">🌐</span><span class="file-name">docs/fitness.html</span><span class="badge badge-live">Live</span></li>
+      <li class="file-item"><span class="file-icon">🌐</span><span class="file-name">docs/index.html</span><span class="badge badge-live">Live</span></li>
+      <li class="file-item"><span class="file-icon">🌐</span><span class="file-name">docs/counseling.html · mentoring.html · retirement.html</span></li>
+      <li class="file-item"><span class="file-icon">📝</span><span class="file-name">blog-draft-christian-localism-fredericksburg.md</span></li>
+      <li class="file-item"><span class="file-icon">📝</span><span class="file-name">blog-draft-retirement-moop.md</span></li>
+      <li class="file-item"><span class="file-icon">🐍</span><span class="file-name">plan.py · build_verse_cache.py · gen_verse_pages.py</span></li>
+    </ul>
+    <div class="infobox">55 HTML pages total · 21 verse pages · 24 main pages · 5 watch readings/day via cron</div>
+  </div>
+
+  <div class="card accent-blue">
+    <div class="card-header">
+      <span class="card-icon">🛡️</span>
+      <div>
+        <div class="card-title">Icon Library — 28 Shield Icons</div>
+        <div class="card-path">bible-reading-plan-bot/docs/assets/icons/</div>
+      </div>
+    </div>
+    <ul class="file-list">
+      <li class="file-item"><span class="file-icon">🖼️</span><span class="file-name">shield-*.png (gold variants)</span><span class="badge badge-gold">Gold set</span></li>
+      <li class="file-item"><span class="file-icon">🖼️</span><span class="file-name">shield-*.png (B&amp;W variants)</span><span class="badge badge-new">B&amp;W set</span></li>
+      <li class="file-item"><span class="file-icon">📁</span><span class="file-name">icons/originals/</span><span class="badge badge-active">Archived</span></li>
+      <li class="file-item"><span class="file-icon">🏅</span><span class="file-name">logo-shield-cross.png</span><span class="badge badge-live">Primary</span></li>
+      <li class="file-item"><span class="file-icon">🏅</span><span class="file-name">logo-circle-handshake.png</span><span class="badge badge-live">Alt v1</span></li>
+      <li class="file-item"><span class="file-icon">🏅</span><span class="file-name">logo-shield-cross-v2.png</span><span class="badge badge-live">Alt v2</span></li>
+    </ul>
+    <div class="infobox">
+      28 total icons · Gold + B&amp;W variants<br>
+      Used across all 55 HTML pages · 3 logo variants
+    </div>
+    <div class="two-col" style="margin-top:10px;">
+      <div class="mini-stat"><div class="mini-stat-num" style="color:#e3b341;">28</div><div class="mini-stat-label">Total Icons</div></div>
+      <div class="mini-stat"><div class="mini-stat-num" style="color:#58a6ff;">55</div><div class="mini-stat-label">HTML Pages</div></div>
+    </div>
+  </div>
+
+  <div class="card accent-blue">
+    <div class="card-header">
+      <span class="card-icon">🎙️</span>
+      <div>
+        <div class="card-title">Bible Reading Audio (ElevenLabs TTS)</div>
+        <div class="card-path">workspace/*.mp3</div>
+      </div>
+    </div>
+    <ul class="file-list">
+      <li class="file-item"><span class="file-icon">🎵</span><span class="file-name">first-watch.mp3</span><span class="badge badge-active">6 AM cron</span></li>
+      <li class="file-item"><span class="file-icon">🎵</span><span class="file-name">second-watch.mp3</span><span class="badge badge-active">7 AM cron</span></li>
+      <li class="file-item"><span class="file-icon">🎵</span><span class="file-name">third-watch.mp3</span><span class="badge badge-active">11 AM cron</span></li>
+      <li class="file-item"><span class="file-icon">🎵</span><span class="file-name">morning-wisdom.mp3</span><span class="badge badge-active">3 PM cron</span></li>
+      <li class="file-item"><span class="file-icon">🎵</span><span class="file-name">evening-peace.mp3</span><span class="badge badge-active">9 PM cron</span></li>
+      <li class="file-item"><span class="file-icon">🎵</span><span class="file-name">brian.mp3 · daniel.mp3 · harry.mp3 (voice auditions)</span></li>
+    </ul>
+    <div class="infobox">Voice: Brian · nPczCjzI2devNBz1zQrb · stability=0.0 · style=0.8</div>
+  </div>
+
+</div>
+
+<!-- ===== C5iSR ===== -->
+<div class="section-label">₿ C5iSR LLC — Biblical Stewardship &amp; Crypto</div>
+<div class="grid">
+  <div class="card accent-gold">
+    <div class="card-header">
+      <span class="card-icon">📊</span>
+      <div>
+        <div class="card-title">C5iSR Context &amp; Strategy</div>
+        <div class="card-path">shared-memory/context/c5isr-*/</div>
+      </div>
+    </div>
+    <ul class="file-list">
+      <li class="file-item"><span class="file-icon">📄</span><span class="file-name">c5isr-investment-doctrine.md</span></li>
+      <li class="file-item"><span class="file-icon">📄</span><span class="file-name">c5isr-content-strategy-deep.md</span></li>
+      <li class="file-item"><span class="file-icon">📄</span><span class="file-name">c5isr-post-framework.md</span></li>
+      <li class="file-item"><span class="file-icon">📄</span><span class="file-name">c5isr-entity-docs-distilled.md</span></li>
+      <li class="file-item"><span class="file-icon">📄</span><span class="file-name">c5-isr-updates.md</span></li>
+    </ul>
+    <div class="infobox">EIN: 92-3564161 · Virginia LLC · Daily market posts to Telegram C5iSR group</div>
+  </div>
+</div>
+
+<!-- ===== CHATGPT ARCHIVE ===== -->
+<div class="section-label">🤖 ChatGPT Archive — 399 Conversations</div>
+<div class="grid">
+
+  <div class="card accent-orange">
+    <div class="card-header">
+      <span class="card-icon">💬</span>
+      <div>
+        <div class="card-title">ChatGPT Export (158MB → Distilled)</div>
+        <div class="card-path">~/.openclaw/shared-memory/context/*-distilled.md</div>
+      </div>
+    </div>
+    <ul class="file-list">
+      <li class="file-item"><span class="file-icon">📄</span><span class="file-name">c5isr-distilled.md</span><span class="badge badge-gold">C5iSR contexts</span></li>
+      <li class="file-item"><span class="file-icon">📄</span><span class="file-name">family-captain-distilled.md</span><span class="badge badge-purple">Family</span></li>
+      <li class="file-item"><span class="file-icon">📄</span><span class="file-name">fit20-distilled.md</span><span class="badge badge-new">Fitness</span></li>
+      <li class="file-item"><span class="file-icon">📄</span><span class="file-name">health-distilled.md</span><span class="badge badge-green">Health</span></li>
+    </ul>
+    <div class="infobox">
+      Export: 399 conversations · 158MB raw → ~40KB distilled<br>
+      Link expires: March 21, 2026 ⚠️<br>
+      Source material for BCDP-1 book + Forsaking All Others
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-label"><span>Distillation complete (4 major themes)</span><span style="color:#e3b341;">40KB / 158MB</span></div>
+      <div class="bar"><div class="bar-fill bar-gold" style="width:100%"></div></div>
+    </div>
+  </div>
+
+  <div class="card accent-orange">
+    <div class="card-header">
+      <span class="card-icon">🗃️</span>
+      <div>
+        <div class="card-title">8-Desk ChatGPT Organization</div>
+        <div class="card-path">Organized into topic desks</div>
+      </div>
+    </div>
+    <ul class="file-list">
+      <li class="file-item"><span class="file-icon">🖥️</span><span class="file-name">C5iSR Desk — crypto + stewardship</span></li>
+      <li class="file-item"><span class="file-icon">🖥️</span><span class="file-name">Family Captain Desk — marriage + parenting</span></li>
+      <li class="file-item"><span class="file-icon">🖥️</span><span class="file-name">fit20 Desk — training + nutrition</span></li>
+      <li class="file-item"><span class="file-icon">🖥️</span><span class="file-name">Health Desk — personal health</span></li>
+      <li class="file-item"><span class="file-icon">🖥️</span><span class="file-name">Ministry Desk · Writing Desk · Tech Desk · Misc</span></li>
+    </ul>
+    <div class="infobox">Feeds into: BCDP-1 book research · Forsaking All Others outline</div>
+  </div>
+
+</div>
+
+<!-- ===== MELALEUCA ===== -->
+<div class="section-label">🌿 Melaleuca</div>
+<div class="grid">
+  <div class="card">
+    <div class="card-header">
+      <span class="card-icon">🌿</span>
+      <div>
+        <div class="card-title">Melaleuca Outreach</div>
+        <div class="card-path">workspace/drafts/melaleuca/</div>
+      </div>
+    </div>
+    <ul class="file-list">
+      <li class="file-item"><span class="file-icon">📄</span><span class="file-name">melaleuca-mark-outreach.txt</span><span class="badge badge-active">Follow-up Mar 16</span></li>
+      <li class="file-item"><span class="file-icon">📄</span><span class="file-name">melaleuca-mom-resignup.txt</span></li>
+      <li class="file-item"><span class="file-icon">📄</span><span class="file-name">melaleuca-todd-log.txt</span></li>
+      <li class="file-item"><span class="file-icon">📎</span><span class="file-name">MAHA_Switch_Script_V3.docx</span></li>
+    </ul>
+  </div>
+</div>
+
+<!-- ===== AGENT BRAIN ===== -->
+<div class="section-label">🤖 Agent Brain — MbPro Config &amp; Memory</div>
+<div class="grid">
+
+  <div class="card accent-cyan">
+    <div class="card-header">
+      <span class="card-icon">🧠</span>
+      <div>
+        <div class="card-title">Identity &amp; Configuration</div>
+        <div class="card-path">workspace/</div>
+      </div>
+    </div>
+    <ul class="file-list">
+      <li class="file-item"><span class="file-icon">👤</span><span class="file-name">SOUL.md</span><span class="badge badge-active">Who I Am</span></li>
+      <li class="file-item"><span class="file-icon">👤</span><span class="file-name">IDENTITY.md</span><span class="badge badge-active">MbPro</span></li>
+      <li class="file-item"><span class="file-icon">👤</span><span class="file-name">USER.md</span><span class="badge badge-active">About Moop</span></li>
+      <li class="file-item"><span class="file-icon">📋</span><span class="file-name">AGENTS.md</span><span class="badge badge-active">Ops Rules</span></li>
+      <li class="file-item"><span class="file-icon">🛠️</span><span class="file-name">TOOLS.md</span><span class="badge badge-active">Device Notes</span></li>
+      <li class="file-item"><span class="file-icon">💓</span><span class="file-name">HEARTBEAT.md</span><span class="badge badge-active">Periodic Checks</span></li>
+      <li class="file-item"><span class="file-icon">🧩</span><span class="file-name">MEMORY.md</span><span class="badge badge-active">Local LTM</span></li>
+    </ul>
+  </div>
+
+  <div class="card accent-cyan">
+    <div class="card-header">
+      <span class="card-icon">🗄️</span>
+      <div>
+        <div class="card-title">Memory System</div>
+        <div class="card-path">~/.openclaw/shared-memory/ · workspace/memory/</div>
+      </div>
+    </div>
+    <ul class="file-list">
+      <li class="file-item"><span class="file-icon">🌐</span><span class="file-name">MEMORY.md (shared — long-term curated)</span><span class="badge badge-green">Primary</span></li>
+      <li class="file-item"><span class="file-icon">📁</span><span class="file-name">shared-memory/context/ — 120+ topic files</span><span class="badge badge-green">120+ files</span></li>
+      <li class="file-item"><span class="file-icon">📓</span><span class="file-name">memory/2026-03-*.md (14 days logged)</span><span class="badge badge-active">14 days</span></li>
+      <li class="file-item"><span class="file-icon">🛠️</span><span class="file-name">elite-longterm-memory skill</span><span class="badge badge-live">Installed</span></li>
+    </ul>
+    <div class="infobox">
+      📂 Context files: airbnb, C5iSR, family, faith, health + 115 more<br>
+      🧩 MEMORY.md: Long-term curated knowledge<br>
+      🔄 Auto-synced after every conversation
+    </div>
+    <div class="two-col" style="margin-top:10px;">
+      <div class="mini-stat"><div class="mini-stat-num" style="color:#3fb950;">120+</div><div class="mini-stat-label">Context Files</div></div>
+      <div class="mini-stat"><div class="mini-stat-num" style="color:#58a6ff;">14</div><div class="mini-stat-label">Days Logged</div></div>
+    </div>
+  </div>
+
+  <div class="card accent-cyan">
+    <div class="card-header">
+      <span class="card-icon">📅</span>
+      <div>
+        <div class="card-title">Session Memory Logs</div>
+        <div class="card-path">workspace/memory/ (local) · shared-memory/memory/ (global)</div>
+      </div>
+    </div>
+    <ul class="file-list">
+      <li class="file-item"><span class="file-icon">📓</span><span class="file-name">2026-03-15.md (today)</span><span class="badge badge-green">Active</span></li>
+      <li class="file-item"><span class="file-icon">📓</span><span class="file-name">2026-03-14.md · 2026-03-13.md · 2026-03-12.md</span><span class="badge badge-active">Recent</span></li>
+      <li class="file-item"><span class="file-icon">📓</span><span class="file-name">2026-03-09.md → 2026-02-27.md</span></li>
+    </ul>
+  </div>
+
+  <div class="card accent-cyan">
+    <div class="card-header">
+      <span class="card-icon">⚙️</span>
+      <div>
+        <div class="card-title">Scripts &amp; Email Automation</div>
+        <div class="card-path">workspace/scripts/ · ~/Documents/email-autopilot/</div>
+      </div>
+    </div>
+    <ul class="file-list">
+      <li class="file-item"><span class="file-icon">🐍</span><span class="file-name">email-autopilot.py</span><span class="badge badge-green">LIVE · 3 accounts</span></li>
+      <li class="file-item"><span class="file-icon">🐍</span><span class="file-name">gmail-inbox-zero.py</span><span class="badge badge-active">Legacy cron</span></li>
+      <li class="file-item"><span class="file-icon">🐍</span><span class="file-name">gmail-inbox-action.py</span></li>
+    </ul>
+    <div class="infobox">Email autopilot replaces gmail-inbox-zero.py cron</div>
+  </div>
+
+</div>
+
+<!-- ===== SKILLS ===== -->
+<div class="section-label">🛠️ Installed Skills (82 total)</div>
+<div class="grid">
+
+  <div class="card accent-purple">
+    <div class="card-header">
+      <span class="card-icon">✝️</span>
+      <div><div class="card-title">Faith &amp; Ministry Skills</div><div class="card-path">workspace/skills/</div></div>
+    </div>
+    <ul class="file-list">
+      <li class="file-item"><span class="file-icon">🛠️</span><span class="file-name">holyspiritos</span><span class="badge badge-live">Active</span></li>
+      <li class="file-item"><span class="file-icon">🛠️</span><span class="file-name">skills-devo (daily_devotion)</span><span class="badge badge-live">Active</span></li>
+      <li class="file-item"><span class="file-icon">🛠️</span><span class="file-name">prayers</span><span class="badge badge-live">Active</span></li>
+    </ul>
+  </div>
+
+  <div class="card accent-gold">
+    <div class="card-header">
+      <span class="card-icon">💰</span>
+      <div><div class="card-title">Finance &amp; Business Skills</div><div class="card-path">workspace/skills/</div></div>
+    </div>
+    <ul class="file-list">
+      <li class="file-item"><span class="file-icon">🛠️</span><span class="file-name">finance-news</span><span class="badge badge-live">Active</span></li>
+      <li class="file-item"><span class="file-icon">🛠️</span><span class="file-name">airbnb + airbnb-search</span><span class="badge badge-live">Active</span></li>
+      <li class="file-item"><span class="file-icon">🛠️</span><span class="file-name">expense-tracker-pro</span></li>
+      <li class="file-item"><span class="file-icon">🛠️</span><span class="file-name">personal-finance</span></li>
+      <li class="file-item"><span class="file-icon">🛠️</span><span class="file-name">calorie-counter</span></li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="card-icon">📡</span>
+      <div><div class="card-title">Comms &amp; Social Skills</div><div class="card-path">workspace/skills/</div></div>
+    </div>
+    <ul class="file-list">
+      <li class="file-item"><span class="file-icon">🛠️</span><span class="file-name">bird-twitter (xurl)</span><span class="badge badge-active">Auth needed</span></li>
+      <li class="file-item"><span class="file-icon">🛠️</span><span class="file-name">adaptlypost</span></li>
+      <li class="file-item"><span class="file-icon">🛠️</span><span class="file-name">cold-outreach</span></li>
+      <li class="file-item"><span class="file-icon">🛠️</span><span class="file-name">blogburst</span></li>
+      <li class="file-item"><span class="file-icon">🛠️</span><span class="file-name">clawemail</span></li>
+      <li class="file-item"><span class="file-icon">🛠️</span><span class="file-name">imessage</span></li>
+    </ul>
+  </div>
+
+  <div class="card accent-cyan">
+    <div class="card-header">
+      <span class="card-icon">🤖</span>
+      <div><div class="card-title">Agent &amp; Memory Skills</div><div class="card-path">workspace/skills/</div></div>
+    </div>
+    <ul class="file-list">
+      <li class="file-item"><span class="file-icon">🛠️</span><span class="file-name">agent-health-optimizer</span></li>
+      <li class="file-item"><span class="file-icon">🛠️</span><span class="file-name">elite-longterm-memory</span><span class="badge badge-live">Active</span></li>
+      <li class="file-item"><span class="file-icon">🛠️</span><span class="file-name">memory-hygiene</span></li>
+      <li class="file-item"><span class="file-icon">🛠️</span><span class="file-name">briefing</span></li>
+      <li class="file-item"><span class="file-icon">🛠️</span><span class="file-name">pc-assistant</span></li>
+      <li class="file-item"><span class="file-icon">🛠️</span><span class="file-name">security-auditor</span></li>
+      <li class="file-item"><span class="file-icon">🛠️</span><span class="file-name">system-health-check</span></li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="card-icon">🎵</span>
+      <div><div class="card-title">Creative &amp; Music Skills</div><div class="card-path">workspace/skills/</div></div>
+    </div>
+    <ul class="file-list">
+      <li class="file-item"><span class="file-icon">🛠️</span><span class="file-name">ace-music</span></li>
+      <li class="file-item"><span class="file-icon">🛠️</span><span class="file-name">elevenlabs-music</span></li>
+      <li class="file-item"><span class="file-icon">🛠️</span><span class="file-name">music-generation</span></li>
+    </ul>
+  </div>
+
+</div>
+
+<!-- ===== DOCUMENTS ===== -->
+<div class="section-label">📁 Key Documents &amp; Social</div>
+<div class="grid">
+
+  <div class="card">
+    <div class="card-header">
+      <span class="card-icon">📁</span>
+      <div><div class="card-title">Key Documents</div><div class="card-path">workspace/</div></div>
+    </div>
+    <ul class="file-list">
+      <li class="file-item"><span class="file-icon">🎖️</span><span class="file-name">dd214.pdf</span><span class="badge badge-active">USMC Retired</span></li>
+      <li class="file-item"><span class="file-icon">📕</span><span class="file-name">chronological-bible-plan-2026-FINAL.pdf</span></li>
+      <li class="file-item"><span class="file-icon">📕</span><span class="file-name">civil-disobedience-paper.pdf</span></li>
+      <li class="file-item"><span class="file-icon">📕</span><span class="file-name">imago-dei-paper.pdf</span></li>
+      <li class="file-item"><span class="file-icon">📎</span><span class="file-name">apol-expansion.docx</span></li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="card-icon">🌐</span>
+      <div><div class="card-title">Social Media (Staged)</div><div class="card-path">workspace/social/</div></div>
+    </div>
+    <ul class="file-list">
+      <li class="file-item"><span class="file-icon">📁</span><span class="file-name">x-twitter/</span><span class="badge badge-active">Auth needed</span></li>
+      <li class="file-item"><span class="file-icon">📁</span><span class="file-name">instagram/</span></li>
+      <li class="file-item"><span class="file-icon">📁</span><span class="file-name">facebook/</span></li>
+      <li class="file-item"><span class="file-icon">📁</span><span class="file-name">linkedin/</span></li>
+      <li class="file-item"><span class="file-icon">📁</span><span class="file-name">tiktok/</span></li>
+    </ul>
+  </div>
+
+</div>
+
+<!-- ===== FOOTER ===== -->
+<div style="margin-top:32px;padding:16px;background:#161b22;border:1px solid #30363d;border-radius:10px;font-size:12px;color:#8b949e;line-height:2;">
+  <strong style="color:#fff;">📍 System Paths &amp; Config</strong><br>
+  🗂️ <strong>Workspace:</strong> <code>/users/adamjohns/.openclaw/workspace/</code><br>
+  🧠 <strong>Shared Memory:</strong> <code>/users/adamjohns/.openclaw/shared-memory/</code><br>
+  📧 <strong>Email Autopilot:</strong> <code>~/Documents/email-autopilot/</code><br>
+  💰 <strong>Finance Ledgers:</strong> <code>~/Documents/Finance/Ledgers/</code><br>
+  🔗 <strong>Subscribe Server:</strong> <code>~/usmcmin-subscribe-server/</code> · port 3847<br>
+  ⚙️ <strong>Config:</strong> <code>~/.openclaw/openclaw.json</code><br>
+  🌐 <strong>Wheelhouse:</strong> <code>adamljohns.github.io/bible-reading-plan-bot/wheelhouse.html</code><br>
+  🔑 <strong>Active Model:</strong> Claude Sonnet 4-6 (Discord DMs) · Claude Opus 4-6 (HQ)<br>
+  🔑 <strong>Auth Profile:</strong> anthropic:usmcmin <span style="color:#f0883e;font-weight:700;">5X ONLY</span> (20X removed Mar 14)<br>
+  🌐 <strong>Gateway Port:</strong> 18789 · OpenClaw v2026.3.2<br><br>
+  <span style="color:#3fb950;">●</span> Email Autopilot LIVE &nbsp;·&nbsp;
+  <span style="color:#e3b341;">●</span> Subscribe Server built, not yet service &nbsp;·&nbsp;
+  <span style="color:#bc8cff;">●</span> WordPress migration pending &nbsp;·&nbsp;
+  <span style="color:#f85149;">⚠️</span> ChatGPT export link expires Mar 21
+</div>
+
+</body>
+</html>
