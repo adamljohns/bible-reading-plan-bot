@@ -1,3 +1,4 @@
+import os
 #!/usr/bin/env python3
 """
 MOOP Translation Generator
@@ -24,7 +25,7 @@ SCHEDULE = os.path.join(BASE, 'schedule.json')
 READING_PLAN_KEYS = os.path.join(BASE, 'reading-plan-keys.json')
 
 # Anthropic API key (from openclaw auth-profiles - usmcmin20max profile)
-ANTHROPIC_KEY = 'REDACTED_API_KEY'
+ANTHROPIC_KEY = os.environ.get('ANTHROPIC_API_KEY', '')
 
 # Translation weights (display order for prompt)
 TRANS_ORDER = ['NKJV', 'ESV', 'NASB', 'NLT', 'CSB17', 'KJV', 'WEB', 'AMP', 'MSG', 'NIV', 'NRSVCE']

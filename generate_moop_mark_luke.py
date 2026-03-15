@@ -15,7 +15,7 @@ import requests
 CACHE_PATH = '/Users/adamjohns/bible-reading-plan-bot/docs/assets/verse-cache.json'
 MOOP_PATH  = '/Users/adamjohns/bible-reading-plan-bot/docs/assets/moop-translation.json'
 
-OAT_TOKEN = "REDACTED_API_KEY"
+OAT_TOKEN = os.environ.get('ANTHROPIC_API_KEY', '')
 
 HEADERS = {
     "Content-Type": "application/json",
