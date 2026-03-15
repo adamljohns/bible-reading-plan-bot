@@ -328,14 +328,7 @@
             <div class="card-title">Top Actions</div>
             <div id="actions-brief" class="card-brief">
                 <!-- Priority tasks — updated Mar 12 2026 -->
-                <div class="action-item" data-task-id="print-virginia-lease">
-                    <div class="action-check" onclick="event.stopPropagation();completeAction(this)"></div>
-                    <div><span class="action-text">Print Virginia Van Alstine lease agreement (PDF on phone → HP DeskJet)</span><br><span class="action-tag"><img src="assets/icons/shield-anchor.png" class="site-icon" alt="home" width="20" height="20"> Bow &amp; Arrow · urgent</span></div>
-                </div>
-                <div class="action-item" data-task-id="send-drywall-email">
-                    <div class="action-check" onclick="event.stopPropagation();completeAction(this)"></div>
-                    <div><span class="action-text">Send drywall email to Jaime + Jorge (draft + PDF ready — need their emails)</span><br><span class="action-tag"><img src="assets/icons/shield-anchor.png" class="site-icon" alt="home" width="20" height="20"> Bow &amp; Arrow</span></div>
-                </div>
+                <!-- Virginia Van Alstine lease + drywall email REMOVED — completed (Moop confirmed multiple times) -->
                 <div class="action-item" data-task-id="mike-young-email">
                     <div class="action-check" onclick="event.stopPropagation();completeAction(this)"></div>
                     <div><span class="action-text">Find Mike Young's email → send Noble Warriors partnership ask</span><br><span class="action-tag"><img src="assets/icons/shield-anchor.png" class="site-icon" alt="anchor" width="20" height="20"> Ministry</span></div>
@@ -875,7 +868,10 @@
 
         function getTaskStore() {
             const raw = JSON.parse(localStorage.getItem(TASK_KEY) || '{}');
-            Object.keys(raw).forEach(id => { if (raw[id].date !== todayStr) delete raw[id]; });
+            // Persist completed tasks permanently (don't reset daily)
+            // Only prune entries older than 30 days to prevent unbounded growth
+            const thirtyDaysAgo = new Date(Date.now() - 30*86400000).toDateString();
+            Object.keys(raw).forEach(id => { if (raw[id].date < thirtyDaysAgo) delete raw[id]; });
             return raw;
         }
         function saveTaskStore(store) { localStorage.setItem(TASK_KEY, JSON.stringify(store)); }
