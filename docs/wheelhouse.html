@@ -1017,56 +1017,107 @@
     // Voice Input (Web Speech API) — works on Chrome desktop + Android Chrome
     let recognition = null;
     let isRecording = false;
+    let wantRecording = false;
+    let finalTranscript = '';
+    let silenceTimer = null;
+    const SILENCE_TIMEOUT = 10000; // 10 seconds of silence before stopping
 
     function startVoiceInput() {
         document.getElementById('voice-modal').style.display = 'flex';
     }
 
     function closeVoiceModal() {
-        if (isRecording) toggleRecording();
+        if (isRecording || wantRecording) stopRecording();
         document.getElementById('voice-modal').style.display = 'none';
+    }
+
+    function resetSilenceTimer() {
+        if (silenceTimer) clearTimeout(silenceTimer);
+        silenceTimer = setTimeout(() => {
+            if (wantRecording && recognition) {
+                // 10 sec silence — stop for real
+                wantRecording = false;
+                recognition.stop();
+            }
+        }, SILENCE_TIMEOUT);
+    }
+
+    function stopRecording() {
+        wantRecording = false;
+        isRecording = false;
+        if (silenceTimer) clearTimeout(silenceTimer);
+        if (recognition) recognition.stop();
+        document.getElementById('voice-record-btn').textContent = 'Record';
+        document.getElementById('voice-record-btn').style.background = 'var(--gold)';
+        document.getElementById('voice-status').textContent = 'Done! Tap Submit to send or Copy to clipboard.';
+    }
+
+    function startRecognition() {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = new SpeechRecognition();
+        recognition.continuous = true;
+        recognition.interimResults = false; // Only final results — no duplicates
+        recognition.lang = 'en-US';
+
+        recognition.onstart = () => {
+            isRecording = true;
+            resetSilenceTimer();
+        };
+
+        recognition.onresult = (e) => {
+            resetSilenceTimer();
+            for (let i = e.resultIndex; i < e.results.length; i++) {
+                if (e.results[i].isFinal) {
+                    finalTranscript += e.results[i][0].transcript + ' ';
+                }
+            }
+            document.getElementById('voice-transcript').value = finalTranscript.trim();
+        };
+
+        recognition.onend = () => {
+            isRecording = false;
+            // Auto-restart if user hasn't pressed Stop (browser killed it for silence)
+            if (wantRecording) {
+                try { recognition.start(); } catch(e) { /* ignore */ }
+                return;
+            }
+            document.getElementById('voice-record-btn').textContent = 'Record';
+            document.getElementById('voice-record-btn').style.background = 'var(--gold)';
+            document.getElementById('voice-status').textContent = 'Done! Tap Submit to send or Copy to clipboard.';
+        };
+
+        recognition.onerror = (e) => {
+            if (e.error === 'no-speech' && wantRecording) {
+                // Just restart — user is thinking
+                try { recognition.start(); } catch(ex) { /* ignore */ }
+                return;
+            }
+            if (e.error !== 'aborted') {
+                document.getElementById('voice-status').textContent = 'Error: ' + e.error;
+            }
+        };
+
+        recognition.start();
     }
 
     function toggleRecording() {
         if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-            document.getElementById('voice-status').textContent = '⚠ Speech recognition not supported on this browser. Try Chrome.';
+            document.getElementById('voice-status').textContent = 'Speech recognition not supported. Try Chrome.';
             return;
         }
-        if (isRecording) {
-            recognition.stop();
+        if (wantRecording) {
+            stopRecording();
             return;
         }
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        recognition = new SpeechRecognition();
-        recognition.continuous = true;
-        recognition.interimResults = true;
-        recognition.lang = 'en-US';
-        let finalTranscript = document.getElementById('voice-transcript').value;
+        // Start fresh or append
+        if (!document.getElementById('voice-transcript').value) finalTranscript = '';
+        else finalTranscript = document.getElementById('voice-transcript').value + ' ';
 
-        recognition.onstart = () => {
-            isRecording = true;
-            document.getElementById('voice-record-btn').textContent = '⏹ Stop';
-            document.getElementById('voice-record-btn').style.background = '#e74c3c';
-            document.getElementById('voice-status').textContent = 'Recording... speak your update';
-        };
-        recognition.onresult = (e) => {
-            let interim = '';
-            for (let i = e.resultIndex; i < e.results.length; i++) {
-                if (e.results[i].isFinal) finalTranscript += e.results[i][0].transcript + ' ';
-                else interim += e.results[i][0].transcript;
-            }
-            document.getElementById('voice-transcript').value = finalTranscript + interim;
-        };
-        recognition.onend = () => {
-            isRecording = false;
-            document.getElementById('voice-record-btn').textContent = '● Record';
-            document.getElementById('voice-record-btn').style.background = 'var(--gold)';
-            document.getElementById('voice-status').textContent = 'Done! Tap Submit to send or Copy to clipboard.';
-        };
-        recognition.onerror = (e) => {
-            document.getElementById('voice-status').textContent = `⚠ Error: ${e.error}`;
-        };
-        recognition.start();
+        wantRecording = true;
+        document.getElementById('voice-record-btn').textContent = 'Stop';
+        document.getElementById('voice-record-btn').style.background = '#e74c3c';
+        document.getElementById('voice-status').textContent = 'Recording... speak your update';
+        startRecognition();
     }
 
     function copyVoiceText() {
@@ -1085,20 +1136,29 @@
             document.getElementById('voice-submit-status').style.color = '#e74c3c';
             return;
         }
-        // Try sending to the subscribe server (same Mac Mini), or fall back to clipboard
+        document.getElementById('voice-submit-status').textContent = 'Sending...';
+        document.getElementById('voice-submit-status').style.color = 'var(--gold)';
+
+        // Try the local server first
+        const payload = { text: text.trim(), timestamp: new Date().toISOString(), source: 'wheelhouse-voice' };
         fetch('http://localhost:3847/wheelhouse-update', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ text: text, timestamp: new Date().toISOString() })
+            body: JSON.stringify(payload),
+            signal: AbortSignal.timeout(4000)
         }).then(r => r.json()).then(data => {
-            document.getElementById('voice-submit-status').textContent = 'Submitted to MOOPbot Pro!';
+            document.getElementById('voice-submit-status').textContent = 'Sent to MOOPbot Pro!';
             document.getElementById('voice-submit-status').style.color = '#2ecc71';
+            document.getElementById('voice-transcript').value = '';
+            finalTranscript = '';
         }).catch(() => {
-            // Fallback: copy to clipboard
-            navigator.clipboard.writeText('WHEELHOUSE UPDATE: ' + text).then(() => {
-                document.getElementById('voice-submit-status').textContent = 'Server offline — copied to clipboard. Paste to send.';
-                document.getElementById('voice-submit-status').style.color = 'var(--gold)';
-            });
+            // Fallback: create a mailto link
+            const subject = encodeURIComponent('Wheelhouse Update — ' + new Date().toLocaleDateString());
+            const body = encodeURIComponent(text.trim());
+            const mailto = 'mailto:adamljohns@icloud.com?subject=' + subject + '&body=' + body;
+            window.open(mailto, '_blank');
+            document.getElementById('voice-submit-status').textContent = 'Opening email — send it to yourself as backup.';
+            document.getElementById('voice-submit-status').style.color = 'var(--gold)';
         });
     }
 
