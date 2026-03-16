@@ -965,6 +965,36 @@
         // mode: 'chapter' (max 1) | 'range' 3-verse (2 default, 3 if top score >0.25)
         //       | 'verse' single (3-4 default, 5-6 if high divergence, cap 6)
         // Merged "ESV | CSB" blocks count as ONE slot — greedy fill handles this.
+        // BTE v4.9: Detect which translation contributed most to MOOP blend (beyond NKJV)
+        function detectMoopSource(moopText, texts) {
+            if (!moopText || !texts.NKJV) return null;
+            const moopLower = moopText.toLowerCase();
+            const nkjvSim = similarity(moopText, texts.NKJV);
+            // Find which non-NKJV translation has the highest similarity to the MOOP text
+            // (the one that contributed the most clarifying words)
+            let bestMatch = null;
+            let bestDelta = 0;
+            const candidates = ['ESV', 'NASB', 'NLT', 'CSB', 'NIV'];
+            candidates.forEach(t => {
+                if (!texts[t]) return;
+                const sim = similarity(moopText, texts[t]);
+                // Look for translations that share words with MOOP that NKJV doesn't have
+                const moopWords = new Set(moopLower.split(/\s+/));
+                const nkjvWords = new Set(texts.NKJV.toLowerCase().split(/\s+/));
+                const tWords = new Set(texts[t].toLowerCase().split(/\s+/));
+                // Words in MOOP that came from this translation but NOT from NKJV
+                let uniqueContrib = 0;
+                moopWords.forEach(w => {
+                    if (w.length > 3 && tWords.has(w) && !nkjvWords.has(w)) uniqueContrib++;
+                });
+                if (uniqueContrib > bestDelta) {
+                    bestDelta = uniqueContrib;
+                    bestMatch = DISPLAY[t] || t;
+                }
+            });
+            return bestDelta >= 1 ? bestMatch : null;
+        }
+
         function buildParallels(texts, baseText, mode) {
             // Score every non-primary translation
             const ampCandidates = [];
@@ -982,7 +1012,7 @@
             // Determine hard cap by mode
             let hardCap;
             if (mode === 'chapter') {
-                hardCap = 1;
+                hardCap = 3;
             } else if (mode === 'range') {
                 // 3-verse mode: 2 parallels, bump to 3 if highest divergence > 0.25
                 const topScore = ampCandidates.length > 0 ? ampCandidates[0].score : 0;
@@ -1312,25 +1342,21 @@
                         primaryText = VERSE_OVERRIDES[cacheKey];
                     } else if (moopTranslation[cacheKey]) {
                         primaryText = moopTranslation[cacheKey];
+                        // Detect which translation contributed most to the MOOP blend
+                        const moopSource = detectMoopSource(moopTranslation[cacheKey], texts);
+                        if (moopSource) transLabel = `<span class="trans-label" style="color:var(--gold,#c9a84c);opacity:0.7;">[NKJV + ${moopSource}]</span>`;
                     } else {
                         // Fallback: NKJV for verses not yet in MOOP Translation
                         primaryText = texts.NKJV;
                         transLabel = '<span class="trans-label">[NKJV]</span>';
                     }
 
-                    // BTE v4.8: Parallel block — chapter mode: max 1 parallel per verse
-                    const pregenKey = cacheKey;
-                    let mergedAmps;
-                    if (pregenParallels[pregenKey]) {
-                        mergedAmps = [{ label: 'NKJV + ESV/NASB', text: pregenParallels[pregenKey] }];
-                        TRANSLATIONS.forEach(t => { if (t !== 'NKJV' && texts[t]) transFetched[t]++; });
-                    } else {
-                        mergedAmps = buildParallels(texts, texts.NKJV, 'chapter');
-                        const shownLabels = mergedAmps.map(a => a.label).join(' | ');
-                        TRANSLATIONS.forEach(t => {
-                            if (t !== 'NKJV' && texts[t] && !shownLabels.includes(DISPLAY[t] || t)) transAgreements[t]++;
-                        });
-                    } // end pregen fallback
+                    // BTE v4.9: Always use live buildParallels — shows actual translation labels
+                    let mergedAmps = buildParallels(texts, texts.NKJV, 'chapter');
+                    const shownLabels = mergedAmps.map(a => a.label).join(' | ');
+                    TRANSLATIONS.forEach(t => {
+                        if (t !== 'NKJV' && texts[t] && !shownLabels.includes(DISPLAY[t] || t)) transAgreements[t]++;
+                    });
                     // BTE v4.8: Search all translations for Strong's (chapter mode too)
                     const allTransTextCh = Object.values(texts).filter(Boolean).join(' ');
                     const st = findStrongs(allTransTextCh, ref.isOT);
@@ -1359,23 +1385,19 @@
                         primaryTextV = VERSE_OVERRIDES[cacheKeyV];
                     } else if (moopTranslation[cacheKeyV]) {
                         primaryTextV = moopTranslation[cacheKeyV];
+                        const moopSourceV = detectMoopSource(moopTranslation[cacheKeyV], texts);
+                        if (moopSourceV) transLabelV = `<span class="trans-label" style="color:var(--gold,#c9a84c);opacity:0.7;">[NKJV + ${moopSourceV}]</span>`;
                     } else {
                         primaryTextV = texts.NKJV;
                         transLabelV = '<span class="trans-label">[NKJV]</span>';
                     }
 
-                    // BTE v4.8: Parallel block — mode-aware (range=2-3, verse=3-6)
-                    const pregenKeyV = cacheKeyV;
-                    let mergedAmpsV;
-                    if (pregenParallels[pregenKeyV]) {
-                        mergedAmpsV = [{ label: 'NKJV + ESV/NASB', text: pregenParallels[pregenKeyV] }];
-                    } else {
-                        mergedAmpsV = buildParallels(texts, texts.NKJV, currentViewMode);
-                        const shownLabelsV = mergedAmpsV.map(a => a.label).join(' | ');
-                        TRANSLATIONS.forEach(t => {
-                            if (t !== 'NKJV' && texts[t] && !shownLabelsV.includes(DISPLAY[t] || t)) transAgreements[t]++;
-                        });
-                    } // end pregen fallback
+                    // BTE v4.9: Always use live buildParallels — shows actual translation labels
+                    let mergedAmpsV = buildParallels(texts, texts.NKJV, currentViewMode);
+                    const shownLabelsV = mergedAmpsV.map(a => a.label).join(' | ');
+                    TRANSLATIONS.forEach(t => {
+                        if (t !== 'NKJV' && texts[t] && !shownLabelsV.includes(DISPLAY[t] || t)) transAgreements[t]++;
+                    });
                     const mergedAmps = mergedAmpsV;
                     // BTE v4.8: Search ALL translations for Strong's matches (not just NKJV)
                     // This catches words that appear in ESV/NASB/NLT but not NKJV
