@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/apple-touch-icon.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="Gideon's Chores">
+    <title>Gideon — Chore Deck · USMC Ministries</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #0a0a0a;
+            --bg-card: #111111;
+            --bg-card-hover: #1a1a1a;
+            --gold: #c9a84c;
+            --gold-light: #F4D470;
+            --white: #FFFFFF;
+            --gray: #8b949e;
+            --gray-light: #aaaaaa;
+            --border: #333333;
+            --green: #4CAF50;
+            --red: #f44336;
+            --blue: #2196F3;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--white);
+            min-height: 100vh;
+            line-height: 1.6;
+            -webkit-tap-highlight-color: transparent;
+        }
+        h1, h2, h3, h4 { font-family: 'Playfair Display', serif; font-weight: 700; }
+
+        /* ── PIN SCREEN ── */
+        #pin-screen {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--bg); z-index: 9999;
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: center; padding: 20px;
+        }
+        #pin-screen .pin-logo { width: 72px; height: 72px; margin-bottom: 16px; }
+        #pin-screen h2 { color: var(--gold); font-size: 1.8rem; margin-bottom: 4px; }
+        #pin-screen .pin-subtitle { color: var(--gray); font-size: 0.9rem; margin-bottom: 32px; }
+        .pin-dots { display: flex; gap: 14px; margin-bottom: 32px; }
+        .pin-dot {
+            width: 18px; height: 18px; border-radius: 50%;
+            border: 2px solid var(--border); background: transparent; transition: all 0.2s;
+        }
+        .pin-dot.filled { background: var(--gold); border-color: var(--gold); }
+        .pin-dot.error { background: var(--red); border-color: var(--red); }
+        .pin-pad {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 12px; max-width: 280px; width: 100%;
+        }
+        .pin-key {
+            aspect-ratio: 1; border-radius: 50%; border: 1px solid var(--border);
+            background: var(--bg-card); color: var(--white);
+            font-family: 'Inter', sans-serif; font-size: 1.4rem; font-weight: 600;
+            cursor: pointer; transition: all 0.15s; display: flex;
+            align-items: center; justify-content: center; user-select: none;
+        }
+        .pin-key:active { background: rgba(201,168,76,0.2); border-color: var(--gold); transform: scale(0.93); }
+        .pin-key.del { font-size: 1.1rem; color: var(--gray); }
+        .pin-key.empty { visibility: hidden; }
+        .pin-error-msg { margin-top: 20px; color: var(--red); font-size: 0.85rem; opacity: 0; transition: opacity 0.3s; }
+        .pin-error-msg.show { opacity: 1; }
+        @keyframes shake {
+            0%,100% { transform: translateX(0); }
+            20%,60% { transform: translateX(-8px); }
+            40%,80% { transform: translateX(8px); }
+        }
+        .pin-dots.shake { animation: shake 0.4s ease; }
+
+        /* ── MAIN CONTENT ── */
+        #main-content { display: none; }
+        #main-content.unlocked { display: block; }
+
+        /* ── NAV ── */
+        nav {
+            display: flex; align-items: center; gap: 6px;
+            padding: 10px 16px; border-bottom: 1px solid var(--border);
+            overflow-x: auto; -webkit-overflow-scrolling: touch;
+            flex-wrap: nowrap; white-space: nowrap;
+        }
+        nav a {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 5px 10px; border-radius: 20px; font-size: 0.78rem; transition: all 0.2s;
+        }
+        nav a:hover { background: rgba(201,168,76,0.1); color: var(--gold) !important; }
+        nav a, nav a:link, nav a:visited, nav a:active {
+            color: var(--gray, #8b949e) !important; text-decoration: none !important;
+        }
+        nav .site-icon { width: 14px; height: 14px; vertical-align: middle; }
+        nav .nav-sep { color: var(--border); }
+
+        /* ── HEADER ── */
+        .page-header {
+            text-align: center; padding: 20px 20px 12px; border-bottom: 1px solid var(--border);
+        }
+        .page-header img.hero-icon { width: 56px; height: 56px; margin-bottom: 10px; }
+        .page-header h1 { font-size: 1.7rem; color: var(--white); }
+        .page-header .rank { color: var(--gold); font-size: 0.9rem; margin-top: 2px; }
+        .page-header .age-badge {
+            display: inline-block; background: rgba(201,168,76,0.15);
+            color: var(--gold); font-size: 0.75rem; font-weight: 600;
+            padding: 3px 12px; border-radius: 12px; margin-top: 6px;
+        }
+        .nav-links { margin-top: 12px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+        .nav-back {
+            display: inline-flex; align-items: center; gap: 5px;
+            color: var(--gold) !important; text-decoration: none !important;
+            font-size: 0.8rem; border: 1px solid rgba(201,168,76,0.3);
+            padding: 4px 14px; border-radius: 20px; transition: all 0.2s;
+        }
+        .nav-back:hover { background: rgba(201,168,76,0.1); }
+
+        /* ── TRACKER ── */
+        .tracker { max-width: 600px; margin: 0 auto; padding: 16px; }
+        .summary-card {
+            background: linear-gradient(135deg, #111 0%, #1a1a1a 100%);
+            border: 1px solid var(--border); border-radius: 16px;
+            padding: 18px; margin-bottom: 14px; position: relative; overflow: hidden;
+        }
+        .summary-card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+            background: linear-gradient(90deg, var(--gold), var(--gold-light), var(--gold));
+        }
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+        .stat { text-align: center; }
+        .stat-val {
+            font-family: 'Playfair Display', serif; font-size: 1.4rem;
+            color: var(--gold); font-weight: 800; line-height: 1.2;
+        }
+        .stat-val.money { color: var(--green); }
+        .stat-lbl { font-size: 0.7rem; color: var(--gray); margin-top: 3px; }
+
+        .week-grid {
+            display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-bottom: 12px;
+        }
+        .day-cell {
+            text-align: center; padding: 7px 3px; border-radius: 10px;
+            background: var(--bg-card); border: 1px solid var(--border);
+        }
+        .day-lbl { font-size: 0.6rem; color: var(--gray); font-weight: 600; text-transform: uppercase; margin-bottom: 3px; }
+        .day-ico { font-size: 0.85rem; line-height: 1; }
+        .day-ico img { width: 16px; height: 16px; }
+        .day-cell.complete { border-color: var(--green); background: rgba(76,175,80,0.1); }
+        .day-cell.partial { border-color: var(--gold); background: rgba(201,168,76,0.08); }
+        .day-cell.missed { border-color: var(--red); background: rgba(244,67,54,0.05); }
+        .day-cell.today { border-color: var(--gold); border-width: 2px; }
+        .day-cell.future { opacity: 0.35; }
+
+        .section-hdr {
+            display: flex; justify-content: space-between; align-items: center; margin: 14px 0 8px;
+        }
+        .section-hdr h3 { font-family: 'Playfair Display', serif; color: var(--gold); font-size: 1.05rem; }
+        .section-hdr span { font-size: 0.8rem; color: var(--gray); }
+
+        .chore-item {
+            display: flex; align-items: center; gap: 12px;
+            padding: 12px 14px; margin-bottom: 7px; border-radius: 12px;
+            background: var(--bg-card); border: 1px solid var(--border);
+            cursor: pointer; transition: all 0.25s; user-select: none;
+        }
+        .chore-item:active { transform: scale(0.98); }
+        .chore-item.done { border-color: var(--green); background: rgba(76,175,80,0.08); }
+        .chore-item.done .chore-name { text-decoration: line-through; color: var(--gray); }
+        .chore-cb {
+            width: 30px; height: 30px; border: 2.5px solid var(--border); border-radius: 50%;
+            flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+            transition: all 0.25s; background: transparent;
+        }
+        .chore-item.done .chore-cb { border-color: var(--green); background: var(--green); }
+        .chore-cb-check {
+            color: #fff; font-size: 0.9rem; font-weight: 700;
+            opacity: 0; transform: scale(0); transition: all 0.25s;
+        }
+        .chore-item.done .chore-cb-check { opacity: 1; transform: scale(1); }
+        .chore-icon { width: 28px; height: 28px; flex-shrink: 0; }
+        .chore-info { flex: 1; min-width: 0; }
+        .chore-name { font-size: 0.92rem; color: var(--white); transition: all 0.25s; }
+        .chore-tag { font-size: 0.68rem; color: var(--gray); margin-top: 1px; }
+        .chore-tag .req { color: var(--gold); font-weight: 600; }
+
+        .streak-bar {
+            display: flex; align-items: center; justify-content: center;
+            gap: 8px; padding: 10px; background: var(--bg-card);
+            border: 1px solid var(--border); border-radius: 12px; margin-bottom: 12px;
+        }
+        .streak-bar img { width: 22px; height: 22px; }
+        .streak-count { color: var(--gold); font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 800; }
+        .streak-lbl { color: var(--gray); font-size: 0.82rem; }
+
+        .history-toggle {
+            display: flex; align-items: center; justify-content: center;
+            gap: 6px; padding: 10px; cursor: pointer; color: var(--gray);
+            font-size: 0.82rem; border: 1px dashed var(--border); border-radius: 10px;
+            margin-top: 8px; transition: all 0.2s;
+        }
+        .history-toggle:hover { border-color: var(--gold); color: var(--gold); }
+        .history-toggle img { width: 16px; height: 16px; }
+        .history-list { margin-top: 8px; }
+        .history-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 9px 12px; margin-bottom: 5px; border-radius: 8px;
+            background: var(--bg-card); border: 1px solid var(--border); font-size: 0.82rem;
+        }
+        .history-date { color: var(--gray); }
+        .history-earned { color: var(--green); font-weight: 600; }
+        .paid-badge { font-size: 0.65rem; padding: 2px 8px; border-radius: 10px; font-weight: 600; }
+        .paid-badge.yes { background: rgba(76,175,80,0.15); color: var(--green); }
+        .paid-badge.no { background: rgba(244,67,54,0.1); color: var(--red); }
+
+        #confetti-canvas {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 9998;
+        }
+
+        footer {
+            text-align: center; padding: 24px 20px; color: var(--gray);
+            font-size: 0.78rem; border-top: 1px solid #222; margin-top: 20px;
+        }
+        footer a { color: var(--gold); text-decoration: none; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+        @keyframes checkPop { 0% { transform: scale(0); } 50% { transform: scale(1.4); } 100% { transform: scale(1); } }
+        .chore-item.just-done .chore-cb-check { animation: checkPop 0.35s ease; }
+
+        @media (max-width: 400px) {
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .stat-val { font-size: 1.2rem; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- PIN SCREEN -->
+<div id="pin-screen">
+    <img src="assets/icons/shield-anchor.png" alt="Gideon" class="pin-logo">
+    <h2>Gideon</h2>
+    <p class="pin-subtitle">The Navigator · Enter your PIN</p>
+    <div class="pin-dots" id="pinDots">
+        <div class="pin-dot" id="d0"></div>
+        <div class="pin-dot" id="d1"></div>
+        <div class="pin-dot" id="d2"></div>
+        <div class="pin-dot" id="d3"></div>
+        <div class="pin-dot" id="d4"></div>
+        <div class="pin-dot" id="d5"></div>
+    </div>
+    <div class="pin-pad">
+        <button class="pin-key" onclick="pinKey('1')">1</button>
+        <button class="pin-key" onclick="pinKey('2')">2</button>
+        <button class="pin-key" onclick="pinKey('3')">3</button>
+        <button class="pin-key" onclick="pinKey('4')">4</button>
+        <button class="pin-key" onclick="pinKey('5')">5</button>
+        <button class="pin-key" onclick="pinKey('6')">6</button>
+        <button class="pin-key" onclick="pinKey('7')">7</button>
+        <button class="pin-key" onclick="pinKey('8')">8</button>
+        <button class="pin-key" onclick="pinKey('9')">9</button>
+        <button class="pin-key empty"></button>
+        <button class="pin-key" onclick="pinKey('0')">0</button>
+        <button class="pin-key del" onclick="pinDel()">⌫</button>
+    </div>
+    <p class="pin-error-msg" id="pinError">Wrong PIN. Try again.</p>
+</div>
+
+<canvas id="confetti-canvas"></canvas>
+
+<div id="main-content">
+    <nav>
+        <a href="index.html"><img src="assets/icons/shield-compass.png" class="site-icon" alt="home"> Home</a>
+        <span class="nav-sep">·</span>
+        <a href="usmc-ministries.html"><img src="assets/icons/shield-anchor.png" class="site-icon" alt="anchor"> U.S.M.C.</a>
+        <span class="nav-sep">·</span>
+        <a href="crew-quarters.html"><img src="assets/icons/shield-family.png" class="site-icon" alt="crew"> Crew Quarters</a>
+        <span class="nav-sep">·</span>
+        <a href="chores-boaz.html"><img src="assets/icons/shield-gear.png" class="site-icon" alt="boaz"> Boaz</a>
+        <span class="nav-sep">·</span>
+        <a href="chores-shiloh.html"><img src="assets/icons/shield-star.png" class="site-icon" alt="shiloh"> Shiloh</a>
+    </nav>
+
+    <div class="page-header">
+        <img src="assets/icons/shield-anchor.png" alt="Gideon" class="hero-icon">
+        <h1>Gideon</h1>
+        <div class="rank">The Navigator · Firstborn</div>
+        <span class="age-badge">Age 19</span>
+        <div class="nav-links">
+            <a href="wheelhouse.html" class="nav-back">← Captain's Wheelhouse</a>
+            <a href="first-officer.html" class="nav-back">First Officer's Desk</a>
+        </div>
+    </div>
+
+    <div class="tracker">
+
+        <div class="summary-card">
+            <div class="stats-grid">
+                <div class="stat">
+                    <div class="stat-val" id="stat-today">0/5</div>
+                    <div class="stat-lbl">Today's Chores</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-val money" id="stat-balance">$0.00</div>
+                    <div class="stat-lbl">Balance</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-val" id="stat-week">$0.00</div>
+                    <div class="stat-lbl">This Week</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-val" id="stat-streak">0</div>
+                    <div class="stat-lbl">Day Streak</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="week-grid" id="weekGrid"></div>
+
+        <div class="streak-bar">
+            <img src="assets/icons/shield-star.png" alt="streak">
+            <span class="streak-count" id="streakCount">0</span>
+            <span class="streak-lbl">day streak</span>
+        </div>
+
+        <div class="section-hdr">
+            <h3>Today's Duties</h3>
+            <span id="choresCount"></span>
+        </div>
+        <div id="choreList"></div>
+
+        <div class="history-toggle" onclick="toggleHistory()" id="historyToggle">
+            <img src="assets/icons/shield-finance.png" alt="history">
+            <span id="historyToggleTxt">Show Weekly History</span>
+        </div>
+        <div class="history-list" id="historyList" style="display:none;"></div>
+
+    </div>
+
+    <footer>
+        <p>Crew Quarters · <a href="usmc-ministries.html">U.S.M.C. Ministries</a></p>
+        <p style="margin-top:4px;"><a href="wheelhouse.html">← Captain's Wheelhouse</a> · <a href="first-officer.html">First Officer's Desk</a></p>
+    </footer>
+</div>
+
+<script>
+const CORRECT_PIN = '111075';
+let pinEntry = '';
+
+function pinKey(digit) {
+    if (pinEntry.length >= CORRECT_PIN.length) return;
+    pinEntry += digit;
+    updatePinDots();
+    if (pinEntry.length === CORRECT_PIN.length) setTimeout(checkPin, 120);
+}
+function pinDel() {
+    if (pinEntry.length === 0) return;
+    pinEntry = pinEntry.slice(0, -1);
+    updatePinDots();
+}
+function updatePinDots() {
+    for (let i = 0; i < CORRECT_PIN.length; i++) {
+        const dot = document.getElementById('d' + i);
+        dot.className = 'pin-dot' + (i < pinEntry.length ? ' filled' : '');
+    }
+}
+function checkPin() {
+    if (pinEntry === CORRECT_PIN) {
+        sessionStorage.setItem('gideon_auth', '1');
+        document.getElementById('pin-screen').style.display = 'none';
+        document.getElementById('main-content').classList.add('unlocked');
+        initTracker();
+    } else {
+        const dots = document.getElementById('pinDots');
+        dots.classList.add('shake');
+        document.querySelectorAll('.pin-dot').forEach(d => d.className = 'pin-dot error');
+        document.getElementById('pinError').classList.add('show');
+        setTimeout(() => {
+            dots.classList.remove('shake');
+            pinEntry = '';
+            updatePinDots();
+            document.getElementById('pinError').classList.remove('show');
+        }, 900);
+    }
+}
+if (sessionStorage.getItem('gideon_auth') === '1') {
+    document.getElementById('pin-screen').style.display = 'none';
+    document.getElementById('main-content').classList.add('unlocked');
+}
+
+const STORE_KEY = 'chores_gideon';
+const CHORES = [
+    { id: 'g1', name: 'Keep Space Clean',     required: true,  icon: 'shield-gear.png' },
+    { id: 'g2', name: 'Kitchen Cleanup',       required: true,  icon: 'shield-gear.png' },
+    { id: 'g3', name: 'Help Siblings',         required: true,  icon: 'shield-leader.png' },
+    { id: 'g4', name: 'Family Responsibility', required: true,  icon: 'shield-anchor.png' },
+    { id: 'g5', name: 'Yard Maintenance',      required: false, icon: 'shield-fitness.png' },
+];
+const ALLOWANCE = 25.00;
+
+function getStore() { try { return JSON.parse(localStorage.getItem(STORE_KEY) || '{}'); } catch { return {}; } }
+function saveStore(data) { localStorage.setItem(STORE_KEY, JSON.stringify(data)); }
+function todayKey() { return new Date().toISOString().split('T')[0]; }
+function weekStart(dateStr) {
+    const d = new Date(dateStr + 'T12:00:00');
+    const day = d.getDay();
+    const diff = day === 0 ? -6 : 1 - day;
+    d.setDate(d.getDate() + diff);
+    return d.toISOString().split('T')[0];
+}
+function fmtDate(dateStr) {
+    const d = new Date(dateStr + 'T12:00:00');
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+function getDayData(date) { const s = getStore(); return s['day_' + date] || {}; }
+function setDayData(date, data) {
+    const s = getStore();
+    const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 30);
+    const cutoffKey = cutoff.toISOString().split('T')[0];
+    Object.keys(s).forEach(k => { if (k.startsWith('day_') && k.slice(4) < cutoffKey) delete s[k]; });
+    s['day_' + date] = data; saveStore(s);
+}
+function getBalance() { return parseFloat(getStore().balance || 0); }
+function setBalance(v) { const s = getStore(); s.balance = Math.round(v * 100) / 100; saveStore(s); }
+function getPayments() { return getStore().payments || []; }
+
+function calcStreak() {
+    let streak = 0;
+    const d = new Date();
+    const todayDone = CHORES.filter(c=>c.required).every(c => getDayData(todayKey())[c.id]);
+    if (!todayDone) d.setDate(d.getDate() - 1);
+    for (let i = 0; i < 365; i++) {
+        const key = d.toISOString().split('T')[0];
+        if (CHORES.filter(c=>c.required).every(c => getDayData(key)[c.id])) {
+            streak++; d.setDate(d.getDate() - 1);
+        } else break;
+    }
+    return streak;
+}
+function calcWeekEarnings() {
+    const ws = weekStart(todayKey());
+    let daysOk = 0;
+    for (let i = 0; i < 7; i++) {
+        const d = new Date(ws + 'T12:00:00');
+        d.setDate(d.getDate() + i);
+        const key = d.toISOString().split('T')[0];
+        if (key > todayKey()) break;
+        if (CHORES.filter(c=>c.required).every(c => getDayData(key)[c.id])) daysOk++;
+    }
+    return Math.round((ALLOWANCE / 7) * daysOk * 100) / 100;
+}
+
+function render() {
+    const today = todayKey();
+    const dayData = getDayData(today);
+    const done = CHORES.filter(c => dayData[c.id]).length;
+    const total = CHORES.length;
+    const balance = getBalance();
+    const weekEarned = calcWeekEarnings();
+    const streak = calcStreak();
+
+    document.getElementById('stat-today').textContent = done + '/' + total;
+    document.getElementById('stat-balance').textContent = '$' + balance.toFixed(2);
+    document.getElementById('stat-week').textContent = '$' + weekEarned.toFixed(2);
+    document.getElementById('stat-streak').textContent = streak;
+    document.getElementById('streakCount').textContent = streak;
+    document.getElementById('choresCount').textContent = done === total ? '✓ All done!' : Math.round(done / total * 100) + '%';
+
+    renderWeek(); renderChores();
+}
+
+function renderWeek() {
+    const today = todayKey();
+    const ws = weekStart(today);
+    const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+    let html = '';
+    for (let i = 0; i < 7; i++) {
+        const d = new Date(ws + 'T12:00:00');
+        d.setDate(d.getDate() + i);
+        const key = d.toISOString().split('T')[0];
+        const data = getDayData(key);
+        const doneCount = CHORES.filter(c => data[c.id]).length;
+        const reqDone = CHORES.filter(c=>c.required).every(c => data[c.id]);
+        let cls = 'day-cell', ico = '·';
+        if (key === today) {
+            cls += ' today';
+            if (doneCount === CHORES.length) { cls += ' complete'; ico = '<img src="assets/icons/shield-star.png" alt="✓" width="16" height="16">'; }
+            else if (doneCount > 0) { cls += ' partial'; ico = doneCount; }
+            else ico = '○';
+        } else if (key > today) { cls += ' future'; }
+        else {
+            if (reqDone) { cls += ' complete'; ico = '<img src="assets/icons/shield-star.png" alt="✓" width="16" height="16">'; }
+            else if (doneCount > 0) { cls += ' partial'; ico = doneCount + '/' + CHORES.length; }
+            else { cls += ' missed'; ico = '<img src="assets/icons/shield-cross.png" alt="✗" width="14" height="14">'; }
+        }
+        html += `<div class="${cls}"><div class="day-lbl">${days[i]}</div><div class="day-ico">${ico}</div></div>`;
+    }
+    document.getElementById('weekGrid').innerHTML = html;
+}
+
+function renderChores() {
+    const data = getDayData(todayKey());
+    let html = '';
+    CHORES.forEach(chore => {
+        const done = !!data[chore.id];
+        html += `<div class="chore-item ${done ? 'done' : ''}" onclick="toggleChore('${chore.id}', this)">
+            <div class="chore-cb"><span class="chore-cb-check">✓</span></div>
+            <img src="assets/icons/${chore.icon}" alt="" class="chore-icon">
+            <div class="chore-info">
+                <div class="chore-name">${chore.name}</div>
+                <div class="chore-tag">${chore.required ? '<span class="req">★ Required for allowance</span>' : 'Bonus chore'}</div>
+            </div>
+        </div>`;
+    });
+    document.getElementById('choreList').innerHTML = html;
+}
+
+function toggleChore(id, el) {
+    const today = todayKey();
+    const data = getDayData(today);
+    const wasDone = !!data[id];
+    data[id] = !wasDone;
+    setDayData(today, data);
+    if (!wasDone) {
+        el.classList.add('just-done');
+        setTimeout(() => el.classList.remove('just-done'), 400);
+        if (CHORES.every(c => getDayData(today)[c.id])) launchConfetti();
+    }
+    render();
+}
+
+function toggleHistory() {
+    const list = document.getElementById('historyList');
+    const txt = document.getElementById('historyToggleTxt');
+    if (list.style.display === 'none') {
+        list.style.display = 'block'; txt.textContent = 'Hide Weekly History';
+        renderHistory();
+    } else {
+        list.style.display = 'none'; txt.textContent = 'Show Weekly History';
+    }
+}
+
+function renderHistory() {
+    const payments = getPayments();
+    let html = '';
+    for (let w = 0; w < 5; w++) {
+        const d = new Date();
+        d.setDate(d.getDate() - w * 7);
+        const ws = weekStart(d.toISOString().split('T')[0]);
+        const we = new Date(ws + 'T12:00:00');
+        we.setDate(we.getDate() + 6);
+        const weKey = we.toISOString().split('T')[0];
+        let daysOk = 0, weekDays = 0;
+        for (let i = 0; i < 7; i++) {
+            const dd = new Date(ws + 'T12:00:00');
+            dd.setDate(dd.getDate() + i);
+            const key = dd.toISOString().split('T')[0];
+            if (key > todayKey()) continue;
+            weekDays++;
+            if (CHORES.filter(c=>c.required).every(c => getDayData(key)[c.id])) daysOk++;
+        }
+        const earned = Math.round((ALLOWANCE / 7) * daysOk * 100) / 100;
+        const payment = payments.find(p => p.week === ws);
+        const paid = payment ? payment.paid : false;
+        html += `<div class="history-row">
+            <span class="history-date">${fmtDate(ws)} – ${fmtDate(weKey)}</span>
+            <span style="color:var(--gray);font-size:0.75rem;">${daysOk}/${weekDays}d</span>
+            <span class="history-earned">$${earned.toFixed(2)}</span>
+            <span class="paid-badge ${paid ? 'yes' : 'no'}">${paid ? '✓ Paid' : '⏳ Owed'}</span>
+        </div>`;
+    }
+    document.getElementById('historyList').innerHTML = html || '<p style="color:var(--gray);text-align:center;font-size:0.82rem;">No history yet</p>';
+}
+
+function launchConfetti() {
+    const canvas = document.getElementById('confetti-canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+    const colors = ['#c9a84c','#F4D470','#4CAF50','#fff','#f44336'];
+    const parts = Array.from({length: 70}, () => ({
+        x: canvas.width/2+(Math.random()-0.5)*200, y: canvas.height/2,
+        vx: (Math.random()-0.5)*14, vy: -Math.random()*14-4,
+        color: colors[Math.floor(Math.random()*colors.length)],
+        size: Math.random()*7+3, rot: Math.random()*360,
+        rs: (Math.random()-0.5)*10, g: 0.3+Math.random()*0.2, life: 1
+    }));
+    let frame = 0;
+    function animate() {
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        let alive = false;
+        parts.forEach(p => {
+            if (p.life <= 0) return; alive = true;
+            p.x+=p.vx; p.y+=p.vy; p.vy+=p.g; p.rot+=p.rs; p.life-=0.013; p.vx*=0.99;
+            ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot*Math.PI/180);
+            ctx.globalAlpha=p.life; ctx.fillStyle=p.color;
+            ctx.fillRect(-p.size/2,-p.size/2,p.size,p.size*0.6); ctx.restore();
+        });
+        if (alive && frame++ < 140) requestAnimationFrame(animate);
+        else ctx.clearRect(0,0,canvas.width,canvas.height);
+    }
+    animate();
+}
+
+function initTracker() { render(); }
+if (sessionStorage.getItem('gideon_auth') === '1') initTracker();
+</script>
+</body>
+</html>
