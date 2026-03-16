@@ -268,9 +268,10 @@
     <nav>
         <a href="index.html"><img src="assets/icons/shield-compass.png" class="site-icon" alt="home" width="16" height="16"> Home</a>
         <a href="bible.html"><img src="assets/icons/shield-cross.png" class="site-icon" alt="cross" width="16" height="16"> Bible Translation Engine</a>
-        <a href="usmc-ministries.html"><img src="assets/icons/shield-anchor.png" class="site-icon" alt="anchor" width="16" height="16"> U.S.M.C. Ministries</a>
-        <a href="chronological.html"><img src="assets/icons/shield-calendar.png" class="site-icon" alt="calendar" width="16" height="16"> Chronological</a>
+        <a href="watchman.html"><img src="assets/icons/shield-bible.png" class="site-icon" alt="bible" width="16" height="16"> Watchman Bible Plan</a>
         <a href="about.html"><img src="assets/icons/shield-leader.png" class="site-icon" alt="leader" width="16" height="16"> About</a>
+        <a href="blog.html"><img src="assets/icons/shield-book.png" class="site-icon" alt="blog" width="16" height="16"> Blog</a>
+        <a href="links.html"><img src="assets/icons/shield-handshake.png" class="site-icon" alt="handshake" width="16" height="16"> Connect</a>
     </nav>
 
     <div class="header">
@@ -278,6 +279,19 @@
         <h1>The Captain's Wheelhouse</h1>
         <p class="subtitle">Daily Command Center · USMC Ministries</p>
         <p class="date" id="dateDisplay"></p>
+    </div>
+
+    <!-- Auth Gate -->
+    <div id="auth-gate" style="text-align:center; padding:60px 20px; max-width:400px; margin:0 auto;">
+        <p style="color:var(--gold); font-size:1.2rem; margin-bottom:20px; font-family:'Playfair Display',serif;">Authorized Personnel Only</p>
+        <p style="color:var(--gray); margin-bottom:20px; font-size:0.9rem;">Enter the passphrase to access the Wheelhouse.</p>
+        <input type="password" id="auth-input" placeholder="Passphrase" style="width:100%; padding:12px 16px; background:#111; border:1px solid #333; border-radius:8px; color:#e8e8e8; font-size:1rem; font-family:'Inter',sans-serif; text-align:center;" onkeydown="if(event.key==='Enter')checkAuth()">
+        <button onclick="checkAuth()" style="display:block; width:100%; margin-top:12px; padding:12px; background:var(--gold); color:#000; border:none; border-radius:8px; font-weight:700; cursor:pointer; font-size:1rem;">Enter the Wheelhouse</button>
+        <p id="auth-error" style="color:#f44336; margin-top:10px; display:none; font-size:0.85rem;">Wrong passphrase. Try again.</p>
+    </div>
+
+    <div id="wheelhouse-content" style="display:none;">
+    <div class="header" style="border:none; padding-top:0;">
         <p class="last-updated" id="lastUpdated"></p>
         <button class="print-btn" onclick="window.print()"><img src="assets/icons/shield-gear.png" class="site-icon" alt="gear" width="20" height="20"> Print Today's Brief</button>
         <button class="print-btn" onclick="quickPrint()" title="Send directly to default printer via CUPS">⚡ Quick Print</button>
@@ -1162,6 +1176,28 @@
         });
     }
 
+    </script>
+
+    </div><!-- end #wheelhouse-content -->
+
+    <script>
+    function checkAuth() {
+        const input = document.getElementById('auth-input');
+        if (input.value.toLowerCase() === 'steward') {
+            document.getElementById('auth-gate').style.display = 'none';
+            document.getElementById('wheelhouse-content').style.display = 'block';
+            sessionStorage.setItem('wh-auth', '1');
+        } else {
+            document.getElementById('auth-error').style.display = 'block';
+            input.value = '';
+            input.focus();
+        }
+    }
+    // Auto-unlock if already authed this session
+    if (sessionStorage.getItem('wh-auth') === '1') {
+        document.getElementById('auth-gate').style.display = 'none';
+        document.getElementById('wheelhouse-content').style.display = 'block';
+    }
     </script>
 <script>if("serviceWorker" in navigator){navigator.serviceWorker.register("/sw.js")}</script>
 </body>
