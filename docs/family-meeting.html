@@ -877,7 +877,9 @@
             <div style="display:flex; gap:8px; margin-bottom:10px; flex-wrap:wrap;">
                 <button class="btn secondary" onclick="generateNotesTemplate()" style="font-size:0.8rem; padding:6px 14px;"><img src="assets/icons/shield-book.png" class="site-icon" alt="book" width="20" height="20"> Generate Template</button>
                 <button class="btn secondary" onclick="saveNotes()" style="font-size:0.8rem; padding:6px 14px;"><img src="assets/icons/shield-gear.png" class="site-icon" alt="gear" width="20" height="20"> Save Notes</button>
-                <button class="btn secondary" onclick="exportMeeting()" style="font-size:0.8rem; padding:6px 14px;"><img src="assets/icons/shield-comms.png" class="site-icon" alt="comms" width="20" height="20"> Export Meeting</button>
+                <button class="btn secondary" onclick="exportMeeting()" style="font-size:0.8rem; padding:6px 14px;"><img src="assets/icons/shield-comms.png" class="site-icon" alt="comms" width="20" height="20"> Copy</button>
+                <button class="btn secondary" onclick="emailMeeting()" style="font-size:0.8rem; padding:6px 14px;">✉️ Email Family</button>
+                <button class="btn secondary" onclick="printMeeting()" style="font-size:0.8rem; padding:6px 14px;">📄 Print PDF</button>
             </div>
             <textarea class="notes-area" id="meetingNotes" placeholder="Click 'Generate Template' to auto-fill with today's date, attendees, and structured sections... or type your notes here." oninput="autoSaveNotes()"></textarea>
         </div>
@@ -1325,17 +1327,17 @@
     }
     function saveNotes() {
         autoSaveNotes();
-        alert('Notes saved! <img src="assets/icons/shield-star.png" class="site-icon" alt="star" width="20" height="20">');
+        alert('Notes saved! ⭐');
     }
     (function loadSavedNotes() {
         const notes = lsGet(`${pfx}-notes`);
         if (notes) document.getElementById('meetingNotes').value = notes;
     })();
 
-    // ── Export Meeting ─────────────────────────────────────────────
-    function exportMeeting() {
+    // ── Build Meeting Summary (shared by export, email, PDF) ──────
+    function buildSummary() {
         const date = now.toLocaleDateString('en-US', dateOptions);
-        let summary = `# Johns Family Meeting — ${date}\n\n`;
+        let summary = `Johns Family Meeting — ${date}\n\n`;
 
         const present = [], absent = [];
         document.querySelectorAll('.crew-member').forEach(el => {
@@ -1343,28 +1345,46 @@
             if (el.classList.contains('present')) present.push(name);
             else absent.push(name);
         });
-        summary += `## Roll Call\nPresent: ${present.join(', ') || 'None'}\nAbsent: ${absent.join(', ') || 'None'}\n\n`;
+        summary += `ROLL CALL\nPresent: ${present.join(', ') || 'None'}\nAbsent: ${absent.join(', ') || 'None'}\n\n`;
 
-        summary += '## Action Items\n';
+        // Check-in moods
+        summary += 'CHECK-IN\n';
+        ['adam','maria','gideon','boaz','shiloh'].forEach(person => {
+            const saved = lsGet(`${pfx}-checkin-${person}`);
+            if (saved && (saved.mood || saved.text)) {
+                const name = person.charAt(0).toUpperCase() + person.slice(1);
+                summary += `${name}: ${saved.mood || ''} ${saved.text || ''}\n`;
+            }
+        });
+        summary += '\n';
+
+        summary += 'ACTION ITEMS\n';
         document.querySelectorAll('.action-item').forEach(el => {
-            const done = el.querySelector('.action-check').classList.contains('done') ? '<img src="assets/icons/shield-star.png" class="site-icon" alt="star" width="20" height="20">' : '⬜';
+            const done = el.querySelector('.action-check').classList.contains('done') ? '✅' : '⬜';
             const text = el.querySelector('.action-text').textContent;
             const who = el.querySelector('.action-assignee') ? el.querySelector('.action-assignee').textContent : '';
             summary += `${done} ${text} (${who})\n`;
         });
         summary += '\n';
 
-        summary += '## Prayer Requests\n';
+        summary += 'PRAYER REQUESTS\n';
         document.querySelectorAll('.prayer-item').forEach(el => {
-            summary += `<img src="assets/icons/shield-cross.png" class="site-icon" alt="cross" width="20" height="20"> ${el.querySelector('.prayer-text').textContent}\n`;
+            summary += `✝️ ${el.querySelector('.prayer-text').textContent}\n`;
         });
         summary += '\n';
 
         const notes = document.getElementById('meetingNotes').value;
-        if (notes) summary += `## Meeting Notes\n${notes}\n`;
+        if (notes) summary += `MEETING NOTES\n${notes}\n`;
 
+        summary += '\n— The Johns Family | usmcmin.org';
+        return summary;
+    }
+
+    // ── Copy to Clipboard ──────────────────────────────────────────
+    function exportMeeting() {
+        const summary = buildSummary();
         navigator.clipboard.writeText(summary).then(() => {
-            alert('Meeting summary copied to clipboard! <img src="assets/icons/shield-star.png" class="site-icon" alt="star" width="20" height="20">');
+            alert('Meeting summary copied to clipboard! ⭐');
         }).catch(() => {
             const ta = document.createElement('textarea');
             ta.value = summary;
@@ -1372,8 +1392,38 @@
             ta.select();
             document.execCommand('copy');
             document.body.removeChild(ta);
-            alert('Meeting summary copied to clipboard! <img src="assets/icons/shield-star.png" class="site-icon" alt="star" width="20" height="20">');
+            alert('Meeting summary copied to clipboard! ⭐');
         });
+    }
+
+    // ── Email to Family ────────────────────────────────────────────
+    function emailMeeting() {
+        const summary = buildSummary();
+        const date = now.toLocaleDateString('en-US', dateOptions);
+        const subject = encodeURIComponent(`Johns Family Meeting Notes — ${date}`);
+        const body = encodeURIComponent(summary);
+        window.location.href = `mailto:?subject=${subject}&body=${body}`;
+    }
+
+    // ── Print / Save as PDF ────────────────────────────────────────
+    function printMeeting() {
+        const summary = buildSummary();
+        const date = now.toLocaleDateString('en-US', dateOptions);
+        const printWindow = window.open('', '_blank');
+        printWindow.document.write(`<!DOCTYPE html><html><head><title>Family Meeting — ${date}</title>
+            <style>
+                body { font-family: Georgia, serif; max-width: 700px; margin: 40px auto; padding: 20px; color: #222; line-height: 1.6; }
+                h1 { font-size: 1.4rem; border-bottom: 2px solid #c9a84c; padding-bottom: 8px; }
+                h2 { font-size: 1.1rem; color: #666; margin-top: 20px; }
+                pre { white-space: pre-wrap; font-family: Georgia, serif; font-size: 0.95rem; }
+                .footer { margin-top: 30px; font-style: italic; color: #999; font-size: 0.85rem; }
+            </style></head><body>
+            <h1>⚓ Johns Family Meeting</h1>
+            <pre>${summary.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>
+            <div class="footer">Generated from usmcmin.org/family-meeting.html</div>
+        </body></html>`);
+        printWindow.document.close();
+        setTimeout(() => printWindow.print(), 500);
     }
 </script>
 
