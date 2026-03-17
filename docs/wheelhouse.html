@@ -350,8 +350,37 @@
     <!-- I AM Statement -->
     <div class="iam-statement">
         <p>I am Adam Luther Johns, a caretaking, peacemaking, builder of men who is becoming more humble, compassionate, and consistent in my calling to lead my wife and children into a family culture that glorifies God and enjoys Him forever.</p>
+        <p id="rotatingValue" style="color:var(--gold); font-size:0.85rem; font-style:italic; margin-top:8px; min-height:1.2em; transition: opacity 0.5s;"></p>
         <a class="iam-creed-btn" onclick="showCreedModal()">🎙️ Hear the Captain's Creed</a>
     </div>
+    <script>
+    // Rotating Family Captain values — mined from ChatGPT Family Captain desk
+    const captainValues = [
+        "⚓ Safety · Consistency · Being Chosen Openly",
+        "💍 H.A.P.P.Y. Husband: Honors Publicly · Anticipates Needs · Protects Peace · Pursues Heart · Yields to God",
+        "👨‍👧‍👦 F.U.L.F.I.L.L.E.D. Father: Faithful · Unconditional · Leads · Example · Disciplines",
+        "🛡️ R.E.A.L. M.A.N.: Repents Quickly · Engaged · Accountable · Leads by Example · Meek in Spirit · Anchored in Scripture · Never Quits",
+        "🏛️ E.X.E.M.P.L.A.R.Y. Citizen: Engaged · eXcellent · Empowering · Merciful · Principled · Loyal · Anchored · Resilient · Yielded",
+        "⚔️ Five-Front War: Heart → Spirit → Mind → Body → Provision",
+        "✝️ Maria's Languages: Quality Time (#1) + Acts of Service (#2) — presence is core",
+        "🧭 Gideon's Purpose · Boaz's Humility · Shiloh's Belonging",
+        "📖 \"Do justice, love mercy, walk humbly with your God.\" — Micah 6:8",
+        "⚓ \"As for me and my house, we will serve the LORD.\" — Joshua 24:15",
+        "🔥 \"Be watchful, stand firm in the faith, act like men, be strong.\" — 1 Corinthians 16:13",
+        "💪 Content, Kind, Long-suffering Peacemaker — Matthew 5:9"
+    ];
+    let valIdx = 0;
+    const valEl = document.getElementById('rotatingValue');
+    valEl.textContent = captainValues[0];
+    setInterval(() => {
+        valEl.style.opacity = '0';
+        setTimeout(() => {
+            valIdx = (valIdx + 1) % captainValues.length;
+            valEl.textContent = captainValues[valIdx];
+            valEl.style.opacity = '1';
+        }, 500);
+    }, 8000);
+    </script>
 
     <!-- Day Focus Banner -->
     <div class="day-focus">
@@ -688,8 +717,9 @@
         <div class="modal-box" onclick="event.stopPropagation()">
             <div class="modal-icon">🎙️</div>
             <h3>The Captain's Creed</h3>
-            <p>Audio recording of the Captain's Creed is <strong style="color:var(--gold);">coming soon</strong>.<br><br>The creed will be recorded using ElevenLabs with Moop's own voice (Adam Professional).</p>
-            <button class="modal-close" onclick="hideCreedModal()">Roger That</button>
+            <audio controls style="width:100%; margin:16px 0;" src="assets/captains-creed.mp3"></audio>
+            <p style="color:var(--gray); font-size:0.85rem; margin-top:8px;">Recorded in Adam's voice via ElevenLabs Professional</p>
+            <button class="modal-close" onclick="hideCreedModal()">Semper Fi</button>
         </div>
     </div>
 
@@ -722,16 +752,25 @@
             card.classList.toggle('expanded');
         }
 
-        // Fetch weather
+        // Fetch weather — primary: Open-Meteo (no API key needed, CORS-friendly), fallback: wttr.in
         async function loadWeather() {
             try {
-                const brief = await fetch('https://wttr.in/Fredericksburg+VA?format=%c+%t+%w').then(r => r.text());
-                document.getElementById('weather-brief').textContent = brief.trim() + ' · Fredericksburg, VA';
-
-                const detail = await fetch('https://wttr.in/Fredericksburg+VA?format=%c+%C%0aTemp:+%t+(feels+%f)%0aWind:+%w%0aHumidity:+%h%0aSunrise:+%S+·+Sunset:+%s%0aPrecipitation:+%p').then(r => r.text());
-                document.getElementById('weather-full').innerHTML = '<pre style="color:#ccc; font-family:Inter,sans-serif; white-space:pre-wrap; font-size:0.85rem;">' + detail + '</pre>';
+                // Primary: Open-Meteo API (Fredericksburg VA: 38.30, -77.46)
+                const meteo = await fetch('https://api.open-meteo.com/v1/forecast?latitude=38.30&longitude=-77.46&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=America/New_York').then(r => r.json());
+                const c = meteo.current;
+                const codes = {0:'☀️ Clear',1:'🌤️ Mostly Clear',2:'⛅ Partly Cloudy',3:'☁️ Overcast',45:'🌫️ Fog',48:'🌫️ Rime Fog',51:'🌦️ Light Drizzle',53:'🌧️ Drizzle',55:'🌧️ Heavy Drizzle',61:'🌧️ Light Rain',63:'🌧️ Rain',65:'🌧️ Heavy Rain',71:'🌨️ Light Snow',73:'🌨️ Snow',75:'🌨️ Heavy Snow',80:'🌦️ Showers',81:'🌧️ Heavy Showers',82:'⛈️ Violent Showers',95:'⛈️ Thunderstorm',96:'⛈️ Hail Storm',99:'⛈️ Severe Hail'};
+                const desc = codes[c.weather_code] || '🌤️ Fair';
+                document.getElementById('weather-brief').textContent = `${desc} ${Math.round(c.temperature_2m)}°F · Wind ${Math.round(c.wind_speed_10m)}mph · Fredericksburg, VA`;
+                document.getElementById('weather-full').innerHTML = `<div style="color:#ccc; font-size:0.85rem; line-height:1.8;">
+                    ${desc}<br>Temp: ${Math.round(c.temperature_2m)}°F<br>Humidity: ${c.relative_humidity_2m}%<br>Wind: ${Math.round(c.wind_speed_10m)} mph</div>`;
             } catch(e) {
-                document.getElementById('weather-brief').textContent = 'Weather unavailable';
+                // Fallback: wttr.in
+                try {
+                    const brief = await fetch('https://wttr.in/Fredericksburg+VA?format=%c+%t+%w').then(r => r.text());
+                    document.getElementById('weather-brief').textContent = brief.trim() + ' · Fredericksburg, VA';
+                } catch(e2) {
+                    document.getElementById('weather-brief').textContent = '🌤️ Weather loading... (check connection)';
+                }
             }
         }
 
