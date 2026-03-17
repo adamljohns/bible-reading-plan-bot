@@ -57,10 +57,35 @@
 
         .no-results { display:none; text-align:center; color:var(--gray); padding:40px 20px; font-size:1.1rem; }
 
+        /* === Lexicon Navigation === */
+        .lex-nav-wrap { position:sticky; top:42px; z-index:90; background:rgba(0,0,0,0.97); border-bottom:1px solid var(--border); padding:10px 0 6px; backdrop-filter:blur(8px); }
+        .lex-toggle-row { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-bottom:8px; }
+        .lex-toggle-btn { background:transparent; color:var(--gold); border:1px solid var(--gold); border-radius:20px; padding:6px 16px; font-size:0.82rem; font-weight:600; cursor:pointer; transition:all 0.2s; white-space:nowrap; font-family:'Inter',sans-serif; }
+        .lex-toggle-btn:hover { background:rgba(212,175,55,0.15); }
+        .lex-toggle-btn.active { background:var(--gold); color:#000; }
+
+        .alpha-section-label { color:var(--gray); font-size:0.7rem; text-transform:uppercase; letter-spacing:1px; text-align:center; margin:6px 0 4px; }
+        .alpha-bar { display:flex; flex-wrap:wrap; gap:4px; justify-content:center; padding:0 10px; }
+        .alpha-btn { display:flex; flex-direction:column; align-items:center; justify-content:center; background:var(--bg-card); border:1px solid var(--border); border-radius:8px; padding:4px 6px; min-width:36px; cursor:pointer; transition:all 0.2s; text-decoration:none; }
+        .alpha-btn:hover { border-color:var(--gold); box-shadow:0 0 8px rgba(212,175,55,0.15); }
+        .alpha-btn.active { border-color:var(--gold); background:rgba(212,175,55,0.15); }
+        .alpha-btn.disabled { opacity:0.3; cursor:default; pointer-events:none; }
+        .alpha-btn .letter { font-size:1rem; color:var(--gold-light); line-height:1.2; }
+        .alpha-btn .translit { font-size:0.55rem; color:var(--gray); line-height:1; margin-top:1px; }
+        .alpha-btn-all { background:transparent; border:1px solid var(--border); border-radius:8px; padding:6px 12px; color:var(--gray); font-size:0.75rem; font-weight:600; cursor:pointer; transition:all 0.2s; font-family:'Inter',sans-serif; }
+        .alpha-btn-all:hover { border-color:var(--gold); color:var(--gold); }
+        .alpha-btn-all.active { border-color:var(--gold); color:var(--gold); background:rgba(212,175,55,0.1); }
+
+        .filter-status { text-align:center; color:var(--gray); font-size:0.8rem; margin:8px 0; display:none; }
+        .filter-status span { color:var(--gold); font-weight:600; }
+
+        .alpha-bar-hebrew, .alpha-bar-greek { display:none; }
+        .alpha-bar-hebrew.visible, .alpha-bar-greek.visible { display:block; }
+
         footer { text-align:center; padding:40px 20px; color:var(--gray); font-size:0.85rem; border-top:1px solid var(--border); margin-top:40px; }
         footer a { color:var(--gold); text-decoration:none; }
 
-        @media (max-width:640px) { .container { padding:15px; } .word-grid { grid-template-columns:1fr; } }
+        @media (max-width:640px) { .container { padding:15px; } .word-grid { grid-template-columns:1fr; } .alpha-btn { min-width:30px; padding:3px 4px; } .alpha-btn .letter { font-size:0.85rem; } .lex-toggle-btn { padding:5px 10px; font-size:0.75rem; } }
     </style>
 </head>
 <body>
@@ -81,6 +106,80 @@
         <div class="search-box">
             <span class="search-icon">🔍</span>
             <input type="text" id="lexSearch" placeholder="Search by word, Strong's number, or meaning..." oninput="filterWords()">
+        </div>
+
+        <div class="lex-nav-wrap" id="lexNavWrap">
+            <!-- Quick toggle buttons -->
+            <div class="lex-toggle-row">
+                <button class="lex-toggle-btn" onclick="scrollToSection('hebrew')">📜 Hebrew (OT)</button>
+                <button class="lex-toggle-btn" onclick="scrollToSection('greek')">📖 Greek (NT)</button>
+                <button class="lex-toggle-btn" id="sortNumBtn" onclick="sortEntries('number')">🔢 By Number</button>
+                <button class="lex-toggle-btn" id="sortAlphaBtn" onclick="sortEntries('alpha')">🔤 Alphabetical</button>
+            </div>
+
+            <!-- Hebrew Alphabet Bar -->
+            <div class="alpha-bar-hebrew visible" id="hebrewAlphaBar">
+                <div class="alpha-section-label">Hebrew Letters</div>
+                <div class="alpha-bar">
+                    <button class="alpha-btn-all active" onclick="filterByLetter('hebrew','all')">All</button>
+                    <button class="alpha-btn" onclick="filterByLetter('hebrew','aleph')" data-letter="aleph"><span class="letter">א</span><span class="translit">Aleph</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('hebrew','bet')" data-letter="bet"><span class="letter">ב</span><span class="translit">Bet</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('hebrew','gimel')" data-letter="gimel"><span class="letter">ג</span><span class="translit">Gimel</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('hebrew','dalet')" data-letter="dalet"><span class="letter">ד</span><span class="translit">Dalet</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('hebrew','he')" data-letter="he"><span class="letter">ה</span><span class="translit">He</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('hebrew','vav')" data-letter="vav"><span class="letter">ו</span><span class="translit">Vav</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('hebrew','zayin')" data-letter="zayin"><span class="letter">ז</span><span class="translit">Zayin</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('hebrew','chet')" data-letter="chet"><span class="letter">ח</span><span class="translit">Het</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('hebrew','tet')" data-letter="tet"><span class="letter">ט</span><span class="translit">Tet</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('hebrew','yod')" data-letter="yod"><span class="letter">י</span><span class="translit">Yod</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('hebrew','kaf')" data-letter="kaf"><span class="letter">כ</span><span class="translit">Kaf</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('hebrew','lamed')" data-letter="lamed"><span class="letter">ל</span><span class="translit">Lamed</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('hebrew','mem')" data-letter="mem"><span class="letter">מ</span><span class="translit">Mem</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('hebrew','nun')" data-letter="nun"><span class="letter">נ</span><span class="translit">Nun</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('hebrew','samekh')" data-letter="samekh"><span class="letter">ס</span><span class="translit">Samekh</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('hebrew','ayin')" data-letter="ayin"><span class="letter">ע</span><span class="translit">Ayin</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('hebrew','pe')" data-letter="pe"><span class="letter">פ</span><span class="translit">Pe</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('hebrew','tsade')" data-letter="tsade"><span class="letter">צ</span><span class="translit">Tsade</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('hebrew','qof')" data-letter="qof"><span class="letter">ק</span><span class="translit">Qof</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('hebrew','resh')" data-letter="resh"><span class="letter">ר</span><span class="translit">Resh</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('hebrew','shin')" data-letter="shin"><span class="letter">שׁ</span><span class="translit">Shin</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('hebrew','tav')" data-letter="tav"><span class="letter">ת</span><span class="translit">Tav</span></button>
+                </div>
+            </div>
+
+            <!-- Greek Alphabet Bar -->
+            <div class="alpha-bar-greek visible" id="greekAlphaBar">
+                <div class="alpha-section-label">Greek Letters</div>
+                <div class="alpha-bar">
+                    <button class="alpha-btn-all active" onclick="filterByLetter('greek','all')">All</button>
+                    <button class="alpha-btn" onclick="filterByLetter('greek','alpha')" data-letter="alpha"><span class="letter">Α</span><span class="translit">Alpha</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('greek','beta')" data-letter="beta"><span class="letter">Β</span><span class="translit">Beta</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('greek','gamma')" data-letter="gamma"><span class="letter">Γ</span><span class="translit">Gamma</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('greek','delta')" data-letter="delta"><span class="letter">Δ</span><span class="translit">Delta</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('greek','epsilon')" data-letter="epsilon"><span class="letter">Ε</span><span class="translit">Epsilon</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('greek','zeta')" data-letter="zeta"><span class="letter">Ζ</span><span class="translit">Zeta</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('greek','eta')" data-letter="eta"><span class="letter">Η</span><span class="translit">Eta</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('greek','theta')" data-letter="theta"><span class="letter">Θ</span><span class="translit">Theta</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('greek','iota')" data-letter="iota"><span class="letter">Ι</span><span class="translit">Iota</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('greek','kappa')" data-letter="kappa"><span class="letter">Κ</span><span class="translit">Kappa</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('greek','lambda')" data-letter="lambda"><span class="letter">Λ</span><span class="translit">Lambda</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('greek','mu')" data-letter="mu"><span class="letter">Μ</span><span class="translit">Mu</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('greek','nu')" data-letter="nu"><span class="letter">Ν</span><span class="translit">Nu</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('greek','xi')" data-letter="xi"><span class="letter">Ξ</span><span class="translit">Xi</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('greek','omicron')" data-letter="omicron"><span class="letter">Ο</span><span class="translit">Omicron</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('greek','pi')" data-letter="pi"><span class="letter">Π</span><span class="translit">Pi</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('greek','rho')" data-letter="rho"><span class="letter">Ρ</span><span class="translit">Rho</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('greek','sigma')" data-letter="sigma"><span class="letter">Σ</span><span class="translit">Sigma</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('greek','tau')" data-letter="tau"><span class="letter">Τ</span><span class="translit">Tau</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('greek','upsilon')" data-letter="upsilon"><span class="letter">Υ</span><span class="translit">Upsilon</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('greek','phi')" data-letter="phi"><span class="letter">Φ</span><span class="translit">Phi</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('greek','chi')" data-letter="chi"><span class="letter">Χ</span><span class="translit">Chi</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('greek','psi')" data-letter="psi"><span class="letter">Ψ</span><span class="translit">Psi</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('greek','omega')" data-letter="omega"><span class="letter">Ω</span><span class="translit">Omega</span></button>
+                </div>
+            </div>
+
+            <div class="filter-status" id="filterStatus">Showing <span id="filterCount">0</span> of <span id="filterTotal">0</span> entries</div>
         </div>
 
         <div id="noResults" class="no-results">No words match your search. Try a different term.</div>
@@ -1604,24 +1703,308 @@
     </footer>
 
     <script>
+    // === Transliteration-to-letter mapping ===
+    const hebrewLetterMap = {
+        'aleph': /^[aeiou]/i,  // Aleph — words starting with vowels (Ab, Adam, Ahab, etc.)
+        'bet':   /^b/i,
+        'gimel': /^g/i,
+        'dalet': /^d/i,
+        'he':    /^h[^y]/i,   // He — h but not hy (those could be He too, handled below)
+        'vav':   /^[vw]/i,    // Vav — v or w transliterations
+        'zayin': /^z/i,
+        'chet':  /^ch/i,      // Chet — ch transliterations
+        'tet':   /^t[^eish]/i, // Tet — t but not te/ti/ts (those are Tav/Tsade)
+        'yod':   /^y/i,
+        'kaf':   /^k/i,
+        'lamed': /^l/i,
+        'mem':   /^m/i,
+        'nun':   /^n/i,
+        'samekh':/^s[^h]/i,   // Samekh — s but not sh
+        'ayin':  null,        // Ayin — mapped via specific words below
+        'pe':    /^p/i,
+        'tsade': /^ts/i,
+        'qof':   /^q/i,
+        'resh':  /^r/i,
+        'shin':  /^sh/i,
+        'tav':   /^t[aeiouh]/i // Tav — ta, te, ti, to, tu, th
+    };
+
+    const greekLetterMap = {
+        'alpha':   /^a/i,
+        'beta':    /^b/i,
+        'gamma':   /^g/i,
+        'delta':   /^d/i,
+        'epsilon': /^e[^i]/i,  // epsilon but not ei (eirene = epsilon anyway, handled)
+        'zeta':    /^z/i,
+        'eta':     null,       // specific words only
+        'theta':   /^th/i,
+        'iota':    null,
+        'kappa':   /^k/i,
+        'lambda':  /^l/i,
+        'mu':      /^m[^y]/i,  // mu but not my (mystery)
+        'nu':      /^n/i,
+        'xi':      null,
+        'omicron': /^o/i,
+        'pi':      /^p[^hnrs]/i, // pi — p but not ph, pn, pr, ps
+        'rho':     null,
+        'sigma':   /^s/i,
+        'tau':     /^t[^h]/i,  // tau — t but not th
+        'upsilon': null,
+        'phi':     /^ph/i,
+        'chi':     /^ch/i,
+        'psi':     /^ps/i,
+        'omega':   null
+    };
+
+    // Build a lookup: for each card, determine which Hebrew/Greek letter it belongs to
+    function getTranslit(card) {
+        const el = card.querySelector('.wc-translit');
+        return el ? el.textContent.trim() : '';
+    }
+
+    function getStrongsNum(card) {
+        const el = card.querySelector('.wc-strongs');
+        if (!el) return 0;
+        return parseInt(el.textContent.replace(/[HG]/,''), 10) || 0;
+    }
+
+    function matchHebrewLetter(translit) {
+        const t = translit.toLowerCase();
+        // Special cases first
+        if (/^ch/.test(t)) return 'chet';
+        if (/^sh/.test(t)) return 'shin';
+        if (/^ts/.test(t)) return 'tsade';
+        if (/^[aeiou]/.test(t)) {
+            // Could be Aleph or Ayin — Ayin words: Ayin, Olam, Oni, Ur, Ebed, Eduth, Al, Am, Anah, Asah
+            // In Hebrew, Ayin-initial words in English: those starting with vowel that are Ayin
+            // We'll use Strong's number ranges to distinguish
+            return 'aleph'; // default, override below
+        }
+        if (/^b/.test(t)) return 'bet';
+        if (/^g/.test(t)) return 'gimel';
+        if (/^d/.test(t)) return 'dalet';
+        if (/^h/.test(t)) return 'he';
+        if (/^[vw]/.test(t)) return 'vav';
+        if (/^z/.test(t)) return 'zayin';
+        if (/^y/.test(t)) return 'yod';
+        if (/^k/.test(t)) return 'kaf';
+        if (/^l/.test(t)) return 'lamed';
+        if (/^m/.test(t)) return 'mem';
+        if (/^n/.test(t)) return 'nun';
+        if (/^s[^h]/.test(t) || t === 's') return 'samekh';
+        if (/^p/.test(t)) return 'pe';
+        if (/^q/.test(t)) return 'qof';
+        if (/^r/.test(t)) return 'resh';
+        if (/^t/.test(t)) return 'tav';
+        return 'aleph';
+    }
+
+    // Use Strong's number to fix Aleph vs Ayin ambiguity
+    function fixHebrewLetter(letter, strongsNum) {
+        // Ayin range: H5650-H6213 covers Ebed, Eduth, Olam, Ur, Ayin, Al, Am, Anah, Oni, Asah
+        const ayinNums = [5650,5715,5769,5782,5869,5921,5971,6030,6040,6213];
+        if (ayinNums.includes(strongsNum) && letter === 'aleph') return 'ayin';
+        // Samekh: Sur (H5493), Salach (H5545)
+        const samekhNums = [5493,5545];
+        if (samekhNums.includes(strongsNum)) return 'samekh';
+        // Shin vs Sin: Samach (H8055), Simchah (H8057) are actually Shin-family (Samekh in Hebrew = Sin/Shin)
+        // H8055, H8057 start with Sin (שׂ) which is under Shin
+        // Fix Tet: Tahor (H2889), Tov (H2896) are Tet
+        const tetNums = [2889,2896];
+        if (tetNums.includes(strongsNum)) return 'tet';
+        return letter;
+    }
+
+    function matchGreekLetter(translit) {
+        const t = translit.toLowerCase();
+        if (/^ch/.test(t)) return 'chi';
+        if (/^ps/.test(t)) return 'psi';
+        if (/^ph/.test(t)) return 'phi';
+        if (/^pn/.test(t)) return 'pi'; // pneuma etc start with Pi
+        if (/^pr/.test(t)) return 'pi'; // proseuchē, proskyneō, prophētēs, prautēs
+        if (/^th/.test(t)) return 'theta';
+        if (/^a/.test(t)) return 'alpha';
+        if (/^b/.test(t)) return 'beta';
+        if (/^g/.test(t)) return 'gamma';
+        if (/^d/.test(t)) return 'delta';
+        if (/^e/.test(t)) return 'epsilon';
+        if (/^z/.test(t)) return 'zeta';
+        if (/^h/.test(t)) {
+            // hagios, haima, hamartia, hilasmos, histēmi, hodos, homologeō, huios, hyp*, hyper = different letters
+            // h-words in Greek: hagios(G40)=Alpha(rough breathing), haima(G129)=Alpha, hamartia(G266)=Alpha
+            // hilasmos=Iota(rough breathing), histēmi=Iota, hodos=Omicron, homologeō=Omicron
+            // huios=Upsilon, hyp*=Upsilon, hyper=Upsilon
+            if (/^hi/.test(t)) return 'iota';     // hilasmos, histēmi
+            if (/^ho/.test(t)) return 'omicron';   // hodos, homologeō
+            if (/^hu|^hy/.test(t)) return 'upsilon'; // huios, hyp*, hyper
+            return 'alpha'; // hagios, haima, hamartia (rough breathing on alpha)
+        }
+        if (/^i/.test(t)) return 'iota';
+        if (/^k/.test(t)) return 'kappa';
+        if (/^l/.test(t)) return 'lambda';
+        if (/^m/.test(t)) return 'mu';
+        if (/^n/.test(t)) return 'nu';
+        if (/^x/.test(t)) return 'xi';
+        if (/^o/.test(t)) return 'omicron';
+        if (/^p/.test(t)) return 'pi';
+        if (/^r/.test(t)) return 'rho';
+        if (/^s/.test(t)) return 'sigma';
+        if (/^t/.test(t)) return 'tau';
+        if (/^u/.test(t)) return 'upsilon';
+        return 'alpha';
+    }
+
+    // State
+    let activeHebrewLetter = 'all';
+    let activeGreekLetter = 'all';
+    let currentSort = 'number'; // 'number' or 'alpha'
+
+    // Cache card data
+    let hebrewCards = [];
+    let greekCards = [];
+
+    function initCards() {
+        document.querySelectorAll('#hebrew-grid .word-card').forEach(card => {
+            const translit = getTranslit(card);
+            const num = getStrongsNum(card);
+            let letter = matchHebrewLetter(translit);
+            letter = fixHebrewLetter(letter, num);
+            card.dataset.alphaLetter = letter;
+            card.dataset.strongsNum = num;
+            card.dataset.translit = translit.toLowerCase();
+            hebrewCards.push(card);
+        });
+        document.querySelectorAll('#greek-grid .word-card').forEach(card => {
+            const translit = getTranslit(card);
+            const num = getStrongsNum(card);
+            const letter = matchGreekLetter(translit);
+            card.dataset.alphaLetter = letter;
+            card.dataset.strongsNum = num;
+            card.dataset.translit = translit.toLowerCase();
+            greekCards.push(card);
+        });
+        updateDisabledButtons();
+    }
+
+    function updateDisabledButtons() {
+        // Disable Hebrew letter buttons that have no entries
+        const hebrewLetters = new Set(hebrewCards.map(c => c.dataset.alphaLetter));
+        document.querySelectorAll('#hebrewAlphaBar .alpha-btn').forEach(btn => {
+            const letter = btn.dataset.letter;
+            if (!hebrewLetters.has(letter)) btn.classList.add('disabled');
+        });
+        // Disable Greek letter buttons that have no entries
+        const greekLetters = new Set(greekCards.map(c => c.dataset.alphaLetter));
+        document.querySelectorAll('#greekAlphaBar .alpha-btn').forEach(btn => {
+            const letter = btn.dataset.letter;
+            if (!greekLetters.has(letter)) btn.classList.add('disabled');
+        });
+    }
+
+    function scrollToSection(section) {
+        const el = document.getElementById(section + '-section');
+        if (el) {
+            const navH = document.getElementById('lexNavWrap').offsetHeight + 50;
+            const y = el.getBoundingClientRect().top + window.scrollY - navH;
+            window.scrollTo({ top: y, behavior: 'smooth' });
+        }
+    }
+
+    function filterByLetter(lang, letter) {
+        if (lang === 'hebrew') {
+            activeHebrewLetter = (activeHebrewLetter === letter && letter !== 'all') ? 'all' : letter;
+            // Update button states
+            document.querySelectorAll('#hebrewAlphaBar .alpha-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector('#hebrewAlphaBar .alpha-btn-all').classList.toggle('active', activeHebrewLetter === 'all');
+            if (activeHebrewLetter !== 'all') {
+                const active = document.querySelector('#hebrewAlphaBar .alpha-btn[data-letter="'+activeHebrewLetter+'"]');
+                if (active) active.classList.add('active');
+            }
+        } else {
+            activeGreekLetter = (activeGreekLetter === letter && letter !== 'all') ? 'all' : letter;
+            document.querySelectorAll('#greekAlphaBar .alpha-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector('#greekAlphaBar .alpha-btn-all').classList.toggle('active', activeGreekLetter === 'all');
+            if (activeGreekLetter !== 'all') {
+                const active = document.querySelector('#greekAlphaBar .alpha-btn[data-letter="'+activeGreekLetter+'"]');
+                if (active) active.classList.add('active');
+            }
+        }
+        filterWords();
+        if (letter !== 'all' && lang === 'hebrew' && activeHebrewLetter !== 'all') scrollToSection('hebrew');
+        if (letter !== 'all' && lang === 'greek' && activeGreekLetter !== 'all') scrollToSection('greek');
+    }
+
+    function sortEntries(mode) {
+        currentSort = mode;
+        document.getElementById('sortNumBtn').classList.toggle('active', mode === 'number');
+        document.getElementById('sortAlphaBtn').classList.toggle('active', mode === 'alpha');
+
+        const sortFn = mode === 'alpha'
+            ? (a, b) => a.dataset.translit.localeCompare(b.dataset.translit)
+            : (a, b) => parseInt(a.dataset.strongsNum) - parseInt(b.dataset.strongsNum);
+
+        const hGrid = document.getElementById('hebrew-grid');
+        const gGrid = document.getElementById('greek-grid');
+
+        [...hebrewCards].sort(sortFn).forEach(c => hGrid.appendChild(c));
+        [...greekCards].sort(sortFn).forEach(c => gGrid.appendChild(c));
+    }
+
     function filterWords() {
         const q = document.getElementById('lexSearch').value.toLowerCase().trim();
-        const cards = document.querySelectorAll('.word-card');
         let hebrewVisible = 0, greekVisible = 0;
-        cards.forEach(c => {
-            const match = !q || c.dataset.search.includes(q);
-            c.style.display = match ? '' : 'none';
-            if (match) {
-                if (c.closest('#hebrew-grid')) hebrewVisible++;
-                else greekVisible++;
-            }
+        const totalHebrew = hebrewCards.length;
+        const totalGreek = greekCards.length;
+
+        hebrewCards.forEach(c => {
+            const matchSearch = !q || c.dataset.search.includes(q);
+            const matchLetter = activeHebrewLetter === 'all' || c.dataset.alphaLetter === activeHebrewLetter;
+            const show = matchSearch && matchLetter;
+            c.style.display = show ? '' : 'none';
+            if (show) hebrewVisible++;
         });
+
+        greekCards.forEach(c => {
+            const matchSearch = !q || c.dataset.search.includes(q);
+            const matchLetter = activeGreekLetter === 'all' || c.dataset.alphaLetter === activeGreekLetter;
+            const show = matchSearch && matchLetter;
+            c.style.display = show ? '' : 'none';
+            if (show) greekVisible++;
+        });
+
+        // Update section visibility
         document.getElementById('hebrew-section').style.display = hebrewVisible ? '' : 'none';
-        document.querySelector('.section-sub').style.display = hebrewVisible ? '' : 'none';
+        document.querySelectorAll('.section-sub')[0].style.display = hebrewVisible ? '' : 'none';
         document.getElementById('greek-section').style.display = greekVisible ? '' : 'none';
         document.querySelectorAll('.section-sub')[1].style.display = greekVisible ? '' : 'none';
-        document.getElementById('noResults').style.display = (hebrewVisible + greekVisible === 0 && q) ? 'block' : 'none';
+
+        // Update filter status
+        const totalVisible = hebrewVisible + greekVisible;
+        const totalAll = totalHebrew + totalGreek;
+        const statusEl = document.getElementById('filterStatus');
+        const isFiltered = q || activeHebrewLetter !== 'all' || activeGreekLetter !== 'all';
+        statusEl.style.display = isFiltered ? 'block' : 'none';
+        document.getElementById('filterCount').textContent = totalVisible;
+        document.getElementById('filterTotal').textContent = totalAll;
+
+        // Update section sub counts
+        if (hebrewVisible) {
+            document.querySelectorAll('.section-sub')[0].textContent =
+                (activeHebrewLetter !== 'all' || q) ? hebrewVisible + ' of ' + totalHebrew + ' Hebrew words' : totalHebrew + ' words from the Hebrew Scriptures';
+        }
+        if (greekVisible) {
+            document.querySelectorAll('.section-sub')[1].textContent =
+                (activeGreekLetter !== 'all' || q) ? greekVisible + ' of ' + totalGreek + ' Greek words' : totalGreek + ' words from the Greek New Testament';
+        }
+
+        document.getElementById('noResults').style.display = (totalVisible === 0 && (q || isFiltered)) ? 'block' : 'none';
     }
+
+    // Init on load
+    document.addEventListener('DOMContentLoaded', () => {
+        initCards();
+        document.getElementById('sortNumBtn').classList.add('active');
+    });
     </script>
 </body>
 </html>
