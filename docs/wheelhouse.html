@@ -106,7 +106,7 @@
             transition: all 0.2s;
         }
         .action-check.done { background: var(--green); border-color: var(--green); }
-        .action-check.done::after { content: '<img src="assets/icons/shield-star.png" class="site-icon" alt="star" width="20" height="20">'; color: #fff; font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+        .action-check.done::after { content: '✓'; color: #fff; font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; justify-content: center; }
         .action-item.completed .action-text { text-decoration: line-through; color: #4CAF50; }
         .action-item.completed .action-tag { text-decoration: line-through; color: var(--gray); }
         label.checked { text-decoration: line-through; color: #4CAF50; }
@@ -262,6 +262,61 @@
         /* Fix blue links — override browser a:link default */
         nav a, nav a:link, nav a:visited, nav a:active { color: var(--gray, #8b949e) !important; text-decoration: none !important; }
         .top-nav a, .top-nav a:link, .top-nav a:visited, .top-nav a:active { color: var(--gray, #8b949e) !important; text-decoration: none !important; }
+
+        /* I AM Statement */
+        .iam-statement {
+            text-align: center; padding: 28px 20px 18px; max-width: 700px; margin: 0 auto;
+        }
+        .iam-statement p {
+            color: var(--gold); font-family: 'Playfair Display', serif;
+            font-weight: 700; font-size: 1.15rem; line-height: 1.7;
+        }
+        .iam-statement p:first-child { font-size: 1.25rem; margin-bottom: 6px; }
+        .iam-creed-btn {
+            display: inline-flex; align-items: center; gap: 8px;
+            margin-top: 14px; padding: 8px 20px; border-radius: 24px;
+            background: rgba(212,175,55,0.12); border: 1px solid rgba(212,175,55,0.4);
+            color: var(--gold); font-size: 0.85rem; font-weight: 500;
+            cursor: pointer; text-decoration: none; transition: all 0.25s;
+        }
+        .iam-creed-btn:hover { background: rgba(212,175,55,0.22); border-color: var(--gold); }
+
+        /* Day Focus Banner */
+        .day-focus {
+            text-align: center; padding: 10px 20px 16px; max-width: 700px; margin: 0 auto;
+        }
+        .day-focus-label {
+            display: inline-block; padding: 6px 20px; border-radius: 20px;
+            background: rgba(212,175,55,0.1); border: 1px solid rgba(212,175,55,0.3);
+            color: var(--gold-light); font-family: 'Playfair Display', serif;
+            font-size: 1rem; font-weight: 600;
+        }
+
+        /* SACA Input */
+        .saca-input-row {
+            display: flex; gap: 8px; margin-bottom: 12px;
+        }
+        .saca-input-row input {
+            flex: 1; padding: 10px 14px; background: #0a0a0a; border: 1px solid var(--border);
+            border-radius: 8px; color: var(--white); font-size: 0.9rem; font-family: 'Inter', sans-serif;
+        }
+        .saca-input-row input::placeholder { color: var(--gray); }
+        .saca-input-row input:focus { outline: none; border-color: var(--gold); }
+        .saca-input-row button {
+            padding: 10px 18px; background: var(--gold); color: #000; border: none;
+            border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.85rem;
+            transition: background 0.2s;
+        }
+        .saca-input-row button:hover { background: var(--gold-light); }
+        .saca-delete {
+            background: none; border: none; color: var(--gray); cursor: pointer;
+            font-size: 1.1rem; padding: 0 6px; transition: color 0.2s;
+        }
+        .saca-delete:hover { color: var(--red); }
+
+        /* Day-specific card visibility */
+        .day-card { display: none; }
+        .day-card.day-active { display: block; }
     </style>
 </head>
 <body>
@@ -291,6 +346,19 @@
     </div>
 
     <div id="wheelhouse-content" style="display:none;">
+
+    <!-- I AM Statement -->
+    <div class="iam-statement">
+        <p>I am a Christ-following husband, father, citizen, Marine, and Minister.</p>
+        <p>I am the Family Captain. I lead with faith, serve with love, and fight for what matters.</p>
+        <a class="iam-creed-btn" onclick="showCreedModal()">🎙️ Hear the Captain's Creed</a>
+    </div>
+
+    <!-- Day Focus Banner -->
+    <div class="day-focus">
+        <span class="day-focus-label" id="dayFocusLabel"></span>
+    </div>
+
     <div class="header" style="border:none; padding-top:0;">
         <p class="last-updated" id="lastUpdated"></p>
         <button class="print-btn" onclick="window.print()"><img src="assets/icons/shield-gear.png" class="site-icon" alt="gear" width="20" height="20"> Print Today's Brief</button>
@@ -340,58 +408,91 @@
             </div>
         </div>
 
-        <!-- Top Actions -->
-        <div class="card full-width" onclick="toggleCard(this)" id="card-actions">
+        <!-- SACA — Self-Assigned Captain's Actions -->
+        <div class="card full-width" id="card-actions" onclick="toggleCard(this)">
             <div class="card-icon"><img src="assets/icons/shield-target.png" class="site-icon" alt="target" width="20" height="20"></div>
-            <div class="card-title">Top Actions</div>
+            <div class="card-title">SACA — Self-Assigned Captain's Actions</div>
             <div id="actions-brief" class="card-brief">
-                <!-- Priority tasks — updated Mar 16 2026 -->
-                <div class="action-item" data-task-id="melaleuca-mark-followup">
-                    <div class="action-check" onclick="event.stopPropagation();completeAction(this)"></div>
-                    <div><span class="action-text">🔴 Melaleuca Mark follow-up — DUE TODAY</span><br><span class="action-tag"><img src="assets/icons/shield-anchor.png" class="site-icon" alt="anchor" width="20" height="20"> Business</span></div>
+                <!-- SACA Input -->
+                <div class="saca-input-row" onclick="event.stopPropagation()">
+                    <input type="text" id="saca-input" placeholder="Add a new Captain's Action..." onkeydown="if(event.key==='Enter'){event.stopPropagation();addSaca();}">
+                    <button onclick="event.stopPropagation();addSaca()">Add</button>
                 </div>
-                <div class="action-item" data-task-id="1password-cli-toggle">
+                <div id="saca-list"></div>
+
+                <hr style="border-color:rgba(212,175,55,0.15);margin:14px 0 10px;">
+
+                <!-- Priority tasks — updated Mar 17 2026 -->
+                <div class="action-item" data-task-id="yahoo-mail-app-password">
                     <div class="action-check" onclick="event.stopPropagation();completeAction(this)"></div>
-                    <div><span class="action-text">1Password app → Settings → Developer → Enable CLI (30 sec)</span><br><span class="action-tag"><img src="assets/icons/shield-gear.png" class="site-icon" alt="gear" width="20" height="20"> Tech</span></div>
+                    <div><span class="action-text">Yahoo Mail: generate app password for bot access</span><br><span class="action-tag">📧 Tech</span></div>
+                </div>
+                <div class="action-item" data-task-id="fix-slack-channel">
+                    <div class="action-check" onclick="event.stopPropagation();completeAction(this)"></div>
+                    <div><span class="action-text">Fix Slack channel (not responding)</span><br><span class="action-tag">🔧 Tech</span></div>
+                </div>
+                <div class="action-item" data-task-id="sam-n-checkin">
+                    <div class="action-check" onclick="event.stopPropagation();completeAction(this)"></div>
+                    <div><span class="action-text">Check in with Sam N. (Vicki/FTD)</span><br><span class="action-tag">🤝 Ministry</span></div>
+                </div>
+                <div class="action-item" data-task-id="reset-passwords-1password">
+                    <div class="action-check" onclick="event.stopPropagation();completeAction(this)"></div>
+                    <div><span class="action-text">Reset USAA, PayPal, Amazon, Chase, Discover passwords in 1Password</span><br><span class="action-tag">🔐 Security</span></div>
+                </div>
+                <div class="action-item" data-task-id="finish-taxes">
+                    <div class="action-check" onclick="event.stopPropagation();completeAction(this)"></div>
+                    <div><span class="action-text">🔴 Finish taxes (mid-April deadline)</span><br><span class="action-tag">💰 Finance</span></div>
+                </div>
+                <div class="action-item" data-task-id="disney-trip-booking">
+                    <div class="action-check" onclick="event.stopPropagation();completeAction(this)"></div>
+                    <div><span class="action-text">Disney trip booking (April 25-30, $3K budget)</span><br><span class="action-tag">👨‍👩‍👧 Family</span></div>
+                </div>
+                <div class="action-item" data-task-id="hp-printer-setup">
+                    <div class="action-check" onclick="event.stopPropagation();completeAction(this)"></div>
+                    <div><span class="action-text">HP printer setup when it arrives</span><br><span class="action-tag">🖨️ Tech</span></div>
                 </div>
                 <div class="action-item" data-task-id="mike-young-email">
                     <div class="action-check" onclick="event.stopPropagation();completeAction(this)"></div>
-                    <div><span class="action-text">Find Mike Young's email → send Noble Warriors partnership ask</span><br><span class="action-tag"><img src="assets/icons/shield-anchor.png" class="site-icon" alt="anchor" width="20" height="20"> Ministry</span></div>
+                    <div><span class="action-text">Find Mike Young's email → send Noble Warriors partnership ask</span><br><span class="action-tag">⛪ Ministry</span></div>
                 </div>
             </div>
             <div class="card-detail" id="actions-queued">
                 <h4 style="color:var(--gold); margin-bottom:10px;">Queued Tasks</h4>
                 <div class="action-item" data-task-id="imac-remote-login">
                     <div class="action-check" onclick="event.stopPropagation();completeAction(this)"></div>
-                    <div><span class="action-text">Fix iMac Remote Login (restart + re-toggle)</span><br><span class="action-tag"><img src="assets/icons/shield-gear.png" class="site-icon" alt="gear" width="20" height="20"> Infrastructure</span></div>
+                    <div><span class="action-text">Fix iMac Remote Login (restart + re-toggle)</span><br><span class="action-tag">🔧 Infrastructure</span></div>
                 </div>
                 <div class="action-item" data-task-id="google-calendar-oauth">
                     <div class="action-check" onclick="event.stopPropagation();completeAction(this)"></div>
-                    <div><span class="action-text">Set up Google Calendar OAuth for live schedule</span><br><span class="action-tag"><img src="assets/icons/shield-calendar.png" class="site-icon" alt="calendar" width="20" height="20"> Integration</span></div>
+                    <div><span class="action-text">Set up Google Calendar OAuth for live schedule</span><br><span class="action-tag">📅 Integration</span></div>
                 </div>
                 <div class="action-item" data-task-id="fawn-lake-followup">
                     <div class="action-check" onclick="event.stopPropagation();completeAction(this)"></div>
-                    <div><span class="action-text">Fawn Lake Church — if no reply by Wed, visit Sunday 9:30 AM Laurel Hill Chapel</span><br><span class="action-tag"><img src="assets/icons/shield-anchor.png" class="site-icon" alt="anchor" width="20" height="20"> Ministry / Job</span></div>
+                    <div><span class="action-text">Fawn Lake Church — if no reply by Wed, visit Sunday 9:30 AM Laurel Hill Chapel</span><br><span class="action-tag">⛪ Ministry / Job</span></div>
                 </div>
                 <div class="action-item" data-task-id="disney-driving-plan">
                     <div class="action-check" onclick="event.stopPropagation();completeAction(this)"></div>
-                    <div><span class="action-text">Disney driving plan — FXBG → SC friend stop (Apr 20) → Disney (21-24) → home by afternoon Apr 24</span><br><span class="action-tag"><img src="assets/icons/shield-family.png" class="site-icon" alt="family" width="20" height="20"> Family</span></div>
+                    <div><span class="action-text">Disney driving plan — FXBG → SC friend stop (Apr 20) → Disney (21-24) → home by afternoon Apr 24</span><br><span class="action-tag">👨‍👩‍👧 Family</span></div>
                 </div>
                 <div class="action-item" data-task-id="xurl-twitter-setup">
                     <div class="action-check" onclick="event.stopPropagation();completeAction(this)"></div>
-                    <div><span class="action-text">X/Twitter: developer.twitter.com → create app → Terminal: xurl auth oauth2</span><br><span class="action-tag"><img src="assets/icons/shield-gear.png" class="site-icon" alt="gear" width="20" height="20"> Tech</span></div>
+                    <div><span class="action-text">X/Twitter: developer.twitter.com → create app → Terminal: xurl auth oauth2</span><br><span class="action-tag">🔧 Tech</span></div>
                 </div>
                 <div class="action-item" data-task-id="maria-intentional">
                     <div class="action-check" onclick="event.stopPropagation();completeAction(this)"></div>
-                    <div><span class="action-text">Do something intentional for Maria</span><br><span class="action-tag"><img src="assets/icons/shield-family.png" class="site-icon" alt="family" width="20" height="20"> Marriage</span></div>
+                    <div><span class="action-text">Do something intentional for Maria</span><br><span class="action-tag">💍 Marriage</span></div>
                 </div>
                 <div class="action-item" data-task-id="suno-creed-song">
                     <div class="action-check" onclick="event.stopPropagation();completeAction(this)"></div>
-                    <div><span class="action-text">Finish Suno creed song (account ready — pick style and generate)</span><br><span class="action-tag"><img src="assets/icons/shield-star.png" class="site-icon" alt="star" width="20" height="20"> Ministry / Fun</span></div>
+                    <div><span class="action-text">Finish Suno creed song (account ready — pick style and generate)</span><br><span class="action-tag">⭐ Ministry / Fun</span></div>
                 </div>
                 <hr style="border-color:rgba(212,175,55,0.2);margin:12px 0;">
+                <div id="saca-completed-section" style="display:none;">
+                    <h4 style="color:#4CAF50; margin-bottom:8px; font-size:0.85rem;">✅ Completed SACAs</h4>
+                    <div id="saca-completed-list"></div>
+                </div>
                 <div id="completed-today-section" style="display:none;">
-                    <h4 style="color:#4CAF50; margin-bottom:8px; font-size:0.85rem;"><img src="assets/icons/shield-star.png" class="site-icon" alt="star" width="20" height="20"> Completed Today</h4>
+                    <h4 style="color:#4CAF50; margin-bottom:8px; font-size:0.85rem;">✅ Completed Today</h4>
                     <div id="completed-today-list"></div>
                 </div>
             </div>
@@ -509,8 +610,8 @@
             </div>
         </div>
 
-        <!-- Melaleuca -->
-        <div class="card" onclick="toggleCard(this)" id="card-melaleuca">
+        <!-- Melaleuca (Monday only) -->
+        <div class="card day-card" data-day="1" onclick="toggleCard(this)" id="card-melaleuca">
             <div class="card-icon"><img src="assets/icons/shield-gear.png" class="site-icon" alt="gear" width="20" height="20"></div>
             <div class="card-title">Melaleuca Monday</div>
             <div class="card-brief">
@@ -582,6 +683,16 @@
         <p>The Captain's Wheelhouse · <a href="usmc-ministries.html"><img src="assets/icons/shield-anchor.png" class="site-icon" alt="anchor" width="24" height="24"> U.S.M.C. Ministries</a> · <a href="mentoring.html"><img src="assets/icons/shield-target.png" class="site-icon" alt="target" width="24" height="24"> Mentoring</a> · <a href="chronological.html"><img src="assets/icons/shield-calendar.png" class="site-icon" alt="calendar" width="24" height="24"> Chronological</a> · Powered by MOOPbot Pro</p>
         <p style="margin-top:5px; font-size:0.75rem;">Uniting, Serving, Mentoring and Counseling Ministries</p>
     </footer>
+
+    <!-- Creed Audio Modal -->
+    <div class="modal-overlay" id="creedModal" onclick="hideCreedModal()">
+        <div class="modal-box" onclick="event.stopPropagation()">
+            <div class="modal-icon">🎙️</div>
+            <h3>The Captain's Creed</h3>
+            <p>Audio recording of the Captain's Creed is <strong style="color:var(--gold);">coming soon</strong>.<br><br>The creed will be recorded using ElevenLabs with Moop's own voice (Adam Professional).</p>
+            <button class="modal-close" onclick="hideCreedModal()">Roger That</button>
+        </div>
+    </div>
 
     <!-- Audio Modal -->
     <div class="modal-overlay" id="audioModal" onclick="hideAudioModal()">
@@ -887,21 +998,19 @@
         }, 1800000);
 
         // ── Task Completion System ──────────────────────────────────────────
-        // Tasks stored with today's date. On refresh:
-        //   Completed TODAY  → sink to "Completed Today" section at bottom
-        //   Completed BEFORE today → removed (auto-expire overnight)
-        //   Weekly log preserved for end-of-week review
-
-        const TASK_KEY = 'wh_tasks_v2';
+        const TASK_KEY = 'wh_tasks_v3';
         const LOG_KEY  = 'wh_weekly_log';
-        const todayStr = new Date().toDateString();
+        const SACA_KEY = 'wh_sacas_v1';
+        const todayStr = new Date().toISOString().split('T')[0]; // YYYY-MM-DD for reliable comparison
 
         function getTaskStore() {
             const raw = JSON.parse(localStorage.getItem(TASK_KEY) || '{}');
-            // Persist completed tasks permanently (don't reset daily)
-            // Only prune entries older than 30 days to prevent unbounded growth
-            const thirtyDaysAgo = new Date(Date.now() - 30*86400000).toDateString();
-            Object.keys(raw).forEach(id => { if (raw[id].date < thirtyDaysAgo) delete raw[id]; });
+            // Prune entries older than 30 days using proper Date comparison
+            const thirtyDaysAgo = new Date(Date.now() - 30*86400000).getTime();
+            Object.keys(raw).forEach(id => {
+                const entryDate = new Date(raw[id].date).getTime();
+                if (entryDate < thirtyDaysAgo) delete raw[id];
+            });
             return raw;
         }
         function saveTaskStore(store) { localStorage.setItem(TASK_KEY, JSON.stringify(store)); }
@@ -915,7 +1024,8 @@
 
         function completeAction(checkEl) {
             const item = checkEl.closest('.action-item');
-            const taskId = item.dataset.taskId || item.querySelector('.action-text').textContent.slice(0, 40).replace(/\s+/g, '-').toLowerCase();
+            const taskId = item.dataset.taskId;
+            if (!taskId) return;
             const store = getTaskStore();
             const isNowDone = !item.classList.contains('completed');
 
@@ -923,8 +1033,8 @@
             item.classList.toggle('completed', isNowDone);
 
             if (isNowDone) {
-                const text = item.querySelector('.action-text').textContent;
-                const tag  = item.querySelector('.action-tag') ? item.querySelector('.action-tag').textContent : '';
+                const text = item.querySelector('.action-text')?.textContent || '';
+                const tag  = item.querySelector('.action-tag')?.textContent || '';
                 store[taskId] = { date: todayStr, text, tag };
                 saveTaskStore(store);
                 logCompletion(taskId, text, tag);
@@ -933,27 +1043,28 @@
                     if (dest) {
                         dest.appendChild(item);
                         document.getElementById('completed-today-section').style.display = 'block';
-                        const detail = document.getElementById('actions-queued');
-                        if (detail && detail.style.display === 'none') detail.style.display = 'block';
                     }
-                }, 500);
+                }, 400);
             } else {
                 delete store[taskId];
                 saveTaskStore(store);
+                // Move back above the hr in actions-brief
                 const brief = document.getElementById('actions-brief');
-                if (brief) brief.appendChild(item);
-                item.style.opacity = '1';
+                const hr = brief?.querySelector('hr');
+                if (brief && hr) brief.insertBefore(item, hr);
+                else if (brief) brief.appendChild(item);
             }
         }
 
-        // Restore task states on page load (date-aware)
+        // Restore task states on page load
         (function restoreTaskStates() {
             const store = getTaskStore();
             if (Object.keys(store).length === 0) return;
             const dest = document.getElementById('completed-today-list');
             const section = document.getElementById('completed-today-section');
             document.querySelectorAll('.action-item[data-task-id]').forEach(item => {
-                if (store[item.dataset.taskId]) {
+                const taskId = item.dataset.taskId;
+                if (taskId && store[taskId]) {
                     item.classList.add('completed');
                     const check = item.querySelector('.action-check');
                     if (check) check.classList.add('done');
@@ -962,6 +1073,108 @@
             });
         })();
 
+        // ── SACA System ──────────────────────────────────────────
+        function getSacaStore() {
+            return JSON.parse(localStorage.getItem(SACA_KEY) || '[]');
+        }
+        function saveSacaStore(sacas) {
+            localStorage.setItem(SACA_KEY, JSON.stringify(sacas));
+        }
+
+        function renderSacas() {
+            const sacas = getSacaStore();
+            const listEl = document.getElementById('saca-list');
+            const completedEl = document.getElementById('saca-completed-list');
+            const completedSection = document.getElementById('saca-completed-section');
+            if (!listEl) return;
+            listEl.innerHTML = '';
+            if (completedEl) completedEl.innerHTML = '';
+            let hasCompleted = false;
+
+            sacas.forEach((saca, idx) => {
+                const div = document.createElement('div');
+                div.className = 'action-item' + (saca.done ? ' completed' : '');
+                div.innerHTML = `
+                    <div class="action-check${saca.done ? ' done' : ''}" onclick="event.stopPropagation();toggleSaca(${idx})"></div>
+                    <div style="flex:1"><span class="action-text">${escHtml(saca.text)}</span></div>
+                    <button class="saca-delete" onclick="event.stopPropagation();deleteSaca(${idx})" title="Delete">✕</button>
+                `;
+                if (saca.done && completedEl) {
+                    completedEl.appendChild(div);
+                    hasCompleted = true;
+                } else {
+                    listEl.appendChild(div);
+                }
+            });
+            if (completedSection) completedSection.style.display = hasCompleted ? 'block' : 'none';
+        }
+
+        function addSaca() {
+            const input = document.getElementById('saca-input');
+            const text = input.value.trim();
+            if (!text) return;
+            const sacas = getSacaStore();
+            sacas.push({ text, done: false, date: todayStr });
+            saveSacaStore(sacas);
+            input.value = '';
+            renderSacas();
+        }
+
+        function toggleSaca(idx) {
+            const sacas = getSacaStore();
+            if (sacas[idx]) {
+                sacas[idx].done = !sacas[idx].done;
+                if (sacas[idx].done) sacas[idx].completedDate = todayStr;
+                saveSacaStore(sacas);
+                renderSacas();
+            }
+        }
+
+        function deleteSaca(idx) {
+            const sacas = getSacaStore();
+            sacas.splice(idx, 1);
+            saveSacaStore(sacas);
+            renderSacas();
+        }
+
+        function escHtml(s) {
+            const d = document.createElement('div');
+            d.textContent = s;
+            return d.innerHTML;
+        }
+
+        renderSacas();
+
+        // ── Day-Specific Content ──────────────────────────────────────────
+        (function initDayContent() {
+            const dayOfWeek = now.getDay(); // 0=Sun..6=Sat
+            const dayFocusMap = {
+                0: '🙏 Sabbath Sunday — Rest, worship, family meeting prep',
+                1: '🌿 Melaleuca Monday — Business building, wellness focus',
+                2: '🎯 Tactical Tuesday — fit20 focus, systems & processes',
+                3: '📖 Wisdom Wednesday — C5iSR market analysis, Scripture study',
+                4: '🔙 Throwback Thursday — Review progress, ministry outreach',
+                5: '📋 Field Report Friday — Weekly recap, financial review',
+                6: '🗺️ Strategy Saturday — Planning, family time, prep for Sunday'
+            };
+            const label = document.getElementById('dayFocusLabel');
+            if (label) label.textContent = dayFocusMap[dayOfWeek] || '';
+
+            // Show day-specific cards
+            document.querySelectorAll('.day-card[data-day]').forEach(card => {
+                const cardDay = parseInt(card.dataset.day);
+                if (cardDay === dayOfWeek) card.classList.add('day-active');
+            });
+        })();
+
+        // ── Creed Modal ──────────────────────────────────────────
+        function showCreedModal() {
+            document.getElementById('creedModal').classList.add('show');
+        }
+        function hideCreedModal() {
+            document.getElementById('creedModal').classList.remove('show');
+        }
+
         // Audio modal
         function showAudioModal() {
             document.getElementById('audioModal').classList.add('show');
@@ -969,9 +1182,9 @@
         function hideAudioModal() {
             document.getElementById('audioModal').classList.remove('show');
         }
-        // Close modal on Escape key
+        // Close modals on Escape key
         document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') hideAudioModal();
+            if (e.key === 'Escape') { hideAudioModal(); hideCreedModal(); }
         });
 
         // Quick Print - generates a clean print-optimized version
