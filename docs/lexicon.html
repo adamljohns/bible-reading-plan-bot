@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-touch-icon.png">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:title" content="Greek & Hebrew Lexicon | USMC Ministries">
+    <meta property="og:description" content="Explore foundational Greek and Hebrew words from Scripture. Strong's Concordance word studies with theological depth.">
+    <meta property="og:image" content="https://usmcmin.org/assets/usmc-ministries-full-crest.png">
+    <meta name="description" content="Explore foundational Greek and Hebrew words from Scripture. Strong's Concordance word studies for deeper Bible study.">
+    <title>Greek &amp; Hebrew Lexicon | USMC Ministries</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        :root { --bg-dark:#000; --bg-card:#111; --gold:#D4AF37; --gold-light:#F4D470; --white:#FFF; --gray:#888; --border:#333; --scarlet:#CC0000; }
+        body { font-family:'Inter',sans-serif; background:var(--bg-dark); color:var(--white); min-height:100vh; line-height:1.6; }
+        h1,h2,h3 { font-family:'Playfair Display',serif; font-weight:700; }
+        .container { max-width:900px; margin:0 auto; padding:20px; }
+
+        nav { display:flex; flex-wrap:wrap; gap:6px; justify-content:center; padding:14px 20px; border-bottom:1px solid var(--border); background:rgba(0,0,0,0.95); position:sticky; top:0; z-index:100; }
+        nav a { color:var(--gray); text-decoration:none; font-size:0.85rem; font-weight:500; padding:5px 12px; border-radius:20px; border:1px solid transparent; transition:all 0.2s; white-space:nowrap; }
+        nav a:hover { color:var(--gold); border-color:var(--border); }
+        nav a:link,nav a:visited,nav a:active { color:var(--gray) !important; text-decoration:none !important; }
+        nav a.active { color:var(--gold) !important; border-color:var(--gold); }
+
+        .hero { text-align:center; padding:40px 0 30px; }
+        .hero h1 { font-size:clamp(1.8rem,4vw,2.5rem); color:var(--white); margin-bottom:10px; }
+        .hero p { color:var(--gray); max-width:600px; margin:0 auto; font-size:1rem; line-height:1.7; }
+
+        .search-box { max-width:500px; margin:30px auto; position:relative; }
+        .search-box input { width:100%; padding:14px 20px 14px 45px; background:var(--bg-card); border:1px solid var(--border); border-radius:50px; color:var(--white); font-size:1rem; outline:none; transition:border-color 0.2s; }
+        .search-box input:focus { border-color:var(--gold); }
+        .search-box input::placeholder { color:#555; }
+        .search-icon { position:absolute; left:16px; top:50%; transform:translateY(-50%); color:var(--gray); font-size:1.1rem; }
+
+        .section-header { color:var(--gold); font-size:1.5rem; margin:40px 0 20px; padding-bottom:10px; border-bottom:1px solid var(--border); }
+        .section-sub { color:var(--gray); font-size:0.9rem; margin-top:-15px; margin-bottom:20px; }
+
+        .word-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:14px; margin-bottom:40px; }
+        .word-card { display:block; background:var(--bg-card); border:1px solid var(--border); border-radius:10px; padding:18px; text-decoration:none; transition:all 0.2s; }
+        .word-card:hover { border-color:var(--gold); box-shadow:0 0 15px rgba(212,175,55,0.1); transform:translateY(-2px); }
+        .wc-strongs { display:inline-block; background:rgba(212,175,55,0.15); color:var(--gold); font-size:0.75rem; font-weight:600; padding:2px 8px; border-radius:10px; margin-bottom:8px; }
+        .wc-original { display:block; font-size:1.4rem; color:var(--gold-light); margin-bottom:4px; }
+        .wc-translit { display:block; font-size:0.95rem; color:var(--white); font-style:italic; margin-bottom:4px; }
+        .wc-gloss { display:block; font-size:0.85rem; color:var(--gray); line-height:1.5; }
+
+        .resources { background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:28px; margin:40px 0; text-align:center; }
+        .resources h3 { color:var(--gold); margin-bottom:12px; }
+        .resources p { color:var(--gray); margin-bottom:16px; line-height:1.7; }
+        .resources a { color:var(--gold); text-decoration:none; padding:8px 20px; border:1px solid var(--border); border-radius:8px; display:inline-block; margin:5px; transition:all 0.2s; }
+        .resources a:hover { border-color:var(--gold); background:rgba(212,175,55,0.1); }
+
+        .no-results { display:none; text-align:center; color:var(--gray); padding:40px 20px; font-size:1.1rem; }
+
+        footer { text-align:center; padding:40px 20px; color:var(--gray); font-size:0.85rem; border-top:1px solid var(--border); margin-top:40px; }
+        footer a { color:var(--gold); text-decoration:none; }
+
+        @media (max-width:640px) { .container { padding:15px; } .word-grid { grid-template-columns:1fr; } }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="bible.html">Bible Translation Engine</a>
+        <a href="lexicon.html" class="active">Lexicon</a>
+        <a href="blog.html">Blog</a>
+        <a href="links.html">Connect</a>
+    </nav>
+
+    <div class="container">
+        <div class="hero">
+            <h1>Greek &amp; Hebrew Lexicon</h1>
+            <p>Go deeper into God's Word. Explore the original Hebrew and Greek words of Scripture — their meanings, their theological significance, and how they shape our understanding of the Bible.</p>
+        </div>
+
+        <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="lexSearch" placeholder="Search by word, Strong's number, or meaning..." oninput="filterWords()">
+        </div>
+
+        <div id="noResults" class="no-results">No words match your search. Try a different term.</div>
+
+        <h2 class="section-header" id="hebrew-section">📜 Hebrew (Old Testament)</h2>
+        <p class="section-sub">25 foundational words from the Hebrew Scriptures</p>
+        <div class="word-grid" id="hebrew-grid">
+
+                <a href="lexicon/H430.html" class="word-card" data-search="h430 elohim god, gods אֱלֹהִים">
+                    <span class="wc-strongs">H430</span>
+                    <span class="wc-original">אֱלֹהִים</span>
+                    <span class="wc-translit">Elohim</span>
+                    <span class="wc-gloss">God, gods</span>
+                </a>
+
+                <a href="lexicon/H3068.html" class="word-card" data-search="h3068 yhwh (yahweh) lord, the proper name of god יְהוָה">
+                    <span class="wc-strongs">H3068</span>
+                    <span class="wc-original">יְהוָה</span>
+                    <span class="wc-translit">YHWH (Yahweh)</span>
+                    <span class="wc-gloss">LORD, the proper name of God</span>
+                </a>
+
+                <a href="lexicon/H1285.html" class="word-card" data-search="h1285 berith covenant, alliance, pledge בְּרִית">
+                    <span class="wc-strongs">H1285</span>
+                    <span class="wc-original">בְּרִית</span>
+                    <span class="wc-translit">berith</span>
+                    <span class="wc-gloss">covenant, alliance, pledge</span>
+                </a>
+
+                <a href="lexicon/H2617.html" class="word-card" data-search="h2617 chesed lovingkindness, mercy, steadfast love חֶסֶד">
+                    <span class="wc-strongs">H2617</span>
+                    <span class="wc-original">חֶסֶד</span>
+                    <span class="wc-translit">chesed</span>
+                    <span class="wc-gloss">lovingkindness, mercy, steadfast love</span>
+                </a>
+
+                <a href="lexicon/H6662.html" class="word-card" data-search="h6662 tsaddiq righteous, just, lawful צַדִּיק">
+                    <span class="wc-strongs">H6662</span>
+                    <span class="wc-original">צַדִּיק</span>
+                    <span class="wc-translit">tsaddiq</span>
+                    <span class="wc-gloss">righteous, just, lawful</span>
+                </a>
+
+                <a href="lexicon/H539.html" class="word-card" data-search="h539 aman to believe, be faithful, be firm אָמַן">
+                    <span class="wc-strongs">H539</span>
+                    <span class="wc-original">אָמַן</span>
+                    <span class="wc-translit">aman</span>
+                    <span class="wc-gloss">to believe, be faithful, be firm</span>
+                </a>
+
+                <a href="lexicon/H3045.html" class="word-card" data-search="h3045 yada to know, perceive, discern יָדַע">
+                    <span class="wc-strongs">H3045</span>
+                    <span class="wc-original">יָדַע</span>
+                    <span class="wc-translit">yada</span>
+                    <span class="wc-gloss">to know, perceive, discern</span>
+                </a>
+
+                <a href="lexicon/H7965.html" class="word-card" data-search="h7965 shalom peace, completeness, welfare שָׁלוֹם">
+                    <span class="wc-strongs">H7965</span>
+                    <span class="wc-original">שָׁלוֹם</span>
+                    <span class="wc-translit">shalom</span>
+                    <span class="wc-gloss">peace, completeness, welfare</span>
+                </a>
+
+                <a href="lexicon/H8451.html" class="word-card" data-search="h8451 torah law, instruction, teaching תּוֹרָה">
+                    <span class="wc-strongs">H8451</span>
+                    <span class="wc-original">תּוֹרָה</span>
+                    <span class="wc-translit">torah</span>
+                    <span class="wc-gloss">law, instruction, teaching</span>
+                </a>
+
+                <a href="lexicon/H6918.html" class="word-card" data-search="h6918 qadosh holy, sacred, set apart קָדוֹשׁ">
+                    <span class="wc-strongs">H6918</span>
+                    <span class="wc-original">קָדוֹשׁ</span>
+                    <span class="wc-translit">qadosh</span>
+                    <span class="wc-gloss">holy, sacred, set apart</span>
+                </a>
+
+                <a href="lexicon/H571.html" class="word-card" data-search="h571 emeth truth, faithfulness, reliability אֱמֶת">
+                    <span class="wc-strongs">H571</span>
+                    <span class="wc-original">אֱמֶת</span>
+                    <span class="wc-translit">emeth</span>
+                    <span class="wc-gloss">truth, faithfulness, reliability</span>
+                </a>
+
+                <a href="lexicon/H3444.html" class="word-card" data-search="h3444 yeshuah salvation, deliverance יְשׁוּעָה">
+                    <span class="wc-strongs">H3444</span>
+                    <span class="wc-original">יְשׁוּעָה</span>
+                    <span class="wc-translit">yeshuah</span>
+                    <span class="wc-gloss">salvation, deliverance</span>
+                </a>
+
+                <a href="lexicon/H2580.html" class="word-card" data-search="h2580 chen grace, favor, charm חֵן">
+                    <span class="wc-strongs">H2580</span>
+                    <span class="wc-original">חֵן</span>
+                    <span class="wc-translit">chen</span>
+                    <span class="wc-gloss">grace, favor, charm</span>
+                </a>
+
+                <a href="lexicon/H157.html" class="word-card" data-search="h157 ahab to love, desire, delight in אָהַב">
+                    <span class="wc-strongs">H157</span>
+                    <span class="wc-original">אָהַב</span>
+                    <span class="wc-translit">ahab</span>
+                    <span class="wc-gloss">to love, desire, delight in</span>
+                </a>
+
+                <a href="lexicon/H3519.html" class="word-card" data-search="h3519 kabod glory, honor, splendor כָּבוֹד">
+                    <span class="wc-strongs">H3519</span>
+                    <span class="wc-original">כָּבוֹד</span>
+                    <span class="wc-translit">kabod</span>
+                    <span class="wc-gloss">glory, honor, splendor</span>
+                </a>
+
+                <a href="lexicon/H5315.html" class="word-card" data-search="h5315 nephesh soul, life, being, breath נֶפֶשׁ">
+                    <span class="wc-strongs">H5315</span>
+                    <span class="wc-original">נֶפֶשׁ</span>
+                    <span class="wc-translit">nephesh</span>
+                    <span class="wc-gloss">soul, life, being, breath</span>
+                </a>
+
+                <a href="lexicon/H3820.html" class="word-card" data-search="h3820 leb heart, mind, inner self לֵב">
+                    <span class="wc-strongs">H3820</span>
+                    <span class="wc-original">לֵב</span>
+                    <span class="wc-translit">leb</span>
+                    <span class="wc-gloss">heart, mind, inner self</span>
+                </a>
+
+                <a href="lexicon/H1697.html" class="word-card" data-search="h1697 dabar word, matter, thing דָּבָר">
+                    <span class="wc-strongs">H1697</span>
+                    <span class="wc-original">דָּבָר</span>
+                    <span class="wc-translit">dabar</span>
+                    <span class="wc-gloss">word, matter, thing</span>
+                </a>
+
+                <a href="lexicon/H4941.html" class="word-card" data-search="h4941 mishpat justice, judgment, ordinance מִשְׁפָּט">
+                    <span class="wc-strongs">H4941</span>
+                    <span class="wc-original">מִשְׁפָּט</span>
+                    <span class="wc-translit">mishpat</span>
+                    <span class="wc-gloss">justice, judgment, ordinance</span>
+                </a>
+
+                <a href="lexicon/H7200.html" class="word-card" data-search="h7200 raah to see, look, perceive רָאָה">
+                    <span class="wc-strongs">H7200</span>
+                    <span class="wc-original">רָאָה</span>
+                    <span class="wc-translit">raah</span>
+                    <span class="wc-gloss">to see, look, perceive</span>
+                </a>
+
+                <a href="lexicon/H8085.html" class="word-card" data-search="h8085 shama to hear, listen, obey שָׁמַע">
+                    <span class="wc-strongs">H8085</span>
+                    <span class="wc-original">שָׁמַע</span>
+                    <span class="wc-translit">shama</span>
+                    <span class="wc-gloss">to hear, listen, obey</span>
+                </a>
+
+                <a href="lexicon/H5545.html" class="word-card" data-search="h5545 salach to forgive, pardon סָלַח">
+                    <span class="wc-strongs">H5545</span>
+                    <span class="wc-original">סָלַח</span>
+                    <span class="wc-translit">salach</span>
+                    <span class="wc-gloss">to forgive, pardon</span>
+                </a>
+
+                <a href="lexicon/H7725.html" class="word-card" data-search="h7725 shub to return, turn back, repent שׁוּב">
+                    <span class="wc-strongs">H7725</span>
+                    <span class="wc-original">שׁוּב</span>
+                    <span class="wc-translit">shub</span>
+                    <span class="wc-gloss">to return, turn back, repent</span>
+                </a>
+
+                <a href="lexicon/H982.html" class="word-card" data-search="h982 batach to trust, rely on, be confident בָּטַח">
+                    <span class="wc-strongs">H982</span>
+                    <span class="wc-original">בָּטַח</span>
+                    <span class="wc-translit">batach</span>
+                    <span class="wc-gloss">to trust, rely on, be confident</span>
+                </a>
+
+                <a href="lexicon/H1984.html" class="word-card" data-search="h1984 halal to praise, boast, shine הָלַל">
+                    <span class="wc-strongs">H1984</span>
+                    <span class="wc-original">הָלַל</span>
+                    <span class="wc-translit">halal</span>
+                    <span class="wc-gloss">to praise, boast, shine</span>
+                </a>
+        </div>
+
+        <h2 class="section-header" id="greek-section">📖 Greek (New Testament)</h2>
+        <p class="section-sub">25 foundational words from the Greek New Testament</p>
+        <div class="word-grid" id="greek-grid">
+
+                <a href="lexicon/G26.html" class="word-card" data-search="g26 agapē love, selfless love, charity ἀγάπη">
+                    <span class="wc-strongs">G26</span>
+                    <span class="wc-original">ἀγάπη</span>
+                    <span class="wc-translit">agapē</span>
+                    <span class="wc-gloss">love, selfless love, charity</span>
+                </a>
+
+                <a href="lexicon/G4102.html" class="word-card" data-search="g4102 pistis faith, belief, trust, fidelity πίστις">
+                    <span class="wc-strongs">G4102</span>
+                    <span class="wc-original">πίστις</span>
+                    <span class="wc-translit">pistis</span>
+                    <span class="wc-gloss">faith, belief, trust, fidelity</span>
+                </a>
+
+                <a href="lexicon/G5485.html" class="word-card" data-search="g5485 charis grace, favor, kindness χάρις">
+                    <span class="wc-strongs">G5485</span>
+                    <span class="wc-original">χάρις</span>
+                    <span class="wc-translit">charis</span>
+                    <span class="wc-gloss">grace, favor, kindness</span>
+                </a>
+
+                <a href="lexicon/G1515.html" class="word-card" data-search="g1515 eirēnē peace, harmony, tranquility εἰρήνη">
+                    <span class="wc-strongs">G1515</span>
+                    <span class="wc-original">εἰρήνη</span>
+                    <span class="wc-translit">eirēnē</span>
+                    <span class="wc-gloss">peace, harmony, tranquility</span>
+                </a>
+
+                <a href="lexicon/G1343.html" class="word-card" data-search="g1343 dikaiosynē righteousness, justice δικαιοσύνη">
+                    <span class="wc-strongs">G1343</span>
+                    <span class="wc-original">δικαιοσύνη</span>
+                    <span class="wc-translit">dikaiosynē</span>
+                    <span class="wc-gloss">righteousness, justice</span>
+                </a>
+
+                <a href="lexicon/G2316.html" class="word-card" data-search="g2316 theos god, deity θεός">
+                    <span class="wc-strongs">G2316</span>
+                    <span class="wc-original">θεός</span>
+                    <span class="wc-translit">theos</span>
+                    <span class="wc-gloss">God, deity</span>
+                </a>
+
+                <a href="lexicon/G2962.html" class="word-card" data-search="g2962 kyrios lord, master, sir κύριος">
+                    <span class="wc-strongs">G2962</span>
+                    <span class="wc-original">κύριος</span>
+                    <span class="wc-translit">kyrios</span>
+                    <span class="wc-gloss">Lord, master, sir</span>
+                </a>
+
+                <a href="lexicon/G4151.html" class="word-card" data-search="g4151 pneuma spirit, breath, wind πνεῦμα">
+                    <span class="wc-strongs">G4151</span>
+                    <span class="wc-original">πνεῦμα</span>
+                    <span class="wc-translit">pneuma</span>
+                    <span class="wc-gloss">spirit, breath, wind</span>
+                </a>
+
+                <a href="lexicon/G3056.html" class="word-card" data-search="g3056 logos word, reason, account λόγος">
+                    <span class="wc-strongs">G3056</span>
+                    <span class="wc-original">λόγος</span>
+                    <span class="wc-translit">logos</span>
+                    <span class="wc-gloss">word, reason, account</span>
+                </a>
+
+                <a href="lexicon/G225.html" class="word-card" data-search="g225 alētheia truth, reality ἀλήθεια">
+                    <span class="wc-strongs">G225</span>
+                    <span class="wc-original">ἀλήθεια</span>
+                    <span class="wc-translit">alētheia</span>
+                    <span class="wc-gloss">truth, reality</span>
+                </a>
+
+                <a href="lexicon/G40.html" class="word-card" data-search="g40 hagios holy, sacred, set apart ἅγιος">
+                    <span class="wc-strongs">G40</span>
+                    <span class="wc-original">ἅγιος</span>
+                    <span class="wc-translit">hagios</span>
+                    <span class="wc-gloss">holy, sacred, set apart</span>
+                </a>
+
+                <a href="lexicon/G4991.html" class="word-card" data-search="g4991 sōtēria salvation, deliverance, preservation σωτηρία">
+                    <span class="wc-strongs">G4991</span>
+                    <span class="wc-original">σωτηρία</span>
+                    <span class="wc-translit">sōtēria</span>
+                    <span class="wc-gloss">salvation, deliverance, preservation</span>
+                </a>
+
+                <a href="lexicon/G3341.html" class="word-card" data-search="g3341 metanoia repentance, change of mind μετάνοια">
+                    <span class="wc-strongs">G3341</span>
+                    <span class="wc-original">μετάνοια</span>
+                    <span class="wc-translit">metanoia</span>
+                    <span class="wc-gloss">repentance, change of mind</span>
+                </a>
+
+                <a href="lexicon/G1680.html" class="word-card" data-search="g1680 elpis hope, expectation ἐλπίς">
+                    <span class="wc-strongs">G1680</span>
+                    <span class="wc-original">ἐλπίς</span>
+                    <span class="wc-translit">elpis</span>
+                    <span class="wc-gloss">hope, expectation</span>
+                </a>
+
+                <a href="lexicon/G1391.html" class="word-card" data-search="g1391 doxa glory, honor, splendor δόξα">
+                    <span class="wc-strongs">G1391</span>
+                    <span class="wc-original">δόξα</span>
+                    <span class="wc-translit">doxa</span>
+                    <span class="wc-gloss">glory, honor, splendor</span>
+                </a>
+
+                <a href="lexicon/G5590.html" class="word-card" data-search="g5590 psychē soul, life, self ψυχή">
+                    <span class="wc-strongs">G5590</span>
+                    <span class="wc-original">ψυχή</span>
+                    <span class="wc-translit">psychē</span>
+                    <span class="wc-gloss">soul, life, self</span>
+                </a>
+
+                <a href="lexicon/G2588.html" class="word-card" data-search="g2588 kardia heart, inner self, mind καρδία">
+                    <span class="wc-strongs">G2588</span>
+                    <span class="wc-original">καρδία</span>
+                    <span class="wc-translit">kardia</span>
+                    <span class="wc-gloss">heart, inner self, mind</span>
+                </a>
+
+                <a href="lexicon/G2842.html" class="word-card" data-search="g2842 koinōnia fellowship, communion, sharing κοινωνία">
+                    <span class="wc-strongs">G2842</span>
+                    <span class="wc-original">κοινωνία</span>
+                    <span class="wc-translit">koinōnia</span>
+                    <span class="wc-gloss">fellowship, communion, sharing</span>
+                </a>
+
+                <a href="lexicon/G1242.html" class="word-card" data-search="g1242 diathēkē covenant, testament, will διαθήκη">
+                    <span class="wc-strongs">G1242</span>
+                    <span class="wc-original">διαθήκη</span>
+                    <span class="wc-translit">diathēkē</span>
+                    <span class="wc-gloss">covenant, testament, will</span>
+                </a>
+
+                <a href="lexicon/G4678.html" class="word-card" data-search="g4678 sophia wisdom, insight σοφία">
+                    <span class="wc-strongs">G4678</span>
+                    <span class="wc-original">σοφία</span>
+                    <span class="wc-translit">sophia</span>
+                    <span class="wc-gloss">wisdom, insight</span>
+                </a>
+
+                <a href="lexicon/G1849.html" class="word-card" data-search="g1849 exousia authority, power, right ἐξουσία">
+                    <span class="wc-strongs">G1849</span>
+                    <span class="wc-original">ἐξουσία</span>
+                    <span class="wc-translit">exousia</span>
+                    <span class="wc-gloss">authority, power, right</span>
+                </a>
+
+                <a href="lexicon/G1411.html" class="word-card" data-search="g1411 dynamis power, might, miracle δύναμις">
+                    <span class="wc-strongs">G1411</span>
+                    <span class="wc-original">δύναμις</span>
+                    <span class="wc-translit">dynamis</span>
+                    <span class="wc-gloss">power, might, miracle</span>
+                </a>
+
+                <a href="lexicon/G266.html" class="word-card" data-search="g266 hamartia sin, missing the mark ἁμαρτία">
+                    <span class="wc-strongs">G266</span>
+                    <span class="wc-original">ἁμαρτία</span>
+                    <span class="wc-translit">hamartia</span>
+                    <span class="wc-gloss">sin, missing the mark</span>
+                </a>
+
+                <a href="lexicon/G3551.html" class="word-card" data-search="g3551 nomos law, rule, principle νόμος">
+                    <span class="wc-strongs">G3551</span>
+                    <span class="wc-original">νόμος</span>
+                    <span class="wc-translit">nomos</span>
+                    <span class="wc-gloss">law, rule, principle</span>
+                </a>
+
+                <a href="lexicon/G932.html" class="word-card" data-search="g932 basileia kingdom, reign, royal power βασιλεία">
+                    <span class="wc-strongs">G932</span>
+                    <span class="wc-original">βασιλεία</span>
+                    <span class="wc-translit">basileia</span>
+                    <span class="wc-gloss">kingdom, reign, royal power</span>
+                </a>
+        </div>
+
+        <div class="resources">
+            <h3>Additional Resources</h3>
+            <p>For comprehensive word studies beyond our lexicon, we recommend these trusted tools:</p>
+            <a href="https://www.stepbible.org/" target="_blank">📖 STEP Bible (Tyndale House)</a>
+            <a href="https://www.blueletterbible.org/" target="_blank">📘 Blue Letter Bible</a>
+        </div>
+    </div>
+
+    <footer>
+        <p><strong>USMC Ministries Greek &amp; Hebrew Lexicon</strong> · Phase 1: 50 Foundational Words</p>
+        <p style="margin-top:8px;">© 2026 <a href="index.html">U.S.M.C. Ministries</a> · <a href="bible.html">Bible Translation Engine</a></p>
+    </footer>
+
+    <script>
+    function filterWords() {
+        const q = document.getElementById('lexSearch').value.toLowerCase().trim();
+        const cards = document.querySelectorAll('.word-card');
+        let hebrewVisible = 0, greekVisible = 0;
+        cards.forEach(c => {
+            const match = !q || c.dataset.search.includes(q);
+            c.style.display = match ? '' : 'none';
+            if (match) {
+                if (c.closest('#hebrew-grid')) hebrewVisible++;
+                else greekVisible++;
+            }
+        });
+        document.getElementById('hebrew-section').style.display = hebrewVisible ? '' : 'none';
+        document.querySelector('.section-sub').style.display = hebrewVisible ? '' : 'none';
+        document.getElementById('greek-section').style.display = greekVisible ? '' : 'none';
+        document.querySelectorAll('.section-sub')[1].style.display = greekVisible ? '' : 'none';
+        document.getElementById('noResults').style.display = (hebrewVisible + greekVisible === 0 && q) ? 'block' : 'none';
+    }
+    </script>
+</body>
+</html>
