@@ -220,9 +220,74 @@
         /* Fix blue links — override browser a:link default */
         nav a, nav a:link, nav a:visited, nav a:active { color: var(--gray, #8b949e) !important; text-decoration: none !important; }
         .top-nav a, .top-nav a:link, .top-nav a:visited, .top-nav a:active { color: var(--gray, #8b949e) !important; text-decoration: none !important; }
+    
+        /* ── BTE Dark/Light Mode Toggle ── */
+        .bte-theme-toggle {
+            position: fixed; top: 12px; right: 12px; z-index: 9999;
+            display: flex; align-items: center; gap: 0;
+            background: rgba(30,30,30,0.85); border: 1px solid #333;
+            border-radius: 20px; padding: 3px 6px; cursor: pointer;
+            font-size: 0.7rem; user-select: none; backdrop-filter: blur(6px);
+            transition: all 0.3s;
+        }
+        .bte-theme-toggle:hover { border-color: #D4AF37; }
+        .bte-theme-toggle .toggle-icon { width: 18px; text-align: center; line-height: 1; }
+        .bte-theme-toggle .toggle-track {
+            width: 28px; height: 14px; background: #444; border-radius: 7px;
+            position: relative; margin: 0 4px; transition: background 0.3s;
+        }
+        .bte-theme-toggle .toggle-knob {
+            width: 10px; height: 10px; background: #D4AF37; border-radius: 50%;
+            position: absolute; top: 2px; left: 2px; transition: left 0.3s;
+        }
+        body.light-mode .bte-theme-toggle { background: rgba(240,238,233,0.9); border-color: #ccc; }
+        body.light-mode .bte-theme-toggle .toggle-track { background: #bbb; }
+        body.light-mode .bte-theme-toggle .toggle-knob { left: 16px; }
+        body.light-mode .bte-theme-toggle .toggle-icon { filter: none; }
+        .bte-theme-toggle .moon-icon { color: #888; }
+        .bte-theme-toggle .sun-icon { color: #888; }
+        body.light-mode .bte-theme-toggle .sun-icon { color: #D4AF37; }
+        body:not(.light-mode) .bte-theme-toggle .moon-icon { color: #D4AF37; }
+
+        /* Light mode base overrides */
+        body.light-mode {
+            --bg-dark: #F5F3EF;
+            --bg-card: #FFFFFF;
+            --bg-card-hover: #f0ede7;
+            --white: #1a1a1a;
+            --gray: #666666;
+            --gray-light: #888888;
+            --border: #d4d0c8;
+        }
+        body.light-mode { background-color: #F5F3EF !important; color: #1a1a1a !important; }
+        body.light-mode nav { background: rgba(245,243,239,0.97) !important; border-color: #d4d0c8 !important; }
+        body.light-mode nav a { color: #555 !important; }
+        body.light-mode nav a:hover, body.light-mode nav a.active { color: #D4AF37 !important; }
+        body.light-mode .card, body.light-mode .section, body.light-mode [class*="card"] {
+            background: #fff !important; border-color: #d4d0c8 !important; color: #1a1a1a !important;
+        }
+        body.light-mode h1, body.light-mode h2, body.light-mode h3, body.light-mode h4 { color: #D4AF37 !important; }
+        body.light-mode footer, body.light-mode .footer { background: #F5F3EF !important; border-color: #d4d0c8 !important; color: #666 !important; }
+        body.light-mode a { color: #D4AF37 !important; }
+        body.light-mode .hero { background: #F5F3EF !important; }
+        body.light-mode p, body.light-mode span, body.light-mode li, body.light-mode div { color: inherit; }
+        body.light-mode .nav-bar a, body.light-mode .nav-link { color: #555 !important; }
+        body.light-mode .nav-bar a:hover, body.light-mode .nav-link:hover { color: #D4AF37 !important; }
+        body.light-mode .header { background: #F5F3EF !important; }
+        body.light-mode input, body.light-mode textarea, body.light-mode select {
+            background: #fff !important; color: #1a1a1a !important; border-color: #d4d0c8 !important;
+        }
+        body.light-mode .site-icon { filter: brightness(0.6); }
+
     </style>
 </head>
 <body>
+    <div class="bte-theme-toggle" onclick="bteToggleTheme()" title="Toggle dark/light mode">
+        <span class="toggle-icon moon-icon">🌙</span>
+        <div class="toggle-track"><div class="toggle-knob"></div></div>
+        <span class="toggle-icon sun-icon">☀️</span>
+    </div>
+
     <nav>
         <a href="index.html"><img src="assets/icons/shield-compass.png" class="site-icon" alt="home" width="16" height="16"> Home</a>
         <a href="bible.html"><img src="assets/icons/shield-cross.png" class="site-icon" alt="cross" width="16" height="16"> Bible Translation Engine</a>
@@ -926,6 +991,17 @@
                 if (q && q.type !== 'textarea') nextStep();
             }
         });
+    </script>
+
+    <script>
+    /* ── BTE Dark/Light Mode ── */
+    function bteToggleTheme(){
+        document.body.classList.toggle('light-mode');
+        localStorage.setItem('bte-theme', document.body.classList.contains('light-mode') ? 'light' : 'dark');
+    }
+    (function(){
+        if(localStorage.getItem('bte-theme')==='light') document.body.classList.add('light-mode');
+    })();
     </script>
 </body>
 </html>

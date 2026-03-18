@@ -317,9 +317,138 @@
         /* Day-specific card visibility */
         .day-card { display: none; }
         .day-card.day-active { display: block; }
+    
+        /* ── BTE Dark/Light Mode Toggle ── */
+        .bte-theme-toggle {
+            position: fixed; top: 12px; right: 12px; z-index: 9999;
+            display: flex; align-items: center; gap: 0;
+            background: rgba(30,30,30,0.85); border: 1px solid #333;
+            border-radius: 20px; padding: 3px 6px; cursor: pointer;
+            font-size: 0.7rem; user-select: none; backdrop-filter: blur(6px);
+            transition: all 0.3s;
+        }
+        .bte-theme-toggle:hover { border-color: #D4AF37; }
+        .bte-theme-toggle .toggle-icon { width: 18px; text-align: center; line-height: 1; }
+        .bte-theme-toggle .toggle-track {
+            width: 28px; height: 14px; background: #444; border-radius: 7px;
+            position: relative; margin: 0 4px; transition: background 0.3s;
+        }
+        .bte-theme-toggle .toggle-knob {
+            width: 10px; height: 10px; background: #D4AF37; border-radius: 50%;
+            position: absolute; top: 2px; left: 2px; transition: left 0.3s;
+        }
+        body.light-mode .bte-theme-toggle { background: rgba(240,238,233,0.9); border-color: #ccc; }
+        body.light-mode .bte-theme-toggle .toggle-track { background: #bbb; }
+        body.light-mode .bte-theme-toggle .toggle-knob { left: 16px; }
+        body.light-mode .bte-theme-toggle .toggle-icon { filter: none; }
+        .bte-theme-toggle .moon-icon { color: #888; }
+        .bte-theme-toggle .sun-icon { color: #888; }
+        body.light-mode .bte-theme-toggle .sun-icon { color: #D4AF37; }
+        body:not(.light-mode) .bte-theme-toggle .moon-icon { color: #D4AF37; }
+
+        /* Light mode base overrides */
+        body.light-mode {
+            --bg-dark: #F5F3EF;
+            --bg-card: #FFFFFF;
+            --bg-card-hover: #f0ede7;
+            --white: #1a1a1a;
+            --gray: #666666;
+            --gray-light: #888888;
+            --border: #d4d0c8;
+        }
+        body.light-mode { background-color: #F5F3EF !important; color: #1a1a1a !important; }
+        body.light-mode nav { background: rgba(245,243,239,0.97) !important; border-color: #d4d0c8 !important; }
+        body.light-mode nav a { color: #555 !important; }
+        body.light-mode nav a:hover, body.light-mode nav a.active { color: #D4AF37 !important; }
+        body.light-mode .card, body.light-mode .section, body.light-mode [class*="card"] {
+            background: #fff !important; border-color: #d4d0c8 !important; color: #1a1a1a !important;
+        }
+        body.light-mode h1, body.light-mode h2, body.light-mode h3, body.light-mode h4 { color: #D4AF37 !important; }
+        body.light-mode footer, body.light-mode .footer { background: #F5F3EF !important; border-color: #d4d0c8 !important; color: #666 !important; }
+        body.light-mode a { color: #D4AF37 !important; }
+        body.light-mode .hero { background: #F5F3EF !important; }
+        body.light-mode p, body.light-mode span, body.light-mode li, body.light-mode div { color: inherit; }
+        body.light-mode .nav-bar a, body.light-mode .nav-link { color: #555 !important; }
+        body.light-mode .nav-bar a:hover, body.light-mode .nav-link:hover { color: #D4AF37 !important; }
+        body.light-mode .header { background: #F5F3EF !important; }
+        body.light-mode input, body.light-mode textarea, body.light-mode select {
+            background: #fff !important; color: #1a1a1a !important; border-color: #d4d0c8 !important;
+        }
+        body.light-mode .site-icon { filter: brightness(0.6); }
+
+        /* ── Print-Optimized Layout ── */
+        .print-only { display: none; }
+        @media print {
+            /* Reset */
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            body { background: #fff !important; color: #000 !important; font-size: 12pt !important; font-family: 'Inter', Arial, sans-serif !important; margin: 0; padding: 0; }
+
+            /* Hide non-essential */
+            nav, .bte-theme-toggle, #auth-gate, #voice-btn, #voice-modal,
+            .crew-links, .print-btn, .day-focus, .iam-creed-btn,
+            #card-minimoop, #card-airbnb, #card-fit20, #card-email, #card-health,
+            #card-markets, .card-badge, .audio-player, .audio-btn,
+            .day-card, .card-icon, footer,
+            button, .saca-input-row { display: none !important; }
+
+            /* Show content */
+            #wheelhouse-content { display: block !important; }
+
+            /* Header */
+            .header { text-align: center; padding: 8px 0 4px !important; border: none !important; }
+            .header h1 { font-size: 16pt !important; color: #000 !important; margin: 0 !important; }
+            .header .subtitle { font-size: 9pt !important; color: #555 !important; }
+            .header .date { font-size: 10pt !important; color: #333 !important; margin-top: 2px !important; }
+            .header img { max-width: 60px !important; }
+            .last-updated { display: none !important; }
+
+            /* I Am statement */
+            .iam-statement { font-size: 10pt !important; border: 1px solid #ccc !important; padding: 6px 10px !important; margin: 6px 0 !important; background: #f9f9f7 !important; color: #333 !important; page-break-inside: avoid; }
+            .iam-statement p { color: #333 !important; }
+
+            /* Grid → single column */
+            .grid { display: block !important; }
+
+            /* Cards */
+            .card { border: 1px solid #ccc !important; border-radius: 4px !important; padding: 8px 10px !important; margin: 6px 0 !important; background: #fff !important; page-break-inside: avoid; box-shadow: none !important; }
+            .card-title { font-size: 11pt !important; font-weight: 700 !important; color: #000 !important; margin-bottom: 4px !important; }
+            .card-brief, .card-detail { display: block !important; font-size: 10pt !important; color: #333 !important; }
+            .card-detail { max-height: none !important; overflow: visible !important; opacity: 1 !important; padding: 0 !important; }
+
+            /* Schedule rows */
+            .schedule-row { padding: 2px 0 !important; border: none !important; font-size: 10pt !important; }
+            .schedule-time { font-weight: 600 !important; min-width: 50px !important; color: #000 !important; }
+            .schedule-event { color: #333 !important; }
+
+            /* Action items */
+            .action-item { padding: 3px 0 !important; font-size: 10pt !important; }
+            .action-check { width: 12px !important; height: 12px !important; border: 1px solid #333 !important; border-radius: 2px !important; background: #fff !important; }
+            .action-text { color: #000 !important; }
+            .action-tag { font-size: 8pt !important; color: #666 !important; }
+
+            /* Bible reading */
+            .verse-ref, .verse-block { font-size: 10pt !important; color: #333 !important; }
+            #card-bible .card-detail { display: block !important; }
+
+            /* Print-only sections */
+            .print-only { display: block !important; page-break-before: auto; }
+            .print-only h3 { font-size: 12pt; font-weight: 700; color: #000; margin-bottom: 4px; border-bottom: 1px solid #999; padding-bottom: 2px; }
+            .print-only .blank-lines { height: 60px; border-bottom: 1px dotted #ccc; margin-bottom: 8px; }
+            .print-only .blank-line { height: 20px; border-bottom: 1px dotted #ccc; }
+
+            /* Page management */
+            @page { margin: 0.5in; size: letter; }
+        }
+
     </style>
 </head>
 <body>
+    <div class="bte-theme-toggle" onclick="bteToggleTheme()" title="Toggle dark/light mode">
+        <span class="toggle-icon moon-icon">🌙</span>
+        <div class="toggle-track"><div class="toggle-knob"></div></div>
+        <span class="toggle-icon sun-icon">☀️</span>
+    </div>
+
     <nav>
         <a href="index.html"><img src="assets/icons/shield-compass.png" class="site-icon" alt="home" width="16" height="16"> Home</a>
         <a href="bible.html"><img src="assets/icons/shield-cross.png" class="site-icon" alt="cross" width="16" height="16"> Bible Translation Engine</a>
@@ -1443,6 +1572,18 @@
 
     </script>
 
+    <!-- Print-only fields -->
+    <div class="print-only">
+        <h3>Captain's Log Entry:</h3>
+        <div class="blank-line"></div>
+        <div class="blank-line"></div>
+        <div class="blank-line"></div>
+        <h3 style="margin-top: 16px;">Family Temperature:</h3>
+        <div class="blank-line"></div>
+        <div class="blank-line"></div>
+        <div class="blank-line"></div>
+    </div>
+
     </div><!-- end #wheelhouse-content -->
 
     <script>
@@ -1465,5 +1606,16 @@
     }
     </script>
 <script>if("serviceWorker" in navigator){navigator.serviceWorker.register("/sw.js")}</script>
+
+    <script>
+    /* ── BTE Dark/Light Mode ── */
+    function bteToggleTheme(){
+        document.body.classList.toggle('light-mode');
+        localStorage.setItem('bte-theme', document.body.classList.contains('light-mode') ? 'light' : 'dark');
+    }
+    (function(){
+        if(localStorage.getItem('bte-theme')==='light') document.body.classList.add('light-mode');
+    })();
+    </script>
 </body>
 </html>
