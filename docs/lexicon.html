@@ -114,8 +114,8 @@
             <div class="lex-toggle-row">
                 <button class="lex-toggle-btn" onclick="scrollToSection('hebrew')">📜 Hebrew (OT)</button>
                 <button class="lex-toggle-btn" onclick="scrollToSection('greek')">📖 Greek (NT)</button>
-                <button class="lex-toggle-btn" id="sortNumBtn" onclick="sortEntries('number')">🔢 By Number</button>
-                <button class="lex-toggle-btn" id="sortAlphaBtn" onclick="sortEntries('alpha')">🔤 Alphabetical</button>
+                <button class="lex-toggle-btn" id="sortNumBtn" onclick="sortEntries('number')" style="display:none">🔢 By Number</button>
+                <button class="lex-toggle-btn" id="sortAlphaBtn" onclick="sortEntries('alpha')" style="display:none">🔤 Alphabetical</button>
             </div>
 
             <!-- Hebrew Alphabet Bar -->
@@ -1904,12 +1904,19 @@
 
     function scrollToSection(section) {
         // BTE v5.0: Reveal the corresponding alphabet bar, hide the other
+        // Show sort buttons when a language is selected
+        document.getElementById('sortNumBtn').style.display = '';
+        document.getElementById('sortAlphaBtn').style.display = '';
         if (section === 'hebrew') {
             document.getElementById('hebrewAlphaBar').classList.add('visible');
             document.getElementById('greekAlphaBar').classList.remove('visible');
+            // Default to Aleph (first Hebrew letter) instead of All
+            filterByLetter('hebrew', 'aleph');
         } else if (section === 'greek') {
             document.getElementById('greekAlphaBar').classList.add('visible');
             document.getElementById('hebrewAlphaBar').classList.remove('visible');
+            // Default to Alpha (first Greek letter) instead of All
+            filterByLetter('greek', 'alpha');
         }
         const el = document.getElementById(section + '-section');
         if (el) {
@@ -1942,8 +1949,17 @@
             }
         }
         filterWords();
-        if (letter !== 'all' && lang === 'hebrew' && activeHebrewLetter !== 'all') scrollToSection('hebrew');
-        if (letter !== 'all' && lang === 'greek' && activeGreekLetter !== 'all') scrollToSection('greek');
+        // Scroll to the section header after filtering (but don't re-call scrollToSection to avoid recursion)
+        if (letter !== 'all') {
+            var secEl = document.getElementById(lang + '-section');
+            if (secEl) {
+                setTimeout(function() {
+                    var navH = document.getElementById('lexNavWrap').offsetHeight + 50;
+                    var y = secEl.getBoundingClientRect().top + window.scrollY - navH;
+                    window.scrollTo({ top: y, behavior: 'smooth' });
+                }, 50);
+            }
+        }
     }
 
     function sortEntries(mode) {

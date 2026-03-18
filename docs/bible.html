@@ -1985,6 +1985,19 @@
                     navState.book = e.state.book;
                     navState.chStart = e.state.chStart || 1;
                     navState.chEnd = e.state.chEnd || 1;
+                    // For single-book categories (like Acts), back button should show
+                    // the testament level, not re-skip to chapters
+                    if (navState.level === 'category' && navState.category) {
+                        var cats = navState.testament === 'OT' ? OT : NT;
+                        var catName = decodeURIComponent(navState.category);
+                        var catData = cats[catName];
+                        if (Array.isArray(catData) && catData.length === 1) {
+                            // Go to testament level instead of re-entering single-book skip
+                            navState.level = 'testament';
+                            renderNav();
+                            return;
+                        }
+                    }
                     renderNav();
                 }
             });
@@ -1998,12 +2011,15 @@
                 if (category !== undefined) navState.category = category;
 
                 // UX: Single-book categories skip straight to chapter grid
+                // But still push category state so back button works (Acts fix)
                 if (level === 'category' && category) {
                     var cats = navState.testament === 'OT' ? OT : NT;
                     var catName = decodeURIComponent(category);
                     var catData = cats[catName];
                     if (Array.isArray(catData) && catData.length === 1) {
-                        // Only one book in this category — skip to chapters
+                        // Push the category state first so back button can return here
+                        bnavPushState();
+                        // Then skip to chapters
                         bnavBook(catData[0], catData[0]);
                         return;
                     }
