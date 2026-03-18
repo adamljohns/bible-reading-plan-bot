@@ -144,6 +144,13 @@
         .share-btn { cursor: pointer; opacity: 0.3; font-size: 0.85rem; transition: opacity 0.2s; user-select: none; }
         .share-btn:hover { opacity: 1; }
         .share-btn.copied { opacity: 1; }
+        /* BTE v5.0: Inline cross-ref indicators for chapter mode */
+        .crossref-inline-toggle { cursor: pointer; font-size: 0.85rem; margin-left: 4px; opacity: 0.6; transition: opacity 0.2s; user-select: none; vertical-align: middle; }
+        .crossref-inline-toggle:hover { opacity: 1; }
+        .crossref-inline-body { display: none; margin: 4px 0 8px 24px; padding: 6px 10px; background: rgba(212,175,55,0.06); border-left: 2px solid var(--gold); border-radius: 0 6px 6px 0; font-size: 0.85rem; }
+        .crossref-inline-body.open { display: block; }
+        .crossref-inline-body a { color: var(--gold); text-decoration: none; border-bottom: 1px dotted var(--gold); }
+        .crossref-inline-body a:hover { color: var(--gold-light); border-bottom-style: solid; }
         .share-toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: var(--gold); color: #000; padding: 10px 24px; border-radius: 8px; font-weight: 600; font-size: 0.95rem; z-index: 9999; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
         .share-toast.show { opacity: 1; }
         .amplification {
@@ -461,11 +468,13 @@
             if (!refs || !refs.length) return [];
             if (mode === 'verse') return refs.slice(0, 5);
             if (mode === 'range') return refs.slice(0, 2);
-            return []; // chapter mode: no cross-refs
+            // BTE v5.0: Chapter mode now returns up to 2 refs (shown as inline indicators)
+            return refs.slice(0, 2);
         }
 
         // BTE v5.0: Build cross-reference HTML panel
         function buildCrossRefPanel(allVerseRefs, bookId, chapter, mode) {
+            // BTE v5.0: Chapter mode cross-refs are shown inline per verse, not as bottom panel
             if (mode === 'chapter') return { html: '', count: 0 };
             let totalCount = 0;
             let groupsHtml = '';
@@ -493,6 +502,26 @@
                 '<div class="crossref-body" id="' + panelId + '">' + groupsHtml + '</div>' +
                 '</div>';
             return { html: html, count: totalCount };
+        }
+
+        // BTE v5.0: Toggle inline cross-ref for chapter mode
+        function toggleInlineCrossRef(id) {
+            var el = document.getElementById(id);
+            if (el) el.classList.toggle('open');
+        }
+
+        // BTE v5.0: Build inline cross-ref indicator for a single verse (chapter mode)
+        function buildInlineCrossRef(bookId, chapter, verseNum) {
+            var refs = getCrossRefs(bookId, chapter, verseNum, 'chapter');
+            if (!refs.length) return '';
+            var id = 'cri-' + bookId + '-' + chapter + '-' + verseNum;
+            var linksHtml = refs.map(function(refKey) {
+                var display = crossRefKeyToDisplay(refKey);
+                var link = crossRefKeyToLink(refKey);
+                return '→ <a href="' + link + '">' + display + '</a>';
+            }).join(' &nbsp;');
+            return '<span class="crossref-inline-toggle" onclick="toggleInlineCrossRef(\'' + id + '\')" title="Cross-references">📖</span>' +
+                '<div class="crossref-inline-body" id="' + id + '">' + linksHtml + '</div>';
         }
 
         // BTE v5.0: Toggle cross-reference panel
@@ -1647,6 +1676,10 @@
                 var shareRef = shareBookName + ' ' + ref.chapter + ':' + v.num;
                 html += '<div class="verse-block"><span class="verse-num clickable" onclick="goToVerse(' + ref.chapter + ',' + v.num + ')" title="View verse ' + v.num + ' in detail">' + v.num + '</span> <span class="verse-text">' + v.text + '</span>';
                 html += ' <span class="share-btn" data-testament="' + (ref.bookId <= 39 ? 'ot' : 'nt') + '" onclick="shareVerse(\'' + shareRef.replace(/'/g, "\\'") + '\', this)" title="Tap to copy shareable link for this verse"><img src="' + shareIcon + '" class="site-icon" alt="share" width="20" height="20"></span>';
+                // BTE v5.0: Inline cross-ref indicator in chapter mode
+                if (currentViewMode === 'chapter') {
+                    html += buildInlineCrossRef(ref.bookId, ref.chapter, v.num);
+                }
                 v.amps.forEach(function(a) {
                     html += '<div class="amplification"><span class="amp-label">' + a.label + ':</span> ' + a.text + '</div>';
                 });
@@ -1903,6 +1936,27 @@
                 el.innerHTML = html;
             }
 
+            // BTE v5.0: Push browser history state for back-button navigation
+            function bnavPushState() {
+                var stateObj = { bnavLevel: navState.level, testament: navState.testament, category: navState.category, book: navState.book, chStart: navState.chStart, chEnd: navState.chEnd };
+                history.pushState(stateObj, '', '');
+            }
+
+            window.addEventListener('popstate', function(e) {
+                if (e.state && e.state.bnavLevel) {
+                    navState.level = e.state.bnavLevel;
+                    navState.testament = e.state.testament;
+                    navState.category = e.state.category;
+                    navState.book = e.state.book;
+                    navState.chStart = e.state.chStart || 1;
+                    navState.chEnd = e.state.chEnd || 1;
+                    renderNav();
+                }
+            });
+
+            // Push initial state so first back press works
+            history.replaceState({ bnavLevel: 'top', testament: null, category: null, book: null, chStart: 1, chEnd: 1 }, '', '');
+
             window.bnavGo = function(level, testament, category) {
                 navState.level = level;
                 if (testament !== undefined) navState.testament = testament;
@@ -1920,6 +1974,7 @@
                     }
                 }
 
+                bnavPushState();
                 renderNav();
             };
 
@@ -1940,6 +1995,7 @@
                 navState.book = bookClean;
                 navState.chStart = start;
                 navState.chEnd = end;
+                bnavPushState();
                 renderNav();
             };
 

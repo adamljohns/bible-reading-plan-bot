@@ -81,6 +81,7 @@
 
         .alpha-bar-hebrew, .alpha-bar-greek { display:none; }
         .alpha-bar-hebrew.visible, .alpha-bar-greek.visible { display:block; }
+        /* BTE v5.0: Alphabet bars hidden by default until language button clicked */
 
         footer { text-align:center; padding:40px 20px; color:var(--gray); font-size:0.85rem; border-top:1px solid var(--border); margin-top:40px; }
         footer a { color:var(--gold); text-decoration:none; }
@@ -118,7 +119,7 @@
             </div>
 
             <!-- Hebrew Alphabet Bar -->
-            <div class="alpha-bar-hebrew visible" id="hebrewAlphaBar">
+            <div class="alpha-bar-hebrew" id="hebrewAlphaBar">
                 <div class="alpha-section-label">Hebrew Letters</div>
                 <div class="alpha-bar">
                     <button class="alpha-btn-all active" onclick="filterByLetter('hebrew','all')">All</button>
@@ -148,7 +149,7 @@
             </div>
 
             <!-- Greek Alphabet Bar -->
-            <div class="alpha-bar-greek visible" id="greekAlphaBar">
+            <div class="alpha-bar-greek" id="greekAlphaBar">
                 <div class="alpha-section-label">Greek Letters</div>
                 <div class="alpha-bar">
                     <button class="alpha-btn-all active" onclick="filterByLetter('greek','all')">All</button>
@@ -1902,11 +1903,20 @@
     }
 
     function scrollToSection(section) {
+        // BTE v5.0: Reveal the corresponding alphabet bar when language button clicked
+        if (section === 'hebrew') {
+            document.getElementById('hebrewAlphaBar').classList.add('visible');
+        } else if (section === 'greek') {
+            document.getElementById('greekAlphaBar').classList.add('visible');
+        }
         const el = document.getElementById(section + '-section');
         if (el) {
-            const navH = document.getElementById('lexNavWrap').offsetHeight + 50;
-            const y = el.getBoundingClientRect().top + window.scrollY - navH;
-            window.scrollTo({ top: y, behavior: 'smooth' });
+            // Recalculate after bar may have appeared
+            setTimeout(function() {
+                const navH = document.getElementById('lexNavWrap').offsetHeight + 50;
+                const y = el.getBoundingClientRect().top + window.scrollY - navH;
+                window.scrollTo({ top: y, behavior: 'smooth' });
+            }, 50);
         }
     }
 
