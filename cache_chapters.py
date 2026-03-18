@@ -136,7 +136,13 @@ async def main():
     completed = 0
     start_time = time.time()
 
-    async with aiohttp.ClientSession() as session:
+    # Create SSL context that doesn't verify certs (bolls.life cert chain issue on macOS)
+    ssl_ctx = ssl.create_default_context()
+    ssl_ctx.check_hostname = False
+    ssl_ctx.verify_mode = ssl.CERT_NONE
+
+    connector = aiohttp.TCPConnector(ssl=ssl_ctx)
+    async with aiohttp.ClientSession(connector=connector) as session:
         for book_id, ch in to_fetch:
             out_path = OUTPUT_DIR / f"{book_id}_{ch}.json"
             
