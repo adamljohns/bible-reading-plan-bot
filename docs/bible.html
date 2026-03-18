@@ -1063,8 +1063,8 @@
             if (!text) return text;
             // BTE v4.2: Remove <sup>...</sup> cross-reference notes FIRST (before tag stripping)
             text = text.replace(/<sup>[^<]*<\/sup>/gi, '');
-            // Remove Strong's number tags: <S>1234</S>
-            text = text.replace(/<S>\d+<\/S>/g, '');
+            // Remove Strong's number tags: <S>1234</S> (case-insensitive — browser may lowercase to <s>)
+            text = text.replace(/<S>\d+<\/S>/gi, '');
             // Remove <s>...</s> and <strike>...</strike> strikethrough tags (KJV cross-ref numbers)
             text = text.replace(/<s>[^<]*<\/s>/gi, '');
             text = text.replace(/<strike>[^<]*<\/strike>/gi, '');
@@ -1124,13 +1124,17 @@
                 if (localR.ok) {
                     const allTrans = await localR.json();
                     if (allTrans && typeof allTrans === 'object') {
-                        // Store all translations from this file into in-memory cache
+                        // Store all translations — clean verse text first (static cache has raw HTML)
                         for (const t in allTrans) {
                             const tKey = `bte_ch_${t}_${bookId}_${ch}`;
-                            _chapterCache[tKey] = allTrans[t];
-                            try { sessionStorage.setItem(tKey, JSON.stringify(allTrans[t])); } catch(e) { /* storage full */ }
+                            const cleaned = {};
+                            for (const v in allTrans[t]) {
+                                cleaned[v] = allTrans[t][v] ? cleanVerseText(allTrans[t][v]) : null;
+                            }
+                            _chapterCache[tKey] = cleaned;
+                            try { sessionStorage.setItem(tKey, JSON.stringify(cleaned)); } catch(e) { /* storage full */ }
                         }
-                        if (allTrans[trans]) return allTrans[trans];
+                        if (_chapterCache[cacheKey]) return _chapterCache[cacheKey];
                     }
                 }
             } catch(e) { /* local cache miss — fall through to API */ }
@@ -1755,7 +1759,7 @@
             // OT books 1-39 use cord/rope icon, NT books 40-66 use handshake
             var shareIcon = (ref.bookId <= 39) ? 'assets/icons/shield-cord.png' : 'assets/icons/shield-handshake.png';
             html += '<div style="display:flex;justify-content:space-between;align-items:center;font-size:0.75em;color:#888;margin:-5px 0 8px;">';
-            html += '<span><img src="' + shareIcon + '" alt="share" width="14" height="14" style="vertical-align:middle;opacity:0.6;margin-right:3px;">Tap to copy shareable link</span>';
+            html += '<span><img src="' + shareIcon + '" alt="share" width="20" height="20" style="vertical-align:middle;opacity:0.6;margin-right:3px;">Tap to copy shareable link</span>';
             html += '<span><img src="assets/icons/shield-bible.png" alt="cross-ref" width="20" height="20" style="vertical-align:middle;opacity:0.6;margin-right:3px;">Tap for cross-references</span>';
             html += '</div>';
 
