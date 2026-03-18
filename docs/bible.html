@@ -333,7 +333,7 @@
             <section class="hero">
                 <img src="assets/images/usmc-logo-shield-cross.png" alt="U.S.M.C. Ministries" onerror="this.style.display='none'">
                 <h1>The MOOP Bible Translation Engine</h1>
-                <p class="subtitle">V5.0 · 11 Translations · Interlinear Hebrew &amp; Greek · Strong's Concordance · Cross-References</p>
+                <p class="subtitle">V5.0 · 12 Translations · Interlinear Hebrew &amp; Greek · Strong's Concordance · Cross-References</p>
                 <p class="desc">
                     Type any Bible reference below. The engine blends 11 English translations with
                     NKJV as the primary voice, surfaces meaningful divergences, and provides
@@ -374,7 +374,7 @@
 
     <footer>
         <p>Built by <a href="usmc-ministries.html"><img src="assets/icons/shield-anchor.png" class="site-icon" alt="anchor" width="24" height="24"> U.S.M.C. Ministries</a> · <a href="mentoring.html"><img src="assets/icons/shield-target.png" class="site-icon" alt="target" width="24" height="24"> Mentoring</a> · <a href="watchman.html"><img src="assets/icons/shield-bible.png" class="site-icon" alt="book" width="24" height="24"> Bible Reading Plan</a> · <a href="about.html"><img src="assets/icons/shield-leader.png" class="site-icon" alt="person" width="24" height="24"> About</a> · Powered by The MOOP Bible Translation Engine V5.0</p>
-        <p style="margin-top: 5px;">NKJV 33% · ESV 12% · NASB 12% · CSB 10% · NLT 9% · KJV 7% · WEB 7% · NRSV 4% · AMP 3% · MSG 2% · NIV 1% · Interlinear 5%</p>
+        <p style="margin-top: 5px;">NKJV 33% · ESV 12% · NASB 12% · CSB 10% · NLT 9% · KJV 7% · WEB 7% · NRSV 4% · AMP 3% · MSG 2% · NIV 1% · NET 2% · Interlinear 4%</p>
         <p style="margin-top: 8px; font-size: 0.75rem;">
             Scripture: NKJV © Thomas Nelson · ESV © Crossway · NASB © Lockman · NLT © Tyndale ·
             CSB © Holman · AMP © Lockman · MSG © NavPress · NIV © Biblica · NRSV © NCC · KJV &amp; WEB: Public Domain
@@ -389,10 +389,10 @@
         const API = 'https://bolls.life/get-verse';
         const CHAPTER_API = 'https://bolls.life/get-chapter';
         // BTE v4.0: Added NIV (bolls.life: 'NIV') and NRSV (bolls.life: 'NRSVCE' — identical to NRSV for Protestant canon)
-        const TRANSLATIONS = ['NKJV','KJV','ESV','NASB','NLT','WEB','CSB17','AMP','MSG','NIV','NRSVCE'];
+        const TRANSLATIONS = ['NKJV','KJV','ESV','NASB','NLT','WEB','CSB17','AMP','MSG','NIV','NRSVCE','NET'];
         const DISPLAY = { CSB17: 'CSB', NRSVCE: 'NRSV' };
-        // BTE v4.0: Weights adjusted to accommodate NIV (1%) and NRSV (4%); total remains 0.95 (5% interlinear implied)
-        const WEIGHTS = { NKJV:0.33, ESV:0.11, NASB:0.11, CSB17:0.09, NLT:0.08, KJV:0.07, WEB:0.06, AMP:0.03, MSG:0.02, NIV:0.01, NRSVCE:0.04 };
+        // BTE v5.0: 12 Translations — NET added at 2%, WEB dropped to 5%. Total: 0.96 (4% interlinear implied)
+        const WEIGHTS = { NKJV:0.33, ESV:0.11, NASB:0.11, CSB17:0.09, NLT:0.08, KJV:0.07, WEB:0.05, AMP:0.03, MSG:0.02, NET:0.02, NIV:0.01, NRSVCE:0.04 };
         // BTE v4.0: Hard threshold removed — pure weighted-divergence score, sanity floor only (sim > 0.85)
 
         // BTE v4.8: Verse overrides — specific verses with preferred rendering
@@ -1046,16 +1046,29 @@
             return text;
         }
 
+        // BTE v5.0: sessionStorage cache — fetched chapters persist for the browser session
+        // Eliminates repeat API calls when navigating back and forth
+        const _chapterCache = {};
+
         async function fetchVerse(bookId, ch, v, trans) {
+            const cacheKey = `bte_v_${trans}_${bookId}_${ch}_${v}`;
+            const cached = sessionStorage.getItem(cacheKey);
+            if (cached) return cached;
             try {
                 const r = await fetch(`${API}/${trans}/${bookId}/${ch}/${v}/`);
                 if (!r.ok) return null;
                 const d = await r.json();
-                return d.text ? cleanVerseText(d.text) : null;
+                const text = d.text ? cleanVerseText(d.text) : null;
+                if (text) sessionStorage.setItem(cacheKey, text);
+                return text;
             } catch { return null; }
         }
 
         async function fetchChapterData(bookId, ch, trans) {
+            const cacheKey = `bte_ch_${trans}_${bookId}_${ch}`;
+            if (_chapterCache[cacheKey]) return _chapterCache[cacheKey];
+            const cached = sessionStorage.getItem(cacheKey);
+            if (cached) { const parsed = JSON.parse(cached); _chapterCache[cacheKey] = parsed; return parsed; }
             try {
                 const r = await fetch(`${CHAPTER_API}/${trans}/${bookId}/${ch}/`);
                 if (!r.ok) return null;
@@ -1065,6 +1078,8 @@
                 data.forEach(function(v) {
                     result[v.verse] = v.text ? cleanVerseText(v.text) : null;
                 });
+                _chapterCache[cacheKey] = result;
+                try { sessionStorage.setItem(cacheKey, JSON.stringify(result)); } catch(e) { /* storage full */ }
                 return result;
             } catch { return null; }
         }
