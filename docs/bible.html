@@ -363,6 +363,7 @@
                 <span class="quick-link" onclick="tryRef('Psalm 91')">Psalm 91</span>
                 <span class="quick-link" onclick="tryRef('Ephesians 6:10-18')">Ephesians 6:10-18</span>
                 <span class="quick-link" onclick="tryRef('2 Timothy 1:7')">2 Timothy 1:7</span>
+                <span class="quick-link" onclick="tryRef('Luke 14:33')">Luke 14:33</span>
             </div>
 
             <!-- BTE v4.8: Bible Navigator (OT/NT → Category → Book → Chapter) -->
@@ -1069,6 +1070,22 @@
             if (_chapterCache[cacheKey]) return _chapterCache[cacheKey];
             const cached = sessionStorage.getItem(cacheKey);
             if (cached) { const parsed = JSON.parse(cached); _chapterCache[cacheKey] = parsed; return parsed; }
+            // BTE cache: try local static JSON first (instant, no external API call)
+            try {
+                const localR = await fetch(`assets/chapters/${bookId}_${ch}.json`);
+                if (localR.ok) {
+                    const allTrans = await localR.json();
+                    if (allTrans && typeof allTrans === 'object') {
+                        // Store all translations from this file into in-memory cache
+                        for (const t in allTrans) {
+                            const tKey = `bte_ch_${t}_${bookId}_${ch}`;
+                            _chapterCache[tKey] = allTrans[t];
+                            try { sessionStorage.setItem(tKey, JSON.stringify(allTrans[t])); } catch(e) { /* storage full */ }
+                        }
+                        if (allTrans[trans]) return allTrans[trans];
+                    }
+                }
+            } catch(e) { /* local cache miss — fall through to API */ }
             try {
                 const r = await fetch(`${CHAPTER_API}/${trans}/${bookId}/${ch}/`);
                 if (!r.ok) return null;
