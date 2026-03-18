@@ -87,6 +87,26 @@
         footer a { color:var(--gold); text-decoration:none; }
 
         @media (max-width:640px) { .container { padding:15px; } .word-grid { grid-template-columns:1fr; } .alpha-btn { min-width:30px; padding:3px 4px; } .alpha-btn .letter { font-size:0.85rem; } .lex-toggle-btn { padding:5px 10px; font-size:0.75rem; } }
+        /* BTE v5.0: Dark/Light mode toggle */
+        .theme-toggle {
+            background: none; border: 1px solid var(--border); border-radius: 50%;
+            width: 34px; height: 34px; cursor: pointer; display: flex;
+            align-items: center; justify-content: center; font-size: 1.1rem;
+            transition: all 0.3s; padding: 0; margin-left: 6px;
+        }
+        .theme-toggle:hover { border-color: var(--gold); transform: scale(1.1); }
+        body.light-mode {
+            --bg-dark: #FAF8F5; --bg-card: #FFFFFF; --white: #1a1a1a;
+            --gray: #666666; --border: #d4d0c8;
+        }
+        body.light-mode { background: #FAF8F5; color: #1a1a1a; }
+        body.light-mode nav { background: rgba(250,248,245,0.97); }
+        body.light-mode .word-card { background: #fff; border-color: #d4d0c8; }
+        body.light-mode .resources { background: #fff; border-color: #d4d0c8; }
+        body.light-mode .search-box input { background: #fff; border-color: #d4d0c8; color: #1a1a1a; }
+        body.light-mode .lex-nav-wrap { background: rgba(250,248,245,0.97); }
+        body.light-mode .alpha-btn { background: #f5f3ef; border-color: #d4d0c8; }
+        body.light-mode footer { border-top-color: #d4d0c8; }
     </style>
 </head>
 <body>
@@ -96,6 +116,7 @@
         <a href="lexicon.html" class="active">Lexicon</a>
         <a href="blog.html">Blog</a>
         <a href="links.html">Connect</a>
+        <button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark/light mode" id="themeToggle">🌙</button>
     </nav>
 
     <div class="container">
@@ -2034,6 +2055,28 @@
         initCards();
         document.getElementById('sortNumBtn').classList.add('active');
     });
+    // BTE v5.0: Dark/Light Mode Toggle
+    function toggleTheme() {
+        var body = document.body;
+        var btn = document.getElementById('themeToggle');
+        if (body.classList.contains('light-mode')) {
+            body.classList.remove('light-mode');
+            btn.textContent = '🌙';
+            localStorage.setItem('bte-theme', 'dark');
+        } else {
+            body.classList.add('light-mode');
+            btn.textContent = '☀️';
+            localStorage.setItem('bte-theme', 'light');
+        }
+    }
+    (function() {
+        var saved = localStorage.getItem('bte-theme');
+        if (saved === 'light') {
+            document.body.classList.add('light-mode');
+            var btn = document.getElementById('themeToggle');
+            if (btn) btn.textContent = '☀️';
+        }
+    })();
     </script>
 </body>
 </html>

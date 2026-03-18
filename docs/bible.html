@@ -274,6 +274,40 @@
         nav a, nav a:link, nav a:visited, nav a:active { color: var(--gray, #8b949e) !important; text-decoration: none !important; }
         .top-nav a, .top-nav a:link, .top-nav a:visited, .top-nav a:active { color: var(--gray, #8b949e) !important; text-decoration: none !important; }
 
+        /* BTE v5.0: Dark/Light mode toggle */
+        .theme-toggle {
+            background: none; border: 1px solid var(--border); border-radius: 50%;
+            width: 34px; height: 34px; cursor: pointer; display: flex;
+            align-items: center; justify-content: center; font-size: 1.1rem;
+            transition: all 0.3s; padding: 0; margin-left: 6px;
+        }
+        .theme-toggle:hover { border-color: var(--gold); transform: scale(1.1); }
+
+        /* Light mode overrides */
+        body.light-mode {
+            --bg-dark: #FAF8F5;
+            --bg-card: #FFFFFF;
+            --white: #1a1a1a;
+            --gray: #666666;
+            --border: #d4d0c8;
+        }
+        body.light-mode { background-color: #FAF8F5; color: #1a1a1a; }
+        body.light-mode nav { background: rgba(250,248,245,0.97); }
+        body.light-mode .search-box { background: #fff; border-color: #d4d0c8; }
+        body.light-mode .search-box input { color: #1a1a1a; }
+        body.light-mode .result-card { background: #fff; border-color: #d4d0c8; }
+        body.light-mode .strongs-section { background: #f5f3ef; border-color: #d4d0c8; }
+        body.light-mode .strongs-entry { background: #edeae4; border-color: #d4d0c8; }
+        body.light-mode .amplification { background: rgba(212,175,55,0.08); }
+        body.light-mode .clarity-section { background: rgba(212,175,55,0.06); }
+        body.light-mode .quick-link { background: #edeae4; border-color: #d4d0c8; }
+        body.light-mode .bnav-panel { background: #fff; border-color: #d4d0c8; }
+        body.light-mode .bnav-book { background: #f5f3ef; border-color: #d4d0c8; color: #333; }
+        body.light-mode .bnav-btn { background: #f5f3ef; border-color: var(--gold); }
+        body.light-mode footer { border-top-color: #d4d0c8; }
+        body.light-mode .crossref-section { background: rgba(212,175,55,0.04); border-color: #d4d0c8; }
+        body.light-mode .crossref-inline-body { background: rgba(212,175,55,0.06); }
+
         /* BTE v5.0: Cross-Reference Panel */
         .crossref-section {
             background: rgba(212,175,55,0.04); border: 1px solid #2a2a2a; border-radius: 8px;
@@ -326,6 +360,7 @@
         <a href="about.html"><img src="assets/icons/shield-leader.png" class="site-icon" alt="leader" width="16" height="16"> About</a>
         <a href="blog.html"><img src="assets/icons/shield-book.png" class="site-icon" alt="blog" width="16" height="16"> Blog</a>
         <a href="links.html"><img src="assets/icons/shield-handshake.png" class="site-icon" alt="handshake" width="16" height="16"> Connect</a>
+        <button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark/light mode" id="themeToggle">🌙</button>
     </nav>
 
     <div class="container">
@@ -1030,12 +1065,22 @@
             text = text.replace(/<sup>[^<]*<\/sup>/gi, '');
             // Remove Strong's number tags: <S>1234</S>
             text = text.replace(/<S>\d+<\/S>/g, '');
+            // Remove <s>...</s> strikethrough tags (KJV cross-ref numbers)
+            text = text.replace(/<s>[^<]*<\/s>/gi, '');
             // Replace <br> and <br/> with space (preserve word boundaries in poetry)
             text = text.replace(/<br\s*\/?>/gi, ' ');
             // Remove remaining HTML tags (but preserve spacing)
             text = text.replace(/<[^>]+>/g, '');
             // Remove circled letter annotations
             text = text.replace(/[\u24B6-\u24FF\u2460-\u2473]/g, '');
+            // BTE v5.0: Strip CSB-style footnote markers: [a], [b], [c] etc.
+            text = text.replace(/\s*\[[a-z]\]/g, '');
+            // Strip parenthesized footnote markers: (a), (b), (c) etc.
+            text = text.replace(/\s*\([a-z]\)/g, '');
+            // Strip KJV cross-reference numbers in brackets: [1], [2], etc.
+            text = text.replace(/\[\d+\]/g, '');
+            // Strip standalone superscript-style single letters between words (CSB footnotes)
+            text = text.replace(/(\w) [a-c](?= [A-Z])/g, '$1');
             // Strip Strong's numbers: digits (2-5) immediately following a letter (KJV, WEB)
             text = text.replace(/([a-zA-Z])(\d{2,5})(?=[\s,;:.!?'")\-]|$)/g, '$1');
             // Remove KJV inline marginal notes: ": Heb. ...", ": Gr. ...", "; or, ..."
@@ -1199,6 +1244,11 @@
             return sources;
         }
 
+        // BTE v5.0: Chapter-mode parallel filter — only translations with weight > 4%
+        // Excludes NKJV (primary base) and whichever translation was blended for that verse
+        const CHAPTER_PARALLEL_ELIGIBLE = TRANSLATIONS.filter(t => t !== 'NKJV' && (WEIGHTS[t] || 0) >= 0.04);
+        // = ESV, NASB, CSB17, NLT, KJV, WEB, NRSVCE
+
         // BTE v4.9: For chapter mode, pick a parallel that is NOT one of the blend sources
         // Rotates per verse number for variety
         let chapterParallelIdx = 0;
@@ -1208,7 +1258,9 @@
             const ampCandidates = [];
             TRANSLATIONS.forEach(t => {
                 if (t === 'NKJV' || !texts[t]) return;
-                // In chapter mode, skip translations used in the MOOP blend
+                // BTE v5.0: In chapter mode, only allow translations with weight >= 4%
+                if (mode === 'chapter' && !CHAPTER_PARALLEL_ELIGIBLE.includes(t)) return;
+                // In chapter mode, skip translations used in the MOOP blend for this verse
                 if (mode === 'chapter' && excludeSources && excludeSources.includes(t)) return;
                 const sim = similarity(baseText, texts[t]);
                 if (sim > 0.85) return;
@@ -2069,6 +2121,31 @@
             renderNav();
         })();
         // ── End Bible Navigator ────────────────────────────────────────────────
+
+        // ── BTE v5.0: Dark/Light Mode Toggle ──────────────────────────────────
+        function toggleTheme() {
+            var body = document.body;
+            var btn = document.getElementById('themeToggle');
+            if (body.classList.contains('light-mode')) {
+                body.classList.remove('light-mode');
+                btn.textContent = '🌙';
+                localStorage.setItem('bte-theme', 'dark');
+            } else {
+                body.classList.add('light-mode');
+                btn.textContent = '☀️';
+                localStorage.setItem('bte-theme', 'light');
+            }
+        }
+        // Apply saved theme on load
+        (function() {
+            var saved = localStorage.getItem('bte-theme');
+            if (saved === 'light') {
+                document.body.classList.add('light-mode');
+                var btn = document.getElementById('themeToggle');
+                if (btn) btn.textContent = '☀️';
+            }
+        })();
+        // ── End Dark/Light Mode ────────────────────────────────────────────────
     </script>
 <script>if("serviceWorker" in navigator){navigator.serviceWorker.register("/sw.js")}</script>
 </body>
