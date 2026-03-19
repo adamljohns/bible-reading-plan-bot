@@ -88,13 +88,6 @@
 
         @media (max-width:640px) { .container { padding:15px; } .word-grid { grid-template-columns:1fr; } .alpha-btn { min-width:30px; padding:3px 4px; } .alpha-btn .letter { font-size:0.85rem; } .lex-toggle-btn { padding:5px 10px; font-size:0.75rem; } }
         /* BTE v5.0: Dark/Light mode toggle */
-        .theme-toggle {
-            background: none; border: 1px solid var(--border); border-radius: 50%;
-            width: 34px; height: 34px; cursor: pointer; display: flex;
-            align-items: center; justify-content: center; font-size: 1.1rem;
-            transition: all 0.3s; padding: 0; margin-left: 6px;
-        }
-        .theme-toggle:hover { border-color: var(--gold); transform: scale(1.1); }
         body.light-mode {
             --bg-dark: #FAF8F5; --bg-card: #FFFFFF; --white: #1a1a1a;
             --gray: #666666; --border: #d4d0c8;
@@ -107,9 +100,42 @@
         body.light-mode .lex-nav-wrap { background: rgba(250,248,245,0.97); }
         body.light-mode .alpha-btn { background: #f5f3ef; border-color: #d4d0c8; }
         body.light-mode footer { border-top-color: #d4d0c8; }
+    
+        /* ── BTE Dark/Light Mode Toggle ── */
+        .bte-theme-toggle {
+            position: fixed; top: 12px; right: 12px; z-index: 9999;
+            display: flex; align-items: center; gap: 0;
+            background: rgba(30,30,30,0.85); border: 1px solid #333;
+            border-radius: 20px; padding: 3px 6px; cursor: pointer;
+            font-size: 0.7rem; user-select: none; backdrop-filter: blur(6px);
+            transition: all 0.3s;
+        }
+        .bte-theme-toggle:hover { border-color: #D4AF37; }
+        .bte-theme-toggle .toggle-icon { width: 18px; text-align: center; line-height: 1; }
+        .bte-theme-toggle .toggle-track {
+            width: 28px; height: 14px; background: #444; border-radius: 7px;
+            position: relative; margin: 0 4px; transition: background 0.3s;
+        }
+        .bte-theme-toggle .toggle-knob {
+            width: 10px; height: 10px; background: #D4AF37; border-radius: 50%;
+            position: absolute; top: 2px; left: 2px; transition: left 0.3s;
+        }
+        body.light-mode .bte-theme-toggle { background: rgba(240,238,233,0.9); border-color: #ccc; }
+        body.light-mode .bte-theme-toggle .toggle-track { background: #bbb; }
+        body.light-mode .bte-theme-toggle .toggle-knob { left: 16px; }
+        body.light-mode .bte-theme-toggle .toggle-icon { filter: none; }
+        .bte-theme-toggle .moon-icon { color: #888; }
+        .bte-theme-toggle .sun-icon { color: #888; }
+        body.light-mode .bte-theme-toggle .sun-icon { color: #D4AF37; }
+        body:not(.light-mode) .bte-theme-toggle .moon-icon { color: #D4AF37; }
     </style>
 </head>
 <body>
+    <div class="bte-theme-toggle" onclick="bteToggleTheme()" title="Toggle dark/light mode">
+        <span class="toggle-icon moon-icon">🌙</span>
+        <div class="toggle-track"><div class="toggle-knob"></div></div>
+        <span class="toggle-icon sun-icon">☀️</span>
+    </div>
     <nav>
         <a href="index.html"><img src="assets/icons/shield-home-24.png" class="site-icon" alt="home" width="16" height="16"> U.S.M.C. Ministries Home</a>
         <a href="watchman.html"><img src="assets/icons/shield-bible.png" class="site-icon" alt="bible" width="16" height="16"> Watchman Bible Plan</a>
@@ -118,11 +144,11 @@
         <a href="cross-references.html"><img src="assets/icons/shield-infinity-rope-24.png" class="site-icon" alt="cross-references" width="16" height="16"> Cross-References</a>
         <a href="blog-christian-localism.html"><img src="assets/icons/shield-blog-quill-24.png" class="site-icon" alt="blog" width="16" height="16"> Blog</a>
         <a href="connect.html"><img src="assets/icons/shield-handshake.png" class="site-icon" alt="connect" width="16" height="16"> Connect</a>
-        <button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark/light mode" id="themeToggle">🌙</button>
     </nav>
 
     <div class="container">
         <div class="hero">
+            <div style="text-align:center; margin-bottom:10px;"><img src="assets/icons/shield-alpha-omega.png" alt="Alpha & Omega" width="96" height="96" style="display:block; margin:0 auto;"></div>
             <h1>Greek &amp; Hebrew Lexicon</h1>
             <p>Go deeper into God's Word. Explore the original Hebrew and Greek words of Scripture — their meanings, their theological significance, and how they shape our understanding of the Bible.</p>
         </div>
@@ -1979,158 +2005,16 @@
         // Use a short delay so the alphabet bar is visible before calculating position
         var el = document.getElementById(section + '-section');
         if (el) {
-            setTimeout(function() {
-                el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                // Offset for sticky nav
-                window.scrollBy(0, -80);
-            }, 100);
-        }
+            setTimeout
+</script>
+    <script>
+    /* ── BTE Dark/Light Mode ── */
+    function bteToggleTheme(){
+        document.body.classList.toggle('light-mode');
+        localStorage.setItem('bte-theme', document.body.classList.contains('light-mode') ? 'light' : 'dark');
     }
-
-    function filterByLetter(lang, letter) {
-        if (lang === 'hebrew') {
-            activeHebrewLetter = (activeHebrewLetter === letter && letter !== 'all') ? 'all' : letter;
-            // Update button states
-            document.querySelectorAll('#hebrewAlphaBar .alpha-btn').forEach(b => b.classList.remove('active'));
-            document.querySelector('#hebrewAlphaBar .alpha-btn-all').classList.toggle('active', activeHebrewLetter === 'all');
-            if (activeHebrewLetter !== 'all') {
-                const active = document.querySelector('#hebrewAlphaBar .alpha-btn[data-letter="'+activeHebrewLetter+'"]');
-                if (active) active.classList.add('active');
-            }
-        } else {
-            activeGreekLetter = (activeGreekLetter === letter && letter !== 'all') ? 'all' : letter;
-            document.querySelectorAll('#greekAlphaBar .alpha-btn').forEach(b => b.classList.remove('active'));
-            document.querySelector('#greekAlphaBar .alpha-btn-all').classList.toggle('active', activeGreekLetter === 'all');
-            if (activeGreekLetter !== 'all') {
-                const active = document.querySelector('#greekAlphaBar .alpha-btn[data-letter="'+activeGreekLetter+'"]');
-                if (active) active.classList.add('active');
-            }
-        }
-        filterWords();
-        // Scroll to the section header after filtering (but don't re-call scrollToSection to avoid recursion)
-        if (letter !== 'all') {
-            var secEl = document.getElementById(lang + '-section');
-            if (secEl) {
-                setTimeout(function() {
-                    var navH = document.getElementById('lexNavWrap').offsetHeight + 50;
-                    var y = secEl.getBoundingClientRect().top + window.scrollY - navH;
-                    window.scrollTo({ top: y, behavior: 'smooth' });
-                }, 50);
-            }
-        }
-    }
-
-    function sortEntries(mode) {
-        currentSort = mode;
-        document.getElementById('sortNumBtn').classList.toggle('active', mode === 'number');
-        document.getElementById('sortAlphaBtn').classList.toggle('active', mode === 'alpha');
-
-        const sortFn = mode === 'alpha'
-            ? (a, b) => a.dataset.translit.localeCompare(b.dataset.translit)
-            : (a, b) => parseInt(a.dataset.strongsNum) - parseInt(b.dataset.strongsNum);
-
-        const hGrid = document.getElementById('hebrew-grid');
-        const gGrid = document.getElementById('greek-grid');
-
-        [...hebrewCards].sort(sortFn).forEach(c => hGrid.appendChild(c));
-        [...greekCards].sort(sortFn).forEach(c => gGrid.appendChild(c));
-    }
-
-    function filterWords() {
-        const q = document.getElementById('lexSearch').value.toLowerCase().trim();
-        let hebrewVisible = 0, greekVisible = 0;
-        const totalHebrew = hebrewCards.length;
-        const totalGreek = greekCards.length;
-
-        hebrewCards.forEach(c => {
-            const matchSearch = !q || c.dataset.search.includes(q);
-            const matchLetter = activeHebrewLetter === 'all' || c.dataset.alphaLetter === activeHebrewLetter;
-            const show = matchSearch && matchLetter;
-            c.style.display = show ? '' : 'none';
-            if (show) hebrewVisible++;
-        });
-
-        greekCards.forEach(c => {
-            const matchSearch = !q || c.dataset.search.includes(q);
-            const matchLetter = activeGreekLetter === 'all' || c.dataset.alphaLetter === activeGreekLetter;
-            const show = matchSearch && matchLetter;
-            c.style.display = show ? '' : 'none';
-            if (show) greekVisible++;
-        });
-
-        // Update section visibility (respect which language is selected)
-        if (selectedLanguage === 'hebrew') {
-            document.getElementById('hebrew-section').style.display = hebrewVisible ? '' : 'none';
-            document.getElementById('hebrew-sub').style.display = hebrewVisible ? '' : 'none';
-            document.getElementById('hebrew-grid').style.display = hebrewVisible ? '' : 'none';
-            document.getElementById('greek-section').style.display = 'none';
-            document.getElementById('greek-sub').style.display = 'none';
-            document.getElementById('greek-grid').style.display = 'none';
-        } else if (selectedLanguage === 'greek') {
-            document.getElementById('greek-section').style.display = greekVisible ? '' : 'none';
-            document.getElementById('greek-sub').style.display = greekVisible ? '' : 'none';
-            document.getElementById('greek-grid').style.display = greekVisible ? '' : 'none';
-            document.getElementById('hebrew-section').style.display = 'none';
-            document.getElementById('hebrew-sub').style.display = 'none';
-            document.getElementById('hebrew-grid').style.display = 'none';
-        } else {
-            // No language selected yet - keep everything hidden
-            document.getElementById('hebrew-section').style.display = 'none';
-            document.getElementById('hebrew-sub').style.display = 'none';
-            document.getElementById('hebrew-grid').style.display = 'none';
-            document.getElementById('greek-section').style.display = 'none';
-            document.getElementById('greek-sub').style.display = 'none';
-            document.getElementById('greek-grid').style.display = 'none';
-        }
-
-        // Update filter status
-        const totalVisible = hebrewVisible + greekVisible;
-        const totalAll = totalHebrew + totalGreek;
-        const statusEl = document.getElementById('filterStatus');
-        const isFiltered = q || activeHebrewLetter !== 'all' || activeGreekLetter !== 'all';
-        statusEl.style.display = isFiltered ? 'block' : 'none';
-        document.getElementById('filterCount').textContent = totalVisible;
-        document.getElementById('filterTotal').textContent = totalAll;
-
-        // Update section sub counts
-        if (hebrewVisible) {
-            document.getElementById('hebrew-sub').textContent =
-                (activeHebrewLetter !== 'all' || q) ? hebrewVisible + ' of ' + totalHebrew + ' Hebrew words' : totalHebrew + ' words from the Hebrew Scriptures';
-        }
-        if (greekVisible) {
-            document.getElementById('greek-sub').textContent =
-                (activeGreekLetter !== 'all' || q) ? greekVisible + ' of ' + totalGreek + ' Greek words' : totalGreek + ' words from the Greek New Testament';
-        }
-
-        document.getElementById('noResults').style.display = (totalVisible === 0 && (q || isFiltered)) ? 'block' : 'none';
-    }
-
-    // Init on load
-    document.addEventListener('DOMContentLoaded', () => {
-        initCards();
-        document.getElementById('sortNumBtn').classList.add('active');
-    });
-    // BTE v5.0: Dark/Light Mode Toggle
-    function toggleTheme() {
-        var body = document.body;
-        var btn = document.getElementById('themeToggle');
-        if (body.classList.contains('light-mode')) {
-            body.classList.remove('light-mode');
-            btn.textContent = '🌙';
-            localStorage.setItem('bte-theme', 'dark');
-        } else {
-            body.classList.add('light-mode');
-            btn.textContent = '☀️';
-            localStorage.setItem('bte-theme', 'light');
-        }
-    }
-    (function() {
-        var saved = localStorage.getItem('bte-theme');
-        if (saved === 'light') {
-            document.body.classList.add('light-mode');
-            var btn = document.getElementById('themeToggle');
-            if (btn) btn.textContent = '☀️';
-        }
+    (function(){
+        if(localStorage.getItem('bte-theme')==='light') document.body.classList.add('light-mode');
     })();
     </script>
 </body>

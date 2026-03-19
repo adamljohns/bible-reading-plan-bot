@@ -204,33 +204,60 @@
             nav .nav-links.open { display:flex; }
             nav .nav-links a { text-align:center; padding:10px 12px; border:1px solid var(--border); border-radius:8px; }
         }
-            .theme-toggle {
-            background: none; border: 1px solid transparent; cursor: pointer;
-            font-size: 1.1rem; padding: 5px 10px; border-radius: 20px;
-            transition: all 0.2s; line-height: 1;
-        }
-        .theme-toggle:hover { border-color: var(--border); }
     
         body.light-mode nav { background: rgba(245,243,239,0.97) !important; border-color: #d4d0c8 !important; }
         body.light-mode nav a { color: #555 !important; }
         body.light-mode nav a:hover, body.light-mode nav a.active { color: #D4AF37 !important; }
         body.light-mode footer { background: #F5F3EF !important; border-color: #d4d0c8 !important; color: #666 !important; }
+    
+        /* ── BTE Dark/Light Mode Toggle ── */
+        .bte-theme-toggle {
+            position: fixed; top: 12px; right: 12px; z-index: 9999;
+            display: flex; align-items: center; gap: 0;
+            background: rgba(30,30,30,0.85); border: 1px solid #333;
+            border-radius: 20px; padding: 3px 6px; cursor: pointer;
+            font-size: 0.7rem; user-select: none; backdrop-filter: blur(6px);
+            transition: all 0.3s;
+        }
+        .bte-theme-toggle:hover { border-color: #D4AF37; }
+        .bte-theme-toggle .toggle-icon { width: 18px; text-align: center; line-height: 1; }
+        .bte-theme-toggle .toggle-track {
+            width: 28px; height: 14px; background: #444; border-radius: 7px;
+            position: relative; margin: 0 4px; transition: background 0.3s;
+        }
+        .bte-theme-toggle .toggle-knob {
+            width: 10px; height: 10px; background: #D4AF37; border-radius: 50%;
+            position: absolute; top: 2px; left: 2px; transition: left 0.3s;
+        }
+        body.light-mode .bte-theme-toggle { background: rgba(240,238,233,0.9); border-color: #ccc; }
+        body.light-mode .bte-theme-toggle .toggle-track { background: #bbb; }
+        body.light-mode .bte-theme-toggle .toggle-knob { left: 16px; }
+        body.light-mode .bte-theme-toggle .toggle-icon { filter: none; }
+        .bte-theme-toggle .moon-icon { color: #888; }
+        .bte-theme-toggle .sun-icon { color: #888; }
+        body.light-mode .bte-theme-toggle .sun-icon { color: #D4AF37; }
+        body:not(.light-mode) .bte-theme-toggle .moon-icon { color: #D4AF37; }
     </style>
 </head>
 <body>
+    <div class="bte-theme-toggle" onclick="bteToggleTheme()" title="Toggle dark/light mode">
+        <span class="toggle-icon moon-icon">🌙</span>
+        <div class="toggle-track"><div class="toggle-knob"></div></div>
+        <span class="toggle-icon sun-icon">☀️</span>
+    </div>
     <nav>
         <a href="index.html"><img src="assets/icons/shield-home-24.png" class="site-icon" alt="home" width="16" height="16"> U.S.M.C. Ministries Home</a>
         <a href="watchman.html"><img src="assets/icons/shield-bible.png" class="site-icon" alt="bible" width="16" height="16"> Watchman Bible Plan</a>
         <a href="bible.html"><img src="assets/icons/shield-compass.png" class="site-icon" alt="compass" width="16" height="16"> Bible Translation Engine</a>
         <a href="lexicon.html"><img src="assets/icons/shield-alpha-omega-24.png" class="site-icon" alt="lexicon" width="16" height="16"> Lexicon</a>
+        <a href="cross-references.html"><img src="assets/icons/shield-infinity-rope-24.png" class="site-icon" alt="cross-references" width="16" height="16"> Cross-References</a>
         <a href="blog-christian-localism.html"><img src="assets/icons/shield-blog-quill-24.png" class="site-icon" alt="blog" width="16" height="16"> Blog</a>
         <a href="connect.html" class="active"><img src="assets/icons/shield-handshake.png" class="site-icon" alt="connect" width="16" height="16"> Connect</a>
-        <button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark/light mode" id="themeToggle">🌙</button>
     </nav>
 
     <div class="container">
         <!-- Profile -->
-        <img src="assets/usmc-ministries-full-crest.png" alt="U.S.M.C. Ministries" class="profile-img" style="border-radius:0; border:none; box-shadow:none;">
+        <img src="assets/usmc-ministries-full-crest.png" alt="U.S.M.C. Ministries" style="max-width:280px; width:100%; height:auto; margin-bottom:16px; display:block; margin-left:auto; margin-right:auto;">
         <div class="profile-name">Adam "MOOP" Johns</div>
         <div class="profile-title">
             USMC Veteran · Minister · Entrepreneur<br>
@@ -389,20 +416,15 @@
         <p style="margin-top:8px; font-size:0.8rem; color:#555;">For more info on our services or products to purchase in support of this ministry, check out our other website: <a href="https://usmcmin.com" style="color:var(--gold);">usmcmin.com</a></p>
         <p style="margin-top:10px; font-size:0.82rem; font-style:italic; color:#555;">&ldquo;Iron sharpens iron, and one man sharpens another.&rdquo; &mdash; Proverbs 27:17</p>
     </footer>
+    
     <script>
-    /* ── Theme Toggle ── */
-    function toggleTheme() {
+    /* ── BTE Dark/Light Mode ── */
+    function bteToggleTheme(){
         document.body.classList.toggle('light-mode');
-        const btn = document.getElementById('themeToggle');
-        if (btn) btn.textContent = document.body.classList.contains('light-mode') ? '☀️' : '🌙';
         localStorage.setItem('bte-theme', document.body.classList.contains('light-mode') ? 'light' : 'dark');
     }
     (function(){
-        if(localStorage.getItem('bte-theme')==='light') {
-            document.body.classList.add('light-mode');
-            var btn = document.getElementById('themeToggle');
-            if (btn) btn.textContent = '☀️';
-        }
+        if(localStorage.getItem('bte-theme')==='light') document.body.classList.add('light-mode');
     })();
     </script>
 </body>
