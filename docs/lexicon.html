@@ -2138,13 +2138,23 @@
     // Init on load
     document.addEventListener('DOMContentLoaded', () => {
         initCards();
-        // Populate stats
-        var totalEl = document.getElementById('lexStatTotal');
-        var hebEl = document.getElementById('lexStatHebrew');
-        var greEl = document.getElementById('lexStatGreek');
-        if (totalEl) totalEl.textContent = (hebrewCards.length + greekCards.length).toLocaleString();
-        if (hebEl) hebEl.textContent = hebrewCards.length.toLocaleString();
-        if (greEl) greEl.textContent = greekCards.length.toLocaleString();
+        // Populate stats from manifest (actual file count, not just cards in HTML)
+        fetch('assets/lexicon-manifest.json').then(r => r.json()).then(m => {
+            var totalEl = document.getElementById('lexStatTotal');
+            var hebEl = document.getElementById('lexStatHebrew');
+            var greEl = document.getElementById('lexStatGreek');
+            if (totalEl) totalEl.textContent = (m.count || 0).toLocaleString();
+            if (hebEl) hebEl.textContent = (m.hebrew || 0).toLocaleString();
+            if (greEl) greEl.textContent = (m.greek || 0).toLocaleString();
+        }).catch(() => {
+            // Fallback to card count if manifest fails
+            var totalEl = document.getElementById('lexStatTotal');
+            var hebEl = document.getElementById('lexStatHebrew');
+            var greEl = document.getElementById('lexStatGreek');
+            if (totalEl) totalEl.textContent = (hebrewCards.length + greekCards.length).toLocaleString();
+            if (hebEl) hebEl.textContent = hebrewCards.length.toLocaleString();
+            if (greEl) greEl.textContent = greekCards.length.toLocaleString();
+        });
         document.getElementById('sortNumBtn').classList.add('active');
     });
     // BTE v5.0: Dark/Light Mode Toggle
