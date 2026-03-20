@@ -78,6 +78,10 @@
         .xref-chip { display:inline-block; background:rgba(212,175,55,0.1); border:1px solid rgba(212,175,55,0.3); border-radius:20px; padding:4px 12px; font-size:0.82rem; color:var(--gold); text-decoration:none; transition:all 0.2s; }
         .xref-chip:hover { background:rgba(212,175,55,0.25); border-color:var(--gold); color:var(--gold-light); }
 
+        /* Verse text block (gold left border like lexicon word study) */
+        .verse-text-block { border-left:3px solid var(--gold); padding:10px 16px; margin:6px 0 10px; font-size:0.93rem; color:var(--gray); line-height:1.75; font-style:italic; background:rgba(212,175,55,0.04); border-radius:0 6px 6px 0; }
+        .verse-text-block.loading { color:#555; font-style:normal; font-size:0.82rem; }
+
         .no-results { display:none; text-align:center; color:var(--gray); padding:30px; font-size:1rem; }
 
         /* Section headers */
@@ -196,7 +200,7 @@
         </div>
 
         <!-- Theological Chains -->
-        <h2 class="section-header">⛓️ Theological Chains</h2>
+        <h2 class="section-header"><img src="assets/icons/shield-infinity-rope-24.png" class="site-icon" alt="chains" width="24" height="24"> Theological Chains</h2>
         <p class="section-sub">Follow the golden threads that weave through all of Scripture — from Genesis to Revelation.</p>
 
         <div class="chains-grid" id="chainsGrid"></div>
@@ -291,6 +295,35 @@
 
     let xrefData = {};
     let booksWithRefs = new Set();
+    let moopTranslation = null;
+    let moopTranslationLoading = true;
+
+    // Async load MOOP Translation (non-blocking)
+    fetch('assets/moop-translation.json')
+        .then(r => r.json())
+        .then(data => { moopTranslation = data; moopTranslationLoading = false; backfillVerseText(); })
+        .catch(e => { console.warn('MOOP Translation not loaded:', e); moopTranslationLoading = false; });
+
+    function getVerseText(key) {
+        if (!moopTranslation) return null;
+        // key is like "6_1_5" → try direct lookup first
+        if (moopTranslation[key]) return moopTranslation[key];
+        // Try book_chapter_verse format variations
+        return null;
+    }
+
+    // Backfill verse text into already-rendered cards when translation loads
+    function backfillVerseText() {
+        document.querySelectorAll('.verse-text-block[data-key]').forEach(el => {
+            const text = getVerseText(el.dataset.key);
+            if (text) {
+                el.textContent = '"' + text + '"';
+                el.classList.remove('loading');
+            } else {
+                el.remove();
+            }
+        });
+    }
 
     /* ===== Key → Reference Conversion ===== */
     function keyToRef(key) {
@@ -384,7 +417,7 @@
         const noRes = document.getElementById('noResults');
 
         area.style.display = 'block';
-        header.textContent = title + ' — ' + results.length + ' verse' + (results.length !== 1 ? 's' : '') + ' with cross-references';
+        header.innerHTML = '<img src="assets/icons/shield-bible.png" class="site-icon" alt="bible" width="20" height="20"> ' + title + ' — ' + results.length + ' verse' + (results.length !== 1 ? 's' : '') + ' with cross-references';
         list.innerHTML = '';
         noRes.style.display = results.length === 0 ? 'block' : 'none';
 
@@ -400,9 +433,24 @@
             verseEl.className = 'result-verse';
             const verseLink = document.createElement('a');
             verseLink.href = keyToBteLink(key);
-            verseLink.textContent = '📖 ' + keyToRef(key);
+            verseLink.innerHTML = '<img src="assets/icons/shield-bible.png" class="site-icon" alt="bible" width="20" height="20"> ' + keyToRef(key);
             verseEl.appendChild(verseLink);
             card.appendChild(verseEl);
+
+            // Verse text from MOOP Translation
+            const vText = getVerseText(key);
+            if (vText) {
+                const vtBlock = document.createElement('div');
+                vtBlock.className = 'verse-text-block';
+                vtBlock.textContent = '"' + vText + '"';
+                card.appendChild(vtBlock);
+            } else if (moopTranslationLoading) {
+                const vtBlock = document.createElement('div');
+                vtBlock.className = 'verse-text-block loading';
+                vtBlock.dataset.key = key;
+                vtBlock.textContent = 'Loading verse text…';
+                card.appendChild(vtBlock);
+            }
 
             const xrefList = document.createElement('div');
             xrefList.className = 'xref-list';
@@ -574,7 +622,7 @@
 
             const title = document.createElement('h3');
             title.className = 'chain-title';
-            title.textContent = chain.title;
+            title.innerHTML = chain.title;
             card.appendChild(title);
 
             const desc = document.createElement('p');
