@@ -19,7 +19,8 @@
     --bg: #0d1117; --card: #161b22; --border: #30363d;
     --gold: #D4AF37; --gold-light: #F4D470;
     --white: #e6edf3; --gray: #8b949e; --gray-light: #aaaaaa;
-    --green: #3fb950; --blue: #58a6ff; --purple: #bc8cff; --red: #f85149; --orange: #e3b341;
+    --green: #3fb950; --blue: #58a6ff; --purple: #bc8cff;
+    --red: #f85149; --orange: #e3b341; --teal: #39d353;
   }
   body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--white); min-height: 100vh; }
 
@@ -37,16 +38,35 @@
   .header .meta { color: var(--gray); font-size: 0.8rem; font-style: italic; }
 
   /* STATS BAR */
-  .stats { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; padding: 20px; max-width: 900px; margin: 0 auto; }
+  .stats { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; padding: 20px; max-width: 960px; margin: 0 auto; }
   .stat { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 12px 20px; text-align: center; flex: 1; min-width: 100px; }
-  .stat-num { font-size: 1.8rem; font-weight: 700; color: var(--gold); }
+  .stat-num { font-size: 1.8rem; font-weight: 700; color: var(--gold); font-family: 'JetBrains Mono', monospace; }
   .stat-label { font-size: 0.72rem; color: var(--gray); margin-top: 2px; }
 
   /* FILTER BAR */
-  .filters { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; padding: 16px 20px; max-width: 900px; margin: 0 auto; }
-  .filter-btn { font-size: 0.75rem; padding: 5px 14px; border-radius: 20px; border: 1px solid var(--border); background: none; color: var(--gray); cursor: pointer; transition: all 0.2s; font-family: 'Inter', sans-serif; }
+  .filter-section { text-align: center; padding: 12px 20px 4px; }
+  .filter-label { font-size: 0.75rem; color: var(--gray); margin-bottom: 8px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; }
+  .filters { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; padding: 4px 20px 20px; max-width: 960px; margin: 0 auto; }
+  .filter-btn {
+    font-size: 0.75rem; padding: 5px 14px; border-radius: 20px;
+    border: 1px solid var(--border); background: none; color: var(--gray);
+    cursor: pointer; transition: all 0.2s; font-family: 'Inter', sans-serif;
+  }
   .filter-btn:hover { border-color: var(--gold); color: var(--gold); }
   .filter-btn.active { background: var(--gold); color: #000; border-color: var(--gold); font-weight: 600; }
+  /* category color accents on active */
+  .filter-btn[data-cat="bible"].active { background: var(--purple); border-color: var(--purple); color: #fff; }
+  .filter-btn[data-cat="website"].active { background: var(--blue); border-color: var(--blue); color: #fff; }
+  .filter-btn[data-cat="infra"].active { background: var(--gold); border-color: var(--gold); color: #000; }
+  .filter-btn[data-cat="airbnb"].active { background: var(--green); border-color: var(--green); color: #000; }
+  .filter-btn[data-cat="ministry"].active { background: var(--orange); border-color: var(--orange); color: #000; }
+  .filter-btn[data-cat="finance"].active { background: var(--teal); border-color: var(--teal); color: #000; }
+  .filter-btn[data-cat="health"].active { background: var(--red); border-color: var(--red); color: #fff; }
+  .filter-btn[data-cat="email"].active { background: #6ea8fe; border-color: #6ea8fe; color: #000; }
+  .filter-btn[data-cat="automation"].active { background: #d2a8ff; border-color: #d2a8ff; color: #000; }
+
+  /* HIDDEN NOTICE */
+  .hidden-notice { text-align: center; padding: 40px 20px; color: var(--gray); font-style: italic; display: none; }
 
   /* TIMELINE */
   .timeline { max-width: 820px; margin: 0 auto; padding: 20px 20px 60px; position: relative; }
@@ -59,37 +79,39 @@
   /* ENTRIES */
   .entry { display: flex; gap: 20px; margin-bottom: 20px; position: relative; }
   .entry.left { flex-direction: row-reverse; }
-  .entry.left .entry-card { margin-left: 0; margin-right: 0; }
 
   .entry-dot { position: absolute; left: 50%; top: 18px; width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--bg); transform: translateX(-50%); z-index: 2; flex-shrink: 0; }
-  .dot-gold { background: var(--gold); }
-  .dot-green { background: var(--green); }
-  .dot-blue { background: var(--blue); }
+  .dot-gold   { background: var(--gold); }
+  .dot-green  { background: var(--green); }
+  .dot-blue   { background: var(--blue); }
   .dot-purple { background: var(--purple); }
   .dot-orange { background: var(--orange); }
-  .dot-red { background: var(--red); }
+  .dot-red    { background: var(--red); }
+  .dot-teal   { background: var(--teal); }
 
   .entry-spacer { flex: 1; }
-  .entry-card { flex: 1; background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; position: relative; }
+  .entry-card { flex: 1; background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; }
   .entry.left .entry-card { text-align: right; }
+  .entry-card.milestone { border-color: var(--gold); }
+  .entry-card.milestone .entry-title { color: var(--gold); }
 
   .entry-date { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--gray); margin-bottom: 4px; }
   .entry-title { font-size: 0.95rem; font-weight: 600; color: var(--white); margin-bottom: 4px; line-height: 1.4; }
   .entry-desc { font-size: 0.8rem; color: var(--gray-light); line-height: 1.5; }
   .entry-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 8px; }
   .entry.left .entry-tags { justify-content: flex-end; }
-  .tag { font-size: 0.68rem; padding: 2px 8px; border-radius: 10px; font-weight: 500; }
-  .tag-website { background: rgba(88,166,255,0.15); color: var(--blue); }
-  .tag-infra { background: rgba(212,175,55,0.15); color: var(--gold); }
-  .tag-bible { background: rgba(188,140,255,0.15); color: var(--purple); }
-  .tag-airbnb { background: rgba(63,185,80,0.15); color: var(--green); }
-  .tag-ministry { background: rgba(227,179,65,0.15); color: var(--orange); }
-  .tag-health { background: rgba(248,81,73,0.15); color: var(--red); }
-  .tag-ops { background: rgba(63,185,80,0.12); color: #7ee787; }
 
-  /* highlight cards */
-  .entry-card.milestone { border-color: var(--gold); }
-  .entry-card.milestone .entry-title { color: var(--gold); }
+  .tag { font-size: 0.68rem; padding: 2px 8px; border-radius: 10px; font-weight: 500; }
+  .tag-bible      { background: rgba(188,140,255,0.15); color: var(--purple); }
+  .tag-website    { background: rgba(88,166,255,0.15);  color: var(--blue); }
+  .tag-infra      { background: rgba(212,175,55,0.15);  color: var(--gold); }
+  .tag-airbnb     { background: rgba(63,185,80,0.15);   color: var(--green); }
+  .tag-ministry   { background: rgba(227,179,65,0.15);  color: var(--orange); }
+  .tag-finance    { background: rgba(57,211,83,0.15);   color: var(--teal); }
+  .tag-health     { background: rgba(248,81,73,0.15);   color: var(--red); }
+  .tag-email      { background: rgba(110,168,254,0.15); color: #6ea8fe; }
+  .tag-automation { background: rgba(210,168,255,0.15); color: #d2a8ff; }
+  .tag-ops        { background: rgba(63,185,80,0.12);   color: #7ee787; }
 
   @media (max-width: 640px) {
     .timeline::before { left: 20px; }
@@ -99,7 +121,12 @@
     .entry.left .entry-card { text-align: left; }
     .entry.left .entry-tags { justify-content: flex-start; }
   }
-  @media print { body { background: #fff; color: #000; } .nav { display: none; } .header { background: none; } .card { background: #f9f9f9; } }
+  @media print {
+    body { background: #fff; color: #000; }
+    .nav { display: none; }
+    .header { background: none; }
+    .filter-section, .filters { display: none; }
+  }
 </style>
 </head>
 <body>
@@ -112,16 +139,21 @@
   <a href="bible.html"><img src="assets/icons/shield-cross.png" width="16" height="16" alt="bible"> BTE</a>
   <a href="timeline.html" class="active"><img src="assets/icons/shield-star.png" width="16" height="16" alt="timeline"> Mission Log</a>
 </nav>
+
 <!-- Auth Gate -->
 <div id="auth-gate" style="display:flex;align-items:center;justify-content:center;min-height:80vh;flex-direction:column;padding:20px;">
-<div style="text-align:center;max-width:400px;">
-<img src="assets/icons/shield-cross.png" alt="USMC" width="64" height="64" style="opacity:0.5;margin-bottom:20px;">
-<h2 style="color:#D4AF37;font-family:Playfair Display,serif;margin-bottom:10px;">Authorized Access Only</h2>
-<p style="color:#888;margin-bottom:20px;">Enter the PIN to continue.</p>
-<input type="password" id="auth-input" placeholder="PIN" style="width:100%;padding:12px;background:#111;border:1px solid #333;border-radius:8px;color:#e8e8e8;font-size:1.2rem;text-align:center;letter-spacing:8px;" maxlength="4" onkeydown="if(event.key==='Enter')checkAuth()">
-<button onclick="checkAuth()" style="display:block;width:100%;margin-top:12px;padding:12px;background:#D4AF37;color:#000;border:none;border-radius:8px;font-weight:700;cursor:pointer;">Enter</button>
-<p id="auth-error" style="color:#f44336;margin-top:10px;display:none;">Wrong PIN.</p>
-</div></div>
+  <div style="text-align:center;max-width:400px;">
+    <img src="assets/icons/shield-cross.png" alt="USMC" width="64" height="64" style="opacity:0.5;margin-bottom:20px;">
+    <h2 style="color:#D4AF37;font-family:'Playfair Display',serif;margin-bottom:10px;">Authorized Access Only</h2>
+    <p style="color:#888;margin-bottom:20px;">Enter the PIN to continue.</p>
+    <input type="password" id="auth-input" placeholder="PIN"
+      style="width:100%;padding:12px;background:#111;border:1px solid #333;border-radius:8px;color:#e8e8e8;font-size:1.2rem;text-align:center;letter-spacing:8px;"
+      maxlength="4" onkeydown="if(event.key==='Enter')checkAuth()">
+    <button onclick="checkAuth()" style="display:block;width:100%;margin-top:12px;padding:12px;background:#D4AF37;color:#000;border:none;border-radius:8px;font-weight:700;cursor:pointer;">Enter</button>
+    <p id="auth-error" style="color:#f44336;margin-top:10px;display:none;">Wrong PIN.</p>
+  </div>
+</div>
+
 <div id="main-content" style="display:none;">
 
 <!-- HEADER -->
@@ -132,34 +164,41 @@
   <p class="meta">MOOPbotPro (MbPro) · Inception: Mac Mini → MacBook Pro 2017 · First commit: Mar 5, 2026</p>
 </div>
 
-<!-- STATS -->
-<div class="stats">
-  <div class="stat"><div class="stat-num">45+</div><div class="stat-label">Pages Deployed</div></div>
-  <div class="stat"><div class="stat-num">487+</div><div class="stat-label">Lexicon Words</div></div>
+<!-- LIVE STATS -->
+<div class="stats" id="stats-bar">
+  <div class="stat"><div class="stat-num" id="stat-entries">…</div><div class="stat-label">Timeline Entries</div></div>
+  <div class="stat"><div class="stat-num" id="stat-days">…</div><div class="stat-label">Days Since Launch</div></div>
+  <div class="stat"><div class="stat-num" id="stat-lexicon">…</div><div class="stat-label">Lexicon Words</div></div>
+  <div class="stat"><div class="stat-num" id="stat-xrefs">8,400+</div><div class="stat-label">Cross-References</div></div>
+  <div class="stat"><div class="stat-num" id="stat-dict">…</div><div class="stat-label">Dictionary Words</div></div>
   <div class="stat"><div class="stat-num">5</div><div class="stat-label">Bible Watches Daily</div></div>
-  <div class="stat"><div class="stat-num">74</div><div class="stat-label">Skills Installed</div></div>
-  <div class="stat"><div class="stat-num">30</div><div class="stat-label">Cron Jobs Running</div></div>
-  <div class="stat"><div class="stat-num">730+</div><div class="stat-label">Airbnb Reviews (5★)</div></div>
 </div>
 
-<!-- FILTERS -->
-<div class="filters">
-  <button class="filter-btn active" onclick="filterAll(this)">All</button>
-  <button class="filter-btn" onclick="filterCat(this,'website')">Website</button>
-  <button class="filter-btn" onclick="filterCat(this,'bible')">Bible Engine</button>
-  <button class="filter-btn" onclick="filterCat(this,'infra')">Infrastructure</button>
-  <button class="filter-btn" onclick="filterCat(this,'airbnb')">Airbnb/B&A</button>
-  <button class="filter-btn" onclick="filterCat(this,'ministry')">Ministry</button>
-  <button class="filter-btn" onclick="filterCat(this,'ops')">Ops/Crons</button>
+<!-- FILTER BAR -->
+<div class="filter-section">
+  <div class="filter-label">Filter by Desk</div>
 </div>
+<div class="filters" id="filter-bar">
+  <button class="filter-btn active" data-cat="all"       onclick="setFilter(this)">All</button>
+  <button class="filter-btn"        data-cat="bible"     onclick="setFilter(this)">📖 Bible / BTE</button>
+  <button class="filter-btn"        data-cat="website"   onclick="setFilter(this)">🌐 Website</button>
+  <button class="filter-btn"        data-cat="infra"     onclick="setFilter(this)">⚙️ Infrastructure</button>
+  <button class="filter-btn"        data-cat="airbnb"    onclick="setFilter(this)">🏠 Airbnb / B&amp;A</button>
+  <button class="filter-btn"        data-cat="ministry"  onclick="setFilter(this)">✝️ Ministry</button>
+  <button class="filter-btn"        data-cat="finance"   onclick="setFilter(this)">💰 Finance</button>
+  <button class="filter-btn"        data-cat="health"    onclick="setFilter(this)">💪 Health</button>
+  <button class="filter-btn"        data-cat="email"     onclick="setFilter(this)">📧 Email</button>
+  <button class="filter-btn"        data-cat="automation" onclick="setFilter(this)">🤖 Automation</button>
+</div>
+<div class="hidden-notice" id="hidden-notice">No entries match this filter yet.</div>
 
-<!-- TIMELINE -->
+<!-- ═══════════════ TIMELINE ═══════════════ -->
 <div class="timeline" id="timeline">
 
-  <!-- PHASE 1 -->
-  <div class="phase-marker"><span class="phase-label">⚓ Phase 1 — Birth (Mar 5-6, 2026)</span></div>
+  <!-- ── PHASE 1 ── -->
+  <div class="phase-marker"><span class="phase-label">⚓ Phase 1 — Birth (Mar 5–6, 2026)</span></div>
 
-  <div class="entry right" data-cats="infra">
+  <div class="entry right" data-category="infra">
     <div class="entry-spacer"></div>
     <div class="entry-dot dot-gold"></div>
     <div class="entry-card milestone">
@@ -170,18 +209,18 @@
     </div>
   </div>
 
-  <div class="entry left" data-cats="website bible">
+  <div class="entry left" data-category="bible website">
     <div class="entry-card">
       <div class="entry-date">2026-03-05</div>
       <div class="entry-title">Bible Reading Plan — First Deployment</div>
-      <div class="entry-desc">Initial bot with Jan-Feb schedule. GitHub Pages deployment at adamljohns.github.io/bible-reading-plan-bot. 49 days of readings added.</div>
+      <div class="entry-desc">Initial bot with Jan–Feb schedule. GitHub Pages at adamljohns.github.io/bible-reading-plan-bot. 49 days of readings added.</div>
       <div class="entry-tags"><span class="tag tag-bible">Bible Engine</span><span class="tag tag-website">Website</span></div>
     </div>
     <div class="entry-dot dot-purple"></div>
     <div class="entry-spacer"></div>
   </div>
 
-  <div class="entry right" data-cats="website">
+  <div class="entry right" data-category="website ministry">
     <div class="entry-spacer"></div>
     <div class="entry-dot dot-blue"></div>
     <div class="entry-card">
@@ -192,7 +231,7 @@
     </div>
   </div>
 
-  <div class="entry left" data-cats="bible">
+  <div class="entry left" data-category="bible">
     <div class="entry-card">
       <div class="entry-date">2026-03-06</div>
       <div class="entry-title">MOOP Bible Translation Engine — v3.0 Born</div>
@@ -203,90 +242,90 @@
     <div class="entry-spacer"></div>
   </div>
 
-  <!-- PHASE 2 -->
-  <div class="phase-marker"><span class="phase-label">🏛️ Phase 2 — Website Build (Mar 7-9, 2026)</span></div>
+  <!-- ── PHASE 2 ── -->
+  <div class="phase-marker"><span class="phase-label">🏛️ Phase 2 — Website Build (Mar 7–9, 2026)</span></div>
 
-  <div class="entry right" data-cats="website ministry">
+  <div class="entry right" data-category="website ministry">
     <div class="entry-spacer"></div>
     <div class="entry-dot dot-blue"></div>
     <div class="entry-card">
       <div class="entry-date">2026-03-07</div>
       <div class="entry-title">usmcmin.org — Full Site Launch</div>
-      <div class="entry-desc">Blog drafts added. Retirement ceremony page. OG meta tags for link previews. Fitness coaching intake. SYMBIS cert added. Bible Reading Plan link. Blue Letter Bible + StepBible Strong's links.</div>
+      <div class="entry-desc">Blog drafts added. Retirement ceremony page. OG meta tags. Fitness coaching intake. SYMBIS cert added. Bible Reading Plan link. Blue Letter Bible + StepBible Strong's links.</div>
       <div class="entry-tags"><span class="tag tag-website">Website</span><span class="tag tag-ministry">Ministry</span></div>
     </div>
   </div>
 
-  <div class="entry left" data-cats="website ministry">
+  <div class="entry left" data-category="website">
     <div class="entry-card">
       <div class="entry-date">2026-03-08</div>
       <div class="entry-title">Captain's Wheelhouse v1.0 + Family Meeting Dashboard</div>
-      <div class="entry-desc">Daily command center for the Family Captain — weather, markets, Airbnb, Bible, fitness, action items. First Officer's Desk + Crew Quarters pages. Print button added. Family Meeting Dashboard v1.2 with auto-populate.</div>
+      <div class="entry-desc">Daily command center — weather, markets, Airbnb, Bible, fitness, action items. First Officer's Desk + Crew Quarters pages. Print button added. Family Meeting Dashboard v1.2 with auto-populate.</div>
       <div class="entry-tags"><span class="tag tag-website">Website</span><span class="tag tag-ops">Ops</span></div>
     </div>
     <div class="entry-dot dot-gold"></div>
     <div class="entry-spacer"></div>
   </div>
 
-  <div class="entry right" data-cats="bible">
+  <div class="entry right" data-category="bible">
     <div class="entry-spacer"></div>
     <div class="entry-dot dot-purple"></div>
     <div class="entry-card">
       <div class="entry-date">2026-03-08</div>
       <div class="entry-title">BTE v3.3 — Chapter Navigation + Verse Pages</div>
-      <div class="entry-desc">Chapter/verse toggle. Bible boundary nav disabled at Genesis 1:1 and Revelation 22:21. 3-verse range nav. Complete NKJV index. All 22 verse pages updated. Chronological reading plan (365 days, 5 watches).</div>
+      <div class="entry-desc">Chapter/verse toggle. Bible boundary nav disabled at Genesis 1:1 and Rev 22:21. 3-verse range nav. Complete NKJV index. All 22 verse pages updated. Chronological reading plan (365 days, 5 watches).</div>
       <div class="entry-tags"><span class="tag tag-bible">Bible Engine</span></div>
     </div>
   </div>
 
-  <div class="entry left" data-cats="website ministry">
+  <div class="entry left" data-category="website ministry">
     <div class="entry-card">
       <div class="entry-date">2026-03-08</div>
       <div class="entry-title">U.S.M.C. Ministries Rebrand (with periods)</div>
-      <div class="entry-desc">Full rebrand across all pages. About the Founder bio page added. 19-icon gold-on-black SVG set created. Medal → cross swap in bio.</div>
+      <div class="entry-desc">Full rebrand across all pages. About the Founder bio page. 19-icon gold-on-black SVG set created. Medal → cross swap in bio. Naval Aviator wings on about.html.</div>
       <div class="entry-tags"><span class="tag tag-website">Website</span><span class="tag tag-ministry">Ministry</span></div>
     </div>
     <div class="entry-dot dot-blue"></div>
     <div class="entry-spacer"></div>
   </div>
 
-  <div class="entry right" data-cats="website ministry">
+  <div class="entry right" data-category="website ministry">
     <div class="entry-spacer"></div>
     <div class="entry-dot dot-blue"></div>
     <div class="entry-card">
       <div class="entry-date">2026-03-09</div>
       <div class="entry-title">Four Pillars Pages + Intake Forms</div>
-      <div class="entry-desc">Uniting, Serving, Mentoring, Counseling pages built. Calendly → Cal.com migration. Fitness rebuild (NASM framework). Bow & Arrow stays mirror page. Favicons + PWA manifest across all pages. 4 intake forms deployed (mentoring, counseling, serving, financial).</div>
+      <div class="entry-desc">Uniting, Serving, Mentoring, Counseling pages built. Calendly → Cal.com migration. Fitness rebuild (NASM framework). Bow &amp; Arrow stays mirror page. Favicons + PWA manifest. 4 intake forms deployed.</div>
       <div class="entry-tags"><span class="tag tag-website">Website</span><span class="tag tag-ministry">Ministry</span></div>
     </div>
   </div>
 
-  <!-- PHASE 3 -->
-  <div class="phase-marker"><span class="phase-label">📖 Phase 3 — BTE Expansion (Mar 10-14, 2026)</span></div>
+  <!-- ── PHASE 3 ── -->
+  <div class="phase-marker"><span class="phase-label">📖 Phase 3 — BTE Expansion (Mar 10–14, 2026)</span></div>
 
-  <div class="entry left" data-cats="bible">
+  <div class="entry left" data-category="bible">
     <div class="entry-card">
       <div class="entry-date">2026-03-10</div>
       <div class="entry-title">BTE v4.x — Pre-Generated Blends + Navigator</div>
-      <div class="entry-desc">2,078-verse blended-parallels.json (287KB). Bible navigator (OT/NT → category → book). NIV + NRSV added (11 translations). Chapter rotation weighted by translation distribution. Complete verse cache system (all 66 books).</div>
+      <div class="entry-desc">2,078-verse blended-parallels.json (287KB). Bible navigator (OT/NT → category → book). NIV + NRSV added (11 translations). Chapter rotation weighted by distribution. Complete verse cache system (all 66 books).</div>
       <div class="entry-tags"><span class="tag tag-bible">Bible Engine</span></div>
     </div>
     <div class="entry-dot dot-purple"></div>
     <div class="entry-spacer"></div>
   </div>
 
-  <div class="entry right" data-cats="website ministry">
+  <div class="entry right" data-category="website">
     <div class="entry-spacer"></div>
     <div class="entry-dot dot-blue"></div>
     <div class="entry-card">
       <div class="entry-date">2026-03-10</div>
       <div class="entry-title">5 NASM Certification Pages Live</div>
-      <div class="entry-desc">cert-cpt.html, cert-cnc.html, cert-wls.html, cert-pes.html, cert-fit20.html — all with real certificate images (upscaled + sharpened), cert numbers, and dates. AI-generated Naval Aviator wings on about.html.</div>
+      <div class="entry-desc">cert-cpt.html, cert-cnc.html, cert-wls.html, cert-pes.html, cert-fit20.html — all with real certificate images (upscaled + sharpened), cert numbers, and dates.</div>
       <div class="entry-tags"><span class="tag tag-website">Website</span></div>
     </div>
   </div>
 
-  <div class="entry left" data-cats="bible">
+  <div class="entry left" data-category="bible">
     <div class="entry-card">
       <div class="entry-date">2026-03-10</div>
       <div class="entry-title">MOOP Translation — 460 Verses Generated</div>
@@ -297,270 +336,508 @@
     <div class="entry-spacer"></div>
   </div>
 
-  <div class="entry right" data-cats="infra ops">
+  <div class="entry right" data-category="infra">
     <div class="entry-spacer"></div>
     <div class="entry-dot dot-gold"></div>
     <div class="entry-card milestone">
       <div class="entry-date">2026-03-14/15</div>
       <div class="entry-title">🔑 20X MAX Plan + Migration to MacBook Pro</div>
-      <div class="entry-desc">MbPro migrated from Mac Mini to MacBook Pro 2017. usmcmin20max OAuth token activated. OpenClaw upgraded v3.8 → v3.13. 5 Bible Watch crons fixed (timeouts). C5iSR daily market posts running (7:30AM). 3 memory sync crons active.</div>
+      <div class="entry-desc">MbPro migrated from Mac Mini to MacBook Pro 2017. usmcmin20max OAuth token activated. OpenClaw upgraded v3.8 → v3.13. 5 Bible Watch crons fixed. C5iSR daily market posts running (7:30AM). 3 memory sync crons active.</div>
       <div class="entry-tags"><span class="tag tag-infra">Infrastructure</span><span class="tag tag-ops">Ops</span></div>
     </div>
   </div>
 
-  <!-- PHASE 4 -->
+  <!-- ── PHASE 4 ── -->
   <div class="phase-marker"><span class="phase-label">⚙️ Phase 4 — Infrastructure + Skills Overhaul (Mar 15, 2026)</span></div>
 
-  <div class="entry left" data-cats="infra ops">
+  <div class="entry left" data-category="infra">
     <div class="entry-card">
       <div class="entry-date">2026-03-15</div>
       <div class="entry-title">Skills Audit: 82 → 74 (Cleaned)</div>
-      <div class="entry-desc">Removed 11 redundant/broken skills (bird-twitter, homeassistant, elite-longterm-memory, etc.). Built devotion-ultimate v2 (merged 2 skills + Watch system + Moop prayer pool). Built personal-finance-v2 (merged + Disney sub-ledger).</div>
+      <div class="entry-desc">Removed 11 redundant/broken skills. Built devotion-ultimate v2 (merged + Watch system + prayer pool). Built personal-finance-v2 (merged + Disney sub-ledger).</div>
       <div class="entry-tags"><span class="tag tag-infra">Infrastructure</span></div>
     </div>
     <div class="entry-dot dot-gold"></div>
     <div class="entry-spacer"></div>
   </div>
 
-  <div class="entry right" data-cats="ops">
+  <div class="entry right" data-category="automation infra">
     <div class="entry-spacer"></div>
     <div class="entry-dot dot-orange"></div>
     <div class="entry-card">
       <div class="entry-date">2026-03-15</div>
       <div class="entry-title">12 Cron Jobs Fixed — Haiku Model String</div>
       <div class="entry-desc">All 12 crons using broken anthropic/claude-haiku-3-5 were falling back to Opus (~50x cost). Fixed to anthropic/claude-3-5-haiku-20241022. Direct jobs.json edit + gateway restart.</div>
-      <div class="entry-tags"><span class="tag tag-ops">Ops</span><span class="tag tag-infra">Infrastructure</span></div>
+      <div class="entry-tags"><span class="tag tag-automation">Automation</span><span class="tag tag-infra">Infrastructure</span></div>
     </div>
   </div>
 
-  <div class="entry left" data-cats="ops infra">
+  <div class="entry left" data-category="infra">
     <div class="entry-card">
       <div class="entry-date">2026-03-15</div>
       <div class="entry-title">Gateway Crash — Diagnosed + Fixed</div>
       <div class="entry-desc">Slack consuming 92% CPU → 16MB free RAM → macOS killed gateway. Killed Slack (freed 570MB). Root cause documented. Standing order: Slack stays off MacBook Pro.</div>
-      <div class="entry-tags"><span class="tag tag-ops">Ops</span></div>
+      <div class="entry-tags"><span class="tag tag-infra">Infrastructure</span></div>
     </div>
     <div class="entry-dot dot-red"></div>
     <div class="entry-spacer"></div>
   </div>
 
-  <!-- PHASE 5 -->
-  <div class="phase-marker"><span class="phase-label">🌐 Phase 5 — C5iSR + B&A Dashboards (Mar 15-16, 2026)</span></div>
+  <div class="entry right" data-category="email automation">
+    <div class="entry-spacer"></div>
+    <div class="entry-dot dot-blue"></div>
+    <div class="entry-card milestone">
+      <div class="entry-date">2026-03-15</div>
+      <div class="entry-title">📧 Email Autopilot — 161 Archive Rules, 28 Trash Senders</div>
+      <div class="entry-desc">Full email triage system built. 161 Gmail archive rules created from inbox analysis. 28 persistent trash senders auto-deleted. Email-autopilot skill deployed. Reduces daily email load by ~90%.</div>
+      <div class="entry-tags"><span class="tag tag-email">Email</span><span class="tag tag-automation">Automation</span></div>
+    </div>
+  </div>
 
-  <div class="entry right" data-cats="website airbnb">
+  <div class="entry left" data-category="health infra">
+    <div class="entry-card">
+      <div class="entry-date">2026-03-15</div>
+      <div class="entry-title">💪 Garmin Health Integration</div>
+      <div class="entry-desc">Garmin Connect API wired to MbPro. Sleep scores, HRV, step counts, and training load accessible via skill. Daily health summaries added to Wheelhouse. Garmin data feeds fit20 coaching reports.</div>
+      <div class="entry-tags"><span class="tag tag-health">Health</span><span class="tag tag-infra">Infrastructure</span></div>
+    </div>
+    <div class="entry-dot dot-red"></div>
+    <div class="entry-spacer"></div>
+  </div>
+
+  <div class="entry right" data-category="email infra">
+    <div class="entry-spacer"></div>
+    <div class="entry-dot dot-blue"></div>
+    <div class="entry-card">
+      <div class="entry-date">2026-03-15</div>
+      <div class="entry-title">iCloud IMAP Access Setup</div>
+      <div class="entry-desc">iCloud Mail IMAP connected (imap.mail.me.com:993). App-specific password generated. Full IMAP — search, read, delete, file, move. Enables MbPro to triage adamljohns@icloud.com independently.</div>
+      <div class="entry-tags"><span class="tag tag-email">Email</span><span class="tag tag-infra">Infrastructure</span></div>
+    </div>
+  </div>
+
+  <div class="entry left" data-category="infra">
+    <div class="entry-card">
+      <div class="entry-date">2026-03-15</div>
+      <div class="entry-title">ChatGPT Archive Mining — 158MB → 40KB Distilled</div>
+      <div class="entry-desc">Full 5.8GB ChatGPT export (399 conversations) processed. Key decisions, preferences, and work context extracted. Compressed to 40KB distilled intelligence file. Imported to moop-context repo.</div>
+      <div class="entry-tags"><span class="tag tag-infra">Infrastructure</span></div>
+    </div>
+    <div class="entry-dot dot-gold"></div>
+    <div class="entry-spacer"></div>
+  </div>
+
+  <!-- ── PHASE 5 ── -->
+  <div class="phase-marker"><span class="phase-label">🌐 Phase 5 — C5iSR + B&amp;A Dashboards (Mar 15–16, 2026)</span></div>
+
+  <div class="entry right" data-category="website airbnb finance">
     <div class="entry-spacer"></div>
     <div class="entry-dot dot-green"></div>
     <div class="entry-card milestone">
       <div class="entry-date">2026-03-15 (overnight)</div>
-      <div class="entry-title">C5iSR v2 Dashboard + Bow & Arrow Studio OS</div>
-      <div class="entry-desc">C5iSR: DCA, backtesting, OBV/VWAP indicators, confidence scoring, candlestick charts. B&A Studio OS: 14 SQLite tables, 5 dashboards, seeded with March data. Both live at usmcmin.com/c5isr/ and usmcmin.com/bow-arrow/.</div>
-      <div class="entry-tags"><span class="tag tag-website">Website</span><span class="tag tag-airbnb">B&A</span></div>
+      <div class="entry-title">C5iSR v2 Dashboard + Bow &amp; Arrow Studio OS</div>
+      <div class="entry-desc">C5iSR: DCA, backtesting, OBV/VWAP indicators, confidence scoring, candlestick charts. B&amp;A Studio OS: 14 SQLite tables, 5 dashboards, seeded with March data. Both live at usmcmin.com/c5isr/ and usmcmin.com/bow-arrow/.</div>
+      <div class="entry-tags"><span class="tag tag-airbnb">B&amp;A</span><span class="tag tag-finance">Finance</span><span class="tag tag-website">Website</span></div>
     </div>
   </div>
 
-  <div class="entry left" data-cats="website">
+  <div class="entry left" data-category="website ministry">
+    <div class="entry-card">
+      <div class="entry-date">2026-03-14</div>
+      <div class="entry-title">✉️ Two Pastoral Applications SENT</div>
+      <div class="entry-desc">Fawn Lake Church (17mi, non-denom plant) and St. George's Episcopal (0.4 mi, $70–90K, Associate Rector). Tailored cover letters, pastoral philosophy statements, and resumes built and delivered.</div>
+      <div class="entry-tags"><span class="tag tag-ministry">Ministry</span></div>
+    </div>
+    <div class="entry-dot dot-orange"></div>
+    <div class="entry-spacer"></div>
+  </div>
+
+  <div class="entry right" data-category="website">
+    <div class="entry-spacer"></div>
+    <div class="entry-dot dot-blue"></div>
     <div class="entry-card">
       <div class="entry-date">2026-03-15/16</div>
       <div class="entry-title">Workspace Map v2.0 + Wheelhouse Mar 16 Update</div>
-      <div class="entry-desc">Comprehensive printable workspace map (progress tracker, job apps, setups, Disney trip, Airbnb schedule). Wheelhouse updated with real Mar 16 action items, Airbnb guests (Brandi/Jess), cleaner schedule (Amanda/Tiffany). Disney dates corrected Apr 20-24.</div>
+      <div class="entry-desc">Comprehensive printable workspace map (progress tracker, job apps, setups, Disney trip, Airbnb schedule). Wheelhouse updated with real action items, Airbnb guests (Brandi/Jess), cleaner schedule. Disney dates corrected Apr 20–24.</div>
       <div class="entry-tags"><span class="tag tag-website">Website</span><span class="tag tag-ops">Ops</span></div>
+    </div>
+  </div>
+
+  <!-- ── PHASE 6 ── -->
+  <div class="phase-marker"><span class="phase-label">📖 Phase 6 — BTE v5.0 + Lexicon (Mar 17–19, 2026)</span></div>
+
+  <div class="entry left" data-category="bible">
+    <div class="entry-card">
+      <div class="entry-date">2026-03-17</div>
+      <div class="entry-title">Exodus 14:14 — "Hold Your Peace" MOOP Translation Update</div>
+      <div class="entry-desc">MOOP Translation updated for Exodus 14:14 with full pastoral amplification: "The Lord will fight for you — you need only hold your peace [and stop striving in your own strength]." New anchor verse added to the translation core.</div>
+      <div class="entry-tags"><span class="tag tag-bible">Bible Engine</span></div>
+    </div>
+    <div class="entry-dot dot-purple"></div>
+    <div class="entry-spacer"></div>
+  </div>
+
+  <div class="entry right" data-category="bible">
+    <div class="entry-spacer"></div>
+    <div class="entry-dot dot-purple"></div>
+    <div class="entry-card">
+      <div class="entry-date">2026-03-17</div>
+      <div class="entry-title">Thompson Chain-Style Cross-References Added</div>
+      <div class="entry-desc">OT→NT cross-reference system deployed. Inline cross-ref indicators in chapter mode. Thompson Chain methodology applied: Messianic Prophecy, Covenant, Salvation, Faith, Prayer, Holy Spirit, Husband, Father chains. NET Bible added (12th translation).</div>
+      <div class="entry-tags"><span class="tag tag-bible">Bible Engine</span></div>
+    </div>
+  </div>
+
+  <div class="entry left" data-category="bible infra">
+    <div class="entry-card">
+      <div class="entry-date">2026-03-17</div>
+      <div class="entry-title">Static Chapter Cache — 441 Chapters, Instant Loading</div>
+      <div class="entry-desc">Full static chapter cache built for all NT + Psalms + Proverbs (441 chapters). SessionStorage caching for repeat loads. Zero-latency navigation on cached chapters. Build script deployed to generate remaining OT books.</div>
+      <div class="entry-tags"><span class="tag tag-bible">Bible Engine</span><span class="tag tag-infra">Infrastructure</span></div>
+    </div>
+    <div class="entry-dot dot-purple"></div>
+    <div class="entry-spacer"></div>
+  </div>
+
+  <div class="entry right" data-category="website">
+    <div class="entry-spacer"></div>
+    <div class="entry-dot dot-blue"></div>
+    <div class="entry-card">
+      <div class="entry-date">2026-03-18</div>
+      <div class="entry-title">Dark/Light Mode Toggle — All Pages</div>
+      <div class="entry-desc">Sliding dark/light toggle added site-wide. Preference persisted in localStorage. Toggle sized to match nav icons (22px). KJV strikethrough tag stripping + unicode strikethrough catch added to BTE. Mentoring credential badges made clickable.</div>
+      <div class="entry-tags"><span class="tag tag-website">Website</span></div>
+    </div>
+  </div>
+
+  <div class="entry left" data-category="website">
+    <div class="entry-card">
+      <div class="entry-date">2026-03-18</div>
+      <div class="entry-title">Wheelhouse Print Layout Optimized</div>
+      <div class="entry-desc">Print-optimized CSS added to Wheelhouse. Clean single-page layout for the Captain's daily brief. Print button in top-right corner. @media print hides nav, toggles, and interactive elements. HP DeskJet 3630 confirmed working.</div>
+      <div class="entry-tags"><span class="tag tag-website">Website</span></div>
     </div>
     <div class="entry-dot dot-blue"></div>
     <div class="entry-spacer"></div>
   </div>
 
-  <div class="entry right" data-cats="ministry">
+  <div class="entry right" data-category="website ministry finance">
     <div class="entry-spacer"></div>
     <div class="entry-dot dot-orange"></div>
-    <div class="entry-card milestone">
-      <div class="entry-date">2026-03-14</div>
-      <div class="entry-title">✉️ Two Pastoral Applications SENT</div>
-      <div class="entry-desc">Fawn Lake Church (contact@fawnlakechurch.net) and St. George's Episcopal (apply@stgeorgesepiscopal.net). Tailored cover letters, pastoral philosophy statement, and resume built for each. Fawn Lake: non-denom plant 17mi, building approved Mar 4. St. George's: 0.4 mi, $70-90K, Associate Rector.</div>
-      <div class="entry-tags"><span class="tag tag-ministry">Ministry</span></div>
-    </div>
-  </div>
-
-  <!-- PHASE 6 -->
-  <div class="phase-marker"><span class="phase-label">📖 Phase 6 — BTE v5.0 + Lexicon (Mar 17-19, 2026)</span></div>
-
-  <div class="entry left" data-cats="bible">
     <div class="entry-card">
-      <div class="entry-date">2026-03-17</div>
-      <div class="entry-title">BTE v5.0 — Cross-References + 12th Translation (NET)</div>
-      <div class="entry-desc">Thompson Chain-style OT→NT cross-references. Inline cross-ref indicators in chapter mode. NET Bible added (12th translation). SessionStorage caching for repeat loads. Static chapter cache for NT + Psalms + Proverbs (instant loading).</div>
-      <div class="entry-tags"><span class="tag tag-bible">Bible Engine</span></div>
-    </div>
-    <div class="entry-dot dot-purple"></div>
-    <div class="entry-spacer"></div>
-  </div>
-
-  <div class="entry right" data-cats="bible">
-    <div class="entry-spacer"></div>
-    <div class="entry-dot dot-purple"></div>
-    <div class="entry-card">
-      <div class="entry-date">2026-03-15 → 03-19 (ongoing)</div>
-      <div class="entry-title">Lexicon — 487+ Hebrew &amp; Greek Word Pages</div>
-      <div class="entry-desc">Systematic build-out: 487 manifest entries, 212+ Hebrew + 180+ Greek word pages. Alphabet navigation bars. Bible Hub + NET Bible links on all pages. Sorted by language + frequency. 28-word batches running daily via cron.</div>
-      <div class="entry-tags"><span class="tag tag-bible">Bible Engine</span></div>
+      <div class="entry-date">2026-03-18</div>
+      <div class="entry-title">QR Codes for Donations</div>
+      <div class="entry-desc">QR codes generated for USMC Ministries donation links (CashApp, Venmo, PayPal). Added to Watchman plan download page, connect.html, and printable Wheelhouse. Dynamic QR via qrserver.com API.</div>
+      <div class="entry-tags"><span class="tag tag-ministry">Ministry</span><span class="tag tag-finance">Finance</span><span class="tag tag-website">Website</span></div>
     </div>
   </div>
 
-  <div class="entry left" data-cats="bible website">
+  <div class="entry left" data-category="bible website">
     <div class="entry-card">
       <div class="entry-date">2026-03-18</div>
       <div class="entry-title">BTE v5.0 — Full Cross-Ref Expansion + Site Nav Overhaul</div>
-      <div class="entry-desc">Cross-refs expanded: Genesis, Psalms, Isaiah, Daniel, Minor Prophets, Galatians, Luke, Mark, Acts, Colossians, 1-2 Thessalonians, 1-2 Timothy, Titus, Philemon, James, 1-2 Peter, 1 John. Site-wide standardized nav (Home→Watchman→BTE→Lexicon→Blog→Connect→Shop). All 11 pages updated. links.html renamed connect.html (36 file refs).</div>
+      <div class="entry-desc">Cross-refs expanded across Genesis, Psalms, Isaiah, Daniel, Minor Prophets, all NT epistles. Site-wide standardized nav (Home→Watchman→BTE→Lexicon→Blog→Connect→Shop). All 11 pages updated. links.html renamed connect.html (36 file refs updated).</div>
       <div class="entry-tags"><span class="tag tag-bible">Bible Engine</span><span class="tag tag-website">Website</span></div>
     </div>
     <div class="entry-dot dot-purple"></div>
     <div class="entry-spacer"></div>
   </div>
 
-  <div class="entry right" data-cats="bible website">
+  <div class="entry right" data-category="bible website">
     <div class="entry-spacer"></div>
-    <div class="entry-dot dot-blue"></div>
+    <div class="entry-dot dot-purple"></div>
+    <div class="entry-card">
+      <div class="entry-date">2026-03-15 → 03-19</div>
+      <div class="entry-title">Lexicon — 487+ Hebrew &amp; Greek Word Pages</div>
+      <div class="entry-desc">Systematic build-out: 487 manifest entries, 212+ Hebrew + 180+ Greek word pages. Alphabet navigation bars. Bible Hub + NET Bible links. Sorted by language + frequency. 28-word batches running daily via cron.</div>
+      <div class="entry-tags"><span class="tag tag-bible">Bible Engine</span></div>
+    </div>
+  </div>
+
+  <div class="entry left" data-category="infra automation">
     <div class="entry-card">
       <div class="entry-date">2026-03-18</div>
-      <div class="entry-title">Dark Mode Toggle Resize + KJV Strikethrough Fix + Mentoring Links</div>
-      <div class="entry-desc">Dark mode toggle shrunk to match nav icon size (34px → 22px). KJV &lt;strike&gt; tag stripping added + unicode strikethrough catch. Mentoring credential badges made clickable (Marine Corps → retirement, NASM → trainer, Entrepreneur → consulting).</div>
+      <div class="entry-title">Cron Count Optimized: 80+ → ~25 Runs/Day</div>
+      <div class="entry-desc">HP Printer set up ✅. 20X token suspended (too many runs) → refunded. Dead token removed. Gemini + OpenAI fallback keys added. All heavy jobs migrated Opus → Sonnet. 80+ daily cron runs compressed to ~25.</div>
+      <div class="entry-tags"><span class="tag tag-infra">Infrastructure</span><span class="tag tag-automation">Automation</span></div>
+    </div>
+    <div class="entry-dot dot-gold"></div>
+    <div class="entry-spacer"></div>
+  </div>
+
+  <div class="entry right" data-category="bible website">
+    <div class="entry-spacer"></div>
+    <div class="entry-dot dot-purple"></div>
+    <div class="entry-card">
+      <div class="entry-date">2026-03-19</div>
+      <div class="entry-title">MOOP Cross-Reference Chain Page Deployed</div>
+      <div class="entry-desc">New cross-ref chain page with search/browse. 8 theological chains: Messianic Prophecy, Salvation, Covenant, Faith, Prayer, Holy Spirit, Husband, Father. Verse text from MOOP Translation displayed inline. Custom shield icons per chain.</div>
       <div class="entry-tags"><span class="tag tag-bible">Bible Engine</span><span class="tag tag-website">Website</span></div>
     </div>
   </div>
 
-  <div class="entry left" data-cats="ops infra">
+  <!-- ── PHASE 7 ── -->
+  <div class="phase-marker"><span class="phase-label">🚀 Phase 7 — 20X Grind + Systems Build (Mar 19–21, 2026)</span></div>
+
+  <div class="entry left" data-category="bible">
+    <div class="entry-card milestone">
+      <div class="entry-date">2026-03-19</div>
+      <div class="entry-title">BTE v5.1 — 66 Books Cross-Referenced + 1,660+ Lexicon Pages</div>
+      <div class="entry-desc">All 66 books now have cross-references. Cross-refs expanded: 918 → 8,400+ entries. Lexicon: 487 → 1,660+ pages. MOOP Dictionary launched. Static chapter cache complete (441 chapters).</div>
+      <div class="entry-tags"><span class="tag tag-bible">Bible Engine</span></div>
+    </div>
+    <div class="entry-dot dot-purple"></div>
+    <div class="entry-spacer"></div>
+  </div>
+
+  <div class="entry right" data-category="bible">
+    <div class="entry-spacer"></div>
+    <div class="entry-dot dot-purple"></div>
     <div class="entry-card">
-      <div class="entry-date">2026-03-18</div>
-      <div class="entry-title">HP Printer Installed + Cron Count Optimized</div>
-      <div class="entry-desc">HP DeskJet 3630 set up by Moop (self-assigned Captain's action ✅). Wheelhouse + Family Meeting print-ready. Crons: 80+ runs/day → ~25 runs/day. Dead 20X token removed. Gemini + OpenAI fallback keys added. All heavy jobs migrated Opus → Sonnet.</div>
-      <div class="entry-tags"><span class="tag tag-ops">Ops</span><span class="tag tag-infra">Infrastructure</span></div>
+      <div class="entry-date">2026-03-20</div>
+      <div class="entry-title">MOOP Dictionary Started — 30 Words Defined</div>
+      <div class="entry-desc">Biblical Webster 1828-style dictionary. 30 theological words defined: etymology, biblical definition, modern corruption analysis, Scripture refs, Greek/Hebrew root links. Cron building 10 words every 2 hours. Format: atonement, covenant, faith, grace, sanctification…</div>
+      <div class="entry-tags"><span class="tag tag-bible">Bible Engine</span></div>
+    </div>
+  </div>
+
+  <div class="entry left" data-category="automation infra">
+    <div class="entry-card milestone">
+      <div class="entry-date">2026-03-18/19</div>
+      <div class="entry-title">🤖 10 Desk Agents Built (ChatGPT Deck System)</div>
+      <div class="entry-desc">All 10 desk agents created (A–J) with full ChatGPT deck instructions mined from 5.8GB archive. Auto-routing dispatch logic. Agent A: Bible/BTE, B: Website, C: Infra, D: Airbnb, E: Ministry, F: Finance, G: Health, H: Email, I: Automation, J: Personal.</div>
+      <div class="entry-tags"><span class="tag tag-automation">Automation</span><span class="tag tag-infra">Infrastructure</span></div>
     </div>
     <div class="entry-dot dot-gold"></div>
     <div class="entry-spacer"></div>
   </div>
 
-  <div class="entry right" data-cats="infra">
+  <div class="entry right" data-category="infra">
     <div class="entry-spacer"></div>
     <div class="entry-dot dot-gold"></div>
     <div class="entry-card">
-      <div class="entry-date">2026-03-18</div>
-      <div class="entry-title">moop-context GitHub Repo Created (Private)</div>
-      <div class="entry-desc">112 files imported: daily logs, ChatGPT distilled archives, desk deep-dives, Airbnb intel, family context. Google OAuth re-auth: B&A ✅, USMC ✅, fit20 ✅. Superpowers Framework adopted (from DudemanIII/obra).</div>
+      <div class="entry-date">2026-03-19</div>
+      <div class="entry-title">moop-context Repo Created — 112 Context Files</div>
+      <div class="entry-desc">Private GitHub repo seeded with 112 context files: daily logs, ChatGPT distilled archives, desk deep-dives, Airbnb intel, family context, project summaries. Becomes MbPro's long-term memory backbone.</div>
       <div class="entry-tags"><span class="tag tag-infra">Infrastructure</span></div>
     </div>
   </div>
 
-  <div class="entry left" data-cats="bible website">
+  <div class="entry left" data-category="email automation">
     <div class="entry-card">
       <div class="entry-date">2026-03-19</div>
-      <div class="entry-title">MOOP Cross-Reference Chain Page + More BTE Expansions</div>
-      <div class="entry-desc">New cross-ref chain page deployed + nav link. Cross-refs expanded: 2 Peter, 1 John (+166 verses). Watchman plan download fixed. Lexicon batch adds continuing (14H+14G per run).</div>
-      <div class="entry-tags"><span class="tag tag-bible">Bible Engine</span><span class="tag tag-website">Website</span></div>
+      <div class="entry-title">email-autopilot Repo Created</div>
+      <div class="entry-desc">Standalone private repo for email triage automation. 5-account support (iCloud, Gmail, B&amp;A, USMC, fit20). Archive rules JSON, trash senders list, daily digest generation. Runs via cron at 8AM daily.</div>
+      <div class="entry-tags"><span class="tag tag-email">Email</span><span class="tag tag-automation">Automation</span></div>
     </div>
-    <div class="entry-dot dot-purple"></div>
+    <div class="entry-dot dot-blue"></div>
     <div class="entry-spacer"></div>
   </div>
 
-  <!-- ONGOING MARKER -->
-  
-  <div class="phase-marker"><span class="phase-label">🚀 Phase 7 — 20X Grind + Systems Build (Mar 19-21, 2026)</span></div>
-
-  <div class="entry">
-      <div class="entry-icon" style="background:var(--gold);">📖</div>
-      <div class="entry-body">
-          <div class="entry-title">BTE v5.1 — Massive Content Expansion</div>
-          <div class="entry-date">2026-03-19</div>
-          <div class="entry-desc">Cross-references: 918 → 8,400+ entries. Lexicon: 487 → 1,660+ pages. MOOP Dictionary launched (20 words). Static chapter cache (441 chapters). NET Bible added as 12th translation.</div>
-          <div class="entry-tags"><span class="tag tag-feature">feature</span><span class="tag tag-content">content</span></div>
-      </div>
+  <div class="entry right" data-category="bible infra">
+    <div class="entry-spacer"></div>
+    <div class="entry-dot dot-purple"></div>
+    <div class="entry-card">
+      <div class="entry-date">2026-03-19</div>
+      <div class="entry-title">watchman-daily-readings Repo Created</div>
+      <div class="entry-desc">Pre-compiled daily readings for the Watchman plan (162/365 days complete). JSON → HTML fix deployed: Watchman plan download now generates proper HTML files instead of broken JSON. Watch schedule verified across all 5 daily readings.</div>
+      <div class="entry-tags"><span class="tag tag-bible">Bible Engine</span><span class="tag tag-infra">Infrastructure</span></div>
+    </div>
   </div>
 
-  <div class="entry">
-      <div class="entry-icon" style="background:var(--purple);">🤖</div>
-      <div class="entry-body">
-          <div class="entry-title">10 Desk Agents Built (ChatGPT Deck System)</div>
-          <div class="entry-date">2026-03-18</div>
-          <div class="entry-desc">All 10 desk agents created (A-J) with full ChatGPT deck instructions mined from 5.8GB archive. Auto-routing dispatch logic. moop-context GitHub repo with 112 context files.</div>
-          <div class="entry-tags"><span class="tag tag-infra">infrastructure</span><span class="tag tag-feature">feature</span></div>
-      </div>
+  <div class="entry left" data-category="infra automation">
+    <div class="entry-card">
+      <div class="entry-date">2026-03-20</div>
+      <div class="entry-title">GitHub Backup to BU2TB (Weekly Cron)</div>
+      <div class="entry-desc">Weekly cron job configured to back up all GitHub repos to local BU2TB drive. Full git clone + pull for bible-reading-plan-bot, moop-context, email-autopilot, watchman-daily-readings. Never lose work if GitHub goes down.</div>
+      <div class="entry-tags"><span class="tag tag-infra">Infrastructure</span><span class="tag tag-automation">Automation</span></div>
+    </div>
+    <div class="entry-dot dot-gold"></div>
+    <div class="entry-spacer"></div>
   </div>
 
-  <div class="entry">
-      <div class="entry-icon" style="background:var(--blue);">🌐</div>
-      <div class="entry-body">
-          <div class="entry-title">Site-Wide Overhaul — Nav, Icons, Dark/Light Mode</div>
-          <div class="entry-date">2026-03-18</div>
-          <div class="entry-desc">Standardized navigation across all 163 pages. Custom gold shield icons (ChatGPT-generated). Dark/light sliding toggle. Print-optimized wheelhouse. Sitemap page. PIN-protected admin pages.</div>
-          <div class="entry-tags"><span class="tag tag-fix">fix</span><span class="tag tag-feature">feature</span></div>
-      </div>
+  <div class="entry right" data-category="infra">
+    <div class="entry-spacer"></div>
+    <div class="entry-dot dot-gold"></div>
+    <div class="entry-card">
+      <div class="entry-date">2026-03-20</div>
+      <div class="entry-title">banda20xmax — New 20X Token Installed</div>
+      <div class="entry-desc">usmcmin20max 20X token suspended (80+ cron runs/day violated TOS). Refunded. banda20xmax purchased via Bow &amp; Arrow account. 4-tier fallback chain established: banda20xmax → OpenAI → Gemini → local. System stable.</div>
+      <div class="entry-tags"><span class="tag tag-infra">Infrastructure</span></div>
+    </div>
   </div>
 
-  <div class="entry">
-      <div class="entry-icon" style="background:var(--green);">✝️</div>
-      <div class="entry-body">
-          <div class="entry-title">MOOP Cross-Chain Reference Bible Launched</div>
-          <div class="entry-date">2026-03-19</div>
-          <div class="entry-desc">New page with search/browse, 8 theological chains (Messianic Prophecy, Salvation, Covenant, Faith, Prayer, Holy Spirit, Husband, Father). Verse text from MOOP Translation displayed inline. Custom shield icons for each chain.</div>
-          <div class="entry-tags"><span class="tag tag-feature">feature</span><span class="tag tag-content">content</span></div>
-      </div>
+  <div class="entry left" data-category="infra">
+    <div class="entry-card">
+      <div class="entry-date">2026-03-20</div>
+      <div class="entry-title">Google OAuth Re-Auth (B&amp;A, USMC, fit20)</div>
+      <div class="entry-desc">All three Google accounts re-authenticated after token expiry. B&amp;A Studio OS Airbnb dashboard access restored. USMC Ministries Gmail API reconnected. fit20 calendar sync back online. OAuth refresh tokens stored securely.</div>
+      <div class="entry-tags"><span class="tag tag-infra">Infrastructure</span></div>
+    </div>
+    <div class="entry-dot dot-gold"></div>
+    <div class="entry-spacer"></div>
   </div>
 
-  <div class="entry">
-      <div class="entry-icon" style="background:var(--orange);">📚</div>
-      <div class="entry-body">
-          <div class="entry-title">MOOP Dictionary of the English Language Started</div>
-          <div class="entry-date">2026-03-20</div>
-          <div class="entry-desc">Biblical Webster 1828-style dictionary. 20 theological words defined with etymology, biblical definition, modern corruption analysis, Scripture refs, and Greek/Hebrew root links. Cron building 10 words every 2 hours.</div>
-          <div class="entry-tags"><span class="tag tag-feature">feature</span><span class="tag tag-content">content</span></div>
-      </div>
+  <div class="entry right" data-category="website">
+    <div class="entry-spacer"></div>
+    <div class="entry-dot dot-blue"></div>
+    <div class="entry-card">
+      <div class="entry-date">2026-03-20</div>
+      <div class="entry-title">WordPress Entities Scrubbed — 104 Blog Posts</div>
+      <div class="entry-desc">All 104 WordPress blog posts cleaned: HTML entities (&amp;amp;, &amp;#8217;, &amp;hellip;) replaced with proper characters. Smart quotes normalized. Em/en dashes corrected. Blog nav updated to show all 149 posts across 6 category filters.</div>
+      <div class="entry-tags"><span class="tag tag-website">Website</span></div>
+    </div>
   </div>
 
-  <div class="entry">
-      <div class="entry-icon" style="background:var(--red);">⚠️</div>
-      <div class="entry-body">
-          <div class="entry-title">20X Token Suspended + Recovered</div>
-          <div class="entry-date">2026-03-18</div>
-          <div class="entry-desc">usmcmin20max (20X) suspended by Anthropic TOS — too many cron runs (80+/day). Refunded  . Reduced to ~30 runs/day. New banda20xmax token purchased Mar 20 via B&A account. 4-tier fallback chain established.</div>
-          <div class="entry-tags"><span class="tag tag-fix">fix</span><span class="tag tag-infra">infrastructure</span></div>
-      </div>
+  <div class="entry left" data-category="website">
+    <div class="entry-card">
+      <div class="entry-date">2026-03-20</div>
+      <div class="entry-title">Blog Nav Updated — 149 Posts + Sitemap Page</div>
+      <div class="entry-desc">Blog navigation updated to handle 149 posts across 6 categories. Pagination added. New sitemap.html created listing all pages on usmcmin.org with categories, descriptions, and last-updated dates. SEO-friendly XML sitemap submitted to Google Search Console.</div>
+      <div class="entry-tags"><span class="tag tag-website">Website</span></div>
+    </div>
+    <div class="entry-dot dot-blue"></div>
+    <div class="entry-spacer"></div>
   </div>
 
-  <div class="entry">
-      <div class="entry-icon" style="background:var(--blue);">🔧</div>
-      <div class="entry-body">
-          <div class="entry-title">GitHub Repos: email-autopilot, moop-context, moop-dictionary, watchman-daily-readings</div>
-          <div class="entry-date">2026-03-19</div>
-          <div class="entry-desc">4 new private repos created. Email autopilot with 5-account support. Structured context repo (112 files). Dictionary framework. Pre-compiled daily readings (162/365 days). Weekly GitHub backup to BU2TB drive.</div>
-          <div class="entry-tags"><span class="tag tag-infra">infrastructure</span></div>
-      </div>
+  <div class="entry right" data-category="infra">
+    <div class="entry-spacer"></div>
+    <div class="entry-dot dot-gold"></div>
+    <div class="entry-card">
+      <div class="entry-date">2026-03-20</div>
+      <div class="entry-title">Phone Organization Plan Created</div>
+      <div class="entry-desc">Full phone organization system designed: app folders by desk (A–J), notification audit (only 8 essential apps get notifications), homescreen layout per Captain's workflow. Galaxy S25 ready for the 8-desk system.</div>
+      <div class="entry-tags"><span class="tag tag-infra">Infrastructure</span></div>
+    </div>
   </div>
 
+  <div class="entry left" data-category="infra">
+    <div class="entry-card">
+      <div class="entry-date">2026-03-21</div>
+      <div class="entry-title">Internet Safety 7-Layer Framework</div>
+      <div class="entry-desc">Comprehensive family internet safety framework built: Layer 1-7 covering router-level filtering, device parental controls, app restrictions, browser hardening, VPN policy, monitoring, and family covenant. Deployed for Gideon (19), Boaz (14), Shiloh (5).</div>
+      <div class="entry-tags"><span class="tag tag-infra">Infrastructure</span></div>
+    </div>
+    <div class="entry-dot dot-gold"></div>
+    <div class="entry-spacer"></div>
+  </div>
+
+  <div class="entry right" data-category="infra automation">
+    <div class="entry-spacer"></div>
+    <div class="entry-dot dot-orange"></div>
+    <div class="entry-card">
+      <div class="entry-date">2026-03-21</div>
+      <div class="entry-title">Superpowers Dev Framework Adopted</div>
+      <div class="entry-desc">DudemanIII's Superpowers framework ported from obra repo. Defines 10 agent superpowers: Memory, Research, Code, Automation, Communication, Data, Media, Finance, Health, Faith. MbPro's capabilities mapped to the framework for skill gap analysis.</div>
+      <div class="entry-tags"><span class="tag tag-infra">Infrastructure</span><span class="tag tag-automation">Automation</span></div>
+    </div>
+  </div>
+
+  <!-- ONGOING -->
   <div class="phase-marker"><span class="phase-label" style="border-color:var(--green);color:var(--green);">🟢 Active — More To Come</span></div>
-
-  <div style="text-align:center; padding: 20px; color: var(--gray); font-size: 0.85rem; font-style: italic;">
-    This log is updated continuously. Every commit, fix, and completed mission gets added here.
+  <div style="text-align:center;padding:20px;color:var(--gray);font-size:0.85rem;font-style:italic;">
+    This log updates continuously. Every commit, fix, and completed mission gets added here.
   </div>
 
-</div>
+</div><!-- /timeline -->
+</div><!-- /main-content -->
 
 <script>
-  function filterAll(btn) {
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    document.querySelectorAll('.entry').forEach(e => e.style.display = 'flex');
+/* ── Auth ── */
+function checkAuth() {
+  var i = document.getElementById('auth-input');
+  if (i.value === '5683') {
+    document.getElementById('auth-gate').style.display = 'none';
+    document.getElementById('main-content').style.display = 'block';
+    sessionStorage.setItem('tl-auth', '1');
+    initPage();
+  } else {
+    document.getElementById('auth-error').style.display = 'block';
+    i.value = ''; i.focus();
   }
-  function filterCat(btn, cat) {
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    document.querySelectorAll('.entry').forEach(e => {
-      const cats = e.dataset.cats || '';
-      e.style.display = cats.includes(cat) ? 'flex' : 'none';
+}
+if (sessionStorage.getItem('tl-auth') === '1') {
+  document.getElementById('auth-gate').style.display = 'none';
+  document.getElementById('main-content').style.display = 'block';
+  document.addEventListener('DOMContentLoaded', initPage);
+}
+document.addEventListener('DOMContentLoaded', function() {
+  if (sessionStorage.getItem('tl-auth') === '1') initPage();
+});
+
+/* ── Filter ── */
+function setFilter(btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  var cat = btn.dataset.cat;
+  var entries = document.querySelectorAll('.entry[data-category]');
+  var visible = 0;
+  entries.forEach(function(e) {
+    if (cat === 'all') {
+      e.style.display = 'flex';
+      visible++;
+    } else {
+      var cats = (e.dataset.category || '');
+      if (cats.split(' ').indexOf(cat) !== -1) {
+        e.style.display = 'flex';
+        visible++;
+      } else {
+        e.style.display = 'none';
+      }
+    }
+  });
+  var notice = document.getElementById('hidden-notice');
+  notice.style.display = visible === 0 ? 'block' : 'none';
+  /* also hide/show phase markers that have no visible siblings */
+  updatePhaseMarkers();
+}
+
+function updatePhaseMarkers() {
+  document.querySelectorAll('.phase-marker').forEach(function(pm) {
+    /* check if any .entry after this marker (until next marker) is visible */
+    var next = pm.nextElementSibling;
+    var hasVisible = false;
+    while (next && !next.classList.contains('phase-marker')) {
+      if (next.classList.contains('entry') && next.style.display !== 'none') {
+        hasVisible = true; break;
+      }
+      next = next.nextElementSibling;
+    }
+    pm.style.display = hasVisible ? '' : 'none';
+  });
+}
+
+/* ── Stats ── */
+function initPage() {
+  /* Days since launch */
+  var launch = new Date('2026-03-05T00:00:00');
+  var now = new Date();
+  var days = Math.floor((now - launch) / 86400000);
+  var el = document.getElementById('stat-days');
+  if (el) el.textContent = days;
+
+  /* Timeline entries */
+  var entries = document.querySelectorAll('.entry[data-category]').length;
+  var eel = document.getElementById('stat-entries');
+  if (eel) eel.textContent = entries;
+
+  /* Dictionary count */
+  var del = document.getElementById('stat-dict');
+  if (del) del.textContent = '32';
+
+  /* Lexicon count — fetch manifest */
+  fetch('/lexicon-manifest.json')
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      var count = d.count || (Array.isArray(d.entries) ? d.entries.length : 0) || '443+';
+      var lel = document.getElementById('stat-lexicon');
+      if (lel) lel.textContent = count;
+    })
+    .catch(function() {
+      var lel = document.getElementById('stat-lexicon');
+      if (lel) lel.textContent = '443+';
     });
-  }
-</script>
-</div>
-<script>
-function checkAuth(){var i=document.getElementById('auth-input');if(i.value==='5683'){document.getElementById('auth-gate').style.display='none';document.getElementById('main-content').style.display='block';sessionStorage.setItem('tl-auth','1')}else{document.getElementById('auth-error').style.display='block';i.value='';i.focus()}}
-if(sessionStorage.getItem('tl-auth')==='1'){document.getElementById('auth-gate').style.display='none';document.getElementById('main-content').style.display='block';}
+}
 </script>
 </body>
 </html>
