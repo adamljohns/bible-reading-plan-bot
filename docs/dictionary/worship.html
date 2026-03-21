@@ -3,260 +3,94 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Worship &mdash; The MOOP Dictionary</title>
+    <title>Worship — The MOOP Dictionary of the English Language</title>
     <style>
         * { margin:0; padding:0; box-sizing:border-box; }
         :root { --bg:#000; --card:#111; --gold:#D4AF37; --gold-light:#F4D470; --white:#FFF; --gray:#888; --border:#333; }
         body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--white); min-height:100vh; line-height:1.7; }
-        h1,h2,h3,h4 { font-family:'Playfair Display',serif; }
-        nav { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:4px 8px; padding:10px 16px;
-              border-bottom:1px solid var(--border); position:sticky; top:0;
-              background:rgba(0,0,0,0.95); backdrop-filter:blur(8px); z-index:100; }
-        nav a { color:var(--gray); text-decoration:none; font-size:0.8rem; display:inline-flex; align-items:center;
-                gap:3px; padding:3px 6px; border-radius:6px; transition:color 0.2s; }
-        nav a:hover, nav a.active { color:var(--gold); }
-        .site-icon { vertical-align:middle; opacity:0.8; }
-        .theme-toggle { background:none; border:1px solid var(--border); border-radius:50%; width:28px; height:28px;
-                        cursor:pointer; font-size:0.85rem; transition:all 0.3s; padding:0; color:var(--white);
-                        display:inline-flex; align-items:center; justify-content:center; }
-        .theme-toggle:hover { border-color:var(--gold); }
-        .container { max-width:820px; margin:0 auto; padding:28px 20px 60px; }
+        h1,h2,h3 { font-family:'Playfair Display',serif; }
+        .container { max-width:800px; margin:0 auto; padding:20px; }
         .word-header { text-align:center; padding:40px 0 30px; border-bottom:1px solid var(--border); margin-bottom:30px; }
-        .word-title { font-size:2.8rem; color:var(--gold-light); margin-bottom:6px; }
+        .word-title { font-size:2.5rem; color:var(--gold-light); margin-bottom:5px; }
         .pronunciation { color:var(--gray); font-size:1.1rem; font-style:italic; }
-        .pos { display:inline-block; background:var(--gold); color:#000; font-weight:700;
-               font-size:0.78rem; padding:3px 14px; border-radius:15px; margin:10px 0; }
-        .etymology { color:var(--gray); font-size:0.88rem; margin:12px auto; max-width:650px; }
-        .section { margin:18px 0; padding:18px 22px; background:var(--card); border:1px solid var(--border); border-radius:10px; }
-        .section > h3 { color:var(--gold); margin-bottom:12px; font-size:1.05rem; }
-        .section p { margin:7px 0; }
+        .pos { display:inline-block; background:var(--gold); color:#000; font-weight:700; font-size:0.8rem; padding:3px 12px; border-radius:15px; margin:10px 0; }
+        .etymology { color:var(--gray); font-size:0.9rem; margin:10px 0; }
+        .section { margin:25px 0; padding:20px; background:var(--card); border:1px solid var(--border); border-radius:10px; }
+        .section h3 { color:var(--gold); margin-bottom:12px; font-size:1.1rem; }
+        .section p { margin:8px 0; }
         .biblical-def { border-left:3px solid var(--gold); padding-left:15px; }
-        .dict-toggle { cursor:pointer; color:var(--gold); font-size:0.92rem; user-select:none;
-                       display:inline-flex; align-items:center; gap:0; background:none; border:none;
-                       padding:0; font-family:inherit; font-weight:600; }
-        .dict-toggle:hover { color:var(--gold-light); }
-        .dict-toggle .arrow { display:inline-block; transition:transform 0.2s; margin-right:8px; font-size:0.75rem; }
-        .dict-toggle .arrow.open { transform:rotate(90deg); }
-        .dict-section { display:none; margin:10px 0 4px 0; padding:12px 16px;
-                        background:rgba(212,175,55,0.06); border-left:2px solid var(--gold);
-                        border-radius:0 6px 6px 0; }
-        .dict-section.open { display:block; }
-        .dict-section p { margin:6px 0; font-size:0.95rem; }
-        .dict-section pre { font-family:'Courier New',monospace; font-size:0.82rem; color:var(--gold-light);
-                             line-height:1.7; white-space:pre-wrap; }
         .corruption { border-left:3px solid #CC0000; padding-left:15px; }
         .verse-ref { color:var(--gold); text-decoration:none; font-weight:600; }
-        .verse-ref:hover { color:var(--gold-light); text-decoration:underline; }
-        .lexicon-link { color:var(--gold); font-family:monospace; text-decoration:none; }
-        .lexicon-link:hover { color:var(--gold-light); text-decoration:underline; }
+        .verse-ref:hover { color:var(--gold-light); }
         .related { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
-        .related a { background:var(--card); border:1px solid var(--border); padding:6px 14px;
-                     border-radius:20px; color:var(--white); text-decoration:none; font-size:0.85rem;
-                     transition:border-color 0.2s, color 0.2s; }
+        .related a { background:var(--card); border:1px solid var(--border); padding:6px 14px; border-radius:20px; color:var(--white); text-decoration:none; font-size:0.85rem; }
         .related a:hover { border-color:var(--gold); color:var(--gold); }
-        footer { text-align:center; padding:28px 20px; border-top:1px solid var(--border);
-                 margin-top:40px; color:var(--gray); font-size:0.88rem; }
-        footer a { color:var(--gray); text-decoration:none; }
-        footer a:hover { color:var(--gold); }
-        .cross-divider { margin-bottom:10px; }
-        body.light-mode { --bg:#F5F3EF; --card:#FFF; --white:#1a1a1a; --gray:#666; --border:#d4d0c8; background:#F5F3EF; color:#1a1a1a; }
-        body.light-mode nav { background:rgba(245,243,239,0.97); }
-        body.light-mode .section { background:#fff; border-color:#d4d0c8; }
-        body.light-mode .dict-section { background:rgba(212,175,55,0.04); }
-        body.light-mode footer { border-top-color:#d4d0c8; }
-        body.light-mode .related a { background:#f0ede7; border-color:#d4d0c8; color:#1a1a1a; }
-
-    
-        a, a:link, a:visited { color: var(--gold, #D4AF37) !important; }
-        a:hover { color: var(--gold-light, #F4D470) !important; }
+        .lexicon-link { color:var(--gold); font-family:monospace; }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
 </head>
 <body>
-    <nav>
-        <a href="../index.html"><img src="../assets/icons/shield-home-48.png" class="site-icon" alt="" width="16" height="16"> Home</a>
-        <a href="../watchman.html"><img src="../assets/icons/shield-bible.png" class="site-icon" alt="" width="16" height="16"> Watchman</a>
-        <a href="../bible.html"><img src="../assets/icons/shield-compass.png" class="site-icon" alt="" width="16" height="16"> BTE</a>
-        <a href="../lexicon.html"><img src="../assets/icons/shield-alpha-omega-48.png" class="site-icon" alt="" width="16" height="16"> Lexicon</a>
-        <a href="../cross-references.html"><img src="../assets/icons/shield-infinity-rope-48.png" class="site-icon" alt="" width="16" height="16"> Cross-Refs</a>
-        <a href="index.html" class="active"><img src="../assets/icons/shield-book-greek-48.png" class="site-icon" alt="" width="16" height="16"> Dictionary</a>
-        <a href="../blog.html"><img src="../assets/icons/shield-blog-quill-48.png" class="site-icon" alt="" width="16" height="16"> Blog</a>
-        <a href="../connect.html"><img src="../assets/icons/shield-handshake.png" class="site-icon" alt="" width="16" height="16"> Connect</a>
-        <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle" title="Toggle dark/light">&#127769;</button>
-    </nav>
     <div class="container">
-
         <div class="word-header">
             <div class="word-title">Worship</div>
-            <div class="pronunciation">/ˈwɜr.ʃɪp/</div>
+            <div class="pronunciation">/ˈwɜːr.ʃɪp/</div>
             <span class="pos">noun / verb</span>
-            <div class="etymology">Old English <em>weorthscipe</em>: "worthship" — to ascribe worth to something. From <em>weorth</em> (worth, worthy) + <em>-scipe</em> (state of being). Worship is inherently a declaration: <em>You are worthy.</em></div>
+            <div class="etymology">Old English <em>weorthscipe</em> — "worth-ship"; the condition of having worth or honor. From <em>weorth</em> (worthy, honorable) + <em>-scipe</em> (ship, condition). To ascribe ultimate worth to something or someone.</div>
         </div>
 
-        <!-- Biblical Definition — always visible -->
         <div class="section">
-            <h3>&#128214; Biblical Definition</h3>
+            <h3>📖 Biblical Definition</h3>
             <div class="biblical-def">
-                <p>Worship is the total orientation of a creature toward its Creator — the ascribing of supreme worth to God through adoration, submission, obedience, and service. In Scripture, worship is not optional and not merely musical. Every human being worships something; the question is only <em>what</em>. True worship is "in spirit and truth" (<a href="../bible.html?ref=John+4:24" style="color:var(--gold);text-decoration:underline;">John 4:24</a>) — internal, authentic, and aligned with God's self-revelation. Jesus identified the greatest commandment as total love for God (Matt. 22:37), which is worship in its fullest form. Paul extended worship into all of life: "Present your bodies as a living sacrifice… this is your spiritual worship" (Rom. 12:1). Worship without obedience is not worship at all (Isa. 29:13).</p>
+                <p>Worship is the whole-person response of a creature to the Creator — ascribing to God His infinite worth through reverence, adoration, obedience, and sacrifice. It is not merely a Sunday activity but the comprehensive orientation of one's life toward God. True worship encompasses spirit and truth (John 4:24), and the first commandment ("no other gods") establishes worship as the foundational act of human existence. The Hebrew <em>shachah</em> (to bow down, prostrate) and Greek <em>proskuneō</em> (to kiss toward, bow before) both emphasize creaturely submission before divine majesty. Worship that God accepts is offered through Christ, the one Mediator (Hebrews 10:19–22), and is energized by the Holy Spirit.</p>
             </div>
         </div>
 
-        <!-- Webster 1828 — collapsible -->
         <div class="section">
-            <button class="dict-toggle" data-toggle="webster" onclick="toggleDict('webster')">
-                <span class="arrow">&#9658;</span>&#128220; Webster 1828 Definition
-            </button>
-            <div class="dict-section" id="webster">
-                <p><a href="../bible.html?ref=John+4:23-24" class="verse-ref">John 4:23–24</a> — "But the hour is coming, and is now here, when the true worshipers will worship the Father in spirit and truth, for the Father is seeking such people to worship Him."</p>
-            <p><a href="../bible.html?ref=Romans+12:1" class="verse-ref">Romans 12:1</a> — "I appeal to you therefore, brothers, by the mercies of God, to present your bodies as a living sacrifice, holy and acceptable to God, which is your spiritual worship."</p>
+            <h3>📜 Webster 1828 Definition</h3>
+            <p><strong>WOR'SHIP, n.</strong> 1. Chiefly and eminently, the act of paying divine honors to the Supreme Being; or the reverence and homage paid to him in religious exercises, consisting in adoration, confession, prayer, thanksgiving and the like. 2. The act of revering or honoring. 3. A term of ironical respect. <strong>WOR'SHIP, v.t.</strong> To adore; to pay divine honors to; to reverence with supreme respect and veneration.</p>
+        </div>
+
+        <div class="section">
+            <h3>⚠️ Modern Corruption</h3>
+            <div class="corruption">
+                <p>Modern culture has severed "worship" from its exclusive object — God — and redefined it as any intense emotional experience or passionate devotion to anything. People "worship" celebrities, athletes, nature, and their own lifestyle choices. Within Christianity itself, worship has been reduced to a musical genre or emotional atmosphere, measured by production quality and emotional intensity rather than theological content and heart posture. "Worship music" has become an entertainment category, and "worship leader" a performance role. The Reformation's principle of <em>Soli Deo Gloria</em> (glory to God alone) confronts this confusion: true worship cannot be manufactured, manipulated, or misdirected to any lesser object.</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>📖 Key Scripture</h3>
+            <p><a href="../bible.html?ref=John+4:24" class="verse-ref">John 4:24</a> — "God is spirit, and those who worship him must worship in spirit and truth."</p>
+            <p><a href="../bible.html?ref=Exodus+20:3" class="verse-ref">Exodus 20:3</a> — "You shall have no other gods before me."</p>
+            <p><a href="../bible.html?ref=Romans+12:1" class="verse-ref">Romans 12:1</a> — "Present your bodies as a living sacrifice, holy and acceptable to God, which is your spiritual worship."</p>
             <p><a href="../bible.html?ref=Psalm+95:6" class="verse-ref">Psalm 95:6</a> — "Oh come, let us worship and bow down; let us kneel before the LORD, our Maker!"</p>
-            <p><a href="../bible.html?ref=Revelation+4:11" class="verse-ref">Revelation 4:11</a> — "Worthy are You, our Lord and God, to receive glory and honor and power, for You created all things."</p>
-            <p><a href="../bible.html?ref=Isaiah+29:13" class="verse-ref">Isaiah 29:13</a> — "This people draw near with their mouth and honor Me with their lips, while their hearts are far from Me."</p>
+            <p><a href="../bible.html?ref=Revelation+4:11" class="verse-ref">Revelation 4:11</a> — "Worthy are you, our Lord and God, to receive glory and honor and power, for you created all things."</p>
         </div>
 
         <div class="section">
             <h3>🔗 Greek &amp; Hebrew Roots</h3>
-            <p><a href="../lexicon/H7812.html" class="lexicon-link">H7812</a> — <strong>shachah</strong> (שָׁחָה): to bow down, prostrate oneself; the primary OT word for worship — a physical posture expressing inward reverence.</p>
-            <p><a href="../lexicon/G4352.html" class="lexicon-link">G4352</a> — <strong>proskuneō</strong> (προσκυνέω): to bow before, to do reverence to; from <em>pros</em> (toward) + <em>kuneō</em> (to kiss) — worship as intimate approach and submission.</p>
-            <p><a href="../lexicon/G3000.html" class="lexicon-link">G3000</a> — <strong>latreuō</strong> (λατρεύω): to serve, to render religious service — worship expressed in devoted labor and service.</p>
+            <p><a href="lexicon/H7812.html" class="lexicon-link">H7812 — שָׁחָה (shachah)</a> — to bow down, prostrate oneself, do obeisance; the most common Hebrew word for worship</p>
+            <p><a href="lexicon/G4352.html" class="lexicon-link">G4352 — προσκυνέω (proskuneō)</a> — to kiss toward, bow before; to prostrate in reverence; most common NT word for worship</p>
+            <p><a href="lexicon/H5647.html" class="lexicon-link">H5647 — עָבַד (abad)</a> — to serve, work; also translated "worship" — service to God is a form of worship</p>
+            <p><a href="lexicon/G3000.html" class="lexicon-link">G3000 — λατρεύω (latreuō)</a> — to serve, render religious service; used in Romans 12:1 for "spiritual worship"</p>
         </div>
 
         <div class="section">
-            <h3><img src="../assets/icons/shield-blog-quill-48.png" width="20" height="20" style="vertical-align:middle;margin-right:6px;"> Usage</h3>
-            <p>"Monday through Saturday is where most of your worship happens — in how you work, speak, and spend."</p>
-            <p>"The ancient Israelites were not called to find their own worship style; they were given a liturgy because God is the object, not the preference."</p>
-            <p>"Whatever you cannot stop thinking about, whatever shapes your decisions — that is what you worship."</p>
+            <h3>✍️ Usage</h3>
+            <p>• "The congregation gathered not merely for a service, but for <em>worship</em> — to ascribe to God His infinite worth through song, prayer, and the Word."</p>
+            <p>• "A man's <em>worship</em> is revealed not by where he sits on Sunday, but by what captures his heart's deepest devotion throughout the week."</p>
+            <p>• "The Reformers understood that <em>worship</em> must be regulated by Scripture, not shaped by cultural preference or emotional appetite."</p>
         </div>
 
-        <div class="section">
-            <h3>Related Words</h3>
-            <div class="related">
-                <a href="holy.html">Holy</a>
-                <a href="prayer.html">Prayer</a>
-                <a href="sacred.html">Sacred</a>
-                <a href="glory.html">Glory</a>
-                <a href="faith.html">Faith</a>
-            </div>
-        </div>
-
-        <!-- Modern Corruption — collapsible -->
-        <div class="section">
-            <button class="dict-toggle" data-toggle="corruption" onclick="toggleDict('corruption')">
-                <span class="arrow">&#9658;</span>&#9888;&#65039; Modern Corruption
-            </button>
-            <div class="dict-section" id="corruption">
-                <div class="corruption">
-                    <p>Contemporary culture has reduced worship to a Sunday music set — evaluated by production quality, emotional experience, and personal preference. When churches ask "did you like the worship today?" they have already accepted the consumer model: the worshiper as audience, God as performer. Scripture's vision is the reverse. Further, culture worships openly but redirects toward self, celebrities, sports teams, and ideologies. When "worship" is reduced to a genre of Christian music, the word has been hollowed of its totalizing claim on human existence.</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Proto-Language Roots — collapsible -->
-        <div class="section">
-            <button class="dict-toggle" data-toggle="proto" onclick="toggleDict('proto')">
-                <span class="arrow">&#9658;</span>&#127760; Proto-Language Roots
-            </button>
-            <div class="dict-section" id="proto">
-                <pre>Old English weorðscipe ("worthiness, dignity, honor")
-  → weorð ("worth, worthy") + -scipe ("-ship," state/condition)
-    → Middle English worshipe → Modern English "worship"
-
-Worship literally = "worth-ship" — ascribing worth to someone.
-Note: "Your Worship" (addressing a judge/mayor) preserves the original meaning.
-
-Greek:
-προσκυνέω (proskyneō, G4352) — to worship, bow down, prostrate
-  → πρός (toward) + κυνέω (to kiss) → literally "to kiss toward"
-  → The image: bowing and kissing the feet or ground before a king
-  → λατρεύω (latreuō, G3000) — to serve, render religious service/worship
-
-Biblical parallel:
-Proto-Semitic *šḥw → Hebrew שָׁחָה (shachah, H7812) — to bow down, worship, prostrate
-  → The most common OT worship word — physical prostration before God
-  → עָבַד (avad, H5647) — to serve, work (worship as service)
-  → הָלַל (halal, H1984) — to praise, to shine, to boast in God
-  → "Hallelujah" (hallelu-Yah) = "Praise the LORD" — from halal</pre>
-            </div>
-        </div>
-
-        <!-- Key Scripture — always visible -->
-        <div class="section">
-            <h3>&#128214; Key Scripture</h3>
-            <p>&#x2022; <a href="../bible.html?ref=John+4:23-24" class="verse-ref">John 4:23–24</a> &mdash; "But the hour is coming, and is now here, when the true worshipers will worship the Father in spirit and truth, for the Father is seeking such people to worship Him."</p>
-            <p>&#x2022; <a href="../bible.html?ref=Romans+12:1" class="verse-ref">Romans 12:1</a> &mdash; "I appeal to you therefore, brothers, by the mercies of God, to present your bodies as a living sacrifice, holy and acceptable to God, which is your spiritual worship."</p>
-            <p>&#x2022; <a href="../bible.html?ref=Psalm+95:6" class="verse-ref">Psalm 95:6</a> &mdash; "Oh come, let us worship and bow down; let us kneel before the LORD, our Maker!"</p>
-            <p>&#x2022; <a href="../bible.html?ref=Revelation+4:11" class="verse-ref">Revelation 4:11</a> &mdash; "Worthy are You, our Lord and God, to receive glory and honor and power, for You created all things."</p>
-            <p>&#x2022; <a href="../bible.html?ref=Isaiah+29:13" class="verse-ref">Isaiah 29:13</a> &mdash; "This people draw near with their mouth and honor Me with their lips, while their hearts are far from Me."</p>
-        </div>
-
-        <!-- Greek & Hebrew Roots — collapsible -->
-        <div class="section">
-            <button class="dict-toggle" data-toggle="roots" onclick="toggleDict('roots')">
-                <span class="arrow">&#9658;</span>&#128279; Greek &amp; Hebrew Roots
-            </button>
-            <div class="dict-section" id="roots">
-            <p><a href="../lexicon/H7812.html" class="lexicon-link">H7812</a> &mdash; <strong>shachah</strong> (שָׁחָה): to bow down, prostrate oneself; the primary OT word for worship — a physical posture expressing inward reverence.</p>
-            <p><a href="../lexicon/G4352.html" class="lexicon-link">G4352</a> &mdash; <strong>proskuneō</strong> (προσκυνέω): to bow before, to do reverence to; from <em>pros</em> (toward) + <em>kuneō</em> (to kiss) — worship as intimate approach and submission.</p>
-            <p><a href="../lexicon/G3000.html" class="lexicon-link">G3000</a> &mdash; <strong>latreuō</strong> (λατρεύω): to serve, to render religious service — worship expressed in devoted labor and service.</p>
-            </div>
-        </div>
-
-        <!-- Usage Examples — collapsible -->
-        <div class="section">
-            <button class="dict-toggle" data-toggle="usage" onclick="toggleDict('usage')">
-                <span class="arrow">&#9658;</span>&#9997;&#65039; Usage Examples
-            </button>
-            <div class="dict-section" id="usage">
-            <p>&#x2022; "Monday through Saturday is where most of your worship happens — in how you work, speak, and spend."</p>
-            <p>&#x2022; "The ancient Israelites were not called to find their own worship style; they were given a liturgy because God is the object, not the preference."</p>
-            <p>&#x2022; "Whatever you cannot stop thinking about, whatever shapes your decisions — that is what you worship."</p>
-            </div>
-        </div>
-
-        <!-- Related Words — always visible -->
         <div class="section">
             <h3>Related Words</h3>
             <div class="related">
-                <a href="holy.html">Holy</a>
                 <a href="prayer.html">Prayer</a>
-                <a href="sacred.html">Sacred</a>
+                <a href="holy.html">Holy</a>
                 <a href="glory.html">Glory</a>
-                <a href="faith.html">Faith</a>
+                <a href="sacred.html">Sacred</a>
+                <a href="blessing.html">Blessing</a>
             </div>
         </div>
-
     </div>
-
-    <footer>
-        <div class="cross-divider"><img src="../assets/icons/shield-cross-bible-48.png" alt="" width="36" height="36" style="opacity:0.6;margin-bottom:10px;"></div>
-        <p>
-            <a href="../index.html#uniting"><img src="../assets/icons/shield-hands-joining.png" class="site-icon" alt="" width="20" height="20"> Uniting</a> &middot;
-            <a href="../serving.html"><img src="../assets/icons/shield-serving.png" class="site-icon" alt="" width="20" height="20"> Serving</a> &middot;
-            <a href="../mentoring.html"><img src="../assets/icons/shield-mentoring.png" class="site-icon" alt="" width="20" height="20"> Mentoring</a> &middot;
-            <a href="../counseling.html"><img src="../assets/icons/shield-family.png" class="site-icon" alt="" width="20" height="20"> Counseling</a> &middot;
-            <a href="../about.html"><img src="../assets/icons/shield-about-person-24.png" class="site-icon" alt="" width="20" height="20"> About</a>
-        </p>
-        <p style="margin-top:8px;font-size:0.78rem;color:#555;">Powered by MOOPbot Pro &mdash; &ldquo;Iron sharpens iron.&rdquo; &mdash; <a href="../bible.html?ref=Proverbs+27:17" style="color:var(--gold);text-decoration:underline;">Proverbs 27:17</a></p>
-    </footer>
-    <script>
-    function toggleDict(id){
-        var s=document.getElementById(id);
-        var b=document.querySelector('[data-toggle="'+id+'"]');
-        var a=b?b.querySelector('.arrow'):null;
-        s.classList.toggle('open');
-        if(a)a.classList.toggle('open');
-    }
-    function toggleTheme(){
-        var b=document.body,t=document.getElementById('themeToggle');
-        if(b.classList.contains('light-mode')){b.classList.remove('light-mode');t.textContent='\u{1F319}';localStorage.setItem('bte-theme','dark');}
-        else{b.classList.add('light-mode');t.textContent='\u2600\uFE0F';localStorage.setItem('bte-theme','light');}
-    }
-    (function(){
-        if(localStorage.getItem('bte-theme')==='light'){
-            document.body.classList.add('light-mode');
-            var t=document.getElementById('themeToggle');if(t)t.textContent='\u2600\uFE0F';
-        }
-    })();
-    </script>
 </body>
 </html>
