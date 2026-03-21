@@ -9,11 +9,19 @@
         :root { --bg:#000; --card:#111; --gold:#D4AF37; --gold-light:#F4D470; --white:#FFF; --gray:#888; --border:#333; }
         body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--white); min-height:100vh; line-height:1.7; }
         h1,h2,h3 { font-family:'Playfair Display',serif; }
+        nav { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:4px 8px; padding:10px 16px;
+              border-bottom:1px solid var(--border); position:sticky; top:0;
+              background:rgba(0,0,0,0.95); backdrop-filter:blur(8px); z-index:100; }
+        nav a { color:var(--gray); text-decoration:none; font-size:0.8rem; display:inline-flex; align-items:center;
+                gap:3px; padding:3px 6px; border-radius:6px; transition:color 0.2s; }
+        nav a:hover, nav a.active { color:var(--gold); }
+        .site-icon { vertical-align:middle; opacity:0.8; }
+        .theme-toggle { background:none; border:1px solid var(--border); border-radius:50%; width:28px; height:28px;
+                        cursor:pointer; font-size:0.85rem; transition:all 0.3s; padding:0; color:var(--white);
+                        display:inline-flex; align-items:center; justify-content:center; }
+        .theme-toggle:hover { border-color:var(--gold); }
         .container { max-width:900px; margin:0 auto; padding:20px; }
-        nav { text-align:center; padding:15px 0; border-bottom:1px solid var(--border); margin-bottom:30px; }
-        nav a { color:var(--gold); text-decoration:none; margin:0 10px; font-size:0.9rem; }
-        nav a:hover { color:var(--gold-light); }
-        .hero { text-align:center; padding:50px 0 30px; border-bottom:1px solid var(--border); margin-bottom:40px; }
+        .hero { text-align:center; padding:40px 0 30px; border-bottom:1px solid var(--border); margin-bottom:40px; }
         .hero h1 { font-size:2.8rem; color:var(--gold-light); margin-bottom:10px; }
         .hero p { color:var(--gray); max-width:600px; margin:10px auto; }
         .subtitle { font-size:1.1rem; color:var(--gray); font-style:italic; }
@@ -24,46 +32,60 @@
         .word-card:hover { border-color:var(--gold); color:var(--gold-light); }
         .word-card .word { font-family:'Playfair Display',serif; font-size:1rem; }
         .word-card .pos { font-size:0.75rem; color:var(--gray); margin-top:2px; }
-        .coming-soon { color:var(--gray); font-size:0.85rem; font-style:italic; padding:8px 0; }
-        .count-badge { display:inline-block; background:var(--gold); color:#000; font-size:0.75rem; font-weight:700; padding:2px 8px; border-radius:10px; margin-left:10px; vertical-align:middle; }
+        .count-badge { display:inline-block; background:var(--gold); color:#000; font-size:0.7rem; font-weight:700; padding:2px 8px; border-radius:10px; margin-left:8px; vertical-align:middle; }
+        footer { text-align:center; padding:28px 20px; border-top:1px solid var(--border); margin-top:40px; color:var(--gray); font-size:0.88rem; }
+        footer a { color:var(--gray); text-decoration:none; }
+        footer a:hover { color:var(--gold); }
+        .cross-divider { margin-bottom:10px; }
+        body.light-mode { --bg:#F5F3EF; --card:#FFF; --white:#1a1a1a; --gray:#666; --border:#d4d0c8; background:#F5F3EF; color:#1a1a1a; }
+        body.light-mode nav { background:rgba(245,243,239,0.97); }
+        body.light-mode .word-card { background:#fff; border-color:#d4d0c8; }
+        body.light-mode footer { border-top-color:#d4d0c8; }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
 </head>
 <body>
+    <nav>
+        <a href="../index.html"><img src="../assets/icons/shield-home-48.png" class="site-icon" alt="" width="16" height="16"> Home</a>
+        <a href="../watchman.html"><img src="../assets/icons/shield-bible.png" class="site-icon" alt="" width="16" height="16"> Watchman</a>
+        <a href="../bible.html"><img src="../assets/icons/shield-compass.png" class="site-icon" alt="" width="16" height="16"> BTE</a>
+        <a href="../lexicon.html"><img src="../assets/icons/shield-alpha-omega-48.png" class="site-icon" alt="" width="16" height="16"> Lexicon</a>
+        <a href="../cross-references.html"><img src="../assets/icons/shield-infinity-rope-48.png" class="site-icon" alt="" width="16" height="16"> Cross-Refs</a>
+        <a href="index.html" class="active"><img src="../assets/icons/shield-book-greek-48.png" class="site-icon" alt="" width="16" height="16"> Dictionary</a>
+        <a href="../blog.html"><img src="../assets/icons/shield-blog-quill-48.png" class="site-icon" alt="" width="16" height="16"> Blog</a>
+        <a href="../connect.html"><img src="../assets/icons/shield-handshake.png" class="site-icon" alt="" width="16" height="16"> Connect</a>
+        <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle" title="Toggle dark/light">&#127769;</button>
+    </nav>
     <div class="container">
-        <nav>
-            <a href="../index.html">Home</a>
-            <a href="../bible.html">Bible</a>
-            <a href="../lexicon/index.html">Lexicon</a>
-        </nav>
 
         <div class="hero">
-            <img src="../assets/icons/shield-book-greek-48.png" alt="Dictionary" width="96" height="96" style="display:block;margin:0 auto 15px;">
+            <img src="../assets/icons/shield-book-greek-48.png" alt="Dictionary" width="96" height="96" style="margin-bottom:16px;opacity:0.9;">
             <h1>The MOOP Dictionary</h1>
             <p class="subtitle">of the English Language</p>
-            <p style="margin-top:20px;">Words have been stolen, redefined, and weaponized. This dictionary reclaims them — returning to the etymological roots, the biblical meaning, and the Webster 1828 definitions that shaped Western civilization, against which modern corruptions are measured.</p>
+            <p style="margin-top:20px;">Words have been stolen, redefined, and weaponized. This dictionary reclaims them &mdash; returning to the etymological roots, the biblical meaning, and the Webster 1828 definitions that shaped Western civilization, against which modern corruptions are measured.</p>
+            <p style="margin-top:10px;font-size:0.85rem;color:var(--gold);">31 entries &middot; Proto-language roots &middot; Collapsible deep-dive sections</p>
         </div>
 
-                <div class="category">
-            <h2>A <span style="background:var(--gold);color:#000;font-size:0.7rem;padding:2px 8px;border-radius:10px;vertical-align:middle;">1</span></h2>
+        <div class="category">
+            <h2>A <span class="count-badge">1</span></h2>
             <div class="word-grid">
                 <a href="atonement.html" class="word-card"><div class="word">Atonement</div><div class="pos">noun</div></a>
             </div>
         </div>
         <div class="category">
-            <h2>B <span style="background:var(--gold);color:#000;font-size:0.7rem;padding:2px 8px;border-radius:10px;vertical-align:middle;">1</span></h2>
+            <h2>B <span class="count-badge">1</span></h2>
             <div class="word-grid">
                 <a href="blessing.html" class="word-card"><div class="word">Blessing</div><div class="pos">noun</div></a>
             </div>
         </div>
         <div class="category">
-            <h2>C <span style="background:var(--gold);color:#000;font-size:0.7rem;padding:2px 8px;border-radius:10px;vertical-align:middle;">1</span></h2>
+            <h2>C <span class="count-badge">1</span></h2>
             <div class="word-grid">
                 <a href="covenant.html" class="word-card"><div class="word">Covenant</div><div class="pos">noun / verb</div></a>
             </div>
         </div>
         <div class="category">
-            <h2>F <span style="background:var(--gold);color:#000;font-size:0.7rem;padding:2px 8px;border-radius:10px;vertical-align:middle;">3</span></h2>
+            <h2>F <span class="count-badge">3</span></h2>
             <div class="word-grid">
                 <a href="faith.html" class="word-card"><div class="word">Faith</div><div class="pos">noun</div></a>
                 <a href="family.html" class="word-card"><div class="word">Family</div><div class="pos">noun</div></a>
@@ -71,7 +93,7 @@
             </div>
         </div>
         <div class="category">
-            <h2>G <span style="background:var(--gold);color:#000;font-size:0.7rem;padding:2px 8px;border-radius:10px;vertical-align:middle;">3</span></h2>
+            <h2>G <span class="count-badge">3</span></h2>
             <div class="word-grid">
                 <a href="glory.html" class="word-card"><div class="word">Glory</div><div class="pos">noun / verb</div></a>
                 <a href="gospel.html" class="word-card"><div class="word">Gospel</div><div class="pos">noun</div></a>
@@ -79,7 +101,7 @@
             </div>
         </div>
         <div class="category">
-            <h2>H <span style="background:var(--gold);color:#000;font-size:0.7rem;padding:2px 8px;border-radius:10px;vertical-align:middle;">4</span></h2>
+            <h2>H <span class="count-badge">4</span></h2>
             <div class="word-grid">
                 <a href="holy.html" class="word-card"><div class="word">Holy</div><div class="pos">adjective</div></a>
                 <a href="honor.html" class="word-card"><div class="word">Honor</div><div class="pos">noun / verb</div></a>
@@ -88,34 +110,34 @@
             </div>
         </div>
         <div class="category">
-            <h2>J <span style="background:var(--gold);color:#000;font-size:0.7rem;padding:2px 8px;border-radius:10px;vertical-align:middle;">2</span></h2>
+            <h2>J <span class="count-badge">2</span></h2>
             <div class="word-grid">
                 <a href="joy.html" class="word-card"><div class="word">Joy</div><div class="pos">noun</div></a>
                 <a href="justification.html" class="word-card"><div class="word">Justification</div><div class="pos">noun</div></a>
             </div>
         </div>
         <div class="category">
-            <h2>L <span style="background:var(--gold);color:#000;font-size:0.7rem;padding:2px 8px;border-radius:10px;vertical-align:middle;">1</span></h2>
+            <h2>L <span class="count-badge">1</span></h2>
             <div class="word-grid">
                 <a href="love.html" class="word-card"><div class="word">Love</div><div class="pos">noun / verb</div></a>
             </div>
         </div>
         <div class="category">
-            <h2>M <span style="background:var(--gold);color:#000;font-size:0.7rem;padding:2px 8px;border-radius:10px;vertical-align:middle;">2</span></h2>
+            <h2>M <span class="count-badge">2</span></h2>
             <div class="word-grid">
                 <a href="marriage.html" class="word-card"><div class="word">Marriage</div><div class="pos">noun</div></a>
                 <a href="mercy.html" class="word-card"><div class="word">Mercy</div><div class="pos">noun</div></a>
             </div>
         </div>
         <div class="category">
-            <h2>P <span style="background:var(--gold);color:#000;font-size:0.7rem;padding:2px 8px;border-radius:10px;vertical-align:middle;">2</span></h2>
+            <h2>P <span class="count-badge">2</span></h2>
             <div class="word-grid">
                 <a href="peace.html" class="word-card"><div class="word">Peace</div><div class="pos">noun</div></a>
                 <a href="prayer.html" class="word-card"><div class="word">Prayer</div><div class="pos">noun</div></a>
             </div>
         </div>
         <div class="category">
-            <h2>R <span style="background:var(--gold);color:#000;font-size:0.7rem;padding:2px 8px;border-radius:10px;vertical-align:middle;">3</span></h2>
+            <h2>R <span class="count-badge">3</span></h2>
             <div class="word-grid">
                 <a href="redemption.html" class="word-card"><div class="word">Redemption</div><div class="pos">noun</div></a>
                 <a href="repentance.html" class="word-card"><div class="word">Repentance</div><div class="pos">noun</div></a>
@@ -123,7 +145,7 @@
             </div>
         </div>
         <div class="category">
-            <h2>S <span style="background:var(--gold);color:#000;font-size:0.7rem;padding:2px 8px;border-radius:10px;vertical-align:middle;">4</span></h2>
+            <h2>S <span class="count-badge">4</span></h2>
             <div class="word-grid">
                 <a href="sacred.html" class="word-card"><div class="word">Sacred</div><div class="pos">adjective</div></a>
                 <a href="salvation.html" class="word-card"><div class="word">Salvation</div><div class="pos">noun</div></a>
@@ -132,24 +154,57 @@
             </div>
         </div>
         <div class="category">
-            <h2>T <span style="background:var(--gold);color:#000;font-size:0.7rem;padding:2px 8px;border-radius:10px;vertical-align:middle;">1</span></h2>
+            <h2>T <span class="count-badge">1</span></h2>
             <div class="word-grid">
                 <a href="truth.html" class="word-card"><div class="word">Truth</div><div class="pos">noun</div></a>
             </div>
         </div>
         <div class="category">
-            <h2>V <span style="background:var(--gold);color:#000;font-size:0.7rem;padding:2px 8px;border-radius:10px;vertical-align:middle;">1</span></h2>
+            <h2>V <span class="count-badge">1</span></h2>
             <div class="word-grid">
                 <a href="virtue.html" class="word-card"><div class="word">Virtue</div><div class="pos">noun</div></a>
             </div>
         </div>
         <div class="category">
-            <h2>W <span style="background:var(--gold);color:#000;font-size:0.7rem;padding:2px 8px;border-radius:10px;vertical-align:middle;">2</span></h2>
+            <h2>W <span class="count-badge">2</span></h2>
             <div class="word-grid">
                 <a href="wisdom.html" class="word-card"><div class="word">Wisdom</div><div class="pos">noun</div></a>
                 <a href="worship.html" class="word-card"><div class="word">Worship</div><div class="pos">noun / verb</div></a>
             </div>
         </div>
+
     </div>
+
+    <footer>
+        <div class="cross-divider"><img src="../assets/icons/shield-cross-bible-48.png" alt="" width="36" height="36" style="opacity:0.6;margin-bottom:10px;"></div>
+        <p>
+            <a href="../index.html#uniting"><img src="../assets/icons/shield-hands-joining.png" class="site-icon" alt="" width="20" height="20"> Uniting</a> &middot;
+            <a href="../serving.html"><img src="../assets/icons/shield-serving.png" class="site-icon" alt="" width="20" height="20"> Serving</a> &middot;
+            <a href="../mentoring.html"><img src="../assets/icons/shield-mentoring.png" class="site-icon" alt="" width="20" height="20"> Mentoring</a> &middot;
+            <a href="../counseling.html"><img src="../assets/icons/shield-family.png" class="site-icon" alt="" width="20" height="20"> Counseling</a> &middot;
+            <a href="../about.html"><img src="../assets/icons/shield-about-person-24.png" class="site-icon" alt="" width="20" height="20"> About</a>
+        </p>
+        <p style="margin-top:8px;font-size:0.78rem;color:#555;">Powered by MOOPbot Pro &mdash; &ldquo;Iron sharpens iron.&rdquo; &mdash; Proverbs 27:17</p>
+    </footer>
+    <script>
+    function toggleDict(id){
+        var s=document.getElementById(id);
+        var b=document.querySelector('[data-toggle="'+id+'"]');
+        var a=b?b.querySelector('.arrow'):null;
+        s.classList.toggle('open');
+        if(a)a.classList.toggle('open');
+    }
+    function toggleTheme(){
+        var b=document.body,t=document.getElementById('themeToggle');
+        if(b.classList.contains('light-mode')){b.classList.remove('light-mode');t.textContent='\u{1F319}';localStorage.setItem('bte-theme','dark');}
+        else{b.classList.add('light-mode');t.textContent='\u2600\uFE0F';localStorage.setItem('bte-theme','light');}
+    }
+    (function(){
+        if(localStorage.getItem('bte-theme')==='light'){
+            document.body.classList.add('light-mode');
+            var t=document.getElementById('themeToggle');if(t)t.textContent='\u2600\uFE0F';
+        }
+    })();
+    </script>
 </body>
 </html>

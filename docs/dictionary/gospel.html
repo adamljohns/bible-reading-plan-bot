@@ -3,51 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gospel — The MOOP Dictionary of the English Language</title>
+    <title>Gospel &mdash; The MOOP Dictionary</title>
     <style>
         * { margin:0; padding:0; box-sizing:border-box; }
         :root { --bg:#000; --card:#111; --gold:#D4AF37; --gold-light:#F4D470; --white:#FFF; --gray:#888; --border:#333; }
         body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--white); min-height:100vh; line-height:1.7; }
-        h1,h2,h3 { font-family:'Playfair Display',serif; }
-        .container { max-width:800px; margin:0 auto; padding:20px; }
+        h1,h2,h3,h4 { font-family:'Playfair Display',serif; }
+        nav { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:4px 8px; padding:10px 16px;
+              border-bottom:1px solid var(--border); position:sticky; top:0;
+              background:rgba(0,0,0,0.95); backdrop-filter:blur(8px); z-index:100; }
+        nav a { color:var(--gray); text-decoration:none; font-size:0.8rem; display:inline-flex; align-items:center;
+                gap:3px; padding:3px 6px; border-radius:6px; transition:color 0.2s; }
+        nav a:hover, nav a.active { color:var(--gold); }
+        .site-icon { vertical-align:middle; opacity:0.8; }
+        .theme-toggle { background:none; border:1px solid var(--border); border-radius:50%; width:28px; height:28px;
+                        cursor:pointer; font-size:0.85rem; transition:all 0.3s; padding:0; color:var(--white);
+                        display:inline-flex; align-items:center; justify-content:center; }
+        .theme-toggle:hover { border-color:var(--gold); }
+        .container { max-width:820px; margin:0 auto; padding:28px 20px 60px; }
         .word-header { text-align:center; padding:40px 0 30px; border-bottom:1px solid var(--border); margin-bottom:30px; }
-        .word-title { font-size:2.5rem; color:var(--gold-light); margin-bottom:5px; }
+        .word-title { font-size:2.8rem; color:var(--gold-light); margin-bottom:6px; }
         .pronunciation { color:var(--gray); font-size:1.1rem; font-style:italic; }
-        .pos { display:inline-block; background:var(--gold); color:#000; font-weight:700; font-size:0.8rem; padding:3px 12px; border-radius:15px; margin:10px 0; }
-        .etymology { color:var(--gray); font-size:0.9rem; margin:10px 0; }
-        .section { margin:25px 0; padding:20px; background:var(--card); border:1px solid var(--border); border-radius:10px; }
-        .section h3 { color:var(--gold); margin-bottom:12px; font-size:1.1rem; }
-        .section p { margin:8px 0; }
+        .pos { display:inline-block; background:var(--gold); color:#000; font-weight:700;
+               font-size:0.78rem; padding:3px 14px; border-radius:15px; margin:10px 0; }
+        .etymology { color:var(--gray); font-size:0.88rem; margin:12px auto; max-width:650px; }
+        .section { margin:18px 0; padding:18px 22px; background:var(--card); border:1px solid var(--border); border-radius:10px; }
+        .section > h3 { color:var(--gold); margin-bottom:12px; font-size:1.05rem; }
+        .section p { margin:7px 0; }
         .biblical-def { border-left:3px solid var(--gold); padding-left:15px; }
+        .dict-toggle { cursor:pointer; color:var(--gold); font-size:0.92rem; user-select:none;
+                       display:inline-flex; align-items:center; gap:0; background:none; border:none;
+                       padding:0; font-family:inherit; font-weight:600; }
+        .dict-toggle:hover { color:var(--gold-light); }
+        .dict-toggle .arrow { display:inline-block; transition:transform 0.2s; margin-right:8px; font-size:0.75rem; }
+        .dict-toggle .arrow.open { transform:rotate(90deg); }
+        .dict-section { display:none; margin:10px 0 4px 0; padding:12px 16px;
+                        background:rgba(212,175,55,0.06); border-left:2px solid var(--gold);
+                        border-radius:0 6px 6px 0; }
+        .dict-section.open { display:block; }
+        .dict-section p { margin:6px 0; font-size:0.95rem; }
+        .dict-section pre { font-family:'Courier New',monospace; font-size:0.82rem; color:var(--gold-light);
+                             line-height:1.7; white-space:pre-wrap; }
         .corruption { border-left:3px solid #CC0000; padding-left:15px; }
         .verse-ref { color:var(--gold); text-decoration:none; font-weight:600; }
-        .verse-ref:hover { color:var(--gold-light); }
+        .verse-ref:hover { color:var(--gold-light); text-decoration:underline; }
+        .lexicon-link { color:var(--gold); font-family:monospace; text-decoration:none; }
+        .lexicon-link:hover { color:var(--gold-light); text-decoration:underline; }
         .related { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
-        .related a { background:var(--card); border:1px solid var(--border); padding:6px 14px; border-radius:20px; color:var(--white); text-decoration:none; font-size:0.85rem; }
+        .related a { background:var(--card); border:1px solid var(--border); padding:6px 14px;
+                     border-radius:20px; color:var(--white); text-decoration:none; font-size:0.85rem;
+                     transition:border-color 0.2s, color 0.2s; }
         .related a:hover { border-color:var(--gold); color:var(--gold); }
-        .lexicon-link { color:var(--gold); font-family:monospace; }
-        nav { text-align:center; padding:15px 0; border-bottom:1px solid var(--border); margin-bottom:10px; }
-        nav a { color:var(--gold); text-decoration:none; margin:0 10px; }
-    
-        .dict-toggle { cursor:pointer; color:var(--gold); font-size:1rem; user-select:none; padding:8px 0; }
-        .dict-toggle:hover { color:var(--gold-light); }
-        .dict-toggle .arrow { display:inline-block; transition:transform 0.2s; margin-right:6px; font-size:0.8rem; }
-        .dict-toggle .arrow.open { transform:rotate(90deg); }
-        .dict-section { display:none; margin:0 0 16px 0; padding:12px 15px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
-        .dict-section.open { display:block; }
+        footer { text-align:center; padding:28px 20px; border-top:1px solid var(--border);
+                 margin-top:40px; color:var(--gray); font-size:0.88rem; }
+        footer a { color:var(--gray); text-decoration:none; }
+        footer a:hover { color:var(--gold); }
+        .cross-divider { margin-bottom:10px; }
+        body.light-mode { --bg:#F5F3EF; --card:#FFF; --white:#1a1a1a; --gray:#666; --border:#d4d0c8; background:#F5F3EF; color:#1a1a1a; }
+        body.light-mode nav { background:rgba(245,243,239,0.97); }
+        body.light-mode .section { background:#fff; border-color:#d4d0c8; }
+        body.light-mode .dict-section { background:rgba(212,175,55,0.04); }
+        body.light-mode footer { border-top-color:#d4d0c8; }
+        body.light-mode .related a { background:#f0ede7; border-color:#d4d0c8; color:#1a1a1a; }
+
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="container">
-            <nav style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;padding:14px 20px;border-bottom:1px solid var(--border);background:rgba(0,0,0,0.95);position:sticky;top:0;z-index:100;">
-        <a href="../index.html" style="color:var(--gray);text-decoration:none;font-size:0.85rem;padding:5px 12px;border-radius:20px;white-space:nowrap;"><img src="../assets/icons/shield-home-48.png" width="16" height="16" style="vertical-align:middle;margin-right:4px;"> Home</a>
-        <a href="../bible.html" style="color:var(--gray);text-decoration:none;font-size:0.85rem;padding:5px 12px;border-radius:20px;white-space:nowrap;"><img src="../assets/icons/shield-compass.png" width="16" height="16" style="vertical-align:middle;margin-right:4px;"> BTE</a>
-        <a href="../lexicon.html" style="color:var(--gray);text-decoration:none;font-size:0.85rem;padding:5px 12px;border-radius:20px;white-space:nowrap;"><img src="../assets/icons/shield-alpha-omega-48.png" width="16" height="16" style="vertical-align:middle;margin-right:4px;"> Lexicon</a>
-        <a href="index.html" style="color:var(--gold);text-decoration:none;font-size:0.85rem;padding:5px 12px;border-radius:20px;border:1px solid var(--gold);white-space:nowrap;"><img src="../assets/icons/shield-book-greek-48.png" width="16" height="16" style="vertical-align:middle;margin-right:4px;"> Dictionary</a>
-        <a href="../cross-references.html" style="color:var(--gray);text-decoration:none;font-size:0.85rem;padding:5px 12px;border-radius:20px;white-space:nowrap;"><img src="../assets/icons/shield-infinity-rope-48.png" width="16" height="16" style="vertical-align:middle;margin-right:4px;"> Cross-Refs</a>
-        <a href="../blog.html" style="color:var(--gray);text-decoration:none;font-size:0.85rem;padding:5px 12px;border-radius:20px;white-space:nowrap;"><img src="../assets/icons/shield-blog-quill-48.png" width="16" height="16" style="vertical-align:middle;margin-right:4px;"> Blog</a>
+    <nav>
+        <a href="../index.html"><img src="../assets/icons/shield-home-48.png" class="site-icon" alt="" width="16" height="16"> Home</a>
+        <a href="../watchman.html"><img src="../assets/icons/shield-bible.png" class="site-icon" alt="" width="16" height="16"> Watchman</a>
+        <a href="../bible.html"><img src="../assets/icons/shield-compass.png" class="site-icon" alt="" width="16" height="16"> BTE</a>
+        <a href="../lexicon.html"><img src="../assets/icons/shield-alpha-omega-48.png" class="site-icon" alt="" width="16" height="16"> Lexicon</a>
+        <a href="../cross-references.html"><img src="../assets/icons/shield-infinity-rope-48.png" class="site-icon" alt="" width="16" height="16"> Cross-Refs</a>
+        <a href="index.html" class="active"><img src="../assets/icons/shield-book-greek-48.png" class="site-icon" alt="" width="16" height="16"> Dictionary</a>
+        <a href="../blog.html"><img src="../assets/icons/shield-blog-quill-48.png" class="site-icon" alt="" width="16" height="16"> Blog</a>
+        <a href="../connect.html"><img src="../assets/icons/shield-handshake.png" class="site-icon" alt="" width="16" height="16"> Connect</a>
+        <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle" title="Toggle dark/light">&#127769;</button>
     </nav>
+    <div class="container">
+
         <div class="word-header">
             <div class="word-title">Gospel</div>
             <div class="pronunciation">/ˈɡɒspəl/</div>
@@ -55,30 +90,21 @@
             <div class="etymology">Old English <em>gōdspel</em> — literally "good news" (gōd = good + spel = news/story). A translation of Greek <em>euangelion</em> (εὐαγγέλιον): good message, glad tidings. Latin: <em>evangelium</em>.</div>
         </div>
 
+        <!-- Biblical Definition — always visible -->
         <div class="section">
-            <h3><img src="../assets/icons/shield-bible.png" width="20" height="20" style="vertical-align:middle;margin-right:6px;"> Biblical Definition</h3>
+            <h3>&#128214; Biblical Definition</h3>
             <div class="biblical-def">
                 <p>The Gospel is the good news that Jesus Christ — the eternal Son of God — took on human flesh, lived a perfectly righteous life, died as an atoning sacrifice for sinners, rose bodily from the dead on the third day, and now reigns as Lord, offering forgiveness and eternal life to all who repent and believe. Paul summarizes it precisely: "Christ died for our sins in accordance with the Scriptures, that he was buried, that he was raised on the third day in accordance with the Scriptures" (1 Cor. 15:3–4). The Gospel is not advice to improve yourself — it is an announcement of what God has accomplished in Christ. It carries the power of God for salvation (Rom. 1:16).</p>
             </div>
         </div>
 
+        <!-- Webster 1828 — collapsible -->
         <div class="section">
-            <div class="dict-toggle" data-toggle="webster" onclick="toggleDict('webster')"><span class="arrow">▶</span> <img src="../assets/icons/shield-chain-covenant-48.png" width="20" height="20" style="vertical-align:middle;margin-right:6px;"> Webster 1828 Definition</div>
+            <button class="dict-toggle" data-toggle="webster" onclick="toggleDict('webster')">
+                <span class="arrow">&#9658;</span>&#128220; Webster 1828 Definition
+            </button>
             <div class="dict-section" id="webster">
-            <p><strong>GOSPEL, n.</strong> The history of the birth, life, actions, death, resurrection, ascension, and doctrines of Jesus Christ; also, the promises of salvation, the principles of liberty and redemption declared by Christ and his apostles. The word signifies good news or glad tidings. In a general sense, Gospel denotes the whole of the Christian revelation.</p>
-        </div></div>
-
-        <div class="section">
-            <div class="dict-toggle" data-toggle="corruption" onclick="toggleDict('corruption')"><span class="arrow">▶</span> <img src="../assets/icons/shield-chain-salvation-48.png" width="20" height="20" style="vertical-align:middle;margin-right:6px;"> Modern Corruption</div>
-            <div class="dict-section" id="corruption">
-            <div class="corruption">
-                <p>The Gospel has been corrupted in multiple directions simultaneously. The prosperity gospel replaces the cross with a promise of health and wealth — turning the announcement of salvation into a transaction for personal gain. The social gospel reduces the good news to political activism — feeding the poor and fighting injustice without the proclamation of sin, repentance, and the risen Christ. Progressive Christianity speaks of a "gospel" that includes no hell, no wrath, and no exclusivity — making it literally no different from secular humanism with religious language. Moralistic therapeutic deism presents a "gospel" that says: be good, feel better, God helps those who help themselves.</p>
-            </div>
-        </div>
-
-        <div class="section">
-            <h3><img src="../assets/icons/shield-bible.png" width="20" height="20" style="vertical-align:middle;margin-right:6px;"> Key Scripture</h3>
-            <p>• <a href="../bible.html?ref=1+Corinthians+15:3-4" class="verse-ref">1 Corinthians 15:3–4</a> — "Christ died for our sins…was buried…was raised on the third day."</p>
+                <p>• <a href="../bible.html?ref=1+Corinthians+15:3-4" class="verse-ref">1 Corinthians 15:3–4</a> — "Christ died for our sins…was buried…was raised on the third day."</p>
             <p>• <a href="../bible.html?ref=Romans+1:16" class="verse-ref">Romans 1:16</a> — "The gospel…is the power of God for salvation to everyone who believes."</p>
             <p>• <a href="../bible.html?ref=Mark+1:15" class="verse-ref">Mark 1:15</a> — "The time is fulfilled, and the kingdom of God is at hand; repent and believe in the gospel."</p>
             <p>• <a href="../bible.html?ref=Galatians+1:8" class="verse-ref">Galatians 1:8</a> — "If anyone preaches to you a gospel contrary to what you received, let him be accursed."</p>
@@ -109,9 +135,125 @@
                 <a href="atonement.html">Atonement</a>
             </div>
         </div>
+
+        <!-- Modern Corruption — collapsible -->
+        <div class="section">
+            <button class="dict-toggle" data-toggle="corruption" onclick="toggleDict('corruption')">
+                <span class="arrow">&#9658;</span>&#9888;&#65039; Modern Corruption
+            </button>
+            <div class="dict-section" id="corruption">
+                <div class="corruption">
+                    <p>The Gospel has been corrupted in multiple directions simultaneously. The prosperity gospel replaces the cross with a promise of health and wealth — turning the announcement of salvation into a transaction for personal gain. The social gospel reduces the good news to political activism — feeding the poor and fighting injustice without the proclamation of sin, repentance, and the risen Christ. Progressive Christianity speaks of a "gospel" that includes no hell, no wrath, and no exclusivity — making it literally no different from secular humanism with religious language. Moralistic therapeutic deism presents a "gospel" that says: be good, feel better, God helps those who help themselves.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Proto-Language Roots — collapsible -->
+        <div class="section">
+            <button class="dict-toggle" data-toggle="proto" onclick="toggleDict('proto')">
+                <span class="arrow">&#9658;</span>&#127760; Proto-Language Roots
+            </button>
+            <div class="dict-section" id="proto">
+                <pre>Old English gōdspel ("good news, good narrative")
+  → gōd ("good") + spel ("saying, tale, message")
+    → calque (word-for-word translation) of Latin evangelium
+
+Latin evangelium → Greek εὐαγγέλιον (euangelion)
+  → eu- (good, well) + angelos (messenger, angel)
+  → Used by Roman emperors for victory proclamations (the imperial "gospel")
+  → Paul deliberately uses this imperial term for Christ's superior victory
+
+Proto-Germanic *spellam ("story, narrative") → English "spell"
+
+Greek:
+εὐαγγέλιον (euangelion, G2098) — the good news, gospel
+εὐαγγελίζω (euangelizō, G2097) — to proclaim good news, evangelize
+
+Biblical parallel:
+Hebrew בְּשׂוֹרָה (besorah, H1309) — good news, tidings
+  → Isaiah 52:7: "How beautiful are the feet of him who brings good news"
+  → The feet of the herald, running ahead of the victorious army</pre>
+            </div>
+        </div>
+
+        <!-- Key Scripture — always visible -->
+        <div class="section">
+            <h3>&#128214; Key Scripture</h3>
+            <p>&#x2022; <a href="../bible.html?ref=1+Corinthians+15:3-4" class="verse-ref">1 Corinthians 15:3–4</a> &mdash; "Christ died for our sins…was buried…was raised on the third day."</p>
+            <p>&#x2022; <a href="../bible.html?ref=Romans+1:16" class="verse-ref">Romans 1:16</a> &mdash; "The gospel…is the power of God for salvation to everyone who believes."</p>
+            <p>&#x2022; <a href="../bible.html?ref=Mark+1:15" class="verse-ref">Mark 1:15</a> &mdash; "The time is fulfilled, and the kingdom of God is at hand; repent and believe in the gospel."</p>
+            <p>&#x2022; <a href="../bible.html?ref=Galatians+1:8" class="verse-ref">Galatians 1:8</a> &mdash; "If anyone preaches to you a gospel contrary to what you received, let him be accursed."</p>
+            <p>&#x2022; <a href="../bible.html?ref=John+3:16" class="verse-ref">John 3:16</a> &mdash; "God so loved the world that he gave his only Son, that whoever believes in him should not perish but have eternal life."</p>
+        </div>
+
+        <!-- Greek & Hebrew Roots — collapsible -->
+        <div class="section">
+            <button class="dict-toggle" data-toggle="roots" onclick="toggleDict('roots')">
+                <span class="arrow">&#9658;</span>&#128279; Greek &amp; Hebrew Roots
+            </button>
+            <div class="dict-section" id="roots">
+            <p><a href="../lexicon/G2098.html" class="lexicon-link">G2098</a> &mdash; <strong>euangelion</strong> (εὐαγγέλιον): good news, gospel. The announcement of something wonderful that has happened — used in the Roman world for proclamations of military victory or imperial births.</p>
+            <p><a href="../lexicon/G2097.html" class="lexicon-link">G2097</a> &mdash; <strong>euangelizō</strong> (εὐαγγελίζω): to proclaim good news, to preach the gospel. The verb — the act of announcing the glad tidings.</p>
+            <p><a href="../lexicon/H1309.html" class="lexicon-link">H1309</a> &mdash; <strong>besorah</strong> (בְּשׂוֹרָה): good tidings, good news. The OT precursor — used in Isaiah 52:7 ("How beautiful…the feet of him who brings good news").</p>
+            </div>
+        </div>
+
+        <!-- Usage Examples — collapsible -->
+        <div class="section">
+            <button class="dict-toggle" data-toggle="usage" onclick="toggleDict('usage')">
+                <span class="arrow">&#9658;</span>&#9997;&#65039; Usage Examples
+            </button>
+            <div class="dict-section" id="usage">
+            <p>&#x2022; "The Gospel is not a system of moral improvement — it is an announcement that God has done what we could not do for ourselves."</p>
+            <p>&#x2022; "Any message that removes the cross, the resurrection, or the call to repentance is not the Gospel — it is a different religion wearing Christian clothes."</p>
+            <p>&#x2022; "Paul was not ashamed of the Gospel because he knew it carried the very power of God to transform dead souls into living saints."</p>
+            </div>
+        </div>
+
+        <!-- Related Words — always visible -->
+        <div class="section">
+            <h3>Related Words</h3>
+            <div class="related">
+                <a href="salvation.html">Salvation</a>
+                <a href="faith.html">Faith</a>
+                <a href="repentance.html">Repentance</a>
+                <a href="grace.html">Grace</a>
+                <a href="atonement.html">Atonement</a>
+            </div>
+        </div>
+
     </div>
-<script>
-function toggleDict(id){var s=document.getElementById(id);var a=document.querySelector('[data-toggle="'+id+'"] .arrow');if(s)s.classList.toggle('open');if(a)a.classList.toggle('open');}
-</script>
+
+    <footer>
+        <div class="cross-divider"><img src="../assets/icons/shield-cross-bible-48.png" alt="" width="36" height="36" style="opacity:0.6;margin-bottom:10px;"></div>
+        <p>
+            <a href="../index.html#uniting"><img src="../assets/icons/shield-hands-joining.png" class="site-icon" alt="" width="20" height="20"> Uniting</a> &middot;
+            <a href="../serving.html"><img src="../assets/icons/shield-serving.png" class="site-icon" alt="" width="20" height="20"> Serving</a> &middot;
+            <a href="../mentoring.html"><img src="../assets/icons/shield-mentoring.png" class="site-icon" alt="" width="20" height="20"> Mentoring</a> &middot;
+            <a href="../counseling.html"><img src="../assets/icons/shield-family.png" class="site-icon" alt="" width="20" height="20"> Counseling</a> &middot;
+            <a href="../about.html"><img src="../assets/icons/shield-about-person-24.png" class="site-icon" alt="" width="20" height="20"> About</a>
+        </p>
+        <p style="margin-top:8px;font-size:0.78rem;color:#555;">Powered by MOOPbot Pro &mdash; &ldquo;Iron sharpens iron.&rdquo; &mdash; Proverbs 27:17</p>
+    </footer>
+    <script>
+    function toggleDict(id){
+        var s=document.getElementById(id);
+        var b=document.querySelector('[data-toggle="'+id+'"]');
+        var a=b?b.querySelector('.arrow'):null;
+        s.classList.toggle('open');
+        if(a)a.classList.toggle('open');
+    }
+    function toggleTheme(){
+        var b=document.body,t=document.getElementById('themeToggle');
+        if(b.classList.contains('light-mode')){b.classList.remove('light-mode');t.textContent='\u{1F319}';localStorage.setItem('bte-theme','dark');}
+        else{b.classList.add('light-mode');t.textContent='\u2600\uFE0F';localStorage.setItem('bte-theme','light');}
+    }
+    (function(){
+        if(localStorage.getItem('bte-theme')==='light'){
+            document.body.classList.add('light-mode');
+            var t=document.getElementById('themeToggle');if(t)t.textContent='\u2600\uFE0F';
+        }
+    })();
+    </script>
 </body>
 </html>
