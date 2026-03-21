@@ -676,14 +676,18 @@
 
         localStorage.setItem('mentoring_intake_' + (getVal('firstName') || 'anon').toLowerCase(), JSON.stringify(allData));
 
-        const WEBHOOK_URL = 'PASTE_APPS_SCRIPT_URL_HERE';
-        if (WEBHOOK_URL && !WEBHOOK_URL.startsWith('PASTE')) {
-            fetch(WEBHOOK_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(allData)
-            }).catch(() => {});
-        }
+        // Submit to FormSubmit (emails data to adam.l.johns@gmail.com + logs it)
+        const submitPayload = {
+            _subject: 'USMC Ministries — Mentoring Intake: ' + (allData.firstName || '') + ' ' + (allData.lastName || ''),
+            _template: 'table',
+            _captcha: 'false',
+            ...allData
+        };
+        fetch('https://formsubmit.co/ajax/adam.l.johns@gmail.com', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: JSON.stringify(submitPayload)
+        }).catch(() => {});
 
         document.getElementById('sec-' + currentSec).classList.remove('active');
         document.getElementById('sec-done').classList.add('active');
