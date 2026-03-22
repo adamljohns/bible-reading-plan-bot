@@ -554,7 +554,7 @@
                 '<div class="crossref-header" onclick="toggleCrossRef(\'' + panelId + '\', this)">' +
                 '<h4><img src="assets/icons/shield-bible.png" class="site-icon" alt="book" width="18" height="18"> Cross-References</h4>' +
                 '<span class="crossref-count">(' + totalCount + ' reference' + (totalCount !== 1 ? 's' : '') + ')</span>' +
-                '<span class="crossref-toggle">▶</span>' +
+                '<span class="crossref-toggle" style="color:var(--gold);font-size:0.8rem;">▶</span>' +
                 '</div>' +
                 '<div class="crossref-body" id="' + panelId + '">' + groupsHtml + '</div>' +
                 '</div>';
@@ -880,7 +880,7 @@
             G1391:'doxa — glory, splendor',G1515:'eirene — peace',G40:'hagios — holy, sacred',
             G4352:'proskyneo — to worship, bow before',
             // BTE v4.8: Extended NT definitions
-            G2537:'kainos — new (in quality, fresh, unprecedented)',G3822:'palaioo — to make old, declare obsolete',
+            G2537:'kainos — new (in quality, fresh, unprecedented)',G3820:'palaios — old, ancient, long-established',G3822:'palaioo — to make old, declare obsolete',
             G854:'aphanismos — vanishing, disappearance',G1451:'engys — near, close at hand',
             G2092:'hetoimos — ready, prepared',G5046:'teleios — perfect, complete, mature',
             G5048:'teleioo — to complete, make perfect, bring to full end',G4137:'pleroo — to fill, fulfill, complete',
@@ -1801,28 +1801,39 @@
                 html += '</div>';
             });
 
-            if (limitedStrongs.length) {
-                const testament = ref.isOT ? 'Hebrew' : 'Greek';
-                html += '<div class="strongs-section"><h4><img src="assets/icons/shield-bible.png" class="site-icon" alt="book" width="20" height="20"> Interlinear ' + testament + ' Roots</h4>';
-                limitedStrongs.forEach(function(s) {
-                    const vr = s.vref ? ' <span style="color:#666;font-size:0.75rem;">(v.' + s.vref + ')</span>' : '';
-                    const url = stepBibleUrl(s.num);
-                    html += '<span class="strongs-entry"><span class="strongs-def">' + s.def + '</span> ' +
-                        '<a class="strongs-link" href="' + url + '" target="_blank" title="View full word study">(' + s.num + ')</a>' + vr + '</span>';
-                });
-                html += '</div>';
-            }
-
+            // BTE v5.1: Clarity Notes shown BEFORE Interlinear roots for better reading flow
             if (limitedClarity.length) {
                 html += '<div class="clarity-section"><h4><img src="assets/icons/shield-star.png" class="site-icon" alt="star" width="20" height="20"> Clarity Notes</h4>';
                 limitedClarity.forEach(function(c) {
                     const strongsLink = c.strongs
                         ? ' <a class="clarity-link" href="' + stepBibleUrl(c.strongs) + '" target="_blank" title="View word study">' + c.strongs + '</a>'
                         : '';
-                    // BTE v4.8: origin is empty for Strong's-derived notes — skip the colon separator
                     const originPart = c.origin ? c.origin + ': ' : '';
                     html += '<div class="clarity-note"><span class="clarity-word">"' + c.word + '"</span> → ' + originPart + c.meaning + strongsLink + '</div>';
                 });
+                html += '</div>';
+            }
+
+            if (limitedStrongs.length) {
+                const testament = ref.isOT ? 'Hebrew' : 'Greek';
+                // BTE v5.1: Word display limits with "Show more" toggle
+                var wordLimit;
+                if (currentViewMode === 'chapter') { wordLimit = 7; }
+                else if (currentViewMode === 'range') { wordLimit = 5; }
+                else { wordLimit = 3; }
+                var hasMore = limitedStrongs.length > wordLimit;
+                var strongsId = 'strongs-words-' + Date.now();
+                html += '<div class="strongs-section"><h4><img src="assets/icons/shield-bible.png" class="site-icon" alt="book" width="20" height="20"> Interlinear ' + testament + ' Roots</h4>';
+                limitedStrongs.forEach(function(s, idx) {
+                    const vr = s.vref ? ' <span style="color:#666;font-size:0.75rem;">(v.' + s.vref + ')</span>' : '';
+                    const url = stepBibleUrl(s.num);
+                    var hiddenStyle = (hasMore && idx >= wordLimit) ? ' style="display:none;" class="strongs-entry strongs-extra-' + strongsId + '"' : ' class="strongs-entry"';
+                    html += '<span' + hiddenStyle + '><span class="strongs-def">' + s.def + '</span> ' +
+                        '<a class="strongs-link" href="' + url + '" target="_blank" title="View full word study">(' + s.num + ')</a>' + vr + '</span>';
+                });
+                if (hasMore) {
+                    html += '<div style="margin-top:6px;"><span class="strongs-show-more" onclick="(function(el){var extras=document.querySelectorAll(\'.strongs-extra-' + strongsId + '\');extras.forEach(function(e){e.style.display=\'inline\';});el.style.display=\'none\';})(this)" style="cursor:pointer;color:var(--gold);font-size:0.85rem;user-select:none;">Show more ' + testament + ' roots <span style="color:var(--gold);font-size:0.8rem;">▶</span> (' + (limitedStrongs.length - wordLimit) + ' more)</span></div>';
+                }
                 html += '</div>';
             }
 
