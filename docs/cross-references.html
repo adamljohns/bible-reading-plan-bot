@@ -59,8 +59,14 @@
 
         /* Book browser */
         .book-browser { margin:30px 0; }
-        .testament-label { color:var(--gold); font-size:0.75rem; text-transform:uppercase; letter-spacing:1.5px; margin:16px 0 8px; font-weight:600; }
-        .book-grid { display:flex; flex-wrap:wrap; gap:6px; }
+        .testament-toggle { display:flex; align-items:center; gap:8px; cursor:pointer; user-select:none; padding:8px 0; border-bottom:1px solid var(--border); margin-bottom:4px; }
+        .testament-toggle:hover .testament-label { color:var(--gold-light); }
+        .testament-label { color:var(--gold); font-size:0.75rem; text-transform:uppercase; letter-spacing:1.5px; font-weight:600; flex:1; }
+        .testament-hint { font-size:0.7rem; color:var(--gray); font-style:italic; margin-bottom:8px; }
+        .testament-arrow { color:var(--gold); font-size:0.7rem; transition:transform 0.25s; display:inline-block; }
+        .testament-arrow.open { transform:rotate(90deg); }
+        .book-grid { display:flex; flex-wrap:wrap; gap:6px; max-height:0; overflow:hidden; transition:max-height 0.3s ease; margin-bottom:0; }
+        .book-grid.open { max-height:400px; margin-bottom:12px; }
         .book-btn { background:var(--bg-card); border:1px solid var(--border); border-radius:8px; padding:6px 12px; color:var(--gray); font-size:0.8rem; cursor:pointer; transition:all 0.2s; font-family:'Inter',sans-serif; }
         .book-btn:hover { border-color:var(--gold); color:var(--gold); }
         .book-btn.active { border-color:var(--gold); background:rgba(212,175,55,0.15); color:var(--gold); }
@@ -187,9 +193,17 @@
 
         <!-- Book Browser -->
         <div class="book-browser">
-            <div class="testament-label">Old Testament</div>
+            <div class="testament-toggle" onclick="toggleTestament('otBooks','otArrow')">
+                <span class="testament-label">Old Testament</span>
+                <span class="testament-arrow" id="otArrow">▶</span>
+            </div>
+            <div class="testament-hint">Click to browse books</div>
             <div class="book-grid" id="otBooks"></div>
-            <div class="testament-label">New Testament</div>
+            <div class="testament-toggle" onclick="toggleTestament('ntBooks','ntArrow')">
+                <span class="testament-label">New Testament</span>
+                <span class="testament-arrow" id="ntArrow">▶</span>
+            </div>
+            <div class="testament-hint">Click to browse books</div>
             <div class="book-grid" id="ntBooks"></div>
         </div>
 
@@ -368,6 +382,13 @@
     }
 
     /* ===== Build Book Browser ===== */
+    function toggleTestament(gridId, arrowId) {
+        const grid = document.getElementById(gridId);
+        const arrow = document.getElementById(arrowId);
+        grid.classList.toggle('open');
+        arrow.classList.toggle('open');
+    }
+
     function buildBookBrowser() {
         const otEl = document.getElementById('otBooks');
         const ntEl = document.getElementById('ntBooks');
