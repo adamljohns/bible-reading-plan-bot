@@ -231,6 +231,18 @@
 
     <script>
     /* ===== Bible Book Data ===== */
+    const BOOK_CHAPTERS = {
+        1:50,2:40,3:27,4:36,5:34,6:24,7:21,8:4,9:31,10:24,
+        11:22,12:25,13:29,14:36,15:10,16:13,17:10,18:42,19:150,
+        20:31,21:12,22:8,23:66,24:52,25:5,26:48,27:12,
+        28:14,29:3,30:9,31:1,32:4,33:7,34:3,35:3,36:3,
+        37:2,38:14,39:4,
+        40:28,41:16,42:24,43:21,44:28,
+        45:16,46:16,47:13,48:6,49:6,50:4,
+        51:4,52:5,53:3,54:6,55:4,56:3,57:1,
+        58:13,59:5,60:5,61:3,62:5,63:1,64:1,65:1,66:22
+    };
+
     const BOOKS = {
         1:'Genesis',2:'Exodus',3:'Leviticus',4:'Numbers',5:'Deuteronomy',
         6:'Joshua',7:'Judges',8:'Ruth',9:'1 Samuel',10:'2 Samuel',
@@ -413,11 +425,23 @@
         document.querySelectorAll('.book-btn').forEach(b => b.classList.remove('active'));
         if (btn) btn.classList.add('active');
 
+        const totalChapters = BOOK_CHAPTERS[bookNum] || 1;
+
+        if (totalChapters >= 4) {
+            showChapterPicker(bookNum, totalChapters);
+        } else {
+            showBookAllVerses(bookNum);
+        }
+    }
+
+    function showBookAllVerses(bookNum, filterChapter) {
         const results = [];
         for (const [key, refs] of Object.entries(xrefData)) {
             const parts = key.split('_');
             if (parseInt(parts[0]) === bookNum) {
-                results.push({ key, refs });
+                if (filterChapter === undefined || parseInt(parts[1]) === filterChapter) {
+                    results.push({ key, refs });
+                }
             }
         }
 
@@ -429,10 +453,42 @@
             return parseInt(ap[2]) - parseInt(bp[2]);
         });
 
-        showResults(BOOKS[bookNum], results);
+        const title = filterChapter !== undefined
+            ? BOOKS[bookNum] + ' — Chapter ' + filterChapter
+            : BOOKS[bookNum];
+        showResults(title, results, filterChapter !== undefined ? bookNum : null);
     }
 
-    function showResults(title, results) {
+    function showChapterPicker(bookNum, totalChapters) {
+        const area = document.getElementById('resultsArea');
+        const header = document.getElementById('resultsHeader');
+        const list = document.getElementById('resultsList');
+        const noRes = document.getElementById('noResults');
+
+        area.style.display = 'block';
+        noRes.style.display = 'none';
+        header.innerHTML = '<img src="assets/icons/shield-bible.png" class="site-icon" alt="bible" width="20" height="20"> ' + BOOKS[bookNum] + ' — Select a Chapter';
+
+        list.innerHTML = '';
+
+        const grid = document.createElement('div');
+        grid.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;';
+
+        for (let ch = 1; ch <= totalChapters; ch++) {
+            const btn = document.createElement('button');
+            btn.className = 'book-btn';
+            btn.textContent = ch;
+            btn.style.cssText = 'min-width:48px;text-align:center;font-size:0.9rem;padding:8px 10px;';
+            const chNum = ch;
+            btn.onclick = () => showBookAllVerses(bookNum, chNum);
+            grid.appendChild(btn);
+        }
+
+        list.appendChild(grid);
+        area.scrollIntoView({ behavior:'smooth', block:'start' });
+    }
+
+    function showResults(title, results, backToChaptersBookNum) {
         const area = document.getElementById('resultsArea');
         const header = document.getElementById('resultsHeader');
         const list = document.getElementById('resultsList');
@@ -443,11 +499,20 @@
         list.innerHTML = '';
         noRes.style.display = results.length === 0 ? 'block' : 'none';
 
-        // Limit display for performance
-        const MAX = 200;
-        const showing = results.slice(0, MAX);
+        // Back to chapters link
+        if (backToChaptersBookNum != null) {
+            const backLink = document.createElement('div');
+            backLink.style.cssText = 'margin-bottom:14px;';
+            const a = document.createElement('a');
+            a.href = '#';
+            a.style.cssText = 'color:var(--gold);font-size:0.9rem;text-decoration:none;';
+            a.textContent = '← Back to chapters';
+            a.onclick = (e) => { e.preventDefault(); showChapterPicker(backToChaptersBookNum, BOOK_CHAPTERS[backToChaptersBookNum]); };
+            backLink.appendChild(a);
+            list.appendChild(backLink);
+        }
 
-        showing.forEach(({ key, refs }) => {
+        results.forEach(({ key, refs }) => {
             const card = document.createElement('div');
             card.className = 'result-card';
 
@@ -486,13 +551,6 @@
             card.appendChild(xrefList);
             list.appendChild(card);
         });
-
-        if (results.length > MAX) {
-            const more = document.createElement('div');
-            more.style.cssText = 'text-align:center;color:var(--gray);padding:20px;font-size:0.9rem;';
-            more.textContent = 'Showing first ' + MAX + ' of ' + results.length + ' results. Use search to narrow down.';
-            list.appendChild(more);
-        }
 
         area.scrollIntoView({ behavior:'smooth', block:'start' });
     }
