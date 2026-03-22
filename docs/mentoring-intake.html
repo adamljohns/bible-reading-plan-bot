@@ -63,7 +63,10 @@
         .progress-wrap { margin: 20px 0; }
         .progress-bar { height: 6px; background: #222; border-radius: 3px; overflow: hidden; }
         .progress-fill { height: 100%; background: var(--gold); border-radius: 3px; transition: width 0.4s ease; }
-        .progress-text { text-align: center; color: var(--gray); font-size: 0.8rem; margin-top: 6px; }
+        .progress-meta { display: flex; justify-content: space-between; align-items: center; margin-top: 6px; }
+        .progress-text { color: var(--gray); font-size: 0.8rem; }
+        .progress-time { color: var(--gray); font-size: 0.78rem; font-style: italic; }
+        .progress-encourage { text-align: center; color: var(--gold); font-size: 0.82rem; font-weight: 600; margin-top: 4px; min-height: 18px; }
 
         .section { display: none; }
         .section.active { display: block; }
@@ -137,6 +140,25 @@
         .checkbox-option.selected { border-color: var(--gold); background: var(--gold-dim); color: var(--gold); font-weight: 600; }
         .checkbox-option:hover { border-color: var(--gold); }
 
+        .conditional-wrap { margin-top: 8px; }
+        .conditional-wrap select, .conditional-wrap input {
+            width: 100%;
+            background: #0a0a0a;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--white);
+            padding: 12px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            -webkit-appearance: none;
+            transition: border-color 0.2s;
+        }
+        .conditional-wrap select:focus, .conditional-wrap input:focus {
+            border-color: var(--gold);
+            outline: none;
+            box-shadow: 0 0 0 2px var(--gold-dim);
+        }
+
         .slider-wrap { position: relative; margin-top: 6px; }
         input[type="range"] {
             width: 100%;
@@ -154,8 +176,10 @@
             cursor: pointer;
             border: 2px solid #000;
         }
-        .slider-val { text-align: center; color: var(--gold); font-weight: 700; font-size: 1.3rem; margin-top: 8px; }
-        .slider-labels { display: flex; justify-content: space-between; color: var(--gray); font-size: 0.75rem; margin-top: 4px; }
+        .slider-val { text-align: center; color: var(--gold); font-weight: 700; font-size: 1.5rem; margin-top: 8px; }
+        .slider-labels { display: flex; justify-content: space-between; font-size: 0.78rem; margin-top: 4px; }
+        .slider-label-low { color: var(--gold); font-weight: 600; }
+        .slider-label-high { color: var(--gold); font-weight: 600; }
 
         .btn-row { display: flex; gap: 10px; margin-top: 20px; }
         .btn {
@@ -180,6 +204,8 @@
         .btn-submit { background: var(--gold); color: #000; }
         .btn-submit:hover { background: var(--gold-light); }
         .site-icon { vertical-align: middle; }
+
+        .def-note { color: var(--gray); font-size: 0.78rem; font-style: italic; margin-top: 4px; line-height: 1.4; }
 
         .metric { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #222; gap: 10px; }
         .metric:last-child { border-bottom: none; }
@@ -259,7 +285,7 @@
             .hero h1 { font-size: 1.5rem; }
             .radio-option { min-width: 90px; font-size: 0.82rem; padding: 8px 10px; }
         }
-            nav {
+        nav {
             display: flex; flex-wrap: wrap; gap: 6px;
             justify-content: center; padding: 14px 20px;
             border-bottom: 1px solid var(--border);
@@ -275,7 +301,6 @@
         nav a:hover { color: var(--gold); border-color: var(--border); }
         nav a.active { color: var(--gold); border-color: var(--gold); }
 
-        /* Fix blue links — override browser a:link default */
         nav a, nav a:link, nav a:visited, nav a:active { color: var(--gray, #8b949e) !important; text-decoration: none !important; }
         .top-nav a, .top-nav a:link, .top-nav a:visited, .top-nav a:active { color: var(--gray, #8b949e) !important; text-decoration: none !important; }
     </style>
@@ -289,7 +314,6 @@
         <a href="blog.html"><img src="assets/icons/shield-book.png" class="site-icon" alt="blog" width="16" height="16"> Blog</a>
         <a href="connect.html"><img src="assets/icons/shield-handshake.png" class="site-icon" alt="handshake" width="16" height="16"> Connect</a>
     </nav>
-
 
 <!-- ══ HERO ══ -->
 <div class="hero">
@@ -306,7 +330,11 @@
 <div class="container">
     <div class="progress-wrap">
         <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:14.3%"></div></div>
-        <p class="progress-text" id="progressText">Step 1 of 7</p>
+        <div class="progress-meta">
+            <span class="progress-text" id="progressText">Step 1 of 7</span>
+            <span class="progress-time" id="progressTime">~5 min remaining</span>
+        </div>
+        <div class="progress-encourage" id="progressEncourage"></div>
     </div>
 
     <!-- ══ SECTION 1: About You ══ -->
@@ -342,14 +370,35 @@
                 <div class="field"><label>Years served</label><input type="number" id="yearsServed" placeholder="e.g., 4" min="0" max="40"></div>
             </div>
             <div class="field">
-                <label>Current life stage</label>
-                <div class="radio-group" data-field="lifeStage">
-                    <div class="radio-option" onclick="selectRadio(this,'lifeStage')">Single</div>
-                    <div class="radio-option" onclick="selectRadio(this,'lifeStage')">Married</div>
-                    <div class="radio-option" onclick="selectRadio(this,'lifeStage')">Father</div>
-                    <div class="radio-option" onclick="selectRadio(this,'lifeStage')">Military transition</div>
-                    <div class="radio-option" onclick="selectRadio(this,'lifeStage')">Career rebuild</div>
-                    <div class="radio-option" onclick="selectRadio(this,'lifeStage')">Other</div>
+                <label>Current life stage <span style="color:var(--gray);font-size:0.78rem;font-weight:400">(select all that apply)</span></label>
+                <div class="checkbox-group" data-field="lifeStage">
+                    <div class="checkbox-option" onclick="toggleLifeStage(this,'Single')">Single</div>
+                    <div class="checkbox-option" onclick="toggleLifeStage(this,'Married')">Married</div>
+                    <div class="checkbox-option" onclick="toggleLifeStage(this,'Father')">Father</div>
+                    <div class="checkbox-option" onclick="toggleLifeStage(this,'Military Transition')">Military Transition</div>
+                    <div class="checkbox-option" onclick="toggleLifeStage(this,'Career Change')">Career Change</div>
+                    <div class="checkbox-option" onclick="toggleLifeStage(this,'Other')">Other</div>
+                </div>
+                <div id="marriedDurationWrap" class="conditional-wrap" style="display:none;">
+                    <select id="marriedDuration">
+                        <option value="">How long have you been married?</option>
+                        <option>Less than 3 years</option>
+                        <option>4-10 years</option>
+                        <option>10-20 years</option>
+                        <option>20+ years</option>
+                    </select>
+                </div>
+                <div id="militaryTransitionWrap" class="conditional-wrap" style="display:none;">
+                    <select id="militaryTransitionType">
+                        <option value="">Where are you in the transition?</option>
+                        <option>Just joined</option>
+                        <option>PCS/Moving</option>
+                        <option>Separating</option>
+                        <option>Retiring</option>
+                    </select>
+                </div>
+                <div id="lifeStageOtherWrap" class="conditional-wrap" style="display:none;">
+                    <input type="text" id="lifeStageOther" placeholder="Please describe your situation...">
                 </div>
             </div>
         </div>
@@ -364,11 +413,15 @@
             <div class="field">
                 <label>Faith background</label>
                 <div class="radio-group" data-field="faithBackground">
-                    <div class="radio-option" onclick="selectRadio(this,'faithBackground')">Committed Christian</div>
-                    <div class="radio-option" onclick="selectRadio(this,'faithBackground')">Exploring faith</div>
-                    <div class="radio-option" onclick="selectRadio(this,'faithBackground')">Raised in church</div>
-                    <div class="radio-option" onclick="selectRadio(this,'faithBackground')">Returning to faith</div>
-                    <div class="radio-option" onclick="selectRadio(this,'faithBackground')">Other / None</div>
+                    <div class="radio-option" onclick="selectFaithBg(this)">Committed Christian</div>
+                    <div class="radio-option" onclick="selectFaithBg(this)">Exploring faith</div>
+                    <div class="radio-option" onclick="selectFaithBg(this)">Raised in church</div>
+                    <div class="radio-option" onclick="selectFaithBg(this)">Returning to faith</div>
+                    <div class="radio-option" onclick="selectFaithBg(this)">Other</div>
+                    <div class="radio-option" onclick="selectFaithBg(this)">None</div>
+                </div>
+                <div id="faithNoneWrap" style="display:none;margin-top:8px;">
+                    <textarea id="faithNoneExplain" placeholder="Please explain your background or what brings you here..." style="min-height:60px;width:100%;background:#0a0a0a;border:1px solid var(--border);border-radius:8px;color:var(--white);padding:12px;font-family:'Inter',sans-serif;font-size:0.95rem;resize:vertical;"></textarea>
                 </div>
             </div>
             <div class="field">
@@ -400,7 +453,7 @@
                 </div>
             </div>
             <div class="field"><label>Where are you spiritually right now? (In your own words)</label>
-                <textarea id="spiritualStatus" placeholder="Be honest — this is a safe space. No performance needed."></textarea>
+                <textarea id="spiritualStatus" placeholder="e.g., thriving or barely surviving — your answers will be kept confidential."></textarea>
             </div>
         </div>
         <div class="btn-row"><button class="btn btn-back" onclick="prevSec()">← Back</button><button class="btn btn-next" onclick="nextSec()">Next →</button></div>
@@ -413,18 +466,22 @@
             <p class="section-desc">Iron sharpens iron. Real brotherhood is rare — but it's one of the most transformative forces in a man's life. Let's find out where you are.</p>
             <div class="field">
                 <label>Do you currently have an accountability partner?</label>
-                <div class="radio-group" data-field="accountabilityPartner">
+                <p class="def-note">(someone who asks how you're doing spiritually and morally while being open to hear your confessions and pray for you)</p>
+                <div class="radio-group" data-field="accountabilityPartner" style="margin-top:8px;">
                     <div class="radio-option" onclick="selectRadio(this,'accountabilityPartner')">Yes — active</div>
                     <div class="radio-option" onclick="selectRadio(this,'accountabilityPartner')">Had one, not active</div>
                     <div class="radio-option" onclick="selectRadio(this,'accountabilityPartner')">No</div>
+                    <div class="radio-option" onclick="selectRadio(this,'accountabilityPartner')">Unsure / I don't know</div>
                 </div>
             </div>
             <div class="field">
-                <label>Are you part of a men's group or brotherhood community?</label>
-                <div class="radio-group" data-field="mensGroup">
-                    <div class="radio-option" onclick="selectRadio(this,'mensGroup')">Yes</div>
-                    <div class="radio-option" onclick="selectRadio(this,'mensGroup')">Not currently</div>
-                    <div class="radio-option" onclick="selectRadio(this,'mensGroup')">Looking for one</div>
+                <label>Are you part of a men's group or brotherhood community? <span style="color:var(--gray);font-size:0.78rem;font-weight:400">(select all that apply)</span></label>
+                <div class="checkbox-group" data-field="mensGroup">
+                    <div class="checkbox-option" onclick="toggleCheck(this)">In person only</div>
+                    <div class="checkbox-option" onclick="toggleCheck(this)">Online only</div>
+                    <div class="checkbox-option" onclick="toggleCheck(this)">Both in person and online</div>
+                    <div class="checkbox-option" onclick="toggleCheck(this)">Looking for one online</div>
+                    <div class="checkbox-option" onclick="toggleCheck(this)">Not currently in either</div>
                 </div>
             </div>
             <div class="field"><label>What does brotherhood mean to you?</label>
@@ -460,7 +517,7 @@
                     <div class="checkbox-option" onclick="toggleCheck(this)">Marriage / Relationships</div>
                     <div class="checkbox-option" onclick="toggleCheck(this)">Anger / Emotional health</div>
                     <div class="checkbox-option" onclick="toggleCheck(this)">Addiction / Habits</div>
-                    <div class="checkbox-option" onclick="toggleCheck(this)">Spiritual dryness</div>
+                    <div class="checkbox-option" onclick="toggleCheck(this)">Spiritually apathetic or distant</div>
                     <div class="checkbox-option" onclick="toggleCheck(this)">Other</div>
                 </div>
             </div>
@@ -487,6 +544,7 @@
                     <div class="checkbox-option" onclick="toggleCheck(this)">Spiritual direction</div>
                     <div class="checkbox-option" onclick="toggleCheck(this)">Career / Purpose clarity</div>
                     <div class="checkbox-option" onclick="toggleCheck(this)">Marriage / Family health</div>
+                    <div class="checkbox-option" onclick="toggleCheck(this)">Unsure / I don't know</div>
                 </div>
             </div>
             <div class="field"><label>Your 3-month goal — what do you want to be different?</label>
@@ -503,13 +561,17 @@
     <div class="section" id="sec-6">
         <div class="section-card">
             <h2><img src="assets/icons/shield-mentoring.png" class="site-icon" alt="mentoring" width="20" height="20"> Readiness</h2>
-            <p class="section-desc">Mentoring only works if you're ready to engage. Honesty here is a gift to yourself — and to your mentor.</p>
+            <p class="section-desc">Mentoring only works if you're ready to engage. Honesty here is a gift to yourself — and to your mentor. Your answers will be kept confidential.</p>
             <div class="field">
                 <label>On a scale of 1–10, how ready are you to commit to a mentoring relationship right now?</label>
                 <div class="slider-wrap">
-                    <input type="range" id="readinessScore" min="1" max="10" value="7" oninput="document.getElementById('readinessVal').textContent=this.value">
+                    <input type="range" id="readinessScore" min="1" max="10" value="7"
+                        oninput="document.getElementById('readinessVal').textContent=this.value">
                     <div class="slider-val" id="readinessVal">7</div>
-                    <div class="slider-labels"><span>1 — Just curious</span><span>10 — All in</span></div>
+                    <div class="slider-labels">
+                        <span class="slider-label-low">1 — Just curious</span>
+                        <span class="slider-label-high">10 — All in</span>
+                    </div>
                 </div>
             </div>
             <div class="field">
@@ -523,6 +585,7 @@
                     <div class="checkbox-option" onclick="toggleCheck(this)">Cost</div>
                     <div class="checkbox-option" onclick="toggleCheck(this)">Bad past experience</div>
                     <div class="checkbox-option" onclick="toggleCheck(this)">This is my first time</div>
+                    <div class="checkbox-option" onclick="toggleCheck(this)">Unsure / I don't know</div>
                 </div>
             </div>
             <div class="field"><label>Anything else you want Adam / Coach Moop to know before the first session?</label>
@@ -588,12 +651,43 @@
     const totalSec = 7;
     const formData = {};
 
+    // Per-step encouragement and estimated minutes remaining
+    const stepMeta = [
+        { encourage: '',                      mins: 5 },
+        { encourage: 'Great start!',           mins: 4 },
+        { encourage: 'Keep going — you\'re doing great!', mins: 3 },
+        { encourage: 'Halfway there!',         mins: 2 },
+        { encourage: 'Almost there!',          mins: 1 },
+        { encourage: 'Last few questions!',    mins: 1 },
+        { encourage: 'One final step — review and submit!', mins: 0 },
+    ];
+
     function selectRadio(el, field) {
         el.parentElement.querySelectorAll('.radio-option').forEach(o => o.classList.remove('selected'));
         el.classList.add('selected');
         formData[field] = el.textContent.trim();
         if (field === 'military') {
             document.getElementById('militaryDetails').style.display = formData.military === 'Yes' ? 'block' : 'none';
+        }
+    }
+
+    function selectFaithBg(el) {
+        selectRadio(el, 'faithBackground');
+        const isNone = el.textContent.trim() === 'None';
+        document.getElementById('faithNoneWrap').style.display = isNone ? 'block' : 'none';
+    }
+
+    function toggleLifeStage(el, value) {
+        el.classList.toggle('selected');
+        const selected = el.classList.contains('selected');
+        if (value === 'Married') {
+            document.getElementById('marriedDurationWrap').style.display = selected ? 'block' : 'none';
+        }
+        if (value === 'Military Transition') {
+            document.getElementById('militaryTransitionWrap').style.display = selected ? 'block' : 'none';
+        }
+        if (value === 'Other') {
+            document.getElementById('lifeStageOtherWrap').style.display = selected ? 'block' : 'none';
         }
     }
 
@@ -622,6 +716,11 @@
         const pct = (currentSec / totalSec) * 100;
         document.getElementById('progressFill').style.width = pct + '%';
         document.getElementById('progressText').textContent = 'Step ' + currentSec + ' of ' + totalSec;
+        const meta = stepMeta[currentSec - 1] || stepMeta[0];
+        document.getElementById('progressTime').textContent = meta.mins > 0
+            ? '~' + meta.mins + ' min remaining'
+            : 'Almost done!';
+        document.getElementById('progressEncourage').textContent = meta.encourage;
     }
 
     function getVal(id) {
@@ -635,20 +734,51 @@
         return items;
     }
 
+    function getLifeStages() {
+        const stages = getChecked('lifeStage');
+        const extras = [];
+        if (stages.includes('Married')) {
+            const dur = getVal('marriedDuration');
+            if (dur) extras.push('Married (' + dur + ')');
+            else extras.push('Married');
+            const idx = stages.indexOf('Married');
+            if (idx > -1) stages.splice(idx, 1);
+        }
+        if (stages.includes('Military Transition')) {
+            const type = getVal('militaryTransitionType');
+            if (type) extras.push('Military Transition (' + type + ')');
+            else extras.push('Military Transition');
+            const idx = stages.indexOf('Military Transition');
+            if (idx > -1) stages.splice(idx, 1);
+        }
+        if (stages.includes('Other')) {
+            const desc = getVal('lifeStageOther');
+            if (desc) extras.push('Other: ' + desc);
+            else extras.push('Other');
+            const idx = stages.indexOf('Other');
+            if (idx > -1) stages.splice(idx, 1);
+        }
+        return stages.concat(extras).join(', ') || '—';
+    }
+
     function buildSummary() {
+        const faithBg = formData.faithBackground || '—';
+        const faithExplain = getVal('faithNoneExplain');
+        const faithDisplay = (faithBg === 'None' && faithExplain) ? 'None — ' + faithExplain : faithBg;
+
         const rows = [
             ['Name', (getVal('firstName') + ' ' + getVal('lastName')).trim() || '—'],
             ['Age', getVal('age') || '—'],
             ['Email', getVal('email') || '—'],
             ['Military Background', formData.military || '—'],
             ['Branch / Years', (getVal('branch') || '—') + ' / ' + (getVal('yearsServed') ? getVal('yearsServed') + ' yrs' : '—')],
-            ['Life Stage', formData.lifeStage || '—'],
-            ['Faith Background', formData.faithBackground || '—'],
+            ['Life Stage', getLifeStages()],
+            ['Faith Background', faithDisplay],
             ['Church Involvement', formData.churchInvolvement || '—'],
             ['Devotional Practice', formData.devotional || '—'],
             ['Bible Reading', formData.bibleReading || '—'],
             ['Accountability Partner', formData.accountabilityPartner || '—'],
-            ["Men's Group", formData.mensGroup || '—'],
+            ["Men's Group / Brotherhood", getChecked('mensGroup').join(', ') || '—'],
             ['Readiness Score', getVal('readinessScore') + '/10'],
             ['Key Struggles', getChecked('keyStruggles').join(', ') || '—'],
             ['Mentoring Wants', getChecked('mentoringWants').join(', ') || '—'],
@@ -665,18 +795,22 @@
         const allData = { ...formData, formType: 'mentoring-intake' };
         ['firstName','lastName','age','email','phone','yearsServed','spiritualStatus',
          'brotherhoodMeaning','brotherhoodBarriers','buildingToward','legacyMeaning',
-         'currentSeason','goal3Month','goal1Year','additionalNotes','readinessScore'].forEach(id => {
+         'currentSeason','goal3Month','goal1Year','additionalNotes','readinessScore',
+         'faithNoneExplain','lifeStageOther'].forEach(id => {
             allData[id] = getVal(id);
         });
         allData.branch = getVal('branch');
+        allData.marriedDuration = getVal('marriedDuration');
+        allData.militaryTransitionType = getVal('militaryTransitionType');
+        allData.lifeStages = getLifeStages();
         allData.keyStruggles = getChecked('keyStruggles');
         allData.mentoringWants = getChecked('mentoringWants');
         allData.mentoringBarriers = getChecked('mentoringBarriers');
+        allData.mensGroup = getChecked('mensGroup');
         allData.submittedAt = new Date().toISOString();
 
         localStorage.setItem('mentoring_intake_' + (getVal('firstName') || 'anon').toLowerCase(), JSON.stringify(allData));
 
-        // Submit to FormSubmit (emails data to adam.l.johns@gmail.com + logs it)
         const submitPayload = {
             _subject: 'USMC Ministries — Mentoring Intake: ' + (allData.firstName || '') + ' ' + (allData.lastName || ''),
             _template: 'table',
@@ -692,7 +826,9 @@
         document.getElementById('sec-' + currentSec).classList.remove('active');
         document.getElementById('sec-done').classList.add('active');
         document.getElementById('progressFill').style.width = '100%';
-        document.getElementById('progressText').innerHTML = 'Complete! <img src="assets/icons/shield-anchor.png" class="site-icon" alt="anchor" width="20" height="20">';
+        document.getElementById('progressText').textContent = 'Complete!';
+        document.getElementById('progressTime').textContent = '';
+        document.getElementById('progressEncourage').textContent = '✅ Submitted — iron sharpens iron!';
         window.scrollTo(0, 0);
     }
 </script>
