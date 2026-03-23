@@ -101,7 +101,7 @@
         }
 
         /* ── Main Content ── */
-        #main-content { display: none; }
+        #main-content { display: block; }
 
         /* ── Header ── */
         .page-header {
@@ -415,17 +415,6 @@
 </head>
 <body>
 
-<!-- ── Auth Gate ── -->
-<div id="auth-gate">
-    <div class="lock-icon">📋</div>
-    <h2>Workflow Command Center</h2>
-    <p>Enter your PIN to access the dashboard.</p>
-    <input type="password" id="auth-input" placeholder="• • • •" maxlength="10"
-        onkeydown="if(event.key==='Enter')checkAuth()">
-    <button id="auth-btn" onclick="checkAuth()">Unlock Dashboard</button>
-    <p id="auth-error">Wrong PIN. Try again.</p>
-</div>
-
 <!-- ── Main Content ── -->
 <div id="main-content">
 
@@ -449,28 +438,6 @@
 </div>
 
 <script>
-// ─────────────────────────────────────────────
-//  AUTH
-// ─────────────────────────────────────────────
-function checkAuth() {
-    const input = document.getElementById('auth-input');
-    if (input.value === '5683') {
-        document.getElementById('auth-gate').style.display = 'none';
-        document.getElementById('main-content').style.display = 'block';
-        sessionStorage.setItem('wf-auth', '1');
-        init();
-    } else {
-        document.getElementById('auth-error').style.display = 'block';
-        input.value = '';
-        input.focus();
-    }
-}
-if (sessionStorage.getItem('wf-auth') === '1') {
-    document.getElementById('auth-gate').style.display = 'none';
-    document.getElementById('main-content').style.display = 'block';
-    // init() called after DOM-ready at bottom
-}
-
 // ─────────────────────────────────────────────
 //  WORKFLOW DATA
 // ─────────────────────────────────────────────
@@ -866,10 +833,8 @@ function init() {
     renderGrid();
 }
 
-// Auto-init if already authenticated
-if (sessionStorage.getItem('wf-auth') === '1') {
-    document.addEventListener('DOMContentLoaded', init);
-}
+// Auto-init on load
+document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
 </html>
