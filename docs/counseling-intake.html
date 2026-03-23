@@ -11,7 +11,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta property="og:title" content="Counseling Intake — U.S.M.C. Ministries">
-    <meta property="og:description" content="Pre/Post-Marriage & Life Counsel. Pastoral counseling for individuals and couples. Confidential, grace-filled, and biblically grounded.">
+    <meta property="og:description" content="Pre/Post-Marriage &amp; Life Counsel. Pastoral counseling for individuals and couples. Confidential, grace-filled, and biblically grounded.">
     <meta property="og:image" content="https://usmcmin.org/assets/og/og-counseling.png?v=51">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
@@ -63,7 +63,10 @@
         .progress-wrap { margin: 20px 0; }
         .progress-bar { height: 6px; background: #222; border-radius: 3px; overflow: hidden; }
         .progress-fill { height: 100%; background: var(--gold); border-radius: 3px; transition: width 0.4s ease; }
-        .progress-text { text-align: center; color: var(--gray); font-size: 0.8rem; margin-top: 6px; }
+        .progress-meta { display: flex; justify-content: space-between; align-items: center; margin-top: 6px; }
+        .progress-text { color: var(--gray); font-size: 0.8rem; }
+        .progress-time { color: var(--gray); font-size: 0.78rem; font-style: italic; }
+        .progress-encourage { text-align: center; color: var(--gold); font-size: 0.82rem; font-weight: 600; margin-top: 4px; min-height: 18px; }
 
         .section { display: none; }
         .section.active { display: block; }
@@ -125,6 +128,50 @@
         }
         .checkbox-option.selected { border-color: var(--gold); background: var(--gold-dim); color: var(--gold); font-weight: 600; }
         .checkbox-option:hover { border-color: var(--gold); }
+
+        .conditional-wrap { margin-top: 8px; }
+        .conditional-wrap textarea {
+            width: 100%;
+            background: #0a0a0a;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--white);
+            padding: 12px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            min-height: 60px;
+            resize: vertical;
+            transition: border-color 0.2s;
+        }
+        .conditional-wrap textarea:focus {
+            border-color: var(--gold);
+            outline: none;
+            box-shadow: 0 0 0 2px var(--gold-dim);
+        }
+
+        .slider-wrap { position: relative; margin-top: 6px; }
+        input[type="range"] {
+            width: 100%;
+            -webkit-appearance: none;
+            height: 6px;
+            border-radius: 3px;
+            background: #333;
+            outline: none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 22px; height: 22px;
+            border-radius: 50%;
+            background: var(--gold);
+            cursor: pointer;
+            border: 2px solid #000;
+        }
+        .slider-val { text-align: center; color: var(--gold); font-weight: 700; font-size: 1.5rem; margin-top: 8px; }
+        .slider-labels { display: flex; justify-content: space-between; font-size: 0.78rem; margin-top: 4px; }
+        .slider-label-low { color: var(--gold); font-weight: 600; }
+        .slider-label-high { color: var(--gold); font-weight: 600; }
+
+        .def-note { color: var(--gray); font-size: 0.78rem; font-style: italic; margin-top: 4px; line-height: 1.4; }
 
         .btn-row { display: flex; gap: 10px; margin-top: 20px; }
         .btn {
@@ -226,8 +273,9 @@
         @media (max-width: 430px) {
             .hero h1 { font-size: 1.5rem; }
             .radio-option { min-width: 90px; font-size: 0.82rem; padding: 8px 10px; }
+            footer { padding-bottom: 80px; }
         }
-            nav {
+        nav {
             display: flex; flex-wrap: wrap; gap: 6px;
             justify-content: center; padding: 14px 20px;
             border-bottom: 1px solid var(--border);
@@ -274,7 +322,11 @@
 <div class="container">
     <div class="progress-wrap">
         <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:12.5%"></div></div>
-        <p class="progress-text" id="progressText">Step 1 of 8</p>
+        <div class="progress-meta">
+            <span class="progress-text" id="progressText">Step 1 of 8</span>
+            <span class="progress-time" id="progressTime">~8 min remaining</span>
+        </div>
+        <div class="progress-encourage" id="progressEncourage"></div>
     </div>
 
     <!-- ══ SECTION 1: About You ══ -->
@@ -352,13 +404,14 @@
             <div id="singleBlock">
                 <h3>Relationship Goals</h3>
                 <div class="field">
-                    <label>What describes your relationship goals right now?</label>
+                    <label>What describes your relationship goals right now? <span style="color:var(--gray);font-size:0.78rem;font-weight:400">(select all that apply)</span></label>
                     <div class="checkbox-group" data-field="singleGoals">
                         <div class="checkbox-option" onclick="toggleCheck(this)">Heal from past relationships</div>
                         <div class="checkbox-option" onclick="toggleCheck(this)">Prepare for marriage</div>
                         <div class="checkbox-option" onclick="toggleCheck(this)">Understand myself better</div>
                         <div class="checkbox-option" onclick="toggleCheck(this)">Navigate current dating</div>
                         <div class="checkbox-option" onclick="toggleCheck(this)">Not currently focused on dating</div>
+                        <div class="checkbox-option" onclick="toggleCheck(this)">Unsure / I don't know</div>
                     </div>
                 </div>
             </div>
@@ -372,7 +425,7 @@
             <h2><img src="assets/icons/shield-target.png" class="site-icon" alt="target" width="20" height="20"> What Brings You Here?</h2>
             <p class="section-desc">You don't have to have it all figured out. Just tell us what's going on — that's where we start.</p>
             <div class="field">
-                <label>Primary reason for seeking pastoral counsel (select all that apply)</label>
+                <label>Primary reason for seeking pastoral counsel <span style="color:var(--gray);font-size:0.78rem;font-weight:400">(select all that apply)</span></label>
                 <div class="checkbox-group" data-field="presentingConcern">
                     <div class="checkbox-option" onclick="toggleCheck(this)">Pre-marital preparation</div>
                     <div class="checkbox-option" onclick="toggleCheck(this)">Communication breakdown</div>
@@ -385,11 +438,14 @@
                     <div class="checkbox-option" onclick="toggleCheck(this)">Trust / forgiveness</div>
                     <div class="checkbox-option" onclick="toggleCheck(this)">Military transition</div>
                     <div class="checkbox-option" onclick="toggleCheck(this)">Anger / emotional health</div>
-                    <div class="checkbox-option" onclick="toggleCheck(this)">Other</div>
+                    <div class="checkbox-option" onclick="toggleCheckConditional(this, \"presentingConcernOtherWrap\")">Other</div>
+                </div>
+                <div id="presentingConcernOtherWrap" class="conditional-wrap" style="display:none;">
+                    <textarea id="presentingConcernOther" placeholder="Please explain..."></textarea>
                 </div>
             </div>
             <div class="field"><label>Describe what's going on in your own words</label>
-                <textarea id="ownWordsDescription" placeholder="No judgment. No script. Just tell us what's happening."></textarea>
+                <textarea id="ownWordsDescription" placeholder="Just tell us what's happening — your answers will be kept confidential."></textarea>
             </div>
             <div class="field">
                 <label>Urgency level — how pressing is this situation?</label>
@@ -412,11 +468,14 @@
             <div class="field">
                 <label>Your faith background</label>
                 <div class="radio-group" data-field="faithBackground">
-                    <div class="radio-option" onclick="selectRadio(this,'faithBackground')">Committed Christian</div>
-                    <div class="radio-option" onclick="selectRadio(this,'faithBackground')">Exploring faith</div>
-                    <div class="radio-option" onclick="selectRadio(this,'faithBackground')">Cultural / background only</div>
-                    <div class="radio-option" onclick="selectRadio(this,'faithBackground')">No religious affiliation</div>
-                    <div class="radio-option" onclick="selectRadio(this,'faithBackground')">Other faith tradition</div>
+                    <div class="radio-option" onclick="selectFaithBg(this)">Committed Christian</div>
+                    <div class="radio-option" onclick="selectFaithBg(this)">Exploring faith</div>
+                    <div class="radio-option" onclick="selectFaithBg(this)">Cultural / background only</div>
+                    <div class="radio-option" onclick="selectFaithBg(this)">No religious affiliation</div>
+                    <div class="radio-option" onclick="selectFaithBg(this)">Other faith tradition</div>
+                </div>
+                <div id="faithOtherWrap" style="display:none;margin-top:8px;" class="conditional-wrap">
+                    <textarea id="faithOtherExplain" placeholder="Please describe your faith background or what brings you here..."></textarea>
                 </div>
             </div>
             <div class="field">
@@ -454,8 +513,8 @@
     <!-- ══ SECTION 5: History ══ -->
     <div class="section" id="sec-5">
         <div class="section-card">
-            <h2><img src="assets/icons/shield-bible.png" class="site-icon" alt="bible" width="20" height="20"> History & Background</h2>
-            <p class="section-desc">Understanding your history helps your counselor meet you more effectively. Share only what you're comfortable sharing — this is confidential within pastoral scope.</p>
+            <h2><img src="assets/icons/shield-bible.png" class="site-icon" alt="bible" width="20" height="20"> History &amp; Background</h2>
+            <p class="section-desc">Understanding your history helps your counselor meet you more effectively. Your answers will be kept confidential — share only what you're comfortable sharing.</p>
             <div class="field">
                 <label>Have you received counseling or therapy before?</label>
                 <div class="radio-group" data-field="previousCounseling">
@@ -463,13 +522,14 @@
                     <div class="radio-option" onclick="selectRadio(this,'previousCounseling')">Yes — licensed therapist</div>
                     <div class="radio-option" onclick="selectRadio(this,'previousCounseling')">Both</div>
                     <div class="radio-option" onclick="selectRadio(this,'previousCounseling')">No</div>
+                    <div class="radio-option" onclick="selectRadio(this,'previousCounseling')">Unsure / I don't know</div>
                 </div>
             </div>
             <div class="field"><label>If yes — what worked? What didn't?</label>
                 <textarea id="counselingHistory" placeholder="What was helpful? What left you feeling unheard or stuck?"></textarea>
             </div>
             <div class="field"><label>Any specific life events, patterns, or history you feel is relevant to share?</label>
-                <textarea id="relevantHistory" placeholder="This is completely optional. Share only what you feel is important for your counselor to know. This stays confidential."></textarea>
+                <textarea id="relevantHistory" placeholder="This is completely optional. Share only what feels important — your answers will be kept confidential."></textarea>
             </div>
             <div class="field">
                 <label>Are there any active crisis situations (abuse, addiction, mental health crisis)?</label>
@@ -479,7 +539,7 @@
                     <div class="radio-option" onclick="selectRadio(this,'crisisSituation')">Prefer not to say</div>
                 </div>
             </div>
-            <p class="hint">If you or someone you know is in immediate danger, please call 988 (Suicide & Crisis Lifeline) or 911.</p>
+            <p class="hint">If you or someone you know is in immediate danger, please call 988 (Suicide &amp; Crisis Lifeline) or 911.</p>
         </div>
         <div class="btn-row"><button class="btn btn-back" onclick="prevSec()">← Back</button><button class="btn btn-next" onclick="nextSec()">Next →</button></div>
     </div>
@@ -487,12 +547,13 @@
     <!-- ══ SECTION 6: Goals ══ -->
     <div class="section" id="sec-6">
         <div class="section-card">
-            <h2><img src="assets/icons/shield-target.png" class="site-icon" alt="icon" width="20" height="20"> Goals & Expectations</h2>
+            <h2><img src="assets/icons/shield-target.png" class="site-icon" alt="icon" width="20" height="20"> Goals &amp; Expectations</h2>
             <p class="section-desc">Setting clear expectations for counseling is one of the most important steps. Let's define what you're working toward.</p>
             <div class="field"><label>What does a successful counseling outcome look like for you?</label>
                 <textarea id="successVision" placeholder="What would be different about your life, relationship, or emotional health? Be specific."></textarea>
             </div>
-            <div class="field"><label>What do you need most from a counselor?</label>
+            <div class="field">
+                <label>What do you need most from a counselor? <span style="color:var(--gray);font-size:0.78rem;font-weight:400">(select all that apply)</span></label>
                 <div class="checkbox-group" data-field="counselorNeeds">
                     <div class="checkbox-option" onclick="toggleCheck(this)">Someone to listen without judgment</div>
                     <div class="checkbox-option" onclick="toggleCheck(this)">Biblical wisdom and guidance</div>
@@ -502,6 +563,20 @@
                     <div class="checkbox-option" onclick="toggleCheck(this)">Accountability</div>
                     <div class="checkbox-option" onclick="toggleCheck(this)">Prayer and spiritual support</div>
                     <div class="checkbox-option" onclick="toggleCheck(this)">Crisis intervention</div>
+                    <div class="checkbox-option" onclick="toggleCheck(this)">Unsure / I don't know</div>
+                </div>
+            </div>
+            <div class="field">
+                <label>On a scale of 1–10, how ready are you to commit to a counseling relationship right now?</label>
+                <p class="def-note">(1 = just exploring, 10 = ready to do the work)</p>
+                <div class="slider-wrap">
+                    <input type="range" id="readinessScore" min="1" max="10" value="7"
+                        oninput="document.getElementById('readinessVal').textContent=this.value">
+                    <div class="slider-val" id="readinessVal">7</div>
+                    <div class="slider-labels">
+                        <span class="slider-label-low">1 — Just exploring</span>
+                        <span class="slider-label-high">10 — All in</span>
+                    </div>
                 </div>
             </div>
             <div class="field"><label>Anything else you want Adam to know before your first session?</label>
@@ -514,8 +589,8 @@
     <!-- ══ SECTION 7: Consent ══ -->
     <div class="section" id="sec-7">
         <div class="section-card">
-            <h2><img src="assets/icons/shield-book.png" class="site-icon" alt="book" width="20" height="20"> Readiness & Consent</h2>
-            <p class="section-desc">Before we begin, please read and acknowledge the following. This protects both you and your counselor.</p>
+            <h2><img src="assets/icons/shield-book.png" class="site-icon" alt="book" width="20" height="20"> Readiness &amp; Consent</h2>
+            <p class="section-desc">Before we begin, please read and acknowledge the following. Your answers will be kept confidential within pastoral scope, and this protects both you and your counselor.</p>
 
             <div class="consent-box">
                 <h3>Pastoral Counseling Acknowledgment</h3>
@@ -553,7 +628,7 @@
     <!-- ══ SECTION 8: Review & Submit ══ -->
     <div class="section" id="sec-8">
         <div class="section-card">
-            <h2><img src="assets/icons/shield-star.png" class="site-icon" alt="star" width="20" height="20"> Review & Submit</h2>
+            <h2><img src="assets/icons/shield-star.png" class="site-icon" alt="star" width="20" height="20"> Review &amp; Submit</h2>
             <p class="section-desc">Review your intake below, then submit. Adam will reach out within 24 hours to schedule your first pastoral counseling session.</p>
             <div id="summaryContent"></div>
         </div>
@@ -606,6 +681,18 @@
     const totalSec = 8;
     const formData = {};
 
+    // Per-step encouragement and estimated minutes remaining
+    const stepMeta = [
+        { encourage: '',                                              mins: 8 },
+        { encourage: 'Great start!',                                  mins: 7 },
+        { encourage: 'Keep going — you\'re doing great!',             mins: 5 },
+        { encourage: 'Halfway there!',                                mins: 4 },
+        { encourage: 'You\'re doing great — almost there!',           mins: 3 },
+        { encourage: 'Last few questions!',                           mins: 1 },
+        { encourage: 'One more step — review your answers!',          mins: 1 },
+        { encourage: 'One final step — review and submit!',           mins: 0 },
+    ];
+
     function selectRadio(el, field) {
         el.parentElement.querySelectorAll('.radio-option').forEach(o => o.classList.remove('selected'));
         el.classList.add('selected');
@@ -616,7 +703,21 @@
         }
     }
 
+    function selectFaithBg(el) {
+        selectRadio(el, 'faithBackground');
+        const isOther = el.textContent.trim() === 'Other faith tradition';
+        document.getElementById('faithOtherWrap').style.display = isOther ? 'block' : 'none';
+    }
+
     function toggleCheck(el) { el.classList.toggle('selected'); }
+
+    function toggleCheckConditional(el, wrapId) {
+        el.classList.toggle('selected');
+        const wrap = document.getElementById(wrapId);
+        if (wrap) {
+            wrap.style.display = el.classList.contains('selected') ? 'block' : 'none';
+        }
+    }
 
     function nextSec() {
         if (currentSec >= totalSec) return;
@@ -651,6 +752,11 @@
         const pct = (currentSec / totalSec) * 100;
         document.getElementById('progressFill').style.width = pct + '%';
         document.getElementById('progressText').textContent = 'Step ' + currentSec + ' of ' + totalSec;
+        const meta = stepMeta[currentSec - 1] || stepMeta[0];
+        document.getElementById('progressTime').textContent = meta.mins > 0
+            ? '~' + meta.mins + ' min remaining'
+            : 'Almost done!';
+        document.getElementById('progressEncourage').textContent = meta.encourage;
     }
 
     function getVal(id) {
@@ -665,6 +771,16 @@
     }
 
     function buildSummary() {
+        const faithBg = formData.faithBackground || '—';
+        const faithExplain = getVal('faithOtherExplain');
+        const faithDisplay = (faithBg === 'Other faith tradition' && faithExplain) ? 'Other — ' + faithExplain : faithBg;
+
+        const concernItems = getChecked('presentingConcern');
+        const concernOther = getVal('presentingConcernOther');
+        const concernDisplay = concernItems.length
+            ? concernItems.map(c => c === 'Other' && concernOther ? 'Other: ' + concernOther : c).join(', ')
+            : '—';
+
         const rows = [
             ['Name', (getVal('firstName') + ' ' + getVal('lastName')).trim() || '—'],
             ['Age', getVal('age') || '—'],
@@ -674,14 +790,15 @@
             ['Partner Name', getVal('partnerName') || '—'],
             ['Years Married', getVal('yearsMarried') ? getVal('yearsMarried') + ' yrs' : '—'],
             ['Children', formData.hasChildren || '—'],
-            ['Faith Background', formData.faithBackground || '—'],
+            ['Faith Background', faithDisplay],
             ['Both Believers', formData.bothBelievers || '—'],
             ['Church Involvement', formData.churchInvolvement || '—'],
             ['Prayer Life Together', formData.prayerLife || '—'],
             ['Urgency', formData.urgency || '—'],
             ['Previous Counseling', formData.previousCounseling || '—'],
-            ['Presenting Concern', getChecked('presentingConcern').join(', ') || '—'],
+            ['Presenting Concern', concernDisplay],
             ['Counselor Needs', getChecked('counselorNeeds').join(', ') || '—'],
+            ['Readiness Score', getVal('readinessScore') + '/10'],
             ['Consent Acknowledged', 'Yes — all three'],
         ];
 
@@ -694,7 +811,8 @@
         const allData = { ...formData, formType: 'counseling-intake' };
         ['firstName','lastName','age','email','phone','partnerName','weddingDate',
          'yearsMarried','childrenAges','ownWordsDescription','counselingHistory',
-         'relevantHistory','successVision','additionalNotes'].forEach(id => {
+         'relevantHistory','successVision','additionalNotes','readinessScore',
+         'faithOtherExplain','presentingConcernOther'].forEach(id => {
             allData[id] = getVal(id);
         });
         allData.presentingConcern = getChecked('presentingConcern');
@@ -725,7 +843,9 @@
         document.getElementById('sec-' + currentSec).classList.remove('active');
         document.getElementById('sec-done').classList.add('active');
         document.getElementById('progressFill').style.width = '100%';
-        document.getElementById('progressText').innerHTML = 'Complete! <img src="assets/icons/shield-dove.png" class="site-icon" alt="dove" width="20" height="20">';
+        document.getElementById('progressText').textContent = 'Complete!';
+        document.getElementById('progressTime').textContent = '';
+        document.getElementById('progressEncourage').textContent = '✅ Submitted — you took the first step!';
         window.scrollTo(0, 0);
     }
 </script>
