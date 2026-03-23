@@ -88,7 +88,7 @@
         footer { text-align:center; padding:40px 20px; color:var(--gray); font-size:0.85rem; border-top:1px solid var(--border); margin-top:40px; }
         footer a { color:var(--gold); text-decoration:none; }
 
-        @media (max-width:640px) { .container { padding:15px; } .word-grid { grid-template-columns:1fr; } .alpha-btn { min-width:30px; padding:3px 4px; } .alpha-btn .letter { font-size:0.85rem; } .lex-toggle-btn { padding:5px 10px; font-size:0.75rem; } }
+        @media (max-width:640px) { .container { padding:15px; } .word-grid { grid-template-columns:1fr; padding-bottom:80px; } .alpha-btn { min-width:30px; padding:3px 4px; } .alpha-btn .letter { font-size:0.85rem; } .lex-toggle-btn { padding:5px 10px; font-size:0.75rem; } }
         /* BTE v5.0: Dark/Light mode toggle */
         .theme-toggle {
             background: none; border: 1px solid var(--border); border-radius: 50%;
@@ -3283,6 +3283,21 @@ mentById('themeToggle');
 <script>
 function bteToggleTheme(){document.body.classList.toggle("light-mode");localStorage.setItem("bte-theme",document.body.classList.contains("light-mode")?"light":"dark");}
 (function(){if(localStorage.getItem("bte-theme")==="light")document.body.classList.add("light-mode");})();
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var cards = document.querySelectorAll('.word-card');
+    var hebrew = 0, greek = 0;
+    cards.forEach(function(c) {
+        var s = c.querySelector('.wc-strongs');
+        if (s && s.textContent.startsWith('H')) hebrew++;
+        else if (s && s.textContent.startsWith('G')) greek++;
+    });
+    var el;
+    el = document.getElementById('lexStatTotal'); if (el) el.textContent = (hebrew + greek).toLocaleString();
+    el = document.getElementById('lexStatHebrew'); if (el) el.textContent = hebrew.toLocaleString();
+    el = document.getElementById('lexStatGreek'); if (el) el.textContent = greek.toLocaleString();
+});
 </script>
 </body>
 </html>
