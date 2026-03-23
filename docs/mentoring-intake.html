@@ -455,6 +455,10 @@
             <div class="field"><label>Where are you spiritually right now? (In your own words)</label>
                 <textarea id="spiritualStatus" placeholder="e.g., thriving or barely surviving — your answers will be kept confidential."></textarea>
             </div>
+            <div class="field"><label>Describe your relationship with your father — was he present, affirming, approachable?</label>
+                <textarea id="fatherRelationship" placeholder="No right answer here. This shapes how we relate to authority, affirmation, and acceptance more than most men realize."></textarea>
+                <p class="hint">This is confidential and helps us understand where relational investment is needed most.</p>
+            </div>
         </div>
         <div class="btn-row"><button class="btn btn-back" onclick="prevSec()">← Back</button><button class="btn btn-next" onclick="nextSec()">Next →</button></div>
     </div>
@@ -489,6 +493,9 @@
             </div>
             <div class="field"><label>What has held you back from deeper brotherhood relationships?</label>
                 <textarea id="brotherhoodBarriers" placeholder="Pride? Trust? Geography? Busy schedule? Be real."></textarea>
+            </div>
+            <div class="field"><label>Have you had a mentor, pastor, or coach who you gave real access to your life? What happened?</label>
+                <textarea id="pastMentor" placeholder="Did it go well? Fall apart? Never happened? Tell the story — even a sentence helps."></textarea>
             </div>
         </div>
         <div class="btn-row"><button class="btn btn-back" onclick="prevSec()">← Back</button><button class="btn btn-next" onclick="nextSec()">Next →</button></div>
@@ -586,6 +593,20 @@
                     <div class="checkbox-option" onclick="toggleCheck(this)">Bad past experience</div>
                     <div class="checkbox-option" onclick="toggleCheck(this)">This is my first time</div>
                     <div class="checkbox-option" onclick="toggleCheck(this)">Unsure / I don't know</div>
+                </div>
+            </div>
+            <div class="field"><label>What would make it hard for you to be honest with a coach or mentor?</label>
+                <textarea id="honestyBarrier" placeholder="Shame? Fear of judgment? Past betrayal? Not knowing where to start? Say it plainly."></textarea>
+            </div>
+            <div class="field"><label>On a scale of 1–10, how easy is it for you to receive correction from someone you respect?</label>
+                <div class="slider-wrap">
+                    <input type="range" id="correctionScore" min="1" max="10" value="5"
+                        oninput="document.getElementById('correctionVal').textContent=this.value">
+                    <div class="slider-val" id="correctionVal">5</div>
+                    <div class="slider-labels">
+                        <span class="slider-label-low">1 — Very difficult</span>
+                        <span class="slider-label-high">10 — No problem</span>
+                    </div>
                 </div>
             </div>
             <div class="field"><label>Anything else you want Adam / Coach Moop to know before the first session?</label>
@@ -777,13 +798,17 @@
             ['Church Involvement', formData.churchInvolvement || '—'],
             ['Devotional Practice', formData.devotional || '—'],
             ['Bible Reading', formData.bibleReading || '—'],
+            ['Relationship with Father', getVal('fatherRelationship') || '—'],
             ['Accountability Partner', formData.accountabilityPartner || '—'],
             ["Men's Group / Brotherhood", getChecked('mensGroup').join(', ') || '—'],
-            ['Readiness Score', getVal('readinessScore') + '/10'],
+            ['Past Mentor / Coach', getVal('pastMentor') || '—'],
             ['Key Struggles', getChecked('keyStruggles').join(', ') || '—'],
             ['Mentoring Wants', getChecked('mentoringWants').join(', ') || '—'],
             ['3-Month Goal', getVal('goal3Month') || '—'],
             ['1-Year Vision', getVal('goal1Year') || '—'],
+            ['Readiness Score', getVal('readinessScore') + '/10'],
+            ['Honesty Barrier', getVal('honestyBarrier') || '—'],
+            ['Receiving Correction (1–10)', getVal('correctionScore') + '/10'],
         ];
 
         document.getElementById('summaryContent').innerHTML = rows.map(([label, val]) =>
@@ -794,8 +819,9 @@
     function submitForm() {
         const allData = { ...formData, formType: 'mentoring-intake' };
         ['firstName','lastName','age','email','phone','yearsServed','spiritualStatus',
-         'brotherhoodMeaning','brotherhoodBarriers','buildingToward','legacyMeaning',
-         'currentSeason','goal3Month','goal1Year','additionalNotes','readinessScore',
+         'fatherRelationship','brotherhoodMeaning','brotherhoodBarriers','pastMentor',
+         'buildingToward','legacyMeaning','currentSeason','goal3Month','goal1Year',
+         'honestyBarrier','correctionScore','additionalNotes','readinessScore',
          'faithNoneExplain','lifeStageOther'].forEach(id => {
             allData[id] = getVal(id);
         });
