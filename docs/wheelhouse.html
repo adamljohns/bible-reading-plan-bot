@@ -1217,6 +1217,14 @@
                 return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
             }
 
+            // Helper: compute next occurrence of a birthday (month is 1-indexed)
+            function nextBirthday(month, day) {
+                const yr = now.getFullYear();
+                let d = new Date(yr, month - 1, day);
+                if (d <= now) d = new Date(yr + 1, month - 1, day);
+                return d;
+            }
+
             // --- Disney Trip ---
             const disney = new Date('2026-04-20T00:00:00');
             const dDisney = daysHoursUntil(disney);
@@ -1231,11 +1239,14 @@
             `;
 
             // --- Birthdays (show only if within 60 days) ---
+            // Correct family birthdays — auto-rolls to next occurrence each year
             const birthdays = [
-                { emoji: '📅', name: 'Gideon Birthday', date: new Date('2026-06-01T00:00:00') },
-                { emoji: '📅', name: 'Boaz Birthday',   date: new Date('2026-09-15T00:00:00') },
-                { emoji: '📅', name: 'Shiloh Birthday', date: new Date('2026-11-10T00:00:00') },
-            ];
+                { emoji: '🎂', name: "Moop's Birthday",   month: 9,  day: 1  },   // Sep 1, 1978
+                { emoji: '🎂', name: "Maria's Birthday",  month: 11, day: 23 },   // Nov 23, 1977
+                { emoji: '🎂', name: "Gideon's Birthday", month: 8,  day: 16 },   // Aug 16, 2006
+                { emoji: '🎂', name: "Boaz's Birthday",   month: 7,  day: 19 },   // Jul 19, 2011
+                { emoji: '🎂', name: "Shiloh's Birthday", month: 1,  day: 15 },   // Jan 15, 2021
+            ].map(b => ({ ...b, date: nextBirthday(b.month, b.day) }));
 
             let briefBdays = '';
             let detailBdays = '';
@@ -1255,20 +1266,19 @@
                 document.getElementById('countdown-birthdays-brief').innerHTML = '<span style="color:var(--gray); font-size:0.82rem;">No birthdays within 60 days</span>';
                 document.getElementById('countdown-birthdays-detail').innerHTML = `
                     <h4 style="color:var(--gold); margin-bottom:8px;">Birthdays</h4>
-                    ${birthdays.map(b => `<div style="margin-bottom:5px; color:var(--gray);">📅 ${b.name} — ${formatDate(b.date)} (${daysUntil(b.date)} days)</div>`).join('')}
+                    ${birthdays.map(b => `<div style="margin-bottom:5px; color:var(--gray);">🎂 ${b.name} — ${formatDate(b.date)} (${daysUntil(b.date)} days)</div>`).join('')}
                     <p style="font-size:0.8rem; color:var(--gray); margin-top:6px;">Brief view only shows birthdays within 60 days.</p>
                 `;
             }
 
             // --- Life Decade Milestones ---
-            // Moop is 47. Born ~1979-03-23 (approximate — adjust if needed)
-            const moopBirthYear = 1979; // approximate
-            const moopBirthMonth = 3;   // March (1-indexed)
-            const moopBirthDay = 23;
+            // Moop born September 1, 1978
+            const moopBirthYear  = 1978;
+            const moopBirthMonth = 9;   // September (1-indexed)
+            const moopBirthDay   = 1;
             const decades = [57, 67, 77];
             let decadeStr = decades.map(age => {
-                const birthYear = moopBirthYear;
-                const targetYear = birthYear + age;
+                const targetYear = moopBirthYear + age;
                 const target = new Date(targetYear, moopBirthMonth - 1, moopBirthDay);
                 const d = daysUntil(target);
                 return `<span><strong style="color:var(--white);">${age}</strong> in <span style="color:var(--gold-light);">${d.toLocaleString()}</span> days</span>`;
