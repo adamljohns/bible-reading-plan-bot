@@ -556,6 +556,7 @@
             </div>
         </div>
 
+        <!-- SACA START - CRONS DO NOT MODIFY BELOW -->
         <!-- SACA — Self-Assigned Captain's Actions -->
         <div class="card full-width" id="card-actions" onclick="toggleCard(this)">
             <div class="card-icon"><img src="assets/icons/shield-target.png" class="site-icon" alt="target" width="20" height="20"></div>
@@ -587,29 +588,9 @@
                     <div class="action-check" onclick="event.stopPropagation();completeAction(this)"></div>
                     <div><span class="action-text">Fix email delete scope: Terminal → gog -a bowandarrowstudiollc@gmail.com auth login</span><br><span class="action-tag"><img src="assets/icons/shield-gear.png" class="site-icon" alt="gear" width="16" height="16"> Tech</span></div>
                 </div>
-                <div class="action-item" data-task-id="yahoo-mail-app-password">
-                    <div class="action-check" onclick="event.stopPropagation();completeAction(this)"></div>
-                    <div><span class="action-text">Yahoo Mail: generate app password for bot access</span><br><span class="action-tag">📧 Tech</span></div>
-                </div>
-                <div class="action-item" data-task-id="fix-slack-channel">
-                    <div class="action-check" onclick="event.stopPropagation();completeAction(this)"></div>
-                    <div><span class="action-text">Fix Slack channel (not responding)</span><br><span class="action-tag">🔧 Tech</span></div>
-                </div>
-                <div class="action-item" data-task-id="sam-n-checkin">
-                    <div class="action-check" onclick="event.stopPropagation();completeAction(this)"></div>
-                    <div><span class="action-text">Check in with Sam N. (Vicki/FTD)</span><br><span class="action-tag">🤝 Ministry</span></div>
-                </div>
                 <div class="action-item" data-task-id="reset-passwords-1password">
                     <div class="action-check" onclick="event.stopPropagation();completeAction(this)"></div>
                     <div><span class="action-text">Reset USAA, PayPal, Amazon, Chase, Discover passwords in 1Password</span><br><span class="action-tag">🔐 Security</span></div>
-                </div>
-                <div class="action-item" data-task-id="finish-taxes">
-                    <div class="action-check" onclick="event.stopPropagation();completeAction(this)"></div>
-                    <div><span class="action-text">🔴 Finish taxes (mid-April deadline)</span><br><span class="action-tag">💰 Finance</span></div>
-                </div>
-                <div class="action-item" data-task-id="disney-trip-booking">
-                    <div class="action-check" onclick="event.stopPropagation();completeAction(this)"></div>
-                    <div><span class="action-text">Disney trip booking (April 25-30, $3K budget)</span><br><span class="action-tag">👨‍👩‍👧 Family</span></div>
                 </div>
                 <div class="action-item" data-task-id="hp-printer-setup">
                     <div class="action-check" onclick="event.stopPropagation();completeAction(this)"></div>
@@ -665,6 +646,7 @@
                 </div>
             </div>
         </div>
+        <!-- SACA END -->
 
         <!-- Calendar -->
         <div class="card" onclick="toggleCard(this)" id="card-calendar">
@@ -1354,19 +1336,27 @@
         }
 
         // Restore task states on page load
+        // Robust: only restores items that exist in the DOM.
+        // Task IDs in localStorage that are no longer in the HTML (removed completed items)
+        // are silently ignored — they stay in localStorage but won't resurface.
         (function restoreTaskStates() {
             const store = getTaskStore();
             if (Object.keys(store).length === 0) return;
             const dest = document.getElementById('completed-today-list');
             const section = document.getElementById('completed-today-section');
-            document.querySelectorAll('.action-item[data-task-id]').forEach(item => {
+            // Build a set of DOM task IDs so we only act on items that actually exist
+            const domItems = document.querySelectorAll('.action-item[data-task-id]');
+            domItems.forEach(item => {
                 const taskId = item.dataset.taskId;
                 if (taskId && store[taskId]) {
+                    // Item exists in DOM and is stored as completed — restore it
                     item.classList.add('completed');
                     const check = item.querySelector('.action-check');
                     if (check) check.classList.add('done');
                     if (dest) { dest.appendChild(item); if (section) section.style.display = 'block'; }
                 }
+                // If taskId is in store but NOT in DOM (item removed from HTML),
+                // we do nothing — it stays in localStorage silently and won't reappear.
             });
         })();
 
