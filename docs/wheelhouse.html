@@ -730,6 +730,22 @@
             </div>
         </div>
 
+        <!-- Countdowns -->
+        <div class="card full-width" onclick="toggleCard(this)" id="card-countdowns">
+            <div class="card-icon">⏳</div>
+            <div class="card-title">Countdowns</div>
+            <div class="card-brief" id="countdowns-brief">
+                <div id="countdown-disney-brief"></div>
+                <div id="countdown-birthdays-brief"></div>
+            </div>
+            <div class="card-detail" id="countdowns-detail">
+                <div id="countdown-disney-detail" style="margin-bottom:14px;"></div>
+                <div id="countdown-birthdays-detail"></div>
+                <div id="countdown-decades-detail" style="margin-top:16px; padding-top:12px; border-top:1px solid var(--border); color:var(--gray); font-size:0.82rem;"></div>
+                <p style="margin-top:16px; color:var(--gold-light); font-size:0.82rem; font-style:italic; text-align:center;">"20 years is just 7,300 days. Make them count."</p>
+            </div>
+        </div>
+
         <!-- fit20 -->
         <div class="card" onclick="toggleCard(this)" id="card-fit20">
             <div class="card-icon"><img src="assets/icons/shield-fitness.png" class="site-icon" alt="fitness" width="20" height="20"></div>
@@ -1177,6 +1193,90 @@
             weekHtml += '<p style="color:var(--gray); font-size:0.8rem; margin-top:10px;"><img src="assets/icons/shield-gear.png" class="site-icon" alt="gear" width="20" height="20"> Connect Google Calendar for live updates</p>';
             document.getElementById('calendar-detail').innerHTML = weekHtml;
         }
+
+        // ── Countdown Tracker ───────────────────────────────────────────────
+        function initCountdowns() {
+            const now = new Date();
+
+            // Helper: days + hours until a future date
+            function daysHoursUntil(target) {
+                const diff = target - now;
+                if (diff <= 0) return { days: 0, hours: 0, past: true };
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                return { days, hours, past: false };
+            }
+
+            function daysUntil(target) {
+                const diff = target - now;
+                if (diff <= 0) return 0;
+                return Math.floor(diff / (1000 * 60 * 60 * 24));
+            }
+
+            function formatDate(d) {
+                return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            }
+
+            // --- Disney Trip ---
+            const disney = new Date('2026-04-20T00:00:00');
+            const dDisney = daysHoursUntil(disney);
+            const disneyStr = dDisney.past
+                ? '🏰 Disney Trip — happening now or passed!'
+                : `🏰 <strong style="color:var(--white);">Disney Trip</strong> &nbsp;·&nbsp; <span style="color:var(--gold); font-size:1.05em;">${dDisney.days}d ${dDisney.hours}h</span> &nbsp;·&nbsp; <span style="color:var(--gray);">${formatDate(disney)}</span>`;
+            document.getElementById('countdown-disney-brief').innerHTML = disneyStr;
+            document.getElementById('countdown-disney-detail').innerHTML = `
+                <h4 style="color:var(--gold); margin-bottom:8px;">🏰 Disney Trip</h4>
+                <div style="font-size:1.15rem; margin-bottom:4px;">${dDisney.past ? 'Already happened!' : `<span style="color:var(--gold-light); font-size:1.4em; font-weight:600;">${dDisney.days}</span> days, <span style="color:var(--gold-light); font-weight:600;">${dDisney.hours}</span> hours`}</div>
+                <div style="color:var(--gray); font-size:0.85rem;">${formatDate(disney)}</div>
+            `;
+
+            // --- Birthdays (show only if within 60 days) ---
+            const birthdays = [
+                { emoji: '📅', name: 'Gideon Birthday', date: new Date('2026-06-01T00:00:00') },
+                { emoji: '📅', name: 'Boaz Birthday',   date: new Date('2026-09-15T00:00:00') },
+                { emoji: '📅', name: 'Shiloh Birthday', date: new Date('2026-11-10T00:00:00') },
+            ];
+
+            let briefBdays = '';
+            let detailBdays = '';
+            birthdays.forEach(b => {
+                const d = daysUntil(b.date);
+                if (d <= 60 && d >= 0) {
+                    const row = `<div style="margin-bottom:6px;">${b.emoji} <strong style="color:var(--white);">${b.name}</strong> &nbsp;·&nbsp; <span style="color:var(--gold);">${d} days</span> &nbsp;·&nbsp; <span style="color:var(--gray);">${formatDate(b.date)}</span></div>`;
+                    briefBdays += row;
+                    detailBdays += row;
+                }
+            });
+
+            if (briefBdays) {
+                document.getElementById('countdown-birthdays-brief').innerHTML = briefBdays;
+                document.getElementById('countdown-birthdays-detail').innerHTML = `<h4 style="color:var(--gold); margin-bottom:8px;">Upcoming Birthdays</h4>${detailBdays}`;
+            } else {
+                document.getElementById('countdown-birthdays-brief').innerHTML = '<span style="color:var(--gray); font-size:0.82rem;">No birthdays within 60 days</span>';
+                document.getElementById('countdown-birthdays-detail').innerHTML = `
+                    <h4 style="color:var(--gold); margin-bottom:8px;">Birthdays</h4>
+                    ${birthdays.map(b => `<div style="margin-bottom:5px; color:var(--gray);">📅 ${b.name} — ${formatDate(b.date)} (${daysUntil(b.date)} days)</div>`).join('')}
+                    <p style="font-size:0.8rem; color:var(--gray); margin-top:6px;">Brief view only shows birthdays within 60 days.</p>
+                `;
+            }
+
+            // --- Life Decade Milestones ---
+            // Moop is 47. Born ~1979-03-23 (approximate — adjust if needed)
+            const moopBirthYear = 1979; // approximate
+            const moopBirthMonth = 3;   // March (1-indexed)
+            const moopBirthDay = 23;
+            const decades = [57, 67, 77];
+            let decadeStr = decades.map(age => {
+                const birthYear = moopBirthYear;
+                const targetYear = birthYear + age;
+                const target = new Date(targetYear, moopBirthMonth - 1, moopBirthDay);
+                const d = daysUntil(target);
+                return `<span><strong style="color:var(--white);">${age}</strong> in <span style="color:var(--gold-light);">${d.toLocaleString()}</span> days</span>`;
+            }).join(' &nbsp;|&nbsp; ');
+            document.getElementById('countdown-decades-detail').innerHTML = `⏳ Life Milestones: ${decadeStr}`;
+        }
+
+        initCountdowns();
 
         // Initialize
         loadWeather();
