@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-touch-icon.png">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:title" content="Greek & Hebrew Lexicon | USMC Ministries">
+    <meta property="og:description" content="Explore foundational Greek and Hebrew words from Scripture. Strong's Concordance word studies with theological depth.">
+    <meta property="og:image" content="https://usmcmin.org/assets/assets/og/og-lexicon.png?v=51">
+    <meta name="description" content="Explore foundational Greek and Hebrew words from Scripture. Strong's Concordance word studies for deeper Bible study.">
+    <title>Greek &amp; Hebrew Lexicon | USMC Ministries</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        :root { --bg-dark:#000; --bg-card:#111; --gold:#D4AF37; --gold-light:#F4D470; --white:#FFF; --gray:#888; --border:#333; --scarlet:#CC0000; }
+        body { font-family:'Inter',sans-serif; background:var(--bg-dark); color:var(--white); min-height:100vh; line-height:1.6; }
+        h1,h2,h3 { font-family:'Playfair Display',serif; font-weight:700; }
+        .container { max-width:900px; margin:0 auto; padding:20px; }
+
+        nav { display:flex; flex-wrap:wrap; gap:6px; justify-content:center; padding:14px 20px; border-bottom:1px solid var(--border); background:rgba(0,0,0,0.95); position:sticky; top:0; z-index:100; }
+        nav a { color:var(--gray); text-decoration:none; font-size:0.85rem; font-weight:500; padding:5px 12px; border-radius:20px; border:1px solid transparent; transition:all 0.2s; white-space:nowrap; }
+        nav a:hover { color:var(--gold); border-color:var(--border); }
+        nav a:link,nav a:visited,nav a:active { color:var(--gray) !important; text-decoration:none !important; }
+        nav a.active { color:var(--gold) !important; border-color:var(--gold); }
+
+        .hero { text-align:center; padding:40px 0 30px; }
+        .hero h1 { font-size:clamp(1.8rem,4vw,2.5rem); color:var(--white); margin-bottom:10px; }
+        .hero p { color:var(--gray); max-width:600px; margin:0 auto; font-size:1rem; line-height:1.7; }
+
+        .search-box { max-width:500px; margin:30px auto; position:relative; }
+        .search-box input { width:100%; padding:14px 20px 14px 45px; background:var(--bg-card); border:1px solid var(--border); border-radius:50px; color:var(--white); font-size:1rem; outline:none; transition:border-color 0.2s; }
+        .search-box input:focus { border-color:var(--gold); }
+        .search-box input::placeholder { color:#555; }
+        .search-icon { position:absolute; left:16px; top:50%; transform:translateY(-50%); color:var(--gray); font-size:1.1rem; }
+
+        .section-header { color:var(--gold); font-size:1.5rem; margin:40px 0 20px; padding-bottom:10px; border-bottom:1px solid var(--border); }
+        .section-sub { color:var(--gray); font-size:0.9rem; margin-top:-15px; margin-bottom:20px; }
+
+        .word-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:14px; margin-bottom:40px; }
+        .word-card, .word-card:link, .word-card:visited, .word-card:active { display:block; background:var(--bg-card); border:1px solid var(--border); border-radius:10px; padding:18px; text-decoration:none; color:var(--white) !important; transition:all 0.2s; }
+        .word-card .wc-def { color:var(--gold) !important; }
+        .word-card .wc-strongs { color:var(--gold) !important; }
+        .word-card:hover { border-color:var(--gold); box-shadow:0 0 15px rgba(212,175,55,0.1); transform:translateY(-2px); }
+        .wc-strongs { display:inline-block; background:rgba(212,175,55,0.15); color:var(--gold); font-size:0.75rem; font-weight:600; padding:2px 8px; border-radius:10px; margin-bottom:8px; }
+        .wc-original { display:block; font-size:1.4rem; color:var(--gold-light); margin-bottom:4px; }
+        .wc-translit { display:block; font-size:0.95rem; color:var(--white); font-style:italic; margin-bottom:4px; }
+        .wc-gloss { display:block; font-size:0.85rem; color:var(--gray); line-height:1.5; }
+
+        .resources { background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:28px; margin:40px 0; text-align:center; }
+        .resources h3 { color:var(--gold); margin-bottom:12px; }
+        .resources p { color:var(--gray); margin-bottom:16px; line-height:1.7; }
+        .resources a { color:var(--gold); text-decoration:none; padding:8px 20px; border:1px solid var(--border); border-radius:8px; display:inline-block; margin:5px; transition:all 0.2s; }
+        .resources a:hover { border-color:var(--gold); background:rgba(212,175,55,0.1); }
+
+        .no-results { display:none; text-align:center; color:var(--gray); padding:40px 20px; font-size:1.1rem; }
+
+        /* === Lexicon Navigation === */
+        .lex-nav-wrap { position:sticky; top:42px; z-index:90; background:rgba(0,0,0,0.97); border-bottom:1px solid var(--border); padding:10px 0 6px; backdrop-filter:blur(8px); }
+        .lex-toggle-row { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-bottom:8px; }
+        .lex-toggle-btn { background:transparent; color:var(--gold); border:1px solid var(--gold); border-radius:20px; padding:6px 16px; font-size:0.82rem; font-weight:600; cursor:pointer; transition:all 0.2s; white-space:nowrap; font-family:'Inter',sans-serif; }
+        .lex-toggle-btn:hover { background:rgba(212,175,55,0.15); }
+        .lex-toggle-btn.active { background:var(--gold); color:#000; }
+
+        .alpha-section-label { color:var(--gray); font-size:0.7rem; text-transform:uppercase; letter-spacing:1px; text-align:center; margin:6px 0 4px; }
+        .alpha-bar { display:flex; flex-wrap:wrap; gap:4px; justify-content:center; padding:0 10px; }
+        .alpha-btn { display:flex; flex-direction:column; align-items:center; justify-content:center; background:var(--bg-card); border:1px solid var(--border); border-radius:8px; padding:4px 6px; min-width:36px; cursor:pointer; transition:all 0.2s; text-decoration:none; }
+        .alpha-btn:hover { border-color:var(--gold); box-shadow:0 0 8px rgba(212,175,55,0.15); }
+        .alpha-btn.active { border-color:var(--gold); background:rgba(212,175,55,0.15); }
+        .alpha-btn.disabled { opacity:0.3; cursor:default; pointer-events:none; }
+        .alpha-btn .letter { font-size:1rem; color:var(--gold-light); line-height:1.2; }
+        .alpha-btn .translit { font-size:0.55rem; color:var(--gray); line-height:1; margin-top:1px; }
+        .alpha-btn-all { background:transparent; border:1px solid var(--border); border-radius:8px; padding:6px 12px; color:var(--gray); font-size:0.75rem; font-weight:600; cursor:pointer; transition:all 0.2s; font-family:'Inter',sans-serif; }
+        .alpha-btn-all:hover { border-color:var(--gold); color:var(--gold); }
+        .alpha-btn-all.active { border-color:var(--gold); color:var(--gold); background:rgba(212,175,55,0.1); }
+
+        .filter-status { text-align:center; color:var(--gray); font-size:0.8rem; margin:8px 0; display:none; }
+        .filter-status span { color:var(--gold); font-weight:600; }
+
+        .alpha-bar-hebrew, .alpha-bar-greek { display:none; }
+        .alpha-bar-hebrew.visible, .alpha-bar-greek.visible { display:block; }
+        /* BTE v5.0: Alphabet bars hidden by default until language button clicked */
+
+        footer { text-align:center; padding:40px 20px; color:var(--gray); font-size:0.85rem; border-top:1px solid var(--border); margin-top:40px; }
+        footer a { color:var(--gold); text-decoration:none; }
+
+        @media (max-width:640px) { .container { padding:15px; } .word-grid { grid-template-columns:1fr; padding-bottom:80px; } .alpha-btn { min-width:30px; padding:3px 4px; } .alpha-btn .letter { font-size:0.85rem; } .lex-toggle-btn { padding:5px 10px; font-size:0.75rem; } }
+        /* BTE v5.0: Dark/Light mode toggle */
+        .theme-toggle {
+            background: none; border: 1px solid var(--border); border-radius: 50%;
+            width: 34px; height: 34px; cursor: pointer; display: flex;
+            align-items: center; justify-content: center; font-size: 1.1rem;
+            transition: all 0.3s; padding: 0; margin-left: 6px;
+        }
+        .theme-toggle:hover { border-color: var(--gold); transform: scale(1.1); }
+        .bte-theme-toggle { position:fixed;top:12px;right:12px;z-index:9999;display:flex;align-items:center;background:rgba(30,30,30,0.85);border:1px solid #333;border-radius:20px;padding:3px 6px;cursor:pointer;font-size:0.7rem;user-select:none; }
+        .bte-theme-toggle:hover{border-color:#D4AF37;}
+        .bte-theme-toggle .toggle-icon{width:18px;text-align:center;}
+        .bte-theme-toggle .toggle-track{width:28px;height:14px;background:#444;border-radius:7px;position:relative;margin:0 4px;}
+        .bte-theme-toggle .toggle-knob{width:10px;height:10px;background:#D4AF37;border-radius:50%;position:absolute;top:2px;left:2px;transition:left 0.3s;}
+        body.light-mode .bte-theme-toggle{background:rgba(240,238,233,0.9);border-color:#ccc;}
+        body.light-mode .bte-theme-toggle .toggle-track{background:#bbb;}
+        body.light-mode .bte-theme-toggle .toggle-knob{left:16px;}
+        body.light-mode {
+            --bg-dark: #FAF8F5; --bg-card: #FFFFFF; --white: #1a1a1a;
+            --gray: #666666; --border: #d4d0c8;
+        }
+        body.light-mode { background: #FAF8F5; color: #1a1a1a; }
+        body.light-mode nav { background: rgba(250,248,245,0.97); }
+        body.light-mode .word-card { background: #fff; border-color: #d4d0c8; }
+        body.light-mode .resources { background: #fff; border-color: #d4d0c8; }
+        body.light-mode .search-box input { background: #fff; border-color: #d4d0c8; color: #1a1a1a; }
+        body.light-mode .lex-nav-wrap { background: rgba(250,248,245,0.97); }
+        body.light-mode .alpha-btn { background: #f5f3ef; border-color: #d4d0c8; }
+        body.light-mode footer { border-top-color: #d4d0c8; }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html"><img src="assets/icons/shield-home-48.png" class="site-icon" alt="home" width="16" height="16"> U.S.M.C. Ministries Home</a>
+        <a href="watchman.html"><img src="assets/icons/shield-bible.png" class="site-icon" alt="bible" width="16" height="16"> Watchman Bible Plan</a>
+        <a href="bible.html"><img src="assets/icons/shield-compass.png" class="site-icon" alt="compass" width="16" height="16"> Bible Translation Engine</a>
+        <a href="lexicon.html" class="active"><img src="assets/icons/shield-alpha-omega-48.png" class="site-icon" alt="lexicon" width="16" height="16"> Lexicon</a>
+        <a href="cross-references.html"><img src="assets/icons/shield-infinity-rope-48.png" class="site-icon" alt="cross-references" width="16" height="16"> Cross-References</a>
+        <a href="dictionary/index.html"><img src="assets/icons/shield-book-greek-48.png" class="site-icon" alt="dictionary" width="16" height="16"> Dictionary</a>
+        <a href="blog.html"><img src="assets/icons/shield-blog-quill-48.png" class="site-icon" alt="blog" width="16" height="16"> Blog</a>
+        <a href="connect.html"><img src="assets/icons/shield-handshake.png" class="site-icon" alt="connect" width="16" height="16"> Connect</a>
+        
+    </nav>
+    <div class="bte-theme-toggle" onclick="bteToggleTheme()" title="Toggle dark/light mode">
+        <span class="toggle-icon moon-icon">🌙</span>
+        <div class="toggle-track"><div class="toggle-knob"></div></div>
+        <span class="toggle-icon sun-icon">☀️</span>
+    </div>
+
+    <div class="container">
+        <div class="hero">
+            <img src="assets/icons/shield-alpha-omega-96.png" alt="Lexicon" width="96" height="96" style="display:block; margin:0 auto 15px;">
+            <h1>Greek &amp; Hebrew Lexicon</h1>
+            <p>Go deeper into God's Word. Explore the original Hebrew and Greek words of Scripture — their meanings, their theological significance, and how they shape our understanding of the Bible.</p>
+
+            <!-- Stats -->
+            <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:15px;margin-top:25px;">
+                <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:18px 28px;text-align:center;min-width:140px;">
+                    <div id="lexStatTotal" style="font-family:'Playfair Display',serif;font-size:1.8rem;color:var(--gold);font-weight:700;">—</div>
+                    <div style="font-size:0.75rem;color:var(--gray);text-transform:uppercase;letter-spacing:1px;margin-top:4px;">Word Studies</div>
+                </div>
+                <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:18px 28px;text-align:center;min-width:140px;">
+                    <div id="lexStatHebrew" style="font-family:'Playfair Display',serif;font-size:1.8rem;color:var(--gold);font-weight:700;">—</div>
+                    <div style="font-size:0.75rem;color:var(--gray);text-transform:uppercase;letter-spacing:1px;margin-top:4px;">Hebrew (OT)</div>
+                </div>
+                <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:18px 28px;text-align:center;min-width:140px;">
+                    <div id="lexStatGreek" style="font-family:'Playfair Display',serif;font-size:1.8rem;color:var(--gold);font-weight:700;">—</div>
+                    <div style="font-size:0.75rem;color:var(--gray);text-transform:uppercase;letter-spacing:1px;margin-top:4px;">Greek (NT)</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="lexSearch" placeholder="Search by word, Strong's number, or meaning..." oninput="filterWords()">
+        </div>
+
+        <div class="lex-nav-wrap" id="lexNavWrap">
+            <!-- Quick toggle buttons -->
+            <div class="lex-toggle-row">
+                <button class="lex-toggle-btn" onclick="scrollToSection('hebrew')"><img src="assets/icons/shield-scroll-hebrew-48.png" width="20" height="20" style="vertical-align:middle;margin-right:4px;"> Hebrew (OT)</button>
+                <button class="lex-toggle-btn" onclick="scrollToSection('greek')"><img src="assets/icons/shield-book-greek-48.png" width="20" height="20" style="vertical-align:middle;margin-right:4px;"> Greek (NT)</button>
+                <button class="lex-toggle-btn" id="sortNumBtn" onclick="sortEntries('number')" style="display:none">🔢 By Number</button>
+                <button class="lex-toggle-btn" id="sortAlphaBtn" onclick="sortEntries('alpha')" style="display:none">🔤 Alphabetical</button>
+            </div>
+
+            <!-- Hebrew Alphabet Bar -->
+            <div class="alpha-bar-hebrew" id="hebrewAlphaBar">
+                <div class="alpha-section-label">Hebrew Letters</div>
+                <div class="alpha-bar">
+                    <button class="alpha-btn" onclick="filterByLetter('hebrew','aleph')" data-letter="aleph"><span class="letter">א</span><span class="translit">Aleph</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('hebrew','bet')" data-letter="bet"><span class="letter">ב</span><span class="translit">Bet</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('hebrew','gimel')" data-letter="gimel"><span class="letter">ג</span><span class="translit">Gimel</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('hebrew','dalet')" data-letter="dalet"><span class="letter">ד</span><span class="translit">Dalet</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('hebrew','he')" data-letter="he"><span class="letter">ה</span><span class="translit">He</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('hebrew','vav')" data-letter="vav"><span class="letter">ו</span><span class="translit">Vav</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('hebrew','zayin')" data-letter="zayin"><span class="letter">ז</span><span class="translit">Zayin</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('hebrew','chet')" data-letter="chet"><span class="letter">ח</span><span class="translit">Het</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('hebrew','tet')" data-letter="tet"><span class="letter">ט</span><span class="translit">Tet</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('hebrew','yod')" data-letter="yod"><span class="letter">י</span><span class="translit">Yod</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('hebrew','kaf')" data-letter="kaf"><span class="letter">כ</span><span class="translit">Kaf</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('hebrew','lamed')" data-letter="lamed"><span class="letter">ל</span><span class="translit">Lamed</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('hebrew','mem')" data-letter="mem"><span class="letter">מ</span><span class="translit">Mem</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('hebrew','nun')" data-letter="nun"><span class="letter">נ</span><span class="translit">Nun</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('hebrew','samekh')" data-letter="samekh"><span class="letter">ס</span><span class="translit">Samekh</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('hebrew','ayin')" data-letter="ayin"><span class="letter">ע</span><span class="translit">Ayin</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('hebrew','pe')" data-letter="pe"><span class="letter">פ</span><span class="translit">Pe</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('hebrew','tsade')" data-letter="tsade"><span class="letter">צ</span><span class="translit">Tsade</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('hebrew','qof')" data-letter="qof"><span class="letter">ק</span><span class="translit">Qof</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('hebrew','resh')" data-letter="resh"><span class="letter">ר</span><span class="translit">Resh</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('hebrew','shin')" data-letter="shin"><span class="letter">שׁ</span><span class="translit">Shin</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('hebrew','tav')" data-letter="tav"><span class="letter">ת</span><span class="translit">Tav</span></button>
+                    <button class="alpha-btn-all active" onclick="filterByLetter('hebrew','all')">All</button>
+                </div>
+            </div>
+
+            <!-- Greek Alphabet Bar -->
+            <div class="alpha-bar-greek" id="greekAlphaBar">
+                <div class="alpha-section-label">Greek Letters</div>
+                <div class="alpha-bar">
+                    <button class="alpha-btn" onclick="filterByLetter('greek','alpha')" data-letter="alpha"><span class="letter">Α</span><span class="translit">Alpha</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('greek','beta')" data-letter="beta"><span class="letter">Β</span><span class="translit">Beta</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('greek','gamma')" data-letter="gamma"><span class="letter">Γ</span><span class="translit">Gamma</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('greek','delta')" data-letter="delta"><span class="letter">Δ</span><span class="translit">Delta</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('greek','epsilon')" data-letter="epsilon"><span class="letter">Ε</span><span class="translit">Epsilon</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('greek','zeta')" data-letter="zeta"><span class="letter">Ζ</span><span class="translit">Zeta</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('greek','eta')" data-letter="eta"><span class="letter">Η</span><span class="translit">Eta</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('greek','theta')" data-letter="theta"><span class="letter">Θ</span><span class="translit">Theta</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('greek','iota')" data-letter="iota"><span class="letter">Ι</span><span class="translit">Iota</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('greek','kappa')" data-letter="kappa"><span class="letter">Κ</span><span class="translit">Kappa</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('greek','lambda')" data-letter="lambda"><span class="letter">Λ</span><span class="translit">Lambda</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('greek','mu')" data-letter="mu"><span class="letter">Μ</span><span class="translit">Mu</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('greek','nu')" data-letter="nu"><span class="letter">Ν</span><span class="translit">Nu</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('greek','xi')" data-letter="xi"><span class="letter">Ξ</span><span class="translit">Xi</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('greek','omicron')" data-letter="omicron"><span class="letter">Ο</span><span class="translit">Omicron</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('greek','pi')" data-letter="pi"><span class="letter">Π</span><span class="translit">Pi</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('greek','rho')" data-letter="rho"><span class="letter">Ρ</span><span class="translit">Rho</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('greek','sigma')" data-letter="sigma"><span class="letter">Σ</span><span class="translit">Sigma</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('greek','tau')" data-letter="tau"><span class="letter">Τ</span><span class="translit">Tau</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('greek','upsilon')" data-letter="upsilon"><span class="letter">Υ</span><span class="translit">Upsilon</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('greek','phi')" data-letter="phi"><span class="letter">Φ</span><span class="translit">Phi</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('greek','chi')" data-letter="chi"><span class="letter">Χ</span><span class="translit">Chi</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('greek','psi')" data-letter="psi"><span class="letter">Ψ</span><span class="translit">Psi</span></button>
+                    <button class="alpha-btn" onclick="filterByLetter('greek','omega')" data-letter="omega"><span class="letter">Ω</span><span class="translit">Omega</span></button>
+                    <button class="alpha-btn-all active" onclick="filterByLetter('greek','all')">All</button>
+                </div>
+            </div>
+
+            <div class="filter-status" id="filterStatus">Showing <span id="filterCount">0</span> of <span id="filterTotal">0</span> entries</div>
+        </div>
+
+        <div id="noResults" class="no-results">No words match your search. Try a different term.</div>
+
+        <h2 class="section-header" id="hebrew-section" style="display:none;">📜 Hebrew (Old Testament)</h2>
+        <p class="section-sub" id="hebrew-sub" style="display:none;">1572 words from the Hebrew Scriptures</p>
+        <div class="word-grid" id="hebrew-grid" style="display:none;">
+<!-- HEBREW_CARDS_START -->
+<!-- HEBREW_CARDS_END -->
+</div>
+        <h2 class="section-header" id="greek-section" style="display:none;">📖 Greek (New Testament)</h2>
+        <p class="section-sub" id="greek-sub" style="display:none;">1487 words from the Greek New Testament</p>
+        <div class="word-grid" id="greek-grid" style="display:none;">
+<!-- GREEK_CARDS_START -->
+<!-- GREEK_CARDS_END -->
+</div>
+    </div>
+    <script>
+    // BTE v5.0: Dark/Light Mode Toggle
+    function toggleTheme() {
+        var body = document.body;
+        var btn = document.getElementById('themeToggle');
+        if (body.classList.contains('light-mode')) {
+            body.classList.remove('light-mode');
+            btn.textContent = '🌙';
+            localStorage.setItem('bte-theme', 'dark');
+        } else {
+            body.classList.add('light-mode');
+            btn.textContent = '☀️';
+            localStorage.setItem('bte-theme', 'light');
+        }
+    }
+    (function() {
+        var saved = localStorage.getItem('bte-theme');
+        if (saved === 'light') {
+            document.body.classList.add('light-mode');
+            var btn = document.getElementById('themeToggle');
+            if (btn) btn.textContent = '☀️';
+        }
+    })();
+    </script>
+<script>
+function bteToggleTheme(){document.body.classList.toggle("light-mode");localStorage.setItem("bte-theme",document.body.classList.contains("light-mode")?"light":"dark");}
+(function(){if(localStorage.getItem("bte-theme")==="light")document.body.classList.add("light-mode");})();
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var cards = document.querySelectorAll('.word-card');
+    var hebrew = 0, greek = 0;
+    cards.forEach(function(c) {
+        var s = c.querySelector('.wc-strongs');
+        if (s && s.textContent.startsWith('H')) hebrew++;
+        else if (s && s.textContent.startsWith('G')) greek++;
+    });
+    var el;
+    el = document.getElementById('lexStatTotal'); if (el) el.textContent = (hebrew + greek).toLocaleString();
+    el = document.getElementById('lexStatHebrew'); if (el) el.textContent = hebrew.toLocaleString();
+    el = document.getElementById('lexStatGreek'); if (el) el.textContent = greek.toLocaleString();
+});
+</script>
+</body>
+</html>
