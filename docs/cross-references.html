@@ -97,10 +97,16 @@
         /* Theological Chains */
         .chains-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(420px, 1fr)); gap:20px; margin-bottom:40px; }
         @media(max-width:500px) { .chains-grid { grid-template-columns:1fr; } }
-        .chain-card { background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:24px; transition:all 0.2s; }
+        .chain-card { background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:24px; transition:all 0.2s; cursor:pointer; }
         .chain-card:hover { border-color:var(--gold); box-shadow:0 0 20px rgba(212,175,55,0.08); }
-        .chain-title { font-size:1.15rem; color:var(--gold-light); margin-bottom:6px; }
-        .chain-desc { font-size:0.85rem; color:var(--gray); margin-bottom:16px; line-height:1.6; }
+        .chain-card.active { border-color:var(--gold); box-shadow:0 0 20px rgba(212,175,55,0.12); }
+        .chain-header { display:flex; align-items:center; justify-content:space-between; }
+        .chain-title { font-size:1.15rem; color:var(--gold-light); margin-bottom:0; flex:1; }
+        .chain-arrow { font-size:0.75rem; color:var(--gold); transition:transform 0.25s; display:inline-block; margin-left:10px; flex-shrink:0; }
+        .chain-arrow.open { transform:rotate(90deg); }
+        .chain-body { overflow:hidden; max-height:0; transition:max-height 0.35s ease; }
+        .chain-body.open { max-height:3000px; }
+        .chain-desc { font-size:0.85rem; color:var(--gray); margin:12px 0 16px; line-height:1.6; }
         .chain-steps { list-style:none; position:relative; padding-left:24px; }
         .chain-steps::before { content:''; position:absolute; left:7px; top:8px; bottom:8px; width:2px; background:linear-gradient(to bottom, var(--gold), rgba(212,175,55,0.2)); border-radius:2px; }
         .chain-step { position:relative; margin-bottom:12px; padding-left:8px; }
@@ -787,21 +793,55 @@
         }
     ];
 
+    let activeChainCard = null;
+
+    function toggleChain(card, body, arrow) {
+        const isOpen = body.classList.contains('open');
+        // Close all chains first
+        document.querySelectorAll('.chain-body').forEach(b => { b.classList.remove('open'); });
+        document.querySelectorAll('.chain-arrow').forEach(a => { a.classList.remove('open'); });
+        document.querySelectorAll('.chain-card').forEach(c => { c.classList.remove('active'); });
+        // If wasn't open, open it; else leave closed (toggle off)
+        if (!isOpen) {
+            body.classList.add('open');
+            arrow.classList.add('open');
+            card.classList.add('active');
+            activeChainCard = card;
+        } else {
+            activeChainCard = null;
+        }
+    }
+
     function buildChains() {
         const grid = document.getElementById('chainsGrid');
         CHAINS.forEach(chain => {
             const card = document.createElement('div');
             card.className = 'chain-card';
 
+            // Header (always visible, click to toggle)
+            const header = document.createElement('div');
+            header.className = 'chain-header';
+
             const title = document.createElement('h3');
             title.className = 'chain-title';
             title.innerHTML = chain.title;
-            card.appendChild(title);
+            header.appendChild(title);
+
+            const arrow = document.createElement('span');
+            arrow.className = 'chain-arrow';
+            arrow.textContent = '▶';
+            header.appendChild(arrow);
+
+            card.appendChild(header);
+
+            // Body (collapsible)
+            const body = document.createElement('div');
+            body.className = 'chain-body';
 
             const desc = document.createElement('p');
             desc.className = 'chain-desc';
             desc.textContent = chain.desc;
-            card.appendChild(desc);
+            body.appendChild(desc);
 
             const list = document.createElement('ul');
             list.className = 'chain-steps';
@@ -814,6 +854,8 @@
                 const a = document.createElement('a');
                 a.href = keyToBteLink(step.ref);
                 a.textContent = keyToRef(step.ref);
+                // Stop click on links from bubbling to card toggle
+                a.addEventListener('click', e => e.stopPropagation());
                 refSpan.appendChild(a);
                 li.appendChild(refSpan);
 
@@ -824,7 +866,12 @@
 
                 list.appendChild(li);
             });
-            card.appendChild(list);
+            body.appendChild(list);
+            card.appendChild(body);
+
+            // Click handler on the card
+            card.addEventListener('click', () => toggleChain(card, body, arrow));
+
             grid.appendChild(card);
         });
     }
