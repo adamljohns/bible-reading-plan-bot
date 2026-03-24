@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-touch-icon.png">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:title" content="HAPPY Husband Assessment | U.S.M.C. Ministries">
+    <meta property="og:description" content="After-action review on your marriage. HAPPY = Honors · Abiding · Protecting · Providing · Yields. A mirror, not a quiz.">
+    <meta property="og:image" content="https://usmcmin.org/assets/assets/og/og-main.png?v=51">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://usmcmin.org/happy-husband.html">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="description" content="A Christ-centered self-assessment for husbands. HAPPY = Honors · Abiding · Protecting · Providing · Yields. Not a Pinterest quiz — an after-action review on your marriage.">
+    <title>HAPPY Husband Assessment | USMC Ministries</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #000000;
+            --bg-card: #111111;
+            --bg-card2: #181818;
+            --gold: #D4AF37;
+            --gold-light: #F4D470;
+            --gold-dim: rgba(212,175,55,0.15);
+            --white: #e8e8e8;
+            --gray: #888888;
+            --gray-mid: #aaaaaa;
+            --border: #333333;
+            --danger: #c0392b;
+            --success: #27ae60;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--white);
+            line-height: 1.8;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        h1, h2, h3 { font-family: 'Playfair Display', serif; color: var(--gold); }
+
+        /* ── Nav ── */
+        nav {
+            display: flex; flex-wrap: wrap; gap: 6px;
+            justify-content: center; padding: 14px 20px;
+            border-bottom: 1px solid var(--border);
+            background: rgba(0,0,0,0.95);
+            position: sticky; top: 0; z-index: 100;
+        }
+        nav a {
+            color: var(--gray); text-decoration: none; font-size: 0.85rem;
+            font-weight: 500; padding: 5px 12px; border-radius: 20px;
+            border: 1px solid transparent; transition: all 0.2s;
+            white-space: nowrap;
+        }
+        nav a:hover { color: var(--gold); border-color: var(--border); }
+        nav a.active { color: var(--gold); border-color: var(--gold); }
+
+        /* ── Theme Toggle ── */
+        .bte-theme-toggle {
+            display: inline-flex; align-items: center; gap: 6px;
+            cursor: pointer; padding: 5px 10px; border-radius: 20px;
+            border: 1px solid var(--border); background: rgba(0,0,0,0.8);
+            transition: border-color 0.2s; user-select: none;
+        }
+        .bte-theme-toggle:hover { border-color: #D4AF37; }
+        .bte-theme-toggle .toggle-icon { width: 18px; text-align: center; line-height: 1; }
+        .bte-theme-toggle .toggle-track {
+            width: 32px; height: 16px; background: #333; border-radius: 8px;
+            position: relative; transition: background 0.2s;
+        }
+        .bte-theme-toggle .toggle-knob {
+            position: absolute; left: 2px; top: 2px;
+            width: 12px; height: 12px; background: #888; border-radius: 50%;
+            transition: left 0.2s, background 0.2s;
+        }
+        body.light-mode .bte-theme-toggle { background: rgba(240,238,233,0.9); border-color: #ccc; }
+        body.light-mode .bte-theme-toggle .toggle-track { background: #bbb; }
+        body.light-mode .bte-theme-toggle .toggle-knob { left: 16px; }
+        .bte-theme-toggle .moon-icon { color: #888; }
+
+        /* ── Light mode overrides ── */
+        body.light-mode {
+            --bg: #F5F3EF; --bg-card: #FFFFFF; --bg-card2: #F0EDE7;
+            --white: #1a1a1a; --gray: #666; --gray-mid: #444; --border: #d4d0c8;
+        }
+        body.light-mode nav { background: rgba(245,243,239,0.97); }
+        body.light-mode nav a { color: #555 !important; }
+        body.light-mode nav a:hover, body.light-mode nav a.active { color: #D4AF37 !important; }
+        body.light-mode footer { background: #F5F3EF !important; border-color: #d4d0c8 !important; color: #666 !important; }
+
+        /* ── Hero ── */
+        .hero {
+            text-align: center;
+            padding: 60px 20px 50px;
+            background: linear-gradient(180deg, rgba(212,175,55,0.10) 0%, transparent 100%);
+            border-bottom: 1px solid var(--border);
+        }
+        .hero-badge {
+            display: inline-block; font-size: 0.72rem; font-weight: 600;
+            letter-spacing: 3px; text-transform: uppercase;
+            color: var(--gold); border: 1px solid var(--gold);
+            padding: 4px 14px; border-radius: 20px; margin-bottom: 20px;
+            opacity: 0.85;
+        }
+        .hero h1 {
+            font-size: clamp(2.4rem, 7vw, 4rem);
+            color: var(--white); margin-bottom: 8px; letter-spacing: 2px;
+        }
+        .hero h1 span { color: var(--gold); }
+        .hero .acronym-row {
+            display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;
+            margin: 20px 0 28px;
+        }
+        .acronym-pill {
+            display: flex; flex-direction: column; align-items: center;
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 12px; padding: 10px 18px; min-width: 80px;
+            transition: border-color 0.2s;
+        }
+        .acronym-pill:hover { border-color: var(--gold); }
+        .acronym-letter {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem; font-weight: 800; color: var(--gold); line-height: 1;
+        }
+        .acronym-word { font-size: 0.72rem; color: var(--gray); letter-spacing: 1px; text-transform: uppercase; margin-top: 4px; }
+        .hero .tagline {
+            font-style: italic; color: var(--gray-mid); font-size: 1.05rem; max-width: 560px; margin: 0 auto;
+        }
+
+        /* ── Main layout ── */
+        main { flex: 1; max-width: 900px; margin: 0 auto; padding: 0 16px 60px; width: 100%; }
+        .section-card {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 16px; padding: 28px 24px; margin-top: 32px;
+        }
+        .section-title {
+            display: flex; align-items: center; gap: 10px;
+            margin-bottom: 20px;
+        }
+        .section-title .dot {
+            width: 6px; height: 28px; background: var(--gold); border-radius: 3px; flex-shrink: 0;
+        }
+        .section-title h2 { font-size: 1.4rem; color: var(--gold); }
+        .section-title .subtitle { font-size: 0.82rem; color: var(--gray); margin-top: 2px; }
+
+        /* ── Radar chart ── */
+        .chart-wrapper {
+            position: relative; max-width: 380px; margin: 0 auto 10px;
+        }
+
+        /* ── Sliders ── */
+        .slider-grid { display: flex; flex-direction: column; gap: 18px; margin-top: 20px; }
+        .slider-row { display: flex; flex-direction: column; gap: 4px; }
+        .slider-label {
+            display: flex; justify-content: space-between; align-items: baseline;
+        }
+        .slider-label .letter-badge {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem; font-weight: 700; color: var(--gold);
+            min-width: 24px;
+        }
+        .slider-label .label-text {
+            font-size: 0.88rem; font-weight: 600; color: var(--white); flex: 1; margin: 0 8px;
+        }
+        .slider-label .score-val {
+            font-size: 1.2rem; font-weight: 700; color: var(--gold);
+            min-width: 28px; text-align: right;
+        }
+        input[type=range] {
+            width: 100%; accent-color: var(--gold); cursor: pointer;
+            height: 6px; border-radius: 3px;
+        }
+
+        /* ── Assessment questions ── */
+        .question-block {
+            background: var(--bg-card2); border: 1px solid var(--border);
+            border-radius: 12px; padding: 20px 20px 16px; margin-bottom: 16px;
+            transition: border-color 0.2s;
+        }
+        .question-block:hover { border-color: rgba(212,175,55,0.4); }
+        .q-header {
+            display: flex; gap: 12px; align-items: flex-start; margin-bottom: 10px;
+        }
+        .q-letter {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem; font-weight: 800; color: var(--gold);
+            line-height: 1; min-width: 32px;
+        }
+        .q-meta { flex: 1; }
+        .q-word { font-size: 0.75rem; color: var(--gray); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 2px; }
+        .q-text { font-size: 0.97rem; color: var(--white); line-height: 1.65; }
+        .q-scripture {
+            display: inline-flex; align-items: center; gap: 6px;
+            margin-top: 10px; padding: 5px 12px;
+            background: var(--gold-dim); border: 1px solid rgba(212,175,55,0.3);
+            border-radius: 20px; text-decoration: none;
+            color: var(--gold); font-size: 0.8rem; font-weight: 600;
+            transition: background 0.2s;
+        }
+        .q-scripture:hover { background: rgba(212,175,55,0.25); }
+
+        /* ── Formation plan ── */
+        #formation-plan { display: none; }
+        .formation-area {
+            background: var(--bg-card2); border: 1px solid rgba(212,175,55,0.3);
+            border-radius: 12px; padding: 22px 20px; margin-bottom: 20px;
+        }
+        .formation-area h3 {
+            font-size: 1.1rem; color: var(--gold); margin-bottom: 14px;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .formation-item {
+            display: flex; gap: 10px; margin-bottom: 12px; align-items: flex-start;
+        }
+        .formation-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 2px; }
+        .formation-label {
+            font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px;
+            color: var(--gray); margin-bottom: 2px;
+        }
+        .formation-text { font-size: 0.92rem; color: var(--white); line-height: 1.6; }
+        .formation-scripture {
+            display: inline-block; margin-top: 4px;
+            padding: 4px 10px; background: var(--gold-dim);
+            border-radius: 20px; color: var(--gold); font-size: 0.78rem;
+            font-style: italic;
+        }
+
+        /* ── Progress tracker ── */
+        .history-card {
+            background: var(--bg-card2); border: 1px solid var(--border);
+            border-radius: 10px; padding: 16px 18px; margin-top: 12px;
+        }
+        .history-meta { font-size: 0.82rem; color: var(--gray-mid); margin-bottom: 8px; }
+        .history-scores {
+            display: flex; gap: 12px; flex-wrap: wrap;
+        }
+        .history-badge {
+            display: flex; flex-direction: column; align-items: center;
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 8px; padding: 6px 14px; min-width: 54px;
+        }
+        .history-badge .h-letter { font-size: 0.75rem; color: var(--gray); }
+        .history-badge .h-score { font-size: 1.1rem; font-weight: 700; color: var(--gold); }
+        .delta { font-size: 0.72rem; }
+        .delta.up { color: var(--success); }
+        .delta.down { color: var(--danger); }
+        .delta.same { color: var(--gray); }
+        #no-history { color: var(--gray); font-size: 0.9rem; font-style: italic; }
+
+        /* ── Buttons ── */
+        .btn-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 20px; }
+        .btn {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 12px 22px; border-radius: 8px; font-size: 0.9rem;
+            font-weight: 600; cursor: pointer; border: none; transition: all 0.2s;
+            text-decoration: none; font-family: 'Inter', sans-serif;
+        }
+        .btn-primary {
+            background: var(--gold); color: #000;
+        }
+        .btn-primary:hover { background: var(--gold-light); }
+        .btn-outline {
+            background: transparent; color: var(--gold);
+            border: 1px solid var(--gold);
+        }
+        .btn-outline:hover { background: var(--gold-dim); }
+        .btn-ghost {
+            background: transparent; color: var(--gray);
+            border: 1px solid var(--border);
+        }
+        .btn-ghost:hover { color: var(--white); border-color: var(--gray-mid); }
+
+        /* ── Overall score display ── */
+        .overall-score-wrap {
+            display: flex; flex-direction: column; align-items: center;
+            margin: 16px 0 0;
+        }
+        .overall-score-num {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.5rem; font-weight: 800; color: var(--gold); line-height: 1;
+        }
+        .overall-score-label { font-size: 0.8rem; color: var(--gray); letter-spacing: 2px; text-transform: uppercase; margin-top: 4px; }
+        .score-tier {
+            margin-top: 6px; font-size: 0.85rem; font-weight: 600; letter-spacing: 1px;
+        }
+
+        /* ── Share modal ── */
+        #share-modal {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.85); z-index: 1000;
+            justify-content: center; align-items: center; padding: 20px;
+        }
+        #share-modal.open { display: flex; }
+        .modal-box {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 16px; padding: 28px 24px; max-width: 520px; width: 100%;
+        }
+        .modal-box h2 { margin-bottom: 12px; font-size: 1.3rem; }
+        .modal-close { float: right; cursor: pointer; color: var(--gray); font-size: 1.4rem; line-height: 1; background: none; border: none; color: var(--gray); }
+        .share-text-area {
+            width: 100%; background: var(--bg); border: 1px solid var(--border);
+            border-radius: 8px; color: var(--white); font-family: 'Inter', sans-serif;
+            font-size: 0.85rem; padding: 14px; resize: none; line-height: 1.6;
+            margin-top: 10px;
+        }
+
+        /* ── Print styles ── */
+        @media print {
+            nav, .bte-theme-toggle, .btn-row, #share-modal, footer, #print-hide { display: none !important; }
+            body { background: #fff; color: #000; }
+            .section-card { border: 1px solid #ccc; break-inside: avoid; }
+            h1, h2, h3 { color: #8B6914; }
+            .q-scripture { color: #8B6914; }
+            .overall-score-num { color: #8B6914; }
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 600px) {
+            .hero { padding: 40px 16px 32px; }
+            .section-card { padding: 20px 14px; }
+            .acronym-row { gap: 10px; }
+            .acronym-pill { min-width: 64px; padding: 8px 12px; }
+            .modal-box { padding: 20px 16px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ── Nav ── -->
+    <nav>
+        <a href="index.html"><img src="assets/icons/shield-home-48.png" width="16" height="16" alt="" style="vertical-align:-2px"> Home</a>
+        <a href="bible.html"><img src="assets/icons/shield-compass.png" width="16" height="16" alt="" style="vertical-align:-2px"> Bible</a>
+        <a href="watchman.html"><img src="assets/icons/shield-bible.png" width="16" height="16" alt="" style="vertical-align:-2px"> Watchman</a>
+        <a href="about.html"><img src="assets/icons/shield-about-person-24.png" width="16" height="16" alt="" style="vertical-align:-2px"> About</a>
+        <a href="blog.html"><img src="assets/icons/shield-blog-quill-48.png" width="16" height="16" alt="" style="vertical-align:-2px"> Blog</a>
+        <a href="connect.html"><img src="assets/icons/shield-handshake.png" width="16" height="16" alt="" style="vertical-align:-2px"> Connect</a>
+    </nav>
+
+    <!-- ── Theme Toggle ── -->
+    <div style="text-align:center; margin-top:8px; margin-bottom:4px;">
+        <div class="bte-theme-toggle" onclick="bteToggleTheme()" title="Toggle dark/light mode">
+            <span class="toggle-icon moon-icon">🌙</span>
+            <div class="toggle-track"><div class="toggle-knob"></div></div>
+            <span class="toggle-icon sun-icon">☀️</span>
+        </div>
+    </div>
+
+    <!-- ── Hero ── -->
+    <div class="hero">
+        <div class="hero-badge">After-Action Review · Your Marriage</div>
+        <h1>The <span>HAPPY</span> Husband</h1>
+        <div class="acronym-row">
+            <div class="acronym-pill"><span class="acronym-letter">H</span><span class="acronym-word">Honors</span></div>
+            <div class="acronym-pill"><span class="acronym-letter">A</span><span class="acronym-word">Abiding</span></div>
+            <div class="acronym-pill"><span class="acronym-letter">P</span><span class="acronym-word">Protecting</span></div>
+            <div class="acronym-pill"><span class="acronym-letter">P</span><span class="acronym-word">Providing</span></div>
+            <div class="acronym-pill"><span class="acronym-letter">Y</span><span class="acronym-word">Yields</span></div>
+        </div>
+        <p class="tagline">"This is not a Pinterest quiz. It's a mirror. Look hard."</p>
+    </div>
+
+    <!-- ── Main ── -->
+    <main>
+
+        <!-- ── Radar + Sliders ── -->
+        <div class="section-card">
+            <div class="section-title">
+                <div class="dot"></div>
+                <div>
+                    <h2>Mission Readiness Radar</h2>
+                    <div class="subtitle">Rate yourself 1–10 on each axis. Be honest. God already knows.</div>
+                </div>
+            </div>
+
+            <div class="chart-wrapper">
+                <canvas id="radarChart"></canvas>
+            </div>
+
+            <div class="overall-score-wrap">
+                <div class="overall-score-num" id="overallScore">—</div>
+                <div class="overall-score-label">Overall Score / 10</div>
+                <div class="score-tier" id="scoreTier"></div>
+            </div>
+
+            <div class="slider-grid" id="sliderGrid">
+                <!-- Sliders injected by JS -->
+            </div>
+
+            <div class="btn-row" id="print-hide">
+                <button class="btn btn-primary" onclick="runAssessment()">📋 Generate Formation Plan</button>
+                <button class="btn btn-ghost" onclick="saveProgress()">💾 Save Progress</button>
+            </div>
+        </div>
+
+        <!-- ── Self-Assessment Questions ── -->
+        <div class="section-card">
+            <div class="section-title">
+                <div class="dot"></div>
+                <div>
+                    <h2>The Hard Questions</h2>
+                    <div class="subtitle">Read each one slowly. Don't answer what you wish were true.</div>
+                </div>
+            </div>
+            <div id="questionsBlock">
+                <!-- Injected by JS -->
+            </div>
+        </div>
+
+        <!-- ── Formation Plan ── -->
+        <div class="section-card" id="formation-plan">
+            <div class="section-title">
+                <div class="dot"></div>
+                <div>
+                    <h2>Formation Plan</h2>
+                    <div class="subtitle">30 days. Your two weakest areas. No excuses.</div>
+                </div>
+            </div>
+            <div id="formationContent"></div>
+            <div class="btn-row" id="print-hide2">
+                <button class="btn btn-outline" onclick="printSummary()">🖨️ Print Summary</button>
+                <button class="btn btn-ghost" onclick="openShareModal()">📤 Share with Mentor</button>
+            </div>
+        </div>
+
+        <!-- ── Progress Tracker ── -->
+        <div class="section-card">
+            <div class="section-title">
+                <div class="dot"></div>
+                <div>
+                    <h2>Progress Log</h2>
+                    <div class="subtitle">Saved locally. No account needed. Just you and God.</div>
+                </div>
+            </div>
+            <div id="progressContent">
+                <p id="no-history">No previous assessments on this device.</p>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ── Share Modal ── -->
+    <div id="share-modal" role="dialog" aria-modal="true" aria-label="Share with Mentor">
+        <div class="modal-box">
+            <button class="modal-close" onclick="closeShareModal()" aria-label="Close">&times;</button>
+            <h2>📤 Share with Your Mentor</h2>
+            <p style="font-size:0.88rem; color:var(--gray); margin-bottom:4px;">
+                Copy this anonymous summary to share. No name included.
+            </p>
+            <textarea id="shareText" class="share-text-area" rows="14" readonly></textarea>
+            <div class="btn-row" style="margin-top:14px;">
+                <button class="btn btn-primary" onclick="copyShareText()">📋 Copy to Clipboard</button>
+                <button class="btn btn-ghost" onclick="closeShareModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Footer ── -->
+    <footer style="border-top:1px solid var(--border); padding:28px 20px; text-align:center; font-size:0.85rem; color:var(--gray); background:var(--bg);">
+        <div style="margin-bottom:12px;">
+            <img src="assets/icons/shield-cross-bible-48.png" alt="cross" width="40" height="40" style="opacity:0.7;">
+        </div>
+        <p>
+            <a href="index.html#uniting" style="color:var(--gold);">Uniting</a> &nbsp;&nbsp;
+            <a href="serving.html" style="color:var(--gold);">Serving</a> &nbsp;&nbsp;
+            <a href="mentoring.html" style="color:var(--gold);">Mentoring</a> &nbsp;&nbsp;
+            <a href="counseling.html" style="color:var(--gold);">Counseling</a> &nbsp;&nbsp;
+            <a href="about.html" style="color:var(--gold);">About the Founder</a>
+        </p>
+        <p style="margin-top:10px; font-size:0.82rem; font-style:italic; color:#555;">&ldquo;Husbands, love your wives, as Christ loved the church and gave himself up for her.&rdquo; &mdash; Ephesians 5:25</p>
+        <p style="margin-top:8px; font-size:0.8rem; color:#555;">
+            <a href="sitemap.html" style="color:var(--gray); font-size:0.85rem;">🗺️ Site Map</a> &nbsp;&nbsp; Powered by MOOPbot Pro
+        </p>
+    </footer>
+
+    <script>
+    // ── DATA ───────────────────────────────────────────────────────────────
+    const LETTERS = ['H','A','P','P','Y'];
+    const WORDS   = ['Honors','Abiding','Protecting','Providing','Yields'];
+    const SCORES  = [5, 5, 5, 5, 5];   // live scores, mutable
+
+    const QUESTIONS = [
+        {
+            letter: 'H', word: 'Honors',
+            text: "Does your wife feel publicly honored by you — in front of your kids, your friends, and strangers? Or does she hear you talk her up less than you talk up your job, your team, or your interests?",
+            scripture: 'Ephesians 5:25', anchor: 'eph5_25'
+        },
+        {
+            letter: 'A', word: 'Abiding',
+            text: "Is your personal walk with Christ the source of your marriage, or is your marriage running on fumes while you coast spiritually?",
+            scripture: 'John 15:4', anchor: 'jn15_4'
+        },
+        {
+            letter: 'P', word: 'Protecting',
+            text: "What are you actively protecting your wife from — emotionally, spiritually, physically? Or have you outsourced her protection to the culture?",
+            scripture: '1 Peter 3:7', anchor: '1pet3_7'
+        },
+        {
+            letter: 'P', word: 'Providing',
+            text: "Does she feel secure? Not just financially — does she feel covered?",
+            scripture: '1 Timothy 5:8', anchor: '1tim5_8'
+        },
+        {
+            letter: 'Y', word: 'Yields',
+            text: "When she speaks, do you actually change? Or do you hear her and then do what you already planned?",
+            scripture: 'Philippians 2:3–4', anchor: 'phil2_3'
+        }
+    ];
+
+    const FORMATION = [
+        {
+            letter: 'H', word: 'Honors',
+            habit:   "Every day for 30 days: say one specific thing publicly that honors your wife — in front of your kids at dinner, in a text to a friend, or out loud in public.",
+            prayer:  "Lord, show me how small my words have been. Give me a tongue that lifts my wife the way You lift Your church. Let my home hear more honor than criticism.",
+            convo:   "\"What's one thing I say — or don't say — that makes you feel unseen? I want to change that.\"",
+            memory:  "\"Husbands, love your wives, as Christ loved the church and gave himself up for her.\" — Ephesians 5:25",
+            memRef:  'eph5_25'
+        },
+        {
+            letter: 'A', word: 'Abiding',
+            habit:   "Every morning before your phone: 10 minutes in the Word. Not study — communion. Ask God one question about your marriage each week.",
+            prayer:  "Father, I confess I have tried to lead without being led. Restore my root. Let my marriage draw from Your vine, not from my effort.",
+            convo:   "\"I've realized my spiritual life has been shallow, and I think you've felt that. I want to pray together this week — would you?\"",
+            memory:  "\"Abide in me, and I in you. As the branch cannot bear fruit by itself, unless it abides in the vine, neither can you, unless you abide in me.\" — John 15:4",
+            memRef:  'jn15_4'
+        },
+        {
+            letter: 'P', word: 'Protecting',
+            text2:  '(Protecting)',
+            habit:   "Identify one thing — a screen habit, a person, a pattern — that has been eroding your wife's peace. Eliminate or confront it this week. Don't wait.",
+            prayer:  "God, You called me to protect what You gave me. Reveal where I have been passive. Give me the courage to stand between my wife and what threatens her.",
+            convo:   "\"Is there something in our home — or in my habits — that makes you feel less safe? I want to know and I want to fix it.\"",
+            memory:  "\"Likewise, husbands, live with your wives in an understanding way, showing honor to the woman as the weaker vessel...\" — 1 Peter 3:7",
+            memRef:  '1pet3_7'
+        },
+        {
+            letter: 'P', word: 'Providing',
+            text2:  '(Providing)',
+            habit:   "This week: have one real conversation about finances, future plans, or whatever keeps her up at night. Then tell her specifically: \"I've got this.\" Mean it.",
+            prayer:  "Lord, provision is stewardship. Show me where I have been checked out — financially, emotionally, spiritually. Help her feel covered, not just housed.",
+            convo:   "\"Does our life feel secure to you? Not just money — do you feel covered? I need to know what security means to you.\"",
+            memory:  "\"But if anyone does not provide for his relatives, and especially for members of his household, he has denied the faith...\" — 1 Timothy 5:8",
+            memRef:  '1tim5_8'
+        },
+        {
+            letter: 'Y', word: 'Yields',
+            habit:   "When your wife speaks, practice this: don't respond immediately. Repeat back what she said. Ask one clarifying question. Then let it change something — even something small.",
+            prayer:  "Jesus, You emptied Yourself for us. Teach me to empty myself of my agenda long enough to actually hear her. Let her words land and change something in me.",
+            convo:   "\"I've realized I often hear you and then do what I already planned. I don't want to do that anymore. What's something you've told me that I haven't acted on?\"",
+            memory:  "\"Do nothing from selfish ambition or conceit, but in humility count others more significant than yourselves.\" — Philippians 2:3",
+            memRef:  'phil2_3'
+        }
+    ];
+
+    // ── CHART SETUP ────────────────────────────────────────────────────────
+    let radarChart;
+
+    function initChart() {
+        const ctx = document.getElementById('radarChart').getContext('2d');
+        radarChart = new Chart(ctx, {
+            type: 'radar',
+            data: {
+                labels: LETTERS.map((l, i) => `${l} — ${WORDS[i]}`),
+                datasets: [{
+                    label: 'Your Score',
+                    data: [...SCORES],
+                    backgroundColor: 'rgba(212,175,55,0.18)',
+                    borderColor: '#D4AF37',
+                    borderWidth: 2.5,
+                    pointBackgroundColor: '#D4AF37',
+                    pointRadius: 5,
+                    pointHoverRadius: 7
+                }]
+            },
+            options: {
+                responsive: true,
+                animation: { duration: 200 },
+                scales: {
+                    r: {
+                        min: 0, max: 10,
+                        ticks: {
+                            stepSize: 2,
+                            color: '#888',
+                            backdropColor: 'transparent',
+                            font: { size: 11 }
+                        },
+                        grid: { color: '#2a2a2a' },
+                        angleLines: { color: '#333' },
+                        pointLabels: {
+                            color: '#D4AF37',
+                            font: { size: 13, family: 'Playfair Display, serif', weight: '700' }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+    }
+
+    function updateChart() {
+        radarChart.data.datasets[0].data = [...SCORES];
+        radarChart.update();
+        const avg = SCORES.reduce((a, b) => a + b, 0) / SCORES.length;
+        document.getElementById('overallScore').textContent = avg.toFixed(1);
+        const tiers = [
+            [9, '🏅 Outstanding — Keep sharpening.'],
+            [7, '✅ Solid Foundation — Growth areas ahead.'],
+            [5, '⚠️ Mid-Watch — You know where the gaps are.'],
+            [3, '🚨 Red Alert — Time to get serious.'],
+            [0, '💀 Below the Wire — Full reset needed.']
+        ];
+        const tier = tiers.find(t => avg >= t[0]);
+        const el = document.getElementById('scoreTier');
+        el.textContent = tier ? tier[1] : '';
+        el.style.color = avg >= 7 ? '#27ae60' : avg >= 5 ? '#D4AF37' : avg >= 3 ? '#e67e22' : '#c0392b';
+    }
+
+    // ── SLIDERS ─────────────────────────────────────────────────────────────
+    function buildSliders() {
+        const grid = document.getElementById('sliderGrid');
+        LETTERS.forEach((letter, i) => {
+            const row = document.createElement('div');
+            row.className = 'slider-row';
+            row.innerHTML = `
+                <div class="slider-label">
+                    <span class="letter-badge">${letter}</span>
+                    <span class="label-text">${WORDS[i]}</span>
+                    <span class="score-val" id="val-${i}">${SCORES[i]}</span>
+                </div>
+                <input type="range" min="1" max="10" value="${SCORES[i]}"
+                    id="slider-${i}" oninput="onSlider(${i}, this.value)"
+                    aria-label="${WORDS[i]} score">
+            `;
+            grid.appendChild(row);
+        });
+    }
+
+    function onSlider(idx, val) {
+        SCORES[idx] = parseInt(val);
+        document.getElementById(`val-${idx}`).textContent = val;
+        updateChart();
+    }
+
+    // ── QUESTIONS ───────────────────────────────────────────────────────────
+    function buildQuestions() {
+        const block = document.getElementById('questionsBlock');
+        QUESTIONS.forEach(q => {
+            const div = document.createElement('div');
+            div.className = 'question-block';
+            div.innerHTML = `
+                <div class="q-header">
+                    <div class="q-letter">${q.letter}</div>
+                    <div class="q-meta">
+                        <div class="q-word">${q.word}</div>
+                        <div class="q-text">${q.text}</div>
+                    </div>
+                </div>
+                <a class="q-scripture" href="bible.html#${q.anchor}" target="_blank" rel="noopener">
+                    📖 ${q.scripture}
+                </a>
+            `;
+            block.appendChild(div);
+        });
+    }
+
+    // ── FORMATION PLAN ──────────────────────────────────────────────────────
+    function runAssessment() {
+        // Find 2 lowest scores
+        const indexed = SCORES.map((s, i) => ({ s, i })).sort((a, b) => a.s - b.s);
+        const weak = [indexed[0].i, indexed[1].i];
+
+        const plan = document.getElementById('formation-plan');
+        const content = document.getElementById('formationContent');
+        content.innerHTML = '';
+
+        weak.forEach(idx => {
+            const f = FORMATION[idx];
+            const div = document.createElement('div');
+            div.className = 'formation-area';
+            div.innerHTML = `
+                <h3>⚔️ ${f.letter} — ${f.word} <span style="font-size:0.8rem;color:var(--gray);font-weight:400">(Score: ${SCORES[idx]}/10)</span></h3>
+                <div class="formation-item">
+                    <div class="formation-icon">📅</div>
+                    <div>
+                        <div class="formation-label">30-Day Micro-Habit</div>
+                        <div class="formation-text">${f.habit}</div>
+                    </div>
+                </div>
+                <div class="formation-item">
+                    <div class="formation-icon">🙏</div>
+                    <div>
+                        <div class="formation-label">Prayer Prompt</div>
+                        <div class="formation-text">${f.prayer}</div>
+                    </div>
+                </div>
+                <div class="formation-item">
+                    <div class="formation-icon">💬</div>
+                    <div>
+                        <div class="formation-label">Conversation Starter</div>
+                        <div class="formation-text">${f.convo}</div>
+                    </div>
+                </div>
+                <div class="formation-item">
+                    <div class="formation-icon">📖</div>
+                    <div>
+                        <div class="formation-label">Scripture to Memorize</div>
+                        <div class="formation-text">${f.memory}</div>
+                        <a class="formation-scripture" href="bible.html#${f.memRef}" target="_blank" rel="noopener">Open in BTE →</a>
+                    </div>
+                </div>
+            `;
+            content.appendChild(div);
+        });
+
+        plan.style.display = 'block';
+        plan.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // ── PROGRESS TRACKER ────────────────────────────────────────────────────
+    const STORAGE_KEY = 'happyHusbandHistory';
+
+    function saveProgress() {
+        const history = getHistory();
+        const entry = {
+            date: new Date().toISOString(),
+            scores: [...SCORES]
+        };
+        history.unshift(entry);
+        // Keep last 20
+        if (history.length > 20) history.pop();
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+        renderHistory();
+        const btn = event.target;
+        btn.textContent = '✅ Saved!';
+        setTimeout(() => btn.textContent = '💾 Save Progress', 2000);
+    }
+
+    function getHistory() {
+        try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
+        catch(e) { return []; }
+    }
+
+    function weeksAgo(iso) {
+        const ms = Date.now() - new Date(iso).getTime();
+        const days = Math.floor(ms / 86400000);
+        if (days === 0) return 'Today';
+        if (days === 1) return '1 day ago';
+        if (days < 7) return `${days} days ago`;
+        const weeks = Math.floor(days / 7);
+        return weeks === 1 ? '1 week ago' : `${weeks} weeks ago`;
+    }
+
+    function renderHistory() {
+        const history = getHistory();
+        const el = document.getElementById('progressContent');
+        if (!history.length) {
+            el.innerHTML = '<p id="no-history">No previous assessments on this device.</p>';
+            return;
+        }
+        const latest = history[0];
+        const prev = history[1] || null;
+
+        let html = `<p style="font-size:0.92rem; color:var(--gray-mid); margin-bottom:12px;">
+            Last assessment: <strong style="color:var(--white)">${weeksAgo(latest.date)}</strong>
+            ${prev ? `— Previous: ${weeksAgo(prev.date)}` : ''}
+        </p>`;
+
+        if (prev) {
+            html += `<p style="font-size:0.85rem; color:var(--gray); margin-bottom:10px;">Here's what changed:</p>`;
+        }
+
+        html += `<div class="history-card"><div class="history-meta">${new Date(latest.date).toLocaleDateString('en-US', {weekday:'long', year:'numeric', month:'long', day:'numeric'})}</div><div class="history-scores">`;
+        LETTERS.forEach((l, i) => {
+            const cur = latest.scores[i];
+            const old = prev ? prev.scores[i] : null;
+            let delta = '';
+            if (old !== null) {
+                const diff = cur - old;
+                if (diff > 0) delta = `<div class="delta up">▲${diff}</div>`;
+                else if (diff < 0) delta = `<div class="delta down">▼${Math.abs(diff)}</div>`;
+                else delta = `<div class="delta same">—</div>`;
+            }
+            html += `<div class="history-badge"><div class="h-letter">${l}</div><div class="h-score">${cur}</div>${delta}</div>`;
+        });
+        html += `</div></div>`;
+
+        // Show last 4 entries total
+        if (history.length > 1) {
+            html += `<details style="margin-top:14px;"><summary style="cursor:pointer;color:var(--gray);font-size:0.85rem;">View full history (${history.length} entries)</summary>`;
+            history.slice(1).forEach(h => {
+                html += `<div class="history-card" style="margin-top:8px;">
+                    <div class="history-meta">${new Date(h.date).toLocaleDateString('en-US', {weekday:'short', year:'numeric', month:'short', day:'numeric'})}</div>
+                    <div class="history-scores">`;
+                LETTERS.forEach((l, i) => {
+                    html += `<div class="history-badge"><div class="h-letter">${l}</div><div class="h-score">${h.scores[i]}</div></div>`;
+                });
+                html += `</div></div>`;
+            });
+            html += `</details>`;
+        }
+
+        el.innerHTML = html;
+    }
+
+    // ── SHARE MODAL ─────────────────────────────────────────────────────────
+    function openShareModal() {
+        const avg = (SCORES.reduce((a,b)=>a+b,0)/SCORES.length).toFixed(1);
+        const date = new Date().toLocaleDateString('en-US', {month:'long', day:'numeric', year:'numeric'});
+        let text = `HAPPY HUSBAND ASSESSMENT — ${date}\n`;
+        text += `${'='.repeat(40)}\n\n`;
+        text += `Overall Score: ${avg}/10\n\n`;
+        LETTERS.forEach((l, i) => {
+            text += `${l} — ${WORDS[i]}: ${SCORES[i]}/10\n`;
+        });
+
+        const indexed = SCORES.map((s, i) => ({ s, i })).sort((a, b) => a.s - b.s);
+        const weak = [indexed[0].i, indexed[1].i];
+        text += `\n📌 FOCUS AREAS THIS MONTH:\n`;
+        weak.forEach(idx => {
+            text += `• ${LETTERS[idx]} — ${WORDS[idx]} (${SCORES[idx]}/10)\n`;
+        });
+        text += `\n🔗 Take the assessment: https://usmcmin.org/happy-husband.html\n`;
+        text += `\n[Shared anonymously via USMC Ministries HAPPY Husband Tool]`;
+
+        document.getElementById('shareText').value = text;
+        document.getElementById('share-modal').classList.add('open');
+    }
+
+    function closeShareModal() {
+        document.getElementById('share-modal').classList.remove('open');
+    }
+
+    function copyShareText() {
+        const ta = document.getElementById('shareText');
+        ta.select();
+        try {
+            navigator.clipboard.writeText(ta.value).catch(() => document.execCommand('copy'));
+        } catch(e) {
+            document.execCommand('copy');
+        }
+        const btn = event.target;
+        btn.textContent = '✅ Copied!';
+        setTimeout(() => btn.textContent = '📋 Copy to Clipboard', 2000);
+    }
+
+    // ── PRINT ───────────────────────────────────────────────────────────────
+    function printSummary() {
+        window.print();
+    }
+
+    // ── THEME ───────────────────────────────────────────────────────────────
+    function bteToggleTheme() {
+        document.body.classList.toggle('light-mode');
+        const isLight = document.body.classList.contains('light-mode');
+        localStorage.setItem('bteTheme', isLight ? 'light' : 'dark');
+        updateChartColors(isLight);
+    }
+
+    function updateChartColors(isLight) {
+        if (!radarChart) return;
+        const gridColor = isLight ? '#ddd' : '#2a2a2a';
+        const angleColor = isLight ? '#ccc' : '#333';
+        const tickColor = isLight ? '#666' : '#888';
+        radarChart.options.scales.r.grid.color = gridColor;
+        radarChart.options.scales.r.angleLines.color = angleColor;
+        radarChart.options.scales.r.ticks.color = tickColor;
+        radarChart.update();
+    }
+
+    // ── INIT ─────────────────────────────────────────────────────────────────
+    (function init() {
+        // Restore theme
+        if (localStorage.getItem('bteTheme') === 'light') {
+            document.body.classList.add('light-mode');
+        }
+
+        buildSliders();
+        buildQuestions();
+        initChart();
+        updateChart();
+        renderHistory();
+    })();
+    </script>
+</body>
+</html>
