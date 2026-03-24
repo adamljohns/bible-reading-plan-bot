@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg">
+<title>Financial Command Center — Adam Johns</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0d1117; --card: #161b22; --border: #30363d;
+    --gold: #D4AF37; --white: #e6edf3; --gray: #8b949e;
+    --green: #3fb950; --red: #f85149; --blue: #58a6ff;
+    --orange: #e3b341; --purple: #bc8cff;
+  }
+  body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--white); min-height: 100vh; }
+  .nav { display: flex; align-items: center; gap: 14px; padding: 10px 20px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+  .nav-brand { color: var(--gold); font-weight: 700; font-size: 0.9rem; text-decoration: none; }
+  .nav a { color: var(--gray); font-size: 0.8rem; text-decoration: none; padding: 3px 8px; border-radius: 4px; }
+  .nav a:hover { color: var(--gold); }
+  .header { text-align: center; padding: 30px 20px 16px; border-bottom: 2px solid var(--gold); }
+  .header h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--white); margin-bottom: 4px; }
+  .header .sub { color: var(--gold); font-size: 0.9rem; }
+  .updated { text-align: center; font-size: 0.75rem; color: var(--gray); padding: 8px; }
+
+  /* ENTITY TABS */
+  .tab-bar { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; padding: 16px 20px 0; }
+  .tab { padding: 7px 18px; border-radius: 20px; border: 1px solid var(--border); background: none; color: var(--gray); cursor: pointer; font-family: 'Inter', sans-serif; font-size: 0.8rem; font-weight: 500; transition: all 0.2s; }
+  .tab:hover { border-color: var(--gold); color: var(--gold); }
+  .tab.active { background: var(--gold); color: #000; border-color: var(--gold); font-weight: 700; }
+
+  .entity-panel { display: none; max-width: 1000px; margin: 0 auto; padding: 20px; }
+  .entity-panel.active { display: block; }
+
+  /* ENTITY HEADER */
+  .entity-header { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px 20px; margin-bottom: 16px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  .entity-icon { font-size: 2rem; }
+  .entity-name { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: var(--gold); }
+  .entity-desc { font-size: 0.8rem; color: var(--gray); margin-top: 2px; }
+  .entity-stats { display: flex; gap: 12px; margin-left: auto; flex-wrap: wrap; }
+  .estat { text-align: center; }
+  .estat-val { font-size: 1.2rem; font-weight: 700; }
+  .estat-label { font-size: 0.7rem; color: var(--gray); }
+
+  /* ACCOUNTS TABLE */
+  .section-title { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--gray); margin: 16px 0 8px; }
+  .accounts-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px; margin-bottom: 16px; }
+  .account-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; }
+  .account-card.alert { border-color: var(--red); }
+  .account-card.warn { border-color: var(--orange); }
+  .account-card.ok { border-color: #21262d; }
+  .acc-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
+  .acc-name { font-weight: 600; font-size: 0.9rem; color: var(--white); }
+  .acc-type { font-size: 0.7rem; color: var(--gray); margin-top: 1px; }
+  .acc-balance { font-size: 1.1rem; font-weight: 700; color: var(--gold); text-align: right; }
+  .acc-balance.debt { color: var(--red); }
+  .acc-balance.ok { color: var(--green); }
+  .acc-meta { font-size: 0.75rem; color: var(--gray); margin-top: 4px; font-family: 'JetBrains Mono', monospace; }
+  .acc-status { display: flex; align-items: center; gap: 5px; margin-top: 6px; font-size: 0.72rem; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .dot-green { background: var(--green); }
+  .dot-red { background: var(--red); }
+  .dot-orange { background: var(--orange); }
+  .dot-blue { background: var(--blue); }
+  .dot-gray { background: var(--gray); }
+
+  /* CREDENTIALS */
+  .cred-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; margin-bottom: 16px; }
+  .cred-table th { text-align: left; padding: 6px 10px; color: var(--gray); font-weight: 500; border-bottom: 1px solid var(--border); font-size: 0.72rem; text-transform: uppercase; }
+  .cred-table td { padding: 8px 10px; border-bottom: 1px solid #21262d; font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; }
+  .cred-table tr:hover td { background: rgba(255,255,255,0.03); }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 0.68rem; font-weight: 600; font-family: 'Inter', sans-serif; }
+  .badge-ok { background: rgba(63,185,80,0.15); color: var(--green); }
+  .badge-fail { background: rgba(248,81,73,0.15); color: var(--red); }
+  .badge-locked { background: rgba(227,179,65,0.15); color: var(--orange); }
+  .badge-unknown { background: rgba(139,148,158,0.15); color: var(--gray); }
+  .badge-stale { background: rgba(248,81,73,0.1); color: var(--orange); }
+
+  /* SOCIAL MEDIA */
+  .social-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; margin-bottom: 16px; }
+  .social-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 12px; display: flex; align-items: center; gap: 10px; }
+  .social-icon { font-size: 1.5rem; flex-shrink: 0; }
+  .social-name { font-weight: 600; font-size: 0.85rem; }
+  .social-handle { font-size: 0.75rem; color: var(--gray); margin-top: 1px; }
+
+  /* LINKAGE MAP */
+  .linkage-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 14px; margin-bottom: 10px; }
+  .linkage-title { font-weight: 600; font-size: 0.9rem; color: var(--gold); margin-bottom: 8px; }
+  .linkage-row { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; padding: 3px 0; }
+  .link-from { color: var(--white); font-weight: 500; min-width: 160px; }
+  .link-arrow { color: var(--gold); }
+  .link-to { color: var(--gray); }
+
+  /* ALERTS */
+  .alert-box { background: rgba(248,81,73,0.08); border: 1px solid rgba(248,81,73,0.3); border-radius: 8px; padding: 12px 14px; margin-bottom: 10px; font-size: 0.82rem; }
+  .alert-box .alert-title { color: var(--red); font-weight: 600; margin-bottom: 4px; }
+  .warn-box { background: rgba(227,179,65,0.08); border: 1px solid rgba(227,179,65,0.3); border-radius: 8px; padding: 12px 14px; margin-bottom: 10px; font-size: 0.82rem; }
+  .warn-box .warn-title { color: var(--orange); font-weight: 600; margin-bottom: 4px; }
+
+  @media (max-width: 640px) { .accounts-grid { grid-template-columns: 1fr; } .entity-stats { margin-left: 0; } }
+  @media print { body { background: #fff; color: #000; } .tab-bar { display: none; } .entity-panel { display: block !important; } }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="index.html" class="nav-brand">⚓ USMC Min</a>
+  <a href="wheelhouse.html">🎯 Wheelhouse</a>
+  <a href="timeline.html">📋 Mission Log</a>
+  <a href="financial-command.html" style="color:var(--gold)">💰 Financial Command</a>
+</nav>
+
+<div class="header">
+  <h1>💰 Financial Command Center</h1>
+  <p class="sub">All entities · All accounts · All access status</p>
+</div>
+<div class="updated">Last updated: March 24, 2026 · MbPro live pull from NFCU + Wells Fargo</div>
+
+<div class="tab-bar">
+  <button class="tab active" onclick="showEntity('overview')">📊 Overview</button>
+  <button class="tab" onclick="showEntity('personal')">👤 Personal</button>
+  <button class="tab" onclick="showEntity('maria')">💑 Maria</button>
+  <button class="tab" onclick="showEntity('ba')">🏠 Bow & Arrow</button>
+  <button class="tab" onclick="showEntity('usmc')">🙏 USMC Min</button>
+  <button class="tab" onclick="showEntity('c5isr')">₿ C5iSR</button>
+  <button class="tab" onclick="showEntity('social')">📱 Social Media</button>
+  <button class="tab" onclick="showEntity('linkage')">🔗 Linkages</button>
+</div>
+
+<!-- OVERVIEW -->
+<div class="entity-panel active" id="panel-overview">
+  <div class="section-title">⚠️ Action Required</div>
+  <div class="alert-box"><div class="alert-title">🔴 Citibank — LOCKED OUT</div>Multiple failed login attempts. Password reset needed at citi.com. Balance: ~$17,064 (largest debt). Use "Forgot Password" flow.</div>
+  <div class="alert-box"><div class="alert-title">🔴 Citibank — Password unknown</div>Notes say: UN: adamljohns78 / PW: ILoveJesus247! — but this failed. May have changed.</div>
+  <div class="warn-box"><div class="warn-title">🟡 SoFi — Password stale</div>1Password has wrong password. Notes: UN: C5iSR97LLC@Gmail.com / PW: Maria&Shiloh2021. Update 1Password and verify login.</div>
+  <div class="warn-box"><div class="warn-title">🟡 USAA — Password stale</div>Notes: UN: adamljohns78 or adamljohns78* / PW: JesusLovesMe247! (personal) · Gideon&Boaz2017 (USAA card)</div>
+  <div class="warn-box"><div class="warn-title">🟡 WF Active Cash Visa — $156.00 balance</div>Check due date and pay to avoid interest.</div>
+  <div class="warn-box"><div class="warn-title">🟡 Wells Fargo Tax Deals expiring</div>H&R Block $6 cash back (4/15/26) · TurboTax $20 cash back (4/18/26) — activate before doing taxes!</div>
+
+  <div class="section-title">📊 Live Balances (Mar 24, 2026)</div>
+  <div class="accounts-grid">
+    <div class="account-card ok"><div class="acc-top"><div><div class="acc-name">NFCU Total</div><div class="acc-type">Navy Federal CU</div></div><div class="acc-balance ok">$3,303.46</div></div><div class="acc-meta">Checking + Savings combined</div><div class="acc-status"><div class="dot dot-green"></div><span style="color:var(--green)">✅ Live pull today</span></div></div>
+    <div class="account-card ok"><div class="acc-top"><div><div class="acc-name">WF Everyday Checking</div><div class="acc-type">Wells Fargo</div></div><div class="acc-balance ok">$400.60</div></div><div class="acc-meta">...3271</div><div class="acc-status"><div class="dot dot-green"></div><span style="color:var(--green)">✅ Live pull today</span></div></div>
+    <div class="account-card alert"><div class="acc-top"><div><div class="acc-name">Citibank Mastercard</div><div class="acc-type">Credit Card — LARGEST DEBT</div></div><div class="acc-balance debt">~$17,064</div></div><div class="acc-meta">Balance as of last statement</div><div class="acc-status"><div class="dot dot-red"></div><span style="color:var(--red)">❌ Locked out — password reset needed</span></div></div>
+    <div class="account-card warn"><div class="acc-top"><div><div class="acc-name">WF Active Cash Visa</div><div class="acc-type">Wells Fargo CC</div></div><div class="acc-balance debt">$156.00</div></div><div class="acc-meta">...3554</div><div class="acc-status"><div class="dot dot-orange"></div><span style="color:var(--orange)">⚠️ Pay before due date</span></div></div>
+    <div class="account-card ok"><div class="acc-top"><div><div class="acc-name">NFCU MC Platinum</div><div class="acc-type">Credit Card</div></div><div class="acc-balance debt">$75.00</div></div><div class="acc-meta">Due 04/17/2026 · Min $20</div><div class="acc-status"><div class="dot dot-green"></div><span style="color:var(--green)">✅ Not urgent</span></div></div>
+    <div class="account-card ok"><div class="acc-top"><div><div class="acc-name">NFCU Visa CashRewards</div><div class="acc-type">Credit Card</div></div><div class="acc-balance debt">$63.27</div></div><div class="acc-meta">Due 04/08/2026 · Min $20</div><div class="acc-status"><div class="dot dot-green"></div><span style="color:var(--green)">✅ Not urgent</span></div></div>
+    <div class="account-card ok"><div class="acc-top"><div><div class="acc-name">NFCU Auto Loan</div><div class="acc-type">Used Vehicle Loan</div></div><div class="acc-balance ok">$0</div></div><div class="acc-meta">FINAL PAYMENT RECEIVED ✅</div><div class="acc-status"><div class="dot dot-green"></div><span style="color:var(--green)">✅ Paid off</span></div></div>
+  </div>
+</div>
+
+<!-- PERSONAL -->
+<div class="entity-panel" id="panel-personal">
+  <div class="entity-header">
+    <div class="entity-icon">👤</div>
+    <div><div class="entity-name">Adam Johns — Personal</div><div class="entity-desc">adamljohns@icloud.com · adam.l.johns@gmail.com · adamljohns78@yahoo.com</div></div>
+  </div>
+
+  <div class="section-title">Banking Accounts</div>
+  <table class="cred-table">
+    <tr><th>Institution</th><th>Account Type</th><th>Username</th><th>Password</th><th>Status</th><th>Notes</th></tr>
+    <tr><td>Navy Federal CU</td><td>Checking 9708 + Savings + CC</td><td>3117157</td><td>Jesus777</td><td><span class="badge badge-ok">✅ LIVE</span></td><td>Primary account. $1,528 checking · $251 savings</td></tr>
+    <tr><td>Wells Fargo</td><td>Checking + Active Cash Visa</td><td>Adamljohns78</td><td>Maria&Shiloh2021</td><td><span class="badge badge-ok">✅ LIVE</span></td><td>$400 checking · $156 CC</td></tr>
+    <tr><td>Citibank</td><td>Mastercard CC + Bank</td><td>adamljohns78</td><td>ILoveJesus247!</td><td><span class="badge badge-locked">🔒 LOCKED</span></td><td>~$17,064 balance. Reset at citi.com</td></tr>
+    <tr><td>SoFi</td><td>Bank (loan closed)</td><td>C5iSR97LLC@Gmail.com</td><td>Maria&Shiloh2021</td><td><span class="badge badge-stale">⚠️ STALE</span></td><td>Did a loan, closed out. May add CC</td></tr>
+    <tr><td>USAA</td><td>Banking + Card</td><td>JohnsAL777</td><td>JesusLovesMe247!</td><td><span class="badge badge-stale">⚠️ STALE</span></td><td>1Password flagged stale. USAA card: Gideon&Boaz2017</td></tr>
+    <tr><td>Chase Personal</td><td>Checking + Savings + Freedom CC</td><td>adamljohns78</td><td>See notes</td><td><span class="badge badge-unknown">❓ UNTESTED</span></td><td>Chase Freedom Unlimited CC</td></tr>
+    <tr><td>Langley FCU</td><td>Credit Union</td><td>AdamLJohns78</td><td>JesusLovesMe247!</td><td><span class="badge badge-unknown">❓ UNTESTED</span></td><td>Notes confirmed</td></tr>
+    <tr><td>Discover</td><td>Bank + Credit Card</td><td>adamljohns78*</td><td>JesusLovesMe247!</td><td><span class="badge badge-unknown">❓ UNTESTED</span></td><td>May add card for Maria</td></tr>
+    <tr><td>Capital One</td><td>Bank + Card</td><td>TBD</td><td>TBD</td><td><span class="badge badge-unknown">❓ MISSING</span></td><td>UN/PW not in notes</td></tr>
+    <tr><td>T-Mobile Money</td><td>Bank</td><td>adamljohns@icloud.com</td><td>Maria&Shiloh2021</td><td><span class="badge badge-unknown">❓ UNTESTED</span></td><td>CDC Samsung phone login</td></tr>
+    <tr><td>Ford Visa (FNB Omaha)</td><td>Credit Card</td><td>adamljohns78</td><td>Maria&Shiloh2021</td><td><span class="badge badge-unknown">❓ UNTESTED</span></td><td></td></tr>
+    <tr><td>PNC Personal</td><td>Bank</td><td>TBD</td><td>TBD</td><td><span class="badge badge-unknown">❓ MISSING</span></td><td>Routing: 054000030 · Acct: 5400422117/2125/2133</td></tr>
+    <tr><td>Freedom Mortgage</td><td>Mortgage — 501 Caroline St</td><td>adamljohns@icloud.com</td><td>See 1Password</td><td><span class="badge badge-ok">✅ IN 1PW</span></td><td>$1,562.82/mo</td></tr>
+    <tr><td>PayPal Personal</td><td>Payment</td><td>TBD</td><td>TBD</td><td><span class="badge badge-unknown">❓ MISSING</span></td><td>UN/PW not confirmed</td></tr>
+    <tr><td>Venmo</td><td>Payment</td><td>TBD</td><td>TBD</td><td><span class="badge badge-unknown">❓ MISSING</span></td><td></td></tr>
+  </table>
+</div>
+
+<!-- MARIA -->
+<div class="entity-panel" id="panel-maria">
+  <div class="entity-header">
+    <div class="entity-icon">💑</div>
+    <div><div class="entity-name">Maria Johns — Personal</div><div class="entity-desc">mariajohns@me.com · Maria's Photography business accounts</div></div>
+  </div>
+  <div class="section-title">Maria's Accounts</div>
+  <table class="cred-table">
+    <tr><th>Institution</th><th>Account Type</th><th>Username</th><th>Password</th><th>Status</th><th>Notes</th></tr>
+    <tr><td>Capital One</td><td>Biz CC (Maria & B&A)</td><td>mariaejohns</td><td>Shiloh113!</td><td><span class="badge badge-unknown">❓ UNTESTED</span></td><td>Saved on Z-flip + Chrome. Opened bank acct too.</td></tr>
+    <tr><td>Wells Fargo CC (Maria)</td><td>Credit Card</td><td>TBD</td><td>TBD</td><td><span class="badge badge-unknown">❓ MISSING</span></td><td>Card number needed</td></tr>
+    <tr><td>Shopify</td><td>E-commerce</td><td>mariajohns@me.com</td><td>See 1Password</td><td><span class="badge badge-ok">✅ IN 1PW</span></td><td>Photography/business</td></tr>
+    <tr><td>Printful</td><td>Print-on-demand</td><td>mariajohns@me.com</td><td>See 1Password</td><td><span class="badge badge-ok">✅ IN 1PW</span></td><td></td></tr>
+    <tr><td>Adobe CC</td><td>Subscription</td><td>mariajohns@me.com</td><td>See 1Password</td><td><span class="badge badge-ok">✅ IN 1PW</span></td><td>Photoshop + Lightroom for photography</td></tr>
+  </table>
+</div>
+
+<!-- BOW & ARROW -->
+<div class="entity-panel" id="panel-ba">
+  <div class="entity-header">
+    <div class="entity-icon">🏠</div>
+    <div><div class="entity-name">Bow & Arrow Studios LLC</div><div class="entity-desc">bowandarrowstudiollc@gmail.com · EIN: 87-2937218</div></div>
+    <div class="entity-stats">
+      <div class="estat"><div class="estat-val" style="color:var(--green)">$98,706</div><div class="estat-label">2024 Gross</div></div>
+      <div class="estat"><div class="estat-val">5</div><div class="estat-label">Active Listings</div></div>
+      <div class="estat"><div class="estat-val" style="color:var(--gold)">5.0⭐</div><div class="estat-label">Rating</div></div>
+    </div>
+  </div>
+  <div class="section-title">B&A Financial Accounts</div>
+  <table class="cred-table">
+    <tr><th>Institution</th><th>Account Type</th><th>Username</th><th>Password</th><th>Status</th><th>Notes</th></tr>
+    <tr><td>M&T Bank</td><td>Business Checking</td><td>BowAndArrowStudioLLC</td><td>See 1Password</td><td><span class="badge badge-ok">✅ IN 1PW</span></td><td>Routing: 052000113 · Acct: 9886636233</td></tr>
+    <tr><td>PNC Business</td><td>Business Bank</td><td>BowAndArrowStudio</td><td>See 1Password</td><td><span class="badge badge-ok">✅ IN 1PW</span></td><td>Routing: 054000030 · Acct: 5535694005</td></tr>
+    <tr><td>Chase (B&A)</td><td>Business CC</td><td>Usmcministries2022</td><td>See 1Password</td><td><span class="badge badge-ok">✅ IN 1PW</span></td><td></td></tr>
+    <tr><td>Capital One (B&A)</td><td>Business CC</td><td>mariaejohns</td><td>Shiloh113!</td><td><span class="badge badge-unknown">❓ UNTESTED</span></td><td>Shared with Maria</td></tr>
+    <tr><td>USAA (B&A)</td><td>Banking</td><td>adamljohns78*</td><td>JesusLovesMe247!</td><td><span class="badge badge-unknown">❓ UNTESTED</span></td><td></td></tr>
+    <tr><td>Citibank (B&A)</td><td>CC</td><td>adamljohns@icloud.co</td><td>TBD</td><td><span class="badge badge-unknown">❓ UNTESTED</span></td><td></td></tr>
+    <tr><td>Freedom Mortgage (B&A)</td><td>Property mortgage</td><td>adamljohns@icloud.com</td><td>See 1Password</td><td><span class="badge badge-ok">✅ IN 1PW</span></td><td></td></tr>
+    <tr><td>PayPal Business</td><td>Payment</td><td>TBD</td><td>TBD</td><td><span class="badge badge-unknown">❓ MISSING</span></td><td></td></tr>
+    <tr><td>Airbnb</td><td>Host account</td><td>bowandarrowstudiollc@gmail.com</td><td>Shiloh113!</td><td><span class="badge badge-ok">✅ CONFIRMED</span></td><td>Primary revenue source</td></tr>
+  </table>
+</div>
+
+<!-- USMC MINISTRIES -->
+<div class="entity-panel" id="panel-usmc">
+  <div class="entity-header">
+    <div class="entity-icon">🙏</div>
+    <div><div class="entity-name">USMC Ministries</div><div class="entity-desc">usmcministries2022@gmail.com</div></div>
+  </div>
+  <div class="section-title">USMC Ministry Accounts</div>
+  <table class="cred-table">
+    <tr><th>Institution</th><th>Account Type</th><th>Username</th><th>Password</th><th>Status</th><th>Notes</th></tr>
+    <tr><td>Chase Ink (primary)</td><td>Business CC — main card</td><td>Usmcministries2022</td><td>See 1Password</td><td><span class="badge badge-ok">✅ IN 1PW</span></td><td>Card 6940 · Most ministry expenses here</td></tr>
+    <tr><td>Truist (USMC)</td><td>Ministry bank</td><td>Uniting Serving Ment</td><td>See 1Password</td><td><span class="badge badge-ok">✅ IN 1PW</span></td><td></td></tr>
+    <tr><td>PayPal USMC</td><td>Donations payment</td><td>TBD</td><td>TBD</td><td><span class="badge badge-unknown">❓ MISSING</span></td><td>For ministry donations</td></tr>
+    <tr><td>Namecheap</td><td>Domain registrar</td><td>USMCMinistries</td><td>JesusLovesMe247!</td><td><span class="badge badge-ok">✅ CONFIRMED</span></td><td>usmcmin.com · usmcmin.org</td></tr>
+  </table>
+</div>
+
+<!-- C5iSR -->
+<div class="entity-panel" id="panel-c5isr">
+  <div class="entity-header">
+    <div class="entity-icon">₿</div>
+    <div><div class="entity-name">C5iSR LLC</div><div class="entity-desc">C5iSR97LLC@Gmail.com · EIN: 92-3564161</div></div>
+  </div>
+  <div class="section-title">C5iSR Accounts</div>
+  <table class="cred-table">
+    <tr><th>Institution</th><th>Account Type</th><th>Username</th><th>Password</th><th>Status</th><th>Notes</th></tr>
+    <tr><td>US Bank</td><td>Business Checking</td><td>c5isrLLC</td><td>ILoveJesus247!</td><td><span class="badge badge-unknown">❓ UNTESTED</span></td><td>C5iSR primary bank</td></tr>
+    <tr><td>US Bank CC</td><td>Business Credit Card</td><td>c5isrLLC</td><td>ILoveJesus247!</td><td><span class="badge badge-unknown">❓ UNTESTED</span></td><td>Business expenses</td></tr>
+    <tr><td>SoFi</td><td>Bank/Loan</td><td>C5iSR97LLC@Gmail.com</td><td>Maria&Shiloh2021</td><td><span class="badge badge-stale">⚠️ STALE</span></td><td>Did a loan, closed. May add CC</td></tr>
+    <tr><td>Truist (C5iSR)</td><td>Business bank</td><td>USMCMinistry</td><td>See 1Password</td><td><span class="badge badge-ok">✅ IN 1PW</span></td><td></td></tr>
+    <tr><td>Anthropic (Claude)</td><td>AI subscription</td><td>adam.l.johns@gmail.com</td><td>OAuth</td><td><span class="badge badge-ok">✅ ACTIVE</span></td><td>20X MAX plan · $125/mo</td></tr>
+    <tr><td>OpenAI</td><td>API</td><td>adam.l.johns@gmail.com</td><td>Google OAuth</td><td><span class="badge badge-ok">✅ ACTIVE</span></td><td>~$45/mo</td></tr>
+    <tr><td>ElevenLabs</td><td>TTS subscription</td><td>TBD</td><td>TBD</td><td><span class="badge badge-unknown">❓ UNTESTED</span></td><td>Bible readings TTS</td></tr>
+  </table>
+  <div class="section-title">Routing & Account Numbers</div>
+  <div class="accounts-grid">
+    <div class="account-card"><div class="acc-name">PNC Biz Bank</div><div class="acc-meta">Routing: 054000030<br>Account: 5535694005</div></div>
+    <div class="account-card"><div class="acc-name">PNC Personal</div><div class="acc-meta">Routing: 054000030<br>Account: 5400422117 / 2125/2133</div></div>
+    <div class="account-card"><div class="acc-name">M&T Biz Bank</div><div class="acc-meta">Routing: 052000113<br>Account: 9886636233</div></div>
+    <div class="account-card"><div class="acc-name">NFCU</div><div class="acc-meta">Routing: 256074974<br>Member: 3117157</div></div>
+  </div>
+</div>
+
+<!-- SOCIAL MEDIA -->
+<div class="entity-panel" id="panel-social">
+  <div class="entity-header"><div class="entity-icon">📱</div><div><div class="entity-name">Social Media Accounts</div><div class="entity-desc">All entities combined</div></div></div>
+
+  <div class="section-title">Adam Johns (Personal / Ministry)</div>
+  <table class="cred-table">
+    <tr><th>Platform</th><th>Handle / Email</th><th>Login Method</th><th>Status</th><th>Entity</th></tr>
+    <tr><td>𝕏 Twitter</td><td>@adamljohns</td><td>Google OAuth (adam.l.johns@gmail.com)</td><td><span class="badge badge-stale">⚠️ xurl not authed</span></td><td>Personal / C5iSR</td></tr>
+    <tr><td>Facebook</td><td>Adam Johns</td><td>Email</td><td><span class="badge badge-ok">✅ Active</span></td><td>Personal</td></tr>
+    <tr><td>Instagram</td><td>@andarrowbow</td><td>Email</td><td><span class="badge badge-ok">✅ Active</span></td><td>B&A</td></tr>
+    <tr><td>Telegram (personal)</td><td>ID: 454000856</td><td>Phone: 832-721-4228</td><td><span class="badge badge-ok">✅ Active</span></td><td>Personal</td></tr>
+    <tr><td>Telegram C5iSR</td><td>@C5iSR channel</td><td>Same account</td><td><span class="badge badge-ok">✅ Active · daily posts</span></td><td>C5iSR</td></tr>
+    <tr><td>LinkedIn</td><td>Adam Johns</td><td>Email</td><td><span class="badge badge-unknown">❓ Not connected to MbPro</span></td><td>Personal / Ministry</td></tr>
+    <tr><td>YouTube</td><td>USMC Ministries</td><td>Google (usmcministries2022)</td><td><span class="badge badge-unknown">❓ Not connected</span></td><td>USMC Min</td></tr>
+  </table>
+
+  <div class="section-title">Bot Accounts (MbPro controlled)</div>
+  <div class="social-grid">
+    <div class="social-card"><div class="social-icon">🤖</div><div><div class="social-name">@MiniMOOP_TGBot</div><div class="social-handle">Telegram · Discord MOOPbotPro#8784</div></div></div>
+  </div>
+
+  <div class="section-title">Phones</div>
+  <table class="cred-table">
+    <tr><th>Number</th><th>Entity</th><th>Platform</th><th>Status</th></tr>
+    <tr><td>(832) 721-4228</td><td>Personal</td><td>Primary iPhone</td><td><span class="badge badge-ok">✅ iMessage confirmed</span></td></tr>
+    <tr><td>(540) 684-7107</td><td>USMC Ministries</td><td>Ministry phone</td><td><span class="badge badge-ok">✅ SMS confirmed</span></td></tr>
+    <tr><td>(540) 681-7155</td><td>Bow & Arrow</td><td>B&A work phone</td><td><span class="badge badge-ok">✅ SMS confirmed</span></td></tr>
+    <tr><td>(202) 439-6333</td><td>C5iSR</td><td>Crypto phone</td><td><span class="badge badge-ok">✅ SMS confirmed</span></td></tr>
+  </table>
+</div>
+
+<!-- LINKAGES -->
+<div class="entity-panel" id="panel-linkage">
+  <div class="entity-header"><div class="entity-icon">🔗</div><div><div class="entity-name">Account Interlinkages</div><div class="entity-desc">How entities connect to each other</div></div></div>
+
+  <div class="section-title">Email → Entity Map</div>
+  <div class="linkage-card">
+    <div class="linkage-title">Email Routing</div>
+    <div class="linkage-row"><div class="link-from">adam.l.johns@gmail.com</div><div class="link-arrow">→</div><div class="link-to">Personal primary · OpenAI · Anthropic · Google Drive personal · X login</div></div>
+    <div class="linkage-row"><div class="link-from">adamljohns@icloud.com</div><div class="link-arrow">→</div><div class="link-to">NFCU · Freedom Mortgage · Apple ID · iCloud primary</div></div>
+    <div class="linkage-row"><div class="link-from">adamjohns78@yahoo.com</div><div class="link-arrow">→</div><div class="link-to">Citibank (maybe) · Epoch Times · older accounts</div></div>
+    <div class="linkage-row"><div class="link-from">bowandarrowstudiollc@gmail.com</div><div class="link-arrow">→</div><div class="link-to">Airbnb host · B&A Gmail · B&A Drive · all Airbnb notifications</div></div>
+    <div class="linkage-row"><div class="link-from">usmcministries2022@gmail.com</div><div class="link-arrow">→</div><div class="link-to">USMC Ministry ops · Chase Ink primary · Namecheap</div></div>
+    <div class="linkage-row"><div class="link-from">C5iSR97LLC@Gmail.com</div><div class="link-arrow">→</div><div class="link-to">C5iSR business · SoFi · US Bank C5iSR</div></div>
+    <div class="linkage-row"><div class="link-from">adamjohns@fit20usa.com</div><div class="link-arrow">→</div><div class="link-to">fit20 payroll · studio operations</div></div>
+  </div>
+
+  <div class="linkage-card">
+    <div class="linkage-title">Revenue Flows</div>
+    <div class="linkage-row"><div class="link-from">Airbnb bookings</div><div class="link-arrow">→</div><div class="link-to">B&A Gmail notifications → Airbnb payouts → B&A M&T Bank / PNC</div></div>
+    <div class="linkage-row"><div class="link-from">VA Retirement (DFAS)</div><div class="link-arrow">→</div><div class="link-to">NFCU Checking 9708 (monthly)</div></div>
+    <div class="linkage-row"><div class="link-from">VA Disability</div><div class="link-arrow">→</div><div class="link-to">NFCU Checking 9708 (monthly)</div></div>
+    <div class="linkage-row"><div class="link-from">fit20 payroll</div><div class="link-arrow">→</div><div class="link-to">adamjohns@fit20usa.com → NFCU or WF direct deposit</div></div>
+    <div class="linkage-row"><div class="link-from">Maria photography</div><div class="link-arrow">→</div><div class="link-to">Shopify / PayPal → Maria's accounts</div></div>
+    <div class="linkage-row"><div class="link-from">C5iSR consulting</div><div class="link-arrow">→</div><div class="link-to">US Bank C5iSR checking → personal</div></div>
+  </div>
+
+  <div class="linkage-card">
+    <div class="linkage-title">Expense Flows (Subscriptions)</div>
+    <div class="linkage-row"><div class="link-from">Chase Ink 6940</div><div class="link-arrow">→</div><div class="link-to">Anthropic $125 · OpenAI ~$45 · ElevenLabs · Namecheap $220/yr · Ministry orgs</div></div>
+    <div class="linkage-row"><div class="link-from">M&T Business (3271)</div><div class="link-arrow">→</div><div class="link-to">B&A filing fees · LLC expenses</div></div>
+    <div class="linkage-row"><div class="link-from">NFCU checking</div><div class="link-arrow">→</div><div class="link-to">Freedom Mortgage · Verizon · utilities · groceries</div></div>
+  </div>
+
+  <div class="linkage-card">
+    <div class="linkage-title">MbPro Access Status</div>
+    <div class="linkage-row"><div class="link-from">Gmail (all 4)</div><div class="link-arrow">→</div><div class="link-to" style="color:var(--green)">✅ Read access · ❌ Delete scope needs re-auth</div></div>
+    <div class="linkage-row"><div class="link-from">iCloud email</div><div class="link-arrow">→</div><div class="link-to" style="color:var(--green)">✅ IMAP read</div></div>
+    <div class="linkage-row"><div class="link-from">Yahoo email</div><div class="link-arrow">→</div><div class="link-to" style="color:var(--green)">✅ IMAP read</div></div>
+    <div class="linkage-row"><div class="link-from">1Password vault</div><div class="link-arrow">→</div><div class="link-to" style="color:var(--green)">✅ CLI access when app unlocked</div></div>
+    <div class="linkage-row"><div class="link-from">BlueBubbles iMessage</div><div class="link-arrow">→</div><div class="link-to" style="color:var(--green)">✅ All 4 phones confirmed</div></div>
+    <div class="linkage-row"><div class="link-from">Google Drive</div><div class="link-arrow">→</div><div class="link-to" style="color:var(--green)">✅ B&A + USMC + Personal read/write</div></div>
+    <div class="linkage-row"><div class="link-from">Google Calendar</div><div class="link-arrow">→</div><div class="link-to" style="color:var(--orange)">⚠️ Personal Gmail only · iCloud calendar pending</div></div>
+  </div>
+</div>
+
+<script>
+function showEntity(id) {
+  document.querySelectorAll('.entity-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  event.target.classList.add('active');
+}
+</script>
+</body>
+</html>
