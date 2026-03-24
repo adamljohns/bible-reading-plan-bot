@@ -247,13 +247,13 @@
 
         <h2 class="section-header" id="hebrew-section" style="display:none;">📜 Hebrew (Old Testament)</h2>
         <p class="section-sub" id="hebrew-sub" style="display:none;">1572 words from the Hebrew Scriptures</p>
-        <div class="word-grid" id="hebrew-grid" style="display:none;">
+        <div class="word-grid" id="hebrew-grid">
 <!-- HEBREW_CARDS_START -->
 <!-- HEBREW_CARDS_END -->
 </div>
-        <h2 class="section-header" id="greek-section" style="display:none;">📖 Greek (New Testament)</h2>
-        <p class="section-sub" id="greek-sub" style="display:none;">1487 words from the Greek New Testament</p>
-        <div class="word-grid" id="greek-grid" style="display:none;">
+        <h2 class="section-header" id="greek-section">📖 Greek (New Testament)</h2>
+        <p class="section-sub" id="greek-sub">1487 words from the Greek New Testament</p>
+        <div class="word-grid" id="greek-grid">
 <!-- GREEK_CARDS_START -->
 <!-- GREEK_CARDS_END -->
 </div>
@@ -300,6 +300,75 @@ document.addEventListener('DOMContentLoaded', function() {
     el = document.getElementById('lexStatHebrew'); if (el) el.textContent = hebrew.toLocaleString();
     el = document.getElementById('lexStatGreek'); if (el) el.textContent = greek.toLocaleString();
 });
+</script>
+<script>
+// Scroll to section and show it
+function scrollToSection(lang) {
+    // Show the section header and subtitle
+    var headerEl = document.getElementById(lang + '-section');
+    var subEl = document.getElementById(lang + '-sub');
+    if (headerEl) headerEl.style.display = 'block';
+    if (subEl) subEl.style.display = 'block';
+
+    // Show alphabet bar for this language
+    var hebrewBar = document.getElementById('hebrewAlphaBar');
+    var greekBar = document.getElementById('greekAlphaBar');
+    if (lang === 'hebrew') {
+        if (hebrewBar) hebrewBar.style.display = 'flex';
+    } else {
+        if (greekBar) greekBar.style.display = 'flex';
+    }
+
+    // Show all word cards for this language, hide others
+    var cards = document.querySelectorAll('.word-card');
+    cards.forEach(function(card) {
+        var strongs = card.querySelector('.wc-strongs');
+        if (!strongs) return;
+        var isHebrew = strongs.textContent.startsWith('H');
+        var isGreek = strongs.textContent.startsWith('G');
+        if (lang === 'hebrew') {
+            card.style.display = isHebrew ? '' : 'none';
+        } else if (lang === 'greek') {
+            card.style.display = isGreek ? '' : 'none';
+        }
+    });
+
+    // Scroll to the section
+    if (headerEl) headerEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    // Update toggle button states
+    var btns = document.querySelectorAll('.lex-toggle-btn');
+    btns.forEach(function(b) { b.classList.remove('active'); });
+    event.target.closest('.lex-toggle-btn').classList.add('active');
+}
+
+// Filter/search words
+function filterWords() {
+    var query = document.getElementById('lexSearch').value.toLowerCase().trim();
+    var cards = document.querySelectorAll('.word-card');
+    var shown = 0;
+    cards.forEach(function(card) {
+        var searchData = card.getAttribute('data-search') || '';
+        if (!query || searchData.includes(query)) {
+            card.style.display = '';
+            shown++;
+        } else {
+            card.style.display = 'none';
+        }
+    });
+    var statusEl = document.getElementById('filterStatus');
+    var countEl = document.getElementById('filterCount');
+    var totalEl = document.getElementById('filterTotal');
+    if (query) {
+        if (statusEl) statusEl.style.display = 'block';
+        if (countEl) countEl.textContent = shown;
+        if (totalEl) totalEl.textContent = cards.length;
+    } else {
+        if (statusEl) statusEl.style.display = 'none';
+        // Reset all cards to visible
+        cards.forEach(function(c) { c.style.display = ''; });
+    }
+}
 </script>
 </body>
 </html>
