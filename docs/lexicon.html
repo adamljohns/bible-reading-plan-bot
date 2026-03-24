@@ -3429,7 +3429,6 @@ function scrollToSection(lang, btn) {
 
     // Determine if clicking same language again (toggle off)
     if (lexCurrentLang === lang) {
-        // Hide everything
         if (hebrewHeader) hebrewHeader.style.display = 'none';
         if (hebrewSub)    hebrewSub.style.display = 'none';
         if (greekHeader)  greekHeader.style.display = 'none';
@@ -3444,17 +3443,13 @@ function scrollToSection(lang, btn) {
 
     lexCurrentLang = lang;
 
-    // Hide BOTH alphabet bars first, then show only the active one
     if (hebrewBar) hebrewBar.style.display = 'none';
     if (greekBar)  greekBar.style.display = 'none';
-
-    // Hide BOTH section headers/subs first
     if (hebrewHeader) hebrewHeader.style.display = 'none';
     if (hebrewSub)    hebrewSub.style.display = 'none';
     if (greekHeader)  greekHeader.style.display = 'none';
     if (greekSub)     greekSub.style.display = 'none';
 
-    // Show only the active language's header, sub, and bar
     if (lang === 'hebrew') {
         if (hebrewHeader) hebrewHeader.style.display = 'block';
         if (hebrewSub)    hebrewSub.style.display = 'block';
@@ -3465,7 +3460,6 @@ function scrollToSection(lang, btn) {
         if (greekBar)    greekBar.style.display = 'flex';
     }
 
-    // Reset alphabet bar active state — "All" is active by default
     var barId = lang === 'hebrew' ? 'hebrewAlphaBar' : 'greekAlphaBar';
     var bar = document.getElementById(barId);
     if (bar) {
@@ -3474,7 +3468,6 @@ function scrollToSection(lang, btn) {
         if (allBtn) allBtn.classList.add('active');
     }
 
-    // Show all cards for this language, hide the other language
     var prefix = lang === 'hebrew' ? 'H' : 'G';
     document.querySelectorAll('.word-card').forEach(function(card) {
         var strongs = card.querySelector('.wc-strongs');
@@ -3486,24 +3479,16 @@ function scrollToSection(lang, btn) {
         }
     });
 
-    // Update toggle button active states
     document.querySelectorAll('.lex-toggle-btn').forEach(function(b) { b.classList.remove('active'); });
-    // Find the clicked button — try passed btn param first, fallback to event
     var activeBtn = btn || (event && event.target && event.target.closest('.lex-toggle-btn'));
     if (activeBtn) activeBtn.classList.add('active');
 
-    // Scroll to the section header
     var headerEl = document.getElementById(lang + '-section');
     if (headerEl) headerEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-// Filter by alphabet letter within the active language
-// Data attribute `data-letter` on each .alpha-btn maps to letter names
-// Each word card has data-search which includes the transliteration
-// Hebrew: data-letter maps to first letter of transliteration
-// We map Hebrew letter names to the starting transliteration characters
 var HEBREW_LETTER_MAP = {
-    aleph:  ['a','ʾ','ʻ','e','i','o','u'],  // aleph words often start with vowels or ʾ
+    aleph:  ['a','ʾ','ʻ','e','i','o','u'],
     bet:    ['b'],
     gimel:  ['g'],
     dalet:  ['d'],
@@ -3511,7 +3496,7 @@ var HEBREW_LETTER_MAP = {
     vav:    ['v','w'],
     zayin:  ['z'],
     chet:   ['ch','ḥ','kh'],
-    tet:    ['t'],  // handled below with shin exclusion
+    tet:    ['t'],
     yod:    ['y'],
     kaf:    ['k'],
     lamed:  ['l'],
@@ -3527,7 +3512,6 @@ var HEBREW_LETTER_MAP = {
     tav:    ['t']
 };
 
-// Greek: straightforward first-letter match
 var GREEK_LETTER_MAP = {
     alpha:   ['a'],
     beta:    ['b'],
@@ -3557,7 +3541,6 @@ var GREEK_LETTER_MAP = {
 
 function filterByLetter(lang, letter) {
     if (!lexCurrentLang || lexCurrentLang !== lang) {
-        // Auto-activate this language first
         scrollToSection(lang);
     }
 
@@ -3565,7 +3548,6 @@ function filterByLetter(lang, letter) {
     var barId  = lang === 'hebrew' ? 'hebrewAlphaBar' : 'greekAlphaBar';
     var bar    = document.getElementById(barId);
 
-    // Update alphabet bar active state
     if (bar) {
         bar.querySelectorAll('.alpha-btn, .alpha-btn-all').forEach(function(b) { b.classList.remove('active'); });
         if (letter === 'all') {
@@ -3577,40 +3559,32 @@ function filterByLetter(lang, letter) {
         }
     }
 
-    // Show/hide cards
     document.querySelectorAll('.word-card').forEach(function(card) {
         var strongs = card.querySelector('.wc-strongs');
         if (!strongs) { card.classList.remove('visible'); return; }
         var strongsText = strongs.textContent.trim();
 
-        // Must belong to this language
         if (!strongsText.startsWith(prefix)) {
             card.classList.remove('visible');
             return;
         }
 
-        // "All" — show everything for this language
         if (letter === 'all') {
             card.classList.add('visible');
             return;
         }
 
-        // Match by transliteration prefix
         var translit = card.querySelector('.wc-translit');
-        var searchData = (card.getAttribute('data-search') || '').toLowerCase();
         var translitText = translit ? translit.textContent.trim().toLowerCase() : '';
-
-        var matches = false;
         var map = lang === 'hebrew' ? HEBREW_LETTER_MAP : GREEK_LETTER_MAP;
         var prefixes = map[letter] || [];
-
+        var matches = false;
         for (var i = 0; i < prefixes.length; i++) {
             if (translitText.startsWith(prefixes[i])) {
                 matches = true;
                 break;
             }
         }
-
         if (matches) {
             card.classList.add('visible');
         } else {
@@ -3619,11 +3593,13 @@ function filterByLetter(lang, letter) {
     });
 }
 
-// Filter/search words
 function filterWords() {
     var query = document.getElementById('lexSearch').value.toLowerCase().trim();
     var cards = document.querySelectorAll('.word-card');
     var shown = 0;
+    var statusEl = document.getElementById('filterStatus');
+    var countEl = document.getElementById('filterCount');
+    var totalEl = document.getElementById('filterTotal');
     if (query) {
         cards.forEach(function(card) {
             var searchData = card.getAttribute('data-search') || '';
@@ -3634,18 +3610,12 @@ function filterWords() {
                 card.classList.remove('visible');
             }
         });
-        var statusEl = document.getElementById('filterStatus');
-        var countEl = document.getElementById('filterCount');
-        var totalEl = document.getElementById('filterTotal');
         if (statusEl) statusEl.style.display = 'block';
         if (countEl) countEl.textContent = shown;
         if (totalEl) totalEl.textContent = cards.length;
     } else {
-        // Search cleared — restore based on active language filter
-        var statusEl = document.getElementById('filterStatus');
         if (statusEl) statusEl.style.display = 'none';
         if (lexCurrentLang) {
-            // Restore to current language's "all" state
             var prefix = lexCurrentLang === 'hebrew' ? 'H' : 'G';
             cards.forEach(function(card) {
                 var strongs = card.querySelector('.wc-strongs');
