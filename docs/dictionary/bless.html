@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bless &mdash; The MOOP Dictionary</title>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        :root { --bg:#000; --card:#111; --gold:#D4AF37; --gold-light:#F4D470; --white:#FFF; --gray:#888; --border:#333; }
+        body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--white); min-height:100vh; line-height:1.7; }
+        h1,h2,h3,h4 { font-family:'Playfair Display',serif; }
+        nav { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:4px 8px; padding:10px 16px; border-bottom:1px solid var(--border); position:sticky; top:0; background:rgba(0,0,0,0.95); backdrop-filter:blur(8px); z-index:100; }
+        nav a { color:var(--gray); text-decoration:none; font-size:0.8rem; display:inline-flex; align-items:center; gap:3px; padding:3px 6px; border-radius:6px; transition:color 0.2s; }
+        nav a:hover, nav a.active { color:var(--gold); }
+        .site-icon { vertical-align:middle; opacity:0.8; }
+        .theme-toggle { background:none; border:1px solid var(--border); border-radius:50%; width:28px; height:28px; cursor:pointer; font-size:0.85rem; padding:0; color:var(--white); display:inline-flex; align-items:center; justify-content:center; }
+        .container { max-width:820px; margin:0 auto; padding:28px 20px 60px; }
+        .word-header { text-align:center; padding:40px 0 30px; border-bottom:1px solid var(--border); margin-bottom:30px; }
+        .word-title { font-size:2.8rem; color:var(--gold-light); margin-bottom:6px; }
+        .pronunciation { color:var(--gray); font-size:1.1rem; font-style:italic; }
+        .pos { display:inline-block; background:var(--gold); color:#000; font-weight:700; font-size:0.78rem; padding:3px 14px; border-radius:15px; margin:10px 0; }
+        .etymology { color:var(--white); font-size:0.88rem; margin:12px auto; max-width:650px; }
+        .section { margin:18px 0; padding:18px 22px; background:var(--card); border:1px solid var(--border); border-radius:10px; }
+        .section > h3 { color:var(--gold); margin-bottom:12px; font-size:1.05rem; }
+        .section p { margin:7px 0; color:var(--white); }
+        .biblical-def { border-left:3px solid var(--gold); padding-left:15px; }
+        .dict-toggle { cursor:pointer; color:var(--gold); font-size:0.92rem; user-select:none; display:inline-flex; align-items:center; background:none; border:none; padding:0; font-family:inherit; font-weight:600; }
+        .dict-toggle .arrow { display:inline-block; transition:transform 0.2s; margin-right:8px; font-size:0.75rem; }
+        .dict-toggle .arrow.open { transform:rotate(90deg); }
+        .dict-section { display:none; margin:10px 0 4px 0; padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .dict-section.open { display:block; }
+        .dict-section p { margin:6px 0; font-size:0.95rem; color:var(--white); }
+        .corruption { border-left:3px solid #CC0000; padding-left:15px; }
+        .verse-ref { color:var(--gold); text-decoration:none; font-weight:600; }
+        .related { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+        .related a { background:var(--card); border:1px solid var(--border); padding:6px 14px; border-radius:20px; color:var(--white); text-decoration:none; font-size:0.85rem; transition:border-color 0.2s, color 0.2s; }
+        .related a:hover { border-color:var(--gold); color:var(--gold); }
+        footer { text-align:center; padding:28px 20px; border-top:1px solid var(--border); margin-top:40px; color:var(--gray); font-size:0.88rem; }
+        footer a { color:var(--gray); text-decoration:none; }
+        body.light-mode { --bg:#F5F3EF; --card:#FFF; --white:#1a1a1a; --gray:#666; --border:#d4d0c8; }
+        body.light-mode nav { background:rgba(245,243,239,0.97); }
+        body.light-mode .section { background:#fff; border-color:#d4d0c8; }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav>
+        <a href="../index.html"><img src="../assets/icons/shield-home-48.png" class="site-icon" alt="" width="16" height="16"> Home</a>
+        <a href="../watchman.html"><img src="../assets/icons/shield-bible.png" class="site-icon" alt="" width="16" height="16"> Watchman</a>
+        <a href="../bible.html"><img src="../assets/icons/shield-compass.png" class="site-icon" alt="" width="16" height="16"> BTE</a>
+        <a href="../lexicon.html"><img src="../assets/icons/shield-alpha-omega-48.png" class="site-icon" alt="" width="16" height="16"> Lexicon</a>
+        <a href="../cross-references.html"><img src="../assets/icons/shield-infinity-rope-48.png" class="site-icon" alt="" width="16" height="16"> Cross-Refs</a>
+        <a href="index.html" class="active"><img src="../assets/icons/shield-book-greek-48.png" class="site-icon" alt="" width="16" height="16"> Dictionary</a>
+        <a href="../blog.html"><img src="../assets/icons/shield-blog-quill-48.png" class="site-icon" alt="" width="16" height="16"> Blog</a>
+        <a href="../connect.html"><img src="../assets/icons/shield-handshake.png" class="site-icon" alt="" width="16" height="16"> Connect</a>
+        <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle" title="Toggle dark/light">&#127769;</button>
+    </nav>
+    <div class="container">
+        <div class="word-header">
+            <div class="word-title">Bless</div>
+            <div class="pronunciation">/bl&#603;s/</div>
+            <span class="pos">verb</span>
+            <div class="etymology">Old English <em>bl&#275;tsian</em> &mdash; to consecrate with blood; from <em>bl&#333;d</em> (blood). Hebrew: <em>barak</em> (&#x05D1;&#x05BC;&#x05B8;&#x05E8;&#x05B7;&#x05DA;) &mdash; to kneel, to bless, to pronounce well. Greek: <em>eulogeo</em> (&#949;&#8016;&#955;&#959;&#947;&#941;&#969;) &mdash; to speak well of; <em>makarios</em> (&#956;&#945;&#954;&#940;&#961;&#953;&#959;&#962;) &mdash; blessed, supremely happy.</div>
+        </div>
+
+        <div class="section">
+            <h3>&#128214; Biblical Definition</h3>
+            <div class="biblical-def">
+                <p>To bless in Scripture is far richer than contemporary usage suggests. When God blesses, He <strong>imparts His favor, presence, and fruitfulness</strong> &mdash; the Hebrew <em>barak</em> carries the sense of kneeling to confer blessing, as a king stoops to honor a subject. When humans bless God, they ascribe worth and praise to Him. The Aaronic blessing (Num 6:24&ndash;26) encapsulates the essence: God's face turned toward someone, His peace resting on them. Jesus redefines who is blessed in the Beatitudes &mdash; not the prosperous and powerful, but the poor in spirit, the mourning, the meek. Biblical blessing is covenantal: it flows through obedience and is inextricably tied to the presence of God, not the presence of comfort.</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <button class="dict-toggle" data-toggle="webster" onclick="toggleDict('webster')">
+                <span class="arrow">&#9658;</span>&#128220; Webster 1828 Definition
+            </button>
+            <div class="dict-section" id="webster">
+                <p>Webster 1828: <em>BLESS</em> &mdash; v.t. 1. To pronounce a wish of happiness to one; to express a wish or desire of happiness. 2. To make happy; to make successful; to prosper. 3. To consecrate by prayer; to make and pronounce holy. 4. To praise; to glorify, for benefits received. 5. To esteem or account happy.</p>
+                <p>Webster notes the Old English root connected to blood &mdash; early Christians sanctified with the sign of the cross; hence <em>bl&#275;tsian</em>.</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <button class="dict-toggle" data-toggle="corruption" onclick="toggleDict('corruption')">
+                <span class="arrow">&#9658;</span>&#9888;&#65039; Modern Corruption
+            </button>
+            <div class="dict-section" id="corruption">
+                <div class="corruption">
+                    <p>Modern Christianity has collapsed &ldquo;blessed&rdquo; into <strong>synonymy with wealthy, comfortable, or fortunate</strong>. Social media's &ldquo;#blessed&rdquo; typically accompanies photos of vacations and promotions, suggesting God's approval is measured in net worth. This inverts Jesus' Beatitudes entirely &mdash; He called the poor in spirit and the persecuted &ldquo;blessed&rdquo; (Matt 5:3&ndash;12). Prosperity theology is the systematic corruption of biblical blessing: it teaches that health and wealth are the evidence of God's favor, which means the suffering church of the global South and the martyred saints are, apparently, cursed.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>&#128214; Scripture References</h3>
+            <p>&#x2022; <a href="../bible.html?ref=Numbers+6:24-26" class="verse-ref">Numbers 6:24&ndash;26</a> &mdash; &ldquo;The LORD bless you and keep you; the LORD make his face shine on you&hellip;&rdquo;</p>
+            <p>&#x2022; <a href="../bible.html?ref=Matthew+5:3-12" class="verse-ref">Matthew 5:3&ndash;12</a> &mdash; The Beatitudes: &ldquo;Blessed are the poor in spirit, for theirs is the kingdom of heaven.&rdquo;</p>
+            <p>&#x2022; <a href="../bible.html?ref=Genesis+12:2-3" class="verse-ref">Genesis 12:2&ndash;3</a> &mdash; &ldquo;I will bless you&hellip; and in you all the families of the earth shall be blessed.&rdquo;</p>
+            <p>&#x2022; <a href="../bible.html?ref=Ephesians+1:3" class="verse-ref">Ephesians 1:3</a> &mdash; &ldquo;Blessed be the God and Father of our Lord Jesus Christ, who has blessed us in Christ with every spiritual blessing.&rdquo;</p>
+            <p>&#x2022; <a href="../bible.html?ref=Psalm+1:1-2" class="verse-ref">Psalm 1:1&ndash;2</a> &mdash; &ldquo;Blessed is the man who walks not in the counsel of the wicked&hellip;&rdquo;</p>
+        </div>
+
+        <div class="section">
+            <h3>Related Words</h3>
+            <div class="related">
+                <a href="blessing.html">Blessing</a>
+                <a href="grace.html">Grace</a>
+                <a href="covenant.html">Covenant</a>
+                <a href="beatitude.html">Beatitude</a>
+                <a href="favor.html">Favor</a>
+            </div>
+        </div>
+    </div>
+    <footer>
+        <p>&#128218; <a href="index.html">The MOOP Dictionary</a> &mdash; Biblical words recovered from their corrupted meanings</p>
+    </footer>
+    <script>
+    function toggleDict(id){var s=document.getElementById(id);var b=document.querySelector('[data-toggle="'+id+'"]');var a=b?b.querySelector('.arrow'):null;s.classList.toggle('open');if(a)a.classList.toggle('open');}
+    function toggleTheme(){var b=document.body,t=document.getElementById('themeToggle');if(b.classList.contains('light-mode')){b.classList.remove('light-mode');t.textContent='🌙';localStorage.setItem('bte-theme','dark');}else{b.classList.add('light-mode');t.textContent='☀️';localStorage.setItem('bte-theme','light');}}
+    (function(){var theme=localStorage.getItem('bte-theme');if(theme==='light'){document.body.classList.add('light-mode');document.getElementById('themeToggle').textContent='☀️';}})();
+    </script>
+</body>
+</html>
