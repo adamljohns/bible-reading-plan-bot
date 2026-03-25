@@ -2038,8 +2038,8 @@
 <a href="lexicon/H8666.html" class="word-card" data-search="h8666 teshuvah return; answer; turning back"><span class="wc-strongs">H8666</span><span class="wc-original">תְּשׁוּבָה</span><span class="wc-translit">Teshuvah</span><span class="wc-def">Return; answer; turning back</span></a>
 <!-- HEBREW_CARDS_END -->
 </div>
-        <h2 class="section-header" id="greek-section">📖 Greek (New Testament)</h2>
-        <p class="section-sub" id="greek-sub">1719 words from the Greek New Testament</p>
+        <h2 class="section-header" id="greek-section" style="display:none;">📖 Greek (New Testament)</h2>
+        <p class="section-sub" id="greek-sub" style="display:none;">1719 words from the Greek New Testament</p>
         <div class="word-grid" id="greek-grid">
 <!-- GREEK_CARDS_START -->
 <a href="lexicon/G1.html" class="word-card" data-search="g1 alpha alpha / first letter"><span class="wc-strongs">G1</span><span class="wc-original">Α, α</span><span class="wc-translit">Alpha</span><span class="wc-def">Alpha / First Letter</span></a>
@@ -3805,6 +3805,30 @@ document.addEventListener('DOMContentLoaded', function() {
     el = document.getElementById('lexStatTotal'); if (el) el.textContent = (hebrew + greek).toLocaleString();
     el = document.getElementById('lexStatHebrew'); if (el) el.textContent = hebrew.toLocaleString();
     el = document.getElementById('lexStatGreek'); if (el) el.textContent = greek.toLocaleString();
+
+    // Bug 3: Grey out alphabet buttons with zero word matches
+    ['hebrew', 'greek'].forEach(function(lang) {
+        var barId = lang === 'hebrew' ? 'hebrewAlphaBar' : 'greekAlphaBar';
+        var bar = document.getElementById(barId);
+        if (!bar) return;
+        var prefix = lang === 'hebrew' ? 'H' : 'G';
+        var map = lang === 'hebrew' ? HEBREW_LETTER_MAP : GREEK_LETTER_MAP;
+        bar.querySelectorAll('.alpha-btn[data-letter]').forEach(function(btn) {
+            var letter = btn.getAttribute('data-letter');
+            var prefixes = map[letter] || [];
+            var count = 0;
+            cards.forEach(function(card) {
+                var strongs = card.querySelector('.wc-strongs');
+                if (!strongs || !strongs.textContent.trim().startsWith(prefix)) return;
+                var translit = card.querySelector('.wc-translit');
+                var translitText = translit ? translit.textContent.trim().toLowerCase() : '';
+                for (var i = 0; i < prefixes.length; i++) {
+                    if (translitText.startsWith(prefixes[i])) { count++; break; }
+                }
+            });
+            if (count === 0) btn.classList.add('disabled');
+        });
+    });
 });
 </script>
 <style>
@@ -3880,8 +3904,27 @@ function scrollToSection(lang, btn) {
     var activeBtn = btn || (event && event.target && event.target.closest('.lex-toggle-btn'));
     if (activeBtn) activeBtn.classList.add('active');
 
+    // Update subtitle with total count for this language
+    var prefix2 = lang === 'hebrew' ? 'H' : 'G';
+    var langCount = 0;
+    document.querySelectorAll('.word-card').forEach(function(card) {
+        var s = card.querySelector('.wc-strongs');
+        if (s && s.textContent.trim().startsWith(prefix2)) langCount++;
+    });
+    var subEl = document.getElementById(lang + '-sub');
+    if (subEl) {
+        var langLabel = lang === 'hebrew' ? 'Hebrew Scriptures' : 'Greek New Testament';
+        subEl.textContent = langCount.toLocaleString() + ' words from the ' + langLabel;
+    }
+
     var headerEl = document.getElementById(lang + '-section');
-    if (headerEl) headerEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (headerEl) {
+        setTimeout(function() {
+            var navH = document.querySelector('nav').offsetHeight + 20;
+            var top = headerEl.getBoundingClientRect().top + window.pageYOffset - navH;
+            window.scrollTo({ top: top, behavior: 'smooth' });
+        }, 50);
+    }
 }
 
 var HEBREW_LETTER_MAP = {
@@ -3988,6 +4031,32 @@ function filterByLetter(lang, letter) {
             card.classList.remove('visible');
         }
     });
+
+    // Update subtitle with count for this letter filter
+    var subEl2 = document.getElementById(lang + '-sub');
+    if (subEl2) {
+        var prefix3 = lang === 'hebrew' ? 'H' : 'G';
+        var visCount = 0;
+        document.querySelectorAll('.word-card').forEach(function(card) {
+            var s = card.querySelector('.wc-strongs');
+            if (s && s.textContent.trim().startsWith(prefix3) && card.classList.contains('visible')) visCount++;
+        });
+        if (letter === 'all') {
+            var totalCount = 0;
+            document.querySelectorAll('.word-card').forEach(function(card) {
+                var s = card.querySelector('.wc-strongs');
+                if (s && s.textContent.trim().startsWith(prefix3)) totalCount++;
+            });
+            var langLabel2 = lang === 'hebrew' ? 'Hebrew Scriptures' : 'Greek New Testament';
+            subEl2.textContent = totalCount.toLocaleString() + ' words from the ' + langLabel2;
+        } else {
+            var activeBtn2 = document.querySelector('[data-letter="' + letter + '"] .translit');
+            var letterName = activeBtn2 ? activeBtn2.textContent : letter;
+            var letterSymbol = document.querySelector('[data-letter="' + letter + '"] .letter');
+            var sym = letterSymbol ? ' (' + letterSymbol.textContent + ')' : '';
+            subEl2.textContent = visCount.toLocaleString() + ' words starting with ' + letterName + sym;
+        }
+    }
 }
 
 function filterWords() {
