@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expedient &mdash; The MOOP Dictionary</title>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        :root { --bg:#000; --card:#111; --gold:#D4AF37; --gold-light:#F4D470; --white:#FFF; --gray:#888; --border:#333; }
+        body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--white); min-height:100vh; line-height:1.7; }
+        h1,h2,h3,h4 { font-family:'Playfair Display',serif; }
+        nav { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:4px 8px; padding:10px 16px; border-bottom:1px solid var(--border); position:sticky; top:0; background:rgba(0,0,0,0.95); backdrop-filter:blur(8px); z-index:100; }
+        nav a { color:var(--gray); text-decoration:none; font-size:0.8rem; display:inline-flex; align-items:center; gap:3px; padding:3px 6px; border-radius:6px; transition:color 0.2s; }
+        nav a:hover, nav a.active { color:var(--gold); }
+        .site-icon { vertical-align:middle; opacity:0.8; }
+        .theme-toggle { background:none; border:1px solid var(--border); border-radius:50%; width:28px; height:28px; cursor:pointer; font-size:0.85rem; transition:all 0.3s; padding:0; color:var(--white); display:inline-flex; align-items:center; justify-content:center; }
+        .theme-toggle:hover { border-color:var(--gold); }
+        .container { max-width:820px; margin:0 auto; padding:28px 20px 60px; }
+        .word-header { text-align:center; padding:40px 0 30px; border-bottom:1px solid var(--border); margin-bottom:30px; }
+        .word-title { font-size:2.8rem; color:var(--gold-light); margin-bottom:6px; }
+        .pronunciation { color:var(--gray); font-size:1.1rem; font-style:italic; }
+        .pos { display:inline-block; background:var(--gold); color:#000; font-weight:700; font-size:0.78rem; padding:3px 14px; border-radius:15px; margin:10px 0; }
+        .etymology { color:var(--white); font-size:0.88rem; margin:12px auto; max-width:650px; }
+        .section { margin:18px 0; padding:18px 22px; background:var(--card); border:1px solid var(--border); border-radius:10px; }
+        .section > h3 { color:var(--gold); margin-bottom:12px; font-size:1.05rem; }
+        .section p { margin:7px 0; color:var(--white); }
+        .biblical-def { border-left:3px solid var(--gold); padding-left:15px; }
+        .dict-toggle { cursor:pointer; color:var(--gold); font-size:0.92rem; user-select:none; display:inline-flex; align-items:center; gap:0; background:none; border:none; padding:0; font-family:inherit; font-weight:600; }
+        .dict-toggle:hover { color:var(--gold-light); }
+        .dict-toggle .arrow { display:inline-block; transition:transform 0.2s; margin-right:8px; font-size:0.75rem; }
+        .dict-toggle .arrow.open { transform:rotate(90deg); }
+        .dict-section { display:none; margin:10px 0 4px 0; padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .dict-section.open { display:block; }
+        .dict-section p { margin:6px 0; font-size:0.95rem; color:var(--white); }
+        .dict-section pre { font-family:'Courier New',monospace; font-size:0.82rem; color:var(--gold-light); line-height:1.7; white-space:pre-wrap; }
+        .corruption { border-left:3px solid #CC0000; padding-left:15px; }
+        .verse-ref { color:var(--gold); text-decoration:none; font-weight:600; }
+        .verse-ref:hover { color:var(--gold-light); text-decoration:underline; }
+        .lexicon-link { color:var(--gold); font-family:monospace; text-decoration:none; }
+        .lexicon-link:hover { color:var(--gold-light); text-decoration:underline; }
+        .related { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+        .related a { background:var(--card); border:1px solid var(--border); padding:6px 14px; border-radius:20px; color:var(--white); text-decoration:none; font-size:0.85rem; transition:border-color 0.2s, color 0.2s; }
+        .related a:hover { border-color:var(--gold); color:var(--gold); }
+        footer { text-align:center; padding:28px 20px; border-top:1px solid var(--border); margin-top:40px; color:var(--gray); font-size:0.88rem; }
+        footer a { color:var(--gray); text-decoration:none; }
+        footer a:hover { color:var(--gold); }
+        .cross-divider { margin-bottom:10px; }
+        body.light-mode { --bg:#F5F3EF; --card:#FFF; --white:#1a1a1a; --gray:#666; --border:#d4d0c8; }
+        a, a:link, a:visited { color:var(--gold, #D4AF37) !important; }
+        a:hover { color:var(--gold-light, #F4D470) !important; }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav>
+        <a href="../index.html"><img src="../assets/icons/shield-home-48.png" class="site-icon" alt="" width="16" height="16"> Home</a>
+        <a href="../watchman.html"><img src="../assets/icons/shield-bible.png" class="site-icon" alt="" width="16" height="16"> Watchman</a>
+        <a href="../bible.html"><img src="../assets/icons/shield-compass.png" class="site-icon" alt="" width="16" height="16"> BTE</a>
+        <a href="../lexicon.html"><img src="../assets/icons/shield-alpha-omega-48.png" class="site-icon" alt="" width="16" height="16"> Lexicon</a>
+        <a href="../cross-references.html"><img src="../assets/icons/shield-infinity-rope-48.png" class="site-icon" alt="" width="16" height="16"> Cross-Refs</a>
+        <a href="index.html" class="active"><img src="../assets/icons/shield-book-greek-48.png" class="site-icon" alt="" width="16" height="16"> Dictionary</a>
+        <a href="../blog.html"><img src="../assets/icons/shield-blog-quill-48.png" class="site-icon" alt="" width="16" height="16"> Blog</a>
+        <a href="../connect.html"><img src="../assets/icons/shield-handshake.png" class="site-icon" alt="" width="16" height="16"> Connect</a>
+        <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle" title="Toggle dark/light">&#127769;</button>
+    </nav>
+    <div class="container">
+        <div class="word-header">
+            <div class="word-title">Expedient</div>
+            <div class="pronunciation">/ɪkˈspiː.di.ənt/</div>
+            <span class="pos">adjective / noun</span>
+            <div class="etymology">From Latin <em>expediens</em>, present participle of <em>expedire</em> — to free one's feet (from a snare), to make ready, to be profitable; from <em>ex-</em> (out) + <em>pes/pedis</em> (foot). Greek <em>symphero</em> (συμφέρω) — to be profitable, to be advantageous, to bring together for good. A word of divine economy: not merely "convenient" but "truly beneficial, serving the greater purpose."</div>
+        </div>
+
+        <div class="section">
+            <h3>&#128214; Biblical Definition</h3>
+            <div class="biblical-def">
+                <p>Expedient in its biblical usage means <strong>genuinely profitable or advantageous for the greater good — particularly used by Christ to describe his departure as necessary for the Spirit's coming</strong>. The word's most theologically weighty use is in John 16:7: "It is expedient for you that I go away." Jesus used it to explain that his physical presence must yield to the universal presence of the Holy Spirit — one body in one place versus the Spirit in all places at once. Paul uses the related Greek concept in 1 Corinthians to distinguish between what is "lawful" (permitted) and what is "expedient" (genuinely beneficial): not everything permissible is profitable. Biblical wisdom constantly asks not just "Is this allowed?" but "Is this truly good — for my soul, for the community, for the mission of God?" Expedience in this sense is not pragmatism (doing what works regardless of ethics) but Spirit-guided discernment of what truly advances God's purposes.</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <button class="dict-toggle" data-toggle="webster" onclick="toggleDict('webster')">
+                <span class="arrow">&#9658;</span>&#128220; Webster 1828 Definition
+            </button>
+            <div class="dict-section" id="webster">
+                <p><strong>EXPEDIENT</strong> (adj.) — Tending to promote the object proposed; fit or suitable for the purpose; proper under the circumstances. Webster distinguishes: expedient implies fitness with reference to a specific end — something is expedient when it most efficiently and rightly serves the desired purpose. It can carry a negative connotation (mere self-interest) or a positive one (genuine utility for the greater good). In Scripture, the positive sense dominates: expedient = truly serving the divine purpose, the flourishing of the community, the advancement of the kingdom.</p>
+                <p><strong>EXPEDIENT</strong> (n.) — That which serves to promote or advance; means to an end; resource; contrivance.</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>&#128214; Key Scripture</h3>
+            <p>&#x2022; <a href="../bible.html?ref=John+16:7" class="verse-ref">John 16:7</a> &mdash; "Nevertheless, I tell you the truth: it is to your advantage [expedient] that I go away, for if I do not go away, the Helper will not come to you."</p>
+            <p>&#x2022; <a href="../bible.html?ref=1+Corinthians+6:12" class="verse-ref">1 Corinthians 6:12</a> &mdash; "'All things are lawful for me,' but not all things are helpful [expedient]. 'All things are lawful for me,' but I will not be dominated by anything."</p>
+            <p>&#x2022; <a href="../bible.html?ref=1+Corinthians+10:23" class="verse-ref">1 Corinthians 10:23</a> &mdash; "'All things are lawful,' but not all things are helpful. 'All things are lawful,' but not all things build up."</p>
+            <p>&#x2022; <a href="../bible.html?ref=John+11:50" class="verse-ref">John 11:50</a> &mdash; "Nor do you understand that it is better for you that one man should die for the people, not that the whole nation should perish." (Caiaphas speaks expedience — and prophesies truth he does not understand.)</p>
+            <p>&#x2022; <a href="../bible.html?ref=2+Corinthians+8:10" class="verse-ref">2 Corinthians 8:10</a> &mdash; "And in this matter I give my judgment: this benefits [is expedient for] you, who a year ago started not only to do this work but also to desire to do it."</p>
+        </div>
+
+        <div class="section">
+            <button class="dict-toggle" data-toggle="corruption" onclick="toggleDict('corruption')">
+                <span class="arrow">&#9658;</span>&#9888;&#65039; Modern Corruption
+            </button>
+            <div class="dict-section" id="corruption">
+                <div class="corruption">
+                    <p>In modern usage, "expedient" has collapsed entirely into pragmatic self-interest: "the expedient thing to do" means "the convenient thing, regardless of ethics." This inverts the biblical usage where expedient meant genuinely profitable for the greater good, often requiring sacrifice. Political expediency — doing what polls well, what avoids conflict, what preserves power — is the antithesis of biblical expedience, which sometimes requires saying what is unprofitable to the speaker but essential for the community. When the church adopts political expediency as its operating principle, it trades prophetic integrity for institutional survival — and loses both.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <button class="dict-toggle" data-toggle="proto" onclick="toggleDict('proto')">
+                <span class="arrow">&#9658;</span>&#127760; Proto-Language Roots
+            </button>
+            <div class="dict-section" id="proto">
+                <pre>Latin pes/pedis (foot) →
+Latin expedire (to free the feet, to make ready) →
+Latin expediens (being profitable, advancing) →
+Old French expedient →
+Middle English expedient →
+Modern English expedient
+
+Greek:
+συμφέρω (sympherō, G4851) — to bring together, to be profitable/advantageous
+  sym- (together) + pherō (to carry, bring)
+  Used in John 16:7, 1 Cor 6:12, 10:23, 2 Cor 8:10
+  The word implies: gathering toward a good end, truly serving flourishing</pre>
+            </div>
+        </div>
+
+        <div class="section">
+            <button class="dict-toggle" data-toggle="roots" onclick="toggleDict('roots')">
+                <span class="arrow">&#9658;</span>&#128279; Greek &amp; Hebrew Roots
+            </button>
+            <div class="dict-section" id="roots">
+                <p><a href="../lexicon/G4851.html" class="lexicon-link">G4851</a> &mdash; <strong>sympherō</strong> (συμφέρω): to bring together, to be profitable, to be advantageous; the core NT word translated "expedient" — it always points to genuine benefit, not mere convenience.</p>
+                <p><a href="../lexicon/G4851.html" class="lexicon-link">G4851</a> &mdash; Related noun: <strong>sympheron</strong> (τὸ συμφέρον) — "the expedient thing," used in 1 Cor 7:35; 10:33 — Paul consistently asks: what truly benefits the other person and the community?</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <button class="dict-toggle" data-toggle="usage" onclick="toggleDict('usage')">
+                <span class="arrow">&#9658;</span>&#9997;&#65039; Usage Examples
+            </button>
+            <div class="dict-section" id="usage">
+                <p>&#x2022; "Jesus said 'it is expedient for you that I go away' — not convenient for him, but genuinely good for us. Expedience in Scripture is never selfish calculus; it is self-giving wisdom."</p>
+                <p>&#x2022; "Paul's principle: all things are lawful, not all things are expedient. The question is never just 'can I?' but 'does this build, serve, and advance the mission?'"</p>
+                <p>&#x2022; "Caiaphas said it was expedient for one man to die for the nation — and without knowing it, preached the gospel (John 11:51–52). God can use even corrupt wisdom to serve his purposes."</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>Related Words</h3>
+            <div class="related">
+                <a href="wisdom.html">Wisdom</a>
+                <a href="discernment.html">Discernment</a>
+                <a href="prudence.html">Prudence</a>
+                <a href="liberty.html">Liberty</a>
+                <a href="spirit.html">Spirit</a>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="cross-divider"><img src="../assets/icons/shield-cross-bible-48.png" alt="" width="36" height="36" style="opacity:0.6;margin-bottom:10px;"></div>
+        <p>
+            <a href="../index.html#uniting"><img src="../assets/icons/shield-hands-joining.png" class="site-icon" alt="" width="20" height="20"> Uniting</a> &middot;
+            <a href="../serving.html"><img src="../assets/icons/shield-serving.png" class="site-icon" alt="" width="20" height="20"> Serving</a> &middot;
+            <a href="../mentoring.html"><img src="../assets/icons/shield-mentoring.png" class="site-icon" alt="" width="20" height="20"> Mentoring</a> &middot;
+            <a href="../counseling.html"><img src="../assets/icons/shield-family.png" class="site-icon" alt="" width="20" height="20"> Counseling</a> &middot;
+            <a href="../about.html"><img src="../assets/icons/shield-about-person-24.png" class="site-icon" alt="" width="20" height="20"> About</a>
+        </p>
+        <p style="margin-top:8px;font-size:0.78rem;color:#555;">Powered by MOOPbot Pro &mdash; &ldquo;Iron sharpens iron.&rdquo; &mdash; <a href="../bible.html?ref=Proverbs+27:17" style="color:var(--gold);">Proverbs 27:17</a></p>
+    </footer>
+    <script>
+    function toggleDict(id){var s=document.getElementById(id);var b=document.querySelector('[data-toggle="'+id+'"]');var a=b?b.querySelector('.arrow'):null;s.classList.toggle('open');if(a)a.classList.toggle('open');}
+    function toggleTheme(){var b=document.body,t=document.getElementById('themeToggle');if(b.classList.contains('light-mode')){b.classList.remove('light-mode');t.textContent='\u{1F319}';localStorage.setItem('bte-theme','dark');}else{b.classList.add('light-mode');t.textContent='\u2600\uFE0F';localStorage.setItem('bte-theme','light');}}
+    (function(){if(localStorage.getItem('bte-theme')==='light'){document.body.classList.add('light-mode');var t=document.getElementById('themeToggle');if(t)t.textContent='\u2600\uFE0F';}})();
+    </script>
+</body>
+</html>
