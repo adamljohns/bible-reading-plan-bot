@@ -99,7 +99,7 @@
         @media(max-width:500px) { .chains-grid { grid-template-columns:1fr; } }
         .chain-card { background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:24px; transition:all 0.2s; cursor:pointer; }
         .chain-card:hover { border-color:var(--gold); box-shadow:0 0 20px rgba(212,175,55,0.08); }
-        .chain-card.active { border-color:var(--gold); box-shadow:0 0 20px rgba(212,175,55,0.12); }
+        .chain-card.active { border-color:var(--gold); box-shadow:0 0 20px rgba(212,175,55,0.12); grid-column:1 / -1; }
         .chain-header { display:flex; align-items:center; justify-content:space-between; }
         .chain-title { font-size:1.15rem; color:var(--gold-light); margin-bottom:0; flex:1; }
         .chain-arrow { font-size:0.75rem; color:var(--gold); transition:transform 0.25s; display:inline-block; margin-left:10px; flex-shrink:0; }
@@ -809,16 +809,24 @@
 
     function toggleChain(card, body, arrow) {
         const isOpen = body.classList.contains('open');
+        const grid = document.getElementById('chainsGrid');
         // Close all chains first
         document.querySelectorAll('.chain-body').forEach(b => { b.classList.remove('open'); });
         document.querySelectorAll('.chain-arrow').forEach(a => { a.classList.remove('open'); });
         document.querySelectorAll('.chain-card').forEach(c => { c.classList.remove('active'); });
-        // If wasn't open, open it; else leave closed (toggle off)
+        // If wasn't open, open it and move to top of grid
         if (!isOpen) {
             body.classList.add('open');
             arrow.classList.add('open');
             card.classList.add('active');
             activeChainCard = card;
+            // Move active card to top so it spans full width above the others
+            grid.prepend(card);
+            setTimeout(() => {
+                const navHeight = document.querySelector('nav').offsetHeight + 20;
+                const top = card.getBoundingClientRect().top + window.pageYOffset - navHeight;
+                window.scrollTo({ top, behavior: 'smooth' });
+            }, 50);
         } else {
             activeChainCard = null;
         }
