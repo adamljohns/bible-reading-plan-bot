@@ -1416,10 +1416,23 @@
             const sacas = getSacaStore();
             if (sacas[idx]) {
                 sacas[idx].done = !sacas[idx].done;
-                if (sacas[idx].done) sacas[idx].completedDate = todayStr;
+                if (sacas[idx].done) {
+                    sacas[idx].completedDate = todayStr;
+                    // Ping MbPro with completion
+                    notifySacaComplete(sacas[idx].text, todayStr);
+                }
                 saveSacaStore(sacas);
                 renderSacas();
             }
+        }
+
+        function notifySacaComplete(text, date) {
+            // Send to Google Apps Script webhook (MbPro reads this)
+            const WEBHOOK_URL = 'https://script.google.com/macros/s/SACA_WEBHOOK_ID/exec';
+            try {
+                const data = { item: text, date: date, source: 'wheelhouse' };
+                navigator.sendBeacon(WEBHOOK_URL, JSON.stringify(data));
+            } catch(e) { /* silent fail — don't block UX */ }
         }
 
         function deleteSaca(idx) {
