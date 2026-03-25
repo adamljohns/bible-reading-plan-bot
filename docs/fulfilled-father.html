@@ -313,6 +313,46 @@
             margin-top: 10px;
         }
 
+        /* ── Rubric collapsible ── */
+        .rubric-toggle {
+            display: inline-flex; align-items: center; gap: 6px;
+            margin-top: 8px; cursor: pointer; user-select: none;
+            font-size: 0.78rem; color: var(--gold); font-weight: 600;
+            background: none; border: none; padding: 0; font-family: 'Inter', sans-serif;
+        }
+        .rubric-toggle .rtri {
+            display: inline-block;
+            width: 0; height: 0;
+            border-style: solid;
+            border-width: 5px 0 5px 8px;
+            border-color: transparent transparent transparent var(--gold);
+            transition: transform 0.2s;
+            flex-shrink: 0;
+        }
+        .rubric-toggle.open .rtri { transform: rotate(90deg); }
+        .rubric-body {
+            display: none; margin-top: 8px;
+            border-left: 2px solid rgba(212,175,55,0.3);
+            padding-left: 12px;
+        }
+        .rubric-body.open { display: block; }
+        .rubric-row { margin-bottom: 6px; font-size: 0.82rem; }
+        .rubric-range {
+            color: var(--gold); font-weight: 700; font-size: 0.75rem;
+            display: inline-block; min-width: 36px;
+        }
+        .rubric-text { color: var(--gray-mid); }
+
+        /* ── Two-week framing note ── */
+        .framing-note {
+            background: rgba(212,175,55,0.08);
+            border: 1px solid rgba(212,175,55,0.35);
+            border-radius: 10px; padding: 12px 18px;
+            margin-bottom: 18px;
+            font-size: 0.88rem; color: var(--gold-light);
+            text-align: center; font-weight: 600; letter-spacing: 0.5px;
+        }
+
         /* ── Print styles ── */
         @media print {
             nav, .bte-theme-toggle, .btn-row, #share-modal, footer, #print-hide, #print-hide2 { display: none !important; }
@@ -400,6 +440,8 @@
                     <div class="subtitle">Rate yourself 1–10 on each axis. Be honest. Your children need you to be.</div>
                 </div>
             </div>
+
+            <div class="framing-note">⏱ Rate yourself based on the <strong>PAST TWO WEEKS</strong> — not your best day, not your intentions. Where have you actually been as a father?</div>
 
             <div class="chart-wrapper">
                 <canvas id="radarChart"></canvas>
@@ -492,6 +534,73 @@
     const LETTERS = ['F','U','L','F','I','L','L','E','D'];
     const WORDS   = ['Faithful','Understanding','Loving','Fun','Intentional','Listening','Leading','Encouraging','Discipling'];
     const SCORES  = [5, 5, 5, 5, 5, 5, 5, 5, 5];   // live scores, mutable
+
+    // Behavioral anchor rubrics per axis [low, mid, high, top]
+    const RUBRICS = [
+        // Faithful
+        [
+            { range: '1–3', text: "Your kids don't see you pray, read Scripture, or talk about God at home. Your faith is invisible. You're physically present but spiritually absent." },
+            { range: '4–6', text: "You go to church and occasionally pray, but there's no consistent spiritual rhythm your children can see or count on. Your faith is more private than formative." },
+            { range: '7–8', text: "Your children regularly see you pray, read your Bible, or hear you talk about God. You're consistent enough that they expect it. You show up when you say you will." },
+            { range: '9–10', text: "Your faithfulness to God is the visible backbone of your home. Your children can describe your prayer life and your convictions because they witness them daily." }
+        ],
+        // Understanding
+        [
+            { range: '1–3', text: "You don't know what your kids are genuinely struggling with right now. You know their schedule, not their heart. You're surprised by what concerns them." },
+            { range: '4–6', text: "You have a general sense of each child's world but rely mostly on surface-level conversations. You know what they're doing, not who they're becoming." },
+            { range: '7–8', text: "You can name a specific struggle or fear each child is navigating right now. You've had real one-on-one conversations in the past two weeks that went deeper than logistics." },
+            { range: '9–10', text: "Your children know they can bring you anything — their fears, failures, confusion — and you'll sit with it. You know their inner world because you've consistently made space for it." }
+        ],
+        // Loving
+        [
+            { range: '1–3', text: "Your love is assumed, not expressed. Weeks go by without specific, verbal affirmation. Your children feel you care about them in theory but don't hear it in practice." },
+            { range: '4–6', text: "You say 'I love you' but it's routine — the same phrase, same context, rarely accompanied by something specific to who that child is." },
+            { range: '7–8', text: "Your children regularly hear specific expressions of love tied to who they are — their character, their growth, what you see in them. It lands as real, not ritual." },
+            { range: '9–10', text: "Each of your children can easily name what their dad loves about them specifically. Your affection is verbal, physical, and tailored to each child's love language." }
+        ],
+        // Fun
+        [
+            { range: '1–3', text: "Your kids don't seek you out for fun. You're the disciplinarian more than the companion. They'd rather be with their friends or on screens than with you." },
+            { range: '4–6', text: "You have occasional fun moments but they happen by accident more than by intention. You're tolerable to be around but not someone they'd choose enthusiastically." },
+            { range: '7–8', text: "Your children want to spend time with you. You've laughed together in the past week. You've said yes to something they enjoyed even if it wasn't your preference." },
+            { range: '9–10', text: "Your kids actually look forward to time with you. They would tell their friends their dad is fun. You've made them laugh until it hurt in the past two weeks." }
+        ],
+        // Intentional
+        [
+            { range: '1–3', text: "You have no written plan for any child's formation — spiritual, emotional, or relational. You're hoping good outcomes happen by proximity to church and school." },
+            { range: '4–6', text: "You care about your children's formation but haven't translated that into specific, consistent action for each child. Your intentions outrun your execution." },
+            { range: '7–8', text: "You can name one specific thing you're doing intentionally right now for each child's formation. You've thought about who they're becoming, not just what they're doing." },
+            { range: '9–10', text: "You have a clear vision for each child's formation and deliberate habits to support it. Your children would say their dad is involved and purposeful — not just present." }
+        ],
+        // Listening
+        [
+            { range: '1–3', text: "When your children talk, you're usually distracted — phone, TV, work. They've learned not to expect your full attention. They stop mid-sentence without you noticing." },
+            { range: '4–6', text: "You hear the words but not always the heart. You respond before they finish. You listen long enough to form your response, not long enough to fully understand." },
+            { range: '7–8', text: "Your children can tell you've heard them because you respond to what they actually said, not what you expected them to say. You put down what's in your hands." },
+            { range: '9–10', text: "Your children feel genuinely heard by you. They seek you out to talk because they've learned their words matter to you. You can restate what they said before you respond." }
+        ],
+        // Leading
+        [
+            { range: '1–3', text: "You've delegated your children's spiritual formation to their mother, the church, or the school. You're not actively leading them toward Christ in your daily home life." },
+            { range: '4–6', text: "You take them to church and expect others to form their faith. You pray at meals but haven't led a family devotion or real spiritual conversation in the past two weeks." },
+            { range: '7–8', text: "You've led your family in prayer, Scripture, or a meaningful spiritual conversation in the past two weeks. Your children see you as a spiritual authority in the home." },
+            { range: '9–10', text: "You are clearly the spiritual head of your home. Your children know your convictions. You lead family worship, you disciple by example, and your children are following you toward Christ." }
+        ],
+        // Encouraging
+        [
+            { range: '1–3', text: "Your children hear more correction than affirmation. They brace for criticism. They can't name something specific you praised them for this week — neither can you." },
+            { range: '4–6', text: "You encourage when something obvious happens — a win, a grade, a performance. But you miss the small things. Your praise is event-driven, not character-driven." },
+            { range: '7–8', text: "You've said something specific and sincere to each child this week about who they are, not just what they did. You correct from a foundation of clear affirmation." },
+            { range: '9–10', text: "Your children feel genuinely built up by you. They can tell you what you've praised them for. Correction lands well because they're secure in your approval of who they are." }
+        ],
+        // Discipling
+        [
+            { range: '1–3', text: "You haven't opened the Bible with your children in recent memory. Their understanding of Scripture comes entirely from Sunday school or school, not from you." },
+            { range: '4–6', text: "You talk about faith at church but rarely at home. Your children know you're a Christian but haven't been discipled by you in the past two weeks." },
+            { range: '7–8', text: "You've opened the Word with at least one of your children in the past two weeks and had a real conversation about it. You pray with them individually, not just at meals." },
+            { range: '9–10', text: "Your children are being actively discipled by you — through Scripture, prayer, and real conversations about following Jesus. They learn what Christianity looks like by watching you live it." }
+        ]
+    ];
 
     const QUESTIONS = [
         {
@@ -685,6 +794,11 @@
     function buildSliders() {
         const grid = document.getElementById('sliderGrid');
         LETTERS.forEach((letter, i) => {
+            const rubric = RUBRICS[i];
+            const rubricRows = rubric.map(r =>
+                `<div class="rubric-row"><span class="rubric-range">${r.range}</span> <span class="rubric-text">${r.text}</span></div>`
+            ).join('');
+
             const row = document.createElement('div');
             row.className = 'slider-row';
             row.innerHTML = `
@@ -696,9 +810,23 @@
                 <input type="range" min="1" max="10" value="${SCORES[i]}"
                     id="slider-${i}" oninput="onSlider(${i}, this.value)"
                     aria-label="${WORDS[i]} score">
+                <button class="rubric-toggle" id="rtoggle-${i}" onclick="toggleRubric(${i})" type="button">
+                    <span class="rtri"></span> What does this number mean?
+                </button>
+                <div class="rubric-body" id="rbody-${i}">
+                    ${rubricRows}
+                </div>
             `;
             grid.appendChild(row);
         });
+    }
+
+    function toggleRubric(i) {
+        const body = document.getElementById(`rbody-${i}`);
+        const toggle = document.getElementById(`rtoggle-${i}`);
+        const isOpen = body.classList.contains('open');
+        body.classList.toggle('open', !isOpen);
+        toggle.classList.toggle('open', !isOpen);
     }
 
     function onSlider(idx, val) {
@@ -772,7 +900,7 @@
                     <div>
                         <div class="formation-label">Scripture to Memorize</div>
                         <div class="formation-text">${f.memory}</div>
-                        <a class="formation-scripture" href="bible.html#${f.memRef}" target="_blank" rel="noopener">Open in BTE →</a>
+                        <a class="formation-scripture" href="bible.html#${f.memRef}" target="_blank" rel="noopener">${f.memory.match(/— (.+)$/)[1]} →</a>
                     </div>
                 </div>
             `;
