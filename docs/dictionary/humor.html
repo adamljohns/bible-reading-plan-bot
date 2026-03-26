@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Humor &mdash; The MOOP Dictionary</title>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        :root { --bg:#000; --card:#111; --gold:#D4AF37; --gold-light:#F4D470; --white:#FFF; --gray:#888; --border:#333; }
+        body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--white); min-height:100vh; line-height:1.7; }
+        h1,h2,h3,h4 { font-family:'Playfair Display',serif; }
+        nav { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:4px 8px; padding:10px 16px;
+              border-bottom:1px solid var(--border); position:sticky; top:0;
+              background:rgba(0,0,0,0.95); backdrop-filter:blur(8px); z-index:100; }
+        nav a { color:var(--gray); text-decoration:none; font-size:0.8rem; display:inline-flex; align-items:center;
+                gap:3px; padding:3px 6px; border-radius:6px; transition:color 0.2s; }
+        nav a:hover, nav a.active { color:var(--gold); }
+        .site-icon { vertical-align:middle; opacity:0.8; }
+        .theme-toggle { background:none; border:1px solid var(--border); border-radius:50%; width:28px; height:28px;
+                        cursor:pointer; font-size:0.85rem; transition:all 0.3s; padding:0; color:var(--white);
+                        display:inline-flex; align-items:center; justify-content:center; }
+        .theme-toggle:hover { border-color:var(--gold); }
+        .container { max-width:820px; margin:0 auto; padding:28px 20px 60px; }
+        .word-header { text-align:center; padding:40px 0 30px; border-bottom:1px solid var(--border); margin-bottom:30px; }
+        .word-title { font-size:2.8rem; color:var(--gold-light); margin-bottom:6px; }
+        .pronunciation { color:var(--gray); font-size:1.1rem; font-style:italic; }
+        .pos { display:inline-block; background:var(--gold); color:#000; font-weight:700;
+               font-size:0.78rem; padding:3px 14px; border-radius:15px; margin:10px 0; }
+        .etymology { color:var(--gray); font-size:0.88rem; margin:12px auto; max-width:650px; }
+        .section { margin:18px 0; padding:18px 22px; background:var(--card); border:1px solid var(--border); border-radius:10px; }
+        .section > h3 { color:var(--gold); margin-bottom:12px; font-size:1.05rem; }
+        .section p { margin:7px 0; color:var(--white); }
+        .biblical-def { border-left:3px solid var(--gold); padding-left:15px; }
+        .dict-toggle { cursor:pointer; color:var(--gold); font-size:0.92rem; user-select:none;
+                       display:inline-flex; align-items:center; gap:0; background:none; border:none;
+                       padding:0; font-family:inherit; font-weight:600; }
+        .dict-toggle:hover { color:var(--gold-light); }
+        .dict-toggle .arrow { display:inline-block; transition:transform 0.2s; margin-right:8px; font-size:0.75rem; }
+        .dict-toggle .arrow.open { transform:rotate(90deg); }
+        .dict-section { display:none; margin:10px 0 4px 0; padding:12px 16px;
+                        background:rgba(212,175,55,0.06); border-left:2px solid var(--gold);
+                        border-radius:0 6px 6px 0; }
+        .dict-section.open { display:block; }
+        .dict-section p { margin:6px 0; font-size:0.95rem; color:var(--white); }
+        .corruption { border-left:3px solid #CC0000; padding-left:15px; }
+        .corruption p { color:var(--white); }
+        .verse-link { color:var(--gold); text-decoration:none; font-weight:600; }
+        .verse-link:hover { color:var(--gold-light); text-decoration:underline; }
+        .lexicon-link { color:var(--gold); font-family:monospace; text-decoration:none; }
+        .lexicon-link:hover { color:var(--gold-light); text-decoration:underline; }
+        .related { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+        .related a { background:var(--card); border:1px solid var(--border); padding:6px 14px;
+                     border-radius:20px; color:var(--white); text-decoration:none; font-size:0.85rem;
+                     transition:border-color 0.2s, color 0.2s; }
+        .related a:hover { border-color:var(--gold); color:var(--gold); }
+        footer { text-align:center; padding:28px 20px; border-top:1px solid var(--border);
+                 margin-top:40px; color:var(--gray); font-size:0.88rem; }
+        footer a { color:var(--gray); text-decoration:none; }
+        footer a:hover { color:var(--gold); }
+        .cross-divider { margin-bottom:10px; }
+        body.light-mode { --bg:#F5F3EF; --card:#FFF; --white:#1a1a1a; --gray:#666; --border:#d4d0c8; background:#F5F3EF; color:#1a1a1a; }
+        body.light-mode nav { background:rgba(245,243,239,0.97); }
+        body.light-mode .section { background:#fff; border-color:#d4d0c8; }
+        body.light-mode .dict-section { background:rgba(212,175,55,0.04); }
+        body.light-mode footer { border-top-color:#d4d0c8; }
+        body.light-mode .related a { background:#f0ede7; border-color:#d4d0c8; color:#1a1a1a; }
+        a, a:link, a:visited { color: var(--gold, #D4AF37) !important; }
+        a:hover { color: var(--gold-light, #F4D470) !important; }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav>
+        <a href="../index.html"><img src="../assets/icons/shield-home-48.png" class="site-icon" alt="" width="16" height="16"> Home</a>
+        <a href="../watchman.html"><img src="../assets/icons/shield-bible.png" class="site-icon" alt="" width="16" height="16"> Watchman</a>
+        <a href="../bible.html"><img src="../assets/icons/shield-compass.png" class="site-icon" alt="" width="16" height="16"> BTE</a>
+        <a href="../lexicon.html"><img src="../assets/icons/shield-alpha-omega-48.png" class="site-icon" alt="" width="16" height="16"> Lexicon</a>
+        <a href="../cross-references.html"><img src="../assets/icons/shield-infinity-rope-48.png" class="site-icon" alt="" width="16" height="16"> Cross-Refs</a>
+        <a href="index.html" class="active"><img src="../assets/icons/shield-book-greek-48.png" class="site-icon" alt="" width="16" height="16"> Dictionary</a>
+        <a href="../blog.html"><img src="../assets/icons/shield-blog-quill-48.png" class="site-icon" alt="" width="16" height="16"> Blog</a>
+        <a href="../connect.html"><img src="../assets/icons/shield-handshake.png" class="site-icon" alt="" width="16" height="16"> Connect</a>
+        <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle" title="Toggle dark/light">&#127769;</button>
+    </nav>
+    <div class="container">
+
+        <div class="word-header">
+            <div class="word-title">Humor</div>
+            <div class="pronunciation">/ ˈhjuː·mər /</div>
+            <span class="pos">noun / verb</span>
+            <div class="etymology">Latin <em>humor</em> — fluid, moisture; from the medieval theory of the four bodily "humors" (blood, phlegm, choler, melancholy) that governed temperament and mood. By the 17th century, "humor" came to mean a person's particular mental disposition, and later the capacity to perceive and express what is comic. The word is rooted in the idea of <em>balance</em> — a well-humored person was one whose inner fluids were in proper proportion.</div>
+        </div>
+
+        <div class="section">
+            <h3>&#128214; Biblical Definition</h3>
+            <div class="biblical-def">
+                <p>The Bible does not treat laughter and wit as suspect in themselves — Proverbs 17:22 declares "A joyful heart is good medicine," Sarah laughed (Gen 21:6), and Nehemiah proclaimed that "the joy of the LORD is your strength" (Neh 8:10). There is a godly humor rooted in the incongruities of life, the absurdity of human pride, and the relief of grace. But Scripture runs the test on humor the same way it runs it on all speech: What does it build? Who does it honor? What does it reveal about the heart (Matt 12:34)? Humor that tears down, humiliates, or mocks sacred things is condemned. Humor that celebrates truth, relieves genuine tension, or expresses joy before God is good. The line is not between serious and funny — it is between humor that dignifies the person and humor that diminishes them. Sacred wit exists; it is the wit of the Psalms, the sharp ironies of Elijah (1 Kgs 18:27), the patient paradoxes of Jesus.</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <button class="dict-toggle" data-toggle="webster" onclick="toggleDict('webster')">
+                <span class="arrow">&#9658;</span>&#128220; Webster 1828 Definition
+            </button>
+            <div class="dict-section" id="webster">
+                <p><strong>HU'MOR, n.</strong> [L. humor, moisture, from the root of humeo, to be moist.]</p>
+                <p>1. Moisture; but chiefly used in the plural to denote the fluids of animal bodies.</p>
+                <p>2. A particular state of the mind, as dependent on or influenced by the state of the body, or by the passions; as good humor, ill humor.</p>
+                <p>3. A mood or state of mind; temporary disposition; fancy. We say, a man is in the humor for reading, or he is not in the humor.</p>
+                <p>4. Caprice; whim; irregular disposition. Every whim and humor must be indulged.</p>
+                <p>5. That quality of the imagination which gives to ideas a wild or fantastic turn, and tends to excite laughter or mirth.</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <button class="dict-toggle" data-toggle="corruption" onclick="toggleDict('corruption')">
+                <span class="arrow">&#9658;</span>&#9888;&#65039; Modern Corruption
+            </button>
+            <div class="dict-section" id="corruption">
+                <div class="corruption">
+                    <p>Modern culture has elevated humor to a near-sacred status — "the ability to take a joke" is treated as a mark of emotional maturity, and those who object to cruel humor are dismissed as fragile. This inversion is exactly backwards from the biblical standard. The question is never whether the audience is laughing — the question is whether the target of the humor has been honored or degraded. "Edgy" humor, dark comedy, and roast culture have normalized cruelty with a punchline. More insidiously, humor has become a tool for advancing ideology — comedy shows, late night television, and viral memes function as the primary vehicle for normalizing sin and mocking Christianity. G.K. Chesterton understood something the modern world has lost: true wit is not the destruction of what is sacred but the recognition of its beauty from an unexpected angle. The man who can only be funny by hurting someone is not funny. He is simply cruel with better timing.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>&#128214; Key Scripture</h3>
+            <p>&#x2022; <a href="../bible.html?ref=Proverbs+17:22" class="verse-link">Proverbs 17:22</a> &mdash; "A joyful heart is good medicine, but a crushed spirit dries up the bones."</p>
+            <p>&#x2022; <a href="../bible.html?ref=Ephesians+5:4" class="verse-link">Ephesians 5:4</a> &mdash; "Let there be no filthiness nor foolish talk nor crude joking, which are out of place, but instead let there be thanksgiving."</p>
+            <p>&#x2022; <a href="../bible.html?ref=Matthew+12:34" class="verse-link">Matthew 12:34</a> &mdash; "Out of the abundance of the heart the mouth speaks."</p>
+            <p>&#x2022; <a href="../bible.html?ref=1+Kings+18:27" class="verse-link">1 Kings 18:27</a> &mdash; "And at noon Elijah mocked them, saying, 'Cry aloud, for he is a god. Either he is musing, or he is relieving himself, or he is on a journey, or perhaps he is asleep and must be awakened.'"</p>
+        </div>
+
+        <div class="section">
+            <button class="dict-toggle" data-toggle="roots" onclick="toggleDict('roots')">
+                <span class="arrow">&#9658;</span>&#128279; Greek Roots
+            </button>
+            <div class="dict-section" id="roots">
+                <p><a href="../lexicon/G5479.html" class="lexicon-link">G5479</a> &mdash; <strong>chara</strong> (χαρά): joy, gladness; the positive ground for godly humor — a heart full of joy before God has the overflow to express genuine wit; all good humor flows from chara, not from the wounds of others.</p>
+                <p><a href="../lexicon/G2160.html" class="lexicon-link">G2160</a> &mdash; <strong>eutrapelia</strong> (εὐτραπελία): in its negative NT sense (Eph 5:4), crude or coarse joking; literally "cleverness turning the wrong way" — wit deployed to degrade rather than delight.</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>Related Words</h3>
+            <div class="related">
+                <a href="joking.html">Joking</a>
+                <a href="cruelty.html">Cruelty</a>
+                <a href="entertainment.html">Entertainment</a>
+                <a href="joy.html">Joy</a>
+                <a href="temperance.html">Temperance</a>
+                <a href="integrity.html">Integrity</a>
+            </div>
+        </div>
+
+    </div>
+
+    <footer>
+        <div class="cross-divider"><img src="../assets/icons/shield-cross-bible-48.png" alt="" width="36" height="36" style="opacity:0.6;margin-bottom:10px;"></div>
+        <p>
+            <a href="../index.html#uniting"><img src="../assets/icons/shield-hands-joining.png" class="site-icon" alt="" width="20" height="20"> Uniting</a> &middot;
+            <a href="../serving.html"><img src="../assets/icons/shield-serving.png" class="site-icon" alt="" width="20" height="20"> Serving</a> &middot;
+            <a href="../mentoring.html"><img src="../assets/icons/shield-mentoring.png" class="site-icon" alt="" width="20" height="20"> Mentoring</a> &middot;
+            <a href="../counseling.html"><img src="../assets/icons/shield-family.png" class="site-icon" alt="" width="20" height="20"> Counseling</a> &middot;
+            <a href="../about.html"><img src="../assets/icons/shield-about-person-24.png" class="site-icon" alt="" width="20" height="20"> About</a>
+        </p>
+        <p style="margin-top:8px;font-size:0.78rem;color:#555;">Powered by MOOPbot Pro &mdash; &ldquo;Iron sharpens iron.&rdquo; &mdash; <a href="../bible.html?ref=Proverbs+27:17" style="color:var(--gold);text-decoration:underline;">Proverbs 27:17</a></p>
+    </footer>
+    <script>
+    function toggleDict(id){
+        var s=document.getElementById(id);
+        var b=document.querySelector('[data-toggle="'+id+'"]');
+        var a=b?b.querySelector('.arrow'):null;
+        s.classList.toggle('open');
+        if(a)a.classList.toggle('open');
+    }
+    function toggleTheme(){
+        var b=document.body,t=document.getElementById('themeToggle');
+        if(b.classList.contains('light-mode')){b.classList.remove('light-mode');t.textContent='\u{1F319}';localStorage.setItem('bte-theme','dark');}
+        else{b.classList.add('light-mode');t.textContent='\u2600\uFE0F';localStorage.setItem('bte-theme','light');}
+    }
+    (function(){
+        if(localStorage.getItem('bte-theme')==='light'){
+            document.body.classList.add('light-mode');
+            var t=document.getElementById('themeToggle');if(t)t.textContent='\u2600\uFE0F';
+        }
+    })();
+    </script>
+</body>
+</html>
