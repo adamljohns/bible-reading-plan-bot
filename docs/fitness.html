@@ -412,7 +412,6 @@
         <a href="about.html"><img src="assets/icons/shield-leader.png" class="site-icon" alt="leader" width="16" height="16"> About</a>
         <a href="blog.html"><img src="assets/icons/shield-book.png" class="site-icon" alt="blog" width="16" height="16"> Blog</a>
         <a href="connect.html"><img src="assets/icons/shield-handshake.png" class="site-icon" alt="handshake" width="16" height="16"> Connect</a>
-            <a href="https://usmcmin.com" target="_blank" style="color:var(--gold) !important;font-weight:600;">Shop &amp; Services →</a>
     </nav>
 
 
@@ -661,6 +660,17 @@
                     <div class="radio-option" onclick="selectRadio(this,'mealTiming')">No Structure</div>
                 </div>
             </div>
+            <div class="field" id="ifProtocolGroup" style="display:none;">
+                <label>Intermittent Fasting Protocol</label>
+                <div class="radio-group" data-field="ifProtocol">
+                    <div class="radio-option" onclick="selectRadio(this,'ifProtocol')">12:12 — 12-hour fasting window</div>
+                    <div class="radio-option" onclick="selectRadio(this,'ifProtocol')">16:8 — 8-hour eating window (most common)</div>
+                    <div class="radio-option" onclick="selectRadio(this,'ifProtocol')">18:6 — 6-hour eating window</div>
+                    <div class="radio-option" onclick="selectRadio(this,'ifProtocol')">20:4 — 4-hour eating window</div>
+                    <div class="radio-option" onclick="selectRadio(this,'ifProtocol')">OMAD — One Meal A Day</div>
+                    <div class="radio-option" onclick="selectRadio(this,'ifProtocol')">Warrior Diet — 20hr fast / 4hr feast</div>
+                </div>
+            </div>
             <div class="field"><label>Daily water intake (oz)</label><input type="number" id="waterIntake" placeholder="e.g., 80"></div>
             <div class="field"><label>Dietary restrictions or allergies</label><input type="text" id="dietRestrictions" placeholder="Gluten-free, dairy-free, low-carb, etc."></div>
 
@@ -878,7 +888,7 @@
         <a href="bible.html">MOOP Bible</a>
     </div>
     <div class="footer-bottom">Fitness Coaching · U.S.M.C. Ministries · NASM Certified · <a href="/fitness.html">Intake Form</a></div>
-    <div style="margin-top:8px;font-size:0.85rem;"><a href="https://usmcmin.com/coaching.html" target="_blank" style="color:var(--gold);text-decoration:none;">Book coaching at usmcmin.com</a> · <a href="https://usmcmin.com" target="_blank" style="color:var(--gold);text-decoration:none;">Shop & Services → usmcmin.com</a></div>
+    <div style="margin-top:8px;font-size:0.85rem;"><a href="https://usmcmin.com/coaching.html" target="_blank" style="color:var(--gold);text-decoration:none;">Book coaching at usmcmin.com</a></div>
 </footer>
 
 <script>
@@ -891,6 +901,14 @@
         el.classList.add('selected');
         formData[field] = el.textContent.trim();
         if (field.startsWith('parq')) checkParq();
+        if (field === 'mealTiming') {
+            const ifOptions = document.getElementById('ifProtocolGroup');
+            if (ifOptions) {
+                const isIF = el.textContent.includes('Intermittent');
+                ifOptions.style.display = isIF ? 'block' : 'none';
+                if (!isIF) delete formData.ifProtocol;
+            }
+        }
     }
 
     function toggleCheck(el) {
@@ -959,6 +977,8 @@
             ['Weekly Sessions', formData.weeklySessions || '—'],
             ['Daily Steps', formData.dailySteps || '—'],
             ['Experience', formData.experience || '—'],
+            ['Meal Timing', formData.mealTiming || '—'],
+            ['IF Protocol', formData.mealTiming === 'Intermittent Fasting' ? (formData.ifProtocol || '—') : null],
             ['Protein Range', formData.proteinRange || '—'],
             ['Diet Quality', formData.dietQuality || '—'],
             ['Sleep', (getVal('sleep') ? getVal('sleep') + 'h' : '—') + ' (' + (formData.sleepQuality || '—') + ')'],
@@ -975,7 +995,7 @@
         if (suppList.length) rows.push(['Supplements', suppList.join(', ')]);
         if (recovMods.length) rows.push(['Recovery', recovMods.join(', ')]);
 
-        const html = rows.map(([label, val]) =>
+        const html = rows.filter(([, val]) => val !== null).map(([label, val]) =>
             `<div class="metric"><span class="metric-label">${label}</span><span class="metric-value">${val || '—'}</span></div>`
         ).join('');
 
