@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lamp &mdash; The MOOP Dictionary</title>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        :root { --bg:#000; --card:#111; --gold:#D4AF37; --gold-light:#F4D470; --white:#FFF; --gray:#888; --border:#333; }
+        body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--white); min-height:100vh; line-height:1.7; }
+        h1,h2,h3,h4 { font-family:'Playfair Display',serif; }
+        nav { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:4px 8px; padding:10px 16px;
+              border-bottom:1px solid var(--border); position:sticky; top:0;
+              background:rgba(0,0,0,0.95); backdrop-filter:blur(8px); z-index:100; }
+        nav a { color:var(--gray); text-decoration:none; font-size:0.8rem; display:inline-flex; align-items:center;
+                gap:3px; padding:3px 6px; border-radius:6px; transition:color 0.2s; }
+        nav a:hover, nav a.active { color:var(--gold); }
+        .site-icon { vertical-align:middle; opacity:0.8; }
+        .theme-toggle { background:none; border:1px solid var(--border); border-radius:50%; width:28px; height:28px;
+                        cursor:pointer; font-size:0.85rem; transition:all 0.3s; padding:0; color:var(--white);
+                        display:inline-flex; align-items:center; justify-content:center; }
+        .theme-toggle:hover { border-color:var(--gold); }
+        .container { max-width:820px; margin:0 auto; padding:28px 20px 60px; }
+        .word-header { text-align:center; padding:40px 0 30px; border-bottom:1px solid var(--border); margin-bottom:30px; }
+        .word-title { font-size:2.8rem; color:var(--gold-light); margin-bottom:6px; }
+        .pronunciation { color:var(--gray); font-size:1.1rem; font-style:italic; }
+        .pos { display:inline-block; background:var(--gold); color:#000; font-weight:700;
+               font-size:0.78rem; padding:3px 14px; border-radius:15px; margin:10px 0; }
+        .etymology { color:var(--gray); font-size:0.88rem; margin:12px auto; max-width:650px; }
+        .section { margin:18px 0; padding:18px 22px; background:var(--card); border:1px solid var(--border); border-radius:10px; }
+        .section > h3 { color:var(--gold); margin-bottom:12px; font-size:1.05rem; }
+        .section p { margin:7px 0; }
+        .biblical-def { border-left:3px solid var(--gold); padding-left:15px; }
+        .dict-toggle { cursor:pointer; color:var(--gold); font-size:0.92rem; user-select:none;
+                       display:inline-flex; align-items:center; gap:0; background:none; border:none;
+                       padding:0; font-family:inherit; font-weight:600; }
+        .dict-toggle:hover { color:var(--gold-light); }
+        .dict-toggle .arrow { display:inline-block; transition:transform 0.2s; margin-right:8px; font-size:0.75rem; }
+        .dict-toggle .arrow.open { transform:rotate(90deg); }
+        .dict-section { display:none; margin:10px 0 4px 0; padding:12px 16px;
+                        background:rgba(212,175,55,0.06); border-left:2px solid var(--gold);
+                        border-radius:0 6px 6px 0; }
+        .dict-section.open { display:block; }
+        .dict-section p { margin:6px 0; font-size:0.95rem; }
+        .dict-section pre { font-family:'Courier New',monospace; font-size:0.82rem; color:var(--gold-light);
+                             line-height:1.7; white-space:pre-wrap; }
+        .corruption { border-left:3px solid #CC0000; padding-left:15px; }
+        .verse-ref { color:var(--gold); text-decoration:none; font-weight:600; }
+        .verse-ref:hover { color:var(--gold-light); text-decoration:underline; }
+        .lexicon-link { color:var(--gold); font-family:monospace; text-decoration:none; }
+        .lexicon-link:hover { color:var(--gold-light); text-decoration:underline; }
+        .related { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+        .related a { background:var(--card); border:1px solid var(--border); padding:6px 14px;
+                     border-radius:20px; color:var(--white); text-decoration:none; font-size:0.85rem;
+                     transition:border-color 0.2s, color 0.2s; }
+        .related a:hover { border-color:var(--gold); color:var(--gold); }
+        footer { text-align:center; padding:28px 20px; border-top:1px solid var(--border);
+                 margin-top:40px; color:var(--gray); font-size:0.88rem; }
+        footer a { color:var(--gray); text-decoration:none; }
+        footer a:hover { color:var(--gold); }
+        .cross-divider { margin-bottom:10px; }
+        body.light-mode { --bg:#F5F3EF; --card:#FFF; --white:#1a1a1a; --gray:#666; --border:#d4d0c8; background:#F5F3EF; color:#1a1a1a; }
+        body.light-mode nav { background:rgba(245,243,239,0.97); }
+        body.light-mode .section { background:#fff; border-color:#d4d0c8; }
+        body.light-mode .dict-section { background:rgba(212,175,55,0.04); }
+        body.light-mode footer { border-top-color:#d4d0c8; }
+        body.light-mode .related a { background:#f0ede7; border-color:#d4d0c8; color:#1a1a1a; }
+        a, a:link, a:visited { color: var(--gold, #D4AF37) !important; }
+        a:hover { color: var(--gold-light, #F4D470) !important; }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav>
+        <a href="../index.html"><img src="../assets/icons/shield-home-48.png" class="site-icon" alt="" width="16" height="16"> Home</a>
+        <a href="../watchman.html"><img src="../assets/icons/shield-bible.png" class="site-icon" alt="" width="16" height="16"> Watchman</a>
+        <a href="../bible.html"><img src="../assets/icons/shield-compass.png" class="site-icon" alt="" width="16" height="16"> BTE</a>
+        <a href="../lexicon.html"><img src="../assets/icons/shield-alpha-omega-48.png" class="site-icon" alt="" width="16" height="16"> Lexicon</a>
+        <a href="../cross-references.html"><img src="../assets/icons/shield-infinity-rope-48.png" class="site-icon" alt="" width="16" height="16"> Cross-Refs</a>
+        <a href="index.html" class="active"><img src="../assets/icons/shield-book-greek-48.png" class="site-icon" alt="" width="16" height="16"> Dictionary</a>
+        <a href="../blog.html"><img src="../assets/icons/shield-blog-quill-48.png" class="site-icon" alt="" width="16" height="16"> Blog</a>
+        <a href="../connect.html"><img src="../assets/icons/shield-handshake.png" class="site-icon" alt="" width="16" height="16"> Connect</a>
+        <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle" title="Toggle dark/light">&#127769;</button>
+    </nav>
+    <div class="container">
+
+        <div class="word-header">
+            <div class="word-title">Lamp</div>
+            <div class="pronunciation">/læmp/</div>
+            <span class="pos">noun</span>
+            <div class="etymology">Old French <em>lampe</em>; Latin <em>lampas</em>; Greek <em>lampas</em> (λαμπάς) — torch, lamp; from <em>lampō</em> (λάμπω) — to shine, to give light. Hebrew: <em>ner</em> (נֵר) — lamp, candle, light; <em>menorah</em> (מְנוֹרָה) — lampstand, candelabrum; <em>or</em> (אוֹר) — light.</div>
+        </div>
+
+        <div class="section">
+            <h3>&#128214; Biblical Definition</h3>
+            <div class="biblical-def">
+                <p>The lamp in Scripture is a <strong>multidimensional symbol of divine Word, human life, witness, and the presence of God's Spirit</strong>. The golden lampstand (menorah) in the tabernacle and temple burned continually before the LORD — the only source of light in the Holy Place — and represented Israel's calling to be a light to the nations. The Word of God is a lamp to the feet and a light to the path (Ps 119:105). Human life itself is called a lamp: "The spirit of man is the lamp of the LORD" (Prov 20:27). In the Psalms, God's lamp for David represents his covenant presence and continued dynasty. The parable of the ten virgins (Matt 25) centers on lamps and oil — preparedness for the returning Lord. The book of Revelation depicts the seven lampstands as the seven churches, with Christ walking among them, tending their light. To have your lamp removed (Rev 2:5) is to lose your witness and calling.</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <button class="dict-toggle" data-toggle="webster" onclick="toggleDict('webster')">
+                <span class="arrow">&#9658;</span>&#128220; Webster 1828 Definition
+            </button>
+            <div class="dict-section" id="webster">
+                <p><strong>LAMP</strong>, noun [Latin lampas, from Gr. to shine.]</p>
+                <p>1. A vessel in which oil is burned for giving light. The ancient lamps were small shallow vessels of earthen ware, bronze, or other metal, in which oil was burned with a wick.</p>
+                <p>2. In Scripture, a lamp is sometimes put for a son who is to continue the family name and dignity, as in "I have ordained a lamp for mine anointed." Psalm 132:17.</p>
+                <p>3. Figuratively, the word of God: "Thy word is a lamp to my feet." Psalm 119:105.</p>
+                <p>4. Any source of spiritual light or intellectual illumination.</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>&#128214; Key Scripture</h3>
+            <p>&#x2022; <a href="../bible.html?ref=Psalm+119:105" class="verse-ref">Psalm 119:105</a> &mdash; "Your word is a lamp to my feet and a light to my path."</p>
+            <p>&#x2022; <a href="../bible.html?ref=Proverbs+20:27" class="verse-ref">Proverbs 20:27</a> &mdash; "The spirit of man is the lamp of the LORD, searching all his innermost parts."</p>
+            <p>&#x2022; <a href="../bible.html?ref=Matthew+25:1-13" class="verse-ref">Matthew 25:1–13</a> &mdash; The ten virgins — five with oil, five without. "The foolish said to the wise, 'Give us some of your oil, for our lamps are going out.'"</p>
+            <p>&#x2022; <a href="../bible.html?ref=Revelation+1:12-13" class="verse-ref">Revelation 1:12–13</a> &mdash; "I turned to see the voice, and on turning I saw seven golden lampstands, and in the midst of the lampstands one like a son of man."</p>
+            <p>&#x2022; <a href="../bible.html?ref=Revelation+21:23" class="verse-ref">Revelation 21:23</a> &mdash; "The city has no need of sun or moon to shine on it, for the glory of God gives it light, and its lamp is the Lamb."</p>
+        </div>
+
+        <div class="section">
+            <button class="dict-toggle" data-toggle="roots" onclick="toggleDict('roots')">
+                <span class="arrow">&#9658;</span>&#128279; Hebrew &amp; Greek Roots
+            </button>
+            <div class="dict-section" id="roots">
+                <p><a href="../lexicon/H5216.html" class="lexicon-link">H5216</a> &mdash; <strong>ner</strong> (נֵר): lamp, candle, light; used for the tabernacle lamps, the lamp of God's presence, and metaphorically for human life and dynasty; "the lamp of Israel" (2 Sam 21:17) = the king himself.</p>
+                <p><a href="../lexicon/H4501.html" class="lexicon-link">H4501</a> &mdash; <strong>menorah</strong> (מְנוֹרָה): lampstand, candelabrum; the seven-branched golden lampstand of the tabernacle (Exod 25:31–40) is the most iconic sacred object of Israel; Zechariah's vision (Zech 4) depicts a menorah with olive trees feeding it — the Spirit of God as the oil that sustains witness.</p>
+                <p><a href="../lexicon/G3088.html" class="lexicon-link">G3088</a> &mdash; <strong>lychnos</strong> (λύχνος): lamp, a portable lamp; used in Matt 5:15 ("a city on a hill"), Matt 25 (ten virgins), Rev 1 (lampstands/churches); <em>lampas</em> (G2985) is a larger torch-lamp.</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <button class="dict-toggle" data-toggle="corruption" onclick="toggleDict('corruption')">
+                <span class="arrow">&#9658;</span>&#9888;&#65039; Modern Corruption
+            </button>
+            <div class="dict-section" id="corruption">
+                <div class="corruption">
+                    <p>The parable of the ten virgins (Matt 25:1–13) is one of the most sobering in Scripture — and one of the most avoided. Five had oil; five did not. When the bridegroom came, five entered and five were shut out. The modern church's response has been to soften the warning — "surely the foolish virgins represent non-Christians" — rather than receive it as a warning to professing believers about preparedness and genuine spiritual life. The oil cannot be borrowed or transferred. The five wise virgins could not share theirs. Spiritual readiness is not communal — it is personal. Every sermon, every devotion, every prayer meeting is adding oil to the lamp. Every season of spiritual neglect is letting it drain. When the Bridegroom comes, you will have exactly as much oil as you accumulated.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <button class="dict-toggle" data-toggle="proto" onclick="toggleDict('proto')">
+                <span class="arrow">&#9658;</span>&#127760; Proto-Language Roots
+            </button>
+            <div class="dict-section" id="proto">
+                <pre>Greek λάμπω (lampō) = to shine, to be radiant
+  → λαμπάς (lampas) = torch, lamp
+  → λαμπρός (lampros) = bright, radiant, splendid
+  → φάρος (pharos) = lighthouse (Pharos of Alexandria)
+  PIE root *lap- = to light, to shine
+
+Hebrew נֵר (ner, H5216)
+  Root uncertain; possibly related to נָאַר (na'ar) = to growl, to flash
+  Used in blessing: "The LORD is my light (ner)" (Ps 27:1 uses or; but Ps 18:28: "You light my lamp" uses ner)
+  The tabernacle menorah had seven lamps — seven being the number of completeness
+  Kept burning tamid (תָּמִיד = continually, perpetually) — an unending witness before God
+
+Lamp theology in progressive revelation:
+  Menorah (tabernacle) → Israel's witness to the nations
+  Word as lamp (Ps 119:105) → Scripture illuminates the path
+  Ten virgins (Matt 25) → eschatological readiness
+  Seven lampstands (Rev 1) → the churches as light-bearers
+  Lamb as lamp (Rev 21:23) → Christ is the final, ultimate, self-sustaining Light</pre>
+            </div>
+        </div>
+
+        <div class="section">
+            <button class="dict-toggle" data-toggle="usage" onclick="toggleDict('usage')">
+                <span class="arrow">&#9658;</span>&#9997;&#65039; Usage Examples
+            </button>
+            <div class="dict-section" id="usage">
+                <p>&#x2022; "A lamp to your feet, not a spotlight to the horizon. God gives you enough light for the next step — not the whole road. That's not cruelty; it's an invitation to keep walking with him."</p>
+                <p>&#x2022; "In Revelation 21:23, the Lamb is the lamp of the New Jerusalem. No sun needed. No moon. The light of eternity is not a natural phenomenon — it is the presence of Christ himself."</p>
+                <p>&#x2022; "Christ walks among the lampstands (Rev 1:13). He tends his churches. He evaluates their light. He warns the cold ones. He praises the faithful ones. The church is not self-sustaining light — it is a vessel of the Light."</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>Related Words</h3>
+            <div class="related">
+                <a href="light.html">Light</a>
+                <a href="word.html">Word</a>
+                <a href="spirit.html">Spirit</a>
+                <a href="witness.html">Witness</a>
+                <a href="tabernacle.html">Tabernacle</a>
+            </div>
+        </div>
+
+    </div>
+
+    <footer>
+        <div class="cross-divider"><img src="../assets/icons/shield-cross-bible-48.png" alt="" width="36" height="36" style="opacity:0.6;margin-bottom:10px;"></div>
+        <p>
+            <a href="../index.html#uniting"><img src="../assets/icons/shield-hands-joining.png" class="site-icon" alt="" width="20" height="20"> Uniting</a> &middot;
+            <a href="../serving.html"><img src="../assets/icons/shield-serving.png" class="site-icon" alt="" width="20" height="20"> Serving</a> &middot;
+            <a href="../mentoring.html"><img src="../assets/icons/shield-mentoring.png" class="site-icon" alt="" width="20" height="20"> Mentoring</a> &middot;
+            <a href="../counseling.html"><img src="../assets/icons/shield-family.png" class="site-icon" alt="" width="20" height="20"> Counseling</a> &middot;
+            <a href="../about.html"><img src="../assets/icons/shield-about-person-24.png" class="site-icon" alt="" width="20" height="20"> About</a>
+        </p>
+        <p style="margin-top:8px;font-size:0.78rem;color:#555;">Powered by MOOPbot Pro &mdash; &ldquo;Iron sharpens iron.&rdquo; &mdash; <a href="../bible.html?ref=Proverbs+27:17" style="color:var(--gold);text-decoration:underline;">Proverbs 27:17</a></p>
+    </footer>
+    <script>
+    function toggleDict(id){
+        var s=document.getElementById(id);
+        var b=document.querySelector('[data-toggle="'+id+'"]');
+        var a=b?b.querySelector('.arrow'):null;
+        s.classList.toggle('open');
+        if(a)a.classList.toggle('open');
+    }
+    function toggleTheme(){
+        var b=document.body,t=document.getElementById('themeToggle');
+        if(b.classList.contains('light-mode')){b.classList.remove('light-mode');t.textContent='\u{1F319}';localStorage.setItem('bte-theme','dark');}
+        else{b.classList.add('light-mode');t.textContent='\u2600\uFE0F';localStorage.setItem('bte-theme','light');}
+    }
+    (function(){
+        if(localStorage.getItem('bte-theme')==='light'){
+            document.body.classList.add('light-mode');
+            var t=document.getElementById('themeToggle');if(t)t.textContent='\u2600\uFE0F';
+        }
+    })();
+    </script>
+</body>
+</html>

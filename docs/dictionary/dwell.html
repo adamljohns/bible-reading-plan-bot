@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dwell &mdash; The MOOP Dictionary</title>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        :root { --bg:#000; --card:#111; --gold:#D4AF37; --gold-light:#F4D470; --white:#FFF; --gray:#888; --border:#333; }
+        body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--white); min-height:100vh; line-height:1.7; }
+        h1,h2,h3,h4 { font-family:'Playfair Display',serif; }
+        nav { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:4px 8px; padding:10px 16px;
+              border-bottom:1px solid var(--border); position:sticky; top:0;
+              background:rgba(0,0,0,0.95); backdrop-filter:blur(8px); z-index:100; }
+        nav a { color:var(--gray); text-decoration:none; font-size:0.8rem; display:inline-flex; align-items:center;
+                gap:3px; padding:3px 6px; border-radius:6px; transition:color 0.2s; }
+        nav a:hover, nav a.active { color:var(--gold); }
+        .site-icon { vertical-align:middle; opacity:0.8; }
+        .theme-toggle { background:none; border:1px solid var(--border); border-radius:50%; width:28px; height:28px;
+                        cursor:pointer; font-size:0.85rem; transition:all 0.3s; padding:0; color:var(--white);
+                        display:inline-flex; align-items:center; justify-content:center; }
+        .theme-toggle:hover { border-color:var(--gold); }
+        .container { max-width:820px; margin:0 auto; padding:28px 20px 60px; }
+        .word-header { text-align:center; padding:40px 0 30px; border-bottom:1px solid var(--border); margin-bottom:30px; }
+        .word-title { font-size:2.8rem; color:var(--gold-light); margin-bottom:6px; }
+        .pronunciation { color:var(--gray); font-size:1.1rem; font-style:italic; }
+        .pos { display:inline-block; background:var(--gold); color:#000; font-weight:700;
+               font-size:0.78rem; padding:3px 14px; border-radius:15px; margin:10px 0; }
+        .etymology { color:var(--gray); font-size:0.88rem; margin:12px auto; max-width:650px; }
+        .section { margin:18px 0; padding:18px 22px; background:var(--card); border:1px solid var(--border); border-radius:10px; }
+        .section > h3 { color:var(--gold); margin-bottom:12px; font-size:1.05rem; }
+        .section p { margin:7px 0; }
+        .biblical-def { border-left:3px solid var(--gold); padding-left:15px; }
+        .dict-toggle { cursor:pointer; color:var(--gold); font-size:0.92rem; user-select:none;
+                       display:inline-flex; align-items:center; gap:0; background:none; border:none;
+                       padding:0; font-family:inherit; font-weight:600; }
+        .dict-toggle:hover { color:var(--gold-light); }
+        .dict-toggle .arrow { display:inline-block; transition:transform 0.2s; margin-right:8px; font-size:0.75rem; }
+        .dict-toggle .arrow.open { transform:rotate(90deg); }
+        .dict-section { display:none; margin:10px 0 4px 0; padding:12px 16px;
+                        background:rgba(212,175,55,0.06); border-left:2px solid var(--gold);
+                        border-radius:0 6px 6px 0; }
+        .dict-section.open { display:block; }
+        .dict-section p { margin:6px 0; font-size:0.95rem; }
+        .dict-section pre { font-family:'Courier New',monospace; font-size:0.82rem; color:var(--gold-light);
+                             line-height:1.7; white-space:pre-wrap; }
+        .corruption { border-left:3px solid #CC0000; padding-left:15px; }
+        .verse-ref { color:var(--gold); text-decoration:none; font-weight:600; }
+        .verse-ref:hover { color:var(--gold-light); text-decoration:underline; }
+        .lexicon-link { color:var(--gold); font-family:monospace; text-decoration:none; }
+        .lexicon-link:hover { color:var(--gold-light); text-decoration:underline; }
+        .related { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+        .related a { background:var(--card); border:1px solid var(--border); padding:6px 14px;
+                     border-radius:20px; color:var(--white); text-decoration:none; font-size:0.85rem;
+                     transition:border-color 0.2s, color 0.2s; }
+        .related a:hover { border-color:var(--gold); color:var(--gold); }
+        footer { text-align:center; padding:28px 20px; border-top:1px solid var(--border);
+                 margin-top:40px; color:var(--gray); font-size:0.88rem; }
+        footer a { color:var(--gray); text-decoration:none; }
+        footer a:hover { color:var(--gold); }
+        .cross-divider { margin-bottom:10px; }
+        body.light-mode { --bg:#F5F3EF; --card:#FFF; --white:#1a1a1a; --gray:#666; --border:#d4d0c8; background:#F5F3EF; color:#1a1a1a; }
+        body.light-mode nav { background:rgba(245,243,239,0.97); }
+        body.light-mode .section { background:#fff; border-color:#d4d0c8; }
+        body.light-mode .dict-section { background:rgba(212,175,55,0.04); }
+        body.light-mode footer { border-top-color:#d4d0c8; }
+        body.light-mode .related a { background:#f0ede7; border-color:#d4d0c8; color:#1a1a1a; }
+        a, a:link, a:visited { color: var(--gold, #D4AF37) !important; }
+        a:hover { color: var(--gold-light, #F4D470) !important; }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav>
+        <a href="../index.html"><img src="../assets/icons/shield-home-48.png" class="site-icon" alt="" width="16" height="16"> Home</a>
+        <a href="../watchman.html"><img src="../assets/icons/shield-bible.png" class="site-icon" alt="" width="16" height="16"> Watchman</a>
+        <a href="../bible.html"><img src="../assets/icons/shield-compass.png" class="site-icon" alt="" width="16" height="16"> BTE</a>
+        <a href="../lexicon.html"><img src="../assets/icons/shield-alpha-omega-48.png" class="site-icon" alt="" width="16" height="16"> Lexicon</a>
+        <a href="../cross-references.html"><img src="../assets/icons/shield-infinity-rope-48.png" class="site-icon" alt="" width="16" height="16"> Cross-Refs</a>
+        <a href="index.html" class="active"><img src="../assets/icons/shield-book-greek-48.png" class="site-icon" alt="" width="16" height="16"> Dictionary</a>
+        <a href="../blog.html"><img src="../assets/icons/shield-blog-quill-48.png" class="site-icon" alt="" width="16" height="16"> Blog</a>
+        <a href="../connect.html"><img src="../assets/icons/shield-handshake.png" class="site-icon" alt="" width="16" height="16"> Connect</a>
+        <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle" title="Toggle dark/light">&#127769;</button>
+    </nav>
+    <div class="container">
+
+        <div class="word-header">
+            <div class="word-title">Dwell</div>
+            <div class="pronunciation">/dwɛl/</div>
+            <span class="pos">verb</span>
+            <div class="etymology">Old English <em>dwellan</em> — to lead astray, hinder, delay; later shifted to "to remain, reside." Hebrew: <em>shakan</em> (שָׁכַן) — to settle, abide, dwell (root of <em>Shekinah</em> and <em>tabernacle/mishkan</em>); <em>yashab</em> (יָשַׁב) — to sit, dwell, remain. Greek: <em>skenoō</em> (σκηνόω) — to pitch a tent, tabernacle, dwell; <em>menō</em> (μένω) — to remain, abide, continue.</div>
+        </div>
+
+        <div class="section">
+            <h3>&#128214; Biblical Definition</h3>
+            <div class="biblical-def">
+                <p>To dwell in Scripture is not merely to occupy space — it carries <strong>the weight of settled, covenantal presence</strong>. God's story from Genesis to Revelation is the story of God seeking to dwell with his people. In Eden, God walked with man. After the Fall, he withdrew. The tabernacle was a portable dwelling of God among Israel. The temple was a permanent (yet provisional) dwelling. The Incarnation was the ultimate dwelling — "the Word became flesh and <em>dwelt</em> (skenoō — pitched his tent) among us" (John 1:14). The Spirit now dwells in the believer (1 Cor 6:19). The New Jerusalem culminates the whole story: "The dwelling place of God is with man" (Rev 21:3). To dwell with God is the goal of creation; to be cast out of his presence is the essence of damnation.</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <button class="dict-toggle" data-toggle="webster" onclick="toggleDict('webster')">
+                <span class="arrow">&#9658;</span>&#128220; Webster 1828 Definition
+            </button>
+            <div class="dict-section" id="webster">
+                <p><strong>DWELL</strong>, verb intransitive [Saxon dwellan, to err, to delay; Gr. to roll about; L. to wander.]</p>
+                <p>1. To abide as a permanent resident; to inhabit; to live in a place. "The Lord your God will dwell in it." 1 Kings 6.</p>
+                <p>2. To be in any state or condition; to continue for a time. "To dwell in doubtful joy."</p>
+                <p>3. To continue long; as, to dwell on a subject in discourse.</p>
+                <p>DWELLER, noun An inhabitant; a resident. DWELLING, noun Habitation; place of residence; abode.</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>&#128214; Key Scripture</h3>
+            <p>&#x2022; <a href="../bible.html?ref=John+1:14" class="verse-ref">John 1:14</a> &mdash; "The Word became flesh and <em>dwelt</em> among us, and we have seen his glory."</p>
+            <p>&#x2022; <a href="../bible.html?ref=Psalm+27:4" class="verse-ref">Psalm 27:4</a> &mdash; "One thing have I asked of the LORD…that I may dwell in the house of the LORD all the days of my life."</p>
+            <p>&#x2022; <a href="../bible.html?ref=1+Corinthians+6:19" class="verse-ref">1 Corinthians 6:19</a> &mdash; "Your body is a temple of the Holy Spirit who is in you."</p>
+            <p>&#x2022; <a href="../bible.html?ref=Revelation+21:3" class="verse-ref">Revelation 21:3</a> &mdash; "Behold, the dwelling place of God is with man. He will dwell with them, and they will be his people."</p>
+            <p>&#x2022; <a href="../bible.html?ref=Colossians+1:19" class="verse-ref">Colossians 1:19</a> &mdash; "For in him all the fullness of God was pleased to dwell."</p>
+        </div>
+
+        <div class="section">
+            <button class="dict-toggle" data-toggle="roots" onclick="toggleDict('roots')">
+                <span class="arrow">&#9658;</span>&#128279; Hebrew &amp; Greek Roots
+            </button>
+            <div class="dict-section" id="roots">
+                <p><a href="../lexicon/H7931.html" class="lexicon-link">H7931</a> &mdash; <strong>shakan</strong> (שָׁכַן): to settle, abide, dwell; root of <em>mishkan</em> (tabernacle) and <em>Shekinah</em> (God's indwelling glory); 130+ uses in OT; carries the idea of permanent, committed settlement.</p>
+                <p><a href="../lexicon/H3427.html" class="lexicon-link">H3427</a> &mdash; <strong>yashab</strong> (יָשַׁב): to sit, dwell, remain; 1,000+ uses in OT — the most common word for dwelling; emphasizes settled rest and residence.</p>
+                <p><a href="../lexicon/G4637.html" class="lexicon-link">G4637</a> &mdash; <strong>skenoō</strong> (σκηνόω): to pitch a tent, tabernacle among; from <em>skēnē</em> = tent; John 1:14 deliberately echoes the OT tabernacle: the Incarnation is God's new tabernacle.</p>
+                <p><a href="../lexicon/G3306.html" class="lexicon-link">G3306</a> &mdash; <strong>menō</strong> (μένω): to remain, abide, continue; key word in John's Gospel — Jesus tells his disciples to "abide in me" (John 15:4–9); 120+ uses in NT.</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <button class="dict-toggle" data-toggle="corruption" onclick="toggleDict('corruption')">
+                <span class="arrow">&#9658;</span>&#9888;&#65039; Modern Corruption
+            </button>
+            <div class="dict-section" id="corruption">
+                <div class="corruption">
+                    <p>Modern theology often reduces "dwelling" to metaphor — the Holy Spirit "dwells" in believers in some vague, symbolic sense, not a real, personal, present indwelling. This strips the Incarnation and Pentecost of their scandal. God actually chose to inhabit human flesh; the Spirit actually takes up residence in the bodies of believers. The same word (<em>skenoō</em>) John uses for the Incarnation (John 1:14) is used for the New Jerusalem (Rev 21:3). God's dwelling with man is the endpoint of cosmic history — not a poetic flourish. The trivialization of divine indwelling produces anemic spirituality: we treat the Spirit as a distant influence rather than a present Person who inhabits, transforms, and leads.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <button class="dict-toggle" data-toggle="proto" onclick="toggleDict('proto')">
+                <span class="arrow">&#9658;</span>&#127760; Proto-Language Roots
+            </button>
+            <div class="dict-section" id="proto">
+                <pre>Hebrew שָׁכַן (shakan, H7931)
+  Proto-Semitic *škn = to be settled, to dwell
+  → מִשְׁכָּן (mishkan) = tabernacle, dwelling place
+  → שְׁכִינָה (Shekinah, post-biblical) = God's dwelling glory
+
+Greek σκηνόω (skenoō, G4637)
+  → σκηνή (skēnē) = tent, booth
+  → The annual Feast of Tabernacles (Sukkot) = living in temporary shelters
+    recalling God's dwelling with Israel in the wilderness
+  → John 1:14: Jesus "pitched his tent" (tabernacled) among us at the Feast
+    many scholars believe the Incarnation occurred during Sukkot
+
+The story of dwelling in Scripture:
+  Eden → God walked with man
+  Tabernacle → God dwelt in a tent among wandering Israel  
+  Temple → God dwelt in a house in settled Israel
+  Incarnation → God dwelt in a body
+  Pentecost → God dwells in his people
+  New Jerusalem → God dwells with man forever</pre>
+            </div>
+        </div>
+
+        <div class="section">
+            <button class="dict-toggle" data-toggle="usage" onclick="toggleDict('usage')">
+                <span class="arrow">&#9658;</span>&#9997;&#65039; Usage Examples
+            </button>
+            <div class="dict-section" id="usage">
+                <p>&#x2022; "John 1:14 — 'The Word tabernacled among us.' God didn't visit earth. He moved in. The Incarnation was not a temporary tour; it was permanent, incarnate, covenant dwelling."</p>
+                <p>&#x2022; "One thing David wanted: to dwell in God's house all his life (Ps 27:4). Not gifts from God — the presence of God. The greatest Christian is not the one with the most blessings; it's the one who most wants to be with God."</p>
+                <p>&#x2022; "Revelation 21:3: 'The dwelling place of God is with man.' All of Scripture — 66 books, 1,189 chapters — is moving toward this sentence. Emmanuel. God with us. Always."</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>Related Words</h3>
+            <div class="related">
+                <a href="tabernacle.html">Tabernacle</a>
+                <a href="shekinah.html">Shekinah</a>
+                <a href="incarnation.html">Incarnation</a>
+                <a href="temple.html">Temple</a>
+                <a href="abide.html">Abide</a>
+            </div>
+        </div>
+
+    </div>
+
+    <footer>
+        <div class="cross-divider"><img src="../assets/icons/shield-cross-bible-48.png" alt="" width="36" height="36" style="opacity:0.6;margin-bottom:10px;"></div>
+        <p>
+            <a href="../index.html#uniting"><img src="../assets/icons/shield-hands-joining.png" class="site-icon" alt="" width="20" height="20"> Uniting</a> &middot;
+            <a href="../serving.html"><img src="../assets/icons/shield-serving.png" class="site-icon" alt="" width="20" height="20"> Serving</a> &middot;
+            <a href="../mentoring.html"><img src="../assets/icons/shield-mentoring.png" class="site-icon" alt="" width="20" height="20"> Mentoring</a> &middot;
+            <a href="../counseling.html"><img src="../assets/icons/shield-family.png" class="site-icon" alt="" width="20" height="20"> Counseling</a> &middot;
+            <a href="../about.html"><img src="../assets/icons/shield-about-person-24.png" class="site-icon" alt="" width="20" height="20"> About</a>
+        </p>
+        <p style="margin-top:8px;font-size:0.78rem;color:#555;">Powered by MOOPbot Pro &mdash; &ldquo;Iron sharpens iron.&rdquo; &mdash; <a href="../bible.html?ref=Proverbs+27:17" style="color:var(--gold);text-decoration:underline;">Proverbs 27:17</a></p>
+    </footer>
+    <script>
+    function toggleDict(id){
+        var s=document.getElementById(id);
+        var b=document.querySelector('[data-toggle="'+id+'"]');
+        var a=b?b.querySelector('.arrow'):null;
+        s.classList.toggle('open');
+        if(a)a.classList.toggle('open');
+    }
+    function toggleTheme(){
+        var b=document.body,t=document.getElementById('themeToggle');
+        if(b.classList.contains('light-mode')){b.classList.remove('light-mode');t.textContent='\u{1F319}';localStorage.setItem('bte-theme','dark');}
+        else{b.classList.add('light-mode');t.textContent='\u2600\uFE0F';localStorage.setItem('bte-theme','light');}
+    }
+    (function(){
+        if(localStorage.getItem('bte-theme')==='light'){
+            document.body.classList.add('light-mode');
+            var t=document.getElementById('themeToggle');if(t)t.textContent='\u2600\uFE0F';
+        }
+    })();
+    </script>
+</body>
+</html>
