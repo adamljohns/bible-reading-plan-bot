@@ -1360,7 +1360,9 @@
             const found = [];
             const seen = new Set();
             Object.entries(keywords).forEach(([word, num]) => {
-                if (lower.includes(word) && !seen.has(num)) {
+                // Word boundary match — prevents "god" matching "godly", "godliness", etc.
+                const re = new RegExp('\\b' + word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b');
+                if (re.test(lower) && !seen.has(num)) {
                     seen.add(num);
                     found.push({ num, def: STRONGS_DEFS[num] || num });
                 }
