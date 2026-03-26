@@ -889,6 +889,17 @@
 
         plan.style.display = 'block';
         plan.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+        try {
+            const avg = SCORES.reduce((a, b) => a + b, 0) / SCORES.length;
+            const tier = getTier(avg).label;
+            const scores = {};
+            LETTERS.forEach((l, i) => { scores[l + '_' + WORDS[i]] = SCORES[i]; });
+            let log = JSON.parse(localStorage.getItem('purityAssessmentLog') || '[]');
+            log.push({ scores, tier, date: new Date().toISOString().slice(0,10), ts: new Date().toISOString() });
+            if (log.length > 20) log = log.slice(-20);
+            localStorage.setItem('purityAssessmentLog', JSON.stringify(log));
+        } catch(e) {}
     }
 
     // ── PROGRESS TRACKER ─────────────────────────────────────────────────────

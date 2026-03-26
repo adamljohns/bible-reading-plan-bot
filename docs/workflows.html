@@ -1002,6 +1002,7 @@ function stepAdvance(id) {
     const w = workflows.find(w => w.id === id);
     if (!w) return;
     if (w.currentStep < w.steps.length) {
+        const stepText = w.steps[w.currentStep] ? (w.steps[w.currentStep].name || '') : '';
         w.currentStep++;
         if (w.currentStep >= w.steps.length) {
             w.status = 'complete';
@@ -1009,6 +1010,12 @@ function stepAdvance(id) {
         saveState(workflows);
         renderStats();
         renderGrid();
+        try {
+            let log = JSON.parse(localStorage.getItem('workflowCompletionLog') || '[]');
+            log.push({ workflow: w.title || w.id, step: stepText, date: new Date().toISOString().slice(0,10), ts: new Date().toISOString() });
+            if (log.length > 50) log = log.slice(-50);
+            localStorage.setItem('workflowCompletionLog', JSON.stringify(log));
+        } catch(e) {}
     }
 }
 

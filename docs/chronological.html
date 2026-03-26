@@ -346,6 +346,7 @@
         <button class="action-btn" onclick="goToday()" title="Jump to today"><img src="assets/icons/shield-calendar.png" class="site-icon" alt="calendar" width="20" height="20"> Today</button>
         <button class="action-btn" id="monthToggleBtn" onclick="toggleMonthView()" title="Full month view"><img src="assets/icons/shield-calendar.png" class="site-icon" alt="calendar" width="20" height="20"> Month</button>
         <button class="action-btn" onclick="window.print()" title="Print today's readings"><img src="assets/icons/shield-gear.png" class="site-icon" alt="gear" width="20" height="20"> Print</button>
+        <button class="action-btn" id="markCompleteBtn" onclick="markDayComplete()" title="Mark this day's reading complete">✅ Done</button>
     </div>
 
     <!-- MONTH VIEW -->
@@ -884,6 +885,9 @@ function render() {
     if (document.getElementById('monthView').classList.contains('visible')) {
         renderMonthView();
     }
+
+    // Update mark-complete button state
+    updateMarkBtn();
 }
 
 // ============================================================
@@ -977,6 +981,37 @@ document.addEventListener('keydown', e => {
     if (e.key === 'ArrowRight') navigate(1);
     if (e.key === 'Home') goToday();
 });
+
+// ============================================================
+//  MARK DAY COMPLETE
+// ============================================================
+function markDayComplete() {
+    const key = dateToKey(currentDate);
+    const dayNum = dayOfYear(currentDate);
+    try {
+        let log = JSON.parse(localStorage.getItem('readingCompletionLog') || '[]');
+        // Avoid duplicate entries for the same day
+        const already = log.some(e => e.date === key);
+        if (!already) {
+            log.push({ day: dayNum, date: key, ts: new Date().toISOString() });
+            if (log.length > 100) log = log.slice(-100);
+            localStorage.setItem('readingCompletionLog', JSON.stringify(log));
+        }
+    } catch(e) {}
+    updateMarkBtn();
+}
+
+function updateMarkBtn() {
+    const btn = document.getElementById('markCompleteBtn');
+    if (!btn) return;
+    const key = dateToKey(currentDate);
+    try {
+        const log = JSON.parse(localStorage.getItem('readingCompletionLog') || '[]');
+        const done = log.some(e => e.date === key);
+        btn.textContent = done ? '✅ Done' : '☐ Mark Done';
+        btn.style.opacity = done ? '0.6' : '1';
+    } catch(e) {}
+}
 
 // ============================================================
 //  INIT
