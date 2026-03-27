@@ -84,10 +84,26 @@
             color: var(--gold); font-size: 0.85rem; padding: 4px 14px; border-radius: 20px;
         }
 
+        /* ── Search Bar ── */
+        .search-bar {
+            display: flex; justify-content: center;
+            padding: 20px 20px 0;
+        }
+        .search-bar input {
+            width: 100%; max-width: 520px;
+            padding: 10px 18px;
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 24px; color: var(--white);
+            font-size: 0.92rem; font-family: 'Inter', sans-serif;
+            outline: none; transition: border-color 0.2s;
+        }
+        .search-bar input::placeholder { color: var(--gray); }
+        .search-bar input:focus { border-color: rgba(212,175,55,0.6); }
+
         /* ── Filter Bar ── */
         .filter-bar {
             display: flex; flex-wrap: wrap; gap: 8px;
-            justify-content: center; padding: 24px 20px 10px;
+            justify-content: center; padding: 12px 20px 10px;
             max-width: 900px; margin: 0 auto;
         }
         .filter-btn {
@@ -302,6 +318,11 @@
         <span class="post-count">149 posts from the archive</span>
     </div>
 
+    <!-- ── Search Bar ── -->
+    <div class="search-bar">
+        <input type="search" id="postSearch" placeholder="🔍 Search posts by title or topic..." autocomplete="off">
+    </div>
+
     <!-- ── Filter Bar ── -->
     <div class="filter-bar">
         <button class="filter-btn active" data-cat="All">All Posts</button>
@@ -364,6 +385,7 @@ const WP_POSTS = [{"title": "Music to Pray By: When Brothers Build Together", "d
         const GRID_POSTS = WP_POSTS.filter(p => !p.url.includes(FEATURED_SLUG));
 
         let currentFilter = 'All';
+        let currentSearch = '';
 
         function escapeHtml(str) {
             return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -375,9 +397,13 @@ const WP_POSTS = [{"title": "Music to Pray By: When Brothers Build Together", "d
             const countEl = document.getElementById('countNum');
             const featured = document.getElementById('featuredPost');
 
-            const filtered = filter === 'All'
-                ? GRID_POSTS
-                : GRID_POSTS.filter(p => p.cat === filter);
+            const q = currentSearch.toLowerCase();
+            let filtered = filter === 'All' ? GRID_POSTS : GRID_POSTS.filter(p => p.cat === filter);
+            if (q) {
+                filtered = filtered.filter(p =>
+                    p.title.toLowerCase().includes(q) || p.excerpt.toLowerCase().includes(q)
+                );
+            }
 
             // Show/hide featured post based on filter
             // Featured post is "General" category
@@ -418,6 +444,12 @@ const WP_POSTS = [{"title": "Music to Pray By: When Brothers Build Together", "d
                 currentFilter = btn.dataset.cat;
                 renderGrid(currentFilter);
             });
+        });
+
+        // Search input
+        document.getElementById('postSearch').addEventListener('input', function() {
+            currentSearch = this.value.trim();
+            renderGrid(currentFilter);
         });
 
         // Render latest 5 posts
