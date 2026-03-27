@@ -432,6 +432,9 @@
     </nav>
 
     <div class="filter-bar" id="filter-bar"></div>
+    <div style="text-align:right; padding: 0 24px 8px; opacity:0.6; font-size:0.8rem;">
+        <button onclick="exportStateToClipboard()" style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.2); color:#ccc; padding:5px 14px; border-radius:6px; cursor:pointer; font-size:0.78rem;">📋 Copy State → MbPro</button>
+    </div>
 
     <div class="workflow-grid" id="workflow-grid"></div>
 
@@ -880,6 +883,31 @@ function saveState(workflows) {
         status: w.status,
     }));
     localStorage.setItem(STORAGE_KEY, JSON.stringify(slim));
+    // Also write to a visible export blob so MbPro can read it
+    try {
+        const exportData = {
+            exportedAt: new Date().toISOString(),
+            workflows: slim
+        };
+        localStorage.setItem('wf-export-latest', JSON.stringify(exportData));
+    } catch(e) {}
+}
+
+function exportStateToClipboard() {
+    try {
+        const slim = workflows.map(w => ({
+            id: w.id,
+            title: w.title,
+            currentStep: w.currentStep,
+            totalSteps: w.steps.length,
+            status: w.status,
+            currentStepName: w.steps[w.currentStep] ? w.steps[w.currentStep].name : 'Complete'
+        }));
+        const exportData = JSON.stringify({ exportedAt: new Date().toISOString(), workflows: slim }, null, 2);
+        navigator.clipboard.writeText(exportData).then(() => {
+            alert('Workflow state copied to clipboard! Paste it to MbPro.');
+        });
+    } catch(e) { alert('Copy failed: ' + e); }
 }
 
 function mergeState(defaults) {
