@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-touch-icon.png">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:title" content="R.E.A.L. M.A.N. Self-Assessment | U.S.M.C. Ministries">
+    <meta property="og:description" content="A Christ-centered self-assessment for men. 7 axes. Hard questions. No shortcuts. Be the man God called you to be.">
+    <meta property="og:image" content="https://usmcmin.org/assets/og/og-main.png?v=51">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://usmcmin.org/real-man-assessment.html">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="description" content="Real Man self-assessment for men. R.E.A.L. M.A.N. framework — 7 axes, auto-scoring, formation plan. Be the man God built you to be.">
+    <title>R.E.A.L. M.A.N. Self-Assessment | USMC Ministries</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #000000;
+            --bg-card: #111111;
+            --bg-card2: #181818;
+            --gold: #D4AF37;
+            --gold-light: #F4D470;
+            --gold-dim: rgba(212,175,55,0.15);
+            --white: #e8e8e8;
+            --gray: #888888;
+            --gray-mid: #aaaaaa;
+            --border: #333333;
+            --danger: #c0392b;
+            --warning: #e67e22;
+            --success: #27ae60;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--white);
+            line-height: 1.8;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        h1, h2, h3 { font-family: 'Playfair Display', serif; color: var(--gold); }
+
+        /* ── Nav ── */
+        nav {
+            display: flex; flex-wrap: wrap; gap: 6px;
+            justify-content: center; padding: 14px 20px;
+            border-bottom: 1px solid var(--border);
+            background: rgba(0,0,0,0.95);
+            position: sticky; top: 0; z-index: 100;
+        }
+        nav a {
+            color: var(--gray); text-decoration: none; font-size: 0.85rem;
+            font-weight: 500; padding: 5px 12px; border-radius: 20px;
+            border: 1px solid transparent; transition: all 0.2s;
+            white-space: nowrap;
+        }
+        nav a:hover { color: var(--gold); border-color: var(--border); }
+        nav a.active { color: var(--gold); border-color: var(--gold); }
+
+        /* ── Theme Toggle ── */
+        .bte-theme-toggle {
+            display: inline-flex; align-items: center; gap: 6px;
+            cursor: pointer; padding: 5px 10px; border-radius: 20px;
+            border: 1px solid var(--border); background: rgba(0,0,0,0.8);
+            transition: border-color 0.2s; user-select: none;
+        }
+        .bte-theme-toggle:hover { border-color: #D4AF37; }
+        .bte-theme-toggle .toggle-track {
+            width: 32px; height: 16px; background: #333; border-radius: 8px;
+            position: relative; transition: background 0.2s;
+        }
+        .bte-theme-toggle .toggle-knob {
+            position: absolute; left: 2px; top: 2px;
+            width: 12px; height: 12px; background: #888; border-radius: 50%;
+            transition: left 0.2s, background 0.2s;
+        }
+        body.light-mode {
+            --bg: #F5F3EF; --bg-card: #FFFFFF; --bg-card2: #F0EDE7;
+            --white: #1a1a1a; --gray: #666; --gray-mid: #444; --border: #d4d0c8;
+        }
+        body.light-mode nav { background: rgba(245,243,239,0.97); }
+        body.light-mode nav a { color: #555 !important; }
+        body.light-mode nav a:hover, body.light-mode nav a.active { color: #D4AF37 !important; }
+        body.light-mode .bte-theme-toggle { background: rgba(240,238,233,0.9); border-color: #ccc; }
+        body.light-mode .bte-theme-toggle .toggle-knob { left: 16px; }
+        body.light-mode footer { background: #F5F3EF !important; border-color: #d4d0c8 !important; color: #666 !important; }
+
+        /* ── Hero ── */
+        .hero {
+            text-align: center;
+            padding: 60px 20px 50px;
+            background: linear-gradient(180deg, rgba(212,175,55,0.10) 0%, transparent 100%);
+            border-bottom: 1px solid var(--border);
+        }
+        .hero-badge {
+            display: inline-block; font-size: 0.72rem; font-weight: 600;
+            letter-spacing: 3px; text-transform: uppercase;
+            color: var(--gold); border: 1px solid var(--gold);
+            padding: 4px 14px; border-radius: 20px; margin-bottom: 20px; opacity: 0.85;
+        }
+        .hero h1 {
+            font-size: clamp(2.2rem, 7vw, 3.8rem);
+            color: var(--white); margin-bottom: 8px; letter-spacing: 2px;
+        }
+        .hero h1 span { color: var(--gold); }
+        .acronym-row {
+            display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;
+            margin: 20px 0 28px;
+        }
+        .acronym-pill {
+            display: flex; flex-direction: column; align-items: center;
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 12px; padding: 10px 14px; min-width: 80px;
+            transition: border-color 0.2s;
+        }
+        .acronym-pill:hover { border-color: var(--gold); }
+        .acronym-letter {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem; font-weight: 800; color: var(--gold); line-height: 1;
+        }
+        .acronym-word { font-size: 0.6rem; color: var(--gray); letter-spacing: 1px; text-transform: uppercase; margin-top: 4px; text-align: center; }
+        .hero .tagline {
+            font-style: italic; color: var(--gray-mid); font-size: 1.05rem; max-width: 600px; margin: 0 auto;
+        }
+
+        /* ── Main ── */
+        main { flex: 1; max-width: 900px; margin: 0 auto; padding: 0 16px 60px; width: 100%; }
+        .section-card {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 16px; padding: 28px 24px; margin-top: 32px;
+        }
+        .section-title {
+            display: flex; align-items: center; gap: 10px; margin-bottom: 20px;
+        }
+        .section-title .dot {
+            width: 6px; height: 28px; background: var(--gold); border-radius: 3px; flex-shrink: 0;
+        }
+        .section-title h2 { font-size: 1.4rem; color: var(--gold); }
+        .section-title .subtitle { font-size: 0.82rem; color: var(--gray); margin-top: 2px; }
+
+        /* ── Letter Sections ── */
+        .letter-section {
+            background: var(--bg-card2); border: 1px solid var(--border);
+            border-radius: 14px; padding: 22px 20px; margin-bottom: 24px;
+        }
+        .letter-header {
+            display: flex; align-items: center; gap: 14px; margin-bottom: 18px;
+            padding-bottom: 14px; border-bottom: 1px solid var(--border);
+        }
+        .big-letter {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem; font-weight: 800; color: var(--gold);
+            line-height: 1; min-width: 50px; text-align: center;
+        }
+        .letter-meta { flex: 1; }
+        .letter-word {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.25rem; font-weight: 700; color: var(--white);
+        }
+        .letter-subword { font-size: 0.8rem; color: var(--gray); text-transform: uppercase; letter-spacing: 1.5px; margin-top: 2px; }
+        .letter-score-display {
+            display: flex; flex-direction: column; align-items: center;
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 10px; padding: 8px 16px; min-width: 70px;
+        }
+        .letter-score-num {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem; font-weight: 800; color: var(--gold); line-height: 1;
+        }
+        .letter-score-label { font-size: 0.65rem; color: var(--gray); letter-spacing: 1px; text-transform: uppercase; margin-top: 2px; }
+
+        /* ── Questions ── */
+        .question-item {
+            margin-bottom: 20px;
+        }
+        .question-item:last-child { margin-bottom: 0; }
+        .question-text {
+            font-size: 0.95rem; color: var(--white); line-height: 1.65; margin-bottom: 10px;
+        }
+        .rating-row {
+            display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+        }
+        .rating-btn {
+            display: flex; flex-direction: column; align-items: center;
+            width: 44px; height: 50px; border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--bg-card); cursor: pointer;
+            transition: all 0.15s; color: var(--gray);
+            font-size: 1rem; font-weight: 700; font-family: 'Inter', sans-serif;
+            justify-content: center; gap: 2px;
+        }
+        .rating-btn .r-num { font-size: 1.1rem; font-weight: 700; }
+        .rating-btn .r-label { font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        .rating-btn:hover { border-color: var(--gold); color: var(--gold); }
+        .rating-btn.selected {
+            background: var(--gold); border-color: var(--gold);
+            color: #000;
+        }
+        .rating-scale-hint {
+            font-size: 0.72rem; color: var(--gray); margin-left: 8px;
+            font-style: italic;
+        }
+
+        /* ── Scripture ── */
+        .q-scripture {
+            display: inline-flex; align-items: center; gap: 6px;
+            margin-top: 8px; padding: 5px 12px;
+            background: var(--gold-dim); border: 1px solid rgba(212,175,55,0.3);
+            border-radius: 20px; text-decoration: none;
+            color: var(--gold); font-size: 0.8rem; font-weight: 600;
+            transition: background 0.2s;
+        }
+        .q-scripture:hover { background: rgba(212,175,55,0.25); }
+
+        /* ── Overall Score ── */
+        .overall-score-wrap {
+            display: flex; flex-direction: column; align-items: center;
+            padding: 24px; background: var(--bg-card2); border-radius: 14px;
+            border: 1px solid var(--border); margin-bottom: 24px;
+        }
+        .overall-score-num {
+            font-family: 'Playfair Display', serif;
+            font-size: 4rem; font-weight: 800; color: var(--gold); line-height: 1;
+        }
+        .overall-score-label { font-size: 0.8rem; color: var(--gray); letter-spacing: 2px; text-transform: uppercase; margin-top: 4px; }
+        .score-tier { margin-top: 8px; font-size: 1rem; font-weight: 600; letter-spacing: 1px; }
+        .score-bar-wrap { width: 100%; max-width: 340px; margin-top: 14px; }
+        .score-bar-bg { background: var(--border); border-radius: 6px; height: 10px; overflow: hidden; }
+        .score-bar-fill { height: 100%; border-radius: 6px; transition: width 0.6s ease; background: var(--gold); }
+
+        /* ── Letter Breakdown ── */
+        .breakdown-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+            gap: 10px; margin-top: 16px;
+        }
+        .breakdown-cell {
+            background: var(--bg-card2); border: 1px solid var(--border);
+            border-radius: 10px; padding: 12px 10px; text-align: center;
+            transition: border-color 0.2s;
+        }
+        .breakdown-cell .bc-letter {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem; font-weight: 800; color: var(--gold);
+        }
+        .breakdown-cell .bc-word { font-size: 0.65rem; color: var(--gray); text-transform: uppercase; letter-spacing: 1px; margin: 2px 0 6px; }
+        .breakdown-cell .bc-score { font-size: 1.4rem; font-weight: 700; }
+        .breakdown-cell .bc-bar { height: 4px; border-radius: 2px; margin-top: 6px; }
+
+        /* ── Formation Plan ── */
+        #results-section { display: none; }
+        .formation-area {
+            background: var(--bg-card2); border: 1px solid rgba(212,175,55,0.3);
+            border-radius: 12px; padding: 22px 20px; margin-bottom: 20px;
+        }
+        .formation-area h3 {
+            font-size: 1.1rem; color: var(--gold); margin-bottom: 14px;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .formation-item { display: flex; gap: 10px; margin-bottom: 12px; align-items: flex-start; }
+        .formation-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 2px; }
+        .formation-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: var(--gray); margin-bottom: 2px; }
+        .formation-text { font-size: 0.92rem; color: var(--white); line-height: 1.6; }
+        .formation-scripture {
+            display: inline-block; margin-top: 4px; padding: 4px 10px;
+            background: var(--gold-dim); border-radius: 20px;
+            color: var(--gold); font-size: 0.78rem; font-style: italic; text-decoration: none;
+        }
+        .formation-scripture:hover { background: rgba(212,175,55,0.25); }
+
+        /* ── Buttons ── */
+        .btn-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 20px; }
+        .btn {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 12px 22px; border-radius: 8px; font-size: 0.9rem;
+            font-weight: 600; cursor: pointer; border: none; transition: all 0.2s;
+            text-decoration: none; font-family: 'Inter', sans-serif;
+        }
+        .btn-primary { background: var(--gold); color: #000; }
+        .btn-primary:hover { background: var(--gold-light); }
+        .btn-outline { background: transparent; color: var(--gold); border: 1px solid var(--gold); }
+        .btn-outline:hover { background: var(--gold-dim); }
+        .btn-ghost { background: transparent; color: var(--gray); border: 1px solid var(--border); }
+        .btn-ghost:hover { color: var(--white); border-color: var(--gray-mid); }
+
+        /* ── Progress bar on assessment ── */
+        .assessment-progress {
+            display: flex; align-items: center; gap: 12px;
+            margin-bottom: 20px; padding: 14px 18px;
+            background: var(--bg-card2); border-radius: 10px; border: 1px solid var(--border);
+        }
+        .progress-text { font-size: 0.85rem; color: var(--gray-mid); flex: 1; }
+        .progress-pct { font-size: 1.1rem; font-weight: 700; color: var(--gold); }
+        .progress-bar-bg { flex: 1; background: var(--border); border-radius: 4px; height: 6px; overflow: hidden; }
+        .progress-bar-fill { height: 100%; border-radius: 4px; background: var(--gold); transition: width 0.3s; }
+
+        /* ── Print ── */
+        @media print {
+            nav, .bte-theme-toggle, .btn-row, footer, .no-print { display: none !important; }
+            body { background: #fff; color: #000; }
+            .section-card, .letter-section { border: 1px solid #ccc; break-inside: avoid; }
+            h1, h2, h3, .overall-score-num, .big-letter, .acronym-letter, .letter-word { color: #8B6914 !important; }
+            .rating-btn.selected { background: #8B6914 !important; color: #fff !important; }
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 600px) {
+            .hero { padding: 40px 16px 32px; }
+            .section-card { padding: 20px 14px; }
+            .letter-section { padding: 18px 14px; }
+            .acronym-row { gap: 6px; }
+            .acronym-pill { min-width: 64px; padding: 8px 10px; }
+            .rating-btn { width: 38px; height: 46px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ── Nav ── -->
+    <nav>
+        <a href="index.html"><img src="assets/icons/shield-home-48.png" width="16" height="16" alt="" style="vertical-align:-2px"> U.S.M.C. Ministries Home</a>
+        <a href="watchman.html"><img src="assets/icons/shield-bible.png" width="16" height="16" alt="" style="vertical-align:-2px"> Watchman Bible Plan</a>
+        <a href="bible.html"><img src="assets/icons/shield-compass.png" width="16" height="16" alt="" style="vertical-align:-2px"> Bible Translation Engine</a>
+        <a href="purity-assessment.html"><img src="assets/icons/shield-cross-bible-48.png" width="16" height="16" alt="" style="vertical-align:-2px"> Purity Assessment</a>
+        <a href="resolute-citizen-assessment.html" class="active">Resolute Citizen →</a>
+        <a href="connect.html"><img src="assets/icons/shield-handshake.png" width="16" height="16" alt="" style="vertical-align:-2px"> Connect</a>
+    </nav>
+
+    <!-- ── Theme Toggle ── -->
+    <div style="text-align:center; margin-top:8px; margin-bottom:4px;">
+        <div class="bte-theme-toggle" onclick="bteToggleTheme()" title="Toggle dark/light mode">
+            <span style="font-size:0.9rem">🌙</span>
+            <div class="toggle-track"><div class="toggle-knob"></div></div>
+            <span style="font-size:0.9rem">☀️</span>
+        </div>
+    </div>
+
+    <!-- ── Hero ── -->
+    <div class="hero">
+        <div class="hero-badge">Men's Character Assessment · After-Action Review</div>
+        <h1>The <span>R.E.A.L.</span> <span>M.A.N.</span></h1>
+        <div class="acronym-row">
+            <div class="acronym-pill"><span class="acronym-letter">R</span><span class="acronym-word">Reject<br>Passivity</span></div>
+            <div class="acronym-pill"><span class="acronym-letter">E</span><span class="acronym-word">Engage<br>Intentionally</span></div>
+            <div class="acronym-pill"><span class="acronym-letter">A</span><span class="acronym-word">Accept<br>Responsibility</span></div>
+            <div class="acronym-pill"><span class="acronym-letter">L</span><span class="acronym-word">Lead<br>Courageously</span></div>
+            <div class="acronym-pill"><span class="acronym-letter">M</span><span class="acronym-word">Manage<br>Faithfully</span></div>
+            <div class="acronym-pill"><span class="acronym-letter">A</span><span class="acronym-word">Account<br>Accurately</span></div>
+            <div class="acronym-pill"><span class="acronym-letter">N</span><span class="acronym-word">Never<br>Quit</span></div>
+        </div>
+        <p class="tagline">"This is not a quiz. It's a mirror. Look hard — and don't flinch."</p>
+    </div>
+
+    <!-- ── Main ── -->
+    <main>
+
+        <!-- ── Assessment ── -->
+        <div class="section-card">
+            <div class="section-title">
+                <div class="dot"></div>
+                <div>
+                    <h2>The Self-Assessment</h2>
+                    <div class="subtitle">Rate yourself 1–5 on each question. 1 = Never | 2 = Rarely | 3 = Sometimes | 4 = Usually | 5 = Always. Answer what's <em>actually true</em>, not what you wish were true.</div>
+                </div>
+            </div>
+
+            <div class="assessment-progress">
+                <div class="progress-text">Questions answered: <span id="answered-count">0</span> / <span id="total-count">0</span></div>
+                <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-bar" style="width:0%"></div></div>
+                <div class="progress-pct" id="progress-pct">0%</div>
+            </div>
+
+            <div id="assessmentBlock"></div>
+
+            <div class="btn-row no-print">
+                <button class="btn btn-primary" onclick="runAssessment()">📋 Score My Assessment</button>
+                <button class="btn btn-ghost" onclick="resetAll()">↺ Reset</button>
+            </div>
+        </div>
+
+        <!-- ── Results ── -->
+        <div class="section-card" id="results-section">
+            <div class="section-title">
+                <div class="dot"></div>
+                <div>
+                    <h2>Your Results</h2>
+                    <div class="subtitle">Letter-by-letter breakdown + top 3 focus areas.</div>
+                </div>
+            </div>
+
+            <div class="overall-score-wrap">
+                <div class="overall-score-num" id="overall-score-num">—</div>
+                <div class="overall-score-label">Overall Score / 5.0</div>
+                <div class="score-tier" id="score-tier"></div>
+                <div class="score-bar-wrap">
+                    <div class="score-bar-bg"><div class="score-bar-fill" id="overall-bar" style="width:0%"></div></div>
+                </div>
+            </div>
+
+            <h3 style="font-size:1.1rem; margin-bottom:12px; color:var(--gold);">Letter-by-Letter Breakdown</h3>
+            <div class="breakdown-grid" id="breakdown-grid"></div>
+
+            <div id="formation-content" style="margin-top:28px;"></div>
+
+            <div class="btn-row no-print">
+                <button class="btn btn-outline" onclick="window.print()">🖨️ Print Results</button>
+                <button class="btn btn-ghost" onclick="resetAll()">↺ Retake Assessment</button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ── Footer ── -->
+    <footer style="border-top:1px solid var(--border); padding:28px 20px; text-align:center; font-size:0.85rem; color:var(--gray); background:var(--bg);">
+        <div style="margin-bottom:12px;">
+            <img src="assets/icons/shield-cross-bible-48.png" alt="cross" width="40" height="40" style="opacity:0.7;">
+        </div>
+        <p>
+            <a href="index.html#uniting" style="color:var(--gold);">Uniting</a> &nbsp;&nbsp;
+            <a href="serving.html" style="color:var(--gold);">Serving</a> &nbsp;&nbsp;
+            <a href="mentoring.html" style="color:var(--gold);">Mentoring</a> &nbsp;&nbsp;
+            <a href="purity-assessment.html" style="color:var(--gold);">Purity Assessment</a> &nbsp;&nbsp;
+            <a href="resolute-citizen-assessment.html" style="color:var(--gold);">Resolute Citizen</a>
+        </p>
+        <p style="margin-top:10px; font-size:0.82rem; font-style:italic; color:#555;">&ldquo;Be watchful, stand firm in the faith, act like men, be strong.&rdquo; &mdash; 1 Corinthians 16:13</p>
+        <p style="margin-top:8px; font-size:0.8rem; color:#555;">
+            <a href="sitemap.html" style="color:var(--gray); font-size:0.85rem;">🗺️ Site Map</a> &nbsp;&nbsp; Powered by MOOPbot Pro
+        </p>
+    </footer>
+
+    <script>
+    // ── DATA ─────────────────────────────────────────────────────────────────
+    const SECTIONS = [
+        {
+            letter: 'R',
+            word: 'Reject Passivity',
+            subword: 'Taking initiative without being asked',
+            scripture: { ref: '1 Corinthians 16:13', text: '"Be watchful, stand firm in the faith, act like men, be strong." — 1 Cor. 16:13', anchor: '1cor16_13' },
+            formation: {
+                habit: "This week: identify one area in your home, marriage, or work where you've been passively waiting for someone else to lead. Write it down. Then take one concrete action toward it — today, not someday.",
+                prayer: "Lord, I confess I've let passivity disguise itself as patience. Wake me up. Turn my inertia into initiative. Make me a man who moves — who sees a need and fills it without being told.",
+                convo: '"There's something I've been avoiding that I need to step up on. I'm telling you now so you can hold me to it."',
+                memory: '"Be watchful, stand firm in the faith, act like men, be strong." — 1 Corinthians 16:13'
+            },
+            questions: [
+                "I take initiative rather than waiting to be asked.",
+                "When I see something that needs doing, I step up without hesitation.",
+                "I engage conflict and hard conversations instead of avoiding them.",
+                "I take the first step in my marriage, family, and faith — not the last."
+            ]
+        },
+        {
+            letter: 'E',
+            word: 'Engage Intentionally',
+            subword: 'Deliberate, purposeful action in life',
+            scripture: { ref: 'Ephesians 5:15–16', text: '"Look carefully then how you walk, not as unwise but as wise, making the best use of the time." — Eph. 5:15–16', anchor: 'eph5_15' },
+            formation: {
+                habit: "Review your calendar for last week. Count how many hours went to your calling vs. passive consumption (TV, social, gaming). This week: schedule 3 intentional blocks for what matters most — before you fill time with what's easiest.",
+                prayer: "Father, I confess that I drift through days that should be driven by purpose. Give me clarity about what matters most and the discipline to pursue it with everything I have.",
+                convo: '"I want to tell you how I actually spent my time last week — and it convicted me. Here\'s what I\'m changing."',
+                memory: '"Look carefully then how you walk, not as unwise but as wise, making the best use of the time." — Ephesians 5:15–16'
+            },
+            questions: [
+                "I am intentional about how I spend my time each day.",
+                "I pursue my wife, children, and calling with deliberate action.",
+                "I have clear goals and I work toward them consistently.",
+                "I don't drift through my days — I direct them."
+            ]
+        },
+        {
+            letter: 'A',
+            word: 'Accept Responsibility',
+            subword: 'Owning failures without excuses',
+            scripture: { ref: 'Genesis 3:12 / Proverbs 28:13', text: '"Whoever conceals his transgressions will not prosper, but he who confesses and forsakes them will obtain mercy." — Prov. 28:13', anchor: 'prov28_13' },
+            formation: {
+                habit: "Think of one failure in the last 30 days you've blamed on circumstances, other people, or timing. Write out what you actually could have controlled. Confess your part — to God, and if appropriate, to the person affected.",
+                prayer: "God, forgive me for the hundred ways I've shifted blame rather than owned my part. Give me the strength to stand under the weight of my choices without flinching. Accountability starts here.",
+                convo: '"I owe you an honest conversation. I\'ve been blaming [circumstance/person] when the truth is I could have handled this better. I own that."',
+                memory: '"Whoever conceals his transgressions will not prosper, but he who confesses and forsakes them will obtain mercy." — Proverbs 28:13'
+            },
+            questions: [
+                "I own my mistakes without making excuses.",
+                "When things go wrong, I look at myself first.",
+                "I don't blame circumstances, other people, or bad luck for outcomes I could have influenced.",
+                "When I fail someone, I address it directly instead of hoping it blows over."
+            ]
+        },
+        {
+            letter: 'L',
+            word: 'Lead Courageously',
+            subword: 'Setting direction and holding the line',
+            scripture: { ref: 'Joshua 1:9', text: '"Be strong and courageous. Do not be frightened, and do not be dismayed, for the Lord your God is with you." — Josh. 1:9', anchor: 'josh1_9' },
+            formation: {
+                habit: "Identify one hard decision you've been putting off — in your marriage, family, finances, or faith. Make it this week. Don't wait for consensus or comfort. Leaders decide; followers wait.",
+                prayer: "Lord, you called me to lead — my family, my household, my sphere. Give me the courage to hold the line when it's unpopular and to set direction even when I'm not certain. Let me lead from my knees.",
+                convo: '"I\'ve been hesitating on [decision/issue] because I was afraid of the pushback. I\'m deciding now, and I wanted to tell you."',
+                memory: '"Be strong and courageous. Do not be frightened, and do not be dismayed, for the Lord your God is with you wherever you go." — Joshua 1:9'
+            },
+            questions: [
+                "I set the spiritual direction for my household.",
+                "I make hard decisions even when they're unpopular.",
+                "My family and those I lead know where I stand on what matters.",
+                "I lead from conviction, not consensus."
+            ]
+        },
+        {
+            letter: 'M',
+            word: 'Manage Faithfully',
+            subword: 'Stewarding body, finances, time, and resources',
+            scripture: { ref: 'Luke 16:10', text: '"One who is faithful in a very little is also faithful in much." — Luke 16:10', anchor: 'luke16_10' },
+            formation: {
+                habit: "Pick one area of stewardship you've been managing by impulse: finances, body, time, or energy. This week: create a simple written plan for that area. Not a perfect system — just one that proves you're thinking, not just reacting.",
+                prayer: "Father, everything I have belongs to You — my money, my body, my time, my gifts. Forgive me for treating them as mine to waste. Make me a faithful steward of what You've entrusted to me.",
+                convo: '"I\'ve been managing [finances/health/time] poorly. I want to show you the plan I\'m putting in place — and I need you to check on me."',
+                memory: '"One who is faithful in a very little is also faithful in much." — Luke 16:10'
+            },
+            questions: [
+                "I manage my finances with a plan, not by impulse.",
+                "I steward my body, time, and resources faithfully.",
+                "I live below my means and give generously.",
+                "I treat my physical health as a stewardship responsibility, not an afterthought."
+            ]
+        },
+        {
+            letter: 'A',
+            word: 'Account Accurately',
+            subword: 'Giving honest account of your life',
+            scripture: { ref: 'Hebrews 4:13', text: '"No creature is hidden from his sight, but all are naked and exposed to the eyes of him to whom we must give account." — Heb. 4:13', anchor: 'heb4_13' },
+            formation: {
+                habit: "This week: sit down and give yourself an honest weekly review — where did your time, money, and energy actually go? Not what you planned. What actually happened. Share it with one man who knows you.",
+                prayer: "God, You see everything I do and every motive behind it. Help me see myself as clearly as You see me. Give me the honesty to account accurately — to You, to myself, and to the men walking beside me.",
+                convo: '"Here\'s my honest account of this week — not the highlight reel. I want you to know the real version."',
+                memory: '"No creature is hidden from his sight, but all are naked and exposed to the eyes of him to whom we must give account." — Hebrews 4:13'
+            },
+            questions: [
+                "I can give an honest account of how I spent my week.",
+                "I have men in my life who hold me accountable.",
+                "I don't hide failure behind performance or busy-ness.",
+                "My private life and public life tell the same story."
+            ]
+        },
+        {
+            letter: 'N',
+            word: 'Never Quit',
+            subword: 'Perseverance through resistance and hardship',
+            scripture: { ref: 'Galatians 6:9', text: '"Let us not grow weary of doing good, for in due season we will reap, if we do not give up." — Gal. 6:9', anchor: 'gal6_9' },
+            formation: {
+                habit: "Name one thing you've quit or are tempted to quit — a commitment, a discipline, a relationship, a calling. Write down why you started. Read it this week every morning before you decide whether to continue.",
+                prayer: "Lord, the enemy's greatest weapon against me is discouragement. Give me the strength to endure — not because I can see the finish line, but because You called me to run. Let me finish what I start.",
+                convo: '"I\'ve been close to giving up on [thing]. I need you to speak truth to me about whether I should push through."',
+                memory: '"Let us not grow weary of doing good, for in due season we will reap, if we do not give up." — Galatians 6:9'
+            },
+            questions: [
+                "When things get hard, I push through rather than quit.",
+                "I finish what I start.",
+                "I persevere in my commitments to God, family, and work even when I don't feel like it.",
+                "When I'm discouraged, I press forward instead of retreating."
+            ]
+        }
+    ];
+
+    // ── STATE ─────────────────────────────────────────────────────────────────
+    let answers = {};  // key: "sectionIndex_questionIndex", value: 1-5
+
+    function totalQuestions() {
+        return SECTIONS.reduce((sum, s) => sum + s.questions.length, 0);
+    }
+
+    // ── BUILD UI ──────────────────────────────────────────────────────────────
+    function buildAssessment() {
+        const block = document.getElementById('assessmentBlock');
+        document.getElementById('total-count').textContent = totalQuestions();
+
+        SECTIONS.forEach((section, si) => {
+            const div = document.createElement('div');
+            div.className = 'letter-section';
+            div.id = `section-${si}`;
+
+            let qHTML = '';
+            section.questions.forEach((q, qi) => {
+                const key = `${si}_${qi}`;
+                qHTML += `
+                <div class="question-item" id="qi-${si}-${qi}">
+                    <div class="question-text">${qi + 1}. ${q}</div>
+                    <div class="rating-row">
+                        ${[1,2,3,4,5].map(n => `
+                            <button class="rating-btn" id="rb-${si}-${qi}-${n}"
+                                onclick="setRating(${si}, ${qi}, ${n})"
+                                aria-label="Rate ${n} - ${ratingLabel(n)}"
+                                type="button">
+                                <span class="r-num">${n}</span>
+                                <span class="r-label">${ratingLabel(n)}</span>
+                            </button>`).join('')}
+                        <span class="rating-scale-hint">1=Never · 5=Always</span>
+                    </div>
+                </div>`;
+            });
+
+            div.innerHTML = `
+                <div class="letter-header">
+                    <div class="big-letter">${section.letter}</div>
+                    <div class="letter-meta">
+                        <div class="letter-word">${section.word}</div>
+                        <div class="letter-subword">${section.subword}</div>
+                    </div>
+                    <div class="letter-score-display">
+                        <div class="letter-score-num" id="ls-num-${si}">—</div>
+                        <div class="letter-score-label">Score</div>
+                    </div>
+                </div>
+                ${qHTML}
+                <div style="margin-top:14px;">
+                    <a class="q-scripture" href="bible.html?ref=${section.scripture.anchor}" target="_blank" rel="noopener">
+                        📖 ${section.scripture.ref}
+                    </a>
+                    <p style="font-size:0.82rem;color:var(--gray);font-style:italic;margin-top:8px;padding:8px 12px;background:var(--bg-card);border-radius:6px;border-left:3px solid rgba(212,175,55,0.4);">${section.scripture.text}</p>
+                </div>
+            `;
+            block.appendChild(div);
+        });
+    }
+
+    function ratingLabel(n) {
+        return ['Never','Rarely','Smtms','Usu.','Always'][n - 1];
+    }
+
+    function setRating(si, qi, val) {
+        const key = `${si}_${qi}`;
+        answers[key] = val;
+
+        // Update buttons
+        for (let n = 1; n <= 5; n++) {
+            const btn = document.getElementById(`rb-${si}-${qi}-${n}`);
+            if (btn) btn.classList.toggle('selected', n === val);
+        }
+
+        // Update section score display
+        updateSectionScore(si);
+        updateProgress();
+    }
+
+    function updateSectionScore(si) {
+        const section = SECTIONS[si];
+        let total = 0, count = 0;
+        section.questions.forEach((_, qi) => {
+            const v = answers[`${si}_${qi}`];
+            if (v !== undefined) { total += v; count++; }
+        });
+        const el = document.getElementById(`ls-num-${si}`);
+        if (count === 0) { el.textContent = '—'; el.style.color = ''; return; }
+        const avg = total / count;
+        el.textContent = avg.toFixed(1);
+        el.style.color = scoreColor(avg);
+    }
+
+    function updateProgress() {
+        const total = totalQuestions();
+        const answered = Object.keys(answers).length;
+        document.getElementById('answered-count').textContent = answered;
+        const pct = Math.round((answered / total) * 100);
+        document.getElementById('progress-pct').textContent = pct + '%';
+        document.getElementById('progress-bar').style.width = pct + '%';
+    }
+
+    function scoreColor(avg) {
+        if (avg >= 4) return '#27ae60';
+        if (avg >= 3) return '#D4AF37';
+        if (avg >= 2) return '#e67e22';
+        return '#c0392b';
+    }
+
+    function getTier(avg) {
+        if (avg >= 4.5) return { label: '🏅 Walking in Strength', color: '#27ae60' };
+        if (avg >= 3.5) return { label: '✅ Gaining Ground', color: '#2ecc71' };
+        if (avg >= 2.5) return { label: '⚔️ In the Fight', color: '#D4AF37' };
+        if (avg >= 1.5) return { label: '⚠️ Needs Attention', color: '#e67e22' };
+        return { label: '🚨 Under Siege', color: '#c0392b' };
+    }
+
+    // ── RUN ASSESSMENT ────────────────────────────────────────────────────────
+    function runAssessment() {
+        const total = totalQuestions();
+        const answered = Object.keys(answers).length;
+        if (answered < total) {
+            const missing = total - answered;
+            if (!confirm(`You have ${missing} unanswered question(s). Score anyway with partial results?`)) return;
+        }
+
+        // Calculate per-section averages
+        const sectionAvgs = SECTIONS.map((section, si) => {
+            let sum = 0, count = 0;
+            section.questions.forEach((_, qi) => {
+                const v = answers[`${si}_${qi}`];
+                if (v !== undefined) { sum += v; count++; }
+            });
+            return count > 0 ? sum / count : null;
+        });
+
+        const validAvgs = sectionAvgs.filter(a => a !== null);
+        const overallAvg = validAvgs.length > 0 ? validAvgs.reduce((a,b) => a+b, 0) / validAvgs.length : 0;
+
+        // Overall score display
+        document.getElementById('overall-score-num').textContent = overallAvg.toFixed(2);
+        document.getElementById('overall-score-num').style.color = scoreColor(overallAvg);
+        const tier = getTier(overallAvg);
+        const tierEl = document.getElementById('score-tier');
+        tierEl.textContent = tier.label;
+        tierEl.style.color = tier.color;
+        document.getElementById('overall-bar').style.width = ((overallAvg / 5) * 100) + '%';
+        document.getElementById('overall-bar').style.background = scoreColor(overallAvg);
+
+        // Breakdown grid
+        const grid = document.getElementById('breakdown-grid');
+        grid.innerHTML = '';
+        SECTIONS.forEach((section, si) => {
+            const avg = sectionAvgs[si];
+            const cell = document.createElement('div');
+            cell.className = 'breakdown-cell';
+            const color = avg !== null ? scoreColor(avg) : '#555';
+            cell.style.borderColor = avg !== null ? color : '';
+            cell.innerHTML = `
+                <div class="bc-letter">${section.letter}</div>
+                <div class="bc-word">${section.word.split(' ')[0]}</div>
+                <div class="bc-score" style="color:${color}">${avg !== null ? avg.toFixed(1) : '—'}</div>
+                <div class="bc-bar" style="background:${color};width:${avg !== null ? (avg/5*100) : 0}%;margin:6px auto 0;height:4px;border-radius:2px;"></div>
+            `;
+            grid.appendChild(cell);
+        });
+
+        // Formation plan — top 3 weakest
+        const ranked = sectionAvgs
+            .map((avg, si) => ({ avg, si }))
+            .filter(x => x.avg !== null)
+            .sort((a, b) => a.avg - b.avg);
+
+        const formContent = document.getElementById('formation-content');
+        formContent.innerHTML = '<h3 style="font-size:1.2rem;color:var(--gold);margin-bottom:16px;">⚔️ Your Top 3 Focus Areas</h3>';
+
+        ranked.slice(0, 3).forEach((item, rank) => {
+            const section = SECTIONS[item.si];
+            const f = section.formation;
+            const div = document.createElement('div');
+            div.className = 'formation-area';
+            div.innerHTML = `
+                <h3>#${rank + 1} Priority — ${section.letter}: ${section.word} <span style="font-size:0.8rem;color:var(--gray);font-weight:400">(Score: ${item.avg.toFixed(2)}/5)</span></h3>
+                <div class="formation-item">
+                    <div class="formation-icon">📅</div>
+                    <div>
+                        <div class="formation-label">This Week's Habit</div>
+                        <div class="formation-text">${f.habit}</div>
+                    </div>
+                </div>
+                <div class="formation-item">
+                    <div class="formation-icon">🙏</div>
+                    <div>
+                        <div class="formation-label">Prayer Prompt</div>
+                        <div class="formation-text">${f.prayer}</div>
+                    </div>
+                </div>
+                <div class="formation-item">
+                    <div class="formation-icon">💬</div>
+                    <div>
+                        <div class="formation-label">Conversation Starter</div>
+                        <div class="formation-text">${f.convo}</div>
+                    </div>
+                </div>
+                <div class="formation-item">
+                    <div class="formation-icon">📖</div>
+                    <div>
+                        <div class="formation-label">Scripture to Memorize</div>
+                        <div class="formation-text">${f.memory}</div>
+                        <a class="formation-scripture" href="bible.html?ref=${section.scripture.anchor}" target="_blank" rel="noopener">${section.scripture.ref} →</a>
+                    </div>
+                </div>
+            `;
+            formContent.appendChild(div);
+        });
+
+        // Show results
+        const resultsSection = document.getElementById('results-section');
+        resultsSection.style.display = 'block';
+        resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+        // Save to localStorage
+        try {
+            let log = JSON.parse(localStorage.getItem('realManAssessmentLog') || '[]');
+            const entry = {
+                date: new Date().toISOString().slice(0, 10),
+                ts: new Date().toISOString(),
+                overall: overallAvg.toFixed(2),
+                tier: tier.label,
+                sections: SECTIONS.map((s, si) => ({ letter: s.letter, word: s.word, avg: sectionAvgs[si] !== null ? sectionAvgs[si].toFixed(2) : null }))
+            };
+            log.unshift(entry);
+            if (log.length > 20) log = log.slice(0, 20);
+            localStorage.setItem('realManAssessmentLog', JSON.stringify(log));
+        } catch(e) {}
+    }
+
+    function resetAll() {
+        answers = {};
+        document.querySelectorAll('.rating-btn').forEach(btn => btn.classList.remove('selected'));
+        document.querySelectorAll('[id^="ls-num-"]').forEach(el => { el.textContent = '—'; el.style.color = ''; });
+        document.getElementById('results-section').style.display = 'none';
+        document.getElementById('progress-bar').style.width = '0%';
+        document.getElementById('progress-pct').textContent = '0%';
+        document.getElementById('answered-count').textContent = '0';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ── THEME ──────────────────────────────────────────────────────────────────
+    function bteToggleTheme() {
+        document.body.classList.toggle('light-mode');
+        localStorage.setItem('bteTheme', document.body.classList.contains('light-mode') ? 'light' : 'dark');
+    }
+
+    // ── INIT ──────────────────────────────────────────────────────────────────
+    (function init() {
+        if (localStorage.getItem('bteTheme') === 'light') document.body.classList.add('light-mode');
+        buildAssessment();
+    })();
+    </script>
+</body>
+</html>
