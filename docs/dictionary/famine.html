@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Famine &mdash; The MOOP Dictionary</title>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        :root { --bg:#000; --card:#111; --gold:#D4AF37; --gold-light:#F4D470; --white:#FFF; --gray:#888; --border:#333; }
+        body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--white); min-height:100vh; line-height:1.7; }
+        h1,h2,h3,h4 { font-family:'Playfair Display',serif; }
+        nav { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:4px 8px; padding:10px 16px;
+              border-bottom:1px solid var(--border); position:sticky; top:0;
+              background:rgba(0,0,0,0.95); backdrop-filter:blur(8px); z-index:100; }
+        nav a { color:var(--gray); text-decoration:none; font-size:0.8rem; display:inline-flex; align-items:center;
+                gap:3px; padding:3px 6px; border-radius:6px; transition:color 0.2s; }
+        nav a:hover, nav a.active { color:var(--gold); }
+        .site-icon { vertical-align:middle; opacity:0.8; }
+        .theme-toggle { background:none; border:1px solid var(--border); border-radius:50%; width:28px; height:28px;
+                        cursor:pointer; font-size:0.85rem; transition:all 0.3s; padding:0; color:var(--white);
+                        display:inline-flex; align-items:center; justify-content:center; }
+        .theme-toggle:hover { border-color:var(--gold); }
+        .container { max-width:820px; margin:0 auto; padding:28px 20px 60px; }
+        .word-header { text-align:center; padding:40px 0 30px; border-bottom:1px solid var(--border); margin-bottom:30px; }
+        .word-title { font-size:2.8rem; color:var(--gold-light); margin-bottom:6px; }
+        .pronunciation { color:var(--gray); font-size:1.1rem; font-style:italic; }
+        .pos { display:inline-block; background:var(--gold); color:#000; font-weight:700;
+               font-size:0.78rem; padding:3px 14px; border-radius:15px; margin:10px 0; }
+        .etymology { color:var(--gray); font-size:0.88rem; margin:12px auto; max-width:650px; }
+        .section { margin:18px 0; padding:18px 22px; background:var(--card); border:1px solid var(--border); border-radius:10px; }
+        .section > h3 { color:var(--gold); margin-bottom:12px; font-size:1.05rem; }
+        .section p { margin:7px 0; color:var(--white); }
+        .biblical-def { border-left:3px solid var(--gold); padding-left:15px; }
+        .dict-toggle { cursor:pointer; color:var(--gold); font-size:0.92rem; user-select:none;
+                       display:inline-flex; align-items:center; gap:0; background:none; border:none;
+                       padding:0; font-family:inherit; font-weight:600; }
+        .dict-toggle:hover { color:var(--gold-light); }
+        .dict-toggle .arrow { display:inline-block; transition:transform 0.2s; margin-right:8px; font-size:0.75rem; }
+        .dict-toggle .arrow.open { transform:rotate(90deg); }
+        .dict-section { display:none; margin:10px 0 4px 0; padding:12px 16px;
+                        background:rgba(212,175,55,0.06); border-left:2px solid var(--gold);
+                        border-radius:0 6px 6px 0; }
+        .dict-section.open { display:block; }
+        .dict-section p { margin:6px 0; font-size:0.95rem; color:var(--white); }
+        .corruption { border-left:3px solid #CC0000; padding-left:15px; }
+        .verse-ref { color:var(--gold); text-decoration:none; font-weight:600; }
+        .verse-ref:hover { color:var(--gold-light); text-decoration:underline; }
+        .lexicon-link { color:var(--gold); font-family:monospace; text-decoration:none; }
+        .lexicon-link:hover { color:var(--gold-light); text-decoration:underline; }
+        .related { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+        .related a { background:var(--card); border:1px solid var(--border); padding:6px 14px;
+                     border-radius:20px; color:var(--white); text-decoration:none; font-size:0.85rem;
+                     transition:border-color 0.2s, color 0.2s; }
+        .related a:hover { border-color:var(--gold); color:var(--gold); }
+        footer { text-align:center; padding:28px 20px; border-top:1px solid var(--border);
+                 margin-top:40px; color:var(--gray); font-size:0.88rem; }
+        footer a { color:var(--gray); text-decoration:none; }
+        footer a:hover { color:var(--gold); }
+        body.light-mode { --bg:#F5F3EF; --card:#FFF; --white:#1a1a1a; --gray:#666; --border:#d4d0c8; background:#F5F3EF; color:#1a1a1a; }
+        body.light-mode nav { background:rgba(245,243,239,0.97); }
+        body.light-mode .section { background:#fff; border-color:#d4d0c8; }
+        body.light-mode .dict-section { background:rgba(212,175,55,0.04); }
+        body.light-mode footer { border-top-color:#d4d0c8; }
+        body.light-mode .related a { background:#f0ede7; border-color:#d4d0c8; color:#1a1a1a; }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav>
+        <a href="../index.html"><img src="../assets/icons/shield-home-48.png" class="site-icon" alt="" width="16" height="16"> Home</a>
+        <a href="../watchman.html"><img src="../assets/icons/shield-bible.png" class="site-icon" alt="" width="16" height="16"> Watchman</a>
+        <a href="../bible.html"><img src="../assets/icons/shield-compass.png" class="site-icon" alt="" width="16" height="16"> BTE</a>
+        <a href="../lexicon.html"><img src="../assets/icons/shield-alpha-omega-48.png" class="site-icon" alt="" width="16" height="16"> Lexicon</a>
+        <a href="../cross-references.html"><img src="../assets/icons/shield-infinity-rope-48.png" class="site-icon" alt="" width="16" height="16"> Cross-Refs</a>
+        <a href="index.html" class="active"><img src="../assets/icons/shield-book-greek-48.png" class="site-icon" alt="" width="16" height="16"> Dictionary</a>
+        <a href="../blog.html"><img src="../assets/icons/shield-blog-quill-48.png" class="site-icon" alt="" width="16" height="16"> Blog</a>
+        <a href="../connect.html"><img src="../assets/icons/shield-handshake.png" class="site-icon" alt="" width="16" height="16"> Connect</a>
+        <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle" title="Toggle dark/light">&#127769;</button>
+    </nav>
+    <div class="container">
+        <div class="word-header">
+            <div class="word-title">Famine</div>
+            <div class="pronunciation">/ˈfæm.ɪn/</div>
+            <span class="pos">noun</span>
+            <div class="etymology">From Old French <em>famine</em>, from <em>faim</em> (hunger), from Latin <em>fames</em> (hunger, starvation). Hebrew: <em>raav</em> (רָעָב) — hunger, famine, starvation. Greek: <em>limos</em> (λιμός) — famine, hunger.</div>
+        </div>
+
+        <div class="section">
+            <h3>&#128214; Biblical Definition</h3>
+            <div class="biblical-def">
+                <p>In Scripture, famine operates on two levels: <strong>physical</strong> (the literal failure of crops and food supply) and <strong>spiritual</strong> (the withdrawal of God's Word and presence). Physical famines appear repeatedly in the biblical narrative as divine instruments — sometimes of judgment (Deut 28:48; Amos 4:6), sometimes as testing that drives the faithful to seek God (Gen 12:10; Ruth 1:1). The most haunting prophetic use of famine is in Amos 8:11–12: God declares a coming famine "not of bread…but of hearing the words of the Lord." When the Word is silenced — by persecution, apostasy, or indifference — spiritual famine follows. The prodigal son "was dying of hunger" in the far country (Luke 15:14–17), and it was that famine that brought him to his senses and back to his father. Hunger can be a grace that drives the soul home.</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <button class="dict-toggle" data-toggle="webster" onclick="toggleDict('webster')">
+                <span class="arrow">&#9658;</span>&#128220; Webster 1828 Definition
+            </button>
+            <div class="dict-section" id="webster">
+                <p><strong>FAM'INE, n.</strong> [Fr. <em>famine</em>; from L. <em>fames</em>, hunger.] Scarcity of food; dearth; a general want of provisions sufficient for the inhabitants of a country or besieged place. Famine is often the consequence of war, drought, or pestilence. Figuratively: any great scarcity; as, a famine of wit.</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>&#128214; Scripture References</h3>
+            <p><a href="../bible.html?ref=Amos+8:11-12" class="verse-ref">Amos 8:11–12</a> — "Behold, the days are coming…when I will send a famine on the land — not a famine of bread, nor a thirst for water, but of hearing the words of the Lord."</p>
+            <p><a href="../bible.html?ref=Luke+15:14-17" class="verse-ref">Luke 15:14–17</a> — "A severe famine arose in that country…And he began to be in need…when he came to himself he said, 'How many of my father's hired servants have more than enough bread!'"</p>
+            <p><a href="../bible.html?ref=Psalm+33:19" class="verse-ref">Psalm 33:19</a> — "…to keep them alive in famine."</p>
+            <p><a href="../bible.html?ref=Matthew+4:4" class="verse-ref">Matthew 4:4</a> — "Man shall not live by bread alone, but by every word that comes from the mouth of God."</p>
+        </div>
+
+        <div class="section">
+            <h3>&#128279; Greek &amp; Hebrew Roots</h3>
+            <p><a href="../lexicon/H7458.html" class="lexicon-link">H7458</a> — <strong>raav</strong> (רָעָב): famine, hunger, starvation; the dominant OT word for famine; used of the great famines in the days of Abraham, Isaac, Joseph, and Elijah.</p>
+            <p><a href="../lexicon/G3042.html" class="lexicon-link">G3042</a> — <strong>limos</strong> (λιμός): hunger, famine; used in Luke 4:25 (Elijah's 3.5-year famine), Luke 15:14–17 (the prodigal), and Rev 6:8 (one of the four horsemen).</p>
+        </div>
+
+        <div class="section">
+            <h3>&#128221; Usage</h3>
+            <p>&bull; "A full belly can coexist with a starving soul — the prodigal had to lose everything to realize the feast was at his father's table."</p>
+            <p>&bull; "The most dangerous famine is the one we don't feel because we've stopped craving the Word."</p>
+            <p>&bull; "God used famines to displace His people so they would relocate to where His purposes were unfolding — Joseph in Egypt, Ruth in Bethlehem."</p>
+        </div>
+
+        <div class="section">
+            <button class="dict-toggle" data-toggle="corruption" onclick="toggleDict('corruption')">
+                <span class="arrow">&#9658;</span>&#9888;&#65039; Modern Corruption
+            </button>
+            <div class="dict-section" id="corruption">
+                <div class="corruption">
+                    <p>The spiritual famine of Amos 8:11 is often overlooked because the West remains materially overfed. But the church faces a real famine of the Word when Scripture is replaced by therapy, moralism, political messaging, or entertainment. Congregations can be busy, large, and active while starving for substantive biblical exposition. The tragedy of famine is that those suffering it often don't know what they're missing — they fill the void with lesser things and wonder why the hunger never leaves. The soul was made to feed on the living Word (Deut 8:3; Matt 4:4), and no substitute satisfies.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>Related Words</h3>
+            <div class="related">
+                <a href="wilderness.html">Wilderness</a><a href="word.html">Word</a><a href="suffering.html">Suffering</a><a href="providence.html">Providence</a><a href="bread.html">Bread</a>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div><img src="../assets/icons/shield-cross-bible-48.png" alt="" width="48" height="48" style="opacity:0.8;margin-bottom:10px;"></div>
+        <p>
+            <a href="../index.html#uniting"><img src="../assets/icons/shield-hands-joining.png" class="site-icon" alt="" width="20" height="20"> Uniting</a>
+            &nbsp;&nbsp;
+            <a href="../serving.html"><img src="../assets/icons/shield-serving.png" class="site-icon" alt="" width="20" height="20"> Serving</a>
+            &nbsp;&nbsp;
+            <a href="../mentoring.html"><img src="../assets/icons/shield-mentoring.png" class="site-icon" alt="" width="20" height="20"> Mentoring</a>
+            &nbsp;&nbsp;
+            <a href="../counseling.html"><img src="../assets/icons/shield-family.png" class="site-icon" alt="" width="20" height="20"> Counseling</a>
+        </p>
+        <p style="margin-top:10px; font-size:0.82rem; font-style:italic; color:#555;">&ldquo;Iron sharpens iron, and one man sharpens another.&rdquo; &mdash; Proverbs 27:17</p>
+        <p style="margin-top:6px; font-size:0.8rem; color:#555;">Powered by MOOPbot Pro</p>
+    </footer>
+    <script>
+    function toggleDict(id){
+        var s=document.getElementById(id);
+        var b=document.querySelector('[data-toggle="'+id+'"]');
+        var a=b?b.querySelector('.arrow'):null;
+        s.classList.toggle('open');
+        if(a)a.classList.toggle('open');
+    }
+    function toggleTheme(){
+        var b=document.body,t=document.getElementById('themeToggle');
+        if(b.classList.contains('light-mode')){b.classList.remove('light-mode');if(t)t.textContent='\u{1F319}';localStorage.setItem('bte-theme','dark');}
+        else{b.classList.add('light-mode');if(t)t.textContent='\u2600\uFE0F';localStorage.setItem('bte-theme','light');}
+    }
+    (function(){if(localStorage.getItem('bte-theme')==='light')document.body.classList.add('light-mode');})();
+    </script>
+</body>
+</html>
