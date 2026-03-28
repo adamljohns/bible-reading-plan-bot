@@ -8,16 +8,17 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-touch-icon.png">
     <link rel="manifest" href="/manifest.json">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta property="og:title" content="R.E.S.O.L.U.T.E. Citizen Self-Assessment | U.S.M.C. Ministries">
-    <meta property="og:description" content="A Christ-centered self-assessment for civic engagement, community leadership, and kingdom citizenship. 8 axes. Hard questions. No shortcuts.">
+    <meta property="og:title" content="R.E.S.O.L.U.T.E. Citizen Assessment | U.S.M.C. Ministries">
+    <meta property="og:description" content="A Christ-centered self-assessment for civic virtue and resolute citizenship. 8 axes. Hard questions. No shortcuts. Build for the generation after you.">
     <meta property="og:image" content="https://usmcmin.org/assets/og/og-main.png?v=51">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://usmcmin.org/resolute-citizen-assessment.html">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="description" content="Resolute Citizen self-assessment. R.E.S.O.L.U.T.E. framework — civic engagement, community, church, kingdom. 8 axes, auto-scoring, formation plan.">
-    <title>R.E.S.O.L.U.T.E. Citizen Self-Assessment | USMC Ministries</title>
+    <meta name="description" content="Resolute citizen self-assessment. R.E.S.O.L.U.T.E. framework — 8 axes, radar chart, formation plan. Build for the generation after you.">
+    <title>R.E.S.O.L.U.T.E. Citizen Assessment | USMC Ministries</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
@@ -32,7 +33,6 @@
             --gray-mid: #aaaaaa;
             --border: #333333;
             --danger: #c0392b;
-            --warning: #e67e22;
             --success: #27ae60;
         }
         body {
@@ -46,7 +46,6 @@
         }
         h1, h2, h3 { font-family: 'Playfair Display', serif; color: var(--gold); }
 
-        /* ── Nav ── */
         nav {
             display: flex; flex-wrap: wrap; gap: 6px;
             justify-content: center; padding: 14px 20px;
@@ -63,7 +62,6 @@
         nav a:hover { color: var(--gold); border-color: var(--border); }
         nav a.active { color: var(--gold); border-color: var(--gold); }
 
-        /* ── Theme Toggle ── */
         .bte-theme-toggle {
             display: inline-flex; align-items: center; gap: 6px;
             cursor: pointer; padding: 5px 10px; border-radius: 20px;
@@ -71,6 +69,7 @@
             transition: border-color 0.2s; user-select: none;
         }
         .bte-theme-toggle:hover { border-color: #D4AF37; }
+        .bte-theme-toggle .toggle-icon { width: 18px; text-align: center; line-height: 1; }
         .bte-theme-toggle .toggle-track {
             width: 32px; height: 16px; background: #333; border-radius: 8px;
             position: relative; transition: background 0.2s;
@@ -80,6 +79,10 @@
             width: 12px; height: 12px; background: #888; border-radius: 50%;
             transition: left 0.2s, background 0.2s;
         }
+        body.light-mode .bte-theme-toggle { background: rgba(240,238,233,0.9); border-color: #ccc; }
+        body.light-mode .bte-theme-toggle .toggle-track { background: #bbb; }
+        body.light-mode .bte-theme-toggle .toggle-knob { left: 16px; }
+
         body.light-mode {
             --bg: #F5F3EF; --bg-card: #FFFFFF; --bg-card2: #F0EDE7;
             --white: #1a1a1a; --gray: #666; --gray-mid: #444; --border: #d4d0c8;
@@ -87,11 +90,8 @@
         body.light-mode nav { background: rgba(245,243,239,0.97); }
         body.light-mode nav a { color: #555 !important; }
         body.light-mode nav a:hover, body.light-mode nav a.active { color: #D4AF37 !important; }
-        body.light-mode .bte-theme-toggle { background: rgba(240,238,233,0.9); border-color: #ccc; }
-        body.light-mode .bte-theme-toggle .toggle-knob { left: 16px; }
         body.light-mode footer { background: #F5F3EF !important; border-color: #d4d0c8 !important; color: #666 !important; }
 
-        /* ── Hero ── */
         .hero {
             text-align: center;
             padding: 60px 20px 50px;
@@ -116,7 +116,8 @@
         .acronym-pill {
             display: flex; flex-direction: column; align-items: center;
             background: var(--bg-card); border: 1px solid var(--border);
-            border-radius: 12px; padding: 10px 14px; min-width: 80px;
+            border-radius: 0;
+            padding: 10px 14px; min-width: 72px;
             transition: border-color 0.2s;
         }
         .acronym-pill:hover { border-color: var(--gold); }
@@ -124,20 +125,11 @@
             font-family: 'Playfair Display', serif;
             font-size: 1.8rem; font-weight: 800; color: var(--gold); line-height: 1;
         }
-        .acronym-word { font-size: 0.6rem; color: var(--gray); letter-spacing: 1px; text-transform: uppercase; margin-top: 4px; text-align: center; }
+        .acronym-word { font-size: 0.65rem; color: var(--gray); letter-spacing: 1px; text-transform: uppercase; margin-top: 4px; }
         .hero .tagline {
-            font-style: italic; color: var(--gray-mid); font-size: 1.05rem; max-width: 640px; margin: 0 auto;
+            font-style: italic; color: var(--gray-mid); font-size: 1.05rem; max-width: 650px; margin: 0 auto;
         }
 
-        /* ── Framing note ── */
-        .framing-note {
-            background: rgba(212,175,55,0.08); border: 1px solid rgba(212,175,55,0.35);
-            border-radius: 10px; padding: 12px 18px; margin-bottom: 20px;
-            font-size: 0.88rem; color: var(--gold-light); text-align: center;
-            font-weight: 600; letter-spacing: 0.5px;
-        }
-
-        /* ── Main ── */
         main { flex: 1; max-width: 900px; margin: 0 auto; padding: 0 16px 60px; width: 100%; }
         .section-card {
             background: var(--bg-card); border: 1px solid var(--border);
@@ -152,61 +144,63 @@
         .section-title h2 { font-size: 1.4rem; color: var(--gold); }
         .section-title .subtitle { font-size: 0.82rem; color: var(--gray); margin-top: 2px; }
 
-        /* ── Letter Sections ── */
-        .letter-section {
+        .chart-wrapper { position: relative; max-width: 460px; margin: 0 auto 10px; }
+
+        .slider-grid { display: flex; flex-direction: column; gap: 24px; margin-top: 20px; }
+        .axis-block {
             background: var(--bg-card2); border: 1px solid var(--border);
-            border-radius: 14px; padding: 22px 20px; margin-bottom: 24px;
+            border-radius: 10px; padding: 16px 18px;
         }
-        .letter-header {
-            display: flex; align-items: center; gap: 14px; margin-bottom: 18px;
-            padding-bottom: 14px; border-bottom: 1px solid var(--border);
+        .axis-block-header {
+            display: flex; align-items: baseline; gap: 10px; margin-bottom: 12px;
         }
-        .big-letter {
+        .axis-letter-label {
             font-family: 'Playfair Display', serif;
-            font-size: 3rem; font-weight: 800; color: var(--gold);
-            line-height: 1; min-width: 50px; text-align: center;
+            font-size: 1.4rem; font-weight: 800; color: var(--gold); min-width: 24px;
         }
-        .letter-meta { flex: 1; }
-        .letter-word {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.25rem; font-weight: 700; color: var(--white);
-        }
-        .letter-subword { font-size: 0.8rem; color: var(--gray); text-transform: uppercase; letter-spacing: 1.5px; margin-top: 2px; }
-        .letter-score-display {
-            display: flex; flex-direction: column; align-items: center;
-            background: var(--bg-card); border: 1px solid var(--border);
-            border-radius: 10px; padding: 8px 16px; min-width: 70px;
-        }
-        .letter-score-num {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.8rem; font-weight: 800; color: var(--gold); line-height: 1;
-        }
-        .letter-score-label { font-size: 0.65rem; color: var(--gray); letter-spacing: 1px; text-transform: uppercase; margin-top: 2px; }
+        .axis-name { font-size: 1rem; font-weight: 700; color: var(--white); }
+        .axis-sub { font-size: 0.75rem; color: var(--gray); margin-left: 4px; }
+        .axis-avg { font-size: 1.1rem; font-weight: 700; color: var(--gold); margin-left: auto; }
 
-        /* ── Questions ── */
-        .question-item { margin-bottom: 20px; }
-        .question-item:last-child { margin-bottom: 0; }
-        .question-text { font-size: 0.95rem; color: var(--white); line-height: 1.65; margin-bottom: 10px; }
-        .rating-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-        .rating-btn {
-            display: flex; flex-direction: column; align-items: center;
-            width: 44px; height: 50px; border-radius: 8px;
-            border: 1px solid var(--border);
-            background: var(--bg-card); cursor: pointer;
-            transition: all 0.15s; color: var(--gray);
-            font-size: 1rem; font-weight: 700; font-family: 'Inter', sans-serif;
-            justify-content: center; gap: 2px;
+        .slider-row { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
+        .slider-label {
+            display: flex; justify-content: space-between; align-items: baseline;
         }
-        .rating-btn .r-num { font-size: 1.1rem; font-weight: 700; }
-        .rating-btn .r-label { font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.5px; }
-        .rating-btn:hover { border-color: var(--gold); color: var(--gold); }
-        .rating-btn.selected { background: var(--gold); border-color: var(--gold); color: #000; }
-        .rating-scale-hint { font-size: 0.72rem; color: var(--gray); margin-left: 8px; font-style: italic; }
+        .slider-label .label-text {
+            font-size: 0.85rem; font-weight: 600; color: var(--white); flex: 1; margin-right: 8px;
+        }
+        .slider-label .score-val {
+            font-size: 1.1rem; font-weight: 700; color: var(--gold); min-width: 28px; text-align: right;
+        }
+        input[type=range] {
+            width: 100%; accent-color: var(--gold); cursor: pointer; height: 6px; border-radius: 3px;
+        }
 
-        /* ── Scripture ── */
+        .question-block {
+            background: var(--bg-card2); border: 1px solid var(--border);
+            border-radius: 12px; padding: 20px 20px 16px; margin-bottom: 16px;
+            transition: border-color 0.2s;
+        }
+        .question-block:hover { border-color: rgba(212,175,55,0.4); }
+        .q-header { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 10px; }
+        .q-letter {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem; font-weight: 800; color: var(--gold); line-height: 1; min-width: 32px;
+            border-radius: 0;
+        }
+        .q-meta { flex: 1; }
+        .q-word { font-size: 0.75rem; color: var(--gray); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 2px; }
+        .q-subword { font-size: 0.68rem; color: rgba(212,175,55,0.6); text-transform: uppercase; letter-spacing: 1px; }
+        .q-text { font-size: 0.97rem; color: var(--white); line-height: 1.65; margin-bottom: 8px; }
+        .q-subquestions { list-style: none; margin: 10px 0; padding-left: 0; }
+        .q-subquestions li {
+            font-size: 0.9rem; color: var(--gray-mid); line-height: 1.6;
+            padding: 6px 0 6px 16px; border-left: 2px solid rgba(212,175,55,0.3);
+            margin-bottom: 6px; font-style: italic;
+        }
         .q-scripture {
             display: inline-flex; align-items: center; gap: 6px;
-            margin-top: 8px; padding: 5px 12px;
+            margin-top: 10px; padding: 5px 12px;
             background: var(--gold-dim); border: 1px solid rgba(212,175,55,0.3);
             border-radius: 20px; text-decoration: none;
             color: var(--gold); font-size: 0.8rem; font-weight: 600;
@@ -214,54 +208,41 @@
         }
         .q-scripture:hover { background: rgba(212,175,55,0.25); }
 
-        /* ── Overall Score ── */
-        .overall-score-wrap {
-            display: flex; flex-direction: column; align-items: center;
-            padding: 24px; background: var(--bg-card2); border-radius: 14px;
-            border: 1px solid var(--border); margin-bottom: 24px;
-        }
-        .overall-score-num {
-            font-family: 'Playfair Display', serif;
-            font-size: 4rem; font-weight: 800; color: var(--gold); line-height: 1;
-        }
-        .overall-score-label { font-size: 0.8rem; color: var(--gray); letter-spacing: 2px; text-transform: uppercase; margin-top: 4px; }
-        .score-tier { margin-top: 8px; font-size: 1rem; font-weight: 600; letter-spacing: 1px; }
-        .score-bar-wrap { width: 100%; max-width: 340px; margin-top: 14px; }
-        .score-bar-bg { background: var(--border); border-radius: 6px; height: 10px; overflow: hidden; }
-        .score-bar-fill { height: 100%; border-radius: 6px; transition: width 0.6s ease; background: var(--gold); }
-
-        /* ── Letter Breakdown ── */
-        .breakdown-grid {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-            gap: 10px; margin-top: 16px;
-        }
-        .breakdown-cell {
-            background: var(--bg-card2); border: 1px solid var(--border);
-            border-radius: 10px; padding: 12px 10px; text-align: center;
-        }
-        .breakdown-cell .bc-letter { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 800; color: var(--gold); }
-        .breakdown-cell .bc-word { font-size: 0.65rem; color: var(--gray); text-transform: uppercase; letter-spacing: 1px; margin: 2px 0 6px; }
-        .breakdown-cell .bc-score { font-size: 1.4rem; font-weight: 700; }
-
-        /* ── Formation Plan ── */
-        #results-section { display: none; }
+        #formation-plan { display: none; }
         .formation-area {
             background: var(--bg-card2); border: 1px solid rgba(212,175,55,0.3);
             border-radius: 12px; padding: 22px 20px; margin-bottom: 20px;
         }
-        .formation-area h3 { font-size: 1.1rem; color: var(--gold); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+        .formation-area h3 {
+            font-size: 1.1rem; color: var(--gold); margin-bottom: 14px;
+            display: flex; align-items: center; gap: 8px;
+        }
         .formation-item { display: flex; gap: 10px; margin-bottom: 12px; align-items: flex-start; }
         .formation-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 2px; }
-        .formation-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: var(--gray); margin-bottom: 2px; }
-        .formation-text { font-size: 0.92rem; color: var(--white); line-height: 1.6; }
-        .formation-scripture {
-            display: inline-block; margin-top: 4px; padding: 4px 10px;
-            background: var(--gold-dim); border-radius: 20px;
-            color: var(--gold); font-size: 0.78rem; font-style: italic; text-decoration: none;
+        .formation-label {
+            font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px;
+            color: var(--gray); margin-bottom: 2px;
         }
-        .formation-scripture:hover { background: rgba(212,175,55,0.25); }
+        .formation-text { font-size: 0.92rem; color: var(--white); line-height: 1.6; }
 
-        /* ── Buttons ── */
+        .history-card {
+            background: var(--bg-card2); border: 1px solid var(--border);
+            border-radius: 10px; padding: 16px 18px; margin-top: 12px;
+        }
+        .history-meta { font-size: 0.82rem; color: var(--gray-mid); margin-bottom: 8px; }
+        .history-scores { display: flex; gap: 8px; flex-wrap: wrap; }
+        .history-badge {
+            display: flex; flex-direction: column; align-items: center;
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 8px; padding: 6px 10px; min-width: 44px;
+        }
+        .history-badge .h-letter { font-size: 0.72rem; color: var(--gray); }
+        .history-badge .h-score { font-size: 1.1rem; font-weight: 700; color: var(--gold); }
+        .delta { font-size: 0.72rem; }
+        .delta.up { color: var(--success); }
+        .delta.down { color: var(--danger); }
+        .delta.same { color: var(--gray); }
+
         .btn-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 20px; }
         .btn {
             display: inline-flex; align-items: center; gap: 8px;
@@ -276,61 +257,91 @@
         .btn-ghost { background: transparent; color: var(--gray); border: 1px solid var(--border); }
         .btn-ghost:hover { color: var(--white); border-color: var(--gray-mid); }
 
-        /* ── Progress ── */
-        .assessment-progress {
-            display: flex; align-items: center; gap: 12px; margin-bottom: 20px;
-            padding: 14px 18px; background: var(--bg-card2);
-            border-radius: 10px; border: 1px solid var(--border);
+        .overall-score-wrap {
+            display: flex; flex-direction: column; align-items: center; margin: 16px 0 0;
         }
-        .progress-text { font-size: 0.85rem; color: var(--gray-mid); flex: 1; }
-        .progress-pct { font-size: 1.1rem; font-weight: 700; color: var(--gold); }
-        .progress-bar-bg { flex: 1; background: var(--border); border-radius: 4px; height: 6px; overflow: hidden; }
-        .progress-bar-fill { height: 100%; border-radius: 4px; background: var(--gold); transition: width 0.3s; }
+        .overall-score-num {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.5rem; font-weight: 800; color: var(--gold); line-height: 1;
+        }
+        .overall-score-label { font-size: 0.8rem; color: var(--gray); letter-spacing: 2px; text-transform: uppercase; margin-top: 4px; }
+        .score-tier { margin-top: 6px; font-size: 0.85rem; font-weight: 600; letter-spacing: 1px; }
 
-        /* ── Print ── */
+        #share-modal {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.85); z-index: 1000;
+            justify-content: center; align-items: center; padding: 20px;
+        }
+        #share-modal.open { display: flex; }
+        .modal-box {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 16px; padding: 28px 24px; max-width: 520px; width: 100%;
+        }
+        .modal-box h2 { margin-bottom: 12px; font-size: 1.3rem; }
+        .modal-close { float: right; cursor: pointer; font-size: 1.4rem; line-height: 1; background: none; border: none; color: var(--gray); }
+        .share-text-area {
+            width: 100%; background: var(--bg); border: 1px solid var(--border);
+            border-radius: 8px; color: var(--white); font-family: 'Inter', sans-serif;
+            font-size: 0.85rem; padding: 14px; resize: none; line-height: 1.6; margin-top: 10px;
+        }
+
+        .rubric-toggle {
+            display: flex; align-items: center; gap: 6px;
+            margin-top: 8px; cursor: pointer; user-select: none;
+            font-size: 0.78rem; color: var(--gold); font-weight: 600;
+            background: none; border: none; padding: 0; font-family: 'Inter', sans-serif;
+        }
+        .rubric-toggle .rtri { display: inline-block; transition: transform 0.2s; font-size: 0.65rem; }
+        .rubric-toggle.open .rtri { transform: rotate(90deg); }
+        .rubric-body { display: none; margin-top: 8px; border-left: 2px solid rgba(212,175,55,0.3); padding-left: 12px; }
+        .rubric-body.open { display: block; }
+        .rubric-row { margin-bottom: 6px; font-size: 0.82rem; }
+        .rubric-range { color: var(--gold); font-weight: 700; font-size: 0.75rem; display: inline-block; min-width: 36px; }
+        .rubric-text { color: var(--gray-mid); }
+
+        .framing-note {
+            background: rgba(212,175,55,0.08); border: 1px solid rgba(212,175,55,0.35);
+            border-radius: 10px; padding: 12px 18px; margin-bottom: 18px;
+            font-size: 0.88rem; color: var(--gold-light); text-align: center; font-weight: 600; letter-spacing: 0.5px;
+        }
+
         @media print {
-            nav, .bte-theme-toggle, .btn-row, footer, .no-print { display: none !important; }
+            nav, .bte-theme-toggle, .btn-row, #share-modal, footer, #print-hide, #print-hide2 { display: none !important; }
             body { background: #fff; color: #000; }
-            .section-card, .letter-section { border: 1px solid #ccc; break-inside: avoid; }
-            h1, h2, h3, .overall-score-num, .big-letter, .acronym-letter, .letter-word { color: #8B6914 !important; }
-            .rating-btn.selected { background: #8B6914 !important; color: #fff !important; }
+            .section-card { border: 1px solid #ccc; break-inside: avoid; }
+            h1, h2, h3, .overall-score-num { color: #8B6914; }
         }
 
-        /* ── Responsive ── */
         @media (max-width: 600px) {
             .hero { padding: 40px 16px 32px; }
             .section-card { padding: 20px 14px; }
-            .letter-section { padding: 18px 14px; }
-            .acronym-row { gap: 6px; }
-            .acronym-pill { min-width: 64px; padding: 8px 10px; }
-            .rating-btn { width: 38px; height: 46px; }
+            .acronym-row { gap: 8px; }
+            .acronym-pill { min-width: 56px; padding: 8px 8px; }
+            .modal-box { padding: 20px 16px; }
         }
     </style>
 </head>
 <body>
 
-    <!-- ── Nav ── -->
     <nav>
         <a href="index.html"><img src="assets/icons/shield-home-48.png" width="16" height="16" alt="" style="vertical-align:-2px"> U.S.M.C. Ministries Home</a>
         <a href="watchman.html"><img src="assets/icons/shield-bible.png" width="16" height="16" alt="" style="vertical-align:-2px"> Watchman Bible Plan</a>
         <a href="bible.html"><img src="assets/icons/shield-compass.png" width="16" height="16" alt="" style="vertical-align:-2px"> Bible Translation Engine</a>
         <a href="purity-assessment.html"><img src="assets/icons/shield-cross-bible-48.png" width="16" height="16" alt="" style="vertical-align:-2px"> Purity Assessment</a>
-        <a href="real-man-assessment.html">R.E.A.L. M.A.N. →</a>
+        <a href="real-man-assessment.html"><img src="assets/icons/shield-handshake.png" width="16" height="16" alt="" style="vertical-align:-2px"> Real Man</a>
         <a href="connect.html"><img src="assets/icons/shield-handshake.png" width="16" height="16" alt="" style="vertical-align:-2px"> Connect</a>
     </nav>
 
-    <!-- ── Theme Toggle ── -->
     <div style="text-align:center; margin-top:8px; margin-bottom:4px;">
         <div class="bte-theme-toggle" onclick="bteToggleTheme()" title="Toggle dark/light mode">
-            <span style="font-size:0.9rem">🌙</span>
+            <span class="toggle-icon moon-icon">🌙</span>
             <div class="toggle-track"><div class="toggle-knob"></div></div>
-            <span style="font-size:0.9rem">☀️</span>
+            <span class="toggle-icon sun-icon">☀️</span>
         </div>
     </div>
 
-    <!-- ── Hero ── -->
     <div class="hero">
-        <div class="hero-badge">Civic Virtue · Kingdom Citizenship · Community Leadership</div>
+        <div class="hero-badge">Men's Civic Virtue · After-Action Review</div>
         <h1>The <span>R.E.S.O.L.U.T.E.</span> Citizen</h1>
         <div class="acronym-row">
             <div class="acronym-pill"><span class="acronym-letter">R</span><span class="acronym-word">Responsible</span></div>
@@ -345,69 +356,95 @@
         <p class="tagline">"A man who builds only for himself builds on sand. A resolute citizen builds for the generation after him."</p>
     </div>
 
-    <!-- ── Main ── -->
     <main>
 
-        <!-- ── Assessment ── -->
+        <!-- Hard Questions -->
         <div class="section-card">
             <div class="section-title">
                 <div class="dot"></div>
                 <div>
-                    <h2>The Self-Assessment</h2>
-                    <div class="subtitle">Rate yourself 1–5 on each question. 1 = Never | 2 = Rarely | 3 = Sometimes | 4 = Usually | 5 = Always. Answer what's <em>actually true</em>, not what you wish were true.</div>
+                    <h2>The Hard Questions</h2>
+                    <div class="subtitle">Read each one slowly. Sit with it. Answer what's actually true, not what you wish were true.</div>
                 </div>
             </div>
-
-            <div class="framing-note">This is a civic and community assessment — how are you showing up <strong>beyond your household</strong>? Your church, your neighborhood, your city, your country.</div>
-
-            <div class="assessment-progress">
-                <div class="progress-text">Questions answered: <span id="answered-count">0</span> / <span id="total-count">0</span></div>
-                <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-bar" style="width:0%"></div></div>
-                <div class="progress-pct" id="progress-pct">0%</div>
-            </div>
-
-            <div id="assessmentBlock"></div>
-
-            <div class="btn-row no-print">
-                <button class="btn btn-primary" onclick="runAssessment()">📋 Score My Assessment</button>
-                <button class="btn btn-ghost" onclick="resetAll()">↺ Reset</button>
-            </div>
+            <div id="questionsBlock"></div>
         </div>
 
-        <!-- ── Results ── -->
-        <div class="section-card" id="results-section">
+        <!-- Radar + Sliders -->
+        <div class="section-card">
             <div class="section-title">
                 <div class="dot"></div>
                 <div>
-                    <h2>Your Results</h2>
-                    <div class="subtitle">Letter-by-letter breakdown + top 3 focus areas.</div>
+                    <h2>R.E.S.O.L.U.T.E. Radar</h2>
+                    <div class="subtitle">Rate yourself 1–10 on each question. God already knows the truth — give it to yourself too.</div>
                 </div>
+            </div>
+
+            <div class="framing-note">⏱ Rate yourself based on the <strong>PAST TWO WEEKS</strong> — not your best day, not your best intentions. Where have you actually been?</div>
+
+            <div class="chart-wrapper">
+                <canvas id="radarChart"></canvas>
             </div>
 
             <div class="overall-score-wrap">
-                <div class="overall-score-num" id="overall-score-num">—</div>
-                <div class="overall-score-label">Overall Score / 5.0</div>
-                <div class="score-tier" id="score-tier"></div>
-                <div class="score-bar-wrap">
-                    <div class="score-bar-bg"><div class="score-bar-fill" id="overall-bar" style="width:0%"></div></div>
-                </div>
+                <div class="overall-score-num" id="overallScore">—</div>
+                <div class="overall-score-label">Overall Score / 10</div>
+                <div class="score-tier" id="scoreTier"></div>
             </div>
 
-            <h3 style="font-size:1.1rem; margin-bottom:12px; color:var(--gold);">Letter-by-Letter Breakdown</h3>
-            <div class="breakdown-grid" id="breakdown-grid"></div>
+            <div class="slider-grid" id="sliderGrid"></div>
 
-            <div id="formation-content" style="margin-top:28px;"></div>
+            <div class="btn-row" id="print-hide">
+                <button class="btn btn-primary" onclick="runAssessment()">📋 Generate Formation Plan</button>
+                <button class="btn btn-ghost" onclick="saveProgress()">💾 Save Progress</button>
+            </div>
+        </div>
 
-            <div class="btn-row no-print">
-                <button class="btn btn-outline" onclick="window.print()">🖨️ Print Results</button>
-                <button class="btn btn-ghost" onclick="resetAll()">↺ Retake Assessment</button>
-                <a class="btn btn-ghost" href="real-man-assessment.html">⚔️ Take R.E.A.L. M.A.N. →</a>
+        <!-- Formation Plan -->
+        <div class="section-card" id="formation-plan">
+            <div class="section-title">
+                <div class="dot"></div>
+                <div>
+                    <h2>Formation Plan</h2>
+                    <div class="subtitle">Your 3 weakest areas. Micro-habits, prayers, and conversation starters. No excuses.</div>
+                </div>
+            </div>
+            <div id="formationContent"></div>
+            <div class="btn-row" id="print-hide2">
+                <button class="btn btn-outline" onclick="printSummary()">🖨️ Print Summary</button>
+                <button class="btn btn-ghost" onclick="openShareModal()">📤 Share with Accountability Partner</button>
+            </div>
+        </div>
+
+        <!-- Progress Tracker -->
+        <div class="section-card">
+            <div class="section-title">
+                <div class="dot"></div>
+                <div>
+                    <h2>Progress Log</h2>
+                    <div class="subtitle">Saved locally on this device. No account. No cloud. Just you, your honesty, and God.</div>
+                </div>
+            </div>
+            <div id="progressContent">
+                <p style="color:var(--gray);font-size:0.9rem;font-style:italic;">No previous assessments on this device.</p>
             </div>
         </div>
 
     </main>
 
-    <!-- ── Footer ── -->
+    <div id="share-modal" role="dialog" aria-modal="true" aria-label="Share with Accountability Partner">
+        <div class="modal-box">
+            <button class="modal-close" onclick="closeShareModal()" aria-label="Close">&times;</button>
+            <h2>📤 Share with Your Accountability Partner</h2>
+            <p style="font-size:0.88rem; color:var(--gray); margin-bottom:4px;">Copy this summary to share. No name included unless you add it.</p>
+            <textarea id="shareText" class="share-text-area" rows="16" readonly></textarea>
+            <div class="btn-row" style="margin-top:14px;">
+                <button class="btn btn-primary" onclick="copyShareText()">📋 Copy to Clipboard</button>
+                <button class="btn btn-ghost" onclick="closeShareModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
     <footer style="border-top:1px solid var(--border); padding:28px 20px; text-align:center; font-size:0.85rem; color:var(--gray); background:var(--bg);">
         <div style="margin-bottom:12px;">
             <img src="assets/icons/shield-cross-bible-48.png" alt="cross" width="40" height="40" style="opacity:0.7;">
@@ -416,10 +453,10 @@
             <a href="index.html#uniting" style="color:var(--gold);">Uniting</a> &nbsp;&nbsp;
             <a href="serving.html" style="color:var(--gold);">Serving</a> &nbsp;&nbsp;
             <a href="mentoring.html" style="color:var(--gold);">Mentoring</a> &nbsp;&nbsp;
-            <a href="real-man-assessment.html" style="color:var(--gold);">R.E.A.L. M.A.N.</a> &nbsp;&nbsp;
-            <a href="purity-assessment.html" style="color:var(--gold);">Purity Assessment</a>
+            <a href="real-man-assessment.html" style="color:var(--gold);">Real Man Assessment</a> &nbsp;&nbsp;
+            <a href="about.html" style="color:var(--gold);">About the Founder</a>
         </p>
-        <p style="margin-top:10px; font-size:0.82rem; font-style:italic; color:#555;">&ldquo;Seek the welfare of the city where I have sent you… pray to the Lord on its behalf, for in its welfare you will find your welfare.&rdquo; &mdash; Jeremiah 29:7</p>
+        <p style="margin-top:10px; font-size:0.82rem; font-style:italic; color:#555;">&ldquo;Seek the welfare of the city where I have sent you... and pray to the Lord on its behalf.&rdquo; &mdash; Jeremiah 29:7</p>
         <p style="margin-top:8px; font-size:0.8rem; color:#555;">
             <a href="sitemap.html" style="color:var(--gray); font-size:0.85rem;">🗺️ Site Map</a> &nbsp;&nbsp; Powered by MOOPbot Pro
         </p>
@@ -427,332 +464,385 @@
 
     <script>
     // ── DATA ─────────────────────────────────────────────────────────────────
-    const SECTIONS = [
+
+    const AXES = [
         {
             letter: 'R',
             word: 'Responsible',
-            subword: 'Owning your role in community and society',
-            scripture: { ref: 'Romans 15:1–2', text: '"We who are strong have an obligation to bear with the failings of the weak, and not to please ourselves. Let each of us please his neighbor for his good, to build him up." — Rom. 15:1–2', anchor: 'rom15_1' },
-            formation: {
-                habit: "This week: identify one problem in your neighborhood, church, or community that you've noticed but dismissed as 'someone else's job.' Write it down. Then take one small, concrete action — pick up the trash, make the call, send the email, show up.",
-                prayer: "Lord, I've been so focused on my household that I've neglected the city you placed me in. Expand my sense of responsibility. Let me see my community the way You see it — as a field, not just a backdrop.",
-                convo: '"There's a problem in our community I've been ignoring. I want to do something about it — will you help me think through what I should actually do?"',
-                memory: '"We who are strong have an obligation to bear with the failings of the weak." — Romans 15:1'
-            },
+            subword: 'Owning your corner of the world',
+            text: "Responsibility is not a burden — it is the weight of a man who has decided he matters to the people around him. The irresponsible man leaves his bills unpaid, his commitments unkept, and his family guessing. He is a drain on every system he touches — financial, relational, civic — because he has never decided that the weight of the world actually belongs to him too.",
             questions: [
-                "I take responsibility for my community, not just my household.",
-                "When I see a problem in my neighborhood or city, I do something rather than assume someone else will.",
-                "I contribute meaningfully to at least one community effort, organization, or cause.",
-                "I consider how my choices affect the people around me, not just my immediate family."
-            ]
+                "Are you currently behind on any financial obligations, commitments to people, or duties in your home or community that you've been avoiding instead of addressing?",
+                "When you look at the systems around you — your household, your neighborhood, your church — are you a net contributor or a net consumer? Who would notice if you disappeared?"
+            ],
+            scripture: 'Romans 13:8',
+            rubrics: [
+                { range: '1–3', text: "Unpaid obligations. Unkept promises. Avoidance as a lifestyle. The people around you have learned not to count on you, and they were right to stop." },
+                { range: '4–6', text: "You handle the big stuff but let the smaller obligations slide — small debts, RSVP'd commitments, volunteer roles you said yes to. You mean well, but follow-through is thin." },
+                { range: '7–8', text: "You honor your financial and relational commitments. People can count on you. Your word means something and your track record backs it up." },
+                { range: '9–10', text: "You are a pillar. Your obligations are current, your word is your bond, and your community runs more smoothly because you're in it and contributing actively." }
+            ],
+            formation: {
+                habit: "This week: list every outstanding obligation — financial, relational, civic. Prioritize them by impact. Make one specific move on the largest one today, not this week.",
+                prayer: "Lord, I confess I've let the smaller obligations slide and called it grace. Help me see that responsibility is not burden — it is honor. Let me be the man my family and community can count on without flinching.",
+                convo: "\"I owe you something I haven't delivered on — and I want to fix that this week. Here's my plan and my timeline.\"",
+                memory: "\"Owe no one anything, except to love each other.\" — Romans 13:8",
+                memRef: 'rom13_8'
+            }
         },
         {
             letter: 'E',
             word: 'Engaged',
-            subword: 'Active participation in civic and community life',
-            scripture: { ref: 'Jeremiah 29:7', text: '"Seek the welfare of the city where I have sent you… pray to the Lord on its behalf, for in its welfare you will find your welfare." — Jer. 29:7', anchor: 'jer29_7' },
-            formation: {
-                habit: "Find one local civic meeting, church committee, school board session, or community event in the next 30 days. Attend it. Not to be seen — to listen, learn, and eventually contribute.",
-                prayer: "Father, I've been a spectator in my community while complaining about the direction it's going. Help me get off the sidelines. Show me where You want me engaged — and give me the courage to show up.",
-                convo: '"I want to get more involved in [specific local issue or organization]. Will you come with me or hold me accountable to actually going?"',
-                memory: '"Seek the welfare of the city where I have sent you." — Jeremiah 29:7'
-            },
+            subword: 'Active in civic and community life',
+            text: "The resolute citizen is not a spectator. He does not consume news without acting, vote without understanding, or live in a neighborhood without knowing his neighbors. Disengagement from civic life is a form of selfishness — the community pays the price for the man who decides his comfort matters more than his contribution.",
             questions: [
-                "I actively participate in local governance, church leadership, or community organizations.",
-                "I vote in local elections and stay informed on issues that affect my community.",
-                "I know the names of my elected officials and have engaged with at least one of them.",
-                "I show up — to church, to local meetings, to community events — not just when it's convenient."
-            ]
+                "Are you meaningfully engaged in your community — do you know your neighbors, volunteer somewhere, attend public meetings, or participate in any civic institution? Or are you mainly observing from a distance?",
+                "Have you voted in the last local election? Do you know the names and positions of your city council, school board, or church leadership?"
+            ],
+            scripture: 'Jeremiah 29:7',
+            rubrics: [
+                { range: '1–3', text: "You are completely disengaged. You don't know your neighbors, don't vote in local elections, and consume civic outrage without contributing civic service." },
+                { range: '4–6', text: "You vote in national elections and have opinions about community issues, but you're not showing up. Engagement is passive — you watch, you react, you share — but you don't serve." },
+                { range: '7–8', text: "You are involved in at least one community institution — church, neighborhood association, school board, volunteer organization — and you show up consistently, not just when convenient." },
+                { range: '9–10', text: "You are a builder in your community. People know your face, your name, and your contribution. You have a voice because you've earned it through showing up over time." }
+            ],
+            formation: {
+                habit: "This week: learn the name of one neighbor you don't know yet. Then identify one local institution — church committee, school board, neighborhood association — and attend one meeting or volunteer for one event.",
+                prayer: "God, forgive my spectator Christianity. Let me seek the welfare of the city You placed me in — not just pray for it from a distance, but show up and build it. Make me a man who plants trees under whose shade I may never sit.",
+                convo: "\"I want us to be more engaged in our community. I'm going to [specific action] this month. Will you join me or hold me accountable to following through?\"",
+                memory: "\"Seek the welfare of the city where I have sent you into exile, and pray to the Lord on its behalf.\" — Jeremiah 29:7",
+                memRef: 'jer29_7'
+            }
         },
         {
             letter: 'S',
             word: 'Steadfast',
-            subword: 'Holding firm when the culture shifts',
-            scripture: { ref: '1 Corinthians 15:58', text: '"Be steadfast, immovable, always abounding in the work of the Lord, knowing that in the Lord your labor is not in vain." — 1 Cor. 15:58', anchor: '1cor15_58' },
-            formation: {
-                habit: "Identify one place where you've softened a biblical conviction to avoid conflict — at work, with family, in public. Write out what you actually believe and why. Then practice saying it clearly to one trusted person before you have to say it publicly.",
-                prayer: "God, I confess I've bent with every cultural wind to avoid being labeled or losing friends. Make me immovable — not stubborn, not arrogant, but rooted in what is true. Let me hold the line with grace and without apology.",
-                convo: '"There\'s something I\'ve been vague about publicly that I actually hold deeply. I want to tell you what I really believe — and I need you to help me hold to it."',
-                memory: '"Be steadfast, immovable, always abounding in the work of the Lord." — 1 Corinthians 15:58'
-            },
+            subword: 'Unmoved by pressure, trends, and fear',
+            text: "The culture will shift. The pressure to compromise will come in waves — from social media, from your workplace, from the desire to be liked and accepted. Steadfastness is the refusal to let the tide of cultural pressure rewrite your convictions. The man who stands on what is true when it is costly stands on something. The man who bends with every wind has no footing at all.",
             questions: [
-                "I hold firm to my biblical convictions even when the culture shifts around me.",
-                "I don't change my stated beliefs based on who's in the room.",
-                "When asked about my faith, values, or worldview, I speak clearly and without apology.",
-                "I am the same man in public that I am in private — my convictions don't have a 'public mode.'"
-            ]
+                "In the past two weeks, did you stay silent, change your position, or avoid a conversation because of fear of social pressure, being cancelled, or seeming intolerant? Was that silence truthful or cowardly?",
+                "Are your convictions the same in public as they are in private? Or do you have a public version of your beliefs calibrated for approval?"
+            ],
+            scripture: '1 Corinthians 15:58',
+            rubrics: [
+                { range: '1–3', text: "You change your public position based on the room you're in. You have strong private convictions that die on contact with social pressure. You've learned to nod along." },
+                { range: '4–6', text: "You don't openly compromise your beliefs, but you stay quiet under pressure more often than you speak. The line between wisdom and cowardice has gotten blurry." },
+                { range: '7–8', text: "You hold your convictions in public even when it costs something. You've said an unpopular thing to a room that didn't want to hear it. Not every time, but regularly." },
+                { range: '9–10', text: "Your convictions are consistent across every room. What you believe privately is exactly what you say publicly. You've paid a social price for standing firm and you'd pay it again." }
+            ],
+            formation: {
+                habit: "This week: identify the conviction you most consistently stay silent about under pressure. Find one appropriate, respectful opportunity to voice it. Not to fight — to stand. Notice what it costs and whether you survived it.",
+                prayer: "Lord, I have called my silence wisdom when it was really fear. Give me the steadfastness of Daniel — not argumentative, not combative, but immovable on what is true. Let me be a man who doesn't drift.",
+                convo: "\"There's something I believe that I've been staying quiet about because it's unpopular. I want to tell you what it is and why I believe it.\"",
+                memory: "\"Therefore, my beloved brothers, be steadfast, immovable, always abounding in the work of the Lord.\" — 1 Corinthians 15:58",
+                memRef: '1cor15_58'
+            }
         },
         {
             letter: 'O',
             word: 'Obedient',
-            subword: 'Submitting to legitimate authority with biblical discernment',
-            scripture: { ref: 'Romans 13:1', text: '"Let every person be subject to the governing authorities. For there is no authority except from God, and those that exist have been instituted by God." — Rom. 13:1', anchor: 'rom13_1' },
-            formation: {
-                habit: "Assess your posture toward authority this week — do you follow rules and submit to leadership, or do you harbor a reflexive anti-authority attitude? Write out one area where you've been resistant and ask whether your resistance is biblical or just personal preference.",
-                prayer: "Lord, you placed authorities over me — in my church, my city, my nation. Give me a heart that honors those structures where they are legitimate, while keeping me grounded in the higher law of Your Word when they conflict.",
-                convo: '"I want to talk about how I think about authority — laws, leadership, institutions. I think I have some blind spots and I need someone to push back on me."',
-                memory: '"Let every person be subject to the governing authorities. For there is no authority except from God." — Romans 13:1'
-            },
+            subword: 'Submitted to legitimate authority',
+            text: "Obedience to God-ordained authority — government, church, family structure — is not weakness; it is the disciplined submission of a man who has decided that order serves people. The man who only obeys when he agrees with the rule, or only when he thinks someone is watching, has no real submission — only the performance of it. Obedience tested by inconvenience reveals character.",
             questions: [
-                "I submit to legitimate authority (government, church, workplace) with a right spirit, not resentment.",
-                "I follow laws and civic norms even when I disagree with them, unless they violate clear biblical commands.",
-                "I model respect for authority to my children and those I mentor.",
-                "I distinguish between biblical civil disobedience and personal rebelliousness — and I examine my motives honestly."
-            ]
+                "Are there laws, regulations, or legitimate authorities in your life — tax obligations, speed limits, workplace policies, church leadership — that you routinely ignore or dismiss when inconvenient?",
+                "Do you submit to spiritual authority — your pastor, your elders, your accountability relationships — or do you pick and choose which accountability you allow? What does your track record actually show?"
+            ],
+            scripture: 'Romans 13:1',
+            rubrics: [
+                { range: '1–3', text: "You obey selectively — the laws and authorities you respect, when you feel like it, when someone's watching. Your tax returns, speed habits, and submission to church authority tell the real story." },
+                { range: '4–6', text: "You're broadly compliant but have carve-outs you've justified to yourself. The spirit of the law matters less than avoiding the consequences of breaking the letter of it." },
+                { range: '7–8', text: "You operate with integrity across your civic and spiritual obligations. You pay what you owe, submit to accountability, and honor legitimate authority even when it's inconvenient." },
+                { range: '9–10', text: "Your submission to authority is consistent and principled. People in your life — your pastor, your spouse, your accountability partners — have real access to you. You don't just perform obedience." }
+            ],
+            formation: {
+                habit: "This week: identify one area where you've been selectively obedient — one authority you've been dismissing. Make a specific decision to comply — fully, not partially — and tell your accountability partner you're doing it.",
+                prayer: "God, give me the grace to submit to what You have placed over me. I confess I've been selectively obedient — choosing which authorities to honor based on my own preferences. Teach me the discipline of principled submission.",
+                convo: "\"I've been cutting corners on [specific area]. I want to be honest with you about it and tell you how I'm going to change it.\"",
+                memory: "\"Let every person be subject to the governing authorities. For there is no authority except from God.\" — Romans 13:1",
+                memRef: 'rom13_1'
+            }
         },
         {
             letter: 'L',
             word: 'Loyal',
-            subword: 'Faithful to church, community, and country',
-            scripture: { ref: 'Ruth 1:16', text: '"Where you go I will go, and where you lodge I will lodge. Your people shall be my people, and your God my God." — Ruth 1:16', anchor: 'ruth1_16' },
-            formation: {
-                habit: "Write down the three institutions you claim loyalty to: your church, your community, your country. For each one, ask: 'Have I been loyal in action, or only in sentiment?' Identify one concrete act of loyalty this week for the one you've neglected most.",
-                prayer: "Father, I've claimed loyalty to things I've never actually sacrificed for. Make my loyalty real — costly, active, and visible. Let me be a man others can count on to show up.",
-                convo: '"I\'ve been claiming loyalty to [church/community/country] without backing it up. Here\'s what I\'m going to do differently."',
-                memory: '"Where you go I will go, and where you lodge I will lodge. Your people shall be my people." — Ruth 1:16'
-            },
+            subword: 'Steadfast to your people',
+            text: "Loyalty is the long game — it's what you do for people when there's nothing in it for you, when they've failed, when the association costs you something. The disloyal man abandons his friends when they become inconvenient, his church when it disappoints him, and his country when it embarrasses him. Loyalty is not blindness — it is the decision to stay in relationship through the hard chapters.",
             questions: [
-                "I am loyal to my church — I show up, serve, give, and stay through difficulty.",
-                "I am loyal to my community — I don't just complain about it; I invest in it.",
-                "I honor my country and the sacrifices made to sustain it, even when I disagree with its direction.",
-                "When things get hard in my church, family, or community relationships, I lean in rather than walk away."
-            ]
+                "Is there someone in your circle — a friend, a family member, a brother in Christ — who is in a difficult season and whom you have quietly pulled back from because the relationship has become costly or complicated?",
+                "Have you spoken critically or derisively about someone close to you — your wife, your pastor, your friend — behind their back in the past two weeks? Did you say to them what you said about them?"
+            ],
+            scripture: 'Proverbs 17:17',
+            rubrics: [
+                { range: '1–3', text: "You drift from people when they become difficult. Your relationships have an expiration date tied to how easy they are. Behind-the-back conversations are a regular feature of your social life." },
+                { range: '4–6', text: "You're loyal to your close circle but not to people who've failed you or become inconvenient. You say supportive things to people's faces but the comments when they're gone are different." },
+                { range: '7–8', text: "You're known as someone who stays. You've maintained relationships through significant difficulty and you've shown up for people who couldn't give you anything in return." },
+                { range: '9–10', text: "Your loyalty is a known quantity. People trust you with the hardest chapters of their lives because they know you won't leave and you won't talk. You say the same thing about people whether they're in the room or not." }
+            ],
+            formation: {
+                habit: "This week: reach out to one person you've been quietly drifting from — a friend, a family member, a church brother — with a specific, concrete expression of support. Show up for someone who can't pay you back.",
+                prayer: "Lord, let me be the friend and brother that You are — one who sticks closer than a brother even when it's inconvenient, even when they've failed, even when the association costs me something.",
+                convo: "\"I've been pulling back from you and I want to be honest about it. You deserve better from me. I'm in your corner, and I want to show you that.\"",
+                memory: "\"A friend loves at all times, and a brother is born for a time of adversity.\" — Proverbs 17:17",
+                memRef: 'prov17_17'
+            }
         },
         {
             letter: 'U',
             word: 'Upright',
-            subword: 'Integrity between public and private life',
-            scripture: { ref: 'Proverbs 11:3', text: '"The integrity of the upright guides them, but the crookedness of the treacherous destroys them." — Prov. 11:3', anchor: 'prov11_3' },
-            formation: {
-                habit: "This week: ask yourself whether there is a gap between the person others see and who you actually are behind closed doors. If the gap is real, pick one specific area and close it — not the performance, but the reality.",
-                prayer: "God, there is no hidden life from You. You see the public man and the private one. Make them the same. Let my integrity be real, not performed — and let it guide me when no one is watching.",
-                convo: '"I want to be honest with you about a gap between who I claim to be and who I actually am at home / at work / in private. It's been bothering me and I need to say it out loud."',
-                memory: '"The integrity of the upright guides them." — Proverbs 11:3'
-            },
+            subword: 'Integrity in the unseen moments',
+            text: "Uprightness is not what you do when someone is watching — it is who you are when no one is. It is the gap between your private behavior and your public reputation. Most men manage their public image carefully; far fewer have the same standard in the unseen hours. The upright man does not have two sets of books — the version the world sees and the version God sees.",
             questions: [
-                "My public and private behavior are consistent — I am the same man whether or not anyone is watching.",
-                "I tell the truth, keep my word, and do what I say I will do.",
-                "My financial life, professional conduct, and personal relationships all reflect the same standard of integrity.",
-                "If my private conversations, internet history, and financial records were made public, I could stand behind them."
-            ]
+                "Is there a gap between your public character and your private behavior — things you do, say, or consume when you're alone that you would be ashamed for your wife, your son, or your pastor to see?",
+                "Have you done anything in the past two weeks that required you to be less than fully honest — an omission, an exaggeration, a half-truth — to manage someone's perception of you?"
+            ],
+            scripture: 'Psalm 15:2',
+            rubrics: [
+                { range: '1–3', text: "There is a meaningful gap between your public and private self. You manage your image carefully and the management requires ongoing deception — by omission if not by commission." },
+                { range: '4–6', text: "You're mostly honest but have zones of private behavior you'd be uncomfortable exposing. The gap isn't catastrophic but it's real, and you know exactly where it is." },
+                { range: '7–8', text: "Your private life would hold up to scrutiny from the people who matter most. You don't always succeed, but you have no sustained double life. When the gap appears, you close it quickly." },
+                { range: '9–10', text: "The person others see is the person you are. Nothing is being hidden, managed, or curated. You walk in the light because the alternative requires a kind of exhausting maintenance you've refused to sustain." }
+            ],
+            formation: {
+                habit: "This week: identify the one gap between your public and private self that you've been managing the longest. Tell one trusted person what it is — not the curated version, the real one. Light is the first antiseptic.",
+                prayer: "God, I want to be the same man in the dark as I am in the light. I'm tired of maintaining the gap. Bring everything into the open — however that has to happen. I want to be a man of whom nothing is hidden.",
+                convo: "\"I've been presenting a version of myself to you that isn't entirely accurate. I want to close that gap. Here's something true I haven't told you.\"",
+                memory: "\"He who walks blamelessly and does what is right and speaks truth in his heart.\" — Psalm 15:2",
+                memRef: 'ps15_2'
+            }
         },
         {
             letter: 'T',
             word: 'Trustworthy',
-            subword: 'Being a man others can rely on',
-            scripture: { ref: 'Luke 16:10', text: '"One who is faithful in a very little is also faithful in much, and one who is dishonest in a very little is also dishonest in much." — Luke 16:10', anchor: 'luke16_10' },
-            formation: {
-                habit: "Ask yourself: who trusts me with something significant right now? A friend's secret, a financial responsibility, a leadership role, a person's wellbeing? Are you honoring that trust? If there's a place you've failed, address it this week.",
-                prayer: "Lord, You are the most trustworthy person in the universe. Make me like You in this — a man whose word is a covenant, whose silence is not deception, and whose hands can be trusted with fragile things.",
-                convo: '"Someone is trusting me with [something] and I haven\'t been handling it as faithfully as I should. I want to tell you about it and be held accountable for doing better."',
-                memory: '"One who is faithful in a very little is also faithful in much." — Luke 16:10'
-            },
+            subword: 'Your word is your bond',
+            text: "Trust is built in drops and lost in buckets. Every time you say you'll be somewhere and don't show up, every commitment you don't keep, every secret you don't hold — you are making a withdrawal from an account that takes years to rebuild. The trustworthy man is not perfect, but he is predictable in a specific and valuable way: he does what he says he's going to do.",
             questions: [
-                "People trust me with their problems, resources, and time — and I honor that trust.",
-                "I keep confidences. What people tell me in private stays private.",
-                "I follow through on commitments. When I say I'll do something, I do it.",
-                "The people who know me best trust me most — not least."
-            ]
+                "Think of the last five commitments you made — verbal promises, scheduled meetings, obligations agreed to. Did you keep all five? If not, what happened with the ones you didn't keep, and who paid the price?",
+                "Are there people in your life who have stopped telling you things because they've learned you can't hold a confidence? Have you broken someone's trust and not restored it?"
+            ],
+            scripture: 'Matthew 5:37',
+            rubrics: [
+                { range: '1–3', text: "Your word doesn't mean much — people in your life have learned to plan around your commitments failing. Your track record on promises and secrets is poor enough that trust has been withdrawn." },
+                { range: '4–6', text: "You mostly keep your commitments but have a reliable pattern of rescheduling, over-promising, or letting smaller obligations slide. People count on you, with a margin factored in for slippage." },
+                { range: '7–8', text: "Your word is generally reliable. People trust you with things that matter. You've kept commitments when it was costly and held confidences when it was tempting not to." },
+                { range: '9–10', text: "You are the man people call when something genuinely matters. Your track record of kept commitments and held confidences is long enough that trust is extended to you as a reflex, not a calculation." }
+            ],
+            formation: {
+                habit: "This week: audit your last ten commitments. For any you didn't keep, make a direct acknowledgment — not an excuse — to the person affected. Then this week, keep every commitment you make, including the small ones.",
+                prayer: "Lord, let my yes mean yes and my no mean no. I want to be the man who doesn't need an oath to be believed — because my track record is sufficient testimony. Build that man out of what I actually do, not what I intend.",
+                convo: "\"I didn't follow through on something I told you I would do, and I want to own that directly. Here's what happened and here's how I'm going to make it right.\"",
+                memory: "\"Let what you say be simply 'Yes' or 'No'; anything more than this comes from evil.\" — Matthew 5:37",
+                memRef: 'matt5_37'
+            }
         },
         {
             letter: 'E',
             word: 'Enduring',
-            subword: 'Persevering through civic and cultural opposition',
-            scripture: { ref: 'James 1:12', text: '"Blessed is the man who remains steadfast under trial, for when he has stood the test he will receive the crown of life." — James 1:12', anchor: 'jas1_12' },
-            formation: {
-                habit: "Name one place where you've retreated from civic, cultural, or kingdom engagement because of opposition, mockery, or exhaustion. This week: re-engage in one small way. Write down why the cause is worth continuing and share it with someone.",
-                prayer: "Father, the opposition to righteousness in my culture is real and heavy. Give me the endurance to stay in the fight — not in a spirit of anger, but of conviction. Let me still be standing when the pressure is gone.",
-                convo: '"I\'ve been tempted to quit on [civic issue/church role/community involvement] because of the pushback. I\'m not quitting. Will you pray for me to endure?"',
-                memory: '"Blessed is the man who remains steadfast under trial." — James 1:12'
-            },
+            subword: 'Building for the long arc',
+            text: "The enduring man thinks in decades, not news cycles. He makes decisions based on what will be true in 20 years, not what will be satisfying tonight. He plants trees whose shade he may never sit in. He is building a legacy — in his character, his family, his community, his faith — and that building requires staying power that most men never develop because they've never decided the long game is worth playing.",
             questions: [
-                "I persevere through civic and cultural opposition rather than withdrawing when it gets hard.",
-                "I have stayed engaged in church, community, or civic roles even when the work was thankless.",
-                "I don't give up on institutions — I work to improve them from within.",
-                "My commitment to kingdom values and civic responsibility is long-term, not trend-driven."
-            ]
+                "What are you currently building that is intended to outlast you — a family culture, a legacy of faith, a community institution, a financial inheritance for your children? Can you name it specifically?",
+                "Are you making decisions right now that your 80-year-old self would respect — in your health, your finances, your relationships, your character? Or are you living in a way that is already eroding the foundation?"
+            ],
+            scripture: 'Psalm 112:2',
+            rubrics: [
+                { range: '1–3', text: "You're making decisions based on what feels good this week. There is no long-term plan, no legacy thinking, no investment in things that outlast the current moment. You are consuming, not building." },
+                { range: '4–6', text: "You have some long-term thinking — a retirement account, vague ideas about your kids' future — but it hasn't translated into daily decisions. The long game exists in theory, not in practice." },
+                { range: '7–8', text: "You make sacrifices today for the sake of outcomes that won't arrive for years. Your decisions are connected to a legacy you can articulate. Your 80-year-old self would be proud of most of what you're doing today." },
+                { range: '9–10', text: "You are a legacy builder in the fullest sense. Your time, money, and energy are invested in things that outlast you — your children's faith, your community's institutions, your own enduring character. You think in generations." }
+            ],
+            formation: {
+                habit: "This week: write a one-paragraph legacy statement — what you want said at your funeral that can only be earned by a life, not a moment. Then identify one decision you're making right now that contradicts it. Change that decision.",
+                prayer: "God, give me the eyes to see past this week and this month. Let me build the way You build — slowly, faithfully, with an eye toward permanence. Let the life I live today be one I'd be proud to leave to the generation after me.",
+                convo: "\"I've been thinking about what I want to leave behind — what I want my kids and grandkids to inherit beyond money. I want to tell you what that is and ask you to hold me to it.\"",
+                memory: "\"His offspring will be mighty in the land; the generation of the upright will be blessed.\" — Psalm 112:2",
+                memRef: 'ps112_2'
+            }
         }
     ];
 
-    // ── STATE ─────────────────────────────────────────────────────────────────
-    let answers = {};
+    // Per-axis, per-question scores
+    const AXIS_SCORES = AXES.map(() => [5, 5]);
 
-    function totalQuestions() {
-        return SECTIONS.reduce((sum, s) => sum + s.questions.length, 0);
+    function getAxisAvg(i) {
+        return (AXIS_SCORES[i][0] + AXIS_SCORES[i][1]) / 2;
     }
 
-    // ── BUILD UI ──────────────────────────────────────────────────────────────
-    function buildAssessment() {
-        const block = document.getElementById('assessmentBlock');
-        document.getElementById('total-count').textContent = totalQuestions();
+    function getRadarData() {
+        return AXES.map((_, i) => getAxisAvg(i));
+    }
 
-        SECTIONS.forEach((section, si) => {
+    function getOverallAvg() {
+        const data = getRadarData();
+        return data.reduce((a, b) => a + b, 0) / data.length;
+    }
+
+    // ── TIER ─────────────────────────────────────────────────────────────────
+    function getTier(avg) {
+        if (avg >= 9)  return { label: '🏅 Resolute — Standing Firm', color: '#27ae60' };
+        if (avg >= 7)  return { label: '✅ Building — Gaining Ground', color: '#2ecc71' };
+        if (avg >= 4)  return { label: '⚔️ In the Fight — Keep Going', color: '#D4AF37' };
+        return { label: '🚨 Drifting — Course Correction Needed', color: '#c0392b' };
+    }
+
+    // ── CHART ────────────────────────────────────────────────────────────────
+    let radarChart;
+
+    function initChart() {
+        const ctx = document.getElementById('radarChart').getContext('2d');
+        radarChart = new Chart(ctx, {
+            type: 'radar',
+            data: {
+                labels: AXES.map(a => a.letter),
+                datasets: [{
+                    label: 'Your Score',
+                    data: getRadarData(),
+                    backgroundColor: 'rgba(212,175,55,0.18)',
+                    borderColor: '#D4AF37',
+                    borderWidth: 2.5,
+                    pointBackgroundColor: '#D4AF37',
+                    pointRadius: 5,
+                    pointHoverRadius: 7
+                }]
+            },
+            options: {
+                responsive: true,
+                animation: { duration: 200 },
+                scales: {
+                    r: {
+                        min: 0, max: 10,
+                        ticks: {
+                            stepSize: 2,
+                            color: '#888',
+                            backdropColor: 'transparent',
+                            font: { size: 11 }
+                        },
+                        grid: { color: '#2a2a2a' },
+                        angleLines: { color: '#333' },
+                        pointLabels: {
+                            color: '#D4AF37',
+                            font: { size: 13, family: 'Playfair Display, serif', weight: '700' }
+                        }
+                    }
+                },
+                plugins: { legend: { display: false } }
+            }
+        });
+    }
+
+    function updateChart() {
+        radarChart.data.datasets[0].data = getRadarData();
+        radarChart.update();
+        const avg = getOverallAvg();
+        document.getElementById('overallScore').textContent = avg.toFixed(1);
+        const tier = getTier(avg);
+        const el = document.getElementById('scoreTier');
+        el.textContent = tier.label;
+        el.style.color = tier.color;
+    }
+
+    // ── SLIDERS ──────────────────────────────────────────────────────────────
+    function buildSliders() {
+        const grid = document.getElementById('sliderGrid');
+        AXES.forEach((axis, i) => {
+            const rubricRows = axis.rubrics.map(r =>
+                `<div class="rubric-row"><span class="rubric-range">${r.range}</span> <span class="rubric-text">${r.text}</span></div>`
+            ).join('');
+
+            const block = document.createElement('div');
+            block.className = 'axis-block';
+            block.innerHTML = `
+                <div class="axis-block-header">
+                    <span class="axis-letter-label">${axis.letter}</span>
+                    <span class="axis-name">${axis.word}</span>
+                    <span class="axis-sub">— ${axis.subword}</span>
+                    <span class="axis-avg" id="avg-${i}">${getAxisAvg(i).toFixed(1)}</span>
+                </div>
+                <div class="slider-row">
+                    <div class="slider-label">
+                        <span class="label-text">${axis.questions[0]}</span>
+                        <span class="score-val" id="val-${i}-0">${AXIS_SCORES[i][0]}</span>
+                    </div>
+                    <input type="range" min="1" max="10" value="${AXIS_SCORES[i][0]}"
+                        id="slider-${i}-0" oninput="onSlider(${i}, 0, this.value)"
+                        aria-label="${axis.word} question 1 score">
+                </div>
+                <div class="slider-row">
+                    <div class="slider-label">
+                        <span class="label-text">${axis.questions[1]}</span>
+                        <span class="score-val" id="val-${i}-1">${AXIS_SCORES[i][1]}</span>
+                    </div>
+                    <input type="range" min="1" max="10" value="${AXIS_SCORES[i][1]}"
+                        id="slider-${i}-1" oninput="onSlider(${i}, 1, this.value)"
+                        aria-label="${axis.word} question 2 score">
+                </div>
+                <button class="rubric-toggle" id="rtoggle-${i}" onclick="toggleRubric(${i})" type="button">
+                    <span class="rtri">▶</span> What does this score mean?
+                </button>
+                <div class="rubric-body" id="rbody-${i}">${rubricRows}</div>
+            `;
+            grid.appendChild(block);
+        });
+    }
+
+    function toggleRubric(i) {
+        const body = document.getElementById(`rbody-${i}`);
+        const toggle = document.getElementById(`rtoggle-${i}`);
+        const isOpen = body.classList.contains('open');
+        body.classList.toggle('open', !isOpen);
+        toggle.classList.toggle('open', !isOpen);
+    }
+
+    function onSlider(axisIdx, qIdx, val) {
+        AXIS_SCORES[axisIdx][qIdx] = parseInt(val);
+        document.getElementById(`val-${axisIdx}-${qIdx}`).textContent = val;
+        document.getElementById(`avg-${axisIdx}`).textContent = getAxisAvg(axisIdx).toFixed(1);
+        updateChart();
+    }
+
+    // ── QUESTIONS ─────────────────────────────────────────────────────────────
+    function buildQuestions() {
+        const block = document.getElementById('questionsBlock');
+        AXES.forEach((axis, i) => {
             const div = document.createElement('div');
-            div.className = 'letter-section';
-            div.id = `section-${si}`;
-
-            let qHTML = '';
-            section.questions.forEach((q, qi) => {
-                qHTML += `
-                <div class="question-item" id="qi-${si}-${qi}">
-                    <div class="question-text">${qi + 1}. ${q}</div>
-                    <div class="rating-row">
-                        ${[1,2,3,4,5].map(n => `
-                            <button class="rating-btn" id="rb-${si}-${qi}-${n}"
-                                onclick="setRating(${si}, ${qi}, ${n})"
-                                aria-label="Rate ${n} - ${ratingLabel(n)}"
-                                type="button">
-                                <span class="r-num">${n}</span>
-                                <span class="r-label">${ratingLabel(n)}</span>
-                            </button>`).join('')}
-                        <span class="rating-scale-hint">1=Never · 5=Always</span>
-                    </div>
-                </div>`;
-            });
-
+            div.className = 'question-block';
+            const subQHtml = axis.questions.map(q => `<li>${q}</li>`).join('');
             div.innerHTML = `
-                <div class="letter-header">
-                    <div class="big-letter">${section.letter}</div>
-                    <div class="letter-meta">
-                        <div class="letter-word">${section.word}</div>
-                        <div class="letter-subword">${section.subword}</div>
-                    </div>
-                    <div class="letter-score-display">
-                        <div class="letter-score-num" id="ls-num-${si}">—</div>
-                        <div class="letter-score-label">Score</div>
+                <div class="q-header">
+                    <div class="q-letter">${axis.letter}</div>
+                    <div class="q-meta">
+                        <div class="q-word">${axis.word} <span class="q-subword">— ${axis.subword}</span></div>
                     </div>
                 </div>
-                ${qHTML}
-                <div style="margin-top:14px;">
-                    <a class="q-scripture" href="bible.html?ref=${section.scripture.anchor}" target="_blank" rel="noopener">
-                        📖 ${section.scripture.ref}
-                    </a>
-                    <p style="font-size:0.82rem;color:var(--gray);font-style:italic;margin-top:8px;padding:8px 12px;background:var(--bg-card);border-radius:6px;border-left:3px solid rgba(212,175,55,0.4);">${section.scripture.text}</p>
-                </div>
+                <div class="q-text">${axis.text}</div>
+                <ul class="q-subquestions">${subQHtml}</ul>
+                <a class="q-scripture" href="bible.html?ref=${axis.formation.memRef}" target="_blank" rel="noopener">
+                    📖 ${axis.scripture}
+                </a>
             `;
             block.appendChild(div);
         });
     }
 
-    function ratingLabel(n) {
-        return ['Never','Rarely','Smtms','Usu.','Always'][n - 1];
-    }
-
-    function setRating(si, qi, val) {
-        const key = `${si}_${qi}`;
-        answers[key] = val;
-        for (let n = 1; n <= 5; n++) {
-            const btn = document.getElementById(`rb-${si}-${qi}-${n}`);
-            if (btn) btn.classList.toggle('selected', n === val);
-        }
-        updateSectionScore(si);
-        updateProgress();
-    }
-
-    function updateSectionScore(si) {
-        const section = SECTIONS[si];
-        let total = 0, count = 0;
-        section.questions.forEach((_, qi) => {
-            const v = answers[`${si}_${qi}`];
-            if (v !== undefined) { total += v; count++; }
-        });
-        const el = document.getElementById(`ls-num-${si}`);
-        if (count === 0) { el.textContent = '—'; el.style.color = ''; return; }
-        const avg = total / count;
-        el.textContent = avg.toFixed(1);
-        el.style.color = scoreColor(avg);
-    }
-
-    function updateProgress() {
-        const total = totalQuestions();
-        const answered = Object.keys(answers).length;
-        document.getElementById('answered-count').textContent = answered;
-        const pct = Math.round((answered / total) * 100);
-        document.getElementById('progress-pct').textContent = pct + '%';
-        document.getElementById('progress-bar').style.width = pct + '%';
-    }
-
-    function scoreColor(avg) {
-        if (avg >= 4) return '#27ae60';
-        if (avg >= 3) return '#D4AF37';
-        if (avg >= 2) return '#e67e22';
-        return '#c0392b';
-    }
-
-    function getTier(avg) {
-        if (avg >= 4.5) return { label: '🏅 Resolute Citizen', color: '#27ae60' };
-        if (avg >= 3.5) return { label: '✅ Engaged & Growing', color: '#2ecc71' };
-        if (avg >= 2.5) return { label: '⚔️ Partially Engaged', color: '#D4AF37' };
-        if (avg >= 1.5) return { label: '⚠️ Largely Absent', color: '#e67e22' };
-        return { label: '🚨 Civically Disengaged', color: '#c0392b' };
-    }
-
-    // ── RUN ASSESSMENT ────────────────────────────────────────────────────────
+    // ── FORMATION PLAN ────────────────────────────────────────────────────────
     function runAssessment() {
-        const total = totalQuestions();
-        const answered = Object.keys(answers).length;
-        if (answered < total) {
-            const missing = total - answered;
-            if (!confirm(`You have ${missing} unanswered question(s). Score anyway with partial results?`)) return;
-        }
+        const indexed = AXES.map((_, i) => ({ s: getAxisAvg(i), i })).sort((a, b) => a.s - b.s);
+        const weak = [indexed[0].i, indexed[1].i, indexed[2].i];
 
-        const sectionAvgs = SECTIONS.map((section, si) => {
-            let sum = 0, count = 0;
-            section.questions.forEach((_, qi) => {
-                const v = answers[`${si}_${qi}`];
-                if (v !== undefined) { sum += v; count++; }
-            });
-            return count > 0 ? sum / count : null;
-        });
+        const plan = document.getElementById('formation-plan');
+        const content = document.getElementById('formationContent');
+        content.innerHTML = '';
 
-        const validAvgs = sectionAvgs.filter(a => a !== null);
-        const overallAvg = validAvgs.length > 0 ? validAvgs.reduce((a,b) => a+b, 0) / validAvgs.length : 0;
-
-        document.getElementById('overall-score-num').textContent = overallAvg.toFixed(2);
-        document.getElementById('overall-score-num').style.color = scoreColor(overallAvg);
-        const tier = getTier(overallAvg);
-        const tierEl = document.getElementById('score-tier');
-        tierEl.textContent = tier.label;
-        tierEl.style.color = tier.color;
-        document.getElementById('overall-bar').style.width = ((overallAvg / 5) * 100) + '%';
-        document.getElementById('overall-bar').style.background = scoreColor(overallAvg);
-
-        const grid = document.getElementById('breakdown-grid');
-        grid.innerHTML = '';
-        SECTIONS.forEach((section, si) => {
-            const avg = sectionAvgs[si];
-            const color = avg !== null ? scoreColor(avg) : '#555';
-            const cell = document.createElement('div');
-            cell.className = 'breakdown-cell';
-            cell.style.borderColor = avg !== null ? color : '';
-            cell.innerHTML = `
-                <div class="bc-letter">${section.letter}</div>
-                <div class="bc-word">${section.word}</div>
-                <div class="bc-score" style="color:${color}">${avg !== null ? avg.toFixed(1) : '—'}</div>
-                <div style="background:${color};width:${avg !== null ? (avg/5*100) : 0}%;margin:6px auto 0;height:4px;border-radius:2px;"></div>
-            `;
-            grid.appendChild(cell);
-        });
-
-        const ranked = sectionAvgs
-            .map((avg, si) => ({ avg, si }))
-            .filter(x => x.avg !== null)
-            .sort((a, b) => a.avg - b.avg);
-
-        const formContent = document.getElementById('formation-content');
-        formContent.innerHTML = '<h3 style="font-size:1.2rem;color:var(--gold);margin-bottom:16px;">🏛️ Your Top 3 Focus Areas</h3>';
-
-        ranked.slice(0, 3).forEach((item, rank) => {
-            const section = SECTIONS[item.si];
-            const f = section.formation;
+        weak.forEach((idx, rank) => {
+            const axis = AXES[idx];
+            const f = axis.formation;
             const div = document.createElement('div');
             div.className = 'formation-area';
             div.innerHTML = `
-                <h3>#${rank + 1} Priority — ${section.letter}: ${section.word} <span style="font-size:0.8rem;color:var(--gray);font-weight:400">(Score: ${item.avg.toFixed(2)}/5)</span></h3>
+                <h3>⚔️ #${rank+1} Priority — ${axis.letter}: ${axis.word} <span style="font-size:0.8rem;color:var(--gray);font-weight:400">(Avg: ${getAxisAvg(idx).toFixed(1)}/10)</span></h3>
                 <div class="formation-item">
                     <div class="formation-icon">📅</div>
                     <div>
-                        <div class="formation-label">This Week's Action</div>
+                        <div class="formation-label">This Week's Micro-Habit</div>
                         <div class="formation-text">${f.habit}</div>
                     </div>
                 </div>
@@ -773,55 +863,166 @@
                 <div class="formation-item">
                     <div class="formation-icon">📖</div>
                     <div>
-                        <div class="formation-label">Scripture to Anchor On</div>
+                        <div class="formation-label">Scripture to Memorize</div>
                         <div class="formation-text">${f.memory}</div>
-                        <a class="formation-scripture" href="bible.html?ref=${section.scripture.anchor}" target="_blank" rel="noopener">${section.scripture.ref} →</a>
                     </div>
                 </div>
             `;
-            formContent.appendChild(div);
+            content.appendChild(div);
         });
 
-        const resultsSection = document.getElementById('results-section');
-        resultsSection.style.display = 'block';
-        resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        plan.style.display = 'block';
+        plan.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
         try {
-            let log = JSON.parse(localStorage.getItem('resoluteCitizenLog') || '[]');
-            const entry = {
-                date: new Date().toISOString().slice(0, 10),
-                ts: new Date().toISOString(),
-                overall: overallAvg.toFixed(2),
-                tier: tier.label,
-                sections: SECTIONS.map((s, si) => ({ letter: s.letter, word: s.word, avg: sectionAvgs[si] !== null ? sectionAvgs[si].toFixed(2) : null }))
-            };
-            log.unshift(entry);
-            if (log.length > 20) log = log.slice(0, 20);
-            localStorage.setItem('resoluteCitizenLog', JSON.stringify(log));
+            const avg = getOverallAvg();
+            const tier = getTier(avg).label;
+            const scores = {};
+            AXES.forEach((a, i) => { scores[a.letter + '_' + a.word] = getAxisAvg(i); });
+            let log = JSON.parse(localStorage.getItem('resoluteCitizenAssessmentLog') || '[]');
+            log.push({ scores, tier, date: new Date().toISOString().slice(0,10), ts: new Date().toISOString() });
+            if (log.length > 20) log = log.slice(-20);
+            localStorage.setItem('resoluteCitizenAssessmentLog', JSON.stringify(log));
         } catch(e) {}
     }
 
-    function resetAll() {
-        answers = {};
-        document.querySelectorAll('.rating-btn').forEach(btn => btn.classList.remove('selected'));
-        document.querySelectorAll('[id^="ls-num-"]').forEach(el => { el.textContent = '—'; el.style.color = ''; });
-        document.getElementById('results-section').style.display = 'none';
-        document.getElementById('progress-bar').style.width = '0%';
-        document.getElementById('progress-pct').textContent = '0%';
-        document.getElementById('answered-count').textContent = '0';
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+    // ── PROGRESS TRACKER ──────────────────────────────────────────────────────
+    const STORAGE_KEY = 'resoluteCitizenHistory';
+
+    function saveProgress() {
+        const history = getHistory();
+        const entry = { date: new Date().toISOString(), scores: AXES.map((_, i) => getAxisAvg(i)) };
+        history.unshift(entry);
+        if (history.length > 20) history.pop();
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+        renderHistory();
+        const btn = event.target;
+        btn.textContent = '✅ Saved!';
+        setTimeout(() => btn.textContent = '💾 Save Progress', 2000);
     }
 
-    // ── THEME ──────────────────────────────────────────────────────────────────
+    function getHistory() {
+        try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
+        catch(e) { return []; }
+    }
+
+    function weeksAgo(iso) {
+        const ms = Date.now() - new Date(iso).getTime();
+        const days = Math.floor(ms / 86400000);
+        if (days === 0) return 'Today';
+        if (days === 1) return '1 day ago';
+        if (days < 7) return `${days} days ago`;
+        const weeks = Math.floor(days / 7);
+        return weeks === 1 ? '1 week ago' : `${weeks} weeks ago`;
+    }
+
+    function renderHistory() {
+        const history = getHistory();
+        const el = document.getElementById('progressContent');
+        if (!history.length) {
+            el.innerHTML = '<p style="color:var(--gray);font-size:0.9rem;font-style:italic;">No previous assessments on this device.</p>';
+            return;
+        }
+        const latest = history[0];
+        const prev = history[1] || null;
+
+        let html = `<p style="font-size:0.92rem; color:var(--gray-mid); margin-bottom:12px;">
+            Last assessment: <strong style="color:var(--white)">${weeksAgo(latest.date)}</strong>
+            ${prev ? `— Previous: ${weeksAgo(prev.date)}` : ''}
+        </p>`;
+
+        html += `<div class="history-card"><div class="history-meta">${new Date(latest.date).toLocaleDateString('en-US', {weekday:'long', year:'numeric', month:'long', day:'numeric'})}</div><div class="history-scores">`;
+        AXES.forEach((a, i) => {
+            const cur = latest.scores[i] !== undefined ? parseFloat(latest.scores[i]).toFixed(1) : '—';
+            const old = (prev && prev.scores[i] !== undefined) ? parseFloat(prev.scores[i]) : null;
+            let delta = '';
+            if (old !== null && cur !== '—') {
+                const diff = parseFloat(cur) - old;
+                if (diff > 0.05) delta = `<div class="delta up">▲${diff.toFixed(1)}</div>`;
+                else if (diff < -0.05) delta = `<div class="delta down">▼${Math.abs(diff).toFixed(1)}</div>`;
+                else delta = `<div class="delta same">—</div>`;
+            }
+            html += `<div class="history-badge"><div class="h-letter">${a.letter}</div><div class="h-score">${cur}</div>${delta}</div>`;
+        });
+        html += `</div></div>`;
+
+        if (history.length > 1) {
+            html += `<details style="margin-top:14px;"><summary style="cursor:pointer;color:var(--gray);font-size:0.85rem;">View full history (${history.length} entries)</summary>`;
+            history.slice(1).forEach(h => {
+                html += `<div class="history-card" style="margin-top:8px;">
+                    <div class="history-meta">${new Date(h.date).toLocaleDateString('en-US', {weekday:'short', year:'numeric', month:'short', day:'numeric'})}</div>
+                    <div class="history-scores">`;
+                AXES.forEach((a, i) => {
+                    html += `<div class="history-badge"><div class="h-letter">${a.letter}</div><div class="h-score">${h.scores[i] !== undefined ? parseFloat(h.scores[i]).toFixed(1) : '—'}</div></div>`;
+                });
+                html += `</div></div>`;
+            });
+            html += `</details>`;
+        }
+
+        el.innerHTML = html;
+    }
+
+    // ── SHARE MODAL ───────────────────────────────────────────────────────────
+    function openShareModal() {
+        const avg = getOverallAvg();
+        const tier = getTier(avg);
+        const date = new Date().toLocaleDateString('en-US', {month:'long', day:'numeric', year:'numeric'});
+        let text = `R.E.S.O.L.U.T.E. CITIZEN ASSESSMENT — ${date}\n`;
+        text += `${'='.repeat(46)}\n\n`;
+        text += `Overall Score: ${avg.toFixed(1)}/10  —  ${tier.label.replace(/[^\w\s\-\./]/g,'').trim()}\n\n`;
+        AXES.forEach((a, i) => {
+            text += `${a.letter} — ${a.word}: ${getAxisAvg(i).toFixed(1)}/10\n`;
+        });
+        const indexed = AXES.map((_, i) => ({ s: getAxisAvg(i), i })).sort((a, b) => a.s - b.s);
+        text += `\n📌 TOP 3 FOCUS AREAS:\n`;
+        [0,1,2].forEach(rank => {
+            const idx = indexed[rank].i;
+            text += `• ${AXES[idx].letter} — ${AXES[idx].word} (${getAxisAvg(idx).toFixed(1)}/10)\n`;
+        });
+        text += `\n🔗 Take the assessment: https://usmcmin.org/resolute-citizen-assessment.html\n`;
+        text += `\n[Shared via USMC Ministries R.E.S.O.L.U.T.E. Citizen Assessment]`;
+        document.getElementById('shareText').value = text;
+        document.getElementById('share-modal').classList.add('open');
+    }
+
+    function closeShareModal() {
+        document.getElementById('share-modal').classList.remove('open');
+    }
+
+    function copyShareText() {
+        const ta = document.getElementById('shareText');
+        ta.select();
+        try { navigator.clipboard.writeText(ta.value).catch(() => document.execCommand('copy')); }
+        catch(e) { document.execCommand('copy'); }
+        const btn = event.target;
+        btn.textContent = '✅ Copied!';
+        setTimeout(() => btn.textContent = '📋 Copy to Clipboard', 2000);
+    }
+
+    function printSummary() { window.print(); }
+
+    // ── THEME ─────────────────────────────────────────────────────────────────
     function bteToggleTheme() {
         document.body.classList.toggle('light-mode');
-        localStorage.setItem('bteTheme', document.body.classList.contains('light-mode') ? 'light' : 'dark');
+        const isLight = document.body.classList.contains('light-mode');
+        localStorage.setItem('bteTheme', isLight ? 'light' : 'dark');
+        if (radarChart) {
+            radarChart.options.scales.r.grid.color = isLight ? '#ddd' : '#2a2a2a';
+            radarChart.options.scales.r.angleLines.color = isLight ? '#ccc' : '#333';
+            radarChart.options.scales.r.ticks.color = isLight ? '#666' : '#888';
+            radarChart.update();
+        }
     }
 
     // ── INIT ──────────────────────────────────────────────────────────────────
     (function init() {
         if (localStorage.getItem('bteTheme') === 'light') document.body.classList.add('light-mode');
-        buildAssessment();
+        buildQuestions();
+        buildSliders();
+        initChart();
+        updateChart();
+        renderHistory();
     })();
     </script>
 </body>
