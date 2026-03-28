@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Millennialism &mdash; The MOOP Dictionary</title>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        :root { --bg:#000; --card:#111; --gold:#D4AF37; --gold-light:#F4D470; --white:#FFF; --gray:#888; --border:#333; }
+        body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--white); min-height:100vh; line-height:1.7; }
+        h1,h2,h3,h4 { font-family:'Playfair Display',serif; }
+        nav { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:4px 8px; padding:10px 16px;
+              border-bottom:1px solid var(--border); position:sticky; top:0;
+              background:rgba(0,0,0,0.95); backdrop-filter:blur(8px); z-index:100; }
+        nav a { color:var(--gray); text-decoration:none; font-size:0.8rem; display:inline-flex; align-items:center;
+                gap:3px; padding:3px 6px; border-radius:6px; transition:color 0.2s; }
+        nav a:hover, nav a.active { color:var(--gold); }
+        .site-icon { vertical-align:middle; opacity:0.8; }
+        .bte-theme-toggle {
+            justify-content: center; margin: 8px auto 0; width: fit-content;
+            display: flex; align-items: center; gap: 0;
+            background: rgba(30,30,30,0.85); border: 1px solid #333;
+            border-radius: 20px; padding: 3px 6px; cursor: pointer;
+            font-size: 0.7rem; user-select: none; backdrop-filter: blur(6px);
+            transition: all 0.3s;
+        }
+        .bte-theme-toggle:hover { border-color: #D4AF37; }
+        .bte-theme-toggle .toggle-icon { width: 18px; text-align: center; line-height: 1; }
+        .bte-theme-toggle .toggle-track {
+            width: 28px; height: 14px; background: #444; border-radius: 7px;
+            position: relative; margin: 0 4px; transition: background 0.3s;
+        }
+        .bte-theme-toggle .toggle-knob {
+            width: 10px; height: 10px; background: #D4AF37; border-radius: 50%;
+            position: absolute; top: 2px; left: 2px; transition: left 0.3s;
+        }
+        body.light-mode .bte-theme-toggle { background: rgba(240,238,233,0.9); border-color: #ccc; }
+        body.light-mode .bte-theme-toggle .toggle-track { background: #bbb; }
+        body.light-mode .bte-theme-toggle .toggle-knob { left: 16px; }
+        .bte-theme-toggle .moon-icon { color: #888; }
+        .bte-theme-toggle .sun-icon { color: #888; }
+        body.light-mode .bte-theme-toggle .sun-icon { color: #D4AF37; }
+        body:not(.light-mode) .bte-theme-toggle .moon-icon { color: #D4AF37; }
+        .container { max-width:820px; margin:0 auto; padding:28px 20px 60px; }
+        .word-header { text-align:center; padding:40px 0 30px; border-bottom:1px solid var(--border); margin-bottom:30px; }
+        .word-title { font-size:2.8rem; color:var(--gold-light); margin-bottom:6px; }
+        .pronunciation { color:var(--gray); font-size:1.1rem; font-style:italic; }
+        .pos { display:inline-block; background:var(--gold); color:#000; font-weight:700;
+               font-size:0.78rem; padding:3px 14px; border-radius:15px; margin:10px 0; }
+        .etymology { color:var(--gray); font-size:0.88rem; margin:12px auto; max-width:650px; }
+        .section { margin:18px 0; padding:18px 22px; background:var(--card); border:1px solid var(--border); border-radius:10px; }
+        .section > h3 { color:var(--gold); margin-bottom:12px; font-size:1.05rem; }
+        .section p { margin:7px 0; color:var(--white); }
+        .biblical-def { border-left:3px solid var(--gold); padding-left:15px; }
+        .dict-toggle { cursor:pointer; color:var(--gold); font-size:0.92rem; user-select:none;
+                       display:inline-flex; align-items:center; gap:0; background:none; border:none;
+                       padding:0; font-family:inherit; font-weight:600; }
+        .dict-toggle:hover { color:var(--gold-light); }
+        .dict-toggle .arrow { display:inline-block; transition:transform 0.2s; margin-right:8px; font-size:0.75rem; }
+        .dict-toggle .arrow.open { transform:rotate(90deg); }
+        .dict-section { display:none; margin:10px 0 4px 0; padding:12px 16px;
+                        background:rgba(212,175,55,0.06); border-left:2px solid var(--gold);
+                        border-radius:0 6px 6px 0; }
+        .dict-section.open { display:block; }
+        .dict-section p { margin:6px 0; font-size:0.95rem; color:var(--white); }
+        .dict-section pre { font-family:'Courier New',monospace; font-size:0.82rem; color:var(--gold-light);
+                             line-height:1.7; white-space:pre-wrap; }
+        .corruption { border-left:3px solid #CC0000; padding-left:15px; }
+        .verse-ref { color:var(--gold); text-decoration:none; font-weight:600; }
+        .verse-ref:hover { color:var(--gold-light); text-decoration:underline; }
+        .lexicon-link { color:var(--gold); font-family:monospace; text-decoration:none; }
+        .lexicon-link:hover { color:var(--gold-light); text-decoration:underline; }
+        .related { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+        .related a { background:var(--card); border:1px solid var(--border); padding:6px 14px;
+                     border-radius:20px; color:var(--white); text-decoration:none; font-size:0.85rem;
+                     transition:border-color 0.2s, color 0.2s; }
+        .related a:hover { border-color:var(--gold); color:var(--gold); }
+        footer { text-align:center; padding:28px 20px; border-top:1px solid var(--border);
+                 margin-top:40px; color:var(--gray); font-size:0.88rem; }
+        footer a { color:var(--gray); text-decoration:none; }
+        footer a:hover { color:var(--gold); }
+        .cross-divider { margin-bottom:10px; }
+        body.light-mode { --bg:#F5F3EF; --card:#FFF; --white:#1a1a1a; --gray:#666; --border:#d4d0c8; background:#F5F3EF; color:#1a1a1a; }
+        body.light-mode nav { background:rgba(245,243,239,0.97); }
+        body.light-mode .section { background:#fff; border-color:#d4d0c8; }
+        body.light-mode .dict-section { background:rgba(212,175,55,0.04); }
+        body.light-mode footer { border-top-color:#d4d0c8; }
+        body.light-mode .related a { background:#f0ede7; border-color:#d4d0c8; color:#1a1a1a; }
+        a, a:link, a:visited { color: var(--gold, #D4AF37) !important; }
+        a:hover { color: var(--gold-light, #F4D470) !important; }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav>
+        <a href="../index.html"><img src="../assets/icons/shield-home-48.png" class="site-icon" alt="" width="16" height="16"> Home</a>
+        <a href="../watchman.html"><img src="../assets/icons/shield-bible.png" class="site-icon" alt="" width="16" height="16"> Watchman</a>
+        <a href="../bible.html"><img src="../assets/icons/shield-compass.png" class="site-icon" alt="" width="16" height="16"> BTE</a>
+        <a href="../lexicon.html"><img src="../assets/icons/shield-alpha-omega-48.png" class="site-icon" alt="" width="16" height="16"> Lexicon</a>
+        <a href="../cross-references.html"><img src="../assets/icons/shield-infinity-rope-48.png" class="site-icon" alt="" width="16" height="16"> Cross-Refs</a>
+        <a href="index.html" class="active"><img src="../assets/icons/shield-book-greek-48.png" class="site-icon" alt="" width="16" height="16"> Dictionary</a>
+        <a href="../blog.html"><img src="../assets/icons/shield-blog-quill-48.png" class="site-icon" alt="" width="16" height="16"> Blog</a>
+        <a href="../connect.html"><img src="../assets/icons/shield-handshake.png" class="site-icon" alt="" width="16" height="16"> Connect</a>
+    </nav>
+    <div style="text-align:center; margin-top:8px; margin-bottom:4px;">
+        <div class="bte-theme-toggle" onclick="bteToggleTheme()" title="Toggle dark/light mode">
+            <span class="toggle-icon moon-icon">🌙</span>
+            <div class="toggle-track"><div class="toggle-knob"></div></div>
+            <span class="toggle-icon sun-icon">☀️</span>
+        </div>
+    </div>
+    <div class="container">
+
+        <div class="word-header">
+            <div class="word-title">Millennialism</div>
+            <div class="pronunciation">/mɪˈlen.i.ə.lɪz.əm/</div>
+            <span class="pos">noun</span>
+            <div class="etymology">Latin <em>mille</em> — thousand + <em>annum</em> — year; from <em>annus</em> — year. The word refers to the "thousand years" of Revelation 20:1–6. Greek: <em>chilia etē</em> (χίλια ἔτη) — a thousand years. Theological debate over the nature of this millennium has divided Christians into three main camps: premillennialism, postmillennialism, and amillennialism.</div>
+        </div>
+
+        <!-- Biblical Definition — always visible -->
+        <div class="section">
+            <h3>&#128214; Biblical Definition</h3>
+            <div class="biblical-def">
+                <p>Millennialism (also called <em>millenarianism</em>) describes the <strong>range of Christian views on the thousand-year reign of Christ described in Revelation 20</strong>. Three primary positions exist:<br><br><strong>Premillennialism:</strong> Christ returns <em>before</em> the millennium to establish a literal 1,000-year reign on earth, followed by the final judgment. Historic premillennialism (Papias, Irenaeus, many early fathers) and dispensational premillennialism (Darby, Scofield) are its main forms.<br><br><strong>Postmillennialism:</strong> Christ returns <em>after</em> the millennium — the gospel progressively transforms the world, ushering in a golden age before Christ's return. Optimistic; associated with Puritan and Reformed strands.<br><br><strong>Amillennialism:</strong> The "thousand years" is symbolic for the present church age — Christ reigns now through His church; there is no literal future earthly millennium. Augustine, Calvin, and most Reformed and Lutheran traditions hold this view.</p>
+            </div>
+        </div>
+
+        <!-- Webster / Historical Definition — collapsible -->
+        <div class="section">
+            <button class="dict-toggle" data-toggle="webster" onclick="toggleDict('webster')">
+                <span class="arrow">&#9658;</span>&#128220; Webster 1828 / Historical Definition
+            </button>
+            <div class="dict-section" id="webster">
+                <p><em>Millennium</em> (n., Webster 1828): A thousand years; the period of a thousand years, during which, according to an opinion, Christ will reign on earth before the final judgment. <em>"The millennium is a period expected by many Christians in which righteousness and religion will prevail greatly, or universally."</em> The three-way distinction (pre/post/amillennial) developed fully in the 19th–20th centuries, though the underlying debate is ancient.</p>
+            </div>
+        </div>
+
+        <!-- Modern Corruption — collapsible -->
+        <div class="section">
+            <button class="dict-toggle" data-toggle="corruption" onclick="toggleDict('corruption')">
+                <span class="arrow">&#9658;</span>&#9888;&#65039; Modern Corruption / Drift
+            </button>
+            <div class="dict-section" id="corruption">
+                <div class="corruption">
+                    <p>Date-setting is millennialism's perpetual corruption — from William Miller (1844) to Harold Camping (1988, 1994, 2011), each predicted rapture has left theological wreckage and public mockery. Dispensational charts have sometimes replaced the gospel with an eschatological calendar, making prophecy speculation the main business of the church. Conversely, over-realized eschatology (the kingdom is <em>only</em> spiritual, <em>only</em> present) can produce a church indifferent to Christ's physical return and final judgment. The antidote: "No one knows the day or the hour" (<a href="../bible.html?ref=Matthew+24:36" style="color:var(--gold);text-decoration:underline;">Matt 24:36</a>) and "Occupy till I come" (Luke 19:13 KJV).</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Proto-Language Roots — collapsible -->
+        <div class="section">
+            <button class="dict-toggle" data-toggle="proto" onclick="toggleDict('proto')">
+                <span class="arrow">&#9658;</span>&#127760; Proto-Language Roots
+            </button>
+            <div class="dict-section" id="proto">
+                <pre>Latin:
+  mille (thousand) + annum (year) → millennium (~1638)
+  → millennialism (theological usage ~19th c.)
+
+Greek text of Revelation 20:2,3,4,5,6,7:
+  χίλια ἔτη (chilia etē) — a thousand years
+  (6 occurrences — the repetition signals significance)
+
+Three positions named:
+  pre-millennial (~1800s formal coinage)
+  post-millennial (~1700s, associated with Whitby)
+  a-millennial (~1930s, coinage by Jay Adams and others)</pre>
+            </div>
+        </div>
+
+        <!-- Greek & Hebrew Roots — collapsible -->
+        <div class="section">
+            <button class="dict-toggle" data-toggle="roots" onclick="toggleDict('roots')">
+                <span class="arrow">&#9658;</span>&#128279; Greek &amp; Hebrew Roots
+            </button>
+            <div class="dict-section" id="roots">
+                <p><strong>chilia</strong> (χίλια, G5507) — a thousand; root of <em>chilialism</em> (alternate term for premillennialism).</p><p><strong>basileia</strong> (βασιλεία, G932) — kingdom, reign; the broader category of which the millennium debate is one part — when and how is Christ's kingdom consummated?</p>
+            </div>
+        </div>
+
+        <!-- Key Scripture — always visible -->
+        <div class="section">
+            <h3>&#128214; Key Scripture</h3>
+            <p>&#x2022; <a href="../bible.html?ref=Revelation+20:1-6" class="verse-ref">Revelation 20:1–6</a> &mdash; "They came to life and reigned with Christ for a thousand years."</p>
+            <p>&#x2022; <a href="../bible.html?ref=Matthew+24:36" class="verse-ref">Matthew 24:36</a> &mdash; "But concerning that day and hour no one knows, not even the angels of heaven, nor the Son, but the Father only."</p>
+            <p>&#x2022; <a href="../bible.html?ref=1+Thessalonians+4:16-17" class="verse-ref">1 Thessalonians 4:16–17</a> &mdash; "The Lord himself will descend from heaven...and we will always be with the Lord."</p>
+            <p>&#x2022; <a href="../bible.html?ref=Acts+1:11" class="verse-ref">Acts 1:11</a> &mdash; "This Jesus, who was taken up from you into heaven, will come in the same way as you saw him go into heaven."</p>
+        </div>
+
+        <!-- Usage Examples — collapsible -->
+        <div class="section">
+            <button class="dict-toggle" data-toggle="usage" onclick="toggleDict('usage')">
+                <span class="arrow">&#9658;</span>&#9997;&#65039; Usage Examples
+            </button>
+            <div class="dict-section" id="usage">
+                <p>&#x2022; "Christians can disagree on the millennium and still share the same gospel — it's not a first-order doctrine. Christ's return is."</p><p>&#x2022; "Premillennialists read Revelation 20 literally; amillennialists read it symbolically. Both read Romans 8 the same way — that's what matters."</p><p>&#x2022; "The one millennial view that is absolutely wrong: that Christ is not returning at all."</p>
+            </div>
+        </div>
+
+        <!-- Related Words — always visible -->
+        <div class="section">
+            <h3>Related Words</h3>
+            <div class="related">
+                <a href="dispensation.html">Dispensation</a>
+                <a href="covenant.html">Covenant</a>
+                <a href="supralapsarian.html">Supralapsarian</a>
+            </div>
+        </div>
+
+    </div>
+
+    <div style="text-align:center; margin:20px auto 0; padding-bottom:10px;">
+        <div class="bte-theme-toggle" onclick="bteToggleTheme()" title="Toggle dark/light mode">
+            <span class="toggle-icon moon-icon">🌙</span>
+            <div class="toggle-track"><div class="toggle-knob"></div></div>
+            <span class="toggle-icon sun-icon">☀️</span>
+        </div>
+    </div>
+
+    <footer>
+        <div class="cross-divider"><img src="../assets/icons/shield-cross-bible-48.png" alt="" width="36" height="36" style="opacity:0.6;margin-bottom:10px;"></div>
+        <p>
+            <a href="../index.html#uniting"><img src="../assets/icons/shield-hands-joining.png" class="site-icon" alt="" width="20" height="20"> Uniting</a> &middot;
+            <a href="../serving.html"><img src="../assets/icons/shield-serving.png" class="site-icon" alt="" width="20" height="20"> Serving</a> &middot;
+            <a href="../mentoring.html"><img src="../assets/icons/shield-mentoring.png" class="site-icon" alt="" width="20" height="20"> Mentoring</a> &middot;
+            <a href="../counseling.html"><img src="../assets/icons/shield-family.png" class="site-icon" alt="" width="20" height="20"> Counseling</a> &middot;
+            <a href="../about.html"><img src="../assets/icons/shield-about-person-24.png" class="site-icon" alt="" width="20" height="20"> About</a>
+        </p>
+        <p style="margin-top:8px;font-size:0.78rem;color:#555;">Powered by MOOPbot Pro &mdash; &ldquo;Iron sharpens iron.&rdquo; &mdash; <a href="../bible.html?ref=Proverbs+27:17" style="color:var(--gold);text-decoration:underline;">Proverbs 27:17</a></p>
+    </footer>
+    <script>
+    function toggleDict(id){
+        var s=document.getElementById(id);
+        var b=document.querySelector('[data-toggle="'+id+'"]');
+        var a=b?b.querySelector('.arrow'):null;
+        s.classList.toggle('open');
+        if(a)a.classList.toggle('open');
+    }
+    function bteToggleTheme(){
+        var b=document.body;
+        if(b.classList.contains('light-mode')){
+            b.classList.remove('light-mode');
+            localStorage.setItem('bte-theme','dark');
+        } else {
+            b.classList.add('light-mode');
+            localStorage.setItem('bte-theme','light');
+        }
+    }
+    (function(){
+        if(localStorage.getItem('bte-theme')==='light'){
+            document.body.classList.add('light-mode');
+        }
+    })();
+    </script>
+</body>
+</html>
