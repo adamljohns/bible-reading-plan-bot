@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Account Map — Johns Family Financial Architecture</title>
+<link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root { --bg: #0d1117; --card: #161b22; --border: #30363d; --gold: #D4AF37; --white: #e6edf3; --gray: #8b949e; --green: #3fb950; --red: #f85149; --orange: #e3b341; --blue: #58a6ff; --purple: #bc8cff; }
+  body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--white); min-height: 100vh; padding: 20px; }
+  h1 { text-align: center; font-size: 1.5rem; color: var(--gold); margin-bottom: 2px; }
+  .sub { text-align: center; color: var(--gray); font-size: 0.8rem; margin-bottom: 20px; }
+
+  .entity-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
+  @media (max-width: 900px) { .entity-row { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 500px) { .entity-row { grid-template-columns: 1fr; } }
+
+  .entity { background: var(--card); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .entity-header { padding: 12px 14px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+  .entity-icon { font-size: 1.3rem; }
+  .entity-name { font-weight: 700; font-size: 0.95rem; }
+  .entity-ein { font-size: 0.68rem; color: var(--gray); font-family: 'JetBrains Mono', monospace; }
+  .entity.personal .entity-header { border-bottom-color: var(--blue); }
+  .entity.ba .entity-header { border-bottom-color: var(--green); }
+  .entity.usmc .entity-header { border-bottom-color: var(--gold); }
+  .entity.c5isr .entity-header { border-bottom-color: var(--purple); }
+
+  .bank-group { padding: 8px 10px; }
+  .bank-group-title { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--gray); margin: 6px 0 4px; }
+
+  .acct { display: flex; align-items: center; gap: 6px; padding: 4px 6px; border-radius: 4px; margin-bottom: 3px; font-size: 0.78rem; }
+  .acct:hover { background: rgba(255,255,255,0.03); }
+  .acct-icon { font-size: 0.7rem; flex-shrink: 0; }
+  .acct-name { flex: 1; color: var(--white); }
+  .acct-num { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; color: var(--gray); }
+  .acct-type { font-size: 0.62rem; padding: 1px 5px; border-radius: 6px; font-weight: 600; flex-shrink: 0; }
+  .type-checking { background: rgba(88,166,255,0.12); color: var(--blue); }
+  .type-savings { background: rgba(63,185,80,0.12); color: var(--green); }
+  .type-cc { background: rgba(227,179,65,0.12); color: var(--orange); }
+  .type-loan { background: rgba(188,140,255,0.12); color: var(--purple); }
+  .type-insurance { background: rgba(248,81,73,0.1); color: var(--red); }
+  .type-mortgage { background: rgba(188,140,255,0.12); color: var(--purple); }
+  .type-investment { background: rgba(63,185,80,0.1); color: #7ee787; }
+
+  /* SHARED BANK INDICATOR */
+  .shared-tag { font-size: 0.6rem; padding: 1px 4px; border-radius: 4px; background: rgba(188,140,255,0.15); color: var(--purple); margin-left: 2px; }
+
+  /* LINKAGE SECTION */
+  .linkage-section { margin-top: 24px; }
+  .linkage-title { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--gray); margin-bottom: 10px; text-align: center; }
+  .linkage-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 10px; }
+  .link-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; }
+  .link-bank { font-weight: 600; font-size: 0.85rem; color: var(--gold); margin-bottom: 6px; }
+  .link-row { display: flex; gap: 6px; font-size: 0.75rem; padding: 2px 0; align-items: center; }
+  .link-entity { padding: 1px 6px; border-radius: 4px; font-size: 0.65rem; font-weight: 600; }
+  .link-personal { background: rgba(88,166,255,0.12); color: var(--blue); }
+  .link-ba { background: rgba(63,185,80,0.12); color: var(--green); }
+  .link-usmc { background: rgba(212,175,55,0.12); color: var(--gold); }
+  .link-c5isr { background: rgba(188,140,255,0.12); color: var(--purple); }
+  .link-type { color: var(--gray); }
+
+  @media print {
+    body { background: #fff; color: #000; padding: 0.25in; font-size: 11px; }
+    .entity { background: #f9f9f9; border: 1px solid #ddd; break-inside: avoid; }
+    .entity-header { border-bottom-color: #999 !important; }
+    .acct-name { color: #000; }
+    h1 { color: #000; }
+    .link-card { background: #f5f5f5; border: 1px solid #ddd; }
+  }
+</style>
+</head>
+<body>
+
+<h1>🏦 Johns Family — Financial Account Map</h1>
+<p class="sub">4 entities · All banks · All account types · Cross-entity linkages shown</p>
+
+<div class="entity-row">
+
+  <!-- PERSONAL -->
+  <div class="entity personal">
+    <div class="entity-header">
+      <span class="entity-icon">👤</span>
+      <div>
+        <div class="entity-name">Adam Johns — Personal</div>
+        <div class="entity-ein">SSN-based · adamljohns@icloud.com</div>
+      </div>
+    </div>
+    <div class="bank-group">
+      <div class="bank-group-title">Navy Federal CU</div>
+      <div class="acct"><span class="acct-icon">🏦</span><span class="acct-name">Checking</span><span class="acct-num">...9708</span><span class="acct-type type-checking">CHK</span></div>
+      <div class="acct"><span class="acct-icon">💰</span><span class="acct-name">Savings</span><span class="acct-num">...9005</span><span class="acct-type type-savings">SAV</span></div>
+      <div class="acct"><span class="acct-icon">💳</span><span class="acct-name">MC Platinum</span><span class="acct-num">...8615</span><span class="acct-type type-cc">CC</span></div>
+      <div class="acct"><span class="acct-icon">💳</span><span class="acct-name">Visa CashRewards+</span><span class="acct-num">...4907</span><span class="acct-type type-cc">CC</span></div>
+      <div class="acct"><span class="acct-icon">✅</span><span class="acct-name">LOC</span><span class="acct-num">...9708</span><span class="acct-type type-loan">$0</span></div>
+
+      <div class="bank-group-title">Wells Fargo</div>
+      <div class="acct"><span class="acct-icon">🏦</span><span class="acct-name">Everyday Checking</span><span class="acct-num">...3271</span><span class="acct-type type-checking">CHK</span></div>
+      <div class="acct"><span class="acct-icon">💳</span><span class="acct-name">Active Cash Visa</span><span class="acct-num">...3554</span><span class="acct-type type-cc">CC</span></div>
+
+      <div class="bank-group-title">Chase</div>
+      <div class="acct"><span class="acct-icon">💳</span><span class="acct-name">Freedom Unlimited</span><span class="acct-num">...0511</span><span class="acct-type type-cc">CC</span></div>
+      <div class="acct"><span class="acct-icon">💳</span><span class="acct-name">Disney Inspire</span><span class="acct-num">...9102</span><span class="acct-type type-cc">CC</span></div>
+
+      <div class="bank-group-title">Citibank</div>
+      <div class="acct"><span class="acct-icon">💳</span><span class="acct-name">Mastercard</span><span class="acct-num">$25,400</span><span class="acct-type type-cc">CC</span></div>
+      <div class="acct"><span class="acct-icon">🏦</span><span class="acct-name">Access Acct</span><span class="acct-num">...1590</span><span class="acct-type type-checking">CHK</span></div>
+
+      <div class="bank-group-title">Discover</div>
+      <div class="acct"><span class="acct-icon">🏦</span><span class="acct-name">Cashback Debit</span><span class="acct-num">...4361</span><span class="acct-type type-checking">CHK</span></div>
+      <div class="acct"><span class="acct-icon">💳</span><span class="acct-name">More Card</span><span class="acct-num">...6021</span><span class="acct-type type-cc">CC</span></div>
+
+      <div class="bank-group-title">USAA</div>
+      <div class="acct"><span class="acct-icon">🛡️</span><span class="acct-name">Auto Insurance</span><span class="acct-num">F-150 + Flex</span><span class="acct-type type-insurance">INS</span></div>
+      <div class="acct"><span class="acct-icon">🏠</span><span class="acct-name">Homeowners</span><span class="acct-num">501 Caroline</span><span class="acct-type type-insurance">INS</span></div>
+      <div class="acct"><span class="acct-icon">🏠</span><span class="acct-name">Renters</span><span class="acct-num">1405 Sunken</span><span class="acct-type type-insurance">INS</span></div>
+
+      <div class="bank-group-title">Amex</div>
+      <div class="acct"><span class="acct-icon">💳</span><span class="acct-name">Platinum</span><span class="acct-num">adam777</span><span class="acct-type type-cc">CC</span></div>
+      <div class="acct"><span class="acct-icon">💳</span><span class="acct-name">Blue</span><span class="acct-num">adam777</span><span class="acct-type type-cc">CC</span></div>
+      <div class="acct"><span class="acct-icon">💰</span><span class="acct-name">High Yield Savings</span><span class="acct-num">...5160</span><span class="acct-type type-savings">SAV</span></div>
+
+      <div class="bank-group-title">Other</div>
+      <div class="acct"><span class="acct-icon">🏦</span><span class="acct-name">US Bank CC</span><span class="acct-num">...6427</span><span class="acct-type type-cc">CC</span><span class="shared-tag">+BIZ</span></div>
+      <div class="acct"><span class="acct-icon">🏦</span><span class="acct-name">M&T Personal</span><span class="acct-num">AdamLJohns78</span><span class="acct-type type-checking">CHK</span></div>
+      <div class="acct"><span class="acct-icon">🏦</span><span class="acct-name">PNC Personal</span><span class="acct-num">...2117</span><span class="acct-type type-checking">CHK</span></div>
+      <div class="acct"><span class="acct-icon">🏦</span><span class="acct-name">Langley FCU</span><span class="acct-num">AdamLJohns78</span><span class="acct-type type-checking">CHK</span></div>
+      <div class="acct"><span class="acct-icon">💳</span><span class="acct-name">Ford Visa (FNB)</span><span class="acct-num">F-150 loan</span><span class="acct-type type-cc">CC</span></div>
+      <div class="acct"><span class="acct-icon">🏠</span><span class="acct-name">Freedom Mortgage</span><span class="acct-num">$1,562/mo</span><span class="acct-type type-mortgage">MTG</span></div>
+      <div class="acct"><span class="acct-icon">🏦</span><span class="acct-name">Truist Personal</span><span class="acct-num">...5994</span><span class="acct-type type-checking">CHK</span></div>
+      <div class="acct"><span class="acct-icon">📈</span><span class="acct-name">TSP</span><span class="acct-num">JohnsAL777</span><span class="acct-type type-investment">INV</span></div>
+    </div>
+  </div>
+
+  <!-- BOW & ARROW -->
+  <div class="entity ba">
+    <div class="entity-header">
+      <span class="entity-icon">🏠</span>
+      <div>
+        <div class="entity-name">Bow & Arrow Studios LLC</div>
+        <div class="entity-ein">EIN: 87-2937218</div>
+      </div>
+    </div>
+    <div class="bank-group">
+      <div class="bank-group-title">M&T Bank</div>
+      <div class="acct"><span class="acct-icon">🏦</span><span class="acct-name">Biz Checking</span><span class="acct-num">...6233</span><span class="acct-type type-checking">CHK</span></div>
+      <div class="acct"><span class="acct-icon">💳</span><span class="acct-name">Biz Rewards CC</span><span class="acct-num">...3271</span><span class="acct-type type-cc">CC</span></div>
+
+      <div class="bank-group-title">PNC</div>
+      <div class="acct"><span class="acct-icon">🏦</span><span class="acct-name">Biz Checking</span><span class="acct-num">...4005</span><span class="acct-type type-checking">CHK</span></div>
+
+      <div class="bank-group-title">Capital One</div>
+      <div class="acct"><span class="acct-icon">🏦</span><span class="acct-name">360 Checking</span><span class="acct-num">...2191</span><span class="acct-type type-checking">CHK</span></div>
+      <div class="acct"><span class="acct-icon">💳</span><span class="acct-name">Biz Spark CC</span><span class="acct-num">...2866</span><span class="acct-type type-cc">CC</span></div>
+
+      <div class="bank-group-title">Revenue</div>
+      <div class="acct"><span class="acct-icon">🏡</span><span class="acct-name">Airbnb Host</span><span class="acct-num">$98,706 (2024)</span><span class="acct-type type-checking">REV</span></div>
+      <div class="acct"><span class="acct-icon">📸</span><span class="acct-name">Maria Photo Biz</span><span class="acct-num">USAA ...3114</span><span class="acct-type type-checking">CHK</span></div>
+
+      <div class="bank-group-title">Services</div>
+      <div class="acct"><span class="acct-icon">🔐</span><span class="acct-name">ADT Security</span><span class="acct-num">Hanover St</span><span class="acct-type type-insurance">SVC</span></div>
+      <div class="acct"><span class="acct-icon">📄</span><span class="acct-name">Corp Filings LLC</span><span class="acct-num">$34/yr agent</span><span class="acct-type type-loan">FEE</span></div>
+    </div>
+  </div>
+
+  <!-- USMC MINISTRIES -->
+  <div class="entity usmc">
+    <div class="entity-header">
+      <span class="entity-icon">🙏</span>
+      <div>
+        <div class="entity-name">USMC Ministries</div>
+        <div class="entity-ein">EIN: 88-1966617</div>
+      </div>
+    </div>
+    <div class="bank-group">
+      <div class="bank-group-title">Chase (Primary)</div>
+      <div class="acct"><span class="acct-icon">💳</span><span class="acct-name">Ink Business CC</span><span class="acct-num">...6940</span><span class="acct-type type-cc">CC</span></div>
+      <div class="acct"><span class="acct-icon">🏦</span><span class="acct-name">Biz Checking</span><span class="acct-num">...1622</span><span class="acct-type type-checking">CHK</span></div>
+
+      <div class="bank-group-title">Truist</div>
+      <div class="acct"><span class="acct-icon">🏦</span><span class="acct-name">Ministry Checking</span><span class="acct-num">...4985</span><span class="acct-type type-checking">CHK</span></div>
+
+      <div class="bank-group-title">Services</div>
+      <div class="acct"><span class="acct-icon">🌐</span><span class="acct-name">Namecheap</span><span class="acct-num">usmcmin.org/.com</span><span class="acct-type type-loan">$220/yr</span></div>
+      <div class="acct"><span class="acct-icon">🤖</span><span class="acct-name">Anthropic Max</span><span class="acct-num">$125/mo</span><span class="acct-type type-loan">SUB</span></div>
+      <div class="acct"><span class="acct-icon">🎙️</span><span class="acct-name">ElevenLabs</span><span class="acct-num">TTS</span><span class="acct-type type-loan">SUB</span></div>
+      <div class="acct"><span class="acct-icon">🧠</span><span class="acct-name">OpenAI</span><span class="acct-num">~$45/mo</span><span class="acct-type type-loan">SUB</span></div>
+    </div>
+  </div>
+
+  <!-- C5iSR -->
+  <div class="entity c5isr">
+    <div class="entity-header">
+      <span class="entity-icon">₿</span>
+      <div>
+        <div class="entity-name">C5iSR LLC</div>
+        <div class="entity-ein">EIN: 92-3564161</div>
+      </div>
+    </div>
+    <div class="bank-group">
+      <div class="bank-group-title">US Bank (Primary)</div>
+      <div class="acct"><span class="acct-icon">🏦</span><span class="acct-name">Biz Checking</span><span class="acct-num">...6425</span><span class="acct-type type-checking">CHK</span></div>
+      <div class="acct"><span class="acct-icon">💳</span><span class="acct-name">Biz CC</span><span class="acct-num">...4113</span><span class="acct-type type-cc">CC</span></div>
+
+      <div class="bank-group-title">Truist</div>
+      <div class="acct"><span class="acct-icon">🏦</span><span class="acct-name">Biz Account</span><span class="acct-num">USMCMinistry</span><span class="acct-type type-checking">CHK</span></div>
+
+      <div class="bank-group-title">SoFi</div>
+      <div class="acct"><span class="acct-icon">🏦</span><span class="acct-name">Bank (loan closed)</span><span class="acct-num">C5iSR97LLC@</span><span class="acct-type type-checking">CLOSED</span></div>
+
+      <div class="bank-group-title">Crypto Accounts</div>
+      <div class="acct"><span class="acct-icon">₿</span><span class="acct-name">KuCoin</span><span class="acct-num">MacBook Brave</span><span class="acct-type type-investment">CEX</span></div>
+      <div class="acct"><span class="acct-icon">₿</span><span class="acct-name">Nexo</span><span class="acct-num">Samsung S-22</span><span class="acct-type type-investment">CEX</span></div>
+      <div class="acct"><span class="acct-icon">₿</span><span class="acct-name">Crypto.com</span><span class="acct-num">Samsung S-22</span><span class="acct-type type-investment">CEX</span></div>
+      <div class="acct"><span class="acct-icon">₿</span><span class="acct-name">Kraken</span><span class="acct-num">adamljohns</span><span class="acct-type type-investment">CEX</span></div>
+      <div class="acct"><span class="acct-icon">🦊</span><span class="acct-name">MetaMask</span><span class="acct-num">DeFi wallet</span><span class="acct-type type-investment">DEFI</span></div>
+
+      <div class="bank-group-title">Community Federal</div>
+      <div class="acct"><span class="acct-icon">🏦</span><span class="acct-name">CDC Account</span><span class="acct-num">...2277</span><span class="acct-type type-checking">CHK</span></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- CROSS-ENTITY LINKAGES -->
+<div class="linkage-section">
+  <div class="linkage-title">🔗 Banks That Span Multiple Entities</div>
+  <div class="linkage-grid">
+
+    <div class="link-card">
+      <div class="link-bank">🏦 US Bank</div>
+      <div class="link-row"><span class="link-entity link-personal">PERSONAL</span><span class="link-type">CC ...6427 (adamljohns)</span></div>
+      <div class="link-row"><span class="link-entity link-c5isr">C5iSR</span><span class="link-type">Biz Checking + Biz CC (c5isrLLC)</span></div>
+    </div>
+
+    <div class="link-card">
+      <div class="link-bank">🏦 Chase</div>
+      <div class="link-row"><span class="link-entity link-personal">PERSONAL</span><span class="link-type">Freedom Unlimited + Disney Inspire (adamljohns78)</span></div>
+      <div class="link-row"><span class="link-entity link-usmc">USMC MIN</span><span class="link-type">Ink Business CC + Biz Checking (USMCMinisties2022)</span></div>
+    </div>
+
+    <div class="link-card">
+      <div class="link-bank">🏦 Truist</div>
+      <div class="link-row"><span class="link-entity link-personal">PERSONAL</span><span class="link-type">Personal Checking ...5994 (AdamLJohns)</span></div>
+      <div class="link-row"><span class="link-entity link-usmc">USMC MIN</span><span class="link-type">Ministry Checking ...4985 (USMCMinistry)</span></div>
+      <div class="link-row"><span class="link-entity link-c5isr">C5iSR</span><span class="link-type">Biz Account (same USMCMinistry login — linked)</span></div>
+    </div>
+
+    <div class="link-card">
+      <div class="link-bank">🏦 Capital One</div>
+      <div class="link-row"><span class="link-entity link-personal">PERSONAL / MARIA</span><span class="link-type">360 Checking + Maria CC (mariaejohns)</span></div>
+      <div class="link-row"><span class="link-entity link-ba">B&A</span><span class="link-type">Spark Biz CC ...2866 (same login)</span></div>
+    </div>
+
+    <div class="link-card">
+      <div class="link-bank">🏦 PNC</div>
+      <div class="link-row"><span class="link-entity link-personal">PERSONAL</span><span class="link-type">Checking ...2117 (AdamLJohns78)</span></div>
+      <div class="link-row"><span class="link-entity link-ba">B&A</span><span class="link-type">Biz Checking ...4005 (Bowandarrowstudio)</span></div>
+    </div>
+
+    <div class="link-card">
+      <div class="link-bank">🏦 M&T Bank</div>
+      <div class="link-row"><span class="link-entity link-personal">PERSONAL</span><span class="link-type">Personal Checking (AdamLJohns78)</span></div>
+      <div class="link-row"><span class="link-entity link-ba">B&A</span><span class="link-type">Biz Checking ...6233 + Biz Rewards CC (BowAndArrowStudioLLC)</span></div>
+    </div>
+
+    <div class="link-card">
+      <div class="link-bank">🏦 USAA</div>
+      <div class="link-row"><span class="link-entity link-personal">PERSONAL</span><span class="link-type">Insurance (auto, home, renters, PPP)</span></div>
+      <div class="link-row"><span class="link-entity link-ba">B&A / MARIA</span><span class="link-type">Maria Photo Biz ...3114 + Adoption Fund ...3193</span></div>
+    </div>
+
+    <div class="link-card">
+      <div class="link-bank">🏦 Amex</div>
+      <div class="link-row"><span class="link-entity link-personal">PERSONAL</span><span class="link-type">Platinum + Blue + High Yield Savings (adam777)</span></div>
+      <div class="link-row"><span class="link-entity link-ba">B&A</span><span class="link-type">Amazon Business Prime CC (same login)</span></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- INCOME FLOW -->
+<div class="linkage-section">
+  <div class="linkage-title">💵 Income Flow Map</div>
+  <div class="linkage-grid">
+    <div class="link-card">
+      <div class="link-bank">VA Retirement (DFAS) → ~$2,873/mo</div>
+      <div class="link-row"><span class="link-entity link-personal">→</span><span class="link-type">NFCU Checking ...9708</span></div>
+    </div>
+    <div class="link-card">
+      <div class="link-bank">VA Disability → ~$4,428/mo</div>
+      <div class="link-row"><span class="link-entity link-personal">→</span><span class="link-type">NFCU Checking ...9708</span></div>
+    </div>
+    <div class="link-card">
+      <div class="link-bank">fit20 Payroll → ~$750-900/mo</div>
+      <div class="link-row"><span class="link-entity link-personal">→</span><span class="link-type">NFCU or WF direct deposit</span></div>
+    </div>
+    <div class="link-card">
+      <div class="link-bank">Airbnb Payouts → ~$8,000/mo gross</div>
+      <div class="link-row"><span class="link-entity link-ba">→</span><span class="link-type">B&A M&T Bank or PNC</span></div>
+    </div>
+    <div class="link-card">
+      <div class="link-bank">Maria Photography → ~$2,000/mo</div>
+      <div class="link-row"><span class="link-entity link-ba">→</span><span class="link-type">USAA Maria Biz ...3114 / PayPal / Shopify</span></div>
+    </div>
+    <div class="link-card">
+      <div class="link-bank">Gideon Rent → $500/mo</div>
+      <div class="link-row"><span class="link-entity link-personal">→</span><span class="link-type">Cash or NFCU transfer</span></div>
+    </div>
+  </div>
+</div>
+
+<div style="text-align:center;margin:24px 0;font-size:0.75rem;color:var(--gray);">
+  Print: Cmd+P · See also: <a href="financial-command.html" style="color:var(--gold)">Financial Command Center</a> · <a href="financial-onboarding.html" style="color:var(--gold)">Onboarding Workflow</a><br>
+  Last updated: March 28, 2026 · MbPro
+</div>
+
+</body>
+</html>
