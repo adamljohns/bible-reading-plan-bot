@@ -650,32 +650,32 @@
         let currentViewMode = 'verse'; // 'chapter' | 'verse' | 'range'
 
         const BOOKS = {
-            genesis:1,gen:1,gn:1,exodus:2,exod:2,ex:2,leviticus:3,lev:3,numbers:4,num:4,
-            deuteronomy:5,deut:5,dt:5,joshua:6,josh:6,judges:7,judg:7,ruth:8,ru:8,
-            '1 samuel':9,'1sam':9,'1 sam':9,'2 samuel':10,'2sam':10,'2 sam':10,
-            '1 kings':11,'1kgs':11,'1ki':11,'2 kings':12,'2kgs':12,'2ki':12,
+            genesis:1,gen:1,gn:1,exodus:2,exod:2,ex:2,leviticus:3,lev:3,lv:3,numbers:4,num:4,nm:4,
+            deuteronomy:5,deut:5,dt:5,deu:5,joshua:6,josh:6,jos:6,judges:7,judg:7,jdg:7,jgs:7,ruth:8,ru:8,rut:8,
+            '1 samuel':9,'1sam':9,'1 sam':9,'1sa':9,'2 samuel':10,'2sam':10,'2 sam':10,'2sa':10,
+            '1 kings':11,'1kgs':11,'1ki':11,'1kg':11,'2 kings':12,'2kgs':12,'2ki':12,'2kg':12,
             '1 chronicles':13,'1chr':13,'1ch':13,'2 chronicles':14,'2chr':14,'2ch':14,
-            ezra:15,ezr:15,nehemiah:16,neh:16,esther:17,esth:17,job:18,
-            psalms:19,psalm:19,ps:19,psa:19,proverbs:20,prov:20,pr:20,
-            ecclesiastes:21,eccl:21,ecc:21,'song of solomon':22,song:22,
-            isaiah:23,isa:23,jeremiah:24,jer:24,lamentations:25,lam:25,
-            ezekiel:26,ezek:26,daniel:27,dan:27,hosea:28,hos:28,joel:29,
-            amos:30,obadiah:31,obad:31,jonah:32,micah:33,mic:33,nahum:34,nah:34,
-            habakkuk:35,hab:35,zephaniah:36,zeph:36,haggai:37,hag:37,
-            zechariah:38,zech:38,malachi:39,mal:39,
-            matthew:40,matt:40,mt:40,mark:41,mk:41,luke:42,lk:42,john:43,jn:43,
-            acts:44,ac:44,romans:45,rom:45,ro:45,
-            '1 corinthians':46,'1cor':46,'1 cor':46,'2 corinthians':47,'2cor':47,'2 cor':47,
+            ezra:15,ezr:15,nehemiah:16,neh:16,esther:17,esth:17,est:17,job:18,
+            psalms:19,psalm:19,ps:19,psa:19,proverbs:20,prov:20,pr:20,pro:20,
+            ecclesiastes:21,eccl:21,ecc:21,eccles:21,'song of solomon':22,song:22,sos:22,ss:22,
+            isaiah:23,isa:23,is:23,jeremiah:24,jer:24,lamentations:25,lam:25,
+            ezekiel:26,ezek:26,eze:26,daniel:27,dan:27,hosea:28,hos:28,joel:29,
+            amos:30,obadiah:31,obad:31,oba:31,jonah:32,jon:32,micah:33,mic:33,nahum:34,nah:34,
+            habakkuk:35,hab:35,zephaniah:36,zeph:36,zep:36,haggai:37,hag:37,
+            zechariah:38,zech:38,zec:38,malachi:39,mal:39,
+            matthew:40,matt:40,mt:40,mat:40,mark:41,mk:41,mrk:41,mar:41,luke:42,lk:42,luk:42,john:43,jn:43,joh:43,
+            acts:44,ac:44,act:44,romans:45,rom:45,ro:45,
+            '1 corinthians':46,'1cor':46,'1 cor':46,'1co':46,'2 corinthians':47,'2cor':47,'2 cor':47,'2co':47,
             galatians:48,gal:48,ephesians:49,eph:49,philippians:50,phil:50,php:50,
-            colossians:51,col:51,'1 thessalonians':52,'1thess':52,'1 thess':52,
-            '2 thessalonians':53,'2thess':53,'2 thess':53,
-            '1 timothy':54,'1tim':54,'1 tim':54,'2 timothy':55,'2tim':55,'2 tim':55,
+            colossians:51,col:51,'1 thessalonians':52,'1thess':52,'1 thess':52,'1th':52,
+            '2 thessalonians':53,'2thess':53,'2 thess':53,'2th':53,
+            '1 timothy':54,'1tim':54,'1 tim':54,'1ti':54,'2 timothy':55,'2tim':55,'2 tim':55,'2ti':55,
             titus:56,tit:56,philemon:57,philem:57,phm:57,hebrews:58,heb:58,
-            james:59,jas:59,'1 peter':60,'1pet':60,'1 pet':60,
-            '2 peter':61,'2pet':61,'2 pet':61,
-            '1 john':62,'1john':62,'1jn':62,'1 jn':62,
-            '2 john':63,'2john':63,'2jn':63,'3 john':64,'3john':64,'3jn':64,
-            jude:65,revelation:66,rev:66
+            james:59,jas:59,jam:59,'1 peter':60,'1pet':60,'1 pet':60,'1pe':60,
+            '2 peter':61,'2pet':61,'2 pet':61,'2pe':61,
+            '1 john':62,'1john':62,'1jn':62,'1 jn':62,'1jo':62,
+            '2 john':63,'2john':63,'2jn':63,'2jo':63,'3 john':64,'3john':64,'3jn':64,'3jo':64,
+            jude:65,revelation:66,rev:66,re:66
         };
 
         const BOOK_NAMES = {};
@@ -1075,7 +1075,67 @@
         }
 
         function parseRef(ref) {
-            const m = ref.trim().match(/^(\d?\s?[a-zA-Z\s]+?)\s*(\d+)(?:\s*:\s*(\d+))?(?:\s*-\s*(\d+))?$/i);
+            let input = ref.trim();
+
+            // BTE v5.2: Handle underscore format "bookAbbrev_chapter_verse" (e.g. "ezek22_30", "deut6_7", "1cor_3_16")
+            // Also handles "ezek_22_30" and "49_6_4" (pure numeric bookId_ch_v)
+            const underscoreMatch = input.match(/^(\d{1,2})_(\d+)(?:_(\d+))?(?:[-_](\d+))?$/);
+            if (underscoreMatch) {
+                // Pure numeric: bookId_chapter_verse (e.g. "49_6_4")
+                const bid = parseInt(underscoreMatch[1]);
+                if (BOOK_NAMES[bid]) {
+                    const ch = parseInt(underscoreMatch[2]);
+                    const sv = underscoreMatch[3] ? parseInt(underscoreMatch[3]) : 1;
+                    const ev = underscoreMatch[4] ? parseInt(underscoreMatch[4]) : (underscoreMatch[3] ? sv : 200);
+                    const fullChapter = !underscoreMatch[3];
+                    return { bookId: bid, chapter: ch, startVerse: sv, endVerse: ev, isOT: bid <= 39,
+                             display: BOOK_NAMES[bid].replace(/\b\w/g,c=>c.toUpperCase()), fullChapter };
+                }
+            }
+
+            // BTE v5.2: Handle mixed format "abbrevChapter_verse" (e.g. "ezek22_30", "deut6_7", "gen1_1")
+            // Also "abbrev_chapter_verse" (e.g. "ezek_22_30")
+            const mixedMatch = input.match(/^(\d?\s?[a-zA-Z]+?)[\s_]*(\d+)[\s_]+(\d+)(?:[\s_-]+(\d+))?$/i);
+            if (mixedMatch) {
+                const bName = mixedMatch[1].trim().toLowerCase();
+                const bid = BOOKS[bName];
+                if (bid) {
+                    const ch = parseInt(mixedMatch[2]);
+                    const sv = parseInt(mixedMatch[3]);
+                    const ev = mixedMatch[4] ? parseInt(mixedMatch[4]) : sv;
+                    return { bookId: bid, chapter: ch, startVerse: sv, endVerse: ev, isOT: bid <= 39,
+                             display: BOOK_NAMES[bid].replace(/\b\w/g,c=>c.toUpperCase()), fullChapter: false };
+                }
+            }
+
+            // BTE v5.2: Handle "abbrevChapter_verse" with NO separator between name and chapter (e.g. "ezek22_30")
+            const smushedMatch = input.match(/^(\d?\s?[a-zA-Z]+?)(\d+)_(\d+)(?:[-_](\d+))?$/i);
+            if (smushedMatch) {
+                const bName = smushedMatch[1].trim().toLowerCase();
+                const bid = BOOKS[bName];
+                if (bid) {
+                    const ch = parseInt(smushedMatch[2]);
+                    const sv = parseInt(smushedMatch[3]);
+                    const ev = smushedMatch[4] ? parseInt(smushedMatch[4]) : sv;
+                    return { bookId: bid, chapter: ch, startVerse: sv, endVerse: ev, isOT: bid <= 39,
+                             display: BOOK_NAMES[bid].replace(/\b\w/g,c=>c.toUpperCase()), fullChapter: false };
+                }
+            }
+
+            // BTE v5.2: Normalize underscores and dots to colons for standard parsing
+            // "Deut 6_7" → "Deut 6:7", "John.3.16" → "John 3:16"
+            input = input.replace(/[._]/g, function(ch, idx, str) {
+                // Only replace if between digits or between letter and digit
+                if (idx > 0 && idx < str.length - 1) {
+                    const before = str[idx-1], after = str[idx+1];
+                    if (/\d/.test(before) && /\d/.test(after)) return ':';
+                    if (/[a-zA-Z]/.test(before) && /\d/.test(after)) return ' ';
+                }
+                return ch;
+            });
+
+            // Standard format: "Book Chapter:Verse" or "Book Chapter:Start-End"
+            const m = input.match(/^(\d?\s?[a-zA-Z\s]+?)\s*(\d+)(?:\s*:\s*(\d+))?(?:\s*-\s*(\d+))?$/i);
             if (!m) return null;
             const bookName = m[1].trim().toLowerCase();
             const bookId = BOOKS[bookName];
@@ -1946,11 +2006,26 @@
             if (e.key === 'Enter') lookupVerse();
         });
 
-        // Auto-lookup from URL ?ref= parameter (for Chronological Bible links)
+        // Auto-lookup from URL parameters
+        // Supports: ?ref=Psalm+23 | ?book=49&chapter=6&verse=4 | ?ref=ezek22_30
         (function() {
             const urlParams = new URLSearchParams(window.location.search);
             const refParam = urlParams.get('ref');
-            if (refParam) {
+            const bookParam = urlParams.get('book');
+
+            if (bookParam) {
+                // BTE v5.2: Handle ?book=49&chapter=6&verse=4 numeric format
+                const bid = parseInt(bookParam);
+                const ch = parseInt(urlParams.get('chapter') || '1');
+                const v = urlParams.get('verse');
+                const bookName = BOOK_NAMES[bid];
+                if (bookName) {
+                    const display = bookName.replace(/\b\w/g,c=>c.toUpperCase());
+                    const refStr = v ? (display + ' ' + ch + ':' + v) : (display + ' ' + ch);
+                    document.getElementById('refInput').value = refStr;
+                    lookupVerse();
+                }
+            } else if (refParam) {
                 document.getElementById('refInput').value = decodeURIComponent(refParam);
                 lookupVerse();
             }
