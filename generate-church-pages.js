@@ -1,0 +1,473 @@
+#!/usr/bin/env node
+const fs = require('fs');
+const path = require('path');
+
+const data = JSON.parse(fs.readFileSync(path.join(__dirname, 'docs/data/churches.json'), 'utf8'));
+const outDir = path.join(__dirname, 'docs/churches');
+
+function colorClass(score) {
+  if (score === 'green') return 'score-green';
+  if (score === 'red') return 'score-red';
+  if (score === 'black') return 'score-black';
+  return 'score-yellow';
+}
+
+function colorLabel(score) {
+  if (score === 'green') return '✅ Strong';
+  if (score === 'red') return '🔴 Concern';
+  if (score === 'black') return '⛔ Disqualifier';
+  return '⚠️ Caution';
+}
+
+function ratingBadgeClass(r) {
+  if (r === 'green') return 'rating-green';
+  if (r === 'red') return 'rating-red';
+  return 'rating-yellow';
+}
+
+function ratingIcon(r) {
+  if (r === 'green') return '✅';
+  if (r === 'red') return '🔴';
+  return '⚠️';
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+// Iraq threat zone badge — prominently display overall rating
+function threatBadge(church) {
+  const cls = ratingBadgeClass(church.overall_rating);
+  const icon = ratingIcon(church.overall_rating);
+  const label = escapeHtml(church.overall_label || church.overall_rating.toUpperCase());
+  return `<div class="threat-badge ${cls}">
+    <span class="threat-icon">${icon}</span>
+    <span class="threat-label">${label}</span>
+  </div>`;
+}
+
+function mapSrc(address) {
+  return `https://maps.google.com/maps?q=${encodeURIComponent(address)}&output=embed`;
+}
+
+const NAV = `<nav class="top-nav">
+    <a href="/churches.html">← Church Directory</a>
+    <a href="/index.html">Home</a>
+    <a href="/bible.html">Bible Translation Engine</a>
+    <a href="/usmc-ministries.html">U.S.M.C. Ministries</a>
+    <a href="/about.html">About</a>
+    <a href="/connect.html">Connect</a>
+</nav>`;
+
+const CSS = `
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #000000;
+    --bg-card: #111111;
+    --gold: #D4AF37;
+    --gold-light: #F4D470;
+    --white: #e8e8e8;
+    --gray: #888888;
+    --gray-light: #aaaaaa;
+    --border: #333333;
+    --green: #4CAF50;
+    --yellow: #FFC107;
+    --red: #f44336;
+    --green-bg: rgba(76,175,80,0.12);
+    --yellow-bg: rgba(255,193,7,0.12);
+    --red-bg: rgba(244,67,54,0.12);
+    --black-bg: rgba(26,26,26,0.95);
+  }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--white);
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+  h1, h2, h3, h4 { font-family: 'Playfair Display', serif; }
+
+  /* Nav */
+  .top-nav {
+    display: flex; flex-wrap: wrap; gap: 6px;
+    justify-content: center; padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(0,0,0,0.95);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .top-nav a {
+    color: var(--gray); text-decoration: none; font-size: 0.85rem;
+    font-weight: 500; padding: 5px 12px; border-radius: 20px;
+    border: 1px solid transparent; transition: all 0.2s; white-space: nowrap;
+  }
+  .top-nav a:hover { color: var(--gold); border-color: var(--border); }
+  .top-nav a:first-child { color: var(--gold); border-color: var(--border); }
+
+  /* Hero */
+  .hero {
+    padding: 48px 24px 36px;
+    text-align: center;
+    background: linear-gradient(180deg, rgba(212,175,55,0.08) 0%, transparent 100%);
+    border-bottom: 1px solid var(--border);
+  }
+  .hero h1 {
+    font-size: clamp(1.6rem, 4vw, 2.6rem);
+    color: var(--white);
+    margin-bottom: 8px;
+    letter-spacing: 0.5px;
+  }
+  .hero h1 span { color: var(--gold); }
+  .hero .denom-tag {
+    display: inline-block;
+    background: rgba(212,175,55,0.1);
+    border: 1px solid rgba(212,175,55,0.25);
+    color: var(--gold-light);
+    font-size: 0.75rem; font-weight: 600;
+    letter-spacing: 1.5px; text-transform: uppercase;
+    padding: 3px 12px; border-radius: 20px; margin-bottom: 16px;
+  }
+  .hero .address {
+    color: var(--gray-light);
+    font-size: 0.95rem;
+    margin-bottom: 18px;
+  }
+
+  /* Threat / Rating badge */
+  .threat-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 8px 20px; border-radius: 8px;
+    font-weight: 700; font-size: 0.95rem;
+    letter-spacing: 0.5px; margin-top: 8px;
+    border: 1.5px solid;
+  }
+  .threat-badge.rating-green { background: rgba(76,175,80,0.18); border-color: var(--green); color: #7edd80; }
+  .threat-badge.rating-yellow { background: rgba(255,193,7,0.15); border-color: var(--yellow); color: #ffd85a; }
+  .threat-badge.rating-red { background: rgba(244,67,54,0.15); border-color: var(--red); color: #ff7c74; }
+  .threat-icon { font-size: 1.3rem; }
+
+  /* Main layout */
+  .page-body {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 36px 24px 60px;
+  }
+
+  /* Cards */
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 28px;
+  }
+  .card-title {
+    font-size: 1.0rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--gold);
+    margin-bottom: 18px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+  }
+
+  /* Quick Facts */
+  .facts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 14px;
+  }
+  .fact-item { display: flex; flex-direction: column; gap: 3px; }
+  .fact-label { font-size: 0.72rem; color: var(--gray); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+  .fact-value { font-size: 0.92rem; color: var(--white); font-weight: 500; }
+  .fact-value a { color: var(--gold); text-decoration: none; }
+  .fact-value a:hover { text-decoration: underline; }
+  .has-yes { color: #7edd80; font-weight: 600; }
+  .has-no { color: var(--gray); }
+
+  /* Scorecard */
+  .score-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 12px;
+    align-items: start;
+    padding: 14px 0;
+    border-bottom: 1px solid #1e1e1e;
+  }
+  .score-row:last-child { border-bottom: none; }
+  .score-info { display: flex; flex-direction: column; gap: 4px; }
+  .score-label { font-weight: 600; font-size: 0.95rem; color: var(--white); }
+  .score-desc { font-size: 0.82rem; color: var(--gray-light); }
+  .score-note { font-size: 0.82rem; color: #aaa; margin-top: 4px; font-style: italic; }
+  .gender-detail { font-size: 0.8rem; color: #bbb; margin-top: 4px; padding: 6px 10px; background: rgba(212,175,55,0.06); border-left: 2px solid var(--gold); border-radius: 0 4px 4px 0; }
+  .score-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 4px 12px; border-radius: 20px;
+    font-size: 0.78rem; font-weight: 700; white-space: nowrap;
+    border: 1px solid;
+  }
+  .score-green { background: rgba(76,175,80,0.15); border-color: var(--green); color: #7edd80; }
+  .score-yellow { background: rgba(255,193,7,0.12); border-color: var(--yellow); color: #ffd85a; }
+  .score-red { background: rgba(244,67,54,0.12); border-color: var(--red); color: #ff7c74; }
+  .score-black { background: rgba(50,50,50,0.6); border-color: #555; color: #aaa; }
+
+  /* Notes */
+  .note-block {
+    padding: 14px 16px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    border-left: 3px solid;
+    font-size: 0.9rem;
+    line-height: 1.7;
+  }
+  .note-assessment {
+    background: rgba(212,175,55,0.06);
+    border-color: var(--gold);
+    color: var(--gray-light);
+  }
+  .note-tag-row {
+    display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px;
+  }
+  .tag {
+    background: #1a1a1a; border: 1px solid #333;
+    color: var(--gray); font-size: 0.72rem;
+    padding: 3px 10px; border-radius: 20px;
+  }
+
+  /* Map */
+  .map-wrap {
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    margin-bottom: 28px;
+  }
+  .map-wrap iframe {
+    width: 100%; height: 320px; border: none; display: block;
+    filter: invert(0.9) hue-rotate(180deg);
+  }
+
+  /* Buttons */
+  .btn-row { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 28px; }
+  .btn-gold {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--gold); color: #000;
+    font-weight: 700; font-size: 0.9rem;
+    padding: 11px 22px; border-radius: 8px;
+    text-decoration: none; border: none; cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-gold:hover { background: var(--gold-light); }
+  .btn-outline {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: transparent; color: var(--gold);
+    font-weight: 600; font-size: 0.9rem;
+    padding: 11px 22px; border-radius: 8px;
+    text-decoration: none; border: 1.5px solid var(--gold);
+    cursor: pointer; transition: all 0.2s;
+  }
+  .btn-outline:hover { background: rgba(212,175,55,0.1); }
+
+  /* Footer */
+  .back-row {
+    text-align: center;
+    padding: 20px 0 10px;
+    border-top: 1px solid var(--border);
+    margin-top: 20px;
+  }
+  .back-row a { color: var(--gold); text-decoration: none; font-weight: 600; font-size: 0.9rem; }
+  .back-row a:hover { text-decoration: underline; }
+
+  footer {
+    text-align: center;
+    padding: 24px;
+    color: var(--gray);
+    font-size: 0.8rem;
+    border-top: 1px solid var(--border);
+  }
+</style>
+`;
+
+const FONTS = `
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+`;
+
+function buildPage(church) {
+  const rubricMap = {};
+  data.rubric.forEach(r => rubricMap[r.id] = r);
+
+  // Build scorecard rows
+  const scorecardRows = data.rubric.map(rubric => {
+    const score = church.scores[rubric.id] || 'yellow';
+    const note = church.score_notes && church.score_notes[rubric.id] ? church.score_notes[rubric.id] : '';
+    const gd = (rubric.id === 'gender' && church.gender_detail) ? church.gender_detail : '';
+    return `
+      <div class="score-row">
+        <div class="score-info">
+          <div class="score-label">${escapeHtml(rubric.label)}</div>
+          <div class="score-desc">${escapeHtml(rubric.description)}</div>
+          ${note ? `<div class="score-note">${escapeHtml(note)}</div>` : ''}
+          ${gd ? `<div class="gender-detail">👤 ${escapeHtml(gd)}</div>` : ''}
+        </div>
+        <div>
+          <span class="score-badge ${colorClass(score)}">${colorLabel(score)}</span>
+        </div>
+      </div>`;
+  }).join('');
+
+  // Notes / assessment
+  const assessment = church.assessment || '';
+  const tags = (church.tags || []);
+
+  // Map — handle addresses with dashes/unknowns
+  const hasRealAddress = church.address && !church.address.toLowerCase().includes('unconfirmed') && !church.address.toLowerCase().includes('unknown');
+  const mapEmbed = hasRealAddress ? `
+    <div class="map-wrap">
+      <iframe
+        src="${mapSrc(church.address)}"
+        allowfullscreen="" loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"
+        title="Map for ${escapeHtml(church.name)}">
+      </iframe>
+    </div>` : '';
+
+  // Website button
+  const websiteBtn = church.website ? `<a href="${escapeHtml(church.website)}" target="_blank" rel="noopener" class="btn-gold">🌐 Visit Their Website</a>` : '';
+
+  // Defunct marker
+  const isDefunct = church.services && church.services.toLowerCase().includes('no longer');
+  const isNotFound = church.overall_label && (church.overall_label.toLowerCase().includes('not found') || church.overall_label.toLowerCase().includes('defunct') || church.overall_label.toLowerCase().includes('search result'));
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-touch-icon.png">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="${escapeHtml(church.name)} — Theological due diligence scorecard for Christian men in Fredericksburg, VA.">
+  <meta property="og:title" content="${escapeHtml(church.name)} — Church Directory | USMC Ministries">
+  <meta property="og:description" content="10-point theological scorecard: ${escapeHtml(church.overall_label || '')}">
+  <meta property="og:type" content="website">
+  <title>${escapeHtml(church.name)} — Church Directory | USMC Ministries</title>
+  ${FONTS}
+  ${CSS}
+</head>
+<body>
+${NAV}
+
+<div class="hero">
+  <div class="denom-tag">${escapeHtml(church.type || church.denomination || 'Church')}</div>
+  <h1>${escapeHtml(church.name)}</h1>
+  <div class="address">📍 ${escapeHtml(church.address)}</div>
+  ${threatBadge(church)}
+</div>
+
+<div class="page-body">
+
+  <!-- Quick Facts -->
+  <div class="card">
+    <div class="card-title">📋 Quick Facts</div>
+    <div class="facts-grid">
+      <div class="fact-item">
+        <span class="fact-label">Pastor</span>
+        <span class="fact-value">${escapeHtml(church.pastor || 'Unknown')}</span>
+      </div>
+      <div class="fact-item">
+        <span class="fact-label">Founded</span>
+        <span class="fact-value">${escapeHtml(church.founded || 'Unknown')}</span>
+      </div>
+      <div class="fact-item">
+        <span class="fact-label">Denomination</span>
+        <span class="fact-value">${escapeHtml(church.denomination || 'Unknown')}</span>
+      </div>
+      <div class="fact-item">
+        <span class="fact-label">Service Times</span>
+        <span class="fact-value">${escapeHtml(church.services || 'See website')}</span>
+      </div>
+      <div class="fact-item">
+        <span class="fact-label">Men's Ministry</span>
+        <span class="fact-value ${church.has_mens_ministry ? 'has-yes' : 'has-no'}">${church.has_mens_ministry ? '✅ Yes' : '✗ No'}</span>
+      </div>
+      <div class="fact-item">
+        <span class="fact-label">Kids Ministry</span>
+        <span class="fact-value ${church.has_kids_ministry ? 'has-yes' : 'has-no'}">${church.has_kids_ministry ? '✅ Yes' : '✗ No'}</span>
+      </div>
+      ${church.website ? `<div class="fact-item">
+        <span class="fact-label">Website</span>
+        <span class="fact-value"><a href="${escapeHtml(church.website)}" target="_blank" rel="noopener">${escapeHtml(church.website.replace(/^https?:\/\//, ''))}</a></span>
+      </div>` : ''}
+      ${church.pastor_credentials && church.pastor_credentials !== 'Unknown' ? `<div class="fact-item" style="grid-column: 1 / -1;">
+        <span class="fact-label">Pastor Credentials</span>
+        <span class="fact-value" style="color: var(--gray-light); font-size: 0.88rem;">${escapeHtml(church.pastor_credentials)}</span>
+      </div>` : ''}
+    </div>
+  </div>
+
+  <!-- 10-Point Scorecard -->
+  <div class="card">
+    <div class="card-title">📊 10-Point Theological Scorecard</div>
+    ${scorecardRows}
+  </div>
+
+  <!-- Assessment / Notes -->
+  ${assessment ? `<div class="card">
+    <div class="card-title">📝 Assessment</div>
+    <div class="note-block note-assessment">${escapeHtml(assessment)}</div>
+    ${tags.length > 0 ? `<div class="note-tag-row">${tags.map(t => `<span class="tag">#${escapeHtml(t)}</span>`).join('')}</div>` : ''}
+  </div>` : ''}
+
+  <!-- Map -->
+  ${mapEmbed}
+
+  <!-- Buttons -->
+  <div class="btn-row">
+    ${websiteBtn}
+    <a href="/churches.html" class="btn-outline">← Back to Church Directory</a>
+  </div>
+
+  <div class="back-row">
+    <a href="/churches.html">← Return to Full Church Directory</a>
+  </div>
+</div>
+
+<footer>
+  <p>Fredericksburg Church Directory &mdash; Theological Due Diligence for Christian Men &mdash; <a href="https://usmcmin.org" style="color: var(--gold);">usmcmin.org</a></p>
+  <p style="margin-top: 6px;">Last updated: ${data.meta.updated}</p>
+</footer>
+</body>
+</html>`;
+}
+
+// Generate all church pages
+let count = 0;
+data.churches.forEach(church => {
+  const html = buildPage(church);
+  const outPath = path.join(outDir, `${church.id}.html`);
+  fs.writeFileSync(outPath, html);
+  count++;
+  console.log(`✅ ${church.id}.html`);
+});
+
+// Generate index redirect
+const indexHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="refresh" content="0; url=/churches.html">
+  <title>Redirecting to Church Directory...</title>
+</head>
+<body>
+  <p>Redirecting to <a href="/churches.html">Church Directory</a>...</p>
+  <script>window.location.href = '/churches.html';</script>
+</body>
+</html>`;
+fs.writeFileSync(path.join(outDir, 'index.html'), indexHtml);
+console.log(`✅ index.html (redirect)`);
+
+console.log(`\n🎉 Generated ${count} church pages + index.html`);
