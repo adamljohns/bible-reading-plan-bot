@@ -475,6 +475,7 @@
             letter: 'R',
             word: 'Reject Passivity',
             subword: 'Leading, not waiting',
+            summary: "How consistently do you take initiative — identifying what needs to be done and moving first — without waiting to be asked, pushed, or forced by crisis?",
             text: "Passivity is the original sin of men — Adam stood silent while the serpent spoke, and Eden fell. The passive man knows what should be done, sees what is going wrong, and does nothing — then wonders why his family, his work, and his faith are drifting. Passivity is not peace; it is abdication dressed as patience.",
             questions: [
                 "When was the last time you saw a problem in your home, marriage, or community and took concrete action rather than waiting for someone else to handle it?",
@@ -499,6 +500,7 @@
             letter: 'E',
             word: 'Engage Intentionally',
             subword: 'Present, not just physically here',
+            summary: "How fully present and intentionally engaged are you with the people God has placed in your life — your family, your church, your community?",
             text: "Presence is not the same as engagement. A man can be physically in the room — at the dinner table, at church, at his kid's game — and be completely absent in every way that matters. Intentional engagement means your mind and heart are fully directed at the people and work in front of you, not just your body.",
             questions: [
                 "When you are with your family, how present are you actually — not physically, but mentally and emotionally? Are you with them, or merely near them?",
@@ -523,6 +525,7 @@
             letter: 'A',
             word: 'Accept Responsibility',
             subword: 'No deflection, no blame-shifting',
+            summary: "How completely do you own your failures — without deflection, qualifiers, or blame-shifting — and make them right?",
             text: "Every fallen man has a reflexive defense: it wasn't entirely his fault, the circumstances were against him, she provoked it, the system failed him. The mark of a mature man is not the absence of failure — it's the absence of excuses. When you own your failures completely and without deflection, you become teachable. When you explain them away, you stay stuck.",
             questions: [
                 "In your most recent significant failure — at home, at work, in your marriage — how much of your internal narrative was about your responsibility versus the contributing factors of others or circumstance?",
@@ -547,6 +550,7 @@
             letter: 'L',
             word: 'Lead Courageously',
             subword: 'Step forward, not sideways',
+            summary: "How willing are you to step into hard conversations, uncomfortable decisions, and costly leadership — moving toward difficulty rather than away from it?",
             text: "Leadership is not a title — it's a willingness to move first into uncomfortable territory so the people behind you don't have to face it alone. Courageous leadership means saying the hard thing, having the difficult conversation, addressing the conflict before it festers, and standing in the gap even when no one is watching. The coward leads from the rear and calls it wisdom.",
             questions: [
                 "Where in your life are you currently avoiding a necessary hard conversation — with your wife, your child, a colleague, a brother in Christ? What are you telling yourself to justify the delay?",
@@ -571,6 +575,7 @@
             letter: 'M',
             word: 'Manage Faithfully',
             subword: 'Steward what you\'ve been given',
+            summary: "How faithfully are you stewarding what God has entrusted to you — your time, money, body, gifts, and family — with intentionality and accountability?",
             text: "Everything you have — your money, your time, your body, your gifts, your family, your influence — belongs to God and was placed in your hands as a stewardship, not an ownership. Faithful management means you can account for where your hours, dollars, and energy actually go and defend those allocations before God with integrity. The unfaithful manager drifts, rationalizes, and wonders why the harvest is thin.",
             questions: [
                 "If God audited your last 30 days — your time, your money, your mental energy — would the allocation reflect your stated priorities? Where is the largest gap between what you say matters and where you actually invest?",
@@ -595,6 +600,7 @@
             letter: 'A',
             word: 'Account Accurately',
             subword: 'Honest with yourself and others',
+            summary: "How honest is your self-assessment — does the man you present publicly match the man you are privately, and does someone in your life have access to the real you?",
             text: "Most men have a remarkably generous internal accounting system — one that consistently underestimates failures and inflates contributions. Accurate accounting means you know what you actually spend, where you actually spend your time, how you actually treat your wife when no one is watching, and how close your private self actually is to your public self. The gap between perception and reality is where men quietly rot.",
             questions: [
                 "When you review your day internally, do you account for your failures as clearly as your wins — or do you minimize and move on? Would an honest observer score you the same way you just scored yourself?",
@@ -619,6 +625,7 @@
             letter: 'N',
             word: 'Never Quit',
             subword: 'Endurance when it is expensive',
+            summary: "How firmly are you holding to your commitments — marriage, faith, calling, health — when staying is expensive and quitting feels rational?",
             text: "The world is full of men who started well. Starting is cheap — the cost comes in staying when the marriage gets hard, the business nearly fails, the ministry bears no visible fruit, and staying feels like the least strategic option. Never quit is not stubbornness — it is covenant faithfulness. You made a promise and your character is the guarantee, not your circumstances.",
             questions: [
                 "Where in your life are you most tempted to quit — your marriage, your faith, your calling, your health? Have you been slowly withdrawing from something you once committed to?",
@@ -641,11 +648,11 @@
         }
     ];
 
-    // Per-axis, per-question scores: [q1, q2] for each axis
-    const AXIS_SCORES = AXES.map(() => [5, 5]);
+    // Per-axis single score
+    const AXIS_SCORES = AXES.map(() => 5);
 
     function getAxisAvg(i) {
-        return (AXIS_SCORES[i][0] + AXIS_SCORES[i][1]) / 2;
+        return AXIS_SCORES[i];
     }
 
     function getRadarData() {
@@ -740,21 +747,12 @@
                 </div>
                 <div class="slider-row">
                     <div class="slider-label">
-                        <span class="label-text">${axis.questions[0]}</span>
-                        <span class="score-val" id="val-${i}-0">${AXIS_SCORES[i][0]}</span>
+                        <span class="label-text">${axis.summary}</span>
+                        <span class="score-val" id="val-${i}">${AXIS_SCORES[i]}</span>
                     </div>
-                    <input type="range" min="1" max="10" value="${AXIS_SCORES[i][0]}"
-                        id="slider-${i}-0" oninput="onSlider(${i}, 0, this.value)"
-                        aria-label="${axis.word} question 1 score">
-                </div>
-                <div class="slider-row">
-                    <div class="slider-label">
-                        <span class="label-text">${axis.questions[1]}</span>
-                        <span class="score-val" id="val-${i}-1">${AXIS_SCORES[i][1]}</span>
-                    </div>
-                    <input type="range" min="1" max="10" value="${AXIS_SCORES[i][1]}"
-                        id="slider-${i}-1" oninput="onSlider(${i}, 1, this.value)"
-                        aria-label="${axis.word} question 2 score">
+                    <input type="range" min="1" max="10" value="${AXIS_SCORES[i]}"
+                        id="slider-${i}" oninput="onSlider(${i}, this.value)"
+                        aria-label="${axis.word} score">
                 </div>
                 <button class="rubric-toggle" id="rtoggle-${i}" onclick="toggleRubric(${i})" type="button">
                     <span class="rtri">▶</span> What does this score mean?
@@ -773,9 +771,9 @@
         toggle.classList.toggle('open', !isOpen);
     }
 
-    function onSlider(axisIdx, qIdx, val) {
-        AXIS_SCORES[axisIdx][qIdx] = parseInt(val);
-        document.getElementById(`val-${axisIdx}-${qIdx}`).textContent = val;
+    function onSlider(axisIdx, val) {
+        AXIS_SCORES[axisIdx] = parseInt(val);
+        document.getElementById(`val-${axisIdx}`).textContent = val;
         document.getElementById(`avg-${axisIdx}`).textContent = getAxisAvg(axisIdx).toFixed(1);
         updateChart();
     }
