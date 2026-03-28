@@ -239,12 +239,25 @@
             width: 100%;
         }
 
+        /* ── Count Header ── */
+        .count-header {
+            text-align: center;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--gray);
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            padding: 10px 0 14px;
+            border-bottom: 1px solid var(--border);
+        }
+        .count-header span { color: var(--gold); }
+
         /* ── Church Grid ── */
         .church-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-            gap: 24px;
-            margin-top: 20px;
+            gap: 20px;
         }
 
         /* ── Church Card ── */
@@ -253,14 +266,12 @@
             border: 1px solid var(--border);
             border-radius: 12px;
             overflow: hidden;
-            transition: all 0.25s;
-            display: flex;
-            flex-direction: column;
+            transition: border-color 0.25s, box-shadow 0.25s;
+            cursor: pointer;
         }
         .church-card:hover {
             border-color: #555;
             box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-            transform: translateY(-2px);
         }
         .church-card.black-tier {
             background: #0d0d0d;
@@ -277,97 +288,110 @@
         .rating-stripe {
             height: 4px;
             width: 100%;
+            flex-shrink: 0;
         }
         .rating-stripe.green { background: var(--green); }
         .rating-stripe.yellow { background: var(--yellow); }
         .rating-stripe.red { background: var(--red); }
         .rating-stripe.black { background: #333; }
 
-        .card-body { padding: 22px; flex: 1; }
-
-        .card-header {
+        /* ── Compact View ── */
+        .card-compact {
+            padding: 18px 20px 14px;
+        }
+        .compact-header {
             display: flex;
             align-items: flex-start;
             justify-content: space-between;
-            gap: 12px;
-            margin-bottom: 14px;
+            gap: 10px;
+            margin-bottom: 10px;
         }
         .church-name {
             font-family: 'Playfair Display', serif;
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             font-weight: 700;
             color: var(--white);
             line-height: 1.3;
+            flex: 1;
         }
-        .overall-badge {
+        .compact-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
             flex-shrink: 0;
-            font-size: 1.5rem;
-            line-height: 1;
             margin-top: 2px;
         }
-
-        .overall-label {
-            display: inline-block;
-            font-size: 0.72rem;
-            font-weight: 600;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            padding: 3px 10px;
-            border-radius: 12px;
-            margin-bottom: 14px;
+        .rating-emoji {
+            font-size: 1.3rem;
+            line-height: 1;
         }
-        .overall-label.green { background: var(--green-bg); color: var(--green); border: 1px solid rgba(76,175,80,0.3); }
-        .overall-label.yellow { background: var(--yellow-bg); color: var(--yellow); border: 1px solid rgba(255,193,7,0.3); }
-        .overall-label.red { background: var(--red-bg); color: var(--red); border: 1px solid rgba(244,67,54,0.3); }
-        .overall-label.black { background: #1a1a1a; color: #666; border: 1px solid #333; }
-
-        .card-meta {
-            font-size: 0.85rem;
+        .card-chevron {
+            font-size: 0.65rem;
             color: var(--gray);
-            margin-bottom: 14px;
+            transition: transform 0.3s;
+            margin-top: 2px;
         }
-        .card-meta .meta-row {
+        .church-card.expanded .card-chevron {
+            transform: rotate(180deg);
+        }
+        .compact-meta {
             display: flex;
-            gap: 6px;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .compact-meta-row {
+            display: flex;
             align-items: flex-start;
-            margin-bottom: 5px;
-        }
-        .card-meta .meta-icon { flex-shrink: 0; width: 16px; text-align: center; }
-        .card-meta .meta-text { color: var(--gray-light); }
-
-        /* Quick score dots */
-        .score-dots {
-            display: flex;
-            flex-wrap: wrap;
             gap: 6px;
+            font-size: 0.83rem;
+            color: var(--gray-light);
+        }
+        .compact-meta-row .meta-icon {
+            flex-shrink: 0;
+            width: 16px;
+            text-align: center;
+            font-size: 0.8rem;
+        }
+
+        /* ── Expanded Content ── */
+        .card-expanded {
+            display: none;
+            border-top: 1px solid var(--border);
+            background: rgba(0,0,0,0.25);
+            padding: 18px 20px 20px;
+        }
+        .church-card.expanded .card-expanded {
+            display: block;
+        }
+
+        /* Info row in expanded: address + website consolidated */
+        .expanded-info {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
             margin-bottom: 16px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.83rem;
+            color: var(--gray-light);
         }
-        .score-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            cursor: default;
-            position: relative;
+        .expanded-info-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 6px;
         }
-        .score-dot.green { background: var(--green); }
-        .score-dot.yellow { background: var(--yellow); }
-        .score-dot.red { background: var(--red); }
-        .score-dot.black { background: #333; border: 1px solid #555; }
-        .score-dot:hover::after {
-            content: attr(title);
-            position: absolute;
-            bottom: 16px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #1a1a1a;
-            border: 1px solid var(--border);
-            color: var(--white);
-            font-size: 0.72rem;
-            padding: 4px 8px;
-            border-radius: 6px;
-            white-space: nowrap;
-            z-index: 10;
-            pointer-events: none;
+        .expanded-info-row .meta-icon {
+            flex-shrink: 0;
+            width: 16px;
+            text-align: center;
+        }
+        .expanded-info .ministry-flags {
+            display: flex;
+            gap: 14px;
+            margin-top: 4px;
+        }
+        .ministry-flag {
+            font-size: 0.78rem;
         }
 
         /* Tags */
@@ -375,7 +399,7 @@
             display: flex;
             flex-wrap: wrap;
             gap: 6px;
-            margin-bottom: 16px;
+            margin-bottom: 14px;
         }
         .tag {
             background: rgba(255,255,255,0.05);
@@ -386,94 +410,82 @@
             border-radius: 10px;
         }
 
-        /* Expand button */
-        .expand-btn {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            width: 100%;
-            background: rgba(255,255,255,0.03);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 10px 14px;
-            color: var(--gold);
-            font-size: 0.85rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-family: 'Inter', sans-serif;
-        }
-        .expand-btn:hover { background: rgba(212,175,55,0.08); border-color: var(--gold); }
-        .expand-btn .chevron { transition: transform 0.3s; font-size: 0.75rem; }
-        .expand-btn.open .chevron { transform: rotate(180deg); }
-
-        /* Expanded scorecard */
-        .scorecard {
-            display: none;
-            padding: 18px 22px;
-            border-top: 1px solid var(--border);
-            background: rgba(0,0,0,0.3);
-        }
-        .scorecard.open { display: block; }
-        .scorecard h4 {
-            font-size: 0.75rem;
+        /* Scorecard */
+        .scorecard-label {
+            font-size: 0.72rem;
             text-transform: uppercase;
             letter-spacing: 2px;
             color: var(--gray);
-            margin-bottom: 14px;
+            margin-bottom: 12px;
             font-family: 'Inter', sans-serif;
+            font-weight: 600;
         }
         .score-rows {
             display: flex;
             flex-direction: column;
-            gap: 8px;
-            margin-bottom: 18px;
+            gap: 6px;
+            margin-bottom: 16px;
         }
         .score-row {
             display: flex;
             align-items: flex-start;
             gap: 10px;
-            padding: 8px 10px;
+            padding: 7px 10px;
             border-radius: 6px;
-            transition: background 0.15s;
         }
-        .score-row:hover { background: rgba(255,255,255,0.03); }
         .score-row.green { border-left: 3px solid var(--green); }
         .score-row.yellow { border-left: 3px solid var(--yellow); }
         .score-row.red { border-left: 3px solid var(--red); }
         .score-row.black { border-left: 3px solid #333; background: rgba(26,26,26,0.5); }
-        .score-row .score-emoji { font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
+        .score-row .score-emoji { font-size: 0.95rem; flex-shrink: 0; margin-top: 2px; }
         .score-row .score-info { flex: 1; min-width: 0; }
-        .score-row .score-label { font-weight: 600; font-size: 0.88rem; color: var(--white); }
+        .score-row .score-label { font-weight: 600; font-size: 0.85rem; color: var(--white); }
         .score-row.black .score-label { color: #888; }
-        .score-row .score-desc { font-size: 0.78rem; color: var(--gray); margin-top: 1px; }
-        .score-row .score-note { font-size: 0.78rem; color: var(--red); font-style: italic; margin-top: 2px; }
+        .score-row .score-desc { font-size: 0.76rem; color: var(--gray); margin-top: 1px; }
+        .score-row .score-note { font-size: 0.76rem; font-style: italic; margin-top: 2px; }
         .score-row.green .score-note { color: #ccc; font-style: normal; }
         .score-row.yellow .score-note { color: var(--yellow); }
-        .score-row.black .score-note { color: #555; font-style: italic; }
-        .score-row .score-gender-detail { font-size: 0.78rem; color: var(--gray); font-style: italic; margin-top: 3px; }
+        .score-row.red .score-note { color: var(--red); }
+        .score-row.black .score-note { color: #555; }
+        .score-row .score-gender-detail { font-size: 0.76rem; color: var(--gray); font-style: italic; margin-top: 3px; }
 
         .assessment-block {
             background: rgba(212,175,55,0.05);
             border: 1px solid rgba(212,175,55,0.2);
             border-radius: 8px;
-            padding: 14px 16px;
+            padding: 12px 14px;
+            margin-top: 14px;
         }
         .assessment-block h5 {
-            font-size: 0.72rem;
+            font-size: 0.7rem;
             text-transform: uppercase;
             letter-spacing: 2px;
             color: var(--gold);
             font-family: 'Inter', sans-serif;
             font-weight: 600;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
         .assessment-block p {
-            font-size: 0.88rem;
+            font-size: 0.85rem;
             color: var(--gray-light);
-            line-height: 1.7;
+            line-height: 1.65;
             font-style: italic;
         }
+
+        /* Church page link */
+        .church-page-link {
+            display: inline-block;
+            margin-top: 12px;
+            font-size: 0.8rem;
+            color: var(--gold);
+            text-decoration: none;
+            border: 1px solid rgba(212,175,55,0.3);
+            padding: 4px 12px;
+            border-radius: 6px;
+            background: rgba(212,175,55,0.06);
+            transition: all 0.2s;
+        }
+        .church-page-link:hover { background: rgba(212,175,55,0.15); border-color: var(--gold); }
 
         /* ── Legend / Rubric Panel ── */
         .rubric-panel {
@@ -607,7 +619,7 @@
         body.light-mode h1, body.light-mode h2, body.light-mode h3 { color: inherit; }
         body.light-mode .filter-group select { background: #fff !important; color: #1a1a1a !important; border-color: #d4d0c8 !important; }
         body.light-mode .toggle-btn { background: #fff !important; }
-        body.light-mode .scorecard { background: rgba(0,0,0,0.03); }
+        body.light-mode .card-expanded { background: rgba(0,0,0,0.04); }
         body.light-mode footer { border-color: #d4d0c8 !important; }
         body.light-mode .site-icon { filter: brightness(0.6); }
         body.light-mode .rubric-panel { background: #fff; border-color: #d4d0c8; }
@@ -737,6 +749,11 @@
             </div>
         </div>
 
+        <!-- Count Header -->
+        <div class="count-header" id="count-header">
+            <!-- populated by JS -->
+        </div>
+
         <!-- Church Grid -->
         <div class="church-grid" id="church-grid">
             <!-- populated by JS -->
@@ -789,6 +806,9 @@
     /* ── Emoji map ── */
     const EMOJI = { green: '🟢', yellow: '🟡', red: '🔴', black: '⬛' };
 
+    /* ── Tier sort order ── */
+    const TIER_ORDER = { green: 0, yellow: 1, red: 2, black: 3 };
+
     /* ── Filter state ── */
     const filters = { rating: 'all', denomination: 'all', mens: false, kids: false };
 
@@ -840,13 +860,13 @@
         applyFilters();
     }
 
-    /* ── Scorecard toggle ── */
-    function toggleScorecard(cardId) {
-        const btn = document.querySelector(`[data-card-id="${cardId}"] .expand-btn`);
-        const sc = document.getElementById('scorecard-' + cardId);
-        btn.classList.toggle('open');
-        sc.classList.toggle('open');
+    /* ── Card toggle (click anywhere on compact) ── */
+    function toggleCard(cardEl) {
+        cardEl.classList.toggle('expanded');
     }
+
+    /* ── Prevent link clicks from toggling card ── */
+    function stopProp(e) { e.stopPropagation(); }
 
     /* ── Load + Render ── */
     async function loadChurches() {
@@ -862,115 +882,127 @@
             rubricGrid.appendChild(div);
         });
 
-        // Populate denomination filter
-        const denomSet = new Set(data.churches.map(c => c.denomination).filter(Boolean));
+        // Sort: green → yellow → red → black, then alphabetical within tier
+        const sorted = [...data.churches].sort((a, b) => {
+            const tierA = TIER_ORDER[a.overall_rating] ?? 4;
+            const tierB = TIER_ORDER[b.overall_rating] ?? 4;
+            if (tierA !== tierB) return tierA - tierB;
+            return a.name.localeCompare(b.name);
+        });
+
+        // Populate denomination filter (sorted)
+        const denomSet = new Set(sorted.map(c => c.denomination).filter(Boolean));
         const denomSelect = document.getElementById('filter-denomination');
-        denomSet.forEach(d => {
+        [...denomSet].sort().forEach(d => {
             const opt = document.createElement('option');
             opt.value = d;
             opt.textContent = d;
             denomSelect.appendChild(opt);
         });
 
-        // Count
-        document.getElementById('total-count').textContent = data.churches.length;
-        document.getElementById('visible-count').textContent = data.churches.length;
+        // Count header
+        const total = sorted.length;
+        document.getElementById('count-header').innerHTML =
+            `<span>${total}</span> Churches Evaluated`;
+        document.getElementById('total-count').textContent = total;
+        document.getElementById('visible-count').textContent = total;
 
         // Render cards
         const grid = document.getElementById('church-grid');
-        data.churches.forEach(church => {
-            const card = document.createElement('div');
+        sorted.forEach(church => {
             const isBlack = church.overall_rating === 'black';
+            const card = document.createElement('div');
             card.className = 'church-card' + (isBlack ? ' black-tier' : '');
             card.dataset.rating = church.overall_rating;
             card.dataset.denomination = church.denomination || '';
             card.dataset.mens = church.has_mens_ministry ? 'true' : 'false';
             card.dataset.kids = church.has_kids_ministry ? 'true' : 'false';
-            card.dataset.cardId = church.id;
+            card.setAttribute('onclick', 'toggleCard(this)');
 
-            // Score dots
-            const dotHtml = data.rubric.map(r => {
-                const rating = church.scores[r.id] || 'gray';
-                return `<div class="score-dot ${rating}" title="${r.label}"></div>`;
-            }).join('');
+            // Address (one line — strip duplicate city/zip if long)
+            const address = church.address || '';
 
-            // Tags
-            const tagsHtml = (church.tags || []).map(t =>
-                `<span class="tag">${t.replace(/-/g, ' ')}</span>`
-            ).join('');
-
-            // Meta
-            const websiteHtml = church.website
-                ? `<div class="meta-row"><span class="meta-icon">🌐</span><span class="meta-text"><a href="${church.website}" target="_blank" rel="noopener" style="color:var(--gold);">${church.website.replace(/^https?:\/\//, '')}</a></span></div>`
-                : '';
-
-            card.innerHTML = `
-                <div class="rating-stripe ${church.overall_rating}"></div>
-                <div class="card-body">
-                    <div class="card-header">
+            // Compact view
+            const compactHtml = `
+                <div class="card-compact">
+                    <div class="compact-header">
                         <div class="church-name">${church.name}</div>
-                        <div class="overall-badge">${EMOJI[church.overall_rating] || '⬜'}</div>
-                    </div>
-                    <div class="overall-label ${church.overall_rating}">${church.overall_label}</div>
-                    <div class="card-meta">
-                        <div class="meta-row"><span class="meta-icon">📍</span><span class="meta-text">${church.address}</span></div>
-                        <div class="meta-row"><span class="meta-icon">👤</span><span class="meta-text">${church.pastor}${church.pastor_credentials ? ' — <em style="color:var(--gray)">' + church.pastor_credentials + '</em>' : ''}</span></div>
-                        <div class="meta-row"><span class="meta-icon">🏛️</span><span class="meta-text">${church.denomination || 'Independent'} ${church.founded ? '· Est. ' + church.founded : ''}</span></div>
-                        <div class="meta-row"><span class="meta-icon">🕐</span><span class="meta-text">${church.services || 'See website'}</span></div>
-                        ${websiteHtml}
-                        <div class="meta-row" style="gap:12px; margin-top:4px;">
-                            <span style="font-size:0.78rem; color:${church.has_mens_ministry ? 'var(--green)' : '#555'};">⚔️ Men's Min.</span>
-                            <span style="font-size:0.78rem; color:${church.has_kids_ministry ? 'var(--green)' : '#555'};">👶 Kids Min.</span>
+                        <div class="compact-right">
+                            <span class="rating-emoji">${EMOJI[church.overall_rating] || '⬜'}</span>
+                            <span class="card-chevron">▼</span>
                         </div>
                     </div>
-                    <div class="score-dots" title="10-category scorecard (hover each dot)">${dotHtml}</div>
-                    ${tagsHtml ? `<div class="card-tags">${tagsHtml}</div>` : ''}
-                    <button class="expand-btn" onclick="toggleScorecard('${church.id}')">
-                        <span>View Full Scorecard</span>
-                        <span class="chevron">▼</span>
-                    </button>
-                </div>
-                <div class="scorecard" id="scorecard-${church.id}">
-                    <h4>10-Category Theological Scorecard</h4>
-                    <div class="score-rows">
-                        ${data.rubric.map((r, i) => {
-                            const score = church.scores[r.id] || 'gray';
-                            const note = church.score_notes && church.score_notes[r.id];
-                            const genderDetail = (r.id === 'gender' && church.gender_detail) ? church.gender_detail : null;
-                            let noteHtml = '';
-                            if (note) {
-                                if (score === 'green') {
-                                    noteHtml = `<div class="score-note">${note}</div>`;
-                                } else if (score === 'yellow') {
-                                    noteHtml = `<div class="score-note">🟡 ${note}</div>`;
-                                } else if (score === 'red') {
-                                    noteHtml = `<div class="score-note">⚠️ ${note}</div>`;
-                                } else if (score === 'black') {
-                                    noteHtml = `<div class="score-note">⬛ ${note}</div>`;
-                                } else {
-                                    noteHtml = `<div class="score-note">${note}</div>`;
-                                }
-                            }
-                            const genderDetailHtml = genderDetail ? `<div class="score-gender-detail">↳ ${genderDetail}</div>` : '';
-                            return `
-                            <div class="score-row ${score}">
-                                <span class="score-emoji">${EMOJI[score] || '⬜'}</span>
-                                <div class="score-info">
-                                    <div class="score-label">${i + 1}. ${r.label}</div>
-                                    <div class="score-desc">${r.description}</div>
-                                    ${genderDetailHtml}
-                                    ${noteHtml}
-                                </div>
-                            </div>`;
-                        }).join('')}
+                    <div class="compact-meta">
+                        <div class="compact-meta-row"><span class="meta-icon">🏛️</span><span>${church.denomination || 'Independent'}${church.founded ? ' · Est. ' + church.founded : ''}</span></div>
+                        <div class="compact-meta-row"><span class="meta-icon">👤</span><span>${church.pastor}${church.pastor_credentials ? ' — <em style="color:var(--gray)">' + church.pastor_credentials + '</em>' : ''}</span></div>
+                        <div class="compact-meta-row"><span class="meta-icon">📍</span><span>${address}</span></div>
                     </div>
+                </div>`;
+
+            // Expanded: website + address consolidated
+            const websitePart = church.website
+                ? ` · <a href="${church.website}" target="_blank" rel="noopener" style="color:var(--gold);" onclick="stopProp(event)">${church.website.replace(/^https?:\/\//, '')}</a>`
+                : '';
+
+            const expandedInfoHtml = `
+                <div class="expanded-info">
+                    <div class="expanded-info-row"><span class="meta-icon">📍</span><span>${address}${websitePart}</span></div>
+                    ${church.services ? `<div class="expanded-info-row"><span class="meta-icon">🕐</span><span>${church.services}</span></div>` : ''}
+                    <div class="ministry-flags">
+                        <span class="ministry-flag" style="color:${church.has_mens_ministry ? 'var(--green)' : '#555'};">⚔️ Men's Min.</span>
+                        <span class="ministry-flag" style="color:${church.has_kids_ministry ? 'var(--green)' : '#555'};">👶 Kids Min.</span>
+                    </div>
+                </div>`;
+
+            // Tags
+            const tagsHtml = (church.tags || []).length
+                ? `<div class="card-tags">${(church.tags).map(t => `<span class="tag">${t.replace(/-/g, ' ')}</span>`).join('')}</div>`
+                : '';
+
+            // Scorecard rows (denomination NOT repeated here since it's in compact)
+            const scorecardRowsHtml = data.rubric.map((r, i) => {
+                const score = church.scores[r.id] || 'gray';
+                const note = church.score_notes && church.score_notes[r.id];
+                const genderDetail = (r.id === 'gender' && church.gender_detail) ? church.gender_detail : null;
+
+                let noteHtml = '';
+                if (note) {
+                    const prefix = score === 'yellow' ? '🟡 ' : score === 'red' ? '⚠️ ' : score === 'black' ? '⬛ ' : '';
+                    noteHtml = `<div class="score-note">${prefix}${note}</div>`;
+                }
+                const genderDetailHtml = genderDetail ? `<div class="score-gender-detail">↳ ${genderDetail}</div>` : '';
+
+                return `
+                <div class="score-row ${score}">
+                    <span class="score-emoji">${EMOJI[score] || '⬜'}</span>
+                    <div class="score-info">
+                        <div class="score-label">${i + 1}. ${r.label}</div>
+                        <div class="score-desc">${r.description}</div>
+                        ${genderDetailHtml}
+                        ${noteHtml}
+                    </div>
+                </div>`;
+            }).join('');
+
+            // Church page link (only if individual page exists — check via presence convention)
+            // Link provided as progressive enhancement; page may not exist yet
+            const churchPageLink = `<a class="church-page-link" href="/churches/${church.id}.html" onclick="stopProp(event)">View Full Church Profile →</a>`;
+
+            // Expanded view
+            const expandedHtml = `
+                <div class="card-expanded">
+                    ${expandedInfoHtml}
+                    ${tagsHtml}
+                    <div class="scorecard-label">10-Category Theological Scorecard</div>
+                    <div class="score-rows">${scorecardRowsHtml}</div>
                     <div class="assessment-block">
                         <h5>Assessment</h5>
                         <p>${church.assessment}</p>
                     </div>
-                </div>
-            `;
+                    ${churchPageLink}
+                </div>`;
 
+            card.innerHTML = `<div class="rating-stripe ${church.overall_rating}"></div>${compactHtml}${expandedHtml}`;
             grid.appendChild(card);
         });
     }
