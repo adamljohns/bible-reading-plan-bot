@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trumpet &mdash; The MOOP Dictionary</title>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        :root { --bg:#000; --card:#111; --gold:#D4AF37; --gold-light:#F4D470; --white:#FFF; --gray:#888; --border:#333; }
+        body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--white); min-height:100vh; line-height:1.7; }
+        h1,h2,h3,h4 { font-family:'Playfair Display',serif; }
+        nav { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:4px 8px; padding:10px 16px;
+              border-bottom:1px solid var(--border); position:sticky; top:0;
+              background:rgba(0,0,0,0.95); backdrop-filter:blur(8px); z-index:100; }
+        nav a { color:var(--gray); text-decoration:none; font-size:0.8rem; display:inline-flex; align-items:center;
+                gap:3px; padding:3px 6px; border-radius:6px; transition:color 0.2s; }
+        nav a:hover, nav a.active { color:var(--gold); }
+        .site-icon { vertical-align:middle; opacity:0.8; }
+        .theme-toggle { background:none; border:1px solid var(--border); border-radius:50%; width:28px; height:28px;
+                        cursor:pointer; font-size:0.85rem; transition:all 0.3s; padding:0; color:var(--white);
+                        display:inline-flex; align-items:center; justify-content:center; }
+        .theme-toggle:hover { border-color:var(--gold); }
+        .container { max-width:820px; margin:0 auto; padding:28px 20px 60px; }
+        .word-header { text-align:center; padding:40px 0 30px; border-bottom:1px solid var(--border); margin-bottom:30px; }
+        .word-title { font-size:2.8rem; color:var(--gold-light); margin-bottom:6px; }
+        .pronunciation { color:var(--gray); font-size:1.1rem; font-style:italic; }
+        .pos { display:inline-block; background:var(--gold); color:#000; font-weight:700;
+               font-size:0.78rem; padding:3px 14px; border-radius:15px; margin:10px 0; }
+        .etymology { color:var(--white); font-size:0.88rem; margin:12px auto; max-width:650px; }
+        .section { margin:18px 0; padding:18px 22px; background:var(--card); border:1px solid var(--border); border-radius:10px; }
+        .section > h3 { color:var(--gold); margin-bottom:12px; font-size:1.05rem; }
+        .section p { margin:7px 0; color:var(--white); }
+        .biblical-def { border-left:3px solid var(--gold); padding-left:15px; }
+        .dict-toggle { cursor:pointer; color:var(--gold); font-size:0.92rem; user-select:none;
+                       display:inline-flex; align-items:center; gap:0; background:none; border:none;
+                       padding:0; font-family:inherit; font-weight:600; }
+        .dict-toggle:hover { color:var(--gold-light); }
+        .dict-toggle .arrow { display:inline-block; transition:transform 0.2s; margin-right:8px; font-size:0.75rem; }
+        .dict-toggle .arrow.open { transform:rotate(90deg); }
+        .dict-section { display:none; margin:10px 0 4px 0; padding:12px 16px;
+                        background:rgba(212,175,55,0.06); border-left:2px solid var(--gold);
+                        border-radius:0 6px 6px 0; }
+        .dict-section.open { display:block; }
+        .dict-section p { margin:6px 0; font-size:0.95rem; color:var(--white); }
+        .dict-section pre { font-family:'Courier New',monospace; font-size:0.82rem; color:var(--gold-light);
+                             line-height:1.7; white-space:pre-wrap; }
+        .corruption { border-left:3px solid #CC0000; padding-left:15px; }
+        .verse-ref { color:var(--gold); text-decoration:none; font-weight:600; }
+        .verse-ref:hover { color:var(--gold-light); text-decoration:underline; }
+        .lexicon-link { color:var(--gold); font-family:monospace; text-decoration:none; }
+        .lexicon-link:hover { color:var(--gold-light); text-decoration:underline; }
+        .related { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+        .related a { background:var(--card); border:1px solid var(--border); padding:6px 14px;
+                     border-radius:20px; color:var(--white); text-decoration:none; font-size:0.85rem;
+                     transition:border-color 0.2s, color 0.2s; }
+        .related a:hover { border-color:var(--gold); color:var(--gold); }
+        footer { text-align:center; padding:28px 20px; border-top:1px solid var(--border);
+                 margin-top:40px; color:var(--gray); font-size:0.88rem; }
+        footer a { color:var(--gray); text-decoration:none; }
+        footer a:hover { color:var(--gold); }
+        body.light-mode { --bg:#F5F3EF; --card:#FFF; --white:#1a1a1a; --gray:#666; --border:#d4d0c8; }
+        body.light-mode nav { background:rgba(245,243,239,0.97); }
+        body.light-mode .section { background:#fff; border-color:#d4d0c8; }
+        body.light-mode .dict-section { background:rgba(212,175,55,0.04); }
+        body.light-mode footer { border-top-color:#d4d0c8; }
+        body.light-mode .related a { background:#f0ede7; border-color:#d4d0c8; color:#1a1a1a; }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav>
+        <a href="../index.html"><img src="../assets/icons/shield-home-48.png" class="site-icon" alt="" width="16" height="16"> Home</a>
+        <a href="../watchman.html"><img src="../assets/icons/shield-bible.png" class="site-icon" alt="" width="16" height="16"> Watchman</a>
+        <a href="../bible.html"><img src="../assets/icons/shield-compass.png" class="site-icon" alt="" width="16" height="16"> BTE</a>
+        <a href="../lexicon.html"><img src="../assets/icons/shield-alpha-omega-48.png" class="site-icon" alt="" width="16" height="16"> Lexicon</a>
+        <a href="../cross-references.html"><img src="../assets/icons/shield-infinity-rope-48.png" class="site-icon" alt="" width="16" height="16"> Cross-Refs</a>
+        <a href="index.html" class="active"><img src="../assets/icons/shield-book-greek-48.png" class="site-icon" alt="" width="16" height="16"> Dictionary</a>
+        <a href="../blog.html"><img src="../assets/icons/shield-blog-quill-48.png" class="site-icon" alt="" width="16" height="16"> Blog</a>
+        <a href="../connect.html"><img src="../assets/icons/shield-handshake.png" class="site-icon" alt="" width="16" height="16"> Connect</a>
+        <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle" title="Toggle dark/light">&#127769;</button>
+    </nav>
+    <div class="container">
+        <div class="word-header">
+            <div class="word-title">Trumpet</div>
+            <div class="pronunciation">/ˈtrʌmpɪt/</div>
+            <span class="pos">noun / verb</span>
+            <div class="etymology">From Old French <em>trompette</em>, diminutive of <em>trompe</em> (horn, trumpet); of Germanic origin, possibly imitative. Hebrew: <em>shofar</em> (שׁוֹפָר) — ram's horn trumpet; <em>chatsotserah</em> (חֲצֹצְרָה) — silver trumpet. Greek: <em>salpinx</em> (σάλπιγξ) — trumpet; military and ceremonial instrument of announcement.</div>
+        </div>
+
+        <div class="section">
+            <h3>&#128214; Biblical Definition</h3>
+            <div class="biblical-def">
+                <p>The trumpet in Scripture is <strong>the instrument of divine announcement, alarm, assembly, and eschatological climax</strong>. The shofar (ram's horn) was blown at Sinai when God descended in fire and thunder (<a href="../bible.html?ref=Exodus+19:16" class="verse-ref">Exod 19:16</a>); at the fall of Jericho (<a href="../bible.html?ref=Joshua+6:4" class="verse-ref">Josh 6:4</a>); at the coronation of kings; on the Day of Atonement in the Year of Jubilee (<a href="../bible.html?ref=Leviticus+25:9" class="verse-ref">Lev 25:9</a>). Silver trumpets were given to Moses for summoning the congregation and signaling military advance or retreat (<a href="../bible.html?ref=Numbers+10:1-10" class="verse-ref">Num 10:1–10</a>). The trumpet's eschatological role is central to NT theology: the "last trumpet" signals the resurrection of the dead and the transformation of the living (<a href="../bible.html?ref=1+Corinthians+15:52" class="verse-ref">1 Cor 15:52</a>); "the trumpet of God" accompanies Christ's return for his saints (<a href="../bible.html?ref=1+Thessalonians+4:16" class="verse-ref">1 Thess 4:16</a>); and the seven trumpets of Revelation (<a href="../bible.html?ref=Revelation+8:2" class="verse-ref">Rev 8:2</a>) announce successive waves of divine judgment. The prophets also called preachers to be like trumpets — raising their voices with clarity and without apology (<a href="../bible.html?ref=Isaiah+58:1" class="verse-ref">Isa 58:1</a>).</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <button class="dict-toggle" onclick="toggleDict('webster')">
+                <span class="arrow">&#9658;</span>&#128220; Webster 1828 Definition
+            </button>
+            <div class="dict-section" id="webster">
+                <p><strong>TRUMP'ET</strong>, <em>n.</em> [Fr. <em>trompette</em>; It. <em>tromba, trombetta</em>.]</p>
+                <p>1. A wind instrument of music, used chiefly in war and military exercises; an instrument whose sound is loud, clear and far reaching.</p>
+                <p>2. In Scripture, the sound of a trumpet is used figuratively for a loud and strong voice. "Cry aloud, spare not, lift up thy voice like a trumpet." Is. 58:1. Also, for the preaching of the gospel. "The priests, the sons of Levi, shall sound with the trumpets." Num. 10:8. In the Revelations, the seven trumpets are used for the judgments of God upon the enemies of the church.</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <button class="dict-toggle" onclick="toggleDict('corruption')">
+                <span class="arrow">&#9658;</span>&#9888;&#65039; Modern Corruption
+            </button>
+            <div class="dict-section" id="corruption">
+                <div class="corruption">
+                    <p>Paul's metaphor cuts to the heart of the preaching crisis: "If the bugle gives an indistinct sound, who will get ready for battle?" (<a href="../bible.html?ref=1+Corinthians+14:8" class="verse-ref">1 Cor 14:8</a>). The modern pulpit crisis is precisely this: a trumpet giving an uncertain sound — hedging on moral questions, softening doctrinal edges, replacing proclamation with conversation. A trumpet that won't alarm is not a trumpet; it's ambient background music. Isaiah's command — "Cry aloud, spare not, lift up your voice like a trumpet, declare to my people their transgression" (<a href="../bible.html?ref=Isaiah+58:1" class="verse-ref">Isa 58:1</a>) — is the antithesis of a therapeutic, conflict-averse, audience-pleasing preaching culture. <strong>The trumpet sound is clear, loud, and directional. So must be the Word.</strong></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <button class="dict-toggle" onclick="toggleDict('proto')">
+                <span class="arrow">&#9658;</span>&#127760; Proto-Language Roots
+            </button>
+            <div class="dict-section" id="proto">
+                <pre>Old French trompe (horn, trumpet) → trompette → Middle English trumpe → "trumpet"
+  Likely imitative of the instrument's sound (cf. "trump," "trombone")
+
+Hebrew instruments:
+שׁוֹפָר (shofar, H7782) — ram's horn trumpet; most common biblical trumpet
+  → Used at Sinai (Exod 19:16), Jericho (Josh 6:4-20), Year of Jubilee (Lev 25:9)
+  → The shofar is still blown in Jewish worship at Rosh Hashanah and Yom Kippur
+
+חֲצֹצְרָה (chatsotserah, H2689) — silver trumpet (Num 10:2)
+  → Two made by Moses; used for assembly, military signals, worship
+
+תְּרוּעָה (teruah, H8643) — a blast, shout, signal; the joyful/battle cry sound
+
+Greek:
+σάλπιγξ (salpinx, G4536) — trumpet; military/herald's instrument
+  → 1 Cor 14:8; 15:52; 1 Thess 4:16; Rev 1:10; 4:1; 8:2 (seven trumpets)
+σαλπίζω (salpizō, G4537) — to sound a trumpet; used 12× in Revelation</pre>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>&#128214; Key Scripture</h3>
+            <p>&#x2022; <a href="../bible.html?ref=1+Corinthians+15:52" class="verse-ref">1 Corinthians 15:52</a> &mdash; "In a moment, in the twinkling of an eye, at the last trumpet. For the trumpet will sound, and the dead will be raised imperishable."</p>
+            <p>&#x2022; <a href="../bible.html?ref=Isaiah+58:1" class="verse-ref">Isaiah 58:1</a> &mdash; "Cry aloud; spare not; lift up your voice like a trumpet; declare to my people their transgression."</p>
+            <p>&#x2022; <a href="../bible.html?ref=1+Thessalonians+4:16" class="verse-ref">1 Thessalonians 4:16</a> &mdash; "The Lord himself will descend from heaven with a cry of command, with the voice of an archangel, and with the sound of the trumpet of God."</p>
+            <p>&#x2022; <a href="../bible.html?ref=Exodus+19:16" class="verse-ref">Exodus 19:16</a> &mdash; "There were thunders and lightnings and a thick cloud on the mountain and a very loud trumpet blast, so that all the people in the camp trembled."</p>
+            <p>&#x2022; <a href="../bible.html?ref=1+Corinthians+14:8" class="verse-ref">1 Corinthians 14:8</a> &mdash; "If the bugle gives an indistinct sound, who will get ready for battle?"</p>
+        </div>
+
+        <div class="section">
+            <h3>&#128279; Greek &amp; Hebrew Roots</h3>
+            <p><a href="../lexicon/H7782.html" class="lexicon-link">H7782</a> — <strong>shofar</strong> (שׁוֹפָר): ram's horn trumpet; instrument of alarm, worship, and divine announcement; still central to Jewish liturgy.</p>
+            <p><a href="../lexicon/G4536.html" class="lexicon-link">G4536</a> — <strong>salpinx</strong> (σάλπιγξ): trumpet; herald's instrument; associated with the resurrection of the dead, the return of Christ, and the judgments of Revelation.</p>
+        </div>
+
+        <div class="section">
+            <h3>Related Words</h3>
+            <div class="related">
+                <a href="judgment.html">Judgment</a>
+                <a href="resurrection.html">Resurrection</a>
+                <a href="parousia.html">Parousia</a>
+                <a href="jubilee.html">Jubilee</a>
+                <a href="herald.html">Herald</a>
+            </div>
+        </div>
+    </div>
+    <footer>
+        <p>&copy; 2026 The MOOP Dictionary &mdash; <a href="index.html">All Words</a></p>
+    </footer>
+    <script>
+        function toggleDict(id) {
+            const el = document.getElementById(id);
+            const btn = el.previousElementSibling;
+            const arrow = btn.querySelector('.arrow');
+            el.classList.toggle('open');
+            if (arrow) arrow.classList.toggle('open');
+        }
+        function toggleTheme() {
+            document.body.classList.toggle('light-mode');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seal &mdash; The MOOP Dictionary</title>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        :root { --bg:#000; --card:#111; --gold:#D4AF37; --gold-light:#F4D470; --white:#FFF; --gray:#888; --border:#333; }
+        body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--white); min-height:100vh; line-height:1.7; }
+        h1,h2,h3,h4 { font-family:'Playfair Display',serif; }
+        nav { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:4px 8px; padding:10px 16px;
+              border-bottom:1px solid var(--border); position:sticky; top:0;
+              background:rgba(0,0,0,0.95); backdrop-filter:blur(8px); z-index:100; }
+        nav a { color:var(--gray); text-decoration:none; font-size:0.8rem; display:inline-flex; align-items:center;
+                gap:3px; padding:3px 6px; border-radius:6px; transition:color 0.2s; }
+        nav a:hover, nav a.active { color:var(--gold); }
+        .site-icon { vertical-align:middle; opacity:0.8; }
+        .theme-toggle { background:none; border:1px solid var(--border); border-radius:50%; width:28px; height:28px;
+                        cursor:pointer; font-size:0.85rem; transition:all 0.3s; padding:0; color:var(--white);
+                        display:inline-flex; align-items:center; justify-content:center; }
+        .theme-toggle:hover { border-color:var(--gold); }
+        .container { max-width:820px; margin:0 auto; padding:28px 20px 60px; }
+        .word-header { text-align:center; padding:40px 0 30px; border-bottom:1px solid var(--border); margin-bottom:30px; }
+        .word-title { font-size:2.8rem; color:var(--gold-light); margin-bottom:6px; }
+        .pronunciation { color:var(--gray); font-size:1.1rem; font-style:italic; }
+        .pos { display:inline-block; background:var(--gold); color:#000; font-weight:700;
+               font-size:0.78rem; padding:3px 14px; border-radius:15px; margin:10px 0; }
+        .etymology { color:var(--white); font-size:0.88rem; margin:12px auto; max-width:650px; }
+        .section { margin:18px 0; padding:18px 22px; background:var(--card); border:1px solid var(--border); border-radius:10px; }
+        .section > h3 { color:var(--gold); margin-bottom:12px; font-size:1.05rem; }
+        .section p { margin:7px 0; color:var(--white); }
+        .biblical-def { border-left:3px solid var(--gold); padding-left:15px; }
+        .dict-toggle { cursor:pointer; color:var(--gold); font-size:0.92rem; user-select:none;
+                       display:inline-flex; align-items:center; gap:0; background:none; border:none;
+                       padding:0; font-family:inherit; font-weight:600; }
+        .dict-toggle:hover { color:var(--gold-light); }
+        .dict-toggle .arrow { display:inline-block; transition:transform 0.2s; margin-right:8px; font-size:0.75rem; }
+        .dict-toggle .arrow.open { transform:rotate(90deg); }
+        .dict-section { display:none; margin:10px 0 4px 0; padding:12px 16px;
+                        background:rgba(212,175,55,0.06); border-left:2px solid var(--gold);
+                        border-radius:0 6px 6px 0; }
+        .dict-section.open { display:block; }
+        .dict-section p { margin:6px 0; font-size:0.95rem; color:var(--white); }
+        .dict-section pre { font-family:'Courier New',monospace; font-size:0.82rem; color:var(--gold-light);
+                             line-height:1.7; white-space:pre-wrap; }
+        .corruption { border-left:3px solid #CC0000; padding-left:15px; }
+        .verse-ref { color:var(--gold); text-decoration:none; font-weight:600; }
+        .verse-ref:hover { color:var(--gold-light); text-decoration:underline; }
+        .lexicon-link { color:var(--gold); font-family:monospace; text-decoration:none; }
+        .lexicon-link:hover { color:var(--gold-light); text-decoration:underline; }
+        .related { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+        .related a { background:var(--card); border:1px solid var(--border); padding:6px 14px;
+                     border-radius:20px; color:var(--white); text-decoration:none; font-size:0.85rem;
+                     transition:border-color 0.2s, color 0.2s; }
+        .related a:hover { border-color:var(--gold); color:var(--gold); }
+        footer { text-align:center; padding:28px 20px; border-top:1px solid var(--border);
+                 margin-top:40px; color:var(--gray); font-size:0.88rem; }
+        footer a { color:var(--gray); text-decoration:none; }
+        footer a:hover { color:var(--gold); }
+        body.light-mode { --bg:#F5F3EF; --card:#FFF; --white:#1a1a1a; --gray:#666; --border:#d4d0c8; }
+        body.light-mode nav { background:rgba(245,243,239,0.97); }
+        body.light-mode .section { background:#fff; border-color:#d4d0c8; }
+        body.light-mode .dict-section { background:rgba(212,175,55,0.04); }
+        body.light-mode footer { border-top-color:#d4d0c8; }
+        body.light-mode .related a { background:#f0ede7; border-color:#d4d0c8; color:#1a1a1a; }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav>
+        <a href="../index.html"><img src="../assets/icons/shield-home-48.png" class="site-icon" alt="" width="16" height="16"> Home</a>
+        <a href="../watchman.html"><img src="../assets/icons/shield-bible.png" class="site-icon" alt="" width="16" height="16"> Watchman</a>
+        <a href="../bible.html"><img src="../assets/icons/shield-compass.png" class="site-icon" alt="" width="16" height="16"> BTE</a>
+        <a href="../lexicon.html"><img src="../assets/icons/shield-alpha-omega-48.png" class="site-icon" alt="" width="16" height="16"> Lexicon</a>
+        <a href="../cross-references.html"><img src="../assets/icons/shield-infinity-rope-48.png" class="site-icon" alt="" width="16" height="16"> Cross-Refs</a>
+        <a href="index.html" class="active"><img src="../assets/icons/shield-book-greek-48.png" class="site-icon" alt="" width="16" height="16"> Dictionary</a>
+        <a href="../blog.html"><img src="../assets/icons/shield-blog-quill-48.png" class="site-icon" alt="" width="16" height="16"> Blog</a>
+        <a href="../connect.html"><img src="../assets/icons/shield-handshake.png" class="site-icon" alt="" width="16" height="16"> Connect</a>
+        <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle" title="Toggle dark/light">&#127769;</button>
+    </nav>
+    <div class="container">
+        <div class="word-header">
+            <div class="word-title">Seal</div>
+            <div class="pronunciation">/siːl/</div>
+            <span class="pos">noun / verb</span>
+            <div class="etymology">From Old French <em>seel</em>, from Latin <em>sigillum</em> (small sign, seal); diminutive of <em>signum</em> (sign, mark). Hebrew: <em>chotam</em> (חוֹתָם) — seal, signet ring. Greek: <em>sphragis</em> (σφραγίς) — seal, signet; both the instrument that impresses and the impression left.</div>
+        </div>
+
+        <div class="section">
+            <h3>&#128214; Biblical Definition</h3>
+            <div class="biblical-def">
+                <p>A seal in the ancient world accomplished three things: it <strong>authenticated</strong> (this document is genuine), <strong>secured</strong> (this is closed and protected), and <strong>claimed ownership</strong> (this belongs to the one whose seal it bears). All three meanings saturate the biblical use. God sets his seal of ownership on believers through the Holy Spirit: "In him you also… were sealed with the promised Holy Spirit, who is the guarantee of our inheritance" (<a href="../bible.html?ref=Ephesians+1:13-14" class="verse-ref">Eph 1:13–14</a>). This divine sealing is the assurance of final salvation — God marks his own as his own, securing them to the day of redemption (<a href="../bible.html?ref=Ephesians+4:30" class="verse-ref">Eph 4:30</a>). Circumcision was called a "seal of the righteousness" Abraham had by faith (<a href="../bible.html?ref=Romans+4:11" class="verse-ref">Rom 4:11</a>). In Revelation, the sealed scroll of judgment is opened only by the worthy Lamb (<a href="../bible.html?ref=Revelation+5:1-9" class="verse-ref">Rev 5:1–9</a>), and God's servants are sealed on their foreheads before the judgments fall (<a href="../bible.html?ref=Revelation+7:3" class="verse-ref">Rev 7:3</a>).</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <button class="dict-toggle" onclick="toggleDict('webster')">
+                <span class="arrow">&#9658;</span>&#128220; Webster 1828 Definition
+            </button>
+            <div class="dict-section" id="webster">
+                <p><strong>SEAL</strong>, <em>n.</em> [Sax. <em>sæl</em>; L. <em>sigillum</em>.]</p>
+                <p>1. A piece of metal, stone, or other hard substance, on which is engraved some device or figure, used for making an impression in wax on letters, deeds or other writings.</p>
+                <p>2. The wax or other substance bearing the impression of a seal, attached to a writing as evidence of its authenticity.</p>
+                <p>3. That which confirms, ratifies, or makes stable; assurance. "The seal of the Spirit," in theology, is the certain evidence of divine favor and adoption, communicated to believers by the Holy Spirit.</p>
+                <p>4. Anything which shuts up or makes fast; security against opening.</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <button class="dict-toggle" onclick="toggleDict('corruption')">
+                <span class="arrow">&#9658;</span>&#9888;&#65039; Modern Corruption
+            </button>
+            <div class="dict-section" id="corruption">
+                <div class="corruption">
+                    <p>The biblical doctrine of the "sealing of the Spirit" as assurance of salvation has been either over-claimed or under-appreciated. Pentecostal traditions sometimes treat a "second sealing" or "baptism of the Spirit" as a post-conversion experience evidenced by tongues — which differs from Paul's consistent teaching that all believers are sealed at conversion (Eph 1:13). Meanwhile, Arminian traditions that deny eternal security effectively deny the sealing's permanence — treating the Spirit's seal as a temporary deposit that can be broken. The biblical metaphor is clear: a royal seal does not expire, fluctuate with feeling, or depend on the sealed person's performance. <strong>The Spirit seals; God keeps; nothing snatches from his hand</strong> (<a href="../bible.html?ref=John+10:28-29" class="verse-ref">John 10:28–29</a>).</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <button class="dict-toggle" onclick="toggleDict('proto')">
+                <span class="arrow">&#9658;</span>&#127760; Proto-Language Roots
+            </button>
+            <div class="dict-section" id="proto">
+                <pre>Latin signum (sign, mark) → sigillum (small seal) → Old French seel → "seal"
+  → Also: signal, sign, signature, significant — all from signum
+
+Hebrew:
+חוֹתָם (chotam, H2368) — seal, signet
+  → From חָתַם (chatam, H2856) — to seal, close up, shut
+  → Used of: God's seal on Job (Job 9:7), signet ring (Gen 38:18), sealed scroll (Isa 29:11)
+טַבַּעַת (tabba'at, H2885) — signet ring (Esther, Joseph, Pharaoh)
+
+Greek:
+σφραγίς (sphragis, G4973) — seal, signet; both instrument and impression
+  → Used for: circumcision as seal (Rom 4:11), Holy Spirit as seal (Eph 1:13; 4:30),
+     sealed scroll (Rev 5-8), sealed servants (Rev 7:3-8), foundation of God (2 Tim 2:19)
+σφραγίζω (sphragizō, G4972) — to seal, mark, certify, keep secret</pre>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>&#128214; Key Scripture</h3>
+            <p>&#x2022; <a href="../bible.html?ref=Ephesians+1:13-14" class="verse-ref">Ephesians 1:13–14</a> &mdash; "You were sealed with the promised Holy Spirit, who is the guarantee of our inheritance."</p>
+            <p>&#x2022; <a href="../bible.html?ref=2+Timothy+2:19" class="verse-ref">2 Timothy 2:19</a> &mdash; "God's firm foundation stands, bearing this seal: 'The Lord knows those who are his.'"</p>
+            <p>&#x2022; <a href="../bible.html?ref=Revelation+5:1" class="verse-ref">Revelation 5:1</a> &mdash; "A scroll written within and on the back, sealed with seven seals."</p>
+            <p>&#x2022; <a href="../bible.html?ref=Ephesians+4:30" class="verse-ref">Ephesians 4:30</a> &mdash; "Do not grieve the Holy Spirit of God, by whom you were sealed for the day of redemption."</p>
+            <p>&#x2022; <a href="../bible.html?ref=Revelation+7:3" class="verse-ref">Revelation 7:3</a> &mdash; "Do not harm the earth or the sea or the trees, until we have sealed the servants of our God on their foreheads."</p>
+        </div>
+
+        <div class="section">
+            <h3>&#128279; Greek &amp; Hebrew Roots</h3>
+            <p><a href="../lexicon/H2856.html" class="lexicon-link">H2856</a> — <strong>chatam</strong> (חָתַם): to seal, close up; the act of securing and authenticating with an official seal.</p>
+            <p><a href="../lexicon/G4973.html" class="lexicon-link">G4973</a> — <strong>sphragis</strong> (σφραγίς): seal; authenticates, secures, and marks ownership; the Holy Spirit is God's seal on every believer (Eph 1:13).</p>
+        </div>
+
+        <div class="section">
+            <h3>Related Words</h3>
+            <div class="related">
+                <a href="spirit.html">Spirit</a>
+                <a href="assurance.html">Assurance</a>
+                <a href="election.html">Election</a>
+                <a href="covenant.html">Covenant</a>
+                <a href="adoption.html">Adoption</a>
+            </div>
+        </div>
+    </div>
+    <footer>
+        <p>&copy; 2026 The MOOP Dictionary &mdash; <a href="index.html">All Words</a></p>
+    </footer>
+    <script>
+        function toggleDict(id) {
+            const el = document.getElementById(id);
+            const btn = el.previousElementSibling;
+            const arrow = btn.querySelector('.arrow');
+            el.classList.toggle('open');
+            if (arrow) arrow.classList.toggle('open');
+        }
+        function toggleTheme() {
+            document.body.classList.toggle('light-mode');
+        }
+    </script>
+</body>
+</html>
