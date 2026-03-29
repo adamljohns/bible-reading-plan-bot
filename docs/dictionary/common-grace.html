@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Common Grace &mdash; The MOOP Dictionary</title>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        :root { --bg:#000; --card:#111; --gold:#D4AF37; --gold-light:#F4D470; --white:#FFF; --gray:#888; --border:#333; }
+        body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--white); min-height:100vh; line-height:1.7; }
+        h1,h2,h3,h4 { font-family:'Playfair Display',serif; }
+        nav { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:4px 8px; padding:10px 16px;
+              border-bottom:1px solid var(--border); position:sticky; top:0;
+              background:rgba(0,0,0,0.95); backdrop-filter:blur(8px); z-index:100; }
+        nav a { color:var(--gray); text-decoration:none; font-size:0.8rem; display:inline-flex; align-items:center;
+                gap:3px; padding:3px 6px; border-radius:6px; transition:color 0.2s; }
+        nav a:hover, nav a.active { color:var(--gold); }
+        .site-icon { vertical-align:middle; opacity:0.8; }
+        .theme-toggle { background:none; border:1px solid var(--border); border-radius:50%; width:28px; height:28px;
+                        cursor:pointer; font-size:0.85rem; transition:all 0.3s; padding:0; color:var(--white);
+                        display:inline-flex; align-items:center; justify-content:center; }
+        .theme-toggle:hover { border-color:var(--gold); }
+        .container { max-width:820px; margin:0 auto; padding:28px 20px 60px; }
+        .word-header { text-align:center; padding:40px 0 30px; border-bottom:1px solid var(--border); margin-bottom:30px; }
+        .word-title { font-size:2.8rem; color:var(--gold-light); margin-bottom:6px; }
+        .pronunciation { color:var(--gray); font-size:1.1rem; font-style:italic; }
+        .pos { display:inline-block; background:var(--gold); color:#000; font-weight:700;
+               font-size:0.78rem; padding:3px 14px; border-radius:15px; margin:10px 0; }
+        .etymology { color:var(--white); font-size:0.88rem; margin:12px auto; max-width:650px; }
+        .section { margin:18px 0; padding:18px 22px; background:var(--card); border:1px solid var(--border); border-radius:10px; }
+        .section > h3 { color:var(--gold); margin-bottom:12px; font-size:1.05rem; }
+        .section p { margin:7px 0; color:var(--white); }
+        .biblical-def { border-left:3px solid var(--gold); padding-left:15px; }
+        .dict-toggle { cursor:pointer; color:var(--gold); font-size:0.92rem; user-select:none;
+                       display:inline-flex; align-items:center; gap:0; background:none; border:none;
+                       padding:0; font-family:inherit; font-weight:600; }
+        .dict-toggle:hover { color:var(--gold-light); }
+        .dict-toggle .arrow { display:inline-block; transition:transform 0.2s; margin-right:8px; font-size:0.75rem; }
+        .dict-toggle .arrow.open { transform:rotate(90deg); }
+        .dict-section { display:none; margin:10px 0 4px 0; padding:12px 16px;
+                        background:rgba(212,175,55,0.06); border-left:2px solid var(--gold);
+                        border-radius:0 6px 6px 0; }
+        .dict-section.open { display:block; }
+        .dict-section p { margin:6px 0; font-size:0.95rem; color:var(--white); }
+        .corruption { border-left:3px solid #CC0000; padding-left:15px; }
+        .corruption p { color:var(--white); }
+        .verse-ref { color:var(--gold); text-decoration:none; font-weight:600; }
+        .verse-ref:hover { color:var(--gold-light); text-decoration:underline; }
+        .related { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+        .related a { background:var(--card); border:1px solid var(--border); padding:6px 14px;
+                     border-radius:20px; color:var(--white); text-decoration:none; font-size:0.85rem;
+                     transition:border-color 0.2s, color 0.2s; }
+        .related a:hover { border-color:var(--gold); color:var(--gold); }
+        .toggle-wrap { display:flex; justify-content:center; margin:28px 0 10px; }
+        footer { text-align:center; padding:28px 20px; border-top:1px solid var(--border);
+                 margin-top:40px; color:var(--white); font-size:0.88rem; }
+        footer a { color:var(--gray); text-decoration:none; }
+        footer a:hover { color:var(--gold); }
+        body.light-mode { --bg:#F5F3EF; --card:#FFF; --white:#1a1a1a; --gray:#666; --border:#d4d0c8; }
+        body.light-mode nav { background:rgba(245,243,239,0.97); }
+        body.light-mode .section { background:#fff; border-color:#d4d0c8; }
+        body.light-mode .dict-section { background:rgba(212,175,55,0.04); }
+        body.light-mode footer { border-top-color:#d4d0c8; color:#1a1a1a; }
+        body.light-mode .related a { background:#f0ede7; border-color:#d4d0c8; color:#1a1a1a; }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav>
+        <a href="../index.html"><img src="../assets/icons/shield-home-48.png" class="site-icon" alt="" width="16" height="16"> Home</a>
+        <a href="../watchman.html"><img src="../assets/icons/shield-bible.png" class="site-icon" alt="" width="16" height="16"> Watchman</a>
+        <a href="../bible.html"><img src="../assets/icons/shield-compass.png" class="site-icon" alt="" width="16" height="16"> BTE</a>
+        <a href="../lexicon.html"><img src="../assets/icons/shield-alpha-omega-48.png" class="site-icon" alt="" width="16" height="16"> Lexicon</a>
+        <a href="../cross-references.html"><img src="../assets/icons/shield-infinity-rope-48.png" class="site-icon" alt="" width="16" height="16"> Cross-Refs</a>
+        <a href="index.html" class="active"><img src="../assets/icons/shield-book-greek-48.png" class="site-icon" alt="" width="16" height="16"> Dictionary</a>
+        <a href="../blog.html"><img src="../assets/icons/shield-blog-quill-48.png" class="site-icon" alt="" width="16" height="16"> Blog</a>
+        <a href="../connect.html"><img src="../assets/icons/shield-handshake.png" class="site-icon" alt="" width="16" height="16"> Connect</a>
+        <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle" title="Toggle dark/light">&#127769;</button>
+    </nav>
+    <div class="container">
+        <div class="word-header">
+            <div class="word-title">Common Grace</div>
+            <div class="pronunciation">/ˈkɒm.ən ɡreɪs/</div>
+            <span class="pos">noun phrase</span>
+            <div class="etymology">From Latin <em>communis</em> (shared, common, belonging to all) + <em>gratia</em> (grace, favor, kindness — unmerited gift). The Reformed theological doctrine — developed especially by Abraham Kuyper (1837–1920) and Louis Berkhof (1873–1957) — that God extends a non-saving, restraining, and blessing grace to all humanity regardless of election, distinct from the saving (special/efficacious) grace given only to the elect.</div>
+        </div>
+
+        <div class="section">
+            <h3>&#128214; Biblical Definition</h3>
+            <div class="biblical-def">
+                <p>Common grace is the undeserved favor God shows to all mankind — elect and non-elect alike — by which he: (1) <strong>Restrains sin</strong> — preventing the full expression of human depravity (the world would be far more wicked without it); (2) <strong>Sustains creation</strong> — maintaining the natural order, the seasons, rain, harvest, health; (3) <strong>Bestows natural gifts</strong> — intelligence, artistic ability, moral conscience, civic virtue in unbelievers; and (4) <strong>Delays judgment</strong> — God's patience giving space for repentance before final wrath. Common grace does not save — it does not regenerate, justify, or sanctify. But it explains why unregenerate people can build beautiful cities, compose great music, care for the poor, and value justice — all good gifts flowing from a gracious God who has not yet consummated his judgment on a fallen world. Without common grace, total depravity would produce total destruction immediately. The sun rises on the evil and the good; God is generous to his enemies as a reflection of his character — not their merit.</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>&#128214; Key Scripture</h3>
+            <p>&#x2022; <a href="../bible.html?ref=Matthew+5:44-45" class="verse-ref">Matthew 5:44–45</a> &mdash; "Love your enemies… For he makes his sun rise on the evil and on the good, and sends rain on the just and on the unjust." — Jesus' foundational statement on common grace.</p>
+            <p>&#x2022; <a href="../bible.html?ref=Acts+14:16-17" class="verse-ref">Acts 14:16–17</a> &mdash; "In past generations he allowed all the nations to walk in their own ways. Yet he did not leave himself without witness, for he did good by giving you rains from heaven and fruitful seasons, satisfying your hearts with food and gladness."</p>
+            <p>&#x2022; <a href="../bible.html?ref=Genesis+9:8-17" class="verse-ref">Genesis 9:8–17</a> &mdash; The Noahic covenant — God's promise never again to destroy all flesh. A common-grace covenant binding God to sustain the world for all humanity.</p>
+            <p>&#x2022; <a href="../bible.html?ref=Romans+2:14-15" class="verse-ref">Romans 2:14–15</a> &mdash; Gentiles who do not have the law naturally do things the law requires — evidence that God's moral image persists even in the unregenerate (common grace restraining and illuminating conscience).</p>
+            <p>&#x2022; <a href="../bible.html?ref=2+Peter+3:9" class="verse-ref">2 Peter 3:9</a> &mdash; "The Lord is not slow to fulfill his promise… but is patient toward you, not wishing that any should perish." — Common grace as divine patience preserving space for repentance.</p>
+        </div>
+
+        <div class="section">
+            <button class="dict-toggle" onclick="toggleDict('corruption')">
+                <span class="arrow">&#9658;</span>&#9888;&#65039; Misuses &amp; Distinctions
+            </button>
+            <div class="dict-section" id="corruption">
+                <div class="corruption">
+                    <p>Common grace can be misapplied to: (1) <em>Minimize total depravity</em> — "Unbelievers can do good things, so the doctrine of total depravity must be wrong." Common grace explains the good; total depravity explains that none of it merits salvation. (2) <em>Baptize secular culture uncritically</em> — "God is at work in Hollywood/Silicon Valley through common grace." True, but common grace does not transform sin into holiness. (3) <em>Blur the saving/common grace distinction</em> — common grace does not lead to salvation and should not be preached as if it does. The doctrine's proper use: gratitude for good gifts wherever they appear, engagement with culture without compromise, and the recognition that God's restraining hand is the only reason civilization holds together at all.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>&#128279; Related Words</h3>
+            <div class="related">
+                <a href="grace.html">Grace</a>
+                <a href="election.html">Election</a>
+                <a href="depravity.html">Depravity</a>
+                <a href="covenant.html">Covenant</a>
+                <a href="sovereignty.html">Sovereignty</a>
+                <a href="providence.html">Providence</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="toggle-wrap">
+        <button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark/light mode" style="width:40px;height:40px;font-size:1.1rem;">&#127769;</button>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 USMC Ministries &mdash; <a href="index.html">The MOOP Dictionary</a></p>
+    </footer>
+
+    <script>
+        function toggleTheme() {
+            document.body.classList.toggle('light-mode');
+            const btn = document.getElementById('themeToggle');
+            if (btn) btn.innerHTML = document.body.classList.contains('light-mode') ? '&#9728;&#65039;' : '&#127769;';
+            localStorage.setItem('theme', document.body.classList.contains('light-mode') ? 'light' : 'dark');
+        }
+        function toggleDict(id) {
+            const sec = document.getElementById(id);
+            const btn = sec.previousElementSibling;
+            const arrow = btn.querySelector('.arrow');
+            sec.classList.toggle('open');
+            if (arrow) arrow.classList.toggle('open');
+        }
+        if (localStorage.getItem('theme') === 'light') {
+            document.body.classList.add('light-mode');
+            const btn = document.getElementById('themeToggle');
+            if (btn) btn.innerHTML = '&#9728;&#65039;';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Protevangelium &mdash; The MOOP Dictionary</title>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        :root { --bg:#000; --card:#111; --gold:#D4AF37; --gold-light:#F4D470; --white:#FFF; --gray:#888; --border:#333; }
+        body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--white); min-height:100vh; line-height:1.7; }
+        h1,h2,h3,h4 { font-family:'Playfair Display',serif; }
+        nav { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:4px 8px; padding:10px 16px;
+              border-bottom:1px solid var(--border); position:sticky; top:0;
+              background:rgba(0,0,0,0.95); backdrop-filter:blur(8px); z-index:100; }
+        nav a { color:var(--gray); text-decoration:none; font-size:0.8rem; display:inline-flex; align-items:center;
+                gap:3px; padding:3px 6px; border-radius:6px; transition:color 0.2s; }
+        nav a:hover, nav a.active { color:var(--gold); }
+        .site-icon { vertical-align:middle; opacity:0.8; }
+        .theme-toggle { background:none; border:1px solid var(--border); border-radius:50%; width:28px; height:28px;
+                        cursor:pointer; font-size:0.85rem; transition:all 0.3s; padding:0; color:var(--white);
+                        display:inline-flex; align-items:center; justify-content:center; }
+        .theme-toggle:hover { border-color:var(--gold); }
+        .container { max-width:820px; margin:0 auto; padding:28px 20px 60px; }
+        .word-header { text-align:center; padding:40px 0 30px; border-bottom:1px solid var(--border); margin-bottom:30px; }
+        .word-title { font-size:2.8rem; color:var(--gold-light); margin-bottom:6px; }
+        .pronunciation { color:var(--gray); font-size:1.1rem; font-style:italic; }
+        .pos { display:inline-block; background:var(--gold); color:#000; font-weight:700;
+               font-size:0.78rem; padding:3px 14px; border-radius:15px; margin:10px 0; }
+        .etymology { color:var(--white); font-size:0.88rem; margin:12px auto; max-width:650px; }
+        .section { margin:18px 0; padding:18px 22px; background:var(--card); border:1px solid var(--border); border-radius:10px; }
+        .section > h3 { color:var(--gold); margin-bottom:12px; font-size:1.05rem; }
+        .section p { margin:7px 0; color:var(--white); }
+        .biblical-def { border-left:3px solid var(--gold); padding-left:15px; }
+        .dict-toggle { cursor:pointer; color:var(--gold); font-size:0.92rem; user-select:none;
+                       display:inline-flex; align-items:center; gap:0; background:none; border:none;
+                       padding:0; font-family:inherit; font-weight:600; }
+        .dict-toggle:hover { color:var(--gold-light); }
+        .dict-toggle .arrow { display:inline-block; transition:transform 0.2s; margin-right:8px; font-size:0.75rem; }
+        .dict-toggle .arrow.open { transform:rotate(90deg); }
+        .dict-section { display:none; margin:10px 0 4px 0; padding:12px 16px;
+                        background:rgba(212,175,55,0.06); border-left:2px solid var(--gold);
+                        border-radius:0 6px 6px 0; }
+        .dict-section.open { display:block; }
+        .dict-section p { margin:6px 0; font-size:0.95rem; color:var(--white); }
+        .corruption { border-left:3px solid #CC0000; padding-left:15px; }
+        .corruption p { color:var(--white); }
+        .verse-ref { color:var(--gold); text-decoration:none; font-weight:600; }
+        .verse-ref:hover { color:var(--gold-light); text-decoration:underline; }
+        .related { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+        .related a { background:var(--card); border:1px solid var(--border); padding:6px 14px;
+                     border-radius:20px; color:var(--white); text-decoration:none; font-size:0.85rem;
+                     transition:border-color 0.2s, color 0.2s; }
+        .related a:hover { border-color:var(--gold); color:var(--gold); }
+        .toggle-wrap { display:flex; justify-content:center; margin:28px 0 10px; }
+        footer { text-align:center; padding:28px 20px; border-top:1px solid var(--border);
+                 margin-top:40px; color:var(--white); font-size:0.88rem; }
+        footer a { color:var(--gray); text-decoration:none; }
+        footer a:hover { color:var(--gold); }
+        body.light-mode { --bg:#F5F3EF; --card:#FFF; --white:#1a1a1a; --gray:#666; --border:#d4d0c8; }
+        body.light-mode nav { background:rgba(245,243,239,0.97); }
+        body.light-mode .section { background:#fff; border-color:#d4d0c8; }
+        body.light-mode .dict-section { background:rgba(212,175,55,0.04); }
+        body.light-mode footer { border-top-color:#d4d0c8; color:#1a1a1a; }
+        body.light-mode .related a { background:#f0ede7; border-color:#d4d0c8; color:#1a1a1a; }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav>
+        <a href="../index.html"><img src="../assets/icons/shield-home-48.png" class="site-icon" alt="" width="16" height="16"> Home</a>
+        <a href="../watchman.html"><img src="../assets/icons/shield-bible.png" class="site-icon" alt="" width="16" height="16"> Watchman</a>
+        <a href="../bible.html"><img src="../assets/icons/shield-compass.png" class="site-icon" alt="" width="16" height="16"> BTE</a>
+        <a href="../lexicon.html"><img src="../assets/icons/shield-alpha-omega-48.png" class="site-icon" alt="" width="16" height="16"> Lexicon</a>
+        <a href="../cross-references.html"><img src="../assets/icons/shield-infinity-rope-48.png" class="site-icon" alt="" width="16" height="16"> Cross-Refs</a>
+        <a href="index.html" class="active"><img src="../assets/icons/shield-book-greek-48.png" class="site-icon" alt="" width="16" height="16"> Dictionary</a>
+        <a href="../blog.html"><img src="../assets/icons/shield-blog-quill-48.png" class="site-icon" alt="" width="16" height="16"> Blog</a>
+        <a href="../connect.html"><img src="../assets/icons/shield-handshake.png" class="site-icon" alt="" width="16" height="16"> Connect</a>
+        <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle" title="Toggle dark/light">&#127769;</button>
+    </nav>
+    <div class="container">
+        <div class="word-header">
+            <div class="word-title">Protevangelium</div>
+            <div class="pronunciation">/ˌproʊt.ɪ.væn.ˈdʒɛl.i.əm/</div>
+            <span class="pos">noun</span>
+            <div class="etymology">From Latin/Greek <em>proto-</em> (πρῶτος — first) + <em>euangelion</em> (εὐαγγέλιον — good news, gospel). Literally: <em>the first gospel</em>. A term coined by theologians to identify Genesis 3:15 as the first announcement of the Gospel in Scripture — the seed of all subsequent redemptive promises, spoken immediately after the Fall. Irenaeus of Lyons (2nd century) is among the earliest to identify this verse as the foundational prophecy of Christ.</div>
+        </div>
+
+        <div class="section">
+            <h3>&#128214; Biblical Definition</h3>
+            <div class="biblical-def">
+                <p>The protevangelium is God's first recorded promise of redemption, spoken in the garden immediately after Adam and Eve's fall into sin. In Genesis 3:15, God addresses the serpent: <em>"I will put enmity between you and the woman, and between your offspring and her offspring; he shall bruise your head, and you shall bruise his heel."</em> This single verse establishes the entire redemptive arc of Scripture: (1) A cosmic war between the seed of the serpent and the Seed of the woman; (2) A singular, decisive Champion — "he" — who will crush the serpent's head (decisive, fatal blow) while suffering a wound to his heel (painful but not fatal); (3) The victory of this Seed at personal cost — pointing directly to Christ's crucifixion (the bruised heel) and resurrection/ascension (the crushed head). Every covenant, every sacrifice, every prophecy in the OT is the unfolding of this first promise. The protevangelium is the Gospel in embryo — planted in the darkest moment of human history, when all seemed lost.</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>&#128214; Key Scripture</h3>
+            <p>&#x2022; <a href="../bible.html?ref=Genesis+3:15" class="verse-ref">Genesis 3:15</a> &mdash; <em>"I will put enmity between you and the woman, and between your offspring and her offspring; he shall bruise your head, and you shall bruise his heel."</em> — The protevangelium itself.</p>
+            <p>&#x2022; <a href="../bible.html?ref=Romans+16:20" class="verse-ref">Romans 16:20</a> &mdash; "The God of peace will soon crush Satan under your feet." — Paul echoes the protevangelium promise to the church.</p>
+            <p>&#x2022; <a href="../bible.html?ref=Galatians+4:4" class="verse-ref">Galatians 4:4</a> &mdash; "But when the fullness of time had come, God sent forth his Son, born of woman…" — The "seed of the woman" arrives — born not of man, but of woman alone, fulfilling the protevangelium precisely.</p>
+            <p>&#x2022; <a href="../bible.html?ref=Revelation+12:9" class="verse-ref">Revelation 12:9</a> &mdash; "The great dragon was thrown down, that ancient serpent, who is called the devil and Satan… he was thrown down to the earth." — The final fulfillment of the serpent's crushing.</p>
+            <p>&#x2022; <a href="../bible.html?ref=Hebrews+2:14" class="verse-ref">Hebrews 2:14</a> &mdash; "…that through death he might destroy the one who has the power of death, that is, the devil." — Christ's heel-bruising death destroys the serpent's power.</p>
+        </div>
+
+        <div class="section">
+            <button class="dict-toggle" onclick="toggleDict('context')">
+                <span class="arrow">&#9658;</span>&#128214; Theological Significance
+            </button>
+            <div class="dict-section" id="context">
+                <p>The protevangelium demonstrates that the Gospel is not an afterthought — it was the plan from the beginning. Before the curse on the ground, before the expulsion from Eden, God spoke the promise of redemption. This is the grace that precedes and underlies all of Scripture's redemptive history. It also reveals: (1) <strong>Virgin birth implied</strong> — "seed of the woman" is biologically unusual; the Messiah would come without a human father; (2) <strong>Spiritual warfare</strong> — the enmity between Christ and Satan is total and irreconcilable; (3) <strong>Substitutionary suffering</strong> — the Seed would be wounded in the process of winning; (4) <strong>Certain victory</strong> — the serpent's head is crushed, not merely wounded. Martin Luther called Gen 3:15 "the foundation and sum of the entire Scriptures."</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>&#128279; Related Words</h3>
+            <div class="related">
+                <a href="gospel.html">Gospel</a>
+                <a href="covenant.html">Covenant</a>
+                <a href="incarnation.html">Incarnation</a>
+                <a href="typology.html">Typology</a>
+                <a href="redemption.html">Redemption</a>
+                <a href="seed.html">Seed</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="toggle-wrap">
+        <button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark/light mode" style="width:40px;height:40px;font-size:1.1rem;">&#127769;</button>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 USMC Ministries &mdash; <a href="index.html">The MOOP Dictionary</a></p>
+    </footer>
+
+    <script>
+        function toggleTheme() {
+            document.body.classList.toggle('light-mode');
+            const btn = document.getElementById('themeToggle');
+            if (btn) btn.innerHTML = document.body.classList.contains('light-mode') ? '&#9728;&#65039;' : '&#127769;';
+            localStorage.setItem('theme', document.body.classList.contains('light-mode') ? 'light' : 'dark');
+        }
+        function toggleDict(id) {
+            const sec = document.getElementById(id);
+            const btn = sec.previousElementSibling;
+            const arrow = btn.querySelector('.arrow');
+            sec.classList.toggle('open');
+            if (arrow) arrow.classList.toggle('open');
+        }
+        if (localStorage.getItem('theme') === 'light') {
+            document.body.classList.add('light-mode');
+            const btn = document.getElementById('themeToggle');
+            if (btn) btn.innerHTML = '&#9728;&#65039;';
+        }
+    </script>
+</body>
+</html>
