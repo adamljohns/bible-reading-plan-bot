@@ -3,93 +3,182 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Glorification — The MOOP Dictionary of the English Language</title>
+    <title>Glorification &mdash; The MOOP Dictionary</title>
     <style>
         * { margin:0; padding:0; box-sizing:border-box; }
         :root { --bg:#000; --card:#111; --gold:#D4AF37; --gold-light:#F4D470; --white:#FFF; --gray:#888; --border:#333; }
         body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--white); min-height:100vh; line-height:1.7; }
-        h1,h2,h3 { font-family:'Playfair Display',serif; }
-        .container { max-width:800px; margin:0 auto; padding:20px; }
+        h1,h2,h3,h4 { font-family:'Playfair Display',serif; }
+        nav { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:4px 8px; padding:10px 16px; border-bottom:1px solid var(--border); position:sticky; top:0; background:rgba(0,0,0,0.95); backdrop-filter:blur(8px); z-index:100; }
+        nav a { color:var(--gray); text-decoration:none; font-size:0.8rem; display:inline-flex; align-items:center; gap:3px; padding:3px 6px; border-radius:6px; transition:color 0.2s; }
+        nav a:hover, nav a.active { color:var(--gold); }
+        .site-icon { vertical-align:middle; opacity:0.8; }
+        .theme-toggle { background:none; border:1px solid var(--border); border-radius:50%; width:28px; height:28px; cursor:pointer; font-size:0.85rem; transition:all 0.3s; padding:0; color:var(--white); display:inline-flex; align-items:center; justify-content:center; }
+        .theme-toggle:hover { border-color:var(--gold); }
+        .container { max-width:820px; margin:0 auto; padding:28px 20px 60px; }
         .word-header { text-align:center; padding:40px 0 30px; border-bottom:1px solid var(--border); margin-bottom:30px; }
-        .word-title { font-size:2.5rem; color:var(--gold-light); margin-bottom:5px; }
+        .word-title { font-size:2.8rem; color:var(--gold-light); margin-bottom:6px; }
         .pronunciation { color:var(--gray); font-size:1.1rem; font-style:italic; }
-        .pos { display:inline-block; background:var(--gold); color:#000; font-weight:700; font-size:0.8rem; padding:3px 12px; border-radius:15px; margin:10px 0; }
-        .etymology { color:var(--gray); font-size:0.9rem; margin:10px 0; }
-        .section { margin:25px 0; padding:20px; background:var(--card); border:1px solid var(--border); border-radius:10px; }
-        .section h3 { color:var(--gold); margin-bottom:12px; font-size:1.1rem; }
-        .section p { margin:8px 0; }
+        .pos { display:inline-block; background:var(--gold); color:#000; font-weight:700; font-size:0.78rem; padding:3px 14px; border-radius:15px; margin:10px 0; }
+        .etymology { color:var(--gray); font-size:0.88rem; margin:12px auto; max-width:650px; }
+        .section { margin:18px 0; padding:18px 22px; background:var(--card); border:1px solid var(--border); border-radius:10px; }
+        .section > h3 { color:var(--gold); margin-bottom:12px; font-size:1.05rem; }
+        .section p { margin:7px 0; color:var(--white); }
         .biblical-def { border-left:3px solid var(--gold); padding-left:15px; }
+        .dict-toggle { cursor:pointer; color:var(--gold); font-size:0.92rem; user-select:none; display:inline-flex; align-items:center; gap:0; background:none; border:none; padding:0; font-family:inherit; font-weight:600; }
+        .dict-toggle:hover { color:var(--gold-light); }
+        .dict-toggle .arrow { display:inline-block; transition:transform 0.2s; margin-right:8px; font-size:0.75rem; }
+        .dict-toggle .arrow.open { transform:rotate(90deg); }
+        .dict-section { display:none; margin:10px 0 4px 0; padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .dict-section.open { display:block; }
+        .dict-section p { margin:6px 0; font-size:0.95rem; color:var(--white); }
+        .dict-section pre { font-family:'Courier New',monospace; font-size:0.82rem; color:var(--gold-light); line-height:1.7; white-space:pre-wrap; }
         .corruption { border-left:3px solid #CC0000; padding-left:15px; }
         .verse-ref { color:var(--gold); text-decoration:none; font-weight:600; }
-        .verse-ref:hover { color:var(--gold-light); }
+        .verse-ref:hover { color:var(--gold-light); text-decoration:underline; }
         .related { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
-        .related a { background:var(--card); border:1px solid var(--border); padding:6px 14px; border-radius:20px; color:var(--white); text-decoration:none; font-size:0.85rem; }
+        .related a { background:var(--card); border:1px solid var(--border); padding:6px 14px; border-radius:20px; color:var(--white); text-decoration:none; font-size:0.85rem; transition:border-color 0.2s, color 0.2s; }
         .related a:hover { border-color:var(--gold); color:var(--gold); }
-        .lexicon-link { color:var(--gold); font-family:monospace; }
+        footer { text-align:center; padding:28px 20px; border-top:1px solid var(--border); margin-top:40px; color:var(--gray); font-size:0.88rem; }
+        footer a { color:var(--gray); text-decoration:none; }
+        footer a:hover { color:var(--gold); }
+        body.light-mode { --bg:#F5F3EF; --card:#FFF; --white:#1a1a1a; --gray:#666; --border:#d4d0c8; }
+        body.light-mode nav { background:rgba(245,243,239,0.97); }
+        body.light-mode .section { background:#fff; border-color:#d4d0c8; }
+        body.light-mode .dict-section { background:rgba(212,175,55,0.04); }
+        body.light-mode footer { border-top-color:#d4d0c8; }
+        body.light-mode .related a { background:#f0ede7; border-color:#d4d0c8; color:#1a1a1a; }
+        a, a:link, a:visited { color: var(--gold, #D4AF37) !important; }
+        a:hover { color: var(--gold-light, #F4D470) !important; }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
 </head>
 <body>
+    <nav>
+        <a href="../index.html"><img src="../assets/icons/shield-home-48.png" class="site-icon" alt="" width="16" height="16"> Home</a>
+        <a href="../watchman.html"><img src="../assets/icons/shield-bible.png" class="site-icon" alt="" width="16" height="16"> Watchman</a>
+        <a href="../bible.html"><img src="../assets/icons/shield-compass.png" class="site-icon" alt="" width="16" height="16"> BTE</a>
+        <a href="../lexicon.html"><img src="../assets/icons/shield-alpha-omega-48.png" class="site-icon" alt="" width="16" height="16"> Lexicon</a>
+        <a href="../cross-references.html"><img src="../assets/icons/shield-infinity-rope-48.png" class="site-icon" alt="" width="16" height="16"> Cross-Refs</a>
+        <a href="index.html" class="active"><img src="../assets/icons/shield-book-greek-48.png" class="site-icon" alt="" width="16" height="16"> Dictionary</a>
+        <a href="../blog.html"><img src="../assets/icons/shield-blog-quill-48.png" class="site-icon" alt="" width="16" height="16"> Blog</a>
+        <a href="../connect.html"><img src="../assets/icons/shield-handshake.png" class="site-icon" alt="" width="16" height="16"> Connect</a>
+        <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle" title="Toggle dark/light">&#127769;</button>
+    </nav>
     <div class="container">
         <div class="word-header">
             <div class="word-title">Glorification</div>
-            <div class="pronunciation">/ˌɡlɔːrɪfɪˈkeɪʃən/</div>
+            <div class="pronunciation">/ˌɡlɔːr.ɪ.fɪˈkeɪ.ʃən/</div>
             <span class="pos">noun</span>
-            <div class="etymology">Latin: <em>glorificatio</em> — from <em>gloria</em> (glory, fame, renown) + <em>facere</em> (to make). Greek: <em>doxazō</em> (δοξάζω) — to magnify, honor, bring into radiance.</div>
+            <div class="etymology">From Latin <em>glorificare</em> — to make glorious: <em>gloria</em> (glory, splendor, renown) + <em>facere</em> (to make). Greek: <em>doxazō</em> (δοξάζω) — to glorify, to cause to appear glorious. The final stage of salvation — the complete, bodily transformation of the believer into the likeness of Christ at the resurrection, the consummation of all that God began in election and regeneration.</div>
         </div>
 
         <div class="section">
-            <h3>📖 Biblical Definition</h3>
+            <h3>&#128214; Biblical Definition</h3>
             <div class="biblical-def">
-                <p>The final and complete transformation of the redeemed believer into perfect conformity with Christ, occurring at the resurrection of the body. Glorification is the culminating step in the ordo salutis (order of salvation) — the moment when the believer is fully freed from all sin, corruption, and mortality, and made to share in the very glory of God. It is God's definitive "yes" to His creative and redemptive purposes, the consummation of adoption, and the full realization of all that grace began.</p>
+                <p>Glorification is <strong>the final, complete transformation of the believer — body, soul, and spirit — into the perfect likeness of Jesus Christ at the resurrection</strong>. It is the last link in the "golden chain" of Romans 8:30: "Those whom he predestined he also called, and those whom he called he also justified, and those whom he justified he also glorified." Paul writes it in the <em>past tense</em> — so certain is the outcome that God speaks of it as already accomplished. Glorification is not the soul going to heaven; it is the full redemption of the whole person, including the body, at the return of Christ. The present body is sown in weakness, corruption, and dishonor — it is raised in power, incorruption, and glory (1 Cor 15:43). Glorification is salvation reaching its completion: no more sin, no more suffering, no more death — perfect conformity to Christ, face to face with God forever.</p>
             </div>
         </div>
 
         <div class="section">
-            <h3>📜 Webster 1828 Definition</h3>
-            <p><strong>GLORIFICA'TION</strong>, n. The act of glorifying or of giving glory to. The state of being glorified. In theology, the exaltation of a believer to the full fruition of the divine favor and the joys of the heavenly kingdom; the final state of the redeemed in which they are perfectly conformed to the image of Christ and enjoy the beatific vision of God.</p>
-        </div>
-
-        <div class="section">
-            <h3>⚠️ Modern Corruption</h3>
-            <div class="corruption">
-                <p>Secular culture co-opts "glorification" to mean celebrity worship, fame-seeking, or the elevation of harmful behaviors ("glorifying violence"). In therapeutic Christianity, glorification is reduced to a vague sense of "feeling good about yourself" or "being your best self." The doctrine's radical promise — that God will literally transform the physical body of every believer — is either ignored or sentimentalized into mere spiritual improvement.</p>
+            <button class="dict-toggle" onclick="toggleDict('webster')">
+                <span class="arrow">&#9658;</span>&#128220; Webster 1828 Definition
+            </button>
+            <div class="dict-section" id="webster">
+                <p><strong>GLORIFICATION, n.</strong> The act of glorifying or of giving glory and praise. 2. The state of being glorified. The glorification of Christ was his ascension to the right hand of the Father, and the communication of his Spirit to his disciples. The glorification of the saints will be at the resurrection.</p>
+                <p><strong>GLORIFY, v.t.</strong> To make glorious; to give glory to; to bring glory to; to cause to appear glorious. 2. To praise and honor in worship; as, we glorify God. 3. In theology, to exalt to glory; to elevate to the society and blessedness of angels.</p>
             </div>
         </div>
 
         <div class="section">
-            <h3>📖 Key Scripture</h3>
-            <p>• <a href="../bible.html?ref=Romans+8:30" class="verse-ref">Romans 8:30</a> — "And those he predestined, he also called; those he called, he also justified; those he justified, he also glorified."</p>
-            <p>• <a href="../bible.html?ref=1+Corinthians+15:42-44" class="verse-ref">1 Corinthians 15:42–44</a> — "The body that is sown is perishable, it is raised imperishable..."</p>
-            <p>• <a href="../bible.html?ref=Philippians+3:20-21" class="verse-ref">Philippians 3:20–21</a> — "...he will transform our lowly bodies so that they will be like his glorious body."</p>
-            <p>• <a href="../bible.html?ref=1+John+3:2" class="verse-ref">1 John 3:2</a> — "We know that when Christ appears, we shall be like him, for we shall see him as he is."</p>
-            <p>• <a href="../bible.html?ref=Romans+8:18" class="verse-ref">Romans 8:18</a> — "I consider that our present sufferings are not worth comparing with the glory that will be revealed in us."</p>
+            <h3>&#128214; Key Scripture</h3>
+            <p>&#x2022; <a href="../bible.html?ref=Romans+8:30" class="verse-ref">Romans 8:30</a> &mdash; "Those whom he predestined he also called, and those whom he called he also justified, and those whom he justified he also <em>glorified</em>." (Past tense — certain.)</p>
+            <p>&#x2022; <a href="../bible.html?ref=1+John+3:2" class="verse-ref">1 John 3:2</a> &mdash; "Beloved, we are God's children now, and what we will be has not yet appeared; but we know that when he appears we shall be like him, because we shall see him as he is."</p>
+            <p>&#x2022; <a href="../bible.html?ref=Philippians+3:20-21" class="verse-ref">Philippians 3:20–21</a> &mdash; "Our citizenship is in heaven… the Lord Jesus Christ… will transform our lowly body to be like his glorious body."</p>
+            <p>&#x2022; <a href="../bible.html?ref=1+Corinthians+15:42-44" class="verse-ref">1 Corinthians 15:42–44</a> &mdash; "What is sown is perishable; what is raised is imperishable… sown in weakness, it is raised in power."</p>
+            <p>&#x2022; <a href="../bible.html?ref=Romans+8:18" class="verse-ref">Romans 8:18</a> &mdash; "The sufferings of this present time are not worth comparing with the glory that is to be revealed to us."</p>
         </div>
 
         <div class="section">
-            <h3>🔗 Greek &amp; Hebrew Roots</h3>
-            <p><a href="../lexicon/G1392.html" class="lexicon-link">G1392</a> — <em>doxazō</em> (δοξάζω): to glorify, honor, magnify; to clothe with splendor; used of God's transformative work on believers.</p>
-            <p><a href="../lexicon/G1391.html" class="lexicon-link">G1391</a> — <em>doxa</em> (δόξα): glory, splendor, radiance; the manifest presence and weightiness of God.</p>
+            <button class="dict-toggle" onclick="toggleDict('roots')">
+                <span class="arrow">&#9658;</span>&#128279; Greek &amp; Latin Roots
+            </button>
+            <div class="dict-section" id="roots">
+                <pre>Latin:
+  gloria (glory, fame, renown) + facere (to make)
+  → glorificare = to make glorious
+
+Greek:
+  δοξάζω (doxazō, G1392) — to glorify, make glorious
+    John 17:22: "The glory that you have given me I have given to them"
+  δόξα (doxa, G1391) — glory, radiance, honor
+    The Shekinah glory; God's manifest presence and honor
+  σῴζω (sōzō, G4982) — to save; salvation includes glorification
+    as its final stage
+
+The ordo salutis (order of salvation):
+  Election → Calling → Regeneration → Faith/Repentance
+  → Justification → Adoption → Sanctification
+  → Perseverance → GLORIFICATION (final)
+
+What glorification is NOT:
+  ≠ Soul sleep or purgatory (no intermediate refinement needed)
+  ≠ Mere arrival in heaven (it's bodily, not just spiritual)
+  ≠ Absorption into God (distinction of persons is preserved)</pre>
+            </div>
         </div>
 
         <div class="section">
-            <h3>✍️ Usage</h3>
-            <p>• "Glorification is not the believer's achievement but God's finishing of what He began in regeneration."</p>
-            <p>• "Paul uses the past tense — 'he also glorified' — because our final glorification is so certain it is as good as done."</p>
-            <p>• "The hope of glorification sustains the saint through suffering; the worst this world does cannot compare to what God has prepared."</p>
+            <button class="dict-toggle" onclick="toggleDict('corruption')">
+                <span class="arrow">&#9658;</span>&#9888;&#65039; Modern Corruption
+            </button>
+            <div class="dict-section" id="corruption">
+                <div class="corruption">
+                    <p>Modern Christianity has reduced glorification to "going to heaven when you die" — a disembodied, vaguely spiritual destination. This flatly contradicts Paul's argument in 1 Corinthians 15: the resurrection of the body is not optional or peripheral; it is the <em>point</em>. If Christ was not bodily raised, our faith is futile (1 Cor 15:17). The same awaits believers. The gnostic impulse — that the body is bad and the real you is pure spirit — infects much Christian thinking about the afterlife. But the Bible ends not with souls floating in heaven but with a New Jerusalem, a new earth, embodied existence in a renewed creation. Creation itself is glorified alongside us (Rom 8:21). The hope is not escape from matter but the redemption of matter — the whole creation set free from corruption into the freedom of the children of God.</p>
+                </div>
+            </div>
         </div>
 
         <div class="section">
             <h3>Related Words</h3>
             <div class="related">
-                <a href="salvation.html">Salvation</a>
+                <a href="resurrection.html">Resurrection</a>
                 <a href="sanctification.html">Sanctification</a>
                 <a href="justification.html">Justification</a>
-                <a href="resurrection.html">Resurrection</a>
                 <a href="glory.html">Glory</a>
-                <a href="predestination.html">Predestination</a>
+                <a href="regeneration.html">Regeneration</a>
+                <a href="heaven.html">Heaven</a>
             </div>
         </div>
     </div>
+    <div style="text-align:center; margin-top:30px; padding-bottom:10px;">
+        <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle2" title="Toggle dark/light" style="width:36px;height:36px;font-size:1rem;">&#127769;</button>
+    </div>
+    <footer>
+        <p><a href="index.html">&#8592; The MOOP Dictionary</a> &nbsp;|&nbsp; <a href="../bible.html">BTE</a> &nbsp;|&nbsp; <a href="../lexicon.html">Lexicon</a></p>
+        <p style="margin-top:8px;">&#169; USMC Ministries &mdash; All Scripture references use the ESV unless noted.</p>
+    </footer>
+    <script>
+        function toggleTheme() {
+            document.body.classList.toggle('light-mode');
+            const btn1 = document.getElementById('themeToggle'); const btn2 = document.getElementById('themeToggle2');
+            const isLight = document.body.classList.contains('light-mode');
+            if (btn1) btn1.innerHTML = isLight ? '&#9728;&#65039;' : '&#127769;';
+            if (btn2) btn2.innerHTML = isLight ? '&#9728;&#65039;' : '&#127769;';
+            localStorage.setItem('theme', isLight ? 'light' : 'dark');
+        }
+        function toggleDict(id) {
+            const el = document.getElementById(id); const btn = el ? el.previousElementSibling : null;
+            if (!el) return; el.classList.toggle('open');
+            if (btn) { const arrow = btn.querySelector('.arrow'); if (arrow) arrow.classList.toggle('open', el.classList.contains('open')); }
+        }
+        (function() {
+            if (localStorage.getItem('theme') === 'light') {
+                document.body.classList.add('light-mode');
+                const btn1 = document.getElementById('themeToggle'); const btn2 = document.getElementById('themeToggle2');
+                if (btn1) btn1.innerHTML = '&#9728;&#65039;'; if (btn2) btn2.innerHTML = '&#9728;&#65039;';
+            }
+        })();
+    </script>
 </body>
 </html>
