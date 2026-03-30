@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:title" content="Tax Prep Tracker — U.S.M.C. Ministries">
+    <meta property="og:type" content="website">
+    <title>Tax Prep Tracker — USMC Ministries</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg-dark: #000000;
+            --bg-card: #111111;
+            --bg-card-hover: #1a1a1a;
+            --gold: #D4AF37;
+            --gold-light: #F4D470;
+            --white: #FFFFFF;
+            --gray: #888888;
+            --gray-light: #aaaaaa;
+            --border: #333333;
+            --green: #4CAF50;
+            --red: #f44336;
+            --blue: #2196F3;
+            --orange: #FF9800;
+            --yellow: #FFC107;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--white);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+        h1, h2, h3, h4 { font-family: 'Playfair Display', serif; font-weight: 700; }
+
+        /* PIN GATE */
+        #pin-gate {
+            position: fixed; inset: 0; background: #000;
+            display: flex; align-items: center; justify-content: center;
+            z-index: 9999; flex-direction: column; gap: 20px;
+        }
+        #pin-gate h2 { font-family: 'Playfair Display', serif; color: var(--gold); font-size: 1.6rem; }
+        #pin-gate p { color: var(--gray); font-size: 0.9rem; }
+        .pin-dots { display: flex; gap: 12px; margin: 10px 0; }
+        .pin-dot { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--gold); background: transparent; transition: background 0.2s; }
+        .pin-dot.filled { background: var(--gold); }
+        .pin-pad { display: grid; grid-template-columns: repeat(3, 64px); gap: 10px; }
+        .pin-btn {
+            width: 64px; height: 64px; border-radius: 50%;
+            background: var(--bg-card); border: 1px solid var(--border);
+            color: var(--white); font-size: 1.3rem; font-weight: 600;
+            cursor: pointer; transition: all 0.2s; font-family: 'Inter', sans-serif;
+        }
+        .pin-btn:hover { background: var(--bg-card-hover); border-color: var(--gold); }
+        .pin-btn.clear { background: transparent; border-color: var(--red); color: var(--red); font-size: 1rem; }
+        .pin-error { color: var(--red); font-size: 0.85rem; min-height: 20px; }
+
+        /* MAIN CONTENT */
+        #main-content { display: none; }
+
+        .header {
+            text-align: center; padding: 25px 20px 15px;
+            border-bottom: 1px solid var(--border);
+        }
+        .header h1 { font-size: 1.8rem; color: var(--white); margin-bottom: 4px; }
+        .header .subtitle { color: var(--gold); font-size: 0.95rem; }
+        .header .date { color: var(--gray); font-size: 0.85rem; margin-top: 4px; }
+
+        .container { max-width: 960px; margin: 0 auto; padding: 20px 15px; }
+
+        /* COUNTDOWN */
+        .countdown-card {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 12px; padding: 24px; margin-bottom: 20px;
+            text-align: center;
+        }
+        .countdown-card h2 { color: var(--gold); font-size: 1.3rem; margin-bottom: 16px; }
+        .countdown-grid { display: flex; justify-content: center; gap: 24px; flex-wrap: wrap; }
+        .countdown-block {
+            background: #0a0a0a; border: 1px solid var(--border);
+            border-radius: 10px; padding: 16px 20px; min-width: 90px;
+        }
+        .countdown-num { font-size: 2.4rem; font-weight: 700; color: var(--gold); font-family: 'Playfair Display', serif; line-height: 1; }
+        .countdown-label { color: var(--gray); font-size: 0.75rem; margin-top: 4px; text-transform: uppercase; letter-spacing: 1px; }
+        .deadline-note { margin-top: 14px; color: var(--gray-light); font-size: 0.9rem; }
+        .deadline-note strong { color: var(--white); }
+        .deadline-urgent { color: var(--red) !important; }
+        .deadline-warning { color: var(--orange) !important; }
+
+        /* PROGRESS BAR */
+        .progress-section {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 12px; padding: 20px; margin-bottom: 20px;
+        }
+        .progress-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .progress-header h2 { color: var(--gold); font-size: 1.2rem; }
+        .progress-pct { font-size: 1.5rem; font-weight: 700; color: var(--gold); }
+        .progress-bar-track {
+            background: #1a1a1a; border-radius: 8px; height: 16px;
+            overflow: hidden; border: 1px solid var(--border);
+        }
+        .progress-bar-fill {
+            height: 100%; border-radius: 8px;
+            background: linear-gradient(90deg, var(--gold), var(--gold-light));
+            transition: width 0.5s ease; width: 0%;
+        }
+        .progress-sub {
+            display: flex; gap: 20px; margin-top: 12px; flex-wrap: wrap;
+        }
+        .progress-sub-item { font-size: 0.82rem; color: var(--gray); }
+        .progress-sub-item span { color: var(--white); font-weight: 600; }
+
+        /* SECTION CARD */
+        .section-card {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 12px; padding: 20px; margin-bottom: 20px;
+        }
+        .section-card h2 { color: var(--gold); font-size: 1.2rem; margin-bottom: 16px; }
+        .section-card h3 { color: var(--gray-light); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; margin: 14px 0 8px; }
+
+        /* CSV TABLE */
+        .csv-table-wrap { overflow-x: auto; }
+        table.csv-table {
+            width: 100%; border-collapse: collapse; font-size: 0.85rem;
+        }
+        table.csv-table th {
+            background: #0a0a0a; color: var(--gold); padding: 10px 12px;
+            text-align: left; border-bottom: 1px solid var(--border);
+            font-weight: 600; white-space: nowrap;
+        }
+        table.csv-table td {
+            padding: 10px 12px; border-bottom: 1px solid #1a1a1a;
+            color: var(--white); vertical-align: middle;
+        }
+        table.csv-table tr:hover td { background: #0d0d0d; }
+        .status-select {
+            background: #1a1a1a; border: 1px solid var(--border); border-radius: 6px;
+            color: var(--white); padding: 5px 8px; font-size: 0.8rem; cursor: pointer;
+            font-family: 'Inter', sans-serif;
+        }
+        .status-select:focus { outline: none; border-color: var(--gold); }
+        .status-badge {
+            display: inline-block; padding: 3px 10px; border-radius: 10px;
+            font-size: 0.75rem; font-weight: 600;
+        }
+        .status-not-started { background: #2a2a2a; color: var(--gray); }
+        .status-downloaded { background: rgba(33,150,243,0.2); color: var(--blue); }
+        .status-categorized { background: rgba(255,152,0,0.2); color: var(--orange); }
+        .status-filed { background: rgba(76,175,80,0.2); color: var(--green); }
+        .date-input {
+            background: #1a1a1a; border: 1px solid var(--border); border-radius: 6px;
+            color: var(--gray-light); padding: 5px 8px; font-size: 0.78rem;
+            font-family: 'Inter', sans-serif; width: 120px;
+        }
+        .date-input:focus { outline: none; border-color: var(--gold); color: var(--white); }
+
+        /* ENTITY GRID */
+        .entity-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+        }
+        .entity-card {
+            background: #0a0a0a; border: 1px solid var(--border);
+            border-radius: 10px; padding: 14px;
+        }
+        .entity-name { font-weight: 600; color: var(--white); font-size: 0.95rem; }
+        .entity-ein { color: var(--gray); font-size: 0.78rem; margin: 3px 0 10px; font-family: monospace; }
+        .entity-status-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+        .entity-status-label { color: var(--gray-light); font-size: 0.8rem; flex: 1; }
+        .entity-check {
+            width: 20px; height: 20px; border: 2px solid var(--border);
+            border-radius: 4px; cursor: pointer; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s;
+        }
+        .entity-check.checked { background: var(--green); border-color: var(--green); }
+        .entity-check.checked::after { content: '✓'; color: #fff; font-size: 0.7rem; font-weight: 700; }
+
+        /* DEDUCTION GRID */
+        .deduction-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+            gap: 10px;
+        }
+        .deduction-card {
+            background: #0a0a0a; border: 1px solid var(--border);
+            border-radius: 10px; padding: 14px; text-align: center;
+        }
+        .deduction-icon { font-size: 1.8rem; margin-bottom: 6px; }
+        .deduction-name { color: var(--gray-light); font-size: 0.82rem; margin-bottom: 10px; }
+        .deduction-status-sel {
+            background: #1a1a1a; border: 1px solid var(--border); border-radius: 6px;
+            color: var(--white); padding: 5px 8px; font-size: 0.78rem; cursor: pointer;
+            width: 100%; font-family: 'Inter', sans-serif;
+        }
+        .deduction-status-sel:focus { outline: none; border-color: var(--gold); }
+
+        .save-btn {
+            background: var(--gold); color: #000; border: none;
+            padding: 10px 24px; border-radius: 8px; font-weight: 600;
+            font-size: 0.9rem; cursor: pointer; margin-top: 16px;
+            font-family: 'Inter', sans-serif; transition: background 0.2s;
+        }
+        .save-btn:hover { background: var(--gold-light); }
+        .save-note { color: var(--green); font-size: 0.82rem; margin-top: 6px; display: none; }
+
+        @media (max-width: 600px) {
+            .countdown-grid { gap: 12px; }
+            .countdown-block { min-width: 70px; padding: 12px; }
+            .countdown-num { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- PIN GATE -->
+<div id="pin-gate">
+    <h2>🔐 Tax Prep Tracker</h2>
+    <p>Enter your PIN to continue</p>
+    <div class="pin-dots">
+        <div class="pin-dot" id="dot-0"></div>
+        <div class="pin-dot" id="dot-1"></div>
+        <div class="pin-dot" id="dot-2"></div>
+        <div class="pin-dot" id="dot-3"></div>
+    </div>
+    <div class="pin-pad">
+        <button class="pin-btn" onclick="enterPin(1)">1</button>
+        <button class="pin-btn" onclick="enterPin(2)">2</button>
+        <button class="pin-btn" onclick="enterPin(3)">3</button>
+        <button class="pin-btn" onclick="enterPin(4)">4</button>
+        <button class="pin-btn" onclick="enterPin(5)">5</button>
+        <button class="pin-btn" onclick="enterPin(6)">6</button>
+        <button class="pin-btn" onclick="enterPin(7)">7</button>
+        <button class="pin-btn" onclick="enterPin(8)">8</button>
+        <button class="pin-btn" onclick="enterPin(9)">9</button>
+        <button class="pin-btn clear" onclick="clearPin()">✕</button>
+        <button class="pin-btn" onclick="enterPin(0)">0</button>
+        <button class="pin-btn" style="opacity:0;pointer-events:none;"></button>
+    </div>
+    <div class="pin-error" id="pin-error"></div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div id="main-content">
+    <div class="header">
+        <h1>📋 Tax Prep Tracker</h1>
+        <div class="subtitle">2025 Tax Year — FY2025</div>
+        <div class="date" id="header-date"></div>
+    </div>
+
+    <div class="container">
+
+        <!-- COUNTDOWN -->
+        <div class="countdown-card">
+            <h2>⏳ Days Until Tax Deadline</h2>
+            <div class="countdown-grid">
+                <div class="countdown-block">
+                    <div class="countdown-num" id="cd-days">--</div>
+                    <div class="countdown-label">Days</div>
+                </div>
+                <div class="countdown-block">
+                    <div class="countdown-num" id="cd-hours">--</div>
+                    <div class="countdown-label">Hours</div>
+                </div>
+                <div class="countdown-block">
+                    <div class="countdown-num" id="cd-mins">--</div>
+                    <div class="countdown-label">Minutes</div>
+                </div>
+                <div class="countdown-block">
+                    <div class="countdown-num" id="cd-secs">--</div>
+                    <div class="countdown-label">Seconds</div>
+                </div>
+            </div>
+            <div class="deadline-note" id="deadline-note">
+                Deadline: <strong>April 15, 2026</strong> at midnight
+            </div>
+        </div>
+
+        <!-- OVERALL PROGRESS -->
+        <div class="progress-section">
+            <div class="progress-header">
+                <h2>📊 Overall Completion</h2>
+                <div class="progress-pct" id="overall-pct">0%</div>
+            </div>
+            <div class="progress-bar-track">
+                <div class="progress-bar-fill" id="progress-bar"></div>
+            </div>
+            <div class="progress-sub">
+                <div class="progress-sub-item">CSV Downloads: <span id="stat-csv">0 / 15</span></div>
+                <div class="progress-sub-item">Entity Milestones: <span id="stat-entity">0 / 16</span></div>
+                <div class="progress-sub-item">Deduction Categories: <span id="stat-ded">0 / 5</span></div>
+            </div>
+        </div>
+
+        <!-- BANK CSV CHECKLIST -->
+        <div class="section-card">
+            <h2>🏦 Bank CSV Download Checklist</h2>
+            <div class="csv-table-wrap">
+                <table class="csv-table" id="csv-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Institution</th>
+                            <th>Status</th>
+                            <th>Date Completed</th>
+                        </tr>
+                    </thead>
+                    <tbody id="csv-tbody"></tbody>
+                </table>
+            </div>
+            <button class="save-btn" onclick="saveAll()">💾 Save Progress</button>
+            <div class="save-note" id="save-note">✅ Saved to local storage!</div>
+        </div>
+
+        <!-- ENTITY BREAKDOWN -->
+        <div class="section-card">
+            <h2>🏢 Entity Breakdown</h2>
+            <div class="entity-grid" id="entity-grid"></div>
+            <button class="save-btn" onclick="saveAll()">💾 Save Progress</button>
+        </div>
+
+        <!-- DEDUCTION CATEGORIES -->
+        <div class="section-card">
+            <h2>💼 Deduction Categories</h2>
+            <div class="deduction-grid" id="deduction-grid"></div>
+            <button class="save-btn" onclick="saveAll()">💾 Save Progress</button>
+        </div>
+
+    </div>
+</div>
+
+<script>
+// ─── PIN GATE ─────────────────────────────────────────────────────────────────
+const CORRECT_PIN = '5683';
+let pinEntry = '';
+
+function enterPin(digit) {
+    if (pinEntry.length >= 4) return;
+    pinEntry += digit;
+    updateDots();
+    if (pinEntry.length === 4) {
+        setTimeout(checkPin, 100);
+    }
+}
+function clearPin() {
+    pinEntry = pinEntry.slice(0, -1);
+    updateDots();
+    document.getElementById('pin-error').textContent = '';
+}
+function updateDots() {
+    for (let i = 0; i < 4; i++) {
+        document.getElementById('dot-' + i).classList.toggle('filled', i < pinEntry.length);
+    }
+}
+function checkPin() {
+    if (pinEntry === CORRECT_PIN) {
+        document.getElementById('pin-gate').style.display = 'none';
+        document.getElementById('main-content').style.display = 'block';
+        init();
+    } else {
+        document.getElementById('pin-error').textContent = 'Incorrect PIN. Try again.';
+        pinEntry = '';
+        updateDots();
+    }
+}
+
+// ─── DATA ─────────────────────────────────────────────────────────────────────
+const INSTITUTIONS = [
+    'Navy Federal Credit Union',
+    'Bank of America',
+    'Chase Bank',
+    'Wells Fargo',
+    'PayPal / Venmo',
+    'Square / Stripe',
+    'Airbnb Payouts',
+    'Coinbase',
+    'Kraken',
+    'Binance.US',
+    'Robinhood',
+    'Fidelity',
+    'Vanguard / TIAA',
+    'Cash App',
+    'IRS / Treasury Direct',
+];
+
+const ENTITIES = [
+    { name: 'Personal', ein: null, icon: '👤', milestones: ['W-2 / 1099s collected', 'Schedule A drafted', 'Return filed', 'Refund received'] },
+    { name: 'Bow & Arrow', ein: '87-2937218', icon: '🏹', milestones: ['Bank CSV downloaded', 'Expenses categorized', 'Schedule C drafted', 'Return filed'] },
+    { name: 'USMC Ministries', ein: '88-1966617', icon: '⚓', milestones: ['Bank CSV downloaded', 'Form 990 drafted', 'Reviewed by CPA', 'Return filed'] },
+    { name: 'C5iSR LLC', ein: '92-3564161', icon: '📡', milestones: ['Bank CSV downloaded', 'Crypto trades exported', 'Schedule C drafted', 'Return filed'] },
+];
+
+const DEDUCTIONS = [
+    { icon: '💼', name: 'Business Expense', key: 'deduction_business' },
+    { icon: '⛪', name: 'Ministry', key: 'deduction_ministry' },
+    { icon: '🏠', name: 'Home Office', key: 'deduction_home_office' },
+    { icon: '🚗', name: 'Vehicle', key: 'deduction_vehicle' },
+    { icon: '🤲', name: 'Charitable', key: 'deduction_charitable' },
+];
+
+const STATUS_OPTIONS = ['not-started', 'downloaded', 'categorized', 'filed'];
+const STATUS_LABELS = { 'not-started': 'Not Started', 'downloaded': 'Downloaded', 'categorized': 'Categorized', 'filed': 'Filed' };
+const DED_STATUS_OPTIONS = ['not-started', 'gathering', 'complete'];
+const DED_STATUS_LABELS = { 'not-started': 'Not Started', 'gathering': 'Gathering', 'complete': 'Complete' };
+
+// ─── LOAD / SAVE ──────────────────────────────────────────────────────────────
+function loadData() {
+    try { return JSON.parse(localStorage.getItem('tax_prep_2025') || '{}'); } catch(e) { return {}; }
+}
+function saveData(data) {
+    localStorage.setItem('tax_prep_2025', JSON.stringify(data));
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+function init() {
+    updateDate();
+    startCountdown();
+    buildCsvTable();
+    buildEntityGrid();
+    buildDeductionGrid();
+    updateProgress();
+}
+
+function updateDate() {
+    const now = new Date();
+    document.getElementById('header-date').textContent = now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+}
+
+// ─── COUNTDOWN ────────────────────────────────────────────────────────────────
+function startCountdown() {
+    function tick() {
+        const now = new Date();
+        const deadline = new Date('2026-04-15T23:59:59-04:00');
+        const diff = deadline - now;
+        if (diff <= 0) {
+            document.getElementById('cd-days').textContent = '0';
+            document.getElementById('cd-hours').textContent = '0';
+            document.getElementById('cd-mins').textContent = '0';
+            document.getElementById('cd-secs').textContent = '0';
+            document.getElementById('deadline-note').innerHTML = '<strong style="color:var(--red)">Deadline has passed!</strong>';
+            return;
+        }
+        const days = Math.floor(diff / 86400000);
+        const hours = Math.floor((diff % 86400000) / 3600000);
+        const mins = Math.floor((diff % 3600000) / 60000);
+        const secs = Math.floor((diff % 60000) / 1000);
+
+        document.getElementById('cd-days').textContent = days;
+        document.getElementById('cd-hours').textContent = String(hours).padStart(2, '0');
+        document.getElementById('cd-mins').textContent = String(mins).padStart(2, '0');
+        document.getElementById('cd-secs').textContent = String(secs).padStart(2, '0');
+
+        const note = document.getElementById('deadline-note');
+        if (days <= 7) {
+            note.innerHTML = '<span class="deadline-urgent">⚠️ URGENT — less than 7 days remaining!</span>';
+        } else if (days <= 14) {
+            note.innerHTML = '<span class="deadline-warning">⚡ 2 weeks left — finalize now!</span>';
+        }
+    }
+    tick();
+    setInterval(tick, 1000);
+}
+
+// ─── CSV TABLE ────────────────────────────────────────────────────────────────
+function buildCsvTable() {
+    const data = loadData();
+    const tbody = document.getElementById('csv-tbody');
+    tbody.innerHTML = '';
+    INSTITUTIONS.forEach((inst, i) => {
+        const key = 'csv_' + i;
+        const status = (data[key] && data[key].status) || 'not-started';
+        const date = (data[key] && data[key].date) || '';
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td style="color:var(--gray);font-size:0.8rem">${i + 1}</td>
+            <td><strong>${inst}</strong></td>
+            <td>
+                <select class="status-select" data-key="${key}" data-type="csv-status" onchange="onStatusChange(this)">
+                    ${STATUS_OPTIONS.map(s => `<option value="${s}" ${s === status ? 'selected' : ''}>${STATUS_LABELS[s]}</option>`).join('')}
+                </select>
+            </td>
+            <td>
+                <input type="date" class="date-input" data-key="${key}" data-type="csv-date"
+                    value="${date}" onchange="onDateChange(this)" placeholder="mm/dd/yyyy">
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+function onStatusChange(sel) {
+    const data = loadData();
+    const key = sel.dataset.key;
+    if (!data[key]) data[key] = {};
+    data[key].status = sel.value;
+    if (sel.value === 'filed' && !data[key].date) {
+        const today = new Date().toISOString().split('T')[0];
+        data[key].date = today;
+        const dateInput = document.querySelector(`input[data-key="${key}"][data-type="csv-date"]`);
+        if (dateInput) dateInput.value = today;
+    }
+    saveData(data);
+    updateProgress();
+}
+
+function onDateChange(input) {
+    const data = loadData();
+    const key = input.dataset.key;
+    if (!data[key]) data[key] = {};
+    data[key].date = input.value;
+    saveData(data);
+}
+
+// ─── ENTITY GRID ──────────────────────────────────────────────────────────────
+function buildEntityGrid() {
+    const data = loadData();
+    const grid = document.getElementById('entity-grid');
+    grid.innerHTML = '';
+    ENTITIES.forEach(entity => {
+        const card = document.createElement('div');
+        card.className = 'entity-card';
+        const einHtml = entity.ein
+            ? `<div class="entity-ein">EIN: ${entity.ein}</div>`
+            : `<div class="entity-ein">Personal Return</div>`;
+        const milestonesHtml = entity.milestones.map((m, mi) => {
+            const key = 'entity_' + entity.name.replace(/\s/g,'_') + '_' + mi;
+            const checked = data[key] ? 'checked' : '';
+            return `
+                <div class="entity-status-row">
+                    <div class="entity-status-label">${m}</div>
+                    <div class="entity-check ${checked}" data-key="${key}" onclick="toggleEntityCheck(this)">
+                        ${checked ? '' : ''}
+                    </div>
+                </div>
+            `;
+        }).join('');
+        card.innerHTML = `
+            <div style="font-size:1.4rem;margin-bottom:6px">${entity.icon}</div>
+            <div class="entity-name">${entity.name}</div>
+            ${einHtml}
+            ${milestonesHtml}
+        `;
+        grid.appendChild(card);
+    });
+}
+
+function toggleEntityCheck(el) {
+    const data = loadData();
+    const key = el.dataset.key;
+    const isChecked = el.classList.toggle('checked');
+    data[key] = isChecked;
+    saveData(data);
+    updateProgress();
+}
+
+// ─── DEDUCTION GRID ───────────────────────────────────────────────────────────
+function buildDeductionGrid() {
+    const data = loadData();
+    const grid = document.getElementById('deduction-grid');
+    grid.innerHTML = '';
+    DEDUCTIONS.forEach(ded => {
+        const status = data[ded.key] || 'not-started';
+        const card = document.createElement('div');
+        card.className = 'deduction-card';
+        card.innerHTML = `
+            <div class="deduction-icon">${ded.icon}</div>
+            <div class="deduction-name">${ded.name}</div>
+            <select class="deduction-status-sel" data-key="${ded.key}" onchange="onDedChange(this)">
+                ${DED_STATUS_OPTIONS.map(s => `<option value="${s}" ${s === status ? 'selected' : ''}>${DED_STATUS_LABELS[s]}</option>`).join('')}
+            </select>
+        `;
+        grid.appendChild(card);
+    });
+}
+
+function onDedChange(sel) {
+    const data = loadData();
+    data[sel.dataset.key] = sel.value;
+    saveData(data);
+    updateProgress();
+}
+
+// ─── PROGRESS ─────────────────────────────────────────────────────────────────
+function updateProgress() {
+    const data = loadData();
+
+    // CSV: count filed
+    let csvDone = 0;
+    INSTITUTIONS.forEach((_, i) => {
+        const key = 'csv_' + i;
+        if (data[key] && data[key].status === 'filed') csvDone++;
+    });
+
+    // Entity milestones
+    let entityDone = 0, entityTotal = 0;
+    ENTITIES.forEach(entity => {
+        entity.milestones.forEach((_, mi) => {
+            const key = 'entity_' + entity.name.replace(/\s/g,'_') + '_' + mi;
+            entityTotal++;
+            if (data[key]) entityDone++;
+        });
+    });
+
+    // Deductions
+    let dedDone = 0;
+    DEDUCTIONS.forEach(ded => {
+        if (data[ded.key] === 'complete') dedDone++;
+    });
+
+    const total = 15 + entityTotal + 5;
+    const done = csvDone + entityDone + dedDone;
+    const pct = Math.round((done / total) * 100);
+
+    document.getElementById('overall-pct').textContent = pct + '%';
+    document.getElementById('progress-bar').style.width = pct + '%';
+    document.getElementById('stat-csv').textContent = csvDone + ' / 15';
+    document.getElementById('stat-entity').textContent = entityDone + ' / ' + entityTotal;
+    document.getElementById('stat-ded').textContent = dedDone + ' / 5';
+}
+
+// ─── SAVE ALL ─────────────────────────────────────────────────────────────────
+function saveAll() {
+    const note = document.getElementById('save-note');
+    note.style.display = 'block';
+    setTimeout(() => note.style.display = 'none', 2500);
+}
+</script>
+</body>
+</html>

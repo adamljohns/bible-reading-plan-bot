@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:title" content="PSA Roster — U.S.M.C. Ministries">
+    <meta property="og:type" content="website">
+    <title>PSA Roster — USMC Ministries</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg-dark: #000000;
+            --bg-card: #111111;
+            --bg-card-hover: #1a1a1a;
+            --gold: #D4AF37;
+            --gold-light: #F4D470;
+            --white: #FFFFFF;
+            --gray: #888888;
+            --gray-light: #aaaaaa;
+            --border: #333333;
+            --green: #4CAF50;
+            --red: #f44336;
+            --blue: #2196F3;
+            --purple: #9C27B0;
+            --teal: #009688;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--white);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+        h1, h2, h3 { font-family: 'Playfair Display', serif; font-weight: 700; }
+
+        /* PIN GATE */
+        #pin-gate {
+            position: fixed; inset: 0; background: #000;
+            display: flex; align-items: center; justify-content: center;
+            z-index: 9999; flex-direction: column; gap: 20px;
+        }
+        #pin-gate h2 { font-family: 'Playfair Display', serif; color: var(--gold); font-size: 1.6rem; }
+        #pin-gate p { color: var(--gray); font-size: 0.9rem; }
+        .pin-dots { display: flex; gap: 12px; margin: 10px 0; }
+        .pin-dot { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--gold); background: transparent; transition: background 0.2s; }
+        .pin-dot.filled { background: var(--gold); }
+        .pin-pad { display: grid; grid-template-columns: repeat(3, 64px); gap: 10px; }
+        .pin-btn {
+            width: 64px; height: 64px; border-radius: 50%;
+            background: var(--bg-card); border: 1px solid var(--border);
+            color: var(--white); font-size: 1.3rem; font-weight: 600;
+            cursor: pointer; transition: all 0.2s; font-family: 'Inter', sans-serif;
+        }
+        .pin-btn:hover { background: var(--bg-card-hover); border-color: var(--gold); }
+        .pin-btn.clear { background: transparent; border-color: var(--red); color: var(--red); font-size: 1rem; }
+        .pin-error { color: var(--red); font-size: 0.85rem; min-height: 20px; }
+
+        /* MAIN */
+        #main-content { display: none; }
+
+        .header {
+            text-align: center; padding: 25px 20px 15px;
+            border-bottom: 1px solid var(--border);
+        }
+        .header h1 { font-size: 1.8rem; color: var(--white); margin-bottom: 4px; }
+        .header .subtitle { color: var(--gold); font-size: 0.95rem; }
+        .header .date { color: var(--gray); font-size: 0.85rem; margin-top: 4px; }
+
+        .container { max-width: 1100px; margin: 0 auto; padding: 20px 15px; }
+
+        /* STATS BAR */
+        .stats-bar {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 12px; padding: 16px 20px; margin-bottom: 20px;
+            display: flex; gap: 30px; flex-wrap: wrap; align-items: center;
+        }
+        .stat-item { text-align: center; }
+        .stat-num { font-size: 1.6rem; font-weight: 700; color: var(--gold); font-family: 'Playfair Display', serif; }
+        .stat-lbl { color: var(--gray); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* SWO CARD */
+        .swo-section { margin-bottom: 20px; }
+        .swo-card {
+            background: linear-gradient(135deg, #111 0%, #1a1208 100%);
+            border: 1px solid var(--gold); border-radius: 14px;
+            padding: 24px; position: relative; overflow: hidden;
+        }
+        .swo-card::before {
+            content: '⭐'; position: absolute; top: -10px; right: 20px;
+            font-size: 5rem; opacity: 0.06;
+        }
+        .swo-badge {
+            display: inline-block; background: var(--gold); color: #000;
+            font-size: 0.7rem; font-weight: 700; padding: 3px 10px;
+            border-radius: 10px; margin-bottom: 8px; letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        /* DESK SECTIONS */
+        .desk-section { margin-bottom: 28px; }
+        .desk-header {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 0; border-bottom: 1px solid var(--border);
+            margin-bottom: 14px;
+        }
+        .desk-icon { font-size: 1.3rem; }
+        .desk-label { color: var(--gray); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; }
+        .desk-name { color: var(--gold); font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 700; }
+
+        /* AGENT CARD */
+        .agent-card {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 12px; padding: 20px;
+            transition: all 0.3s; position: relative; overflow: hidden;
+        }
+        .agent-card:hover { background: var(--bg-card-hover); border-color: var(--gold); transform: translateY(-2px); }
+
+        .agent-header { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 14px; }
+        .agent-avatar {
+            width: 52px; height: 52px; border-radius: 50%;
+            background: #1a1a1a; border: 2px solid var(--border);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.4rem; flex-shrink: 0;
+        }
+        .agent-info { flex: 1; }
+        .agent-callsign { color: var(--gold); font-size: 1rem; font-weight: 700; }
+        .agent-fullname { color: var(--white); font-size: 0.88rem; margin-top: 1px; }
+        .agent-creds { color: var(--gray); font-size: 0.78rem; font-style: italic; }
+
+        .status-badge {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 4px 10px; border-radius: 12px; font-size: 0.73rem;
+            font-weight: 600; white-space: nowrap;
+        }
+        .status-not-deployed { background: rgba(136,136,136,0.15); color: var(--gray); border: 1px solid #333; }
+        .status-active { background: rgba(76,175,80,0.15); color: var(--green); border: 1px solid rgba(76,175,80,0.3); }
+        .status-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+
+        .agent-meta {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 8px; margin-top: 12px;
+        }
+        .meta-item { }
+        .meta-label { color: var(--gray); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        .meta-value { color: var(--gray-light); font-size: 0.82rem; margin-top: 1px; }
+        .meta-value a { color: var(--blue); text-decoration: none; }
+        .meta-value a:hover { text-decoration: underline; }
+        .meta-value.model-val { color: var(--purple); font-family: monospace; font-size: 0.78rem; }
+        .meta-value.email-val { color: var(--teal); font-size: 0.78rem; }
+
+        .role-tag {
+            display: inline-block; background: #1a1a1a; border: 1px solid var(--border);
+            color: var(--gray-light); font-size: 0.75rem; padding: 3px 8px;
+            border-radius: 6px; margin-top: 10px;
+        }
+
+        .roster-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 14px;
+        }
+
+        .last-updated {
+            text-align: center; color: var(--gray); font-size: 0.78rem;
+            padding: 20px; border-top: 1px solid var(--border); margin-top: 10px;
+        }
+
+        @media (max-width: 600px) {
+            .agent-meta { grid-template-columns: 1fr; }
+            .stats-bar { gap: 16px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- PIN GATE -->
+<div id="pin-gate">
+    <h2>🤖 PSA Roster</h2>
+    <p>Enter your PIN to continue</p>
+    <div class="pin-dots">
+        <div class="pin-dot" id="dot-0"></div>
+        <div class="pin-dot" id="dot-1"></div>
+        <div class="pin-dot" id="dot-2"></div>
+        <div class="pin-dot" id="dot-3"></div>
+    </div>
+    <div class="pin-pad">
+        <button class="pin-btn" onclick="enterPin(1)">1</button>
+        <button class="pin-btn" onclick="enterPin(2)">2</button>
+        <button class="pin-btn" onclick="enterPin(3)">3</button>
+        <button class="pin-btn" onclick="enterPin(4)">4</button>
+        <button class="pin-btn" onclick="enterPin(5)">5</button>
+        <button class="pin-btn" onclick="enterPin(6)">6</button>
+        <button class="pin-btn" onclick="enterPin(7)">7</button>
+        <button class="pin-btn" onclick="enterPin(8)">8</button>
+        <button class="pin-btn" onclick="enterPin(9)">9</button>
+        <button class="pin-btn clear" onclick="clearPin()">✕</button>
+        <button class="pin-btn" onclick="enterPin(0)">0</button>
+        <button class="pin-btn" style="opacity:0;pointer-events:none;"></button>
+    </div>
+    <div class="pin-error" id="pin-error"></div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div id="main-content">
+    <div class="header">
+        <h1>🤖 PSA Roster</h1>
+        <div class="subtitle">Persistent Sub-Agent Command Crew</div>
+        <div class="date" id="header-date"></div>
+    </div>
+
+    <div class="container">
+
+        <!-- STATS -->
+        <div class="stats-bar">
+            <div class="stat-item">
+                <div class="stat-num">11</div>
+                <div class="stat-lbl">Total Agents</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-num">10</div>
+                <div class="stat-lbl">Desks Covered</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-num">5</div>
+                <div class="stat-lbl">Email Inboxes</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-num" style="color:var(--gray)">0</div>
+                <div class="stat-lbl">Deployed</div>
+            </div>
+            <div style="margin-left:auto;color:var(--gray);font-size:0.82rem;align-self:center">
+                Model policy: Sonnet minimum · Opus for strategic
+            </div>
+        </div>
+
+        <!-- SWO -->
+        <div class="swo-section">
+            <div class="swo-card">
+                <div class="swo-badge">⭐ SWO — Staff Watch Officer</div>
+                <div class="agent-header">
+                    <div class="agent-avatar">🧠</div>
+                    <div class="agent-info">
+                        <div class="agent-callsign">Max</div>
+                        <div class="agent-fullname">Maximilian "Max" Bartholomew Pemberton</div>
+                        <div class="agent-creds">Orchestrator · Discord HQ</div>
+                    </div>
+                    <div class="status-badge status-not-deployed">
+                        <div class="status-dot"></div>
+                        Not yet deployed
+                    </div>
+                </div>
+                <div class="agent-meta">
+                    <div class="meta-item">
+                        <div class="meta-label">Role</div>
+                        <div class="meta-value">Master orchestrator, Discord HQ, cross-desk coordination</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">Email</div>
+                        <div class="meta-value email-val">adamljohns@icloud.com<br>adamjohns78@yahoo.com</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">Model</div>
+                        <div class="meta-value model-val">claude-sonnet (Opus for strategic)</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">Desk</div>
+                        <div class="meta-value">SWO — Command</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DESKS A-J -->
+        <div id="desks-container"></div>
+
+        <div class="last-updated" id="last-updated"></div>
+    </div>
+</div>
+
+<script>
+// ─── PIN ──────────────────────────────────────────────────────────────────────
+const CORRECT_PIN = '5683';
+let pinEntry = '';
+
+function enterPin(digit) {
+    if (pinEntry.length >= 4) return;
+    pinEntry += digit;
+    updateDots();
+    if (pinEntry.length === 4) setTimeout(checkPin, 100);
+}
+function clearPin() {
+    pinEntry = pinEntry.slice(0, -1);
+    updateDots();
+    document.getElementById('pin-error').textContent = '';
+}
+function updateDots() {
+    for (let i = 0; i < 4; i++) {
+        document.getElementById('dot-' + i).classList.toggle('filled', i < pinEntry.length);
+    }
+}
+function checkPin() {
+    if (pinEntry === CORRECT_PIN) {
+        document.getElementById('pin-gate').style.display = 'none';
+        document.getElementById('main-content').style.display = 'block';
+        init();
+    } else {
+        document.getElementById('pin-error').textContent = 'Incorrect PIN. Try again.';
+        pinEntry = '';
+        updateDots();
+    }
+}
+
+// ─── ROSTER DATA ──────────────────────────────────────────────────────────────
+const DESKS = [
+    {
+        letter: 'A',
+        name: 'Bible & Scripture',
+        icon: '📖',
+        agents: [{
+            callsign: 'Preacher John',
+            fullname: 'John Wesley Graves, ThM',
+            creds: 'Doctor of Theology (Ministry)',
+            avatar: '✝️',
+            role: 'BTE, lexicon, cross-refs, daily readings',
+            email: null,
+            model: 'claude-sonnet (Opus for readings)',
+            status: 'not-deployed'
+        }]
+    },
+    {
+        letter: 'B',
+        name: 'Family',
+        icon: '👨‍👩‍👧‍👦',
+        agents: [{
+            callsign: 'Pops',
+            fullname: 'Walter "Pops" Henderson',
+            creds: '—',
+            avatar: '🏠',
+            role: 'Family meetings, chores, Maria/kids coordination',
+            email: null,
+            model: 'claude-sonnet',
+            status: 'not-deployed'
+        }]
+    },
+    {
+        letter: 'C',
+        name: 'USMC Ministries',
+        icon: '⚓',
+        agents: [{
+            callsign: 'Chaps',
+            fullname: 'Charles "Chuck" Whitfield, DMin',
+            creds: 'Doctor of Ministry',
+            avatar: '✝️',
+            role: 'Website, outreach, discipleship programs',
+            email: 'usmcministries2022@gmail.com',
+            model: 'claude-sonnet',
+            status: 'not-deployed'
+        }]
+    },
+    {
+        letter: 'D',
+        name: 'Bow & Arrow',
+        icon: '🏹',
+        agents: [{
+            callsign: 'Sally',
+            fullname: 'Sally Mae Thornton, MBA/CPA',
+            creds: 'Business + Accounting',
+            avatar: '🏡',
+            role: 'Airbnb ops, STR business, Maria\'s site',
+            email: 'bowandarrowstudiollc@gmail.com',
+            model: 'claude-sonnet (Opus for financials)',
+            status: 'not-deployed'
+        }]
+    },
+    {
+        letter: 'E',
+        name: 'C5iSR Finance',
+        icon: '📡',
+        agents: [{
+            callsign: 'Carnegie',
+            fullname: 'Andrew Carnegie III, CFA',
+            creds: 'Chartered Financial Analyst',
+            avatar: '💰',
+            role: 'Crypto, finance, SimpleFIN, taxes',
+            email: 'adam.l.johns@gmail.com (finance filtered)',
+            model: 'claude-sonnet (Opus for strategy)',
+            status: 'not-deployed'
+        }]
+    },
+    {
+        letter: 'F',
+        name: 'fit20',
+        icon: '💪',
+        agents: [{
+            callsign: 'Coach',
+            fullname: 'Arnold "Coach" Briggs, CSCS/NASM-CPT',
+            creds: 'Strength & Conditioning + Personal Training',
+            avatar: '🏋️',
+            role: 'Fitness coaching, NASM, client management',
+            email: 'adamjohns@fit20usa.com',
+            model: 'claude-sonnet',
+            status: 'not-deployed'
+        }]
+    },
+    {
+        letter: 'G',
+        name: 'Health',
+        icon: '🏥',
+        agents: [{
+            callsign: 'Doc',
+            fullname: 'James "Doc" Hartley, MD',
+            creds: 'Doctor of Medicine',
+            avatar: '⚕️',
+            role: 'Garmin health data, calories, wellness tracking',
+            email: null,
+            model: 'claude-sonnet',
+            status: 'not-deployed'
+        }]
+    },
+    {
+        letter: 'H',
+        name: 'Fredericksburg',
+        icon: '🏛️',
+        agents: [{
+            callsign: 'Sheriff',
+            fullname: 'Roy "Sheriff" Caldwell',
+            creds: '—',
+            avatar: '🌆',
+            role: 'City renewal, churches, council, local mission',
+            email: null,
+            model: 'claude-sonnet',
+            status: 'not-deployed'
+        }]
+    },
+    {
+        letter: 'I',
+        name: 'Lifelong Learning',
+        icon: '📚',
+        agents: [{
+            callsign: 'Prof X',
+            fullname: 'Professor Xavier Archimedes, PhD',
+            creds: 'Doctor of Philosophy',
+            avatar: '🎓',
+            role: 'Reading, courses, research synthesis',
+            email: null,
+            model: 'claude-sonnet (Opus for deep research)',
+            status: 'not-deployed'
+        }]
+    },
+    {
+        letter: 'J',
+        name: 'Culture & News',
+        icon: '📰',
+        agents: [{
+            callsign: 'Rush',
+            fullname: 'Rush Sullivan, AP Correspondent',
+            creds: 'Associated Press Veteran',
+            avatar: '📡',
+            role: 'News, social media, culture monitoring',
+            email: null,
+            model: 'claude-sonnet',
+            status: 'not-deployed'
+        }]
+    },
+];
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+function init() {
+    const now = new Date();
+    document.getElementById('header-date').textContent = now.toLocaleDateString('en-US', {
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+    });
+    document.getElementById('last-updated').textContent = 'Roster last updated: March 30, 2026 · Loaded from ~/.openclaw/shared-memory/context/psa-roster.md';
+    buildDesks();
+}
+
+function buildDesks() {
+    const container = document.getElementById('desks-container');
+    DESKS.forEach(desk => {
+        const section = document.createElement('div');
+        section.className = 'desk-section';
+        const cardsHtml = desk.agents.map(agent => buildAgentCard(agent, desk)).join('');
+        section.innerHTML = `
+            <div class="desk-header">
+                <div class="desk-icon">${desk.icon}</div>
+                <div>
+                    <div class="desk-label">Desk ${desk.letter}</div>
+                    <div class="desk-name">${desk.name}</div>
+                </div>
+            </div>
+            <div class="roster-grid">${cardsHtml}</div>
+        `;
+        container.appendChild(section);
+    });
+}
+
+function buildAgentCard(agent, desk) {
+    const emailHtml = agent.email
+        ? `<div class="meta-item"><div class="meta-label">Email</div><div class="meta-value email-val">${agent.email}</div></div>`
+        : `<div class="meta-item"><div class="meta-label">Email</div><div class="meta-value" style="color:#555">None assigned</div></div>`;
+
+    return `
+        <div class="agent-card">
+            <div class="agent-header">
+                <div class="agent-avatar">${agent.avatar}</div>
+                <div class="agent-info">
+                    <div class="agent-callsign">${agent.callsign}</div>
+                    <div class="agent-fullname">${agent.fullname}</div>
+                    ${agent.creds !== '—' ? `<div class="agent-creds">${agent.creds}</div>` : ''}
+                </div>
+                <div class="status-badge status-not-deployed">
+                    <div class="status-dot"></div>
+                    Not yet deployed
+                </div>
+            </div>
+            <div class="role-tag">📋 ${agent.role}</div>
+            <div class="agent-meta">
+                ${emailHtml}
+                <div class="meta-item">
+                    <div class="meta-label">Model</div>
+                    <div class="meta-value model-val">${agent.model}</div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-label">Desk</div>
+                    <div class="meta-value">${desk.letter} — ${desk.name}</div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-label">Workspace</div>
+                    <div class="meta-value" style="color:#555">Not yet created</div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+</script>
+</body>
+</html>
