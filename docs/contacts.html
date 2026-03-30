@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-touch-icon.png">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Contact Tracker | U.S.M.C. Ministries</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #000000;
+            --bg-card: #111111;
+            --bg-row: #0d0d0d;
+            --bg-row-alt: #141414;
+            --gold: #D4AF37;
+            --gold-light: #F4D470;
+            --white: #e8e8e8;
+            --gray: #888888;
+            --border: #333333;
+            --red: #e05555;
+            --green: #4caf7d;
+            --blue: #5b8dee;
+            --orange: #e0914a;
+            --purple: #9b59b6;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--white);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        h1, h2, h3 { font-family: 'Playfair Display', serif; color: var(--gold); }
+
+        /* ── PIN Screen ── */
+        #pin-screen {
+            position: fixed; inset: 0;
+            background: #000;
+            display: flex; align-items: center; justify-content: center;
+            z-index: 9999;
+            flex-direction: column; gap: 24px;
+        }
+        #pin-screen.hidden { display: none; }
+        .pin-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 40px 48px;
+            text-align: center;
+            max-width: 340px; width: 90%;
+        }
+        .pin-box .lock-icon { font-size: 2.5rem; margin-bottom: 12px; }
+        .pin-box h2 { font-size: 1.4rem; margin-bottom: 6px; }
+        .pin-box p { color: var(--gray); font-size: 0.85rem; margin-bottom: 24px; }
+        .pin-dots {
+            display: flex; gap: 12px; justify-content: center;
+            margin-bottom: 28px;
+        }
+        .pin-dot {
+            width: 14px; height: 14px; border-radius: 50%;
+            border: 2px solid var(--border);
+            background: transparent;
+            transition: all 0.15s;
+        }
+        .pin-dot.filled { background: var(--gold); border-color: var(--gold); }
+        .pin-keypad {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+        .pin-key {
+            background: #1a1a1a;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--white);
+            font-size: 1.3rem;
+            font-weight: 600;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .pin-key:hover { background: #252525; border-color: var(--gold); color: var(--gold); }
+        .pin-key.del { font-size: 1rem; color: var(--gray); }
+        .pin-error { color: var(--red); font-size: 0.85rem; margin-top: 12px; min-height: 20px; }
+
+        /* ── Nav ── */
+        nav {
+            display: flex; flex-wrap: wrap; gap: 6px;
+            justify-content: center; padding: 14px 20px;
+            border-bottom: 1px solid var(--border);
+            background: rgba(0,0,0,0.95);
+            position: sticky; top: 0; z-index: 100;
+        }
+        nav a {
+            color: var(--gray); text-decoration: none; font-size: 0.85rem;
+            font-weight: 500; padding: 5px 12px; border-radius: 20px;
+            border: 1px solid transparent; transition: all 0.2s;
+            white-space: nowrap;
+        }
+        nav a:hover { color: var(--gold); border-color: var(--border); }
+        nav a.active { color: var(--gold); border-color: var(--gold); }
+        .site-icon { vertical-align: middle; margin-right: 4px; opacity: 0.8; }
+
+        /* ── Hero ── */
+        .hero {
+            text-align: center;
+            padding: 48px 20px 36px;
+            background: linear-gradient(180deg, rgba(212,175,55,0.07) 0%, transparent 100%);
+            border-bottom: 1px solid var(--border);
+        }
+        .hero-icon { font-size: 2.4rem; margin-bottom: 12px; }
+        .hero h1 { font-size: clamp(1.8rem, 4vw, 2.6rem); color: var(--white); margin-bottom: 8px; }
+        .hero h1 span { color: var(--gold); }
+        .hero .subtitle { color: var(--gray); font-size: 0.9rem; }
+
+        /* ── Main Layout ── */
+        .main { max-width: 1200px; margin: 0 auto; padding: 32px 20px 60px; }
+
+        /* ── Summary Cards ── */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        .summary-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: border-color 0.2s;
+        }
+        .summary-card:hover { border-color: var(--gold); }
+        .summary-card .card-number {
+            font-size: 2.2rem;
+            font-weight: 700;
+            font-family: 'Playfair Display', serif;
+            color: var(--gold);
+            line-height: 1;
+            margin-bottom: 6px;
+        }
+        .summary-card .card-label { color: var(--gray); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.8px; }
+        .summary-card.card-green .card-number { color: var(--green); }
+        .summary-card.card-orange .card-number { color: var(--orange); }
+        .summary-card.card-red .card-number { color: var(--red); }
+
+        /* ── Controls ── */
+        .controls {
+            display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
+            margin-bottom: 20px;
+        }
+        .search-wrap {
+            flex: 1; min-width: 200px;
+            position: relative;
+        }
+        .search-wrap input {
+            width: 100%;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--white);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            padding: 10px 14px 10px 36px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .search-wrap input:focus { border-color: var(--gold); }
+        .search-wrap .search-icon {
+            position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+            color: var(--gray); font-size: 0.9rem;
+        }
+        .controls-right { display: flex; gap: 8px; flex-wrap: wrap; }
+        .btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--white);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 500;
+            padding: 9px 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .btn:hover { border-color: var(--gold); color: var(--gold); }
+        .btn-primary {
+            background: var(--gold);
+            border-color: var(--gold);
+            color: #000;
+            font-weight: 600;
+        }
+        .btn-primary:hover { background: var(--gold-light); border-color: var(--gold-light); color: #000; }
+        .btn-export { border-color: var(--green); color: var(--green); }
+        .btn-export:hover { background: rgba(76,175,125,0.1); }
+
+        /* ── Category Filters ── */
+        .filter-row {
+            display: flex; flex-wrap: wrap; gap: 8px;
+            margin-bottom: 20px;
+        }
+        .filter-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            color: var(--gray);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 500;
+            padding: 5px 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .filter-btn:hover { border-color: var(--gold); color: var(--gold); }
+        .filter-btn.active { background: var(--gold); border-color: var(--gold); color: #000; font-weight: 600; }
+
+        /* ── Status filter row ── */
+        .status-filter-row {
+            display: flex; flex-wrap: wrap; gap: 8px;
+            margin-bottom: 24px; align-items: center;
+        }
+        .status-filter-row label { color: var(--gray); font-size: 0.8rem; margin-right: 4px; }
+
+        /* ── Table ── */
+        .table-wrap {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 700px;
+        }
+        thead {
+            background: #111;
+            border-bottom: 1px solid var(--border);
+        }
+        th {
+            color: var(--gray);
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+            padding: 12px 16px;
+            text-align: left;
+            cursor: pointer;
+            white-space: nowrap;
+            user-select: none;
+            transition: color 0.2s;
+        }
+        th:hover { color: var(--gold); }
+        th .sort-arrow { margin-left: 4px; opacity: 0.5; }
+        th.sorted { color: var(--gold); }
+        th.sorted .sort-arrow { opacity: 1; }
+        tbody tr {
+            border-bottom: 1px solid #1a1a1a;
+            transition: background 0.15s;
+        }
+        tbody tr:hover { background: #161616; }
+        tbody tr:last-child { border-bottom: none; }
+        td {
+            padding: 12px 16px;
+            font-size: 0.88rem;
+            vertical-align: middle;
+        }
+        td.td-name { font-weight: 600; color: var(--white); }
+        td.td-notes { color: var(--gray); font-size: 0.82rem; max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        td.td-date { color: var(--gray); font-size: 0.82rem; white-space: nowrap; }
+        td.td-actions { white-space: nowrap; }
+
+        /* ── Status Badges ── */
+        .badge {
+            display: inline-block;
+            border-radius: 12px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            padding: 3px 10px;
+            letter-spacing: 0.4px;
+            text-transform: uppercase;
+        }
+        .badge-pending   { background: rgba(88,88,88,0.3); color: #aaa; border: 1px solid #444; }
+        .badge-contacted { background: rgba(91,141,238,0.15); color: var(--blue); border: 1px solid rgba(91,141,238,0.4); }
+        .badge-follow-up { background: rgba(224,145,74,0.15); color: var(--orange); border: 1px solid rgba(224,145,74,0.4); }
+        .badge-active    { background: rgba(76,175,125,0.15); color: var(--green); border: 1px solid rgba(76,175,125,0.4); }
+        .badge-cold      { background: rgba(224,85,85,0.12); color: var(--red); border: 1px solid rgba(224,85,85,0.35); }
+
+        /* ── Category Badges ── */
+        .cat-badge {
+            display: inline-block;
+            border-radius: 10px;
+            font-size: 0.72rem;
+            padding: 2px 9px;
+            font-weight: 500;
+        }
+        .cat-Ministry   { background: rgba(155,89,182,0.15); color: #c77dff; border: 1px solid rgba(155,89,182,0.35); }
+        .cat-Church     { background: rgba(212,175,55,0.12); color: var(--gold); border: 1px solid rgba(212,175,55,0.3); }
+        .cat-Business   { background: rgba(91,141,238,0.13); color: var(--blue); border: 1px solid rgba(91,141,238,0.3); }
+        .cat-Personal   { background: rgba(76,175,125,0.12); color: var(--green); border: 1px solid rgba(76,175,125,0.3); }
+        .cat-Veteran    { background: rgba(224,85,85,0.12); color: #ff8080; border: 1px solid rgba(224,85,85,0.3); }
+        .cat-fit20      { background: rgba(0,188,212,0.12); color: #4dd0e1; border: 1px solid rgba(0,188,212,0.3); }
+        .cat-Melaleuca  { background: rgba(139,195,74,0.12); color: #aed581; border: 1px solid rgba(139,195,74,0.3); }
+
+        .action-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--gray);
+            font-size: 0.75rem;
+            padding: 4px 10px;
+            cursor: pointer;
+            transition: all 0.15s;
+            margin-right: 4px;
+        }
+        .action-btn:hover { border-color: var(--gold); color: var(--gold); }
+        .action-btn.log-btn:hover { border-color: var(--green); color: var(--green); }
+        .action-btn.del-btn:hover { border-color: var(--red); color: var(--red); }
+
+        .empty-state {
+            text-align: center; padding: 60px 20px;
+            color: var(--gray);
+        }
+        .empty-state .empty-icon { font-size: 2.5rem; margin-bottom: 12px; }
+
+        /* ── Modal ── */
+        .modal-overlay {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.85);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+        .modal-overlay.hidden { display: none; }
+        .modal {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 500px; width: 100%;
+            max-height: 90vh; overflow-y: auto;
+        }
+        .modal h3 { margin-bottom: 20px; font-size: 1.2rem; }
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; color: var(--gray); font-size: 0.8rem; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            background: #1a1a1a;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--white);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            padding: 10px 12px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--gold); }
+        .form-group textarea { resize: vertical; min-height: 80px; }
+        .form-group select option { background: #1a1a1a; }
+        .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+        /* ── Footer ── */
+        footer {
+            text-align: center; padding: 24px 20px;
+            border-top: 1px solid var(--border);
+            color: var(--gray); font-size: 0.8rem;
+        }
+
+        @media (max-width: 600px) {
+            .summary-grid { grid-template-columns: repeat(2, 1fr); }
+            .form-row { grid-template-columns: 1fr; }
+            .modal { padding: 24px 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ── PIN Screen ── -->
+<div id="pin-screen">
+    <div class="pin-box">
+        <div class="lock-icon">🔐</div>
+        <h2>Contact Tracker</h2>
+        <p>Private — PIN required</p>
+        <div class="pin-dots">
+            <div class="pin-dot" id="dot-0"></div>
+            <div class="pin-dot" id="dot-1"></div>
+            <div class="pin-dot" id="dot-2"></div>
+            <div class="pin-dot" id="dot-3"></div>
+        </div>
+        <div class="pin-keypad">
+            <button class="pin-key" onclick="pinKey('1')">1</button>
+            <button class="pin-key" onclick="pinKey('2')">2</button>
+            <button class="pin-key" onclick="pinKey('3')">3</button>
+            <button class="pin-key" onclick="pinKey('4')">4</button>
+            <button class="pin-key" onclick="pinKey('5')">5</button>
+            <button class="pin-key" onclick="pinKey('6')">6</button>
+            <button class="pin-key" onclick="pinKey('7')">7</button>
+            <button class="pin-key" onclick="pinKey('8')">8</button>
+            <button class="pin-key" onclick="pinKey('9')">9</button>
+            <button class="pin-key" onclick="pinKey('0')" style="grid-column:2">0</button>
+            <button class="pin-key del" onclick="pinDel()">⌫</button>
+        </div>
+        <div class="pin-error" id="pin-error"></div>
+    </div>
+</div>
+
+<!-- ── Main App (hidden until unlocked) ── -->
+<div id="app" class="hidden" style="display:none">
+
+<nav>
+    <a href="index.html"><img src="assets/icons/shield-home-48.png" class="site-icon" alt="home" width="16" height="16"> U.S.M.C. Ministries Home</a>
+    <a href="watchman.html"><img src="assets/icons/shield-bible.png" class="site-icon" alt="bible" width="16" height="16"> Watchman Bible Plan</a>
+    <a href="bible.html"><img src="assets/icons/shield-compass.png" class="site-icon" alt="compass" width="16" height="16"> Bible Translation Engine</a>
+    <a href="cross-references.html"><img src="assets/icons/shield-infinity-rope-48.png" class="site-icon" alt="cross-references" width="16" height="16"> Cross-References</a>
+    <a href="lexicon.html"><img src="assets/icons/shield-alpha-omega-48.png" class="site-icon" alt="lexicon" width="16" height="16"> Lexicon</a>
+    <a href="dictionary/index.html"><img src="assets/icons/shield-book-greek-48.png" class="site-icon" alt="dictionary" width="16" height="16"> Dictionary</a>
+    <a href="blog.html"><img src="assets/icons/shield-blog-quill-48.png" class="site-icon" alt="blog" width="16" height="16"> Blog</a>
+    <a href="connect.html"><img src="assets/icons/shield-handshake.png" class="site-icon" alt="connect" width="16" height="16"> Connect</a>
+    <a href="contacts.html" class="active">📋 Contact Tracker</a>
+</nav>
+
+<div class="hero">
+    <div class="hero-icon">📋</div>
+    <h1>Contact <span>Tracker</span></h1>
+    <p class="subtitle">Outreach management — Ministry, Business & Beyond</p>
+</div>
+
+<div class="main">
+
+    <!-- Summary Cards -->
+    <div class="summary-grid" id="summary-grid">
+        <div class="summary-card">
+            <div class="card-number" id="stat-total">0</div>
+            <div class="card-label">Total Contacts</div>
+        </div>
+        <div class="summary-card card-green">
+            <div class="card-number" id="stat-contacted">0</div>
+            <div class="card-label">Contacted / Active</div>
+        </div>
+        <div class="summary-card">
+            <div class="card-number" id="stat-pending">0</div>
+            <div class="card-label">Pending</div>
+        </div>
+        <div class="summary-card card-orange">
+            <div class="card-number" id="stat-followup">0</div>
+            <div class="card-label">Follow-Up Needed</div>
+        </div>
+        <div class="summary-card card-red">
+            <div class="card-number" id="stat-cold">0</div>
+            <div class="card-label">Cold</div>
+        </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls">
+        <div class="search-wrap">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="search-input" placeholder="Search contacts…" oninput="renderTable()">
+        </div>
+        <div class="controls-right">
+            <button class="btn btn-primary" onclick="openAddModal()">＋ Add Contact</button>
+            <button class="btn btn-export" onclick="exportCSV()">⬇ Export CSV</button>
+        </div>
+    </div>
+
+    <!-- Category Filters -->
+    <div class="filter-row" id="cat-filters">
+        <button class="filter-btn active" data-cat="all" onclick="setCatFilter('all')">All</button>
+        <button class="filter-btn" data-cat="Ministry" onclick="setCatFilter('Ministry')">⛪ Ministry</button>
+        <button class="filter-btn" data-cat="Church" onclick="setCatFilter('Church')">🕊 Church</button>
+        <button class="filter-btn" data-cat="Business" onclick="setCatFilter('Business')">💼 Business</button>
+        <button class="filter-btn" data-cat="Personal" onclick="setCatFilter('Personal')">👤 Personal</button>
+        <button class="filter-btn" data-cat="Veteran" onclick="setCatFilter('Veteran')">🎖 Veteran</button>
+        <button class="filter-btn" data-cat="fit20" onclick="setCatFilter('fit20')">💪 fit20</button>
+        <button class="filter-btn" data-cat="Melaleuca" onclick="setCatFilter('Melaleuca')">🌿 Melaleuca</button>
+    </div>
+
+    <!-- Status Filters -->
+    <div class="status-filter-row">
+        <label>Status:</label>
+        <button class="filter-btn active" data-status="all" onclick="setStatusFilter('all')">All</button>
+        <button class="filter-btn" data-status="pending" onclick="setStatusFilter('pending')">Pending</button>
+        <button class="filter-btn" data-status="contacted" onclick="setStatusFilter('contacted')">Contacted</button>
+        <button class="filter-btn" data-status="follow-up" onclick="setStatusFilter('follow-up')">Follow-Up</button>
+        <button class="filter-btn" data-status="active" onclick="setStatusFilter('active')">Active</button>
+        <button class="filter-btn" data-status="cold" onclick="setStatusFilter('cold')">Cold</button>
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrap">
+        <table id="contacts-table">
+            <thead>
+                <tr>
+                    <th onclick="setSort('name')">Name <span class="sort-arrow" id="sort-name">↕</span></th>
+                    <th onclick="setSort('category')">Category <span class="sort-arrow" id="sort-category">↕</span></th>
+                    <th onclick="setSort('status')">Status <span class="sort-arrow" id="sort-status">↕</span></th>
+                    <th onclick="setSort('lastContact')">Last Contact <span class="sort-arrow" id="sort-lastContact">↕</span></th>
+                    <th>Notes</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="contacts-tbody"></tbody>
+        </table>
+        <div id="empty-state" class="empty-state hidden">
+            <div class="empty-icon">🔍</div>
+            <div>No contacts match your filter.</div>
+        </div>
+    </div>
+
+</div>
+
+<footer>
+    Contact Tracker — U.S.M.C. Ministries &nbsp;·&nbsp; Private &amp; PIN-protected &nbsp;·&nbsp; Data stored locally
+</footer>
+
+</div><!-- /app -->
+
+<!-- ── Add/Edit Modal ── -->
+<div class="modal-overlay hidden" id="modal-overlay">
+    <div class="modal">
+        <h3 id="modal-title">Add Contact</h3>
+        <input type="hidden" id="modal-id">
+        <div class="form-group">
+            <label>Full Name *</label>
+            <input type="text" id="m-name" placeholder="John Smith">
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Category *</label>
+                <select id="m-category">
+                    <option value="Ministry">Ministry</option>
+                    <option value="Church">Church</option>
+                    <option value="Business">Business</option>
+                    <option value="Personal">Personal</option>
+                    <option value="Veteran">Veteran</option>
+                    <option value="fit20">fit20</option>
+                    <option value="Melaleuca">Melaleuca</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Status *</label>
+                <select id="m-status">
+                    <option value="pending">Pending</option>
+                    <option value="contacted">Contacted</option>
+                    <option value="follow-up">Follow-Up</option>
+                    <option value="active">Active</option>
+                    <option value="cold">Cold</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Phone</label>
+                <input type="tel" id="m-phone" placeholder="(540) 555-0000">
+            </div>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="m-email" placeholder="email@example.com">
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Last Contact Date</label>
+            <input type="date" id="m-lastContact">
+        </div>
+        <div class="form-group">
+            <label>Notes</label>
+            <textarea id="m-notes" placeholder="Context, connection source, prayer needs…"></textarea>
+        </div>
+        <div class="modal-actions">
+            <button class="btn" onclick="closeModal()">Cancel</button>
+            <button class="btn btn-primary" onclick="saveContact()">Save Contact</button>
+        </div>
+    </div>
+</div>
+
+<!-- ── Log Contact Modal ── -->
+<div class="modal-overlay hidden" id="log-modal-overlay">
+    <div class="modal">
+        <h3>📞 Log Contact</h3>
+        <input type="hidden" id="log-contact-id">
+        <p id="log-contact-name" style="color:var(--gray);margin-bottom:20px;font-size:0.9rem;"></p>
+        <div class="form-group">
+            <label>New Status</label>
+            <select id="log-status">
+                <option value="contacted">Contacted</option>
+                <option value="follow-up">Follow-Up</option>
+                <option value="active">Active</option>
+                <option value="pending">Pending</option>
+                <option value="cold">Cold</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Contact Date</label>
+            <input type="date" id="log-date">
+        </div>
+        <div class="form-group">
+            <label>Notes (append)</label>
+            <textarea id="log-notes" placeholder="What happened? Next steps?"></textarea>
+        </div>
+        <div class="modal-actions">
+            <button class="btn" onclick="closeLogModal()">Cancel</button>
+            <button class="btn btn-primary" onclick="saveLog()">Log It</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// ── PIN ──────────────────────────────────────────────────────────
+const PIN = '5683';
+const SESSION_KEY = 'ct_unlocked';
+let pinEntry = '';
+
+function checkPinSession() {
+    const stored = sessionStorage.getItem(SESSION_KEY);
+    if (stored === 'true') unlock();
+}
+
+function unlock() {
+    document.getElementById('pin-screen').classList.add('hidden');
+    document.getElementById('app').style.display = '';
+    initApp();
+}
+
+function pinKey(d) {
+    if (pinEntry.length >= 4) return;
+    pinEntry += d;
+    updateDots();
+    if (pinEntry.length === 4) {
+        setTimeout(checkPin, 100);
+    }
+}
+
+function pinDel() {
+    pinEntry = pinEntry.slice(0, -1);
+    updateDots();
+    document.getElementById('pin-error').textContent = '';
+}
+
+function updateDots() {
+    for (let i = 0; i < 4; i++) {
+        document.getElementById('dot-' + i).classList.toggle('filled', i < pinEntry.length);
+    }
+}
+
+function checkPin() {
+    if (pinEntry === PIN) {
+        sessionStorage.setItem(SESSION_KEY, 'true');
+        unlock();
+    } else {
+        document.getElementById('pin-error').textContent = 'Incorrect PIN. Try again.';
+        pinEntry = '';
+        updateDots();
+        // Shake dots
+        document.querySelectorAll('.pin-dot').forEach(d => {
+            d.style.borderColor = 'var(--red)';
+            setTimeout(() => d.style.borderColor = '', 600);
+        });
+    }
+}
+
+// Keyboard PIN support
+document.addEventListener('keydown', (e) => {
+    if (document.getElementById('pin-screen').classList.contains('hidden')) return;
+    if (e.key >= '0' && e.key <= '9') pinKey(e.key);
+    else if (e.key === 'Backspace') pinDel();
+});
+
+// ── Data ─────────────────────────────────────────────────────────
+const LS_KEY = 'contact_tracker_data';
+let contacts = [];
+let sortField = 'name';
+let sortAsc = true;
+let catFilter = 'all';
+let statusFilter = 'all';
+
+function loadData() {
+    const saved = localStorage.getItem(LS_KEY);
+    if (saved) {
+        contacts = JSON.parse(saved);
+    }
+}
+
+function saveData() {
+    localStorage.setItem(LS_KEY, JSON.stringify(contacts));
+}
+
+function nextId() {
+    return contacts.length ? Math.max(...contacts.map(c => c.id)) + 1 : 1;
+}
+
+// ── Init ─────────────────────────────────────────────────────────
+async function initApp() {
+    loadData();
+    if (!contacts.length) {
+        // Try to load from JSON file
+        try {
+            const res = await fetch('assets/contacts.json?v=' + Date.now());
+            if (res.ok) {
+                contacts = await res.json();
+                saveData();
+            }
+        } catch(e) {}
+    }
+    renderTable();
+    updateStats();
+}
+
+// ── Stats ─────────────────────────────────────────────────────────
+function updateStats() {
+    document.getElementById('stat-total').textContent = contacts.length;
+    document.getElementById('stat-contacted').textContent = contacts.filter(c => c.status === 'contacted' || c.status === 'active').length;
+    document.getElementById('stat-pending').textContent = contacts.filter(c => c.status === 'pending').length;
+    document.getElementById('stat-followup').textContent = contacts.filter(c => c.status === 'follow-up').length;
+    document.getElementById('stat-cold').textContent = contacts.filter(c => c.status === 'cold').length;
+}
+
+// ── Filters ──────────────────────────────────────────────────────
+function setCatFilter(cat) {
+    catFilter = cat;
+    document.querySelectorAll('#cat-filters .filter-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.cat === cat);
+    });
+    renderTable();
+}
+
+function setStatusFilter(s) {
+    statusFilter = s;
+    document.querySelectorAll('.status-filter-row .filter-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.status === s);
+    });
+    renderTable();
+}
+
+// ── Sort ─────────────────────────────────────────────────────────
+function setSort(field) {
+    if (sortField === field) sortAsc = !sortAsc;
+    else { sortField = field; sortAsc = true; }
+    document.querySelectorAll('th .sort-arrow').forEach(el => el.textContent = '↕');
+    const arrow = document.getElementById('sort-' + field);
+    if (arrow) arrow.textContent = sortAsc ? '↑' : '↓';
+    document.querySelectorAll('th').forEach(th => th.classList.remove('sorted'));
+    const ths = document.querySelectorAll('th');
+    const fieldMap = ['name','category','status','lastContact'];
+    fieldMap.forEach((f, i) => { if (f === field && ths[i]) ths[i].classList.add('sorted'); });
+    renderTable();
+}
+
+// ── Render ────────────────────────────────────────────────────────
+function renderTable() {
+    const q = document.getElementById('search-input').value.toLowerCase().trim();
+    let filtered = contacts.filter(c => {
+        const matchCat = catFilter === 'all' || c.category === catFilter;
+        const matchStatus = statusFilter === 'all' || c.status === statusFilter;
+        const matchSearch = !q || c.name.toLowerCase().includes(q) ||
+            (c.notes || '').toLowerCase().includes(q) ||
+            (c.email || '').toLowerCase().includes(q) ||
+            (c.phone || '').toLowerCase().includes(q) ||
+            (c.category || '').toLowerCase().includes(q);
+        return matchCat && matchStatus && matchSearch;
+    });
+
+    filtered.sort((a, b) => {
+        let va = (a[sortField] || '').toString().toLowerCase();
+        let vb = (b[sortField] || '').toString().toLowerCase();
+        if (va < vb) return sortAsc ? -1 : 1;
+        if (va > vb) return sortAsc ? 1 : -1;
+        return 0;
+    });
+
+    const tbody = document.getElementById('contacts-tbody');
+    const empty = document.getElementById('empty-state');
+
+    if (!filtered.length) {
+        tbody.innerHTML = '';
+        empty.classList.remove('hidden');
+        return;
+    }
+    empty.classList.add('hidden');
+
+    tbody.innerHTML = filtered.map(c => `
+        <tr>
+            <td class="td-name">${esc(c.name)}</td>
+            <td><span class="cat-badge cat-${esc(c.category)}">${esc(c.category)}</span></td>
+            <td><span class="badge badge-${c.status}">${c.status}</span></td>
+            <td class="td-date">${c.lastContact ? fmtDate(c.lastContact) : '<span style="color:#555">—</span>'}</td>
+            <td class="td-notes" title="${esc(c.notes || '')}">${esc(c.notes || '') || '<span style="color:#555">—</span>'}</td>
+            <td class="td-actions">
+                <button class="action-btn log-btn" onclick="openLogModal(${c.id})">📞 Log</button>
+                <button class="action-btn" onclick="openEditModal(${c.id})">✏️</button>
+                <button class="action-btn del-btn" onclick="deleteContact(${c.id})">🗑</button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function esc(s) {
+    return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function fmtDate(d) {
+    if (!d) return '—';
+    const dt = new Date(d + 'T00:00:00');
+    return dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+// ── Add/Edit Modal ────────────────────────────────────────────────
+function openAddModal() {
+    document.getElementById('modal-title').textContent = 'Add Contact';
+    document.getElementById('modal-id').value = '';
+    document.getElementById('m-name').value = '';
+    document.getElementById('m-category').value = 'Ministry';
+    document.getElementById('m-status').value = 'pending';
+    document.getElementById('m-phone').value = '';
+    document.getElementById('m-email').value = '';
+    document.getElementById('m-lastContact').value = '';
+    document.getElementById('m-notes').value = '';
+    document.getElementById('modal-overlay').classList.remove('hidden');
+}
+
+function openEditModal(id) {
+    const c = contacts.find(x => x.id === id);
+    if (!c) return;
+    document.getElementById('modal-title').textContent = 'Edit Contact';
+    document.getElementById('modal-id').value = id;
+    document.getElementById('m-name').value = c.name || '';
+    document.getElementById('m-category').value = c.category || 'Ministry';
+    document.getElementById('m-status').value = c.status || 'pending';
+    document.getElementById('m-phone').value = c.phone || '';
+    document.getElementById('m-email').value = c.email || '';
+    document.getElementById('m-lastContact').value = c.lastContact || '';
+    document.getElementById('m-notes').value = c.notes || '';
+    document.getElementById('modal-overlay').classList.remove('hidden');
+}
+
+function closeModal() {
+    document.getElementById('modal-overlay').classList.add('hidden');
+}
+
+function saveContact() {
+    const name = document.getElementById('m-name').value.trim();
+    if (!name) { alert('Name is required.'); return; }
+    const id = document.getElementById('modal-id').value;
+    const data = {
+        name,
+        category: document.getElementById('m-category').value,
+        status: document.getElementById('m-status').value,
+        phone: document.getElementById('m-phone').value.trim(),
+        email: document.getElementById('m-email').value.trim(),
+        lastContact: document.getElementById('m-lastContact').value || null,
+        notes: document.getElementById('m-notes').value.trim()
+    };
+    if (id) {
+        const idx = contacts.findIndex(c => c.id === parseInt(id));
+        if (idx !== -1) contacts[idx] = { ...contacts[idx], ...data };
+    } else {
+        contacts.push({ id: nextId(), ...data });
+    }
+    saveData();
+    closeModal();
+    renderTable();
+    updateStats();
+}
+
+// ── Log Modal ─────────────────────────────────────────────────────
+function openLogModal(id) {
+    const c = contacts.find(x => x.id === id);
+    if (!c) return;
+    document.getElementById('log-contact-id').value = id;
+    document.getElementById('log-contact-name').textContent = 'Logging outreach for: ' + c.name;
+    document.getElementById('log-status').value = 'contacted';
+    document.getElementById('log-date').value = new Date().toISOString().split('T')[0];
+    document.getElementById('log-notes').value = '';
+    document.getElementById('log-modal-overlay').classList.remove('hidden');
+}
+
+function closeLogModal() {
+    document.getElementById('log-modal-overlay').classList.add('hidden');
+}
+
+function saveLog() {
+    const id = parseInt(document.getElementById('log-contact-id').value);
+    const idx = contacts.findIndex(c => c.id === id);
+    if (idx === -1) return;
+    const newStatus = document.getElementById('log-status').value;
+    const newDate = document.getElementById('log-date').value;
+    const addNote = document.getElementById('log-notes').value.trim();
+    contacts[idx].status = newStatus;
+    contacts[idx].lastContact = newDate;
+    if (addNote) {
+        const existing = contacts[idx].notes || '';
+        const stamp = fmtDate(newDate);
+        contacts[idx].notes = existing ? `${existing} | [${stamp}] ${addNote}` : `[${stamp}] ${addNote}`;
+    }
+    saveData();
+    closeLogModal();
+    renderTable();
+    updateStats();
+}
+
+// ── Delete ────────────────────────────────────────────────────────
+function deleteContact(id) {
+    const c = contacts.find(x => x.id === id);
+    if (!c) return;
+    if (!confirm(`Delete "${c.name}"? This cannot be undone.`)) return;
+    contacts = contacts.filter(x => x.id !== id);
+    saveData();
+    renderTable();
+    updateStats();
+}
+
+// ── Export CSV ────────────────────────────────────────────────────
+function exportCSV() {
+    const headers = ['ID','Name','Category','Status','Last Contact','Phone','Email','Notes'];
+    const rows = contacts.map(c => [
+        c.id, c.name, c.category, c.status,
+        c.lastContact || '', c.phone || '', c.email || '',
+        (c.notes || '').replace(/"/g, '""')
+    ]);
+    const csv = [headers, ...rows].map(r => r.map(v => `"${v}"`).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `contacts-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+// ── Close modals on overlay click ────────────────────────────────
+document.getElementById('modal-overlay').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+});
+document.getElementById('log-modal-overlay').addEventListener('click', function(e) {
+    if (e.target === this) closeLogModal();
+});
+
+// ── Keyboard shortcut (Escape) ───────────────────────────────────
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') { closeModal(); closeLogModal(); }
+});
+
+// ── Boot ─────────────────────────────────────────────────────────
+checkPinSession();
+</script>
+</body>
+</html>
