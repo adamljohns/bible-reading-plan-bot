@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Epiphany &mdash; The MOOP Dictionary</title>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        :root { --bg:#000; --card:#111; --gold:#D4AF37; --gold-light:#F4D470; --white:#FFF; --gray:#888; --border:#333; }
+        body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--white); min-height:100vh; line-height:1.7; }
+        h1,h2,h3,h4 { font-family:'Playfair Display',serif; }
+        nav { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:4px 8px; padding:10px 16px;
+              border-bottom:1px solid var(--border); position:sticky; top:0;
+              background:rgba(0,0,0,0.95); backdrop-filter:blur(8px); z-index:100; }
+        nav a { color:var(--gray); text-decoration:none; font-size:0.8rem; display:inline-flex; align-items:center;
+                gap:3px; padding:3px 6px; border-radius:6px; transition:color 0.2s; }
+        nav a:hover, nav a.active { color:var(--gold); }
+        .site-icon { vertical-align:middle; opacity:0.8; }
+        .theme-toggle { background:none; border:1px solid var(--border); border-radius:50%; width:28px; height:28px;
+                        cursor:pointer; font-size:0.85rem; transition:all 0.3s; padding:0; color:var(--white);
+                        display:inline-flex; align-items:center; justify-content:center; }
+        .theme-toggle:hover { border-color:var(--gold); }
+        .container { max-width:820px; margin:0 auto; padding:28px 20px 60px; }
+        .word-header { text-align:center; padding:40px 0 30px; border-bottom:1px solid var(--border); margin-bottom:30px; }
+        .word-title { font-size:2.8rem; color:var(--gold-light); margin-bottom:6px; }
+        .pronunciation { color:var(--gray); font-size:1.1rem; font-style:italic; }
+        .pos { display:inline-block; background:var(--gold); color:#000; font-weight:700;
+               font-size:0.78rem; padding:3px 14px; border-radius:15px; margin:10px 0; }
+        .etymology { color:var(--white); font-size:0.88rem; margin:12px auto; max-width:650px; }
+        .section { margin:18px 0; padding:18px 22px; background:var(--card); border:1px solid var(--border); border-radius:10px; }
+        .section > h3 { color:var(--gold); margin-bottom:12px; font-size:1.05rem; }
+        .section p { margin:7px 0; color:var(--white); }
+        .biblical-def { border-left:3px solid var(--gold); padding-left:15px; }
+        .dict-toggle { cursor:pointer; color:var(--gold); font-size:0.92rem; user-select:none;
+                       display:inline-flex; align-items:center; gap:0; background:none; border:none;
+                       padding:0; font-family:inherit; font-weight:600; }
+        .dict-toggle:hover { color:var(--gold-light); }
+        .dict-toggle .arrow { display:inline-block; transition:transform 0.2s; margin-right:8px; font-size:0.75rem; }
+        .dict-toggle .arrow.open { transform:rotate(90deg); }
+        .dict-section { display:none; margin:10px 0 4px 0; padding:12px 16px;
+                        background:rgba(212,175,55,0.06); border-left:2px solid var(--gold);
+                        border-radius:0 6px 6px 0; }
+        .dict-section.open { display:block; }
+        .dict-section p { margin:6px 0; font-size:0.95rem; color:var(--white); }
+        .corruption { border-left:3px solid #CC0000; padding-left:15px; }
+        .verse-ref { color:var(--gold); text-decoration:none; font-weight:600; }
+        .verse-ref:hover { color:var(--gold-light); text-decoration:underline; }
+        .lexicon-link { color:var(--gold); font-family:monospace; text-decoration:none; }
+        .lexicon-link:hover { color:var(--gold-light); text-decoration:underline; }
+        .related { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+        .related a { background:var(--card); border:1px solid var(--border); padding:6px 14px;
+                     border-radius:20px; color:var(--white); text-decoration:none; font-size:0.85rem;
+                     transition:border-color 0.2s, color 0.2s; }
+        .related a:hover { border-color:var(--gold); color:var(--gold); }
+        footer { text-align:center; padding:28px 20px; border-top:1px solid var(--border);
+                 margin-top:40px; color:var(--gray); font-size:0.88rem; }
+        footer a { color:var(--gray); text-decoration:none; }
+        footer a:hover { color:var(--gold); }
+        .theme-toggle-footer { display:flex; justify-content:center; margin-bottom:16px; }
+        body.light-mode { --bg:#F5F3EF; --card:#FFF; --white:#1a1a1a; --gray:#666; --border:#d4d0c8; background:#F5F3EF; color:#1a1a1a; }
+        body.light-mode nav { background:rgba(245,243,239,0.97); }
+        body.light-mode .section { background:#fff; border-color:#d4d0c8; }
+        body.light-mode .dict-section { background:rgba(212,175,55,0.04); }
+        body.light-mode footer { border-top-color:#d4d0c8; }
+        body.light-mode .related a { background:#f0ede7; border-color:#d4d0c8; color:#1a1a1a; }
+        a, a:link, a:visited { color:var(--gold, #D4AF37) !important; }
+        a:hover { color:var(--gold-light, #F4D470) !important; }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav>
+        <a href="../index.html"><img src="../assets/icons/shield-home-48.png" class="site-icon" alt="" width="16" height="16"> Home</a>
+        <a href="../watchman.html"><img src="../assets/icons/shield-bible.png" class="site-icon" alt="" width="16" height="16"> Watchman</a>
+        <a href="../bible.html"><img src="../assets/icons/shield-compass.png" class="site-icon" alt="" width="16" height="16"> BTE</a>
+        <a href="../lexicon.html"><img src="../assets/icons/shield-alpha-omega-48.png" class="site-icon" alt="" width="16" height="16"> Lexicon</a>
+        <a href="../cross-references.html"><img src="../assets/icons/shield-infinity-rope-48.png" class="site-icon" alt="" width="16" height="16"> Cross-Refs</a>
+        <a href="index.html" class="active"><img src="../assets/icons/shield-book-greek-48.png" class="site-icon" alt="" width="16" height="16"> Dictionary</a>
+        <a href="../blog.html"><img src="../assets/icons/shield-blog-quill-48.png" class="site-icon" alt="" width="16" height="16"> Blog</a>
+        <a href="../connect.html"><img src="../assets/icons/shield-handshake.png" class="site-icon" alt="" width="16" height="16"> Connect</a>
+        <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle" title="Toggle dark/light">🌙</button>
+    </nav>
+
+    <div class="container">
+        <div class="word-header">
+            <div class="word-title">Epiphany</div>
+            <div class="pronunciation">/ɪˈpɪf.ə.ni/</div>
+            <span class="pos">noun</span>
+            <div class="etymology">From Greek <em>epiphaneia</em> (ἐπιφάνεια) — appearance, manifestation, a shining forth; from <em>epi-</em> (upon, over) + <em>phainō</em> (φαίνω) — to shine, to appear, to be manifest. The LXX uses <em>epiphaneia</em> to translate the appearance of God. In Hellenistic usage, it described the dramatic arrival of a king or god. In the NT, it is the word Paul uses for Christ's first and second comings (1 Tim 6:14; 2 Tim 1:10; Titus 2:13). The Christian liturgical feast of Epiphany (January 6) celebrates the manifestation of Christ to the Gentile Magi.</div>
+        </div>
+
+        <div class="section">
+            <h3>📖 Biblical Definition</h3>
+            <div class="biblical-def">
+                <p>Epiphany is <strong>the manifestation or appearing of God in history, in Christ, and at the end of the age</strong>. It is a word of divine disclosure — God making himself visible, tangible, and knowable to those who could not otherwise reach him. The NT uses <em>epiphaneia</em> specifically for the Incarnation ("our Savior Christ Jesus, who abolished death and brought life and immortality to light through the gospel" — <a href="../bible.html?ref=2+Timothy+1:10" class="verse-ref">2 Tim 1:10</a>) and for the Second Coming ("the appearing of our great God and Savior Jesus Christ" — <a href="../bible.html?ref=Titus+2:13" class="verse-ref">Titus 2:13</a>). Every theophany in the OT is a pre-Incarnation epiphany — God breaking through the veil of the invisible to make himself known. The whole Bible moves toward the supreme epiphany: the face of God fully revealed in the face of Christ (<a href="../bible.html?ref=2+Corinthians+4:6" class="verse-ref">2 Cor 4:6</a>).</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <button class="dict-toggle" onclick="toggleDict('webster')">
+                <span class="arrow">▶</span>📜 Webster 1828 Definition
+            </button>
+            <div class="dict-section" id="webster">
+                <p><strong>EPIPHANY</strong>, n. [Gr. to appear; to shine.] A christian festival celebrated on the sixth day of January, the twelfth day after Christmas, in commemoration of the appearance of our Savior to the magians or philosophers of the East, who came to adore him; or as others suppose, of the appearance of the star to the wise men; or of the baptism of our Savior, and the appearance of the Holy Spirit.</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>🔗 Greek Roots</h3>
+            <p><a href="../lexicon/G2015.html" class="lexicon-link">G2015</a> — <strong>epiphaneia</strong> (ἐπιφάνεια): appearing, manifestation; used 6 times in NT, always for Christ's first or second coming — a majestic royal word.</p>
+            <p><a href="../lexicon/G5316.html" class="lexicon-link">G5316</a> — <strong>phainō</strong> (φαίνω): to shine, to appear, to be manifest; root of epiphany and "phenomenon" — the light breaking forth.</p>
+            <p><a href="../lexicon/G2014.html" class="lexicon-link">G2014</a> — <strong>epiphainō</strong> (ἐπιφαίνω): to appear, to shine upon; "the grace of God has appeared [epephanē]" (<a href="../bible.html?ref=Titus+2:11" class="verse-ref">Titus 2:11</a>) — the Incarnation as divine epiphany.</p>
+            <p><a href="../lexicon/G2316.html" class="lexicon-link">G2316</a> — <strong>theophaneia</strong> (θεοφάνεια): theophany — the appearance of God; the OT precursor and context for NT epiphany language.</p>
+        </div>
+
+        <div class="section">
+            <h3>📖 Key Scripture References</h3>
+            <p>• <a href="../bible.html?ref=Titus+2:11-13" class="verse-ref">Titus 2:11–13</a> — "The grace of God has appeared [epephanē]…waiting for our blessed hope, the appearing [epiphaneian] of our great God and Savior Jesus Christ." Both comings called epiphany.</p>
+            <p>• <a href="../bible.html?ref=2+Timothy+1:10" class="verse-ref">2 Timothy 1:10</a> — "Now manifested [phanerōtheisan] through the appearing [epiphaneia] of our Savior Christ Jesus, who abolished death."</p>
+            <p>• <a href="../bible.html?ref=2+Corinthians+4:6" class="verse-ref">2 Corinthians 4:6</a> — "The light of the knowledge of the glory of God in the face of Jesus Christ" — the supreme epiphany.</p>
+            <p>• <a href="../bible.html?ref=Matthew+2:1-2" class="verse-ref">Matthew 2:1–2</a> — The Magi following the star; the traditional Epiphany event — Christ manifested to the nations.</p>
+            <p>• <a href="../bible.html?ref=1+Timothy+6:14-15" class="verse-ref">1 Timothy 6:14–15</a> — "Until the appearing [epiphaneian] of our Lord Jesus Christ, which he will display at the proper time."</p>
+        </div>
+
+        <div class="section">
+            <button class="dict-toggle" onclick="toggleDict('corruption')">
+                <span class="arrow">▶</span>⚠️ Modern Corruption
+            </button>
+            <div class="dict-section" id="corruption">
+                <div class="corruption">
+                    <p>In modern secular use, "epiphany" has been thoroughly privatized — it now means any personal "aha" moment, sudden insight, or emotional realization. "I had an epiphany in the shower." The word has been stripped of its cosmic, christological freight and turned into a synonym for a feeling. The biblical epiphany is not a feeling — it is a royal event, a divine appearing, an objective historical and eschatological act. When God appears, the universe shakes (Hab 3:3–6; Rev 1:17). The liturgical church preserves the word's weight by keeping the Feast of Epiphany as a theological marker: the Christ revealed at Bethlehem is the same Christ who will appear in glory. Reclaiming the word means reclaiming the conviction that history is moving toward a moment of divine self-disclosure that will end all hiddenness forever.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>Related Words</h3>
+            <div class="related">
+                <a href="theophany.html">Theophany</a>
+                <a href="incarnation.html">Incarnation</a>
+                <a href="parousia.html">Parousia</a>
+                <a href="revelation.html">Revelation</a>
+                <a href="glory.html">Glory</a>
+                <a href="shekinah.html">Shekinah</a>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="theme-toggle-footer">
+            <button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark/light">🌙</button>
+        </div>
+        <div class="cross-divider">✝</div>
+        <p><a href="index.html">The MOOP Dictionary</a> &mdash; <a href="../index.html">MOOP Bible Tools</a></p>
+    </footer>
+
+    <script>
+        function toggleTheme() {
+            document.body.classList.toggle('light-mode');
+            const btn = document.querySelectorAll('.theme-toggle');
+            const isLight = document.body.classList.contains('light-mode');
+            btn.forEach(b => b.innerHTML = isLight ? '🌞' : '🌙');
+            localStorage.setItem('theme', isLight ? 'light' : 'dark');
+        }
+        function toggleDict(id) {
+            const section = document.getElementById(id);
+            const btn = section.previousElementSibling;
+            const arrow = btn.querySelector('.arrow');
+            section.classList.toggle('open');
+            if (arrow) arrow.classList.toggle('open');
+        }
+        if (localStorage.getItem('theme') === 'light') {
+            document.body.classList.add('light-mode');
+            document.querySelectorAll('.theme-toggle').forEach(b => b.innerHTML = '🌞');
+        }
+    </script>
+</body>
+</html>
