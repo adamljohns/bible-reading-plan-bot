@@ -382,6 +382,59 @@
             .form-row { grid-template-columns: 1fr; }
             .modal { padding: 24px 20px; }
         }
+
+        @media print {
+            /* Hide non-content elements */
+            #pin-screen, nav, footer,
+            .controls, .filter-row, .status-filter-row,
+            .modal-overlay, #log-modal-overlay,
+            .td-actions, th:last-child,
+            .hero .hero-icon { display: none !important; }
+
+            /* Reset to white/black */
+            * { background: #fff !important; color: #000 !important;
+                border-color: #ccc !important; box-shadow: none !important; }
+            body { background: #fff; color: #000; font-size: 11pt; }
+
+            /* Show app without PIN */
+            #app { display: block !important; }
+
+            /* Hero */
+            .hero { padding: 16px 0 12px; border-bottom: 1px solid #ccc; }
+            .hero h1 { font-size: 1.6rem; color: #000 !important; }
+            .hero h1 span { color: #000 !important; }
+            .hero .subtitle { color: #444 !important; }
+
+            /* Summary cards inline */
+            .summary-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+            .summary-card { border: 1px solid #ccc; border-radius: 6px; padding: 10px 14px; }
+            .summary-card .card-number { font-size: 1.4rem; color: #000 !important; }
+            .summary-card .card-label { font-size: 0.7rem; color: #555 !important; }
+
+            /* Table */
+            .main { padding: 12px 0; }
+            .table-wrap { overflow: visible; border: 1px solid #ccc; border-radius: 0; }
+            table { min-width: unset; width: 100%; }
+            thead { background: #f0f0f0 !important; }
+            th { color: #333 !important; font-size: 9pt; padding: 8px 10px; }
+            th .sort-arrow { display: none; }
+            td { font-size: 9pt; padding: 7px 10px; }
+            td.td-notes { max-width: none; overflow: visible;
+                white-space: normal; text-overflow: unset; }
+            tbody tr { border-bottom: 1px solid #eee !important; }
+
+            /* Badges */
+            .badge, .cat-badge {
+                border: 1px solid #999 !important;
+                background: transparent !important;
+                color: #000 !important;
+                padding: 1px 6px;
+                font-size: 8pt;
+            }
+
+            /* Page settings */
+            @page { size: Letter; margin: 0.75in; }
+        }
     </style>
 </head>
 <body>
@@ -921,9 +974,9 @@ function deleteContact(id) {
 
 // ── Export CSV ────────────────────────────────────────────────────
 function exportCSV() {
-    const headers = ['ID','Name','Category','Status','Last Contact','Phone','Email','Notes'];
+    const headers = ['Name','Category','Status','Last Contact','Phone','Email','Notes'];
     const rows = contacts.map(c => [
-        c.id, c.name, c.category, c.status,
+        c.name, c.category, c.status,
         c.lastContact || '', c.phone || '', c.email || '',
         (c.notes || '').replace(/"/g, '""')
     ]);
@@ -932,7 +985,7 @@ function exportCSV() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `contacts-${new Date().toISOString().split('T')[0]}.csv`;
+    a.download = `contacts-export-${new Date().toISOString().split('T')[0]}.csv`;
     a.click();
     URL.revokeObjectURL(url);
 }
