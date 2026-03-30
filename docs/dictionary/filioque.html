@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Filioque &mdash; The MOOP Dictionary</title>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        :root { --bg:#000; --card:#111; --gold:#D4AF37; --gold-light:#F4D470; --white:#FFF; --gray:#888; --border:#333; }
+        body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--white); min-height:100vh; line-height:1.7; }
+        h1,h2,h3,h4 { font-family:'Playfair Display',serif; }
+        nav { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:4px 8px; padding:10px 16px;
+              border-bottom:1px solid var(--border); position:sticky; top:0;
+              background:rgba(0,0,0,0.95); backdrop-filter:blur(8px); z-index:100; }
+        nav a { color:var(--gray); text-decoration:none; font-size:0.8rem; display:inline-flex; align-items:center;
+                gap:3px; padding:3px 6px; border-radius:6px; transition:color 0.2s; }
+        nav a:hover, nav a.active { color:var(--gold); }
+        .site-icon { vertical-align:middle; opacity:0.8; }
+        .theme-toggle { background:none; border:1px solid var(--border); border-radius:50%; width:28px; height:28px;
+                        cursor:pointer; font-size:0.85rem; transition:all 0.3s; padding:0; color:var(--white);
+                        display:inline-flex; align-items:center; justify-content:center; }
+        .theme-toggle:hover { border-color:var(--gold); }
+        .container { max-width:820px; margin:0 auto; padding:28px 20px 60px; }
+        .word-header { text-align:center; padding:40px 0 30px; border-bottom:1px solid var(--border); margin-bottom:30px; }
+        .word-title { font-size:2.8rem; color:var(--gold-light); margin-bottom:6px; }
+        .pronunciation { color:var(--gray); font-size:1.1rem; font-style:italic; }
+        .pos { display:inline-block; background:var(--gold); color:#000; font-weight:700;
+               font-size:0.78rem; padding:3px 14px; border-radius:15px; margin:10px 0; }
+        .etymology { color:var(--gray); font-size:0.88rem; margin:12px auto; max-width:650px; }
+        .section { margin:18px 0; padding:18px 22px; background:var(--card); border:1px solid var(--border); border-radius:10px; }
+        .section > h3 { color:var(--gold); margin-bottom:12px; font-size:1.05rem; }
+        .section p { margin:7px 0; color:var(--white); }
+        .biblical-def { border-left:3px solid var(--gold); padding-left:15px; }
+        .dict-toggle { cursor:pointer; color:var(--gold); font-size:0.92rem; user-select:none;
+                       display:inline-flex; align-items:center; gap:0; background:none; border:none;
+                       padding:0; font-family:inherit; font-weight:600; }
+        .dict-toggle:hover { color:var(--gold-light); }
+        .dict-toggle .arrow { display:inline-block; transition:transform 0.2s; margin-right:8px; font-size:0.75rem; }
+        .dict-toggle .arrow.open { transform:rotate(90deg); }
+        .dict-section { display:none; margin:10px 0 4px 0; padding:12px 16px;
+                        background:rgba(212,175,55,0.06); border-left:2px solid var(--gold);
+                        border-radius:0 6px 6px 0; }
+        .dict-section.open { display:block; }
+        .dict-section p { margin:6px 0; font-size:0.95rem; color:var(--white); }
+        .dict-section pre { font-family:'Courier New',monospace; font-size:0.82rem; color:var(--gold-light);
+                             line-height:1.7; white-space:pre-wrap; }
+        .corruption { border-left:3px solid #CC0000; padding-left:15px; }
+        .verse-ref { color:var(--gold); text-decoration:none; font-weight:600; }
+        .verse-ref:hover { color:var(--gold-light); text-decoration:underline; }
+        .lexicon-link { color:var(--gold); font-family:monospace; text-decoration:none; }
+        .lexicon-link:hover { color:var(--gold-light); text-decoration:underline; }
+        .related { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+        .related a { background:var(--card); border:1px solid var(--border); padding:6px 14px;
+                     border-radius:20px; color:var(--white); text-decoration:none; font-size:0.85rem;
+                     transition:border-color 0.2s, color 0.2s; }
+        .related a:hover { border-color:var(--gold); color:var(--gold); }
+        footer { text-align:center; padding:28px 20px; border-top:1px solid var(--border);
+                 margin-top:40px; color:var(--gray); font-size:0.88rem; }
+        footer a { color:var(--gray); text-decoration:none; }
+        footer a:hover { color:var(--gold); }
+        .cross-divider { margin-bottom:10px; }
+        body.light-mode { --bg:#F5F3EF; --card:#FFF; --white:#1a1a1a; --gray:#666; --border:#d4d0c8; background:#F5F3EF; color:#1a1a1a; }
+        body.light-mode nav { background:rgba(245,243,239,0.97); }
+        body.light-mode .section { background:#fff; border-color:#d4d0c8; }
+        body.light-mode .dict-section { background:rgba(212,175,55,0.04); }
+        body.light-mode footer { border-top-color:#d4d0c8; }
+        body.light-mode .related a { background:#f0ede7; border-color:#d4d0c8; color:#1a1a1a; }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav>
+        <a href="../index.html"><img src="../assets/icons/shield-home-48.png" class="site-icon" alt="" width="16" height="16"> Home</a>
+        <a href="../watchman.html"><img src="../assets/icons/shield-bible.png" class="site-icon" alt="" width="16" height="16"> Watchman</a>
+        <a href="../bible.html"><img src="../assets/icons/shield-compass.png" class="site-icon" alt="" width="16" height="16"> BTE</a>
+        <a href="../lexicon.html"><img src="../assets/icons/shield-alpha-omega-48.png" class="site-icon" alt="" width="16" height="16"> Lexicon</a>
+        <a href="../cross-references.html"><img src="../assets/icons/shield-infinity-rope-48.png" class="site-icon" alt="" width="16" height="16"> Cross-Refs</a>
+        <a href="index.html" class="active"><img src="../assets/icons/shield-book-greek-48.png" class="site-icon" alt="" width="16" height="16"> Dictionary</a>
+        <a href="../blog.html"><img src="../assets/icons/shield-blog-quill-48.png" class="site-icon" alt="" width="16" height="16"> Blog</a>
+        <a href="../connect.html"><img src="../assets/icons/shield-handshake.png" class="site-icon" alt="" width="16" height="16"> Connect</a>
+        <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle" title="Toggle dark/light">&#127769;</button>
+    </nav>
+    <div class="container">
+
+        <div class="word-header">
+            <div class="word-title">Filioque</div>
+            <div class="pronunciation">/ˌfi-lē-ˈō-kwā/</div>
+            <span class="pos">noun / theological term</span>
+            <div class="etymology">Latin: <em>filio</em> (from the Son) + <em>que</em> (and). Literally "and from the Son." The phrase added to the Nicene Creed by Western Christianity to assert that the Holy Spirit proceeds from both the Father <em>and the Son</em> — a clause that became the central theological cause of the Great Schism (1054 AD) between Rome and Constantinople.</div>
+        </div>
+
+        <!-- Biblical Definition -->
+        <div class="section">
+            <h3>&#128214; Biblical Definition</h3>
+            <div class="biblical-def">
+                <p>The Filioque controversy addresses a deep question in Trinitarian theology: <strong>from whom does the Holy Spirit eternally proceed?</strong> The original Niceno-Constantinopolitan Creed (381 AD) reads: "the Holy Spirit, who proceeds <em>from the Father</em>" — based on Christ's own words in <a href="../bible.html?ref=John+15:26" class="verse-ref">John 15:26</a>. The Western church, beginning in Spain (~589 AD), added "and from the Son" (<em>filioque</em>) to guard against Arianism and to emphasize the full deity of Christ. By the 9th century the phrase had spread throughout the Frankish church and Rome. The Eastern church rejected it as an unauthorized addition to an ecumenical creed and as a theological error subordinating the Spirit to both Father and Son. Western proponents cite John 16:7, 20:22, Galatians 4:6, and Romans 8:9 ("the Spirit of Christ"). The Filioque is not a peripheral squabble — it touches the inner life of the Trinity and the authority of ecumenical councils. Most Reformed and evangelical traditions affirm some version of the double procession while acknowledging the creedal controversy.</p>
+            </div>
+        </div>
+
+        <!-- Webster 1828 collapsible -->
+        <div class="section">
+            <button class="dict-toggle" data-toggle="webster" onclick="toggleDict('webster')">
+                <span class="arrow">&#9658;</span>&#128214; Historical Context
+            </button>
+            <div class="dict-section" id="webster">
+                <p><em>(Webster 1828 does not define "filioque" — this is a technical ecclesiastical Latin term. Historical context is provided instead.)</em></p>
+                <p><strong>Timeline:</strong></p>
+                <p>&#x2022; <strong>381 AD</strong> — First Council of Constantinople establishes the creed: Spirit "proceeds from the Father."</p>
+                <p>&#x2022; <strong>589 AD</strong> — Council of Toledo (Spain) adds <em>filioque</em> to combat Arianism among Visigoths.</p>
+                <p>&#x2022; <strong>809 AD</strong> — Charlemagne promotes the addition; Pope Leo III resists altering the creed but agrees theologically.</p>
+                <p>&#x2022; <strong>1014 AD</strong> — Rome officially adopts <em>filioque</em> in the creed.</p>
+                <p>&#x2022; <strong>1054 AD</strong> — The Great Schism: Rome and Constantinople formally break over this (among other issues).</p>
+                <p>&#x2022; <strong>Today</strong> — The divide remains. Ecumenical dialogue continues but no resolution.</p>
+            </div>
+        </div>
+
+        <!-- Modern Corruption -->
+        <div class="section">
+            <h3>&#9888;&#65039; Why It Matters Today</h3>
+            <div class="corruption">
+                <p>The Filioque debate is often dismissed as arcane — but it reveals how seriously the early church took precision in Trinitarian language. If the Holy Spirit is merely "given" by the Son rather than sharing an eternal procession, questions about the Spirit's full deity and the equality of Trinitarian persons arise. In the modern charismatic and pentecostal movements, pneumatology (the doctrine of the Spirit) has been recovered in experiential terms — but often with minimal theological grounding. Men who know <em>nothing</em> of the Filioque are making sweeping claims about the Spirit's present activity. Knowing the history of how hard the church fought to define the Spirit's nature should produce both reverence and precision in how we speak of Him.</p>
+            </div>
+        </div>
+
+        <!-- Key Scripture -->
+        <div class="section">
+            <h3>&#128214; Key Scripture</h3>
+            <p>&#x2022; <a href="../bible.html?ref=John+15:26" class="verse-ref">John 15:26</a> &mdash; "The Helper, whom I will send to you from the Father, the Spirit of truth, who proceeds from the Father, he will bear witness about me."</p>
+            <p>&#x2022; <a href="../bible.html?ref=John+16:7" class="verse-ref">John 16:7</a> &mdash; "If I go, I will send him to you." (Western argument: the Son sends the Spirit)</p>
+            <p>&#x2022; <a href="../bible.html?ref=Galatians+4:6" class="verse-ref">Galatians 4:6</a> &mdash; "God has sent the Spirit of his Son into our hearts."</p>
+            <p>&#x2022; <a href="../bible.html?ref=Romans+8:9" class="verse-ref">Romans 8:9</a> &mdash; "The Spirit of God… the Spirit of Christ." (Paul uses both phrases interchangeably)</p>
+            <p>&#x2022; <a href="../bible.html?ref=John+20:22" class="verse-ref">John 20:22</a> &mdash; "He breathed on them and said, 'Receive the Holy Spirit.'"</p>
+        </div>
+
+        <!-- Roots collapsible -->
+        <div class="section">
+            <button class="dict-toggle" data-toggle="roots" onclick="toggleDict('roots')">
+                <span class="arrow">&#9658;</span>&#128279; Latin &amp; Greek Roots
+            </button>
+            <div class="dict-section" id="roots">
+                <pre>Latin:
+filio = from the Son (ablative of filius, son)
+  que = enclitic conjunction meaning "and"
+  → "and from the Son"
+
+Greek (Creed original):
+ἐκπορεύεται (ekporeuetai) — proceeds, goes out
+  → from ἐκ (out of) + πορεύομαι (to go, proceed)
+  → The Eastern church argues this verb implies a single ultimate source (the Father only)
+
+Latin equivalent:
+procedit — proceeds
+  → Western theologians used this more broadly, allowing double procession</pre>
+            </div>
+        </div>
+
+        <!-- Usage Examples collapsible -->
+        <div class="section">
+            <button class="dict-toggle" data-toggle="usage" onclick="toggleDict('usage')">
+                <span class="arrow">&#9658;</span>&#9997;&#65039; Usage Examples
+            </button>
+            <div class="dict-section" id="usage">
+                <p>&#x2022; "The Filioque split Christendom for a thousand years — not over politics, but over eight Latin syllables and what they meant about God's inner life."</p>
+                <p>&#x2022; "To the Eastern church, the Filioque turned the Trinity into a hierarchy; to the Western church, omitting it left Christ's full deity underguarded."</p>
+                <p>&#x2022; "Every time you say the Nicene Creed with 'and the Son' you're standing in a 1,400-year-old theological tradition that cost the church its unity — at least know what you're saying."</p>
+            </div>
+        </div>
+
+        <!-- Related Words -->
+        <div class="section">
+            <h3>Related Words</h3>
+            <div class="related">
+                <a href="trinity.html">Trinity</a>
+                <a href="pneumatology.html">Pneumatology</a>
+                <a href="perichoresis.html">Perichoresis</a>
+                <a href="hypostasis.html">Hypostasis</a>
+                <a href="hypostatic-union.html">Hypostatic Union</a>
+                <a href="creed.html">Creed</a>
+                <a href="christology.html">Christology</a>
+            </div>
+        </div>
+
+    </div>
+
+    <div style="text-align:center; margin:0 0 20px 0;">
+        <button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark/light" style="width:36px;height:36px;font-size:1rem;">&#127769;</button>
+    </div>
+
+    <footer>
+        <div class="cross-divider"><img src="../assets/icons/shield-cross-bible-48.png" alt="" width="36" height="36" style="opacity:0.6;margin-bottom:10px;"></div>
+        <p>
+            <a href="../index.html#uniting"><img src="../assets/icons/shield-hands-joining.png" class="site-icon" alt="" width="20" height="20"> Uniting</a> &middot;
+            <a href="../serving.html"><img src="../assets/icons/shield-serving.png" class="site-icon" alt="" width="20" height="20"> Serving</a> &middot;
+            <a href="../mentoring.html"><img src="../assets/icons/shield-mentoring.png" class="site-icon" alt="" width="20" height="20"> Mentoring</a> &middot;
+            <a href="../counseling.html"><img src="../assets/icons/shield-family.png" class="site-icon" alt="" width="20" height="20"> Counseling</a> &middot;
+            <a href="../about.html"><img src="../assets/icons/shield-about-person-24.png" class="site-icon" alt="" width="20" height="20"> About</a>
+        </p>
+        <p style="margin-top:8px;font-size:0.78rem;color:#555;">Powered by MOOPbot Pro &mdash; &ldquo;Iron sharpens iron.&rdquo; &mdash; <a href="../bible.html?ref=Proverbs+27:17" style="color:var(--gold);">Proverbs 27:17</a></p>
+    </footer>
+    <script>
+    function toggleDict(id){
+        var s=document.getElementById(id);
+        var b=document.querySelector('[data-toggle="'+id+'"]');
+        var a=b?b.querySelector('.arrow'):null;
+        s.classList.toggle('open');
+        if(a)a.classList.toggle('open');
+    }
+    function toggleTheme(){
+        var b=document.body,t=document.getElementById('themeToggle');
+        if(b.classList.contains('light-mode')){b.classList.remove('light-mode');t.textContent='\u{1F319}';localStorage.setItem('bte-theme','dark');}
+        else{b.classList.add('light-mode');t.textContent='\u2600\uFE0F';localStorage.setItem('bte-theme','light');}
+    }
+    (function(){
+        if(localStorage.getItem('bte-theme')==='light'){
+            document.body.classList.add('light-mode');
+            var t=document.getElementById('themeToggle');if(t)t.textContent='\u2600\uFE0F';
+        }
+    })();
+    </script>
+</body>
+</html>
