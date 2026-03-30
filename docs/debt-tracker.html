@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-touch-icon.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex,nofollow">
+    <title>Debt Paydown Tracker | MOOP Finance</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #000000;
+            --bg-card: #111111;
+            --bg-card2: #1a1a1a;
+            --gold: #D4AF37;
+            --gold-light: #F4D470;
+            --red: #e74c3c;
+            --green: #27ae60;
+            --orange: #e67e22;
+            --blue: #3498db;
+            --white: #e8e8e8;
+            --gray: #888888;
+            --gray-light: #666;
+            --border: #333333;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--white);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        h1, h2, h3, h4 { font-family: 'Playfair Display', serif; }
+
+        /* ── PIN SCREEN ─── */
+        #pin-screen {
+            position: fixed; inset: 0; z-index: 9999;
+            background: #000;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .pin-box {
+            background: #111; border: 1px solid var(--border);
+            border-radius: 16px; padding: 40px 36px; text-align: center;
+            max-width: 340px; width: 90%;
+            box-shadow: 0 0 40px rgba(212,175,55,0.15);
+        }
+        .pin-box .lock-icon { font-size: 3rem; margin-bottom: 16px; }
+        .pin-box h2 { color: var(--gold); margin-bottom: 8px; font-size: 1.5rem; }
+        .pin-box p { color: var(--gray); font-size: 0.9rem; margin-bottom: 24px; }
+        .pin-input {
+            width: 100%; background: #1a1a1a; border: 1px solid var(--border);
+            color: var(--white); font-size: 1.5rem; letter-spacing: 0.5rem;
+            padding: 12px 16px; border-radius: 8px; text-align: center;
+            outline: none; transition: border-color 0.2s;
+        }
+        .pin-input:focus { border-color: var(--gold); }
+        .pin-error { color: var(--red); font-size: 0.85rem; margin-top: 10px; min-height: 20px; }
+        .pin-btn {
+            margin-top: 16px; width: 100%; padding: 12px;
+            background: var(--gold); color: #000; font-weight: 700;
+            font-size: 1rem; border: none; border-radius: 8px;
+            cursor: pointer; transition: background 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+        .pin-btn:hover { background: var(--gold-light); }
+
+        /* ── NAV ─── */
+        nav {
+            display: flex; flex-wrap: wrap; gap: 6px;
+            justify-content: center; padding: 14px 20px;
+            border-bottom: 1px solid var(--border);
+            background: rgba(0,0,0,0.95);
+            position: sticky; top: 0; z-index: 100;
+        }
+        nav a {
+            color: var(--gray); text-decoration: none; font-size: 0.85rem;
+            font-weight: 500; padding: 5px 12px; border-radius: 20px;
+            border: 1px solid transparent; transition: all 0.2s;
+        }
+        nav a:hover { color: var(--gold); border-color: var(--border); }
+        nav a.active { color: var(--gold); border-color: var(--gold); }
+
+        /* ── HERO ─── */
+        .hero {
+            text-align: center; padding: 50px 20px 40px;
+            background: linear-gradient(180deg, rgba(212,175,55,0.07) 0%, transparent 100%);
+            border-bottom: 1px solid var(--border);
+        }
+        .hero h1 { font-size: clamp(2rem, 5vw, 2.8rem); color: var(--white); margin-bottom: 10px; }
+        .hero h1 span { color: var(--gold); }
+        .hero .subtitle { color: var(--gray); font-size: 0.95rem; }
+
+        /* ── MAIN CONTENT ─── */
+        .main { max-width: 1100px; margin: 0 auto; padding: 30px 20px 60px; }
+
+        /* ── SECTION CARDS ─── */
+        .section {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 12px; padding: 28px 30px; margin-bottom: 28px;
+            position: relative;
+        }
+        .section::before {
+            content: ''; position: absolute; left: 0; top: 20px; bottom: 20px;
+            width: 3px; background: var(--gold); border-radius: 0 3px 3px 0; opacity: 0.5;
+        }
+        .section-title {
+            display: flex; align-items: center; gap: 12px;
+            margin-bottom: 24px; padding-bottom: 14px;
+            border-bottom: 1px solid var(--border);
+        }
+        .section-title h2 { color: var(--gold); font-size: 1.4rem; }
+        .section-title .sec-icon { font-size: 1.5rem; }
+
+        /* ── SUMMARY BOX ─── */
+        .summary-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px; margin-bottom: 24px;
+        }
+        .stat-box {
+            background: var(--bg-card2); border: 1px solid var(--border);
+            border-radius: 10px; padding: 18px 16px; text-align: center;
+        }
+        .stat-box .stat-label { color: var(--gray); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+        .stat-box .stat-value { font-size: 1.6rem; font-weight: 700; color: var(--white); font-family: 'Inter', sans-serif; }
+        .stat-box .stat-value.red { color: var(--red); }
+        .stat-box .stat-value.gold { color: var(--gold); }
+        .stat-box .stat-value.green { color: var(--green); }
+        .stat-box .stat-sub { color: var(--gray); font-size: 0.78rem; margin-top: 4px; }
+
+        /* Total progress bar */
+        .total-progress-wrap { margin-top: 20px; }
+        .total-progress-label {
+            display: flex; justify-content: space-between;
+            color: var(--gray); font-size: 0.85rem; margin-bottom: 8px;
+        }
+        .progress-track {
+            width: 100%; background: #222; border-radius: 8px; height: 14px; overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%; border-radius: 8px;
+            background: linear-gradient(90deg, var(--green), var(--gold));
+            transition: width 0.5s ease;
+        }
+        .progress-fill.red { background: linear-gradient(90deg, var(--red), var(--orange)); }
+
+        /* Countdown display */
+        .countdown-wrap {
+            display: flex; gap: 12px; justify-content: center; margin-top: 20px; flex-wrap: wrap;
+        }
+        .countdown-unit {
+            background: var(--bg-card2); border: 1px solid var(--border);
+            border-radius: 10px; padding: 14px 18px; text-align: center; min-width: 80px;
+        }
+        .countdown-unit .cu-val { font-size: 2rem; font-weight: 700; color: var(--gold); line-height: 1; }
+        .countdown-unit .cu-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1px; color: var(--gray); margin-top: 4px; }
+
+        /* ── DEBT CARDS ─── */
+        .debt-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px;
+        }
+        .debt-card {
+            background: var(--bg-card2); border: 1px solid var(--border);
+            border-radius: 10px; padding: 18px;
+            transition: border-color 0.25s, transform 0.2s;
+        }
+        .debt-card:hover { border-color: rgba(212,175,55,0.4); transform: translateY(-2px); }
+        .debt-card.snowball-next { border-color: var(--gold); box-shadow: 0 0 16px rgba(212,175,55,0.2); }
+        .debt-card.snowball-next::after {
+            content: '🎯 SNOWBALL TARGET';
+            display: block; font-size: 0.68rem; font-weight: 700;
+            color: var(--gold); letter-spacing: 1px; margin-top: 10px;
+        }
+        .debt-card .dc-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+        .debt-card .dc-name { font-weight: 600; color: var(--white); font-size: 0.95rem; line-height: 1.3; }
+        .debt-card .dc-institution { color: var(--gray); font-size: 0.78rem; margin-top: 3px; }
+        .debt-card .dc-balance { font-size: 1.4rem; font-weight: 700; color: var(--red); text-align: right; }
+        .debt-card .dc-row {
+            display: flex; justify-content: space-between; align-items: center;
+            color: var(--gray); font-size: 0.82rem; margin-top: 8px;
+        }
+        .debt-card .dc-row .dc-val { color: var(--white); font-weight: 600; }
+        .debt-card .dc-row .dc-val.gold { color: var(--gold); }
+        .debt-card .dc-progress-wrap { margin-top: 12px; }
+        .debt-card .dc-progress-label {
+            display: flex; justify-content: space-between;
+            font-size: 0.75rem; color: var(--gray); margin-bottom: 5px;
+        }
+        .debt-card .dc-bar { height: 6px; background: #2a2a2a; border-radius: 4px; overflow: hidden; }
+        .debt-card .dc-fill {
+            height: 100%; border-radius: 4px;
+            background: linear-gradient(90deg, var(--red), var(--orange));
+        }
+        .debt-card .dc-badge {
+            display: inline-block; font-size: 0.68rem; padding: 2px 8px;
+            border-radius: 12px; font-weight: 600; text-transform: uppercase;
+            letter-spacing: 0.5px; margin-top: 10px;
+        }
+        .badge-small { background: rgba(39,174,96,0.2); color: var(--green); border: 1px solid rgba(39,174,96,0.3); }
+        .badge-medium { background: rgba(230,126,34,0.2); color: var(--orange); border: 1px solid rgba(230,126,34,0.3); }
+        .badge-large { background: rgba(231,76,60,0.2); color: var(--red); border: 1px solid rgba(231,76,60,0.3); }
+        .badge-huge { background: rgba(231,76,60,0.3); color: #ff6b6b; border: 1px solid rgba(231,76,60,0.5); }
+
+        /* ── COMPARISON TABLE ─── */
+        .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .compare-card {
+            background: var(--bg-card2); border: 1px solid var(--border);
+            border-radius: 10px; padding: 22px;
+        }
+        .compare-card.winner { border-color: var(--gold); }
+        .compare-card h3 { color: var(--gold); margin-bottom: 6px; font-size: 1.1rem; }
+        .compare-card .compare-badge {
+            display: inline-block; font-size: 0.7rem; padding: 2px 10px;
+            border-radius: 12px; font-weight: 700; margin-bottom: 14px;
+            text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .badge-winner { background: rgba(212,175,55,0.2); color: var(--gold); border: 1px solid rgba(212,175,55,0.4); }
+        .badge-runner { background: rgba(136,136,136,0.2); color: var(--gray); border: 1px solid #333; }
+        .compare-card p { color: #ccc; font-size: 0.9rem; margin-bottom: 10px; line-height: 1.6; }
+        .compare-stat { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #222; font-size: 0.88rem; }
+        .compare-stat:last-child { border-bottom: none; }
+        .compare-stat .cs-label { color: var(--gray); }
+        .compare-stat .cs-val { color: var(--white); font-weight: 600; }
+        .compare-stat .cs-val.better { color: var(--green); }
+        .compare-stat .cs-val.worse { color: var(--red); }
+
+        /* ── CALCULATOR ─── */
+        .calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        .calc-inputs label { display: block; color: var(--gray); font-size: 0.82rem; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .calc-inputs input, .calc-inputs select {
+            width: 100%; background: #1a1a1a; border: 1px solid var(--border);
+            color: var(--white); font-size: 1rem; padding: 10px 14px;
+            border-radius: 8px; outline: none; transition: border-color 0.2s;
+            font-family: 'Inter', sans-serif; margin-bottom: 16px;
+        }
+        .calc-inputs input:focus, .calc-inputs select:focus { border-color: var(--gold); }
+        .calc-btn {
+            width: 100%; padding: 12px; background: var(--gold); color: #000;
+            font-weight: 700; font-size: 1rem; border: none; border-radius: 8px;
+            cursor: pointer; font-family: 'Inter', sans-serif;
+            transition: background 0.2s;
+        }
+        .calc-btn:hover { background: var(--gold-light); }
+        .calc-results { background: #1a1a1a; border: 1px solid var(--border); border-radius: 10px; padding: 20px; }
+        .calc-results h4 { color: var(--gold); margin-bottom: 16px; font-size: 1rem; }
+        .calc-result-row { display: flex; justify-content: space-between; padding: 9px 0; border-bottom: 1px solid #222; font-size: 0.9rem; }
+        .calc-result-row:last-child { border-bottom: none; }
+        .calc-result-row .cr-label { color: var(--gray); }
+        .calc-result-row .cr-val { color: var(--white); font-weight: 600; }
+        .calc-result-row .cr-val.green { color: var(--green); }
+        .calc-result-row .cr-val.red { color: var(--red); }
+        .calc-result-row .cr-val.gold { color: var(--gold); }
+
+        /* ── SCHEDULE TABLE ─── */
+        .schedule-wrap { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        th {
+            text-align: left; padding: 10px 12px; color: var(--gold);
+            border-bottom: 2px solid var(--border); font-weight: 600;
+            font-family: 'Playfair Display', serif;
+        }
+        td { padding: 9px 12px; border-bottom: 1px solid #1a1a1a; color: #ccc; }
+        tr:hover td { background: rgba(255,255,255,0.03); }
+        tr.milestone td { background: rgba(212,175,55,0.08); color: var(--white); font-weight: 600; }
+        tr.milestone td:first-child::before { content: '⭐ '; }
+        .tag-paid { color: var(--green); font-size: 0.75rem; font-weight: 600; }
+
+        /* ── LIGHT MODE ─── */
+        body.light-mode { background: #F5F3EF !important; color: #1a1a1a !important; }
+        body.light-mode nav { background: rgba(245,243,239,0.97) !important; border-color: #d4d0c8 !important; }
+        body.light-mode nav a { color: #555 !important; }
+        body.light-mode nav a:hover, body.light-mode nav a.active { color: #D4AF37 !important; }
+        body.light-mode .section, body.light-mode .debt-card, body.light-mode .stat-box,
+        body.light-mode .compare-card, body.light-mode .calc-results {
+            background: #fff !important; border-color: #d4d0c8 !important;
+        }
+        body.light-mode .bg-card2 { background: #f0ede7 !important; }
+        body.light-mode h1, body.light-mode h2, body.light-mode h3, body.light-mode h4 { color: #D4AF37 !important; }
+        body.light-mode footer { background: #F5F3EF !important; border-color: #d4d0c8 !important; color: #666 !important; }
+        body.light-mode p, body.light-mode td { color: #333 !important; }
+        body.light-mode input, body.light-mode select { background: #fff !important; color: #1a1a1a !important; border-color: #ccc !important; }
+        body.light-mode .hero { background: #F5F3EF !important; }
+
+        /* ── THEME TOGGLE ─── */
+        .bte-theme-toggle {
+            justify-content: center; margin: 8px auto 0; width: fit-content;
+            display: flex; align-items: center; gap: 0;
+            background: rgba(30,30,30,0.85); border: 1px solid #333;
+            border-radius: 20px; padding: 3px 6px; cursor: pointer;
+            font-size: 0.7rem; user-select: none; backdrop-filter: blur(6px);
+            transition: all 0.3s;
+        }
+        .bte-theme-toggle:hover { border-color: var(--gold); }
+        .bte-theme-toggle .toggle-track {
+            width: 28px; height: 14px; background: #444; border-radius: 7px;
+            position: relative; margin: 0 4px; transition: background 0.3s;
+        }
+        .bte-theme-toggle .toggle-knob {
+            width: 10px; height: 10px; background: var(--gold); border-radius: 50%;
+            position: absolute; top: 2px; left: 2px; transition: left 0.3s;
+        }
+        body.light-mode .bte-theme-toggle { background: rgba(240,238,233,0.9); border-color: #ccc; }
+        body.light-mode .bte-theme-toggle .toggle-knob { left: 16px; }
+        .toggle-icon.moon-icon { color: #888; }
+        .toggle-icon.sun-icon { color: #888; }
+        body.light-mode .toggle-icon.sun-icon { color: var(--gold); }
+        body:not(.light-mode) .toggle-icon.moon-icon { color: var(--gold); }
+
+        /* ── FOOTER ─── */
+        footer {
+            text-align: center; padding: 32px 20px; color: var(--gray);
+            font-size: 0.88rem; border-top: 1px solid var(--border);
+        }
+        footer a { color: var(--gold); text-decoration: none; }
+
+        /* ── RESPONSIVE ─── */
+        @media (max-width: 700px) {
+            .compare-grid, .calc-grid { grid-template-columns: 1fr; }
+            .debt-grid { grid-template-columns: 1fr; }
+            .summary-grid { grid-template-columns: 1fr 1fr; }
+            .section { padding: 20px 16px; }
+        }
+        @media (max-width: 400px) {
+            .summary-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ── PIN SCREEN ── -->
+<div id="pin-screen">
+    <div class="pin-box">
+        <div class="lock-icon">🔒</div>
+        <h2>Debt Tracker</h2>
+        <p>Enter your PIN to access financial data</p>
+        <input type="password" id="pin-input" class="pin-input" maxlength="6" placeholder="••••"
+               inputmode="numeric" pattern="[0-9]*" autocomplete="off"
+               onkeydown="if(event.key==='Enter') checkPin()">
+        <div id="pin-error" class="pin-error"></div>
+        <button class="pin-btn" onclick="checkPin()">Unlock</button>
+    </div>
+</div>
+
+<!-- ── MAIN APP (hidden until PIN) ── -->
+<div id="app" style="display:none;">
+
+    <!-- Nav -->
+    <nav>
+        <a href="index.html">🛡️ U.S.M.C. Ministries Home</a>
+        <a href="finance.html">💰 Finance Dashboard</a>
+        <a href="debt-tracker.html" class="active">📉 Debt Tracker</a>
+        <a href="wheelhouse.html">⚓ Wheelhouse</a>
+    </nav>
+
+    <div style="text-align:center; margin-top:8px; margin-bottom:4px;">
+        <div class="bte-theme-toggle" onclick="bteToggleTheme()" title="Toggle dark/light mode">
+            <span class="toggle-icon moon-icon">🌙</span>
+            <div class="toggle-track"><div class="toggle-knob"></div></div>
+            <span class="toggle-icon sun-icon">☀️</span>
+        </div>
+    </div>
+
+    <!-- Hero -->
+    <div class="hero">
+        <div style="font-size:2.5rem; margin-bottom:14px; filter:drop-shadow(0 0 8px rgba(212,175,55,0.4));">⚔️</div>
+        <h1>Debt <span>Paydown</span> Tracker</h1>
+        <p class="subtitle">Snowball method · Live from SimpleFIN · As of <span id="as-of-date">—</span></p>
+    </div>
+
+    <div class="main">
+
+        <!-- ── SECTION 1: Total Debt Summary ── -->
+        <div class="section" id="section-summary">
+            <div class="section-title">
+                <span class="sec-icon">📊</span>
+                <h2>Total Debt Summary</h2>
+            </div>
+
+            <div class="summary-grid" id="summary-grid">
+                <!-- Populated by JS -->
+            </div>
+
+            <div class="total-progress-wrap">
+                <div class="total-progress-label">
+                    <span>Debt Eliminated</span>
+                    <span id="progress-pct">0%</span>
+                </div>
+                <div class="progress-track">
+                    <div class="progress-fill red" id="total-progress-bar" style="width:0%"></div>
+                </div>
+                <div style="display:flex; justify-content:space-between; font-size:0.78rem; color:var(--gray); margin-top:6px;">
+                    <span id="prog-paid">$0 paid off</span>
+                    <span id="prog-total">$0 total debt</span>
+                </div>
+            </div>
+
+            <div class="countdown-wrap" id="countdown-wrap">
+                <!-- Countdown populated by JS -->
+            </div>
+        </div>
+
+        <!-- ── SECTION 2: Debt Cards (Snowball Order) ── -->
+        <div class="section" id="section-cards">
+            <div class="section-title">
+                <span class="sec-icon">❄️</span>
+                <h2>Debts — Snowball Order (Smallest → Largest)</h2>
+            </div>
+            <p style="color:var(--gray); font-size:0.88rem; margin-bottom:20px;">
+                Pay minimums on all cards. Throw every extra dollar at the smallest balance first. When it's gone, roll that payment into the next one.
+            </p>
+            <div class="debt-grid" id="debt-cards-grid">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+
+        <!-- ── SECTION 3: Snowball vs Avalanche ── -->
+        <div class="section" id="section-compare">
+            <div class="section-title">
+                <span class="sec-icon">⚖️</span>
+                <h2>Snowball vs Avalanche Comparison</h2>
+            </div>
+            <div class="compare-grid" id="compare-grid">
+                <!-- Populated by JS -->
+            </div>
+            <div style="margin-top:20px; padding:16px; background:rgba(212,175,55,0.07); border:1px solid rgba(212,175,55,0.2); border-radius:8px;">
+                <p style="font-size:0.88rem; color:#ccc; line-height:1.7;">
+                    <strong style="color:var(--gold);">💡 Recommendation:</strong>
+                    The <strong>Avalanche method</strong> saves more money in interest but requires discipline on large balances.
+                    The <strong>Snowball method</strong> provides quick wins and psychological momentum — Dave Ramsey recommends it for most people.
+                    Given the significant debt spread here, consider a <strong>hybrid:</strong> snowball the small ones quickly (they're nearly paid off),
+                    then switch to avalanche when tackling the big ones.
+                </p>
+            </div>
+        </div>
+
+        <!-- ── SECTION 4: Monthly Payment Calculator ── -->
+        <div class="section" id="section-calc">
+            <div class="section-title">
+                <span class="sec-icon">🧮</span>
+                <h2>Monthly Payment Calculator</h2>
+            </div>
+            <div class="calc-grid">
+                <div class="calc-inputs">
+                    <label>Monthly Payment Budget ($)</label>
+                    <input type="number" id="calc-payment" value="1500" min="0" step="50">
+
+                    <label>Extra Monthly Payment ($)</label>
+                    <input type="number" id="calc-extra" value="0" min="0" step="50">
+
+                    <label>Payoff Strategy</label>
+                    <select id="calc-strategy">
+                        <option value="snowball">❄️ Snowball (Smallest First)</option>
+                        <option value="avalanche">🏔️ Avalanche (Highest APR First)</option>
+                    </select>
+
+                    <label>Estimated Average APR (%)</label>
+                    <input type="number" id="calc-apr" value="22.5" min="0" max="40" step="0.5">
+
+                    <button class="calc-btn" onclick="runCalculator()">🔢 Calculate Payoff</button>
+                </div>
+                <div class="calc-results">
+                    <h4>📅 Payoff Projections</h4>
+                    <div id="calc-results-inner">
+                        <p style="color:var(--gray); font-size:0.88rem;">Enter your monthly payment budget and click Calculate.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── SECTION 5: Projected Payoff Schedule ── -->
+        <div class="section" id="section-schedule">
+            <div class="section-title">
+                <span class="sec-icon">📅</span>
+                <h2>Projected Payoff Date</h2>
+            </div>
+            <p style="color:var(--gray); font-size:0.88rem; margin-bottom:20px;">
+                At <strong style="color:var(--white);">minimum payments only</strong> — click Calculate above to see custom projections.
+                Based on estimated 22.5% average APR across all credit accounts.
+            </p>
+            <div id="schedule-summary" style="margin-bottom:24px;">
+                <!-- Summary stats -->
+            </div>
+            <div class="schedule-wrap">
+                <table id="payoff-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Account</th>
+                            <th>Balance</th>
+                            <th>Min Payment</th>
+                            <th>Est. Months to Pay Off</th>
+                            <th>Est. Payoff Date</th>
+                            <th>Total Interest Paid</th>
+                        </tr>
+                    </thead>
+                    <tbody id="payoff-tbody">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div><!-- /.main -->
+
+    <!-- Footer -->
+    <footer>
+        <p>⚔️ Debt Paydown Tracker · Data from SimpleFIN · 🔒 PIN Protected</p>
+        <p style="margin-top:6px; font-size:0.8rem; color:#555;">Powered by MOOPbot Pro · <a href="about.html">About the Founder</a></p>
+    </footer>
+
+</div><!-- /#app -->
+
+
+<script>
+// ── PIN LOGIC ──
+const CORRECT_PIN = '5683';
+function checkPin() {
+    const val = document.getElementById('pin-input').value;
+    if (val === CORRECT_PIN) {
+        sessionStorage.setItem('dt-auth', '1');
+        document.getElementById('pin-screen').style.display = 'none';
+        document.getElementById('app').style.display = 'block';
+        initTracker();
+    } else {
+        document.getElementById('pin-error').textContent = 'Incorrect PIN. Try again.';
+        document.getElementById('pin-input').value = '';
+        document.getElementById('pin-input').focus();
+        setTimeout(() => { document.getElementById('pin-error').textContent = ''; }, 3000);
+    }
+}
+// Auto-unlock if already authenticated this session
+if (sessionStorage.getItem('dt-auth') === '1') {
+    document.getElementById('pin-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+}
+
+// Focus PIN input on load
+window.addEventListener('load', () => {
+    const pin = document.getElementById('pin-input');
+    if (pin) pin.focus();
+    if (sessionStorage.getItem('dt-auth') === '1') initTracker();
+});
+
+// ── DEBT DATA (extracted from simplefin-balances.json, negative balances only, excluding -0.00) ──
+const RAW_DEBTS = [
+    // Sorted snowball (smallest to largest)
+    { name: 'Visa Signature cashRewards Plus', acct: '4907', institution: 'Navy Federal Credit Union', balance: 11.73, apr: 17.99, type: 'personal' },
+    { name: 'Customized Cash Rewards Visa Signature', acct: '1450', institution: 'Bank of America (Maria)', balance: 28.48, apr: 24.99, type: 'personal' },
+    { name: 'Royal Caribbean Visa Signature', acct: '1607', institution: 'Bank of America (Maria)', balance: 35.00, apr: 24.99, type: 'personal' },
+    { name: 'Checking Line of Credit', acct: '9708', institution: 'Navy Federal Credit Union', balance: 78.00, apr: 15.99, type: 'loc' },
+    { name: 'Wells Fargo Active Cash Visa Card', acct: '3554', institution: 'Wells Fargo (Adam)', balance: 156.00, apr: 19.99, type: 'personal' },
+    { name: 'Mastercard Platinum', acct: '8615', institution: 'Navy Federal Credit Union', balance: 179.95, apr: 17.99, type: 'personal' },
+    { name: 'A. Johns Chase Credit Card', acct: '6940', institution: 'Chase Bank', balance: 199.43, apr: 22.99, type: 'personal' },
+    { name: 'Spark Cash Select', acct: '2866', institution: 'Capital One (B&A Biz)', balance: 241.51, apr: 21.99, type: 'business' },
+    { name: 'Chase Freedom Unlimited', acct: '0511', institution: 'Chase Bank (Personal)', balance: 603.61, apr: 21.99, type: 'personal' },
+    { name: 'Credit Card', acct: '9102', institution: 'Chase Bank (Personal)', balance: 1469.20, apr: 22.99, type: 'personal' },
+    { name: 'Amazon Business Prime Card', acct: '1004', institution: 'American Express (Biz)', balance: 2703.83, apr: 24.99, type: 'business' },
+    { name: 'Free Spirit World Elite Mastercard', acct: '4808', institution: 'Bank of America (Maria)', balance: 5543.00, apr: 25.99, type: 'personal' },
+    { name: 'Wells Fargo Reflect Visa Card', acct: '5653', institution: 'Wells Fargo (Maria)', balance: 6930.00, apr: 17.99, type: 'personal' },
+    { name: 'Citi® Dividend Card', acct: '2579', institution: 'Citibank (Adam)', balance: 25400.00, apr: 25.99, type: 'personal' },
+];
+
+const DATA_DATE = new Date(1774820825 * 1000); // approx date from balance-date
+const TOTAL_DEBT = RAW_DEBTS.reduce((s, d) => s + d.balance, 0);
+
+// Assumed starting debt (we can only know current, so use current as baseline — 0% paid off shown)
+const ASSUMED_ORIGINAL = TOTAL_DEBT; // set to current since we don't have history
+
+function fmt(n) { return '$' + n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+function fmtInt(n) { return '$' + Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+
+function minPayment(balance) {
+    return Math.max(balance * 0.02, 25);
+}
+
+function getBadgeClass(bal) {
+    if (bal < 100) return 'badge-small';
+    if (bal < 500) return 'badge-medium';
+    if (bal < 5000) return 'badge-large';
+    return 'badge-huge';
+}
+function getBadgeLabel(bal) {
+    if (bal < 100) return '✅ Almost Clear';
+    if (bal < 500) return '⚡ Quick Win';
+    if (bal < 5000) return '⚠️ Medium';
+    return '🔴 Heavy';
+}
+
+function monthsToPayoff(balance, apr, payment) {
+    if (payment <= 0) return Infinity;
+    const r = apr / 100 / 12;
+    if (r === 0) return Math.ceil(balance / payment);
+    if (payment <= balance * r) return Infinity; // never pays off
+    return Math.ceil(Math.log(payment / (payment - balance * r)) / Math.log(1 + r));
+}
+
+function totalInterest(balance, apr, payment) {
+    const months = monthsToPayoff(balance, apr, payment);
+    if (!isFinite(months)) return Infinity;
+    return (payment * months) - balance;
+}
+
+function payoffDateStr(months) {
+    if (!isFinite(months) || months > 600) return 'Never at min payment';
+    const d = new Date();
+    d.setMonth(d.getMonth() + months);
+    return d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+}
+
+function initTracker() {
+    // As-of date
+    document.getElementById('as-of-date').textContent = DATA_DATE.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+
+    renderSummary();
+    renderDebtCards();
+    renderComparison();
+    renderSchedule();
+
+    // Theme
+    if (localStorage.getItem('bte-theme') === 'light') document.body.classList.add('light-mode');
+}
+
+function renderSummary() {
+    const totalMin = RAW_DEBTS.reduce((s, d) => s + minPayment(d.balance), 0);
+    const numDebts = RAW_DEBTS.length;
+
+    // Estimated payoff at min payments (avg APR 22.5%)
+    const avgApr = 22.5;
+    const avgMonths = monthsToPayoff(TOTAL_DEBT, avgApr, totalMin);
+
+    const grid = document.getElementById('summary-grid');
+    grid.innerHTML = `
+        <div class="stat-box">
+            <div class="stat-label">Total Debt</div>
+            <div class="stat-value red">${fmt(TOTAL_DEBT)}</div>
+            <div class="stat-sub">${numDebts} accounts</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-label">Min Payments / Mo</div>
+            <div class="stat-value gold">${fmt(totalMin)}</div>
+            <div class="stat-sub">estimated minimums</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-label">Payoff at Min Only</div>
+            <div class="stat-value">${isFinite(avgMonths) ? avgMonths + ' mo' : '∞'}</div>
+            <div class="stat-sub">${isFinite(avgMonths) ? payoffDateStr(avgMonths) : 'Add more payment'}</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-label">Snowball Target</div>
+            <div class="stat-value green">${fmt(RAW_DEBTS[0].balance)}</div>
+            <div class="stat-sub">${RAW_DEBTS[0].name.substring(0,22)}…</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-label">Largest Debt</div>
+            <div class="stat-value red">${fmt(RAW_DEBTS[RAW_DEBTS.length-1].balance)}</div>
+            <div class="stat-sub">${RAW_DEBTS[RAW_DEBTS.length-1].institution}</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-label">Quick Wins (&lt;$100)</div>
+            <div class="stat-value green">${RAW_DEBTS.filter(d => d.balance < 100).length}</div>
+            <div class="stat-sub">accounts under $100</div>
+        </div>
+    `;
+
+    // Progress bar — 0% since we only have current snapshot
+    document.getElementById('progress-pct').textContent = '0%';
+    document.getElementById('total-progress-bar').style.width = '0%';
+    document.getElementById('prog-paid').textContent = '$0 paid off (tracking starts now)';
+    document.getElementById('prog-total').textContent = fmt(TOTAL_DEBT) + ' total';
+
+    // Countdown to payoff
+    if (isFinite(avgMonths)) {
+        const years = Math.floor(avgMonths / 12);
+        const months = avgMonths % 12;
+        const days = 0;
+        const wrap = document.getElementById('countdown-wrap');
+        wrap.innerHTML = `
+            <div style="width:100%; text-align:center; color:var(--gray); font-size:0.82rem; margin-bottom:8px;">
+                At minimum payments — debt-free in approximately:
+            </div>
+            <div class="countdown-unit"><div class="cu-val">${years}</div><div class="cu-label">Years</div></div>
+            <div class="countdown-unit"><div class="cu-val">${months}</div><div class="cu-label">Months</div></div>
+            <div class="countdown-unit"><div class="cu-val">${payoffDateStr(avgMonths)}</div><div class="cu-label">Est. Date</div></div>
+        `;
+    }
+}
+
+function renderDebtCards() {
+    const grid = document.getElementById('debt-cards-grid');
+    grid.innerHTML = RAW_DEBTS.map((d, i) => {
+        const minPay = minPayment(d.balance);
+        const months = monthsToPayoff(d.balance, d.apr, minPay);
+        const intPaid = totalInterest(d.balance, d.apr, minPay);
+        const isTarget = i === 0;
+        const pct = Math.min(100, (d.balance / TOTAL_DEBT) * 100);
+
+        return `
+        <div class="debt-card ${isTarget ? 'snowball-next' : ''}">
+            <div class="dc-header">
+                <div>
+                    <div class="dc-name">${d.name} (${d.acct})</div>
+                    <div class="dc-institution">${d.institution}</div>
+                </div>
+                <div class="dc-balance">${fmt(d.balance)}</div>
+            </div>
+            <div class="dc-row">
+                <span>Min Payment</span>
+                <span class="dc-val gold">${fmt(minPay)}/mo</span>
+            </div>
+            <div class="dc-row">
+                <span>Est. APR</span>
+                <span class="dc-val">${d.apr}%</span>
+            </div>
+            <div class="dc-row">
+                <span>Months to Pay Off</span>
+                <span class="dc-val">${isFinite(months) ? months + ' mo (' + payoffDateStr(months) + ')' : '∞'}</span>
+            </div>
+            <div class="dc-row">
+                <span>Total Interest (min)</span>
+                <span class="dc-val" style="color:var(--red)">${isFinite(intPaid) ? fmt(intPaid) : '∞'}</span>
+            </div>
+            <div class="dc-progress-wrap">
+                <div class="dc-progress-label">
+                    <span>Share of total debt</span>
+                    <span>${pct.toFixed(1)}%</span>
+                </div>
+                <div class="dc-bar"><div class="dc-fill" style="width:${pct}%"></div></div>
+            </div>
+            <span class="dc-badge ${getBadgeClass(d.balance)}">${getBadgeLabel(d.balance)}</span>
+        </div>
+        `;
+    }).join('');
+}
+
+function renderComparison() {
+    // Snowball: pay off smallest first
+    const snowballOrder = [...RAW_DEBTS].sort((a, b) => a.balance - b.balance);
+    // Avalanche: pay off highest APR first
+    const avalancheOrder = [...RAW_DEBTS].sort((a, b) => b.apr - a.apr);
+
+    const totalMin = RAW_DEBTS.reduce((s, d) => s + minPayment(d.balance), 0);
+    const EXTRA = 0; // compare at min-only first
+
+    // Simple simulation: calculate total interest paid under each strategy
+    function simulate(order, extraPerMonth) {
+        let balances = order.map(d => ({ ...d, bal: d.balance }));
+        let totalInterestPaid = 0;
+        let months = 0;
+        const maxMonths = 480;
+
+        while (balances.some(d => d.bal > 0.01) && months < maxMonths) {
+            months++;
+            let extraAvail = extraPerMonth;
+
+            // Apply interest and minimums
+            balances.forEach(d => {
+                if (d.bal <= 0) return;
+                const interest = d.bal * (d.apr / 100 / 12);
+                d.bal += interest;
+                totalInterestPaid += interest;
+                const pay = Math.min(minPayment(d.balance), d.bal);
+                d.bal -= pay;
+                if (d.bal < 0) d.bal = 0;
+            });
+
+            // Apply extra to first non-zero in order
+            for (const d of balances) {
+                if (d.bal > 0.01 && extraAvail > 0) {
+                    const pay = Math.min(extraAvail, d.bal);
+                    d.bal -= pay;
+                    extraAvail -= pay;
+                }
+            }
+
+            balances.forEach(d => { if (d.bal < 0.01) d.bal = 0; });
+        }
+
+        return { months, totalInterestPaid };
+    }
+
+    const snowRes = simulate(snowballOrder, 0);
+    const avRes = simulate(avalancheOrder, 0);
+
+    const snowFirst = snowballOrder[0];
+    const avFirst = avalancheOrder[0];
+
+    const interestSaved = snowRes.totalInterestPaid - avRes.totalInterestPaid;
+    const monthsSaved = snowRes.months - avRes.months;
+
+    document.getElementById('compare-grid').innerHTML = `
+        <div class="compare-card">
+            <h3>❄️ Snowball Method</h3>
+            <span class="compare-badge badge-runner">Motivation-First</span>
+            <p>Pay off <strong>${snowFirst.name} (${snowFirst.acct})</strong> first at ${fmt(snowFirst.balance)}.
+               When it's gone, roll that payment into the next smallest. Build momentum.</p>
+            <div class="compare-stat">
+                <span class="cs-label">First Target</span>
+                <span class="cs-val">${fmt(snowFirst.balance)} (${snowFirst.name})</span>
+            </div>
+            <div class="compare-stat">
+                <span class="cs-label">Est. Months to Debt-Free</span>
+                <span class="cs-val worse">${snowRes.months} months</span>
+            </div>
+            <div class="compare-stat">
+                <span class="cs-label">Est. Total Interest</span>
+                <span class="cs-val worse">${fmtInt(snowRes.totalInterestPaid)}</span>
+            </div>
+            <div class="compare-stat">
+                <span class="cs-label">Debt-Free Date</span>
+                <span class="cs-val">${payoffDateStr(snowRes.months)}</span>
+            </div>
+            <div class="compare-stat">
+                <span class="cs-label">Best For</span>
+                <span class="cs-val">Motivation & quick wins</span>
+            </div>
+        </div>
+        <div class="compare-card winner">
+            <h3>🏔️ Avalanche Method</h3>
+            <span class="compare-badge badge-winner">💰 Saves More</span>
+            <p>Attack <strong>${avFirst.name} (${avFirst.acct})</strong> first at ${avFirst.apr}% APR.
+               Higher interest means every extra dollar here saves more money long-term.</p>
+            <div class="compare-stat">
+                <span class="cs-label">First Target</span>
+                <span class="cs-val">${fmt(avFirst.balance)} (${avFirst.name})</span>
+            </div>
+            <div class="compare-stat">
+                <span class="cs-label">Est. Months to Debt-Free</span>
+                <span class="cs-val better">${avRes.months} months</span>
+            </div>
+            <div class="compare-stat">
+                <span class="cs-label">Est. Total Interest</span>
+                <span class="cs-val better">${fmtInt(avRes.totalInterestPaid)}</span>
+            </div>
+            <div class="compare-stat">
+                <span class="cs-label">Debt-Free Date</span>
+                <span class="cs-val">${payoffDateStr(avRes.months)}</span>
+            </div>
+            <div class="compare-stat">
+                <span class="cs-label">You Save vs Snowball</span>
+                <span class="cs-val better">${fmtInt(Math.abs(interestSaved))} in interest · ${Math.abs(monthsSaved)} months sooner</span>
+            </div>
+        </div>
+    `;
+}
+
+function renderSchedule() {
+    const totalMin = RAW_DEBTS.reduce((s, d) => s + minPayment(d.balance), 0);
+
+    let summaryHTML = `
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:12px; margin-bottom:16px;">
+            <div class="stat-box">
+                <div class="stat-label">Total Min/Month</div>
+                <div class="stat-value gold" style="font-size:1.3rem;">${fmt(totalMin)}</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Debt Count</div>
+                <div class="stat-value" style="font-size:1.3rem;">${RAW_DEBTS.length}</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Largest Monthly</div>
+                <div class="stat-value red" style="font-size:1.3rem;">${fmt(minPayment(RAW_DEBTS[RAW_DEBTS.length-1].balance))}</div>
+                <div class="stat-sub">Citi Dividend (2579)</div>
+            </div>
+        </div>
+    `;
+    document.getElementById('schedule-summary').innerHTML = summaryHTML;
+
+    const tbody = document.getElementById('payoff-tbody');
+    tbody.innerHTML = RAW_DEBTS.map((d, i) => {
+        const minPay = minPayment(d.balance);
+        const months = monthsToPayoff(d.balance, d.apr, minPay);
+        const intPaid = totalInterest(d.balance, d.apr, minPay);
+        const isMilestone = d.balance < 100;
+
+        return `<tr class="${isMilestone ? 'milestone' : ''}">
+            <td>${i+1}</td>
+            <td>
+                <strong>${d.name}</strong><br>
+                <span style="color:var(--gray); font-size:0.78rem;">${d.institution} · ${d.acct}</span>
+            </td>
+            <td style="color:var(--red);">${fmt(d.balance)}</td>
+            <td style="color:var(--gold);">${fmt(minPay)}/mo</td>
+            <td>${isFinite(months) ? months + ' months' : '<span style="color:var(--red)">∞ — increase payment!</span>'}</td>
+            <td>${payoffDateStr(months)}</td>
+            <td style="color:${isFinite(intPaid) && intPaid > 500 ? 'var(--red)' : 'var(--orange)'};">
+                ${isFinite(intPaid) ? fmt(intPaid) : '∞'}
+            </td>
+        </tr>`;
+    }).join('');
+}
+
+function runCalculator() {
+    const budget = parseFloat(document.getElementById('calc-payment').value) || 0;
+    const extra = parseFloat(document.getElementById('calc-extra').value) || 0;
+    const strategy = document.getElementById('calc-strategy').value;
+    const apr = parseFloat(document.getElementById('calc-apr').value) || 22.5;
+
+    const totalPayment = budget + extra;
+    const totalMin = RAW_DEBTS.reduce((s, d) => s + minPayment(d.balance), 0);
+    const extraAvail = Math.max(0, totalPayment - totalMin);
+
+    // Order debts
+    let order;
+    if (strategy === 'snowball') {
+        order = [...RAW_DEBTS].sort((a, b) => a.balance - b.balance);
+    } else {
+        order = [...RAW_DEBTS].sort((a, b) => b.apr - a.apr);
+    }
+
+    // Simulate payoff
+    let balances = order.map(d => ({ ...d, bal: d.balance, paid: false }));
+    let totalInterestPaid = 0;
+    let months = 0;
+    const maxMonths = 480;
+
+    while (balances.some(d => d.bal > 0.01) && months < maxMonths) {
+        months++;
+        let extraR = extraAvail;
+
+        balances.forEach(d => {
+            if (d.bal <= 0) return;
+            const interest = d.bal * (d.apr / 100 / 12);
+            d.bal += interest;
+            totalInterestPaid += interest;
+            const pay = Math.min(minPayment(d.balance), d.bal);
+            d.bal -= pay;
+            if (d.bal < 0) d.bal = 0;
+        });
+
+        for (const d of balances) {
+            if (d.bal > 0.01 && extraR > 0) {
+                const pay = Math.min(extraR, d.bal);
+                d.bal -= pay;
+                extraR -= pay;
+            }
+        }
+        balances.forEach(d => { if (d.bal < 0.01) d.bal = 0; });
+    }
+
+    // Compare to min-only
+    const minOnlyMonths = monthsToPayoff(TOTAL_DEBT, apr, totalMin);
+    const timeSaved = isFinite(minOnlyMonths) ? Math.max(0, minOnlyMonths - months) : '∞';
+
+    const resultsEl = document.getElementById('calc-results-inner');
+    if (totalPayment < totalMin) {
+        resultsEl.innerHTML = `<p style="color:var(--red);">⚠️ Your budget of ${fmt(totalPayment)}/mo is less than the estimated minimum payments of ${fmt(totalMin)}/mo. Debt will grow!</p>`;
+        return;
+    }
+
+    resultsEl.innerHTML = `
+        <div class="calc-result-row">
+            <span class="cr-label">Monthly Budget</span>
+            <span class="cr-val gold">${fmt(totalPayment)}</span>
+        </div>
+        <div class="calc-result-row">
+            <span class="cr-label">Min Payments</span>
+            <span class="cr-val">${fmt(totalMin)}</span>
+        </div>
+        <div class="calc-result-row">
+            <span class="cr-label">Extra Per Month</span>
+            <span class="cr-val green">+ ${fmt(extraAvail)}</span>
+        </div>
+        <div class="calc-result-row">
+            <span class="cr-label">Strategy</span>
+            <span class="cr-val">${strategy === 'snowball' ? '❄️ Snowball' : '🏔️ Avalanche'}</span>
+        </div>
+        <div class="calc-result-row">
+            <span class="cr-label">Months to Debt-Free</span>
+            <span class="cr-val ${months < (minOnlyMonths || 999) ? 'green' : ''}">${months < maxMonths ? months + ' months' : '∞'}</span>
+        </div>
+        <div class="calc-result-row">
+            <span class="cr-label">Debt-Free Date</span>
+            <span class="cr-val gold">${months < maxMonths ? payoffDateStr(months) : 'Increase payment'}</span>
+        </div>
+        <div class="calc-result-row">
+            <span class="cr-label">Total Interest Paid</span>
+            <span class="cr-val red">${fmt(totalInterestPaid)}</span>
+        </div>
+        <div class="calc-result-row">
+            <span class="cr-label">Time Saved vs Min-Only</span>
+            <span class="cr-val green">${typeof timeSaved === 'number' ? timeSaved + ' months' : '∞'}</span>
+        </div>
+        <div class="calc-result-row">
+            <span class="cr-label">Total Paid</span>
+            <span class="cr-val">${fmt(TOTAL_DEBT + totalInterestPaid)}</span>
+        </div>
+    `;
+}
+
+// ── THEME TOGGLE ──
+function bteToggleTheme() {
+    document.body.classList.toggle('light-mode');
+    localStorage.setItem('bte-theme', document.body.classList.contains('light-mode') ? 'light' : 'dark');
+}
+(function(){
+    if (localStorage.getItem('bte-theme') === 'light') document.body.classList.add('light-mode');
+})();
+</script>
+
+</body>
+</html>
