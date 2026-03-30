@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vigil &mdash; The MOOP Dictionary</title>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        :root { --bg:#000; --card:#111; --gold:#D4AF37; --gold-light:#F4D470; --white:#FFF; --gray:#888; --border:#333; }
+        body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--white); min-height:100vh; line-height:1.7; }
+        h1,h2,h3,h4 { font-family:'Playfair Display',serif; }
+        nav { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:4px 8px; padding:10px 16px;
+              border-bottom:1px solid var(--border); position:sticky; top:0;
+              background:rgba(0,0,0,0.95); backdrop-filter:blur(8px); z-index:100; }
+        nav a { color:var(--gray); text-decoration:none; font-size:0.8rem; display:inline-flex; align-items:center;
+                gap:3px; padding:3px 6px; border-radius:6px; transition:color 0.2s; }
+        nav a:hover, nav a.active { color:var(--gold); }
+        .site-icon { vertical-align:middle; opacity:0.8; }
+        .theme-toggle { background:none; border:1px solid var(--border); border-radius:50%; width:28px; height:28px;
+                        cursor:pointer; font-size:0.85rem; transition:all 0.3s; padding:0; color:var(--white);
+                        display:inline-flex; align-items:center; justify-content:center; }
+        .theme-toggle:hover { border-color:var(--gold); }
+        .container { max-width:820px; margin:0 auto; padding:28px 20px 60px; }
+        .word-header { text-align:center; padding:40px 0 30px; border-bottom:1px solid var(--border); margin-bottom:30px; }
+        .word-title { font-size:2.8rem; color:var(--gold-light); margin-bottom:6px; }
+        .pronunciation { color:var(--gray); font-size:1.1rem; font-style:italic; }
+        .pos { display:inline-block; background:var(--gold); color:#000; font-weight:700;
+               font-size:0.78rem; padding:3px 14px; border-radius:15px; margin:10px 0; }
+        .etymology { color:var(--white); font-size:0.88rem; margin:12px auto; max-width:650px; }
+        .section { margin:18px 0; padding:18px 22px; background:var(--card); border:1px solid var(--border); border-radius:10px; }
+        .section > h3 { color:var(--gold); margin-bottom:12px; font-size:1.05rem; }
+        .section p { margin:7px 0; color:var(--white); }
+        .biblical-def { border-left:3px solid var(--gold); padding-left:15px; }
+        .dict-toggle { cursor:pointer; color:var(--gold); font-size:0.92rem; user-select:none;
+                       display:inline-flex; align-items:center; gap:0; background:none; border:none;
+                       padding:0; font-family:inherit; font-weight:600; }
+        .dict-toggle:hover { color:var(--gold-light); }
+        .dict-toggle .arrow { display:inline-block; transition:transform 0.2s; margin-right:8px; font-size:0.75rem; }
+        .dict-toggle .arrow.open { transform:rotate(90deg); }
+        .dict-section { display:none; margin:10px 0 4px 0; padding:12px 16px;
+                        background:rgba(212,175,55,0.06); border-left:2px solid var(--gold);
+                        border-radius:0 6px 6px 0; }
+        .dict-section.open { display:block; }
+        .dict-section p { margin:6px 0; font-size:0.95rem; color:var(--white); }
+        .dict-section pre { font-family:'Courier New',monospace; font-size:0.82rem; color:var(--gold-light);
+                             line-height:1.7; white-space:pre-wrap; }
+        .corruption { border-left:3px solid #CC0000; padding-left:15px; }
+        .corruption p { color:var(--white); }
+        .verse-ref { color:var(--gold); text-decoration:none; font-weight:600; }
+        .verse-ref:hover { color:var(--gold-light); text-decoration:underline; }
+        .lexicon-link { color:var(--gold); font-family:monospace; text-decoration:none; }
+        .lexicon-link:hover { color:var(--gold-light); text-decoration:underline; }
+        .related { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+        .related a { background:var(--card); border:1px solid var(--border); padding:6px 14px;
+                     border-radius:20px; color:var(--white); text-decoration:none; font-size:0.85rem;
+                     transition:border-color 0.2s, color 0.2s; }
+        .related a:hover { border-color:var(--gold); color:var(--gold); }
+        .toggle-wrap { display:flex; justify-content:center; margin:28px 0 10px; }
+        footer { text-align:center; padding:28px 20px; border-top:1px solid var(--border);
+                 margin-top:40px; color:var(--white); font-size:0.88rem; }
+        footer a { color:var(--gray); text-decoration:none; }
+        footer a:hover { color:var(--gold); }
+        body.light-mode { --bg:#F5F3EF; --card:#FFF; --white:#1a1a1a; --gray:#666; --border:#d4d0c8; background:#F5F3EF; color:#1a1a1a; }
+        body.light-mode nav { background:rgba(245,243,239,0.97); }
+        body.light-mode .section { background:#fff; border-color:#d4d0c8; }
+        body.light-mode .dict-section { background:rgba(212,175,55,0.04); }
+        body.light-mode footer { border-top-color:#d4d0c8; color:#1a1a1a; }
+        body.light-mode .related a { background:#f0ede7; border-color:#d4d0c8; color:#1a1a1a; }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav>
+        <a href="../index.html"><img src="../assets/icons/shield-home-48.png" class="site-icon" alt="" width="16" height="16"> Home</a>
+        <a href="../watchman.html"><img src="../assets/icons/shield-bible.png" class="site-icon" alt="" width="16" height="16"> Watchman</a>
+        <a href="../bible.html"><img src="../assets/icons/shield-compass.png" class="site-icon" alt="" width="16" height="16"> BTE</a>
+        <a href="../lexicon.html"><img src="../assets/icons/shield-alpha-omega-48.png" class="site-icon" alt="" width="16" height="16"> Lexicon</a>
+        <a href="../cross-references.html"><img src="../assets/icons/shield-infinity-rope-48.png" class="site-icon" alt="" width="16" height="16"> Cross-Refs</a>
+        <a href="index.html" class="active"><img src="../assets/icons/shield-book-greek-48.png" class="site-icon" alt="" width="16" height="16"> Dictionary</a>
+        <a href="../blog.html"><img src="../assets/icons/shield-blog-quill-48.png" class="site-icon" alt="" width="16" height="16"> Blog</a>
+        <a href="../connect.html"><img src="../assets/icons/shield-handshake.png" class="site-icon" alt="" width="16" height="16"> Connect</a>
+        <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle" title="Toggle dark/light">&#127769;</button>
+    </nav>
+    <div class="container">
+        <div class="word-header">
+            <div class="word-title">Vigil</div>
+            <div class="pronunciation">/ˈvɪdʒ.ɪl/</div>
+            <span class="pos">noun</span>
+            <div class="etymology">From Latin <em>vigilia</em> — a watch, a period of wakefulness; from <em>vigil</em> (awake, watchful) → from <em>vigere</em> (to be lively, to thrive). Related to <em>vigilare</em> — to keep watch. Hebrew: <em>shaqad</em> (שָׁקַד) — to keep watch, to be wakeful; <em>shamar</em> (שָׁמַר) — to guard, to keep, to watch over. Greek: <em>grēgoreō</em> (γρηγορέω) — to be awake, to be alert, to keep watch; <em>agrupneō</em> (ἀγρυπνέω) — to be sleepless, to keep a vigil, to watch.</div>
+        </div>
+
+        <div class="section">
+            <h3>&#128214; Biblical Definition</h3>
+            <div class="biblical-def">
+                <p>A vigil is <strong>a period of intentional wakefulness — eyes open, heart alert, spirit engaged — in prayer, in waiting, or in watchful readiness before God</strong>. Scripture treats wakefulness as a spiritual virtue and sleepfulness as a spiritual danger. The disciples failed their vigil at Gethsemane — "Could you not keep watch for one hour?" — and that failure prefigures every generation's temptation to drift into spiritual slumber. The prophets kept vigils in fasting and prayer; Anna never left the temple, fasting and praying day and night. Eschatologically, the call to vigil pervades the NT: the Bridegroom comes at an unknown hour; the thief comes in the night; those who fall asleep will be caught off guard. A vigil is not merely a church ceremony — it is the posture of a soul that knows history is not over and the Lord has not yet returned.</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <button class="dict-toggle" onclick="toggleDict('webster')">
+                <span class="arrow">&#9658;</span>&#128220; Webster 1828 Definition
+            </button>
+            <div class="dict-section" id="webster">
+                <p><strong>VIG'IL, n.</strong> Watch; devotion performed in the customary hours of sleep; a keeping awake for religious exercises. Vigils were customarily kept before the great festivals of the church. 2. The evening before a feast. 3. Watch; the act of keeping awake for any purpose; wakefulness. "Keep vigil at thine altar." In religious practice, vigils were seasons of prayer and fasting observed during the night or in preparation for sacred days, grounded in the scriptural call to watchfulness and sobriety before the return of Christ.</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>&#128214; Key Scripture</h3>
+            <p>&#x2022; <a href="../bible.html?ref=Matthew+26:40-41" class="verse-ref">Matthew 26:40–41</a> &mdash; "Could you not watch with me for one hour? Watch and pray, lest you enter into temptation. The spirit is willing but the flesh is weak."</p>
+            <p>&#x2022; <a href="../bible.html?ref=Luke+2:37" class="verse-ref">Luke 2:37</a> &mdash; "She never left the temple but worshiped night and day, fasting and praying." — Anna's perpetual vigil as a model of watchful devotion.</p>
+            <p>&#x2022; <a href="../bible.html?ref=1+Peter+5:8" class="verse-ref">1 Peter 5:8</a> &mdash; "Be sober, be vigilant; because your adversary the devil walks about like a roaring lion, seeking whom he may devour."</p>
+            <p>&#x2022; <a href="../bible.html?ref=Matthew+25:13" class="verse-ref">Matthew 25:13</a> &mdash; "Watch therefore, for you know neither the day nor the hour in which the Son of Man is coming."</p>
+            <p>&#x2022; <a href="../bible.html?ref=Revelation+16:15" class="verse-ref">Revelation 16:15</a> &mdash; "Behold, I am coming like a thief! Blessed is the one who stays awake and keeps his garments on."</p>
+        </div>
+
+        <div class="section">
+            <button class="dict-toggle" onclick="toggleDict('roots')">
+                <span class="arrow">&#9658;</span>&#128279; Greek &amp; Hebrew Roots
+            </button>
+            <div class="dict-section" id="roots">
+                <p><strong>G1127</strong> &mdash; <em>grēgoreō</em> (γρηγορέω): to be awake, alert, watchful. Used 22x in NT. <a href="../bible.html?ref=Matthew+26:41" class="verse-ref">Matthew 26:41</a>; <a href="../bible.html?ref=1+Thessalonians+5:6" class="verse-ref">1 Thess 5:6</a>; <a href="../bible.html?ref=Revelation+3:3" class="verse-ref">Rev 3:3</a>. Derived from <em>egeirō</em> (to rise/awaken). The perfect state of the prepared soul.</p>
+                <p><strong>G69</strong> &mdash; <em>agrupneō</em> (ἀγρυπνέω): to be sleepless, to keep watch. <a href="../bible.html?ref=Hebrews+13:17" class="verse-ref">Hebrews 13:17</a> — shepherds who keep watch over souls; <a href="../bible.html?ref=Luke+21:36" class="verse-ref">Luke 21:36</a> — eschatological wakefulness.</p>
+                <p><strong>H8245</strong> &mdash; <em>shaqad</em> (שָׁקַד): to keep watch, to be wakeful. Jeremiah 1:12 — "I am watching over my word to perform it." God himself keeps vigil over his promises.</p>
+                <p><strong>H8104</strong> &mdash; <em>shamar</em> (שָׁמַר): to keep, to guard, to watch over. The watchman's verb — to maintain alert, attentive care.</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <button class="dict-toggle" onclick="toggleDict('corruption')">
+                <span class="arrow">&#9658;</span>&#9888;&#65039; Modern Corruption
+            </button>
+            <div class="dict-section" id="corruption">
+                <div class="corruption">
+                    <p>The modern church has largely abandoned the discipline of the vigil — not because the theology changed but because the culture of comfort and entertainment has made sustained wakefulness foreign to Christian practice. Believers who spend hours watching TV or scrolling cannot watch one hour with Christ in prayer. The postmodern church often reframes spiritual sleepiness as "rest" or "self-care," stripping Paul's urgent calls to wakefulness of their eschatological urgency. Simultaneously, secular culture has co-opted "vigil" to mean a public candle ceremony — draining it of its supernatural content (watching for Christ's return, battling in prayer, wrestling with God through the night). The disciples at Gethsemane are the prototype of every generation that chose comfort over cost when the hour demanded wakefulness.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <button class="dict-toggle" onclick="toggleDict('proto')">
+                <span class="arrow">&#9658;</span>&#127760; Proto-Language Roots
+            </button>
+            <div class="dict-section" id="proto">
+                <pre>Latin: vigilia → vigil (awake, alert) → vigere (to be lively/active)
+  → PIE: *weg- (to be strong, be lively)
+  Cognates: English "wake," "watch," "wit" (mental alertness)
+  Root idea: the active, engaged, alive state — opposite of stupor
+
+Greek:
+  γρηγορέω (grēgoreō) — from ἐγείρω (egeirō, to wake/raise)
+  The resurrection vocabulary applied to daily spiritual alertness
+  To be "gregory" (awake) is to live in resurrection posture
+
+Hebrew:
+  שָׁקַד (shaqad, H8245) — to be wakeful, to hasten
+  Used of the almond tree (שָׁקֵד, shaqed) — first tree to awake in spring
+  Jeremiah 1:11-12: The almond branch = God's vigil over his word
+
+Military context (Roman watches):
+  Night divided into 4 watches: evening, midnight, cock-crowing, morning
+  Mark 13:35 — "Watch at evening, midnight, cock-crowing, morning"
+  Christ's return could come in any watch — full-night vigil required</pre>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>Related Words</h3>
+            <div class="related">
+                <a href="watchman.html">Watchman</a>
+                <a href="prayer.html">Prayer</a>
+                <a href="fasting.html">Fasting</a>
+                <a href="sobriety.html">Sobriety</a>
+                <a href="warfare.html">Warfare</a>
+                <a href="perseverance.html">Perseverance</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="toggle-wrap">
+        <button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark/light" style="width:36px;height:36px;font-size:1.1rem;">&#127769;</button>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 The MOOP Dictionary &mdash; <a href="index.html">All Words</a> &mdash; <a href="../index.html">Home</a></p>
+    </footer>
+
+    <script>
+        function toggleTheme(){
+            document.body.classList.toggle('light-mode');
+            const btn=document.getElementById('themeToggle');
+            if(btn) btn.textContent=document.body.classList.contains('light-mode')?'🌞':'🌙';
+        }
+        function toggleDict(id){
+            const el=document.getElementById(id);
+            if(!el)return;
+            el.classList.toggle('open');
+            const btn=el.previousElementSibling;
+            if(btn){const arrow=btn.querySelector('.arrow');if(arrow)arrow.classList.toggle('open');}
+        }
+    </script>
+</body>
+</html>
