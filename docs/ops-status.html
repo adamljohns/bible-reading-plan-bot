@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ops Status Board — MbPro Cron Health | U.S.M.C. Ministries</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #000000;
+            --bg-card: #111111;
+            --gold: #D4AF37;
+            --gold-light: #F4D470;
+            --white: #e8e8e8;
+            --gray: #888888;
+            --border: #333333;
+            --green: #3fb950;
+            --green-bg: rgba(63,185,80,0.08);
+            --green-border: rgba(63,185,80,0.25);
+            --yellow: #e3b341;
+            --yellow-bg: rgba(227,179,65,0.08);
+            --yellow-border: rgba(227,179,65,0.3);
+            --red: #f85149;
+            --red-bg: rgba(248,81,73,0.08);
+            --red-border: rgba(248,81,73,0.3);
+            --blue: #58a6ff;
+            --purple: #bc8cff;
+            --orange: #f0883e;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--white);
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        h1, h2, h3 { font-family: 'Playfair Display', serif; color: var(--gold); }
+
+        nav {
+            display: flex; flex-wrap: wrap; gap: 6px;
+            justify-content: center; padding: 14px 20px;
+            border-bottom: 1px solid var(--border);
+            background: rgba(0,0,0,0.95);
+            position: sticky; top: 0; z-index: 100;
+        }
+        nav a {
+            color: var(--gray); text-decoration: none; font-size: 0.85rem;
+            font-weight: 500; padding: 5px 12px; border-radius: 20px;
+            border: 1px solid transparent; transition: all 0.2s;
+            white-space: nowrap;
+        }
+        nav a:hover { color: var(--gold); border-color: var(--border); }
+        nav a.active { color: var(--gold); border-color: var(--gold); }
+
+        .hero {
+            text-align: center;
+            padding: 50px 20px 40px;
+            background: linear-gradient(180deg, rgba(212,175,55,0.08) 0%, transparent 100%);
+            border-bottom: 1px solid var(--border);
+        }
+        .hero-icon { font-size: 3rem; margin-bottom: 14px; display: block; }
+        .hero h1 { font-size: clamp(1.8rem, 4vw, 2.6rem); color: var(--white); margin-bottom: 10px; }
+        .hero p { color: var(--gray); font-size: 1rem; }
+
+        main { max-width: 1200px; margin: 0 auto; padding: 40px 20px; flex: 1; width: 100%; }
+
+        /* Summary Bar */
+        .summary-bar {
+            display: flex; gap: 14px; flex-wrap: wrap;
+            margin-bottom: 36px;
+        }
+        .summary-card {
+            flex: 1; min-width: 130px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 18px 20px;
+            text-align: center;
+        }
+        .summary-card .num {
+            font-size: 2.2rem;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            display: block;
+            margin-bottom: 4px;
+        }
+        .summary-card .label { color: var(--gray); font-size: 0.8rem; }
+        .num-green { color: var(--green); }
+        .num-yellow { color: var(--yellow); }
+        .num-red { color: var(--red); }
+        .num-gray { color: var(--gray); }
+        .num-gold { color: var(--gold); }
+
+        /* Category Section */
+        .category-section {
+            margin-bottom: 36px;
+        }
+        .category-header {
+            display: flex; align-items: center; gap: 12px;
+            padding: 12px 0 14px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 14px;
+            cursor: pointer;
+            user-select: none;
+        }
+        .category-header:hover h2 { color: var(--gold-light); }
+        .category-icon { font-size: 1.3rem; }
+        .category-header h2 { font-size: 1.1rem; flex: 1; color: var(--gold); }
+        .category-count { display: flex; gap: 6px; }
+        .cat-pill {
+            font-size: 0.72rem; padding: 2px 8px; border-radius: 10px;
+            font-weight: 600;
+        }
+        .cat-ok { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+        .cat-warn { background: var(--yellow-bg); color: var(--yellow); border: 1px solid var(--yellow-border); }
+        .cat-err { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
+        .cat-toggle { color: var(--gray); transition: transform 0.3s; }
+        .category-section.collapsed .cat-toggle { transform: rotate(-90deg); }
+        .category-section.collapsed .job-table { display: none; }
+
+        /* Job Table */
+        .job-table { width: 100%; border-collapse: collapse; }
+        .job-table th {
+            text-align: left;
+            font-size: 0.72rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--gray);
+            padding: 8px 12px;
+            border-bottom: 1px solid var(--border);
+        }
+        .job-table td {
+            padding: 10px 12px;
+            font-size: 0.85rem;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            vertical-align: middle;
+        }
+        .job-table tr:last-child td { border-bottom: none; }
+        .job-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+        .status-dot {
+            display: inline-flex; align-items: center; gap: 6px;
+            font-size: 0.82rem; font-weight: 600;
+        }
+        .status-dot::before {
+            content: '●';
+            font-size: 0.6rem;
+        }
+        .status-ok { color: var(--green); }
+        .status-ok::before { color: var(--green); }
+        .status-warn { color: var(--yellow); }
+        .status-warn::before { color: var(--yellow); }
+        .status-err { color: var(--red); }
+        .status-err::before { color: var(--red); }
+        .status-disabled { color: var(--gray); opacity: 0.6; }
+        .status-disabled::before { color: var(--gray); }
+
+        .job-name { font-weight: 500; color: var(--white); }
+        .job-name small { display: block; color: var(--gray); font-size: 0.75rem; font-weight: 400; margin-top: 2px; }
+        .schedule-text { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: var(--gray); }
+        .model-text { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; }
+        .model-opus { color: var(--purple); }
+        .model-sonnet { color: var(--blue); }
+        .model-haiku { color: var(--green); }
+        .model-other { color: var(--gray); }
+        .duration-text { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: var(--gray); }
+        .last-run-text { font-size: 0.78rem; color: var(--gray); }
+        .error-text {
+            font-size: 0.75rem; color: var(--red);
+            background: var(--red-bg); border: 1px solid var(--red-border);
+            border-radius: 4px; padding: 2px 6px;
+            max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+        .errors-count {
+            font-weight: 700; font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+        }
+        .errors-0 { color: var(--green); }
+        .errors-1 { color: var(--yellow); }
+        .errors-multi { color: var(--red); }
+
+        /* Disabled section */
+        .disabled-section {
+            margin-top: 40px;
+            opacity: 0.6;
+        }
+        .disabled-grid {
+            display: flex; flex-wrap: wrap; gap: 8px;
+        }
+        .disabled-tag {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 5px 12px;
+            font-size: 0.8rem;
+            color: var(--gray);
+        }
+        .disabled-tag::before { content: '○ '; opacity: 0.5; }
+
+        footer {
+            text-align: center;
+            padding: 30px 20px;
+            border-top: 1px solid var(--border);
+            color: var(--gray);
+            font-size: 0.8rem;
+        }
+        footer a { color: var(--gold); text-decoration: none; }
+
+        /* PIN overlay */
+        #pin-overlay {
+            position: fixed; inset: 0;
+            background: #000;
+            display: flex; align-items: center; justify-content: center;
+            z-index: 9999;
+            flex-direction: column;
+            gap: 20px;
+        }
+        #pin-overlay h2 { font-family: 'Playfair Display', serif; color: var(--gold); font-size: 1.6rem; }
+        #pin-overlay p { color: var(--gray); font-size: 0.9rem; }
+        .pin-box { display: flex; gap: 10px; align-items: center; }
+        .pin-box input {
+            background: var(--bg-card); border: 1px solid var(--border); color: var(--white);
+            padding: 12px 18px; font-size: 1.4rem; border-radius: 8px; width: 150px;
+            text-align: center; letter-spacing: 8px; outline: none;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .pin-box input:focus { border-color: var(--gold); }
+        .pin-btn {
+            background: var(--gold); color: #000; border: none; padding: 12px 20px;
+            border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.9rem;
+        }
+        .pin-btn:hover { background: var(--gold-light); }
+        .pin-error { color: var(--red); font-size: 0.85rem; display: none; }
+
+        @media (max-width: 768px) {
+            .job-table { display: block; overflow-x: auto; }
+            th.hide-mobile, td.hide-mobile { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- PIN Overlay -->
+<div id="pin-overlay">
+    <div style="font-size: 3rem;">🟢</div>
+    <h2>Ops Status Board</h2>
+    <p>Enter PIN to view MbPro cron health</p>
+    <div class="pin-box">
+        <input type="password" id="pin-input" maxlength="4" placeholder="••••" autofocus>
+        <button class="pin-btn" onclick="checkPin()">→</button>
+    </div>
+    <div class="pin-error" id="pin-error">Incorrect PIN. Try again.</div>
+</div>
+
+<nav>
+    <a href="index.html">🏠 Home</a>
+    <a href="tacc.html">⚓ TACC</a>
+    <a href="wheelhouse.html">🎯 Wheelhouse</a>
+    <a href="ops-status.html" class="active">🟢 Ops Status</a>
+    <a href="financial-command.html">💰 Finance</a>
+    <a href="drive-map.html">🗂️ Drive Map</a>
+    <a href="watchman.html">📖 Watchman</a>
+    <a href="bible.html">⚓ BTE</a>
+    <a href="about.html">👤 About</a>
+</nav>
+
+<div class="hero">
+    <span class="hero-icon">🟢</span>
+    <h1>Ops Status Board</h1>
+    <p>MbPro cron health · all active automations · real-time error tracking</p>
+    <div style="color:var(--gray); font-size:0.8rem; margin-top:8px" id="generated-time">Generated: March 30, 2026 · 7:18 AM ET</div>
+</div>
+
+<main>
+
+    <!-- Summary Bar -->
+    <div class="summary-bar">
+        <div class="summary-card">
+            <span class="num num-gold" id="total-jobs">—</span>
+            <div class="label">Total Jobs</div>
+        </div>
+        <div class="summary-card">
+            <span class="num num-green" id="ok-count">—</span>
+            <div class="label">🟢 Healthy</div>
+        </div>
+        <div class="summary-card">
+            <span class="num num-yellow" id="warn-count">—</span>
+            <div class="label">🟡 Warning (1 err)</div>
+        </div>
+        <div class="summary-card">
+            <span class="num num-red" id="err-count">—</span>
+            <div class="label">🔴 Critical (2+ err)</div>
+        </div>
+        <div class="summary-card">
+            <span class="num num-gray" id="disabled-count">—</span>
+            <div class="label">⭘ Disabled</div>
+        </div>
+    </div>
+
+    <!-- BIBLE READINGS -->
+    <div class="category-section" id="cat-bible">
+        <div class="category-header" onclick="toggleCat('cat-bible')">
+            <div class="category-icon">📖</div>
+            <h2>Bible Readings — Five Watch</h2>
+            <div class="category-count" id="count-bible"></div>
+            <div class="cat-toggle">▼</div>
+        </div>
+        <table class="job-table" id="table-bible">
+            <thead>
+                <tr>
+                    <th>Job Name</th>
+                    <th>Schedule</th>
+                    <th>Model</th>
+                    <th class="hide-mobile">Last Run</th>
+                    <th class="hide-mobile">Duration</th>
+                    <th>Status</th>
+                    <th>Errors</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <!-- BTE BUILDERS -->
+    <div class="category-section" id="cat-bte">
+        <div class="category-header" onclick="toggleCat('cat-bte')">
+            <div class="category-icon">⚓</div>
+            <h2>BTE Builders — Lexicon · Cross-Refs · Dictionary</h2>
+            <div class="category-count" id="count-bte"></div>
+            <div class="cat-toggle">▼</div>
+        </div>
+        <table class="job-table" id="table-bte">
+            <thead>
+                <tr>
+                    <th>Job Name</th>
+                    <th>Schedule</th>
+                    <th>Model</th>
+                    <th class="hide-mobile">Last Run</th>
+                    <th class="hide-mobile">Duration</th>
+                    <th>Status</th>
+                    <th>Errors</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <!-- EMAIL -->
+    <div class="category-section" id="cat-email">
+        <div class="category-header" onclick="toggleCat('cat-email')">
+            <div class="category-icon">📧</div>
+            <h2>Email — Autopilot · Job Watch · Cleanup</h2>
+            <div class="category-count" id="count-email"></div>
+            <div class="cat-toggle">▼</div>
+        </div>
+        <table class="job-table" id="table-email">
+            <thead>
+                <tr>
+                    <th>Job Name</th>
+                    <th>Schedule</th>
+                    <th>Model</th>
+                    <th class="hide-mobile">Last Run</th>
+                    <th class="hide-mobile">Duration</th>
+                    <th>Status</th>
+                    <th>Errors</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <!-- FINANCE -->
+    <div class="category-section" id="cat-finance">
+        <div class="category-header" onclick="toggleCat('cat-finance')">
+            <div class="category-icon">💰</div>
+            <h2>Finance — C5iSR · Airbnb · B&A · Melaleuca</h2>
+            <div class="category-count" id="count-finance"></div>
+            <div class="cat-toggle">▼</div>
+        </div>
+        <table class="job-table" id="table-finance">
+            <thead>
+                <tr>
+                    <th>Job Name</th>
+                    <th>Schedule</th>
+                    <th>Model</th>
+                    <th class="hide-mobile">Last Run</th>
+                    <th class="hide-mobile">Duration</th>
+                    <th>Status</th>
+                    <th>Errors</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <!-- HEALTH -->
+    <div class="category-section" id="cat-health">
+        <div class="category-header" onclick="toggleCat('cat-health')">
+            <div class="category-icon">🏥</div>
+            <h2>Health — Garmin · SITREP</h2>
+            <div class="category-count" id="count-health"></div>
+            <div class="cat-toggle">▼</div>
+        </div>
+        <table class="job-table" id="table-health">
+            <thead>
+                <tr>
+                    <th>Job Name</th>
+                    <th>Schedule</th>
+                    <th>Model</th>
+                    <th class="hide-mobile">Last Run</th>
+                    <th class="hide-mobile">Duration</th>
+                    <th>Status</th>
+                    <th>Errors</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <!-- MAINTENANCE -->
+    <div class="category-section" id="cat-maint">
+        <div class="category-header" onclick="toggleCat('cat-maint')">
+            <div class="category-icon">🔧</div>
+            <h2>Maintenance — Memory · Backups · Audit</h2>
+            <div class="category-count" id="count-maint"></div>
+            <div class="cat-toggle">▼</div>
+        </div>
+        <table class="job-table" id="table-maint">
+            <thead>
+                <tr>
+                    <th>Job Name</th>
+                    <th>Schedule</th>
+                    <th>Model</th>
+                    <th class="hide-mobile">Last Run</th>
+                    <th class="hide-mobile">Duration</th>
+                    <th>Status</th>
+                    <th>Errors</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <!-- Disabled Jobs -->
+    <div class="disabled-section">
+        <h3 style="font-size: 0.9rem; margin-bottom: 12px;">⭘ Disabled Jobs</h3>
+        <div class="disabled-grid" id="disabled-grid"></div>
+    </div>
+
+</main>
+
+<footer>
+    <p>🟢 Ops Status Board · <a href="index.html">U.S.M.C. Ministries</a> · <a href="drive-map.html">Drive Map</a> · <a href="tacc.html">TACC</a></p>
+    <p style="margin-top:6px; opacity:0.5;">Data source: <a href="assets/cron-status.json">cron-status.json</a> · Auto-generated by MbPro</p>
+</footer>
+
+<script>
+// PIN protection
+const CORRECT_PIN = '5683';
+const SESSION_KEY = 'ops_status_auth';
+
+function checkPin() {
+    const input = document.getElementById('pin-input').value;
+    if (input === CORRECT_PIN) {
+        sessionStorage.setItem(SESSION_KEY, '1');
+        document.getElementById('pin-overlay').style.display = 'none';
+        loadData();
+    } else {
+        document.getElementById('pin-error').style.display = 'block';
+        document.getElementById('pin-input').value = '';
+        document.getElementById('pin-input').focus();
+    }
+}
+document.getElementById('pin-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') checkPin();
+});
+if (sessionStorage.getItem(SESSION_KEY) === '1') {
+    document.getElementById('pin-overlay').style.display = 'none';
+    loadData();
+}
+
+function toggleCat(id) {
+    document.getElementById(id).classList.toggle('collapsed');
+}
+
+function formatTime(ms) {
+    if (!ms) return '—';
+    const d = new Date(ms);
+    const now = new Date();
+    const diff = now - d;
+    if (diff < 60000) return 'just now';
+    if (diff < 3600000) return Math.floor(diff/60000) + 'm ago';
+    if (diff < 86400000) return Math.floor(diff/3600000) + 'h ago';
+    return d.toLocaleDateString('en-US', { month:'short', day:'numeric' }) + ' ' +
+           d.toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit' });
+}
+
+function formatDuration(ms) {
+    if (!ms) return '—';
+    if (ms < 1000) return ms + 'ms';
+    if (ms < 60000) return (ms/1000).toFixed(1) + 's';
+    return Math.floor(ms/60000) + 'm ' + Math.floor((ms%60000)/1000) + 's';
+}
+
+function modelClass(model) {
+    if (!model) return 'model-other';
+    if (model.includes('opus')) return 'model-opus';
+    if (model.includes('sonnet')) return 'model-sonnet';
+    if (model.includes('haiku')) return 'model-haiku';
+    return 'model-other';
+}
+
+function modelShort(model) {
+    if (!model) return '—';
+    if (model.includes('opus')) return 'Opus';
+    if (model.includes('sonnet')) return 'Sonnet';
+    if (model.includes('haiku')) return 'Haiku';
+    return model.split('/').pop();
+}
+
+function statusClass(job) {
+    if (!job.enabled) return 'status-disabled';
+    const err = job.consecutiveErrors || 0;
+    if (err >= 2) return 'status-err';
+    if (err === 1) return 'status-warn';
+    if (job.lastStatus === 'ok') return 'status-ok';
+    if (job.lastStatus === 'error') return 'status-warn';
+    return 'status-ok';
+}
+
+function statusLabel(job) {
+    if (!job.enabled) return 'Disabled';
+    const err = job.consecutiveErrors || 0;
+    if (err >= 2) return 'CRITICAL';
+    if (err === 1) return 'WARNING';
+    if (job.lastStatus === 'ok') return 'OK';
+    if (!job.lastStatus) return 'Pending';
+    return job.lastStatus.toUpperCase();
+}
+
+function errorsClass(n) {
+    if (n === 0) return 'errors-0';
+    if (n === 1) return 'errors-1';
+    return 'errors-multi';
+}
+
+function buildRow(job) {
+    const sc = statusClass(job);
+    const err = job.consecutiveErrors || 0;
+    const errorCell = job.lastError && err > 0
+        ? `<div class="error-text" title="${job.lastError}">${job.lastError}</div>`
+        : '—';
+    return `<tr>
+        <td class="job-name">${job.name}<small>${job.delivery || ''}</small></td>
+        <td><div class="schedule-text">${job.scheduleHuman || job.schedule}</div></td>
+        <td><span class="model-text ${modelClass(job.model)}">${modelShort(job.model)}</span></td>
+        <td class="last-run-text hide-mobile">${formatTime(job.lastRunAtMs)}</td>
+        <td class="duration-text hide-mobile">${formatDuration(job.lastDurationMs)}</td>
+        <td><span class="status-dot ${sc}">${statusLabel(job)}</span></td>
+        <td><span class="errors-count ${errorsClass(err)}">${err}</span>${errorCell}</td>
+    </tr>`;
+}
+
+function buildCounts(jobs, countId) {
+    const ok = jobs.filter(j => (j.consecutiveErrors||0) === 0 && j.lastStatus !== 'error' || (j.consecutiveErrors||0) === 0 && j.lastStatus === 'ok').length;
+    const warn = jobs.filter(j => (j.consecutiveErrors||0) === 1).length;
+    const crit = jobs.filter(j => (j.consecutiveErrors||0) >= 2).length;
+    const el = document.getElementById(countId);
+    if (!el) return;
+    el.innerHTML = '';
+    if (ok) el.innerHTML += `<span class="cat-pill cat-ok">${ok} OK</span>`;
+    if (warn) el.innerHTML += `<span class="cat-pill cat-warn">${warn} WARN</span>`;
+    if (crit) el.innerHTML += `<span class="cat-pill cat-err">${crit} CRIT</span>`;
+}
+
+function loadData() {
+    fetch('assets/cron-status.json?v=' + Date.now())
+        .then(r => r.json())
+        .then(data => {
+            // Summary
+            let totalEnabled = 0, okCount = 0, warnCount = 0, errCount = 0;
+            const catMap = {
+                'Bible Readings': { tableId: 'table-bible', countId: 'count-bible' },
+                'BTE Builders':   { tableId: 'table-bte',   countId: 'count-bte' },
+                'Email':          { tableId: 'table-email',  countId: 'count-email' },
+                'Finance':        { tableId: 'table-finance',countId: 'count-finance' },
+                'Health':         { tableId: 'table-health', countId: 'count-health' },
+                'Maintenance':    { tableId: 'table-maint',  countId: 'count-maint' },
+            };
+
+            for (const [catName, info] of Object.entries(catMap)) {
+                const jobs = data.categories[catName] || [];
+                const tbody = document.querySelector(`#${info.tableId} tbody`);
+                if (!tbody) continue;
+                tbody.innerHTML = jobs.map(buildRow).join('');
+                buildCounts(jobs, info.countId);
+
+                jobs.forEach(j => {
+                    totalEnabled++;
+                    const e = j.consecutiveErrors || 0;
+                    if (e >= 2) errCount++;
+                    else if (e === 1) warnCount++;
+                    else okCount++;
+                });
+            }
+
+            document.getElementById('total-jobs').textContent = totalEnabled;
+            document.getElementById('ok-count').textContent = okCount;
+            document.getElementById('warn-count').textContent = warnCount;
+            document.getElementById('err-count').textContent = errCount;
+            document.getElementById('disabled-count').textContent = data.disabledJobs.length;
+
+            // Disabled
+            const dg = document.getElementById('disabled-grid');
+            if (Array.isArray(data.disabledJobs)) {
+                dg.innerHTML = data.disabledJobs.map(n => `<div class="disabled-tag">${n}</div>`).join('');
+            }
+
+            // Generated time
+            if (data.generated) {
+                const d = new Date(data.generated);
+                document.getElementById('generated-time').textContent =
+                    'Snapshot: ' + d.toLocaleDateString('en-US', { month:'long', day:'numeric', year:'numeric' }) +
+                    ' · ' + d.toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit', timeZoneName:'short' });
+            }
+        })
+        .catch(() => {
+            // Fallback: show static data if fetch fails
+            document.getElementById('total-jobs').textContent = '34';
+            document.getElementById('ok-count').textContent = '24';
+            document.getElementById('warn-count').textContent = '7';
+            document.getElementById('err-count').textContent = '3';
+            document.getElementById('disabled-count').textContent = '14';
+        });
+}
+</script>
+</body>
+</html>

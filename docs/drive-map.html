@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drive Map — MOOP File Organization | U.S.M.C. Ministries</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #000000;
+            --bg-card: #111111;
+            --gold: #D4AF37;
+            --gold-light: #F4D470;
+            --white: #e8e8e8;
+            --gray: #888888;
+            --border: #333333;
+            --green: #3fb950;
+            --blue: #58a6ff;
+            --purple: #bc8cff;
+            --orange: #f0883e;
+            --red: #f85149;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--white);
+            line-height: 1.8;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        h1, h2, h3 { font-family: 'Playfair Display', serif; color: var(--gold); }
+
+        nav {
+            display: flex; flex-wrap: wrap; gap: 6px;
+            justify-content: center; padding: 14px 20px;
+            border-bottom: 1px solid var(--border);
+            background: rgba(0,0,0,0.95);
+            position: sticky; top: 0; z-index: 100;
+        }
+        nav a {
+            color: var(--gray); text-decoration: none; font-size: 0.85rem;
+            font-weight: 500; padding: 5px 12px; border-radius: 20px;
+            border: 1px solid transparent; transition: all 0.2s;
+            white-space: nowrap;
+        }
+        nav a:hover { color: var(--gold); border-color: var(--border); }
+        nav a.active { color: var(--gold); border-color: var(--gold); }
+
+        .hero {
+            text-align: center;
+            padding: 50px 20px 40px;
+            background: linear-gradient(180deg, rgba(212,175,55,0.08) 0%, transparent 100%);
+            border-bottom: 1px solid var(--border);
+        }
+        .hero-icon { font-size: 3rem; margin-bottom: 14px; display: block; }
+        .hero h1 { font-size: clamp(1.8rem, 4vw, 2.6rem); color: var(--white); margin-bottom: 10px; }
+        .hero p { color: var(--gray); font-size: 1rem; }
+        .hero .updated { color: var(--gray); font-size: 0.8rem; margin-top: 8px; opacity: 0.7; }
+
+        main { max-width: 1100px; margin: 0 auto; padding: 40px 20px; flex: 1; width: 100%; }
+
+        .section-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .drive-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .drive-card-header {
+            display: flex; align-items: center; gap: 12px;
+            padding: 16px 20px;
+            cursor: pointer;
+            user-select: none;
+            background: rgba(212,175,55,0.04);
+            border-bottom: 1px solid var(--border);
+            transition: background 0.2s;
+        }
+        .drive-card-header:hover { background: rgba(212,175,55,0.08); }
+        .drive-card-icon { font-size: 1.4rem; }
+        .drive-card-title { flex: 1; }
+        .drive-card-title h3 { font-family: 'Inter', sans-serif; font-size: 1rem; font-weight: 600; color: var(--gold); margin: 0; }
+        .drive-card-title span { font-size: 0.8rem; color: var(--gray); }
+        .drive-card-toggle { color: var(--gold); font-size: 0.9rem; transition: transform 0.3s; }
+        .drive-card.collapsed .drive-card-toggle { transform: rotate(-90deg); }
+        .drive-card-body { padding: 16px 20px; }
+        .drive-card.collapsed .drive-card-body { display: none; }
+
+        .tree {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.82rem;
+            line-height: 1.7;
+        }
+        .tree-item { display: flex; align-items: flex-start; gap: 8px; padding: 2px 0; }
+        .tree-line { color: var(--border); white-space: pre; }
+        .tree-icon { width: 18px; text-align: center; flex-shrink: 0; }
+        .tree-name { color: var(--white); }
+        .tree-name.folder { color: var(--blue); font-weight: 500; }
+        .tree-name.repo { color: var(--green); }
+        .tree-name.private { color: var(--purple); }
+        .tree-name.doc { color: var(--gold-light); }
+        .tree-name.media { color: var(--orange); }
+        .tree-meta { color: var(--gray); font-size: 0.75rem; margin-left: 4px; }
+        .tree-badge {
+            font-size: 0.65rem; padding: 1px 5px; border-radius: 4px;
+            margin-left: 6px; vertical-align: middle;
+        }
+        .badge-public { background: rgba(63,185,80,0.15); color: var(--green); border: 1px solid rgba(63,185,80,0.3); }
+        .badge-private { background: rgba(188,140,255,0.15); color: var(--purple); border: 1px solid rgba(188,140,255,0.3); }
+        .badge-local { background: rgba(88,166,255,0.15); color: var(--blue); border: 1px solid rgba(88,166,255,0.3); }
+        .badge-cloud { background: rgba(212,175,55,0.15); color: var(--gold); border: 1px solid rgba(212,175,55,0.3); }
+
+        .divider { height: 1px; background: var(--border); margin: 10px 0; }
+        .tree-section-label {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--gray);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 8px 0 4px;
+        }
+
+        .stat-row {
+            display: flex; gap: 12px; flex-wrap: wrap;
+            padding: 12px 0 6px;
+        }
+        .stat-pill {
+            display: flex; align-items: center; gap: 5px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 4px 12px;
+            font-size: 0.78rem;
+            color: var(--gray);
+        }
+        .stat-pill .num { color: var(--white); font-weight: 600; }
+
+        footer {
+            text-align: center;
+            padding: 30px 20px;
+            border-top: 1px solid var(--border);
+            color: var(--gray);
+            font-size: 0.8rem;
+        }
+        footer a { color: var(--gold); text-decoration: none; }
+
+        /* PIN overlay */
+        #pin-overlay {
+            position: fixed; inset: 0;
+            background: #000;
+            display: flex; align-items: center; justify-content: center;
+            z-index: 9999;
+            flex-direction: column;
+            gap: 20px;
+        }
+        #pin-overlay h2 { font-family: 'Playfair Display', serif; color: var(--gold); font-size: 1.6rem; }
+        #pin-overlay p { color: var(--gray); font-size: 0.9rem; }
+        .pin-box {
+            display: flex; gap: 10px; align-items: center;
+        }
+        .pin-box input {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--white);
+            padding: 12px 18px;
+            font-size: 1.4rem;
+            border-radius: 8px;
+            width: 150px;
+            text-align: center;
+            letter-spacing: 8px;
+            outline: none;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .pin-box input:focus { border-color: var(--gold); }
+        .pin-btn {
+            background: var(--gold);
+            color: #000;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        .pin-btn:hover { background: var(--gold-light); }
+        .pin-error { color: var(--red); font-size: 0.85rem; display: none; }
+        .pin-lock-icon { font-size: 3rem; }
+    </style>
+</head>
+<body>
+
+<!-- PIN Overlay -->
+<div id="pin-overlay">
+    <div class="pin-lock-icon">🗂️</div>
+    <h2>Drive Map</h2>
+    <p>Enter PIN to access Moop's file organization</p>
+    <div class="pin-box">
+        <input type="password" id="pin-input" maxlength="4" placeholder="••••" autofocus>
+        <button class="pin-btn" onclick="checkPin()">→</button>
+    </div>
+    <div class="pin-error" id="pin-error">Incorrect PIN. Try again.</div>
+</div>
+
+<nav>
+    <a href="index.html">🏠 Home</a>
+    <a href="tacc.html">⚓ TACC</a>
+    <a href="wheelhouse.html">🎯 Wheelhouse</a>
+    <a href="ops-status.html">🟢 Ops Status</a>
+    <a href="financial-command.html">💰 Finance</a>
+    <a href="drive-map.html" class="active">🗂️ Drive Map</a>
+    <a href="watchman.html">📖 Watchman</a>
+    <a href="bible.html">⚓ BTE</a>
+    <a href="about.html">👤 About</a>
+</nav>
+
+<div class="hero">
+    <span class="hero-icon">🗂️</span>
+    <h1>Drive Map</h1>
+    <p>Complete file organization across MacBook Pro, iCloud Drive, Google Drive, GitHub & External</p>
+    <div class="updated" id="page-date">Generated: March 30, 2026</div>
+</div>
+
+<main>
+
+    <!-- SUMMARY STATS -->
+    <div class="stat-row" style="margin-bottom: 28px;">
+        <div class="stat-pill">💻 <span class="num">MacBook Pro</span> 2017 (macOS Ventura)</div>
+        <div class="stat-pill">☁️ <span class="num">iCloud Drive</span> synced</div>
+        <div class="stat-pill">🐙 <span class="num">18</span> GitHub repos</div>
+        <div class="stat-pill">💾 <span class="num">BU2TB</span> external backup</div>
+        <div class="stat-pill">📂 <span class="num">4</span> local git repos</div>
+    </div>
+
+    <div class="section-grid">
+
+        <!-- LOCAL MACBOOK -->
+        <div class="drive-card" id="card-local">
+            <div class="drive-card-header" onclick="toggleCard('card-local')">
+                <div class="drive-card-icon">💻</div>
+                <div class="drive-card-title">
+                    <h3>Local (MacBook Pro)</h3>
+                    <span>~/Documents • ~/Desktop • ~/Downloads • Local Repos</span>
+                </div>
+                <div class="drive-card-toggle">▼</div>
+            </div>
+            <div class="drive-card-body">
+                <div class="tree-section-label">~/Documents/</div>
+                <div class="tree">
+                    <div class="tree-item"><span class="tree-name folder">📁 Documents/</span></div>
+                    <div class="tree-item"><span class="tree-line">  ├─ </span><span class="tree-name folder">01-Faith-Ministry/</span></div>
+                    <div class="tree-item"><span class="tree-line">  │   ├─ </span><span class="tree-name">Church-Applications/</span></div>
+                    <div class="tree-item"><span class="tree-line">  │   ├─ </span><span class="tree-name">Devotionals/</span></div>
+                    <div class="tree-item"><span class="tree-line">  │   ├─ </span><span class="tree-name">Handouts/</span></div>
+                    <div class="tree-item"><span class="tree-line">  │   └─ </span><span class="tree-name">Seminary/</span></div>
+                    <div class="tree-item"><span class="tree-line">  ├─ </span><span class="tree-name folder">02-Business/</span></div>
+                    <div class="tree-item"><span class="tree-line">  │   ├─ </span><span class="tree-name">Bow-Arrow/</span></div>
+                    <div class="tree-item"><span class="tree-line">  │   ├─ </span><span class="tree-name">Fit20/</span></div>
+                    <div class="tree-item"><span class="tree-line">  │   ├─ </span><span class="tree-name">Melaleuca/</span></div>
+                    <div class="tree-item"><span class="tree-line">  │   └─ </span><span class="tree-name">USMC-Ministries/</span></div>
+                    <div class="tree-item"><span class="tree-line">  ├─ </span><span class="tree-name folder">03-Finance/</span></div>
+                    <div class="tree-item"><span class="tree-line">  │   ├─ </span><span class="tree-name">Crypto/</span></div>
+                    <div class="tree-item"><span class="tree-line">  │   ├─ </span><span class="tree-name">Ledgers/</span></div>
+                    <div class="tree-item"><span class="tree-line">  │   └─ </span><span class="tree-name">Taxes/</span></div>
+                    <div class="tree-item"><span class="tree-line">  ├─ </span><span class="tree-name folder">04-Military/</span></div>
+                    <div class="tree-item"><span class="tree-line">  │   ├─ </span><span class="tree-name doc">Johns DD214.pdf</span></div>
+                    <div class="tree-item"><span class="tree-line">  │   └─ </span><span class="tree-name doc">Johns DON-Navy-2023.pdf</span></div>
+                    <div class="tree-item"><span class="tree-line">  ├─ </span><span class="tree-name folder">05-Family/</span></div>
+                    <div class="tree-item"><span class="tree-line">  ├─ </span><span class="tree-name folder">06-Tech/</span></div>
+                    <div class="tree-item"><span class="tree-line">  │   ├─ </span><span class="tree-name">ChatGPT-Archives/</span></div>
+                    <div class="tree-item"><span class="tree-line">  │   ├─ </span><span class="tree-name">email-autopilot/</span></div>
+                    <div class="tree-item"><span class="tree-line">  │   ├─ </span><span class="tree-name">tools/</span></div>
+                    <div class="tree-item"><span class="tree-line">  │   └─ </span><span class="tree-name">wordpress-export/</span></div>
+                    <div class="tree-item"><span class="tree-line">  ├─ </span><span class="tree-name folder">07-Health/</span></div>
+                    <div class="tree-item"><span class="tree-line">  ├─ </span><span class="tree-name folder">08-Legal/</span></div>
+                    <div class="tree-item"><span class="tree-line">  ├─ </span><span class="tree-name folder">09-Design/</span></div>
+                    <div class="tree-item"><span class="tree-line">  ├─ </span><span class="tree-name folder">Archive/</span><span class="tree-meta">(127 items)</span></div>
+                    <div class="tree-item"><span class="tree-line">  └─ </span><span class="tree-name doc">Finance/</span><span class="tree-meta">recent ledger work</span></div>
+                </div>
+
+                <div class="divider"></div>
+                <div class="tree-section-label">~/Desktop/</div>
+                <div class="tree">
+                    <div class="tree-item"><span class="tree-name folder">📁 Desktop/</span></div>
+                    <div class="tree-item"><span class="tree-line">  ├─ </span><span class="tree-name">Chris-Braddy-Search/</span></div>
+                    <div class="tree-item"><span class="tree-line">  ├─ </span><span class="tree-name">_ORGANIZED/</span></div>
+                    <div class="tree-item"><span class="tree-line">  ├─ </span><span class="tree-name doc">Adam's Intake form.pdf</span></div>
+                    <div class="tree-item"><span class="tree-line">  ├─ </span><span class="tree-name doc">Maria's intake form.pdf</span></div>
+                    <div class="tree-item"><span class="tree-line">  ├─ </span><span class="tree-name media">ba-update.mp3</span><span class="tree-meta">B&A audio</span></div>
+                    <div class="tree-item"><span class="tree-line">  ├─ </span><span class="tree-name media">Peacemaking messages ×3</span><span class="tree-meta">.m4a audio</span></div>
+                    <div class="tree-item"><span class="tree-line">  └─ </span><span class="tree-name">screenshots ×2</span><span class="tree-meta">Mar 2026</span></div>
+                </div>
+
+                <div class="divider"></div>
+                <div class="tree-section-label">~/Downloads/ (notable)</div>
+                <div class="tree">
+                    <div class="tree-item"><span class="tree-name folder">📁 Downloads/</span></div>
+                    <div class="tree-item"><span class="tree-line">  ├─ </span><span class="tree-name doc">2023 + 2024 Tax Returns.pdf</span></div>
+                    <div class="tree-item"><span class="tree-line">  ├─ </span><span class="tree-name doc">Bow & Arrow 1099-K 2025.pdf</span></div>
+                    <div class="tree-item"><span class="tree-line">  ├─ </span><span class="tree-name doc">101 Prayers + Requests.pdf</span></div>
+                    <div class="tree-item"><span class="tree-line">  ├─ </span><span class="tree-name doc">CLA Minister Credential Handbook.pdf</span></div>
+                    <div class="tree-item"><span class="tree-line">  ├─ </span><span class="tree-name">Bank Statements for Loan/</span><span class="tree-meta">(18 files)</span></div>
+                    <div class="tree-item"><span class="tree-line">  ├─ </span><span class="tree-name doc">Virginia Constitution.pdf</span></div>
+                    <div class="tree-item"><span class="tree-line">  ├─ </span><span class="tree-name">Claude.dmg</span><span class="tree-meta">248MB installer</span></div>
+                    <div class="tree-item"><span class="tree-line">  └─ </span><span class="tree-name">31 more files…</span></div>
+                </div>
+
+                <div class="divider"></div>
+                <div class="tree-section-label">Local Git Repos (~/ top-level)</div>
+                <div class="tree">
+                    <div class="tree-item"><span class="tree-name repo">📦 bible-reading-plan-bot/</span><span class="tree-line"> </span><span class="badge badge-public">public</span></div>
+                    <div class="tree-item"><span class="tree-name repo">📦 moopbible-engine/</span><span class="tree-line"> </span><span class="badge badge-private">private</span></div>
+                    <div class="tree-item"><span class="tree-name repo">📦 minimoop-workspace/</span><span class="tree-line"> </span><span class="badge badge-private">private</span></div>
+                    <div class="tree-item"><span class="tree-name repo">📦 wheelhouse-dashboard/</span><span class="tree-line"> </span><span class="badge badge-private">private</span></div>
+                </div>
+
+                <div class="divider"></div>
+                <div class="tree-section-label">OpenClaw Workspace</div>
+                <div class="tree">
+                    <div class="tree-item"><span class="tree-name folder">📁 ~/.openclaw/workspace/</span></div>
+                    <div class="tree-item"><span class="tree-line">  ├─ </span><span class="tree-name">MEMORY.md + SOUL.md + AGENTS.md</span></div>
+                    <div class="tree-item"><span class="tree-line">  ├─ </span><span class="tree-name">memory/</span><span class="tree-meta">daily session logs</span></div>
+                    <div class="tree-item"><span class="tree-line">  ├─ </span><span class="tree-name">skills/</span><span class="tree-meta">installed agent skills</span></div>
+                    <div class="tree-item"><span class="tree-line">  ├─ </span><span class="tree-name">scripts/</span><span class="tree-meta">automation scripts</span></div>
+                    <div class="tree-item"><span class="tree-line">  └─ </span><span class="tree-name">agents/</span><span class="tree-meta">PSA workspaces</span></div>
+                    <div class="tree-item" style="margin-top:4px"><span class="tree-name folder">📁 ~/.openclaw/shared-memory/</span></div>
+                    <div class="tree-item"><span class="tree-line">  ├─ </span><span class="tree-name">MEMORY.md</span><span class="tree-meta">long-term curated</span></div>
+                    <div class="tree-item"><span class="tree-line">  ├─ </span><span class="tree-name">memory/</span><span class="tree-meta">YYYY-MM-DD daily logs</span></div>
+                    <div class="tree-item"><span class="tree-line">  └─ </span><span class="tree-name">context/</span><span class="tree-meta">topic-specific context files</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ICLOUD DRIVE -->
+        <div class="drive-card" id="card-icloud">
+            <div class="drive-card-header" onclick="toggleCard('card-icloud')">
+                <div class="drive-card-icon">☁️</div>
+                <div class="drive-card-title">
+                    <h3>iCloud Drive</h3>
+                    <span>adamljohns@icloud.com · Synced to ~/Library/Mobile Documents/</span>
+                </div>
+                <div class="drive-card-toggle">▼</div>
+            </div>
+            <div class="drive-card-body">
+                <div class="tree-section-label">iCloud Drive Root</div>
+                <div class="tree">
+                    <div class="tree-item"><span class="tree-name folder">☁️ iCloud Drive/</span></div>
+                    <div class="tree-item"><span class="tree-line">  ├─ </span><span class="tree-name folder">Documents/</span><span class="tree-meta">→ mirrors ~/Documents (synced)</span></div>
+                    <div class="tree-item"><span class="tree-line">  ├─ </span><span class="tree-name folder">Downloads/</span><span class="tree-meta">→ mirrors ~/Downloads</span></div>
+                    <div class="tree-item"><span class="tree-line">  ├─ </span><span class="tree-name">22 push-up videos/</span><span class="tree-meta">(16 items)</span></div>
+                    <div class="tree-item"><span class="tree-line">  ├─ </span><span class="tree-name">Photos for Conference/</span><span class="tree-meta">(10 items)</span></div>
+                    <div class="tree-item"><span class="tree-line">  ├─ </span><span class="tree-name">To Maria/</span><span class="tree-meta">(5 items)</span></div>
+                    <div class="tree-item"><span class="tree-line">  ├─ </span><span class="tree-name doc">Adam L Johns.vcf</span><span class="tree-meta">contact card</span></div>
+                    <div class="tree-item"><span class="tree-line">  ├─ </span><span class="tree-name doc">Major Johns bio (2024).pdf</span></div>
+                    <div class="tree-item"><span class="tree-line">  ├─ </span><span class="tree-name doc">Adam military retirement.pdf</span></div>
+                    <div class="tree-item"><span class="tree-line">  ├─ </span><span class="tree-name doc">Virginia Constitution.pdf</span></div>
+                    <div class="tree-item"><span class="tree-line">  ├─ </span><span class="tree-name doc">God the Father, Son & Holy Spirit.vcf</span></div>
+                    <div class="tree-item"><span class="tree-line">  ├─ </span><span class="tree-name media">Various .m4a audio files</span><span class="tree-meta">(devotionals, peacemaking)</span></div>
+                    <div class="tree-item"><span class="tree-line">  └─ </span><span class="tree-name">…offline stubs (.icloud)</span><span class="tree-meta">~10 files not yet downloaded</span></div>
+                </div>
+
+                <div class="divider"></div>
+                <div class="tree-section-label">iCloud Mail — adamljohns@icloud.com</div>
+                <div class="tree">
+                    <div class="tree-item"><span class="tree-name folder">📧 iCloud Mail/</span></div>
+                    <div class="tree-item"><span class="tree-line">  ├─ </span><span class="tree-name">IMAP host: imap.mail.me.com:993</span></div>
+                    <div class="tree-item"><span class="tree-line">  ├─ </span><span class="tree-name">Inbox</span><span class="tree-meta">monitored by Job Watch cron</span></div>
+                    <div class="tree-item"><span class="tree-line">  └─ </span><span class="tree-name">App Password</span><span class="tree-meta">configured (venr-woyt…)</span></div>
+                </div>
+
+                <div class="divider"></div>
+                <div class="tree-section-label">iCloud Storage Note</div>
+                <div class="tree">
+                    <div class="tree-item">⚠️ <span class="tree-name" style="color:var(--orange)"> Google Photos at 98% (14.76/15GB)</span></div>
+                    <div class="tree-item"><span class="tree-meta" style="padding-left: 20px;">Consider Google One 100GB upgrade</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- GOOGLE DRIVE -->
+        <div class="drive-card" id="card-gdrive">
+            <div class="drive-card-header" onclick="toggleCard('card-gdrive')">
+                <div class="drive-card-icon">🔵</div>
+                <div class="drive-card-title">
+                    <h3>Google Drive / Gmail</h3>
+                    <span>6 accounts · adam.l.johns@gmail.com (primary)</span>
+                </div>
+                <div class="drive-card-toggle">▼</div>
+            </div>
+            <div class="drive-card-body">
+                <div class="tree-section-label">Google Accounts</div>
+                <div class="tree">
+                    <div class="tree-item"><span class="tree-name folder">🔵 adam.l.johns@gmail.com</span><span class="tree-meta"> — Personal primary</span></div>
+                    <div class="tree-item"><span class="tree-line">  ├─ </span><span class="tree-name">Gmail</span><span class="tree-meta">calendar + drive integrated</span></div>
+                    <div class="tree-item"><span class="tree-line">  ├─ </span><span class="tree-name">Google Calendar</span><span class="tree-meta">SITREP/Commander uses this</span></div>
+                    <div class="tree-item"><span class="tree-line">  └─ </span><span class="tree-name">Google Drive</span><span class="tree-meta">tax docs, family files</span></div>
+
+                    <div class="tree-item" style="margin-top: 8px"><span class="tree-name folder">🔵 bowandarrowstudiollc@gmail.com</span></div>
+                    <div class="tree-item"><span class="tree-line">  ├─ </span><span class="tree-name">Gmail</span><span class="tree-meta">Airbnb notifications, B&A ops</span></div>
+                    <div class="tree-item"><span class="tree-line">  └─ </span><span class="tree-name">Drive</span><span class="tree-meta">B&A business docs</span></div>
+
+                    <div class="tree-item" style="margin-top: 8px"><span class="tree-name folder">🔵 usmcministries2022@gmail.com</span></div>
+                    <div class="tree-item"><span class="tree-line">  ├─ </span><span class="tree-name">Gmail</span><span class="tree-meta">Ministry contact, donations</span></div>
+                    <div class="tree-item"><span class="tree-line">  └─ </span><span class="tree-name">Namecheap account email</span></div>
+
+                    <div class="tree-item" style="margin-top: 8px"><span class="tree-name folder">🔵 adamjohns@fit20usa.com</span></div>
+                    <div class="tree-item"><span class="tree-line">  └─ </span><span class="tree-name">Gmail</span><span class="tree-meta">fit20 work email</span></div>
+
+                    <div class="tree-item" style="margin-top: 8px"><span class="tree-name folder">📧 adamjohns78@yahoo.com</span></div>
+                    <div class="tree-item"><span class="tree-line">  └─ </span><span class="tree-name">IMAP</span><span class="tree-meta">imap.mail.yahoo.com:993 · 955+ unread</span></div>
+                </div>
+
+                <div class="divider"></div>
+                <div class="tree-section-label">Known Google Drive Folders</div>
+                <div class="tree">
+                    <div class="tree-item"><span class="tree-name folder">📁 Tax Documents/</span><span class="tree-meta">2023, 2024 returns</span></div>
+                    <div class="tree-item"><span class="tree-name folder">📁 Family Documents/</span></div>
+                    <div class="tree-item"><span class="tree-name folder">📁 Ministry Materials/</span></div>
+                    <div class="tree-item"><span class="tree-name folder">📁 B&A Business/</span><span class="tree-meta">contracts, docs</span></div>
+                    <div class="tree-item"><span class="tree-name folder">📁 Shared with Me/</span><span class="tree-meta">various collaborators</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- GITHUB REPOS -->
+        <div class="drive-card" id="card-github">
+            <div class="drive-card-header" onclick="toggleCard('card-github')">
+                <div class="drive-card-icon">🐙</div>
+                <div class="drive-card-title">
+                    <h3>GitHub Repos (adamljohns)</h3>
+                    <span>18 repositories · 4 cloned locally</span>
+                </div>
+                <div class="drive-card-toggle">▼</div>
+            </div>
+            <div class="drive-card-body">
+                <div class="tree-section-label">Public Repos</div>
+                <div class="tree">
+                    <div class="tree-item"><span class="tree-name repo">📦 bible-reading-plan-bot</span><span class="badge badge-public">public</span></div>
+                    <div class="tree-item"><span class="tree-line">  └─ </span><span class="tree-meta">MOOP's Daily Bible Reading Plan · Five Watch Format · usmcmin.org</span></div>
+                    <div class="tree-item" style="margin-top: 6px"><span class="tree-name repo">📦 usmcmin-com</span><span class="badge badge-public">public</span></div>
+                    <div class="tree-item"><span class="tree-line">  └─ </span><span class="tree-meta">USMC Ministries commerce site · usmcmin.com</span></div>
+                    <div class="tree-item" style="margin-top: 6px"><span class="tree-name repo">📦 operation-watchman</span><span class="badge badge-public">public</span></div>
+                    <div class="tree-item"><span class="tree-line">  └─ </span><span class="tree-meta">90-day men's formation program · PWA app</span></div>
+                </div>
+
+                <div class="divider"></div>
+                <div class="tree-section-label">Private Repos</div>
+                <div class="tree">
+                    <div class="tree-item"><span class="tree-name private">🔒 c5isr-trading-bot</span><span class="badge badge-private">private</span></div>
+                    <div class="tree-item"><span class="tree-line">  └─ </span><span class="tree-meta">Christ-centered crypto stewardship dashboard</span></div>
+                    <div class="tree-item" style="margin-top: 4px"><span class="tree-name private">🔒 moop-finances-2026</span><span class="badge badge-private">private</span></div>
+                    <div class="tree-item"><span class="tree-line">  └─ </span><span class="tree-meta">Personal & business financial ledger · 2026 tax prep</span></div>
+                    <div class="tree-item" style="margin-top: 4px"><span class="tree-name private">🔒 boi-redemption</span><span class="badge badge-private">private</span></div>
+                    <div class="tree-item"><span class="tree-line">  └─ </span><span class="tree-meta">BOI Case — Timeline, Transcripts, Back Pay. CONFIDENTIAL.</span></div>
+                    <div class="tree-item" style="margin-top: 4px"><span class="tree-name private">🔒 mag36-group-think-archive</span><span class="badge badge-private">private</span></div>
+                    <div class="tree-item"><span class="tree-line">  └─ </span><span class="tree-meta">MAG-36 PSD Group Think Telegram archive</span></div>
+                    <div class="tree-item" style="margin-top: 4px"><span class="tree-name private">🔒 email-autopilot</span><span class="badge badge-private">private</span></div>
+                    <div class="tree-item"><span class="tree-line">  └─ </span><span class="tree-meta">MbPro email triage · 4 Gmail + iCloud</span></div>
+                    <div class="tree-item" style="margin-top: 4px"><span class="tree-name private">🔒 moop-dictionary</span><span class="badge badge-private">private</span></div>
+                    <div class="tree-item"><span class="tree-line">  └─ </span><span class="tree-meta">MOOP Dictionary · Biblical definitions</span></div>
+                    <div class="tree-item" style="margin-top: 4px"><span class="tree-name private">🔒 watchman-daily-readings</span><span class="badge badge-private">private</span></div>
+                    <div class="tree-item"><span class="tree-line">  └─ </span><span class="tree-meta">Watchman Bible Plan · pre-compiled readings</span></div>
+                    <div class="tree-item" style="margin-top: 4px"><span class="tree-name private">🔒 moop-context</span><span class="badge badge-private">private</span></div>
+                    <div class="tree-item"><span class="tree-line">  └─ </span><span class="tree-meta">MbPro structured context · persistent memory</span></div>
+                    <div class="tree-item" style="margin-top: 4px"><span class="tree-name private">🔒 bow-arrow-studio-os</span><span class="badge badge-private">private</span></div>
+                    <div class="tree-item"><span class="tree-line">  └─ </span><span class="tree-meta">B&A Studio OS · STR, direct booking, merch</span></div>
+                    <div class="tree-item" style="margin-top: 4px"><span class="tree-name private">🔒 wheelhouse-app</span><span class="badge badge-private">private</span></div>
+                    <div class="tree-item"><span class="tree-line">  └─ </span><span class="tree-meta">Wheelhouse mobile app</span></div>
+                    <div class="tree-item" style="margin-top: 4px"><span class="tree-name private">🔒 bte-app</span><span class="badge badge-private">private</span></div>
+                    <div class="tree-item"><span class="tree-line">  └─ </span><span class="tree-meta">BTE mobile app</span></div>
+                    <div class="tree-item" style="margin-top: 4px"><span class="tree-name private">🔒 usmcmin-app</span><span class="badge badge-private">private</span></div>
+                    <div class="tree-item"><span class="tree-line">  └─ </span><span class="tree-meta">USMC Ministries mobile app</span></div>
+                    <div class="tree-item" style="margin-top: 4px"><span class="tree-name private">🔒 moopbible-engine</span><span class="badge badge-private">private</span></div>
+                    <div class="tree-item"><span class="tree-line">  └─ </span><span class="tree-meta">Blended Bible translations · NKJV weighted</span></div>
+                    <div class="tree-item" style="margin-top: 4px"><span class="tree-name private">🔒 minimoop-workspace</span><span class="badge badge-private">private</span></div>
+                    <div class="tree-item"><span class="tree-line">  └─ </span><span class="tree-meta">MiniMoop AI workspace · memory, config, skills</span></div>
+                    <div class="tree-item" style="margin-top: 4px"><span class="tree-name private">🔒 wheelhouse-dashboard</span><span class="badge badge-private">private</span></div>
+                    <div class="tree-item"><span class="tree-line">  └─ </span><span class="tree-meta">Daily Captain's Log · Five-Front War tracking</span></div>
+                </div>
+
+                <div class="divider"></div>
+                <div class="stat-row">
+                    <div class="stat-pill">🟢 <span class="num">3</span> public</div>
+                    <div class="stat-pill">🔒 <span class="num">15</span> private</div>
+                    <div class="stat-pill">💻 <span class="num">4</span> cloned locally</div>
+                    <div class="stat-pill">🔑 Token expires ~Jun 2026</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- EXTERNAL DRIVES -->
+        <div class="drive-card" id="card-external">
+            <div class="drive-card-header" onclick="toggleCard('card-external')">
+                <div class="drive-card-icon">💾</div>
+                <div class="drive-card-title">
+                    <h3>External Drives</h3>
+                    <span>/Volumes/ · BU2TB Backup Drive</span>
+                </div>
+                <div class="drive-card-toggle">▼</div>
+            </div>
+            <div class="drive-card-body">
+                <div class="tree-section-label">Mounted Volumes</div>
+                <div class="tree">
+                    <div class="tree-item"><span class="tree-name folder">💻 Macintosh HD</span><span class="tree-meta"> — /Volumes/Macintosh HD (internal)</span></div>
+                    <div class="tree-item"><span class="tree-name folder">💾 BU2TB</span><span class="tree-meta"> — /Volumes/BU2TB (2TB external backup)</span></div>
+                </div>
+
+                <div class="divider"></div>
+                <div class="tree-section-label">/Volumes/BU2TB/ Organization</div>
+                <div class="tree">
+                    <div class="tree-item"><span class="tree-name folder">💾 BU2TB/</span></div>
+                    <div class="tree-item"><span class="tree-line">  ├─ </span><span class="tree-name folder">01-ACTIVE/</span><span class="tree-meta">current working files</span></div>
+                    <div class="tree-item"><span class="tree-line">  ├─ </span><span class="tree-name folder">02-ARCHIVE/</span><span class="tree-meta">archived projects</span></div>
+                    <div class="tree-item"><span class="tree-line">  ├─ </span><span class="tree-name folder">03-BACKUPS/</span></div>
+                    <div class="tree-item"><span class="tree-line">  │   └─ </span><span class="tree-name">GitHub-Repos/</span><span class="tree-meta">weekly automated backup (Sun 4AM)</span></div>
+                    <div class="tree-item"><span class="tree-line">  ├─ </span><span class="tree-name folder">04-MEDIA/</span><span class="tree-meta">photos, videos, audio</span></div>
+                    <div class="tree-item"><span class="tree-line">  ├─ </span><span class="tree-name folder">05-MINISTRY/</span><span class="tree-meta">USMC Ministries materials</span></div>
+                    <div class="tree-item"><span class="tree-line">  ├─ </span><span class="tree-name folder">06-BUSINESS/</span><span class="tree-meta">B&A, fit20, Melaleuca</span></div>
+                    <div class="tree-item"><span class="tree-line">  ├─ </span><span class="tree-name folder">07-PERSONAL/</span></div>
+                    <div class="tree-item"><span class="tree-line">  ├─ </span><span class="tree-name folder">08-SOFTWARE/</span><span class="tree-meta">installers, ISOs</span></div>
+                    <div class="tree-item"><span class="tree-line">  ├─ </span><span class="tree-name folder">09-CLEANUP/</span><span class="tree-meta">pending review</span></div>
+                    <div class="tree-item"><span class="tree-line">  ├─ </span><span class="tree-name doc">ORGANIZATION-LOG.md</span></div>
+                    <div class="tree-item"><span class="tree-line">  └─ </span><span class="tree-name">_DUPLICATES_REVIEW/</span><span class="tree-meta">ChatGPT downloads (399 convos), etc.</span></div>
+                </div>
+
+                <div class="divider"></div>
+                <div class="tree-section-label">Backup Schedule</div>
+                <div class="tree">
+                    <div class="tree-item">🔄 <span class="tree-name">Weekly GitHub backup</span><span class="tree-meta"> — Sunday 4AM (automated cron)</span></div>
+                    <div class="tree-item">🔄 <span class="tree-name">Weekly usmcmin.org backup</span><span class="tree-meta"> — Monday 3AM</span></div>
+                    <div class="tree-item">⚠️ <span class="tree-name" style="color:var(--orange)">Manual backup required</span><span class="tree-meta"> — Documents/Downloads not automated</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PRINTERS & DEVICES -->
+        <div class="drive-card" id="card-devices">
+            <div class="drive-card-header" onclick="toggleCard('card-devices')">
+                <div class="drive-card-icon">🖥️</div>
+                <div class="drive-card-title">
+                    <h3>Devices & Network</h3>
+                    <span>MacBook Pro 2017 · Samsung Frame · HP Printer · Samsung Galaxy</span>
+                </div>
+                <div class="drive-card-toggle">▼</div>
+            </div>
+            <div class="drive-card-body">
+                <div class="tree">
+                    <div class="tree-item"><span class="tree-name folder">💻 MacBook Pro 2017 (MbPro host)</span></div>
+                    <div class="tree-item"><span class="tree-line">  ├─ </span><span class="tree-meta">macOS Ventura 13.x (Darwin 22.6.0 x64)</span></div>
+                    <div class="tree-item"><span class="tree-line">  └─ </span><span class="tree-meta">OpenClaw runtime · Node v22.22.0</span></div>
+
+                    <div class="tree-item" style="margin-top: 8px"><span class="tree-name folder">📺 Samsung The Frame 50" (Living Room)</span></div>
+                    <div class="tree-item"><span class="tree-line">  ├─ </span><span class="tree-meta">IP: 192.168.1.156 · Tizen OS · 4K</span></div>
+                    <div class="tree-item"><span class="tree-line">  └─ </span><span class="tree-meta">API: port 8001/8002 · UUID: fe0dfcca…</span></div>
+
+                    <div class="tree-item" style="margin-top: 8px"><span class="tree-name folder">🖨️ HP DeskJet 3630 (FF26D5)</span></div>
+                    <div class="tree-item"><span class="tree-line">  ├─ </span><span class="tree-meta">CUPS: HP_DeskJet_3630_series (default)</span></div>
+                    <div class="tree-item"><span class="tree-line">  └─ </span><span class="tree-meta">⚠️ CMY ink very low</span></div>
+
+                    <div class="tree-item" style="margin-top: 8px"><span class="tree-name folder">📱 Samsung Galaxy S25 (Moop)</span></div>
+                    <div class="tree-item"><span class="tree-line">  └─ </span><span class="tree-meta">Airbnb 2FA push · Garmin Connect · Telegram</span></div>
+
+                    <div class="tree-item" style="margin-top: 8px"><span class="tree-name folder">⌚ Garmin (wearable)</span></div>
+                    <div class="tree-item"><span class="tree-line">  └─ </span><span class="tree-meta">connect.garmin.com · daily health pulls 8AM + 9:45PM</span></div>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /section-grid -->
+
+</main>
+
+<footer>
+    <p>🗂️ Drive Map · <a href="index.html">U.S.M.C. Ministries</a> · <a href="ops-status.html">Ops Status</a> · <a href="tacc.html">TACC</a></p>
+    <p style="margin-top: 6px; opacity: 0.5;">Auto-generated by MbPro · March 30, 2026</p>
+</footer>
+
+<script>
+    // PIN protection
+    const CORRECT_PIN = '5683';
+    const SESSION_KEY = 'drive_map_auth';
+
+    function checkPin() {
+        const input = document.getElementById('pin-input').value;
+        if (input === CORRECT_PIN) {
+            sessionStorage.setItem(SESSION_KEY, '1');
+            document.getElementById('pin-overlay').style.display = 'none';
+        } else {
+            document.getElementById('pin-error').style.display = 'block';
+            document.getElementById('pin-input').value = '';
+            document.getElementById('pin-input').focus();
+        }
+    }
+
+    document.getElementById('pin-input').addEventListener('keydown', e => {
+        if (e.key === 'Enter') checkPin();
+    });
+
+    if (sessionStorage.getItem(SESSION_KEY) === '1') {
+        document.getElementById('pin-overlay').style.display = 'none';
+    }
+
+    // Toggle cards
+    function toggleCard(id) {
+        const card = document.getElementById(id);
+        card.classList.toggle('collapsed');
+    }
+
+    // Set date
+    document.getElementById('page-date').textContent = 'Generated: ' + new Date().toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
+</script>
+</body>
+</html>
