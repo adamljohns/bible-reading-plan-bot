@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sola Fide — The MOOP Dictionary of the English Language</title>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        :root { --bg:#000; --card:#111; --gold:#D4AF37; --gold-light:#F4D470; --white:#FFF; --gray:#888; --border:#333; }
+        body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--white); min-height:100vh; line-height:1.7; }
+        h1,h2,h3,h4 { font-family:'Playfair Display',serif; }
+        nav { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:4px 8px; padding:10px 16px;
+              border-bottom:1px solid var(--border); position:sticky; top:0;
+              background:rgba(0,0,0,0.95); backdrop-filter:blur(8px); z-index:100; }
+        nav a { color:var(--gray); text-decoration:none; font-size:0.8rem; display:inline-flex; align-items:center;
+                gap:3px; padding:3px 6px; border-radius:6px; transition:color 0.2s; }
+        nav a:hover, nav a.active { color:var(--gold); }
+        .site-icon { vertical-align:middle; opacity:0.8; }
+        .theme-toggle { background:none; border:1px solid var(--border); border-radius:50%; width:28px; height:28px;
+                        cursor:pointer; font-size:0.85rem; transition:all 0.3s; padding:0; color:var(--white);
+                        display:inline-flex; align-items:center; justify-content:center; }
+        .theme-toggle:hover { border-color:var(--gold); }
+        .container { max-width:820px; margin:0 auto; padding:28px 20px 60px; }
+        .word-header { text-align:center; padding:40px 0 30px; border-bottom:1px solid var(--border); margin-bottom:30px; }
+        .word-title { font-size:2.8rem; color:var(--gold-light); margin-bottom:6px; }
+        .pronunciation { color:var(--gray); font-size:1.1rem; font-style:italic; }
+        .pos { display:inline-block; background:var(--gold); color:#000; font-weight:700;
+               font-size:0.78rem; padding:3px 14px; border-radius:15px; margin:10px 0; }
+        .etymology { color:var(--gray); font-size:0.88rem; margin:12px auto; max-width:650px; }
+        .section { margin:18px 0; padding:18px 22px; background:var(--card); border:1px solid var(--border); border-radius:10px; }
+        .section > h3 { color:var(--gold); margin-bottom:12px; font-size:1.05rem; }
+        .section p { margin:7px 0; color:var(--white); }
+        .biblical-def { border-left:3px solid var(--gold); padding-left:15px; }
+        .dict-toggle { cursor:pointer; color:var(--gold); font-size:0.92rem; user-select:none;
+                       display:inline-flex; align-items:center; gap:0; background:none; border:none;
+                       padding:0; font-family:inherit; font-weight:600; }
+        .dict-toggle:hover { color:var(--gold-light); }
+        .dict-toggle .arrow { display:inline-block; transition:transform 0.2s; margin-right:8px; font-size:0.75rem; }
+        .dict-toggle .arrow.open { transform:rotate(90deg); }
+        .dict-section { display:none; margin:10px 0 4px 0; padding:12px 16px;
+                        background:rgba(212,175,55,0.06); border-left:2px solid var(--gold);
+                        border-radius:0 6px 6px 0; }
+        .dict-section.open { display:block; }
+        .dict-section p { margin:6px 0; font-size:0.95rem; color:var(--white); }
+        .dict-section pre { font-family:'Courier New',monospace; font-size:0.82rem; color:var(--gold-light);
+                             line-height:1.7; white-space:pre-wrap; }
+        .corruption { border-left:3px solid #CC0000; padding-left:15px; }
+        .verse-ref { color:var(--gold); text-decoration:none; font-weight:600; }
+        .verse-ref:hover { color:var(--gold-light); text-decoration:underline; }
+        .lexicon-link { color:var(--gold); font-family:monospace; text-decoration:none; }
+        .lexicon-link:hover { color:var(--gold-light); text-decoration:underline; }
+        .related { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+        .related a { background:var(--card); border:1px solid var(--border); padding:6px 14px;
+                     border-radius:20px; color:var(--white); text-decoration:none; font-size:0.85rem;
+                     transition:border-color 0.2s, color 0.2s; }
+        .related a:hover { border-color:var(--gold); color:var(--gold); }
+        footer { text-align:center; padding:28px 20px; border-top:1px solid var(--border);
+                 margin-top:40px; color:var(--gray); font-size:0.88rem; }
+        footer a { color:var(--gray); text-decoration:none; }
+        footer a:hover { color:var(--gold); }
+        .cross-divider { margin-bottom:10px; }
+        body.light-mode { --bg:#F5F3EF; --card:#FFF; --white:#1a1a1a; --gray:#666; --border:#d4d0c8; background:#F5F3EF; color:#1a1a1a; }
+        body.light-mode nav { background:rgba(245,243,239,0.97); }
+        body.light-mode .section { background:#fff; border-color:#d4d0c8; }
+        body.light-mode .dict-section { background:rgba(212,175,55,0.04); }
+        body.light-mode footer { border-top-color:#d4d0c8; }
+        body.light-mode .related a { background:#f0ede7; border-color:#d4d0c8; color:#1a1a1a; }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav>
+        <a href="../index.html"><img src="../assets/icons/shield-home-48.png" class="site-icon" alt="" width="16" height="16"> Home</a>
+        <a href="../watchman.html"><img src="../assets/icons/shield-bible.png" class="site-icon" alt="" width="16" height="16"> Watchman</a>
+        <a href="../bible.html"><img src="../assets/icons/shield-compass.png" class="site-icon" alt="" width="16" height="16"> BTE</a>
+        <a href="../lexicon.html"><img src="../assets/icons/shield-alpha-omega-48.png" class="site-icon" alt="" width="16" height="16"> Lexicon</a>
+        <a href="../cross-references.html"><img src="../assets/icons/shield-infinity-rope-48.png" class="site-icon" alt="" width="16" height="16"> Cross-Refs</a>
+        <a href="index.html" class="active"><img src="../assets/icons/shield-book-greek-48.png" class="site-icon" alt="" width="16" height="16"> Dictionary</a>
+        <a href="../blog.html"><img src="../assets/icons/shield-blog-quill-48.png" class="site-icon" alt="" width="16" height="16"> Blog</a>
+        <a href="../connect.html"><img src="../assets/icons/shield-handshake.png" class="site-icon" alt="" width="16" height="16"> Connect</a>
+        <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle" title="Toggle dark/light">&#127769;</button>
+    </nav>
+    <div class="container">
+
+        <div class="word-header">
+            <div class="word-title">Sola Fide</div>
+            <div class="pronunciation">/ˈsoʊ.lə ˈfiː.deɪ/</div>
+            <span class="pos">Latin phrase (Reformation doctrine)</span>
+            <div class="etymology">Latin: <em>sola</em> (alone, only) + <em>fide</em> (ablative of <em>fides</em>, faith). Literally: <em>by faith alone</em>. The rallying cry of the Protestant Reformation (16th c.), crystallizing Paul's argument in Romans and Galatians against all systems of earned merit: a sinner is declared righteous before God <em>sola fide</em> — by faith alone, apart from works of any kind. Often paired with <em>sola gratia</em> (grace alone): it is by grace alone through faith alone in Christ alone.</div>
+        </div>
+
+        <!-- Biblical Definition -->
+        <div class="section">
+            <h3>&#128214; Biblical Definition</h3>
+            <div class="biblical-def">
+                <p>Sola fide is <strong>the doctrine that justification — the forensic declaration of a sinner as righteous before God — is received through faith alone, not through meritorious works</strong>. It is not a Reformation invention but the recovery of Pauline soteriology. Paul's entire argument in Romans 1–5 builds to the declaration: "we hold that one is justified by faith apart from works of the law" (<a href="../bible.html?ref=Romans+3:28" class="verse-ref">Romans 3:28</a>). Luther added the word <em>allein</em> (alone) to his German translation of this verse — not to add to Scripture, but to make explicit what Paul had been arguing for three chapters. Abraham, the father of the faith, was "credited with righteousness" through faith <em>before</em> circumcision — before any religious rite could be credited (<a href="../bible.html?ref=Romans+4:9-11" class="verse-ref">Romans 4:9–11</a>). The critical precision of sola fide is the distinction between <em>the instrument</em> and <em>the basis</em> of justification: faith is the <em>instrument</em> — the empty hand that receives — but it is Christ's perfect righteousness imputed to the believer that is the <em>basis</em> of justification. Faith does not justify because of its own quality or quantity; it justifies because of its object: Christ crucified. A small faith in a great Christ is saved; great confidence in one's own merit is damned. This is why sola fide produces humility, not pride — the glory goes entirely to the One in whom we trust.</p>
+            </div>
+        </div>
+
+        <!-- Webster 1828 -->
+        <div class="section">
+            <button class="dict-toggle" data-toggle="webster" onclick="toggleDict('webster')">
+                <span class="arrow">&#9658;</span>&#128214; Webster 1828
+            </button>
+            <div class="dict-section" id="webster">
+                <p><strong>FAITH</strong> (Webster 1828) — "The assent of the mind to the truth of what is declared by another, resting on his authority and veracity, without other evidence… Evangelical, justifying, or saving faith, is the assent of the mind to the truth of divine revelation, on the authority of God's testimony, accompanied with a cordial assent of the will or approbation of the heart; an entire confidence or trust in God's character and declarations, and in the character and doctrines of Christ, with an unreserved surrender of the will to his guidance."</p>
+                <p>Webster captures the Reformation distinction beautifully: faith involves assent, trust, and surrender — it is not mere intellectual acknowledgment (<em>notitia</em>), nor mere agreement (<em>assensus</em>), but personal trust and commitment (<em>fiducia</em>). All three are necessary; fiducia is the heart of saving faith.</p>
+            </div>
+        </div>
+
+        <!-- Modern Corruption -->
+        <div class="section">
+            <h3>&#9888;&#65039; Modern Corruption</h3>
+            <div class="corruption">
+                <p>Sola fide faces attack from both sides. From the <em>works-righteousness</em> direction: the persistent human instinct to contribute something — any amount — to one's own standing before God. This appears in moralistic preaching (Jesus as example to follow rather than Savior to trust), in sacramentalism that makes participation in ritual a necessary supplement to faith, and in the popular notion that God grades on a curve. From the <em>cheap grace</em> direction: the antinomian corruption that strips faith of its fruit. The Reformers were clear: we are justified by faith alone, but saving faith is never alone — it always produces the works of love and obedience (<a href="../bible.html?ref=James+2:17" class="verse-ref">James 2:17</a>). Good works are not the root of justification; they are the fruit of it. Sola fide does not say "works don't matter" — it says "works don't save." The tree is known by its fruit; the fruit does not make the tree.</p>
+            </div>
+        </div>
+
+        <!-- Key Scripture -->
+        <div class="section">
+            <h3>&#128214; Key Scripture</h3>
+            <p>&#x2022; <a href="../bible.html?ref=Romans+3:28" class="verse-ref">Romans 3:28</a> &mdash; "For we hold that one is justified by faith apart from works of the law."</p>
+            <p>&#x2022; <a href="../bible.html?ref=Ephesians+2:8-9" class="verse-ref">Ephesians 2:8–9</a> &mdash; "For by grace you have been saved through faith. And this is not your own doing; it is the gift of God, not a result of works, so that no one may boast."</p>
+            <p>&#x2022; <a href="../bible.html?ref=Galatians+2:16" class="verse-ref">Galatians 2:16</a> &mdash; "A person is not justified by works of the law but through faith in Jesus Christ."</p>
+            <p>&#x2022; <a href="../bible.html?ref=Romans+4:3" class="verse-ref">Romans 4:3</a> &mdash; "Abraham believed God, and it was counted to him as righteousness."</p>
+            <p>&#x2022; <a href="../bible.html?ref=Habakkuk+2:4" class="verse-ref">Habakkuk 2:4</a> &mdash; "But the righteous shall live by his faith." (Quoted in Rom 1:17, Gal 3:11, Heb 10:38)</p>
+        </div>
+
+        <!-- Roots -->
+        <div class="section">
+            <button class="dict-toggle" data-toggle="roots" onclick="toggleDict('roots')">
+                <span class="arrow">&#9658;</span>&#128279; Latin &amp; Greek Roots
+            </button>
+            <div class="dict-section" id="roots">
+                <pre>Latin:
+sola fide — by faith alone
+  sola (fem. ablative of solus) — alone, only
+  fide (ablative of fides) — faith, trust, reliance
+
+Greek NT equivalent:
+πίστει μόνον (pistei monon) — by faith alone
+  πίστις (pistis, G4102) — faith, trust, belief; the word Paul uses throughout Romans/Galatians
+  → Romans 3:22, 3:25, 3:28, 4:3; Galatians 2:16; Ephesians 2:8; Philippians 3:9
+
+Five Solas of the Reformation (context):
+  Sola Scriptura — Scripture Alone
+  Sola Gratia — Grace Alone
+  Sola Fide — Faith Alone
+  Solus Christus — Christ Alone
+  Soli Deo Gloria — Glory to God Alone
+  Together they form the grammar of the Reformation gospel.</pre>
+            </div>
+        </div>
+
+        <!-- Usage Examples -->
+        <div class="section">
+            <button class="dict-toggle" data-toggle="usage" onclick="toggleDict('usage')">
+                <span class="arrow">&#9658;</span>&#9997;&#65039; Usage Examples
+            </button>
+            <div class="dict-section" id="usage">
+                <p>&#x2022; "Luther called sola fide 'the article by which the church stands or falls.' Remove it and you replace the gospel with religion."</p>
+                <p>&#x2022; "Sola fide is not a Protestant invention — it is the recovery of what Paul argued in Romans 3 and what Abraham demonstrated in Genesis 15."</p>
+                <p>&#x2022; "The danger of sola fide misunderstood: faith as an achievement, something to work up, a contribution to earn grace. No — faith is the empty hand; grace fills it."</p>
+            </div>
+        </div>
+
+        <!-- Related Words -->
+        <div class="section">
+            <h3>Related Words</h3>
+            <div class="related">
+                <a href="justification.html">Justification</a>
+                <a href="faith.html">Faith</a>
+                <a href="imputation.html">Imputation</a>
+                <a href="grace-of-god.html">Grace of God</a>
+                <a href="righteousness.html">Righteousness</a>
+                <a href="reformation.html">Reformation</a>
+                <a href="legalism.html">Legalism</a>
+                <a href="penal-substitution.html">Penal Substitution</a>
+            </div>
+        </div>
+
+    </div>
+
+    <div style="text-align:center; margin:0 0 20px 0;">
+        <button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark/light" style="width:36px;height:36px;font-size:1rem;">&#127769;</button>
+    </div>
+
+    <footer>
+        <div class="cross-divider"><img src="../assets/icons/shield-cross-bible-48.png" alt="" width="36" height="36" style="opacity:0.6;margin-bottom:10px;"></div>
+        <p>
+            <a href="../index.html#uniting"><img src="../assets/icons/shield-hands-joining.png" class="site-icon" alt="" width="20" height="20"> Uniting</a> &middot;
+            <a href="../serving.html"><img src="../assets/icons/shield-serving.png" class="site-icon" alt="" width="20" height="20"> Serving</a> &middot;
+            <a href="../mentoring.html"><img src="../assets/icons/shield-mentoring.png" class="site-icon" alt="" width="20" height="20"> Mentoring</a> &middot;
+            <a href="../counseling.html"><img src="../assets/icons/shield-family.png" class="site-icon" alt="" width="20" height="20"> Counseling</a> &middot;
+            <a href="../about.html"><img src="../assets/icons/shield-about-person-24.png" class="site-icon" alt="" width="20" height="20"> About</a>
+        </p>
+        <p style="margin-top:8px;font-size:0.78rem;color:#555;">Powered by MOOPbot Pro &mdash; &ldquo;Iron sharpens iron.&rdquo; &mdash; <a href="../bible.html?ref=Proverbs+27:17" style="color:var(--gold);">Proverbs 27:17</a></p>
+    </footer>
+    <script>
+    function toggleDict(id){
+        var s=document.getElementById(id);
+        var b=document.querySelector('[data-toggle="'+id+'"]');
+        var a=b?b.querySelector('.arrow'):null;
+        s.classList.toggle('open');
+        if(a)a.classList.toggle('open');
+    }
+    function toggleTheme(){
+        var b=document.body,t=document.getElementById('themeToggle');
+        if(b.classList.contains('light-mode')){b.classList.remove('light-mode');t.textContent='\u{1F319}';localStorage.setItem('bte-theme','dark');}
+        else{b.classList.add('light-mode');t.textContent='\u2600\uFE0F';localStorage.setItem('bte-theme','light');}
+    }
+    (function(){
+        if(localStorage.getItem('bte-theme')==='light'){
+            document.body.classList.add('light-mode');
+            var t=document.getElementById('themeToggle');if(t)t.textContent='\u2600\uFE0F';
+        }
+    })();
+    </script>
+</body>
+</html>
