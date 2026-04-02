@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hesed &mdash; The MOOP Dictionary</title>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        :root { --bg:#000; --card:#111; --gold:#D4AF37; --gold-light:#F4D470; --white:#FFF; --gray:#888; --border:#333; }
+        body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--white); min-height:100vh; line-height:1.7; }
+        h1,h2,h3,h4 { font-family:'Playfair Display',serif; }
+        nav { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:4px 8px; padding:10px 16px;
+              border-bottom:1px solid var(--border); position:sticky; top:0;
+              background:rgba(0,0,0,0.95); backdrop-filter:blur(8px); z-index:100; }
+        nav a { color:var(--gray); text-decoration:none; font-size:0.8rem; display:inline-flex; align-items:center;
+                gap:3px; padding:3px 6px; border-radius:6px; transition:color 0.2s; }
+        nav a:hover, nav a.active { color:var(--gold); }
+        .site-icon { vertical-align:middle; opacity:0.8; }
+        .theme-toggle { background:none; border:1px solid var(--border); border-radius:50%; width:28px; height:28px;
+                        cursor:pointer; font-size:0.85rem; transition:all 0.3s; padding:0; color:var(--white);
+                        display:inline-flex; align-items:center; justify-content:center; }
+        .theme-toggle:hover { border-color:var(--gold); }
+        .container { max-width:820px; margin:0 auto; padding:28px 20px 60px; }
+        .word-header { text-align:center; padding:40px 0 30px; border-bottom:1px solid var(--border); margin-bottom:30px; }
+        .word-title { font-size:2.8rem; color:var(--gold-light); margin-bottom:6px; }
+        .pronunciation { color:var(--gray); font-size:1.1rem; font-style:italic; }
+        .pos { display:inline-block; background:var(--gold); color:#000; font-weight:700;
+               font-size:0.78rem; padding:3px 14px; border-radius:15px; margin:10px 0; }
+        .etymology { color:var(--gray); font-size:0.88rem; margin:12px auto; max-width:650px; }
+        .section { margin:18px 0; padding:18px 22px; background:var(--card); border:1px solid var(--border); border-radius:10px; }
+        .section > h3 { color:var(--gold); margin-bottom:12px; font-size:1.05rem; }
+        .section p { margin:7px 0; color:var(--white); }
+        .biblical-def { border-left:3px solid var(--gold); padding-left:15px; }
+        .dict-toggle { cursor:pointer; color:var(--gold); font-size:0.92rem; user-select:none;
+                       display:inline-flex; align-items:center; gap:0; background:none; border:none;
+                       padding:0; font-family:inherit; font-weight:600; }
+        .dict-toggle:hover { color:var(--gold-light); }
+        .dict-toggle .arrow { display:inline-block; transition:transform 0.2s; margin-right:8px; font-size:0.75rem; }
+        .dict-toggle .arrow.open { transform:rotate(90deg); }
+        .dict-section { display:none; margin:10px 0 4px 0; padding:12px 16px;
+                        background:rgba(212,175,55,0.06); border-left:2px solid var(--gold);
+                        border-radius:0 6px 6px 0; }
+        .dict-section.open { display:block; }
+        .dict-section p { margin:6px 0; font-size:0.95rem; color:var(--white); }
+        .corruption { border-left:3px solid #CC0000; padding-left:15px; }
+        .verse-ref { color:var(--gold); text-decoration:none; font-weight:600; }
+        .verse-ref:hover { color:var(--gold-light); text-decoration:underline; }
+        .related { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+        .related a { background:var(--card); border:1px solid var(--border); padding:6px 14px;
+                     border-radius:20px; color:var(--white); text-decoration:none; font-size:0.85rem;
+                     transition:border-color 0.2s, color 0.2s; }
+        .related a:hover { border-color:var(--gold); color:var(--gold); }
+        footer { text-align:center; padding:28px 20px; border-top:1px solid var(--border);
+                 margin-top:40px; color:var(--gray); font-size:0.88rem; }
+        footer a { color:var(--gray); text-decoration:none; }
+        footer a:hover { color:var(--gold); }
+        .cross-divider { margin-bottom:10px; }
+        .toggle-wrap { display:flex; justify-content:center; margin:24px 0 8px; }
+        body.light-mode { --bg:#F5F3EF; --card:#FFF; --white:#1a1a1a; --gray:#666; --border:#d4d0c8; }
+        body.light-mode nav { background:rgba(245,243,239,0.97); }
+        body.light-mode .section { background:#fff; border-color:#d4d0c8; }
+        body.light-mode .dict-section { background:rgba(212,175,55,0.04); }
+        body.light-mode footer { border-top-color:#d4d0c8; }
+        body.light-mode .related a { background:#f0ede7; border-color:#d4d0c8; color:#1a1a1a; }
+        a, a:link, a:visited { color: var(--gold, #D4AF37) !important; }
+        a:hover { color: var(--gold-light, #F4D470) !important; }
+        .dict-back-nav { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:22px; padding:10px 0; border-bottom:1px solid var(--border,#333); }
+        .dict-back-nav a { color:var(--gold,#D4AF37); text-decoration:none; font-size:0.88rem; font-weight:500; }
+        .dict-back-nav a:hover { color:var(--gold-light,#F4D470); }
+        .dict-back-nav .dict-back-center { flex:1; text-align:center; }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav>
+        <a href="../index.html"><img src="../assets/icons/shield-home-48.png" class="site-icon" alt="" width="16" height="16"> Home</a>
+        <a href="../watchman.html"><img src="../assets/icons/shield-bible.png" class="site-icon" alt="" width="16" height="16"> Watchman</a>
+        <a href="../bible.html"><img src="../assets/icons/shield-compass.png" class="site-icon" alt="" width="16" height="16"> BTE</a>
+        <a href="../lexicon.html"><img src="../assets/icons/shield-alpha-omega-48.png" class="site-icon" alt="" width="16" height="16"> Lexicon</a>
+        <a href="../cross-references.html"><img src="../assets/icons/shield-infinity-rope-48.png" class="site-icon" alt="" width="16" height="16"> Cross-Refs</a>
+        <a href="index.html" class="active"><img src="../assets/icons/shield-book-greek-48.png" class="site-icon" alt="" width="16" height="16"> Dictionary</a>
+        <a href="../blog.html"><img src="../assets/icons/shield-blog-quill-48.png" class="site-icon" alt="" width="16" height="16"> Blog</a>
+        <a href="../connect.html"><img src="../assets/icons/shield-handshake.png" class="site-icon" alt="" width="16" height="16"> Connect</a>
+        <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle" title="Toggle dark/light">&#127769;</button>
+    </nav>
+    <div class="container">
+        <div class="dict-back-nav">
+            <a href="index.html">&#8592; Back to Dictionary</a>
+            <div class="dict-back-center"><a href="index.html">&#8592; Back to Dictionary</a></div>
+            <span></span>
+        </div>
+        <div class="word-header">
+            <div class="word-title">Hesed</div>
+            <div class="pronunciation">/ ˈḥeh-sed / &nbsp;|&nbsp; Hebrew: חֶסֶד</div>
+            <span class="pos">noun (Hebrew)</span>
+            <div class="etymology">Hebrew <em>ḥesed</em> (חֶסֶד) — from the root <em>ḥāsad</em>, meaning "to show kindness, to incline toward, to stoop to help." Related to the Aramaic sense of eagerness and devotion. Found 246 times in the Hebrew Old Testament. The Septuagint most often translates it as <em>eleos</em> (ἔλεος — mercy) or <em>charis</em> (χάρις — grace). No single English word can contain it — theologians have called it <em>the most theologically loaded word in the Hebrew Bible</em>.</div>
+        </div>
+
+        <div class="section">
+            <h3>&#128214; Biblical Definition</h3>
+            <div class="biblical-def">
+                <p><strong>Hesed is the covenant love of God — loyal, steadfast, and impossibly generous.</strong> It is the word the OT reaches for when it wants to describe how God loves: not abstractly or sentimentally, but with committed, relentless, bond-keeping devotion. Where covenants could be broken, God's hesed holds. Where Israel wandered, God's hesed pursued. Where punishment was deserved, God's hesed wept and endured. Hesed combines mercy, lovingkindness, covenant loyalty, grace, and faithfulness into a single unstoppable reality. It is the reason God declares his name to Moses: "The LORD, the LORD, a God merciful and gracious, slow to anger, and abounding in <em>steadfast love</em> (<em>hesed</em>) and faithfulness" (<a href="../bible.html?ref=Exodus+34:6" class="verse-ref">Exodus 34:6</a>). The Psalms trumpet hesed as the ground of all confidence: <em>"His steadfast love endures forever"</em> — the refrain that pulses through <a href="../bible.html?ref=Psalm+136" class="verse-ref">Psalm 136</a> twenty-six times. Hesed is not merely an emotion — it is God's determined will to be for his people, no matter what.</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <button class="dict-toggle" data-toggle="webster" onclick="toggleDict('webster')">
+                <span class="arrow">&#9658;</span>&#128220; Webster 1828 — Closest Equivalent
+            </button>
+            <div class="dict-section" id="webster">
+                <p><strong>MERCY</strong>, <em>n.</em> That benevolence, mildness or tenderness of heart which disposes a person to overlook injuries, or to treat an offender better than he deserves; the disposition that tempers justice and induces an injured person to forgive trespasses and injuries… <em>The mercy of the Lord is from everlasting to everlasting upon them that fear him.</em> — Psalm 103.</p>
+                <p style="margin-top:10px;font-size:0.88rem;color:var(--gray);">Note: Webster's "mercy" captures only a fraction of hesed. The Hebrew carries additionally: covenant fidelity, active lovingkindness, relentless loyalty, and a bond that cannot be broken — making hesed richer than any single English equivalent.</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>&#128214; Key Scripture</h3>
+            <p>&#x2022; <a href="../bible.html?ref=Psalm+136:1" class="verse-ref">Psalm 136:1</a> &mdash; "Give thanks to the LORD, for he is good, for his steadfast love endures forever."</p>
+            <p>&#x2022; <a href="../bible.html?ref=Exodus+34:6" class="verse-ref">Exodus 34:6</a> &mdash; "The LORD, the LORD, a God merciful and gracious, slow to anger, and abounding in steadfast love and faithfulness."</p>
+            <p>&#x2022; <a href="../bible.html?ref=Lamentations+3:22-23" class="verse-ref">Lamentations 3:22–23</a> &mdash; "The steadfast love of the LORD never ceases; his mercies never come to an end; they are new every morning."</p>
+            <p>&#x2022; <a href="../bible.html?ref=Micah+6:8" class="verse-ref">Micah 6:8</a> &mdash; "He has told you, O man, what is good; and what does the LORD require of you but to do justice, and to love kindness (<em>hesed</em>), and to walk humbly with your God?"</p>
+            <p>&#x2022; <a href="../bible.html?ref=Hosea+6:6" class="verse-ref">Hosea 6:6</a> &mdash; "For I desire steadfast love and not sacrifice, the knowledge of God rather than burnt offerings."</p>
+        </div>
+
+        <div class="section">
+            <button class="dict-toggle" data-toggle="corruption" onclick="toggleDict('corruption')">
+                <span class="arrow">&#9658;</span>&#9888;&#65039; Modern Corruption / Drift
+            </button>
+            <div class="dict-section" id="corruption">
+                <div class="corruption">
+                    <p>Modern translations flatten hesed into a single English word — "love," "kindness," or "mercy" — each capturing a sliver but losing the whole. Popular Christianity further dilutes hesed into vague emotional warmth: "God loves you unconditionally" becomes a therapeutic cliché detached from covenant, history, and cost. But hesed is not cheap sentiment. It is covenant love — love that has made promises and keeps them at great cost. The wonder of hesed is not that God feels warm toward us, but that God has <em>bound himself</em> to us by oath, pursues us through failure and rebellion, and will not let go. To grasp hesed is to be undone by the sheer audacity of God's loyalty — not despite our sin, but <em>through</em> it, at the cross.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>&#128214; Greek &amp; Hebrew Roots</h3>
+            <p><a href="../lexicon/H2617.html" style="color:var(--gold);font-family:monospace;">H2617 — חֶסֶד (ḥesed)</a>: "steadfast love, lovingkindness, covenant loyalty, mercy" — the dominant OT word for God's relentless covenantal devotion</p>
+            <p><a href="../lexicon/G1656.html" style="color:var(--gold);font-family:monospace;">G1656 — ἔλεος (eleos)</a>: "mercy, compassion" — the LXX/NT equivalent, though narrower; used of God's merciful stooping toward the needy</p>
+            <p><a href="../lexicon/G5485.html" style="color:var(--gold);font-family:monospace;">G5485 — χάρις (charis)</a>: "grace, favor" — the NT concept that most broadly captures hesed's undeserved, covenant-grounded generosity</p>
+        </div>
+
+        <div class="section">
+            <h3>Related Words</h3>
+            <div class="related">
+                <a href="grace.html">Grace</a>
+                <a href="mercy.html">Mercy</a>
+                <a href="covenant.html">Covenant</a>
+                <a href="faithfulness.html">Faithfulness</a>
+                <a href="lovingkindness.html">Lovingkindness</a>
+                <a href="agape.html">Agape</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="toggle-wrap">
+        <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle2" title="Toggle dark/light" style="width:36px;height:36px;font-size:1rem;">&#127769;</button>
+    </div>
+
+    <footer>
+        <div class="cross-divider"><img src="../assets/icons/shield-cross-bible-48.png" alt="" width="36" height="36" style="opacity:0.6;margin-bottom:10px;"></div>
+        <p>
+            <a href="../index.html#uniting"><img src="../assets/icons/shield-hands-joining.png" class="site-icon" alt="" width="20" height="20"> Uniting</a> &middot;
+            <a href="../serving.html"><img src="../assets/icons/shield-serving.png" class="site-icon" alt="" width="20" height="20"> Serving</a> &middot;
+            <a href="../mentoring.html"><img src="../assets/icons/shield-mentoring.png" class="site-icon" alt="" width="20" height="20"> Mentoring</a> &middot;
+            <a href="../counseling.html"><img src="../assets/icons/shield-family.png" class="site-icon" alt="" width="20" height="20"> Counseling</a> &middot;
+            <a href="../about.html"><img src="../assets/icons/shield-about-person-24.png" class="site-icon" alt="" width="20" height="20"> About</a>
+        </p>
+        <p style="margin-top:8px;font-size:0.78rem;color:#555;">Powered by MOOPbot Pro &mdash; &ldquo;Iron sharpens iron.&rdquo; &mdash; <a href="../bible.html?ref=Proverbs+27:17" style="color:var(--gold);text-decoration:underline;">Proverbs 27:17</a></p>
+    </footer>
+    <script>
+    function toggleDict(id){
+        var s=document.getElementById(id);
+        var b=document.querySelector('[data-toggle="'+id+'"]');
+        var a=b?b.querySelector('.arrow'):null;
+        s.classList.toggle('open');
+        if(a)a.classList.toggle('open');
+    }
+    function toggleTheme(){
+        var b=document.body,t=document.getElementById('themeToggle'),t2=document.getElementById('themeToggle2');
+        if(b.classList.contains('light-mode')){b.classList.remove('light-mode');if(t)t.textContent='\u{1F319}';if(t2)t2.textContent='\u{1F319}';localStorage.setItem('bte-theme','dark');}
+        else{b.classList.add('light-mode');if(t)t.textContent='\u2600\uFE0F';if(t2)t2.textContent='\u2600\uFE0F';localStorage.setItem('bte-theme','light');}
+    }
+    (function(){
+        if(localStorage.getItem('bte-theme')==='light'){
+            document.body.classList.add('light-mode');
+            var t=document.getElementById('themeToggle');if(t)t.textContent='\u2600\uFE0F';
+            var t2=document.getElementById('themeToggle2');if(t2)t2.textContent='\u2600\uFE0F';
+        }
+    })();
+    </script>
+</body>
+</html>
