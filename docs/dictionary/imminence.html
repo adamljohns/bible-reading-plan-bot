@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Imminence — The MOOP Dictionary of the English Language</title>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        :root { --bg:#000; --card:#111; --gold:#D4AF37; --gold-light:#F4D470; --white:#FFF; --gray:#888; --border:#333; }
+        body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--white); min-height:100vh; line-height:1.7; }
+        h1,h2,h3 { font-family:'Playfair Display',serif; }
+        nav { display:flex; align-items:center; gap:14px; padding:10px 20px; background:rgba(0,0,0,0.95); border-bottom:1px solid var(--border); flex-wrap:wrap; position:sticky; top:0; z-index:100; }
+        nav a { color:var(--gold); text-decoration:none; font-size:0.82rem; font-weight:500; display:flex; align-items:center; gap:4px; white-space:nowrap; }
+        nav a:hover, nav a.active { color:var(--gold-light); }
+        .site-icon { vertical-align:middle; opacity:0.85; }
+        .theme-toggle { background:none; border:1px solid var(--border); border-radius:50%; width:28px; height:28px;
+                        cursor:pointer; font-size:0.85rem; transition:all 0.3s; padding:0; color:var(--white);
+                        display:inline-flex; align-items:center; justify-content:center; margin-left:auto; }
+        .theme-toggle:hover { border-color:var(--gold); }
+        .container { max-width:820px; margin:0 auto; padding:28px 20px 60px; }
+        .word-header { text-align:center; padding:40px 0 30px; border-bottom:1px solid var(--border); margin-bottom:30px; }
+        .word-title { font-size:2.8rem; color:var(--gold-light); margin-bottom:6px; }
+        .pronunciation { color:var(--white); font-size:1.1rem; font-style:italic; }
+        .pos { display:inline-block; background:var(--gold); color:#000; font-weight:700;
+               font-size:0.78rem; padding:3px 14px; border-radius:15px; margin:10px 0; }
+        .etymology { color:var(--white); font-size:0.88rem; margin:12px auto; max-width:650px; }
+        .section { margin:18px 0; padding:18px 22px; background:var(--card); border:1px solid var(--border); border-radius:10px; }
+        .section > h3 { color:var(--gold); margin-bottom:12px; font-size:1.05rem; }
+        .section p { margin:7px 0; color:var(--white); }
+        .biblical-def { border-left:3px solid var(--gold); padding-left:15px; }
+        .dict-toggle { cursor:pointer; color:var(--gold); font-size:0.92rem; user-select:none;
+                       display:inline-flex; align-items:center; gap:0; background:none; border:none;
+                       padding:0; font-family:inherit; font-weight:600; }
+        .dict-toggle:hover { color:var(--gold-light); }
+        .dict-toggle .arrow { display:inline-block; transition:transform 0.2s; margin-right:8px; font-size:0.75rem; }
+        .dict-toggle .arrow.open { transform:rotate(90deg); }
+        .dict-section { display:none; margin:10px 0 4px 0; padding:12px 16px;
+                        background:rgba(212,175,55,0.06); border-left:2px solid var(--gold);
+                        border-radius:0 6px 6px 0; }
+        .dict-section.open { display:block; }
+        .dict-section p { margin:6px 0; font-size:0.95rem; color:var(--white); }
+        .corruption { border-left:3px solid #CC0000; padding-left:15px; }
+        .verse-ref { color:var(--gold); text-decoration:none; font-weight:600; }
+        .verse-ref:hover { color:var(--gold-light); text-decoration:underline; }
+        .related { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+        .related a { background:var(--card); border:1px solid var(--border); padding:6px 14px;
+                     border-radius:20px; color:var(--white); text-decoration:none; font-size:0.85rem;
+                     transition:border-color 0.2s, color 0.2s; }
+        .related a:hover { border-color:var(--gold); color:var(--gold); }
+        footer { text-align:center; padding:28px 20px; border-top:1px solid var(--border);
+                 margin-top:40px; color:var(--white); font-size:0.88rem; }
+        footer a { color:var(--white); text-decoration:none; }
+        footer a:hover { color:var(--gold); }
+        body.light-mode { --bg:#F5F3EF; --card:#FFF; --white:#1a1a1a; --gray:#666; --border:#d4d0c8; }
+        body.light-mode nav { background:rgba(245,243,239,0.97); }
+        body.light-mode .section { background:#fff; border-color:#d4d0c8; }
+        body.light-mode .dict-section { background:rgba(212,175,55,0.04); }
+        body.light-mode footer { border-top-color:#d4d0c8; }
+        body.light-mode .related a { background:#f0ede7; border-color:#d4d0c8; color:#1a1a1a; }
+        .dict-back-nav { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:22px; padding:10px 0; border-bottom:1px solid var(--border,#333); }
+        .dict-back-nav a { color:var(--gold,#D4AF37); text-decoration:none; font-size:0.88rem; font-weight:500; }
+        .dict-back-nav a:hover { color:var(--gold-light,#F4D470); }
+        .dict-back-nav .dict-back-center { flex:1; text-align:center; }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav>
+        <a href="../index.html"><img src="../assets/icons/shield-home-48.png" class="site-icon" alt="" width="16" height="16"> Home</a>
+        <a href="../watchman.html"><img src="../assets/icons/shield-bible.png" class="site-icon" alt="" width="16" height="16"> Watchman</a>
+        <a href="../bible.html"><img src="../assets/icons/shield-compass.png" class="site-icon" alt="" width="16" height="16"> BTE</a>
+        <a href="../lexicon.html"><img src="../assets/icons/shield-alpha-omega-48.png" class="site-icon" alt="" width="16" height="16"> Lexicon</a>
+        <a href="../cross-references.html"><img src="../assets/icons/shield-infinity-rope-48.png" class="site-icon" alt="" width="16" height="16"> Cross-Refs</a>
+        <a href="index.html" class="active"><img src="../assets/icons/shield-book-greek-48.png" class="site-icon" alt="" width="16" height="16"> Dictionary</a>
+        <a href="../blog.html"><img src="../assets/icons/shield-blog-quill-48.png" class="site-icon" alt="" width="16" height="16"> Blog</a>
+        <a href="../connect.html"><img src="../assets/icons/shield-handshake.png" class="site-icon" alt="" width="16" height="16"> Connect</a>
+        <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle" title="Toggle dark/light">&#127769;</button>
+    </nav>
+    <div class="container">
+        <div class="dict-back-nav">
+            <span></span>
+            <div class="dict-back-center"><a href="index.html">&#8592; Back to Dictionary</a></div>
+            <span></span>
+        </div>
+        <div class="word-header">
+            <div class="word-title">Imminence</div>
+            <div class="pronunciation">/ ˈɪm.ɪ.nəns /</div>
+            <span class="pos">noun (eschatology)</span>
+            <div class="etymology">From Latin <em>imminere</em> — to overhang, impend; <em>in-</em> (upon) + <em>minere</em> (to project, jut). In eschatology: the doctrine that Christ's return could occur at any moment — there are no unfulfilled prerequisites standing between the present hour and His appearing. Greek: <em>engys</em> (ἐγγύς) — near, at hand; <em>tachys</em> (ταχύς) — quickly, soon.</div>
+        </div>
+
+        <div class="section">
+            <h3>&#128214; Biblical Definition</h3>
+            <div class="biblical-def">
+                <p>Imminence is the eschatological conviction that the return of Christ is always imminent — near, impending, capable of occurring at any moment without further signs or preconditions. It is not a claim that Christ <em>will</em> return immediately, but that He <em>could</em> — and therefore the proper Christian posture is constant watchfulness and readiness. Jesus commanded: "Watch therefore, for you do not know on what day your Lord is coming" (Matt. 24:42). James echoes: "The coming of the Lord is at hand. Behold, the Judge is standing at the door" (Jas. 5:8–9).</p>
+                <p>Imminence is not sensationalism or date-setting — it is the practical theological conviction that shapes how the church lives now. Every generation must live as though Christ could return in their lifetime. This keeps the church's affections heavenward, purifies her from worldliness, and motivates urgent evangelism and holiness. "Since all these things are thus to be dissolved, what sort of people ought you to be in lives of holiness and godliness, waiting for and hastening the coming of the day of God" (2 Pet. 3:11–12).</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <button class="dict-toggle" data-toggle="webster" onclick="toggleDict('webster')">
+                <span class="arrow">&#9658;</span>&#128220; Webster 1828 Definition
+            </button>
+            <div class="dict-section" id="webster">
+                <p><strong>IMMINENT</strong>, a. [Latin <em>imminens</em>, from <em>immineo</em>; <em>in</em> and <em>mineo</em>, to project.] Hanging over; impending; near; threatening. We say, a person is in imminent danger, when the danger is near and threatening. Imminent peril admits of no delay. In theological usage, the imminent return of Christ means His coming hangs over every hour of the church's life — not postponed to the distant future, but possible in this very hour.</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <button class="dict-toggle" data-toggle="corruption" onclick="toggleDict('corruption')">
+                <span class="arrow">&#9658;</span>&#9888;&#65039; Modern Corruption
+            </button>
+            <div class="dict-section" id="corruption">
+                <div class="corruption">
+                    <p>Imminence has been corrupted in two opposite directions. The first error is sensationalist prophecy culture — date-setters and doom-scrollers who treat imminence as license for abandoned speculation, repeatedly predicting specific years and then explaining away failure. The Millerites, the Jehovah's Witnesses, Harold Camping — all weaponized a biblical doctrine into a prediction machine that has repeatedly embarrassed the church. The second error is prophetic fatalism — the slow drift of complacency that says "He's been 'coming soon' for 2,000 years, so what's the rush?" (cf. 2 Pet. 3:4). Both distort imminence. The proper use: not "He will return Tuesday" nor "He probably won't come in my lifetime" — but "He <em>could</em> return today, therefore I live today as one accountable to Him."</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>&#128218; Scripture References</h3>
+            <p>&#x2022; <a href="../bible.html?ref=Matthew+24:42" class="verse-ref">Matthew 24:42</a> — "Watch therefore, for you do not know on what day your Lord is coming."</p>
+            <p>&#x2022; <a href="../bible.html?ref=James+5:8-9" class="verse-ref">James 5:8–9</a> — "The coming of the Lord is at hand. Behold, the Judge is standing at the door."</p>
+            <p>&#x2022; <a href="../bible.html?ref=Revelation+22:20" class="verse-ref">Revelation 22:20</a> — "He who testifies to these things says, 'Surely I am coming soon.' Amen. Come, Lord Jesus!"</p>
+            <p>&#x2022; <a href="../bible.html?ref=2+Peter+3:11-12" class="verse-ref">2 Peter 3:11–12</a> — "What sort of people ought you to be in lives of holiness and godliness, waiting for and hastening the coming of the day of God."</p>
+            <p>&#x2022; <a href="../bible.html?ref=1+Thessalonians+5:2" class="verse-ref">1 Thessalonians 5:2</a> — "The day of the Lord will come like a thief in the night."</p>
+        </div>
+
+        <div class="section">
+            <h3>&#128279; Greek Roots</h3>
+            <p><a href="../lexicon/G1451.html" class="verse-ref">G1451 — ἐγγύς (engys)</a> — "near, at hand" — used of the kingdom, the Lord's coming, and the hour of judgment throughout the NT.</p>
+            <p><a href="../lexicon/G5035.html" class="verse-ref">G5035 — ταχύ (tachy)</a> — "quickly, soon" — used repeatedly in Revelation for Christ's coming; not necessarily "immediately" but "without undue delay when it comes."</p>
+            <p><a href="../lexicon/G3195.html" class="verse-ref">G3195 — μέλλω (mellō)</a> — "to be about to, impending" — conveys a coming event already set in motion, hanging over the present moment.</p>
+        </div>
+
+        <div class="section">
+            <h3>&#9997;&#65039; Usage</h3>
+            <p>"The doctrine of imminence is not a schedule — it is a posture. Christ could return before you finish reading this."</p>
+            <p>"Imminence answers the question: 'Why live holy?' Because the Judge stands at the door. Not someday — now."</p>
+            <p>"Every generation of the church has been meant to live as the last. That is the genius of imminence: it keeps the church perpetually awake."</p>
+        </div>
+
+        <div class="section">
+            <h3>&#128279; Related Words</h3>
+            <div class="related">
+                <a href="eschatology.html">Eschatology</a>
+                <a href="parousia.html">Parousia</a>
+                <a href="watchman.html">Watchman</a>
+                <a href="tribulation.html">Tribulation</a>
+                <a href="hope.html">Hope</a>
+                <a href="vigilance.html">Vigilance</a>
+            </div>
+        </div>
+    </div>
+    <footer>
+        <div style="text-align:center; margin-bottom:12px;">
+            <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle2" title="Toggle dark/light" style="margin:0 auto;">&#127769;</button>
+        </div>
+        <a href="index.html">&#8592; The MOOP Dictionary</a> &nbsp;|&nbsp; &copy; USMC Ministries
+    </footer>
+    <script>
+        function toggleDict(id){var s=document.getElementById(id);var b=document.querySelector('[data-toggle="'+id+'"]');var a=b?b.querySelector('.arrow'):null;s.classList.toggle('open');if(a)a.classList.toggle('open');}
+        function toggleTheme(){var b=document.body,t=document.getElementById('themeToggle'),t2=document.getElementById('themeToggle2');var moon='\u{1F319}',sun='\u2600\uFE0F';if(b.classList.contains('light-mode')){b.classList.remove('light-mode');if(t)t.textContent=moon;if(t2)t2.textContent=moon;localStorage.setItem('bte-theme','dark');}else{b.classList.add('light-mode');if(t)t.textContent=sun;if(t2)t2.textContent=sun;localStorage.setItem('bte-theme','light');}}
+        (function(){var t=localStorage.getItem('bte-theme');if(t==='light'){document.body.classList.add('light-mode');var t1=document.getElementById('themeToggle'),t2=document.getElementById('themeToggle2');if(t1)t1.textContent='\u2600\uFE0F';if(t2)t2.textContent='\u2600\uFE0F';}})();
+    </script>
+</body>
+</html>
