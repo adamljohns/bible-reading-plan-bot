@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-touch-icon.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Brand Assets & Icon Library — USMC Ministries</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg-dark: #000000;
+            --bg-card: #111111;
+            --bg-card-hover: #1a1a1a;
+            --gold: #D4AF37;
+            --gold-light: #F4D470;
+            --gold-dim: rgba(212,175,55,0.15);
+            --white: #FFFFFF;
+            --gray: #888888;
+            --gray-light: #aaaaaa;
+            --border: #333333;
+            --red: #f44336;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--white);
+            min-height: 100vh;
+        }
+        h1, h2, h3 { font-family: 'Playfair Display', serif; font-weight: 700; }
+
+        /* ── PIN Screen ── */
+        #pin-screen {
+            position: fixed; inset: 0;
+            background: #000;
+            display: flex; align-items: center; justify-content: center;
+            z-index: 9999;
+            flex-direction: column; gap: 24px;
+        }
+        #pin-screen.hidden { display: none; }
+        .pin-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 40px 48px;
+            text-align: center;
+            max-width: 340px; width: 90%;
+        }
+        .pin-box .lock-icon { font-size: 2.5rem; margin-bottom: 12px; }
+        .pin-box h2 { font-size: 1.4rem; margin-bottom: 6px; color: var(--gold); font-family: 'Playfair Display', serif; }
+        .pin-box p { color: var(--gray); font-size: 0.85rem; margin-bottom: 24px; }
+        .pin-dots {
+            display: flex; gap: 12px; justify-content: center;
+            margin-bottom: 28px;
+        }
+        .pin-dot {
+            width: 14px; height: 14px; border-radius: 50%;
+            border: 2px solid var(--border);
+            background: transparent;
+            transition: all 0.15s;
+        }
+        .pin-dot.filled { background: var(--gold); border-color: var(--gold); }
+        .pin-keypad {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+        .pin-key {
+            background: #1a1a1a;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--white);
+            font-size: 1.3rem;
+            font-weight: 600;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .pin-key:hover { background: #252525; border-color: var(--gold); color: var(--gold); }
+        .pin-key.del { font-size: 1rem; color: var(--gray); }
+        .pin-error { color: var(--red); font-size: 0.85rem; margin-top: 12px; min-height: 20px; }
+
+        /* ── Main Content ── */
+        #main-content { display: none; }
+
+        /* ── Header ── */
+        .page-header {
+            text-align: center;
+            padding: 32px 20px 20px;
+            border-bottom: 1px solid var(--border);
+        }
+        .page-header .badge {
+            display: inline-block;
+            background: var(--gold-dim);
+            border: 1px solid var(--gold);
+            color: var(--gold);
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 4px 12px;
+            border-radius: 20px;
+            margin-bottom: 12px;
+        }
+        .page-header h1 { font-size: 2rem; color: var(--white); margin-bottom: 6px; }
+        .page-header .subtitle { color: var(--gold); font-size: 0.9rem; }
+
+        /* ── Controls ── */
+        .controls {
+            max-width: 1200px;
+            margin: 24px auto;
+            padding: 0 20px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .search-box {
+            flex: 1;
+            min-width: 200px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 10px 16px;
+            color: var(--white);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .search-box:focus { border-color: var(--gold); }
+        .search-box::placeholder { color: var(--gray); }
+        .filter-btn {
+            padding: 8px 18px;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            background: transparent;
+            color: var(--gray-light);
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.82rem;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .filter-btn:hover { border-color: var(--gold); color: var(--gold); }
+        .filter-btn.active { background: var(--gold); color: #000; border-color: var(--gold); font-weight: 600; }
+
+        /* ── Section ── */
+        .section {
+            max-width: 1200px;
+            margin: 0 auto 48px;
+            padding: 0 20px;
+        }
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+        .section-header h2 { font-size: 1.3rem; color: var(--gold); }
+        .section-header .count {
+            background: var(--gold-dim);
+            border: 1px solid var(--gold);
+            color: var(--gold);
+            font-size: 0.72rem;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 12px;
+        }
+
+        /* ── Icon Grid ── */
+        .icon-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 14px;
+        }
+        .icon-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px 14px 14px;
+            text-align: center;
+            transition: all 0.2s;
+            cursor: default;
+        }
+        .icon-card:hover {
+            border-color: var(--gold);
+            background: var(--bg-card-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(212,175,55,0.1);
+        }
+        .icon-card img {
+            width: 64px;
+            height: 64px;
+            object-fit: contain;
+            margin-bottom: 12px;
+            image-rendering: crisp-edges;
+        }
+        .icon-card .icon-filename {
+            font-size: 0.72rem;
+            color: var(--gray-light);
+            word-break: break-all;
+            line-height: 1.4;
+            margin-bottom: 8px;
+        }
+        .icon-card .icon-sizes {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            justify-content: center;
+        }
+        .size-badge {
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            color: var(--gray);
+            font-size: 0.65rem;
+            padding: 2px 6px;
+            border-radius: 6px;
+        }
+        .icon-card .icon-category {
+            font-size: 0.65rem;
+            color: var(--gold);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: 6px;
+            font-weight: 600;
+        }
+
+        /* ── Logo Grid (larger) ── */
+        .logo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 16px;
+        }
+        .logo-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 28px 20px 16px;
+            text-align: center;
+            transition: all 0.2s;
+        }
+        .logo-card:hover {
+            border-color: var(--gold);
+            background: var(--bg-card-hover);
+        }
+        .logo-card.dark-bg { background: #0a0a0a; }
+        .logo-card.light-bg { background: #f0f0f0; }
+        .logo-card img {
+            max-width: 120px;
+            max-height: 120px;
+            object-fit: contain;
+            margin-bottom: 14px;
+        }
+        .logo-card .logo-name {
+            font-size: 0.8rem;
+            color: var(--gray-light);
+            word-break: break-all;
+        }
+        .logo-card.light-bg .logo-name { color: #555; }
+
+        /* ── SVG Preview (brand icons) ── */
+        .svg-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px 14px 14px;
+            text-align: center;
+            transition: all 0.2s;
+        }
+        .svg-card:hover {
+            border-color: var(--gold);
+            background: var(--bg-card-hover);
+        }
+        .svg-card img {
+            width: 48px;
+            height: 48px;
+            filter: invert(1) sepia(1) saturate(2) hue-rotate(5deg);
+            margin-bottom: 10px;
+        }
+        .svg-card .svg-name {
+            font-size: 0.72rem;
+            color: var(--gray-light);
+        }
+
+        /* ── Originals Grid ── */
+        .originals-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 14px;
+        }
+        .original-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.2s;
+        }
+        .original-card:hover { border-color: var(--gold); }
+        .original-card img {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+            display: block;
+        }
+        .original-card .orig-name {
+            font-size: 0.72rem;
+            color: var(--gray-light);
+            padding: 10px 12px;
+            word-break: break-all;
+        }
+
+        /* ── Hidden ── */
+        .hidden { display: none !important; }
+
+        /* ── Footer ── */
+        footer {
+            text-align: center;
+            padding: 32px 20px;
+            border-top: 1px solid var(--border);
+            color: var(--gray);
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ── PIN Screen ── -->
+<div id="pin-screen">
+    <div class="pin-box">
+        <div class="lock-icon">🔒</div>
+        <h2>Brand Assets</h2>
+        <p>Internal — PIN required</p>
+        <div class="pin-dots">
+            <div class="pin-dot" id="dot-0"></div>
+            <div class="pin-dot" id="dot-1"></div>
+            <div class="pin-dot" id="dot-2"></div>
+            <div class="pin-dot" id="dot-3"></div>
+        </div>
+        <div class="pin-keypad">
+            <button class="pin-key" onclick="pinKey('1')">1</button>
+            <button class="pin-key" onclick="pinKey('2')">2</button>
+            <button class="pin-key" onclick="pinKey('3')">3</button>
+            <button class="pin-key" onclick="pinKey('4')">4</button>
+            <button class="pin-key" onclick="pinKey('5')">5</button>
+            <button class="pin-key" onclick="pinKey('6')">6</button>
+            <button class="pin-key" onclick="pinKey('7')">7</button>
+            <button class="pin-key" onclick="pinKey('8')">8</button>
+            <button class="pin-key" onclick="pinKey('9')">9</button>
+            <button class="pin-key" onclick="pinKey('0')" style="grid-column:2">0</button>
+            <button class="pin-key del" onclick="pinDel()">⌫</button>
+        </div>
+        <div class="pin-error" id="pin-error"></div>
+    </div>
+</div>
+
+<!-- ── Main Content ── -->
+<div id="main-content">
+
+    <div class="page-header">
+        <div class="badge">Internal · Not Indexed</div>
+        <h1>Brand Assets &amp; Icon Library</h1>
+        <div class="subtitle">U.S.M.C. Ministries · Complete Asset Catalog</div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls">
+        <input type="text" class="search-box" id="search-input" placeholder="Search icons by name..." oninput="filterIcons()">
+        <button class="filter-btn active" data-cat="all" onclick="setFilter('all', this)">All</button>
+        <button class="filter-btn" data-cat="core-shield" onclick="setFilter('core-shield', this)">Core Shields</button>
+        <button class="filter-btn" data-cat="chain" onclick="setFilter('chain', this)">Chain</button>
+        <button class="filter-btn" data-cat="brand" onclick="setFilter('brand', this)">Brand/Social</button>
+        <button class="filter-btn" data-cat="inline" onclick="setFilter('inline', this)">Inline SVG</button>
+        <button class="filter-btn" data-cat="bw" onclick="setFilter('bw', this)">B&amp;W</button>
+        <button class="filter-btn" data-cat="hires" onclick="setFilter('hires', this)">Hero/Hires</button>
+        <button class="filter-btn" data-cat="logos" onclick="setFilter('logos', this)">Logos</button>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- LOGOS & BRAND MARKS -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div class="section" data-section="logos">
+        <div class="section-header">
+            <h2>Logos &amp; Brand Marks</h2>
+            <span class="count">9 assets</span>
+        </div>
+        <div class="logo-grid">
+            <div class="logo-card">
+                <img src="/assets/logo.png" alt="Primary Logo">
+                <div class="logo-name">logo.png — Primary</div>
+            </div>
+            <div class="logo-card">
+                <img src="/assets/logo-nav.png" alt="Nav Logo">
+                <div class="logo-name">logo-nav.png — Navigation</div>
+            </div>
+            <div class="logo-card">
+                <img src="/assets/logo-author.png" alt="Author Logo">
+                <div class="logo-name">logo-author.png — Author Bio</div>
+            </div>
+            <div class="logo-card">
+                <img src="/assets/images/usmc-logo-circle.png" alt="Circle Logo">
+                <div class="logo-name">usmc-logo-circle.png</div>
+            </div>
+            <div class="logo-card">
+                <img src="/assets/images/usmc-logo-circle-handshake.png" alt="Circle Handshake Logo">
+                <div class="logo-name">usmc-logo-circle-handshake.png</div>
+            </div>
+            <div class="logo-card">
+                <img src="/assets/images/usmc-logo-shield-clean.png" alt="Shield Clean Logo">
+                <div class="logo-name">usmc-logo-shield-clean.png</div>
+            </div>
+            <div class="logo-card">
+                <img src="/assets/images/usmc-logo-shield-cross.png" alt="Shield Cross Logo">
+                <div class="logo-name">usmc-logo-shield-cross.png</div>
+            </div>
+            <div class="logo-card">
+                <img src="/assets/images/usmc-logo-shield-cross-v2.png" alt="Shield Cross v2">
+                <div class="logo-name">usmc-logo-shield-cross-v2.png</div>
+            </div>
+            <div class="logo-card">
+                <img src="/assets/images/usmc-logo-shield-lighthouse.png" alt="Shield Lighthouse">
+                <div class="logo-name">usmc-logo-shield-lighthouse.png</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- FAVICONS & APP ICONS -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div class="section" data-section="logos">
+        <div class="section-header">
+            <h2>Favicons &amp; App Icons</h2>
+            <span class="count">6 assets</span>
+        </div>
+        <div class="logo-grid">
+            <div class="logo-card">
+                <img src="/assets/icons/favicon.svg" alt="Favicon SVG">
+                <div class="logo-name">favicon.svg — Vector</div>
+            </div>
+            <div class="logo-card">
+                <img src="/assets/icons/favicon-32.png" alt="Favicon 32">
+                <div class="logo-name">favicon-32.png — 32×32</div>
+            </div>
+            <div class="logo-card">
+                <img src="/assets/icons/favicon-16.png" alt="Favicon 16">
+                <div class="logo-name">favicon-16.png — 16×16</div>
+            </div>
+            <div class="logo-card">
+                <img src="/assets/icons/apple-touch-icon.png" alt="Apple Touch Icon">
+                <div class="logo-name">apple-touch-icon.png — 180×180</div>
+            </div>
+            <div class="logo-card">
+                <img src="/assets/icons/icon-192.png" alt="PWA 192">
+                <div class="logo-name">icon-192.png — PWA 192×192</div>
+            </div>
+            <div class="logo-card">
+                <img src="/assets/icons/icon-512.png" alt="PWA 512">
+                <div class="logo-name">icon-512.png — PWA 512×512</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- CORE SHIELD ICONS -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div class="section" data-section="core-shield" id="section-core-shield">
+        <div class="section-header">
+            <h2>Core Shield Icons</h2>
+            <span class="count" id="count-core-shield"></span>
+        </div>
+        <div class="icon-grid" id="grid-core-shield"></div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- CHAIN ICONS -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div class="section" data-section="chain" id="section-chain">
+        <div class="section-header">
+            <h2>Theological Chain Icons</h2>
+            <span class="count" id="count-chain"></span>
+        </div>
+        <div class="icon-grid" id="grid-chain"></div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- HERO / HIRES -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div class="section" data-section="hires" id="section-hires">
+        <div class="section-header">
+            <h2>Hero &amp; High-Resolution Variants</h2>
+            <span class="count" id="count-hires"></span>
+        </div>
+        <div class="icon-grid" id="grid-hires"></div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- SIZE VARIANTS (24px, 48px, 96px) -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div class="section" data-section="core-shield" id="section-sizes">
+        <div class="section-header">
+            <h2>Size Variants (24px / 48px / 96px)</h2>
+            <span class="count" id="count-sizes"></span>
+        </div>
+        <div class="icon-grid" id="grid-sizes"></div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- BRAND / SOCIAL ICONS -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div class="section" data-section="brand">
+        <div class="section-header">
+            <h2>Brand &amp; Social Icons</h2>
+            <span class="count">13 assets</span>
+        </div>
+        <div class="icon-grid" id="grid-brand">
+            <!-- Populated by JS -->
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- INLINE SVGs -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div class="section" data-section="inline">
+        <div class="section-header">
+            <h2>Inline SVGs</h2>
+            <span class="count">5 assets</span>
+        </div>
+        <div class="icon-grid" id="grid-inline">
+            <!-- Populated by JS -->
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- B&W VARIANTS -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div class="section" data-section="bw" id="section-bw">
+        <div class="section-header">
+            <h2>B&amp;W Variants</h2>
+            <span class="count" id="count-bw"></span>
+        </div>
+        <div class="icon-grid" id="grid-bw"></div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- INLINE ICON SVGs (icon-*.svg) -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div class="section" data-section="inline">
+        <div class="section-header">
+            <h2>Utility Icon SVGs (icon-*.svg)</h2>
+            <span class="count">17 assets</span>
+        </div>
+        <div class="icon-grid" id="grid-icon-svg">
+            <!-- Populated by JS -->
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- ORIGINALS -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div class="section" data-section="core-shield">
+        <div class="section-header">
+            <h2>Originals (Source Art)</h2>
+            <span class="count">21 assets</span>
+        </div>
+        <div class="originals-grid" id="grid-originals"></div>
+    </div>
+
+    <footer>
+        USMC Ministries · Brand Assets · Internal Use Only · Not Indexed
+    </footer>
+</div>
+
+<script>
+// ── PIN ─────────────────────────────────────────────────
+const BA_PIN = '1113';
+const BA_SESSION_KEY = 'brand_assets_unlocked';
+let pinEntry = '';
+
+(function checkPinSession() {
+    if (sessionStorage.getItem(BA_SESSION_KEY) === 'true') unlock();
+})();
+
+function unlock() {
+    document.getElementById('pin-screen').classList.add('hidden');
+    document.getElementById('main-content').style.display = 'block';
+    buildAllGrids();
+}
+
+function pinKey(d) {
+    if (pinEntry.length >= 4) return;
+    pinEntry += d;
+    updateDots();
+    if (pinEntry.length === 4) setTimeout(checkPin, 100);
+}
+
+function pinDel() {
+    pinEntry = pinEntry.slice(0, -1);
+    updateDots();
+    document.getElementById('pin-error').textContent = '';
+}
+
+function updateDots() {
+    for (let i = 0; i < 4; i++) {
+        document.getElementById('dot-' + i).classList.toggle('filled', i < pinEntry.length);
+    }
+}
+
+function checkPin() {
+    if (pinEntry === BA_PIN) {
+        sessionStorage.setItem(BA_SESSION_KEY, 'true');
+        unlock();
+    } else {
+        document.getElementById('pin-error').textContent = 'Incorrect PIN. Try again.';
+        pinEntry = '';
+        updateDots();
+        document.querySelectorAll('.pin-dot').forEach(d => {
+            d.style.borderColor = '#f44336';
+            setTimeout(() => { d.style.borderColor = ''; }, 800);
+        });
+    }
+}
+
+// ── Icon Data ────────────────────────────────────────────
+const CORE_SHIELDS = [
+    { file: 'shield-anchor.png', sizes: ['96'] },
+    { file: 'shield-anvil.png', sizes: ['96'] },
+    { file: 'shield-bible.png', sizes: ['96'] },
+    { file: 'shield-book.png', sizes: ['96'] },
+    { file: 'shield-book-gold.png', sizes: ['96'] },
+    { file: 'shield-calendar.png', sizes: ['96'] },
+    { file: 'shield-comms.png', sizes: ['96'] },
+    { file: 'shield-compass.png', sizes: ['96'] },
+    { file: 'shield-cord.png', sizes: ['96'] },
+    { file: 'shield-cross.png', sizes: ['96'] },
+    { file: 'shield-crown.png', sizes: ['96'] },
+    { file: 'shield-dove.png', sizes: ['96'] },
+    { file: 'shield-family.png', sizes: ['96'] },
+    { file: 'shield-finance.png', sizes: ['96'] },
+    { file: 'shield-fitness.png', sizes: ['96'] },
+    { file: 'shield-gear.png', sizes: ['96'] },
+    { file: 'shield-globe.png', sizes: ['96'] },
+    { file: 'shield-hands-joining.png', sizes: ['96'] },
+    { file: 'shield-handshake.png', sizes: ['96'] },
+    { file: 'shield-leader.png', sizes: ['96'] },
+    { file: 'shield-megaphone.png', sizes: ['96'] },
+    { file: 'shield-mentoring.png', sizes: ['96'] },
+    { file: 'shield-mind.png', sizes: ['96'] },
+    { file: 'shield-serving.png', sizes: ['96'] },
+    { file: 'shield-ship.png', sizes: ['96'] },
+    { file: 'shield-star.png', sizes: ['96'] },
+    { file: 'shield-target.png', sizes: ['96'] },
+    { file: 'shield-uniting.png', sizes: ['96'] },
+    { file: 'shield-infinity-rope.png', sizes: ['96', '48', '24', '16'] },
+    { file: 'shield-alpha-omega.png', sizes: ['96', '48', '24'] },
+    { file: 'shield-key-scripture.png', sizes: ['48'] },
+    { file: 'shield-scroll-hebrew.png', sizes: ['48', '24'] },
+    { file: 'shield-book-greek.png', sizes: ['48', '24'] },
+    { file: 'shield-blog-quill.png', sizes: ['96', '48', '24'] },
+    { file: 'shield-cross-bible.png', sizes: ['48', '24'] },
+    { file: 'shield-home.png', sizes: ['48', '24'] },
+    { file: 'shield-shop.png', sizes: ['48', '24'] },
+    { file: 'shield-about-person.png', sizes: ['48', '24'] },
+    { file: 'wings-naval-aviator.png', sizes: [] },
+];
+
+const CHAIN_SHIELDS = [
+    { file: 'shield-chain-covenant.png', sizes: ['48'] },
+    { file: 'shield-chain-cross-crown.png', sizes: ['48'] },
+    { file: 'shield-chain-faith.png', sizes: ['48'] },
+    { file: 'shield-chain-fire.png', sizes: ['48'] },
+    { file: 'shield-chain-prayer.png', sizes: ['48'] },
+    { file: 'shield-chain-salvation.png', sizes: ['48'] },
+    { file: 'shield-chain-spirit.png', sizes: ['48'] },
+    { file: 'shield-chain-sword.png', sizes: ['48'] },
+];
+
+const HIRES_SHIELDS = [
+    { file: 'shield-alpha-omega-hires.png', base: 'shield-alpha-omega' },
+    { file: 'shield-blog-quill-hires.png', base: 'shield-blog-quill' },
+    { file: 'shield-blog-quill-hero.png', base: 'shield-blog-quill' },
+];
+
+const SIZE_VARIANTS = [
+    { file: 'shield-about-person-24.png', size: '24px' },
+    { file: 'shield-about-person-48.png', size: '48px' },
+    { file: 'shield-alpha-omega-24.png', size: '24px' },
+    { file: 'shield-alpha-omega-48.png', size: '48px' },
+    { file: 'shield-alpha-omega-96.png', size: '96px' },
+    { file: 'shield-blog-quill-24.png', size: '24px' },
+    { file: 'shield-blog-quill-48.png', size: '48px' },
+    { file: 'shield-blog-quill-96.png', size: '96px' },
+    { file: 'shield-book-greek-24.png', size: '24px' },
+    { file: 'shield-book-greek-48.png', size: '48px' },
+    { file: 'shield-chain-covenant-48.png', size: '48px' },
+    { file: 'shield-chain-cross-crown-48.png', size: '48px' },
+    { file: 'shield-chain-faith-48.png', size: '48px' },
+    { file: 'shield-chain-fire-48.png', size: '48px' },
+    { file: 'shield-chain-prayer-48.png', size: '48px' },
+    { file: 'shield-chain-salvation-48.png', size: '48px' },
+    { file: 'shield-chain-spirit-48.png', size: '48px' },
+    { file: 'shield-chain-sword-48.png', size: '48px' },
+    { file: 'shield-cross-bible-24.png', size: '24px' },
+    { file: 'shield-cross-bible-48.png', size: '48px' },
+    { file: 'shield-home-24.png', size: '24px' },
+    { file: 'shield-home-48.png', size: '48px' },
+    { file: 'shield-infinity-rope-16.png', size: '16px' },
+    { file: 'shield-infinity-rope-24.png', size: '24px' },
+    { file: 'shield-infinity-rope-48.png', size: '48px' },
+    { file: 'shield-infinity-rope-96.png', size: '96px' },
+    { file: 'shield-key-scripture-48.png', size: '48px' },
+    { file: 'shield-scroll-hebrew-24.png', size: '24px' },
+    { file: 'shield-scroll-hebrew-48.png', size: '48px' },
+    { file: 'shield-shop-24.png', size: '24px' },
+    { file: 'shield-shop-48.png', size: '48px' },
+];
+
+const BW_SHIELDS = [
+    'shield-anchor','shield-anvil','shield-bible','shield-book','shield-calendar',
+    'shield-comms','shield-compass','shield-cord','shield-cross','shield-crown',
+    'shield-dove','shield-family','shield-finance','shield-fitness','shield-gear',
+    'shield-globe','shield-hands-joining','shield-handshake','shield-leader',
+    'shield-megaphone','shield-mentoring','shield-mind','shield-serving','shield-ship',
+    'shield-star','shield-target','shield-uniting'
+];
+
+const BRAND_SVGS = [
+    'brand-cal','brand-cashapp','brand-facebook','brand-instagram','brand-linkedin',
+    'brand-signal','brand-telegram','brand-venmo','brand-wordpress','brand-x',
+    'brand-youtube','brand-zelle'
+];
+
+const INLINE_SVGS = ['cross','fitness','heart','mind','provision'];
+
+const ICON_SVGS = [
+    'icon-anchor','icon-book','icon-calendar','icon-cross','icon-dove',
+    'icon-email','icon-finance','icon-fitness','icon-flex','icon-gear',
+    'icon-handshake','icon-heart','icon-helmet','icon-home','icon-medal',
+    'icon-person','icon-shield','icon-signal','icon-star','icon-target',
+    'icon-uniting'
+];
+
+const ORIGINALS = [
+    'shield-anchor','shield-anvil','shield-bible','shield-book','shield-calendar',
+    'shield-comms','shield-compass','shield-cord','shield-cross','shield-crown',
+    'shield-dove','shield-family','shield-finance','shield-fitness','shield-gear',
+    'shield-globe','shield-hands-joining','shield-handshake','shield-leader',
+    'shield-megaphone','shield-mentoring','shield-mind','shield-serving','shield-ship',
+    'shield-star','shield-target','shield-uniting'
+];
+
+// ── Build Grids ─────────────────────────────────────────
+let allCards = [];
+
+function iconCard(imgSrc, filename, sizes, category, displaySize) {
+    return `<div class="icon-card" data-name="${filename.toLowerCase()}" data-cat="${category}">
+        <img src="${imgSrc}" alt="${filename}" loading="lazy" style="width:${displaySize||64}px;height:${displaySize||64}px">
+        <div class="icon-filename">${filename}</div>
+        <div class="icon-sizes">${sizes.map(s=>`<span class="size-badge">${s}</span>`).join('')}</div>
+        <div class="icon-category">${category.replace(/-/g,' ')}</div>
+    </div>`;
+}
+
+function buildAllGrids() {
+    // Core shields
+    const coreGrid = document.getElementById('grid-core-shield');
+    CORE_SHIELDS.forEach(ic => {
+        coreGrid.innerHTML += iconCard(`/assets/icons/${ic.file}`, ic.file, ic.sizes, 'core-shield');
+    });
+    document.getElementById('count-core-shield').textContent = CORE_SHIELDS.length + ' icons';
+
+    // Chain
+    const chainGrid = document.getElementById('grid-chain');
+    CHAIN_SHIELDS.forEach(ic => {
+        chainGrid.innerHTML += iconCard(`/assets/icons/${ic.file}`, ic.file, ic.sizes, 'chain');
+    });
+    document.getElementById('count-chain').textContent = CHAIN_SHIELDS.length + ' icons';
+
+    // Hires
+    const hiresGrid = document.getElementById('grid-hires');
+    HIRES_SHIELDS.forEach(ic => {
+        hiresGrid.innerHTML += iconCard(`/assets/icons/${ic.file}`, ic.file, ['hires'], 'hires');
+    });
+    document.getElementById('count-hires').textContent = HIRES_SHIELDS.length + ' icons';
+
+    // Size variants
+    const sizesGrid = document.getElementById('grid-sizes');
+    SIZE_VARIANTS.forEach(ic => {
+        const px = parseInt(ic.size);
+        sizesGrid.innerHTML += iconCard(`/assets/icons/${ic.file}`, ic.file, [ic.size], 'core-shield', Math.min(px, 48));
+    });
+    document.getElementById('count-sizes').textContent = SIZE_VARIANTS.length + ' icons';
+
+    // BW
+    const bwGrid = document.getElementById('grid-bw');
+    BW_SHIELDS.forEach(name => {
+        bwGrid.innerHTML += iconCard(`/assets/icons/bw/${name}.png`, `bw/${name}.png`, ['96'], 'bw');
+    });
+    document.getElementById('count-bw').textContent = BW_SHIELDS.length + ' icons';
+
+    // Brand SVGs
+    const brandGrid = document.getElementById('grid-brand');
+    BRAND_SVGS.forEach(name => {
+        brandGrid.innerHTML += `<div class="svg-card icon-card" data-name="${name}" data-cat="brand">
+            <img src="/assets/icons/${name}.svg" alt="${name}" loading="lazy" style="width:48px;height:48px;filter:invert(1) sepia(1) saturate(2) hue-rotate(5deg)">
+            <div class="icon-filename">${name}.svg</div>
+            <div class="icon-sizes"><span class="size-badge">SVG</span><span class="size-badge">scalable</span></div>
+            <div class="icon-category">brand</div>
+        </div>`;
+    });
+
+    // Inline SVGs
+    const inlineGrid = document.getElementById('grid-inline');
+    INLINE_SVGS.forEach(name => {
+        inlineGrid.innerHTML += `<div class="svg-card icon-card" data-name="${name}" data-cat="inline">
+            <img src="/assets/icons/inline/${name}.svg" alt="${name}" loading="lazy" style="width:48px;height:48px;filter:invert(1) sepia(1) saturate(2) hue-rotate(5deg)">
+            <div class="icon-filename">inline/${name}.svg</div>
+            <div class="icon-sizes"><span class="size-badge">SVG</span><span class="size-badge">inline</span></div>
+            <div class="icon-category">inline svg</div>
+        </div>`;
+    });
+
+    // Utility icon SVGs
+    const iconSvgGrid = document.getElementById('grid-icon-svg');
+    ICON_SVGS.forEach(name => {
+        const path = `/assets/icons/${name}.svg`;
+        iconSvgGrid.innerHTML += `<div class="svg-card icon-card" data-name="${name}" data-cat="inline">
+            <img src="${path}" alt="${name}" loading="lazy" style="width:48px;height:48px;filter:invert(1) sepia(1) saturate(2) hue-rotate(5deg)">
+            <div class="icon-filename">${name}.svg</div>
+            <div class="icon-sizes"><span class="size-badge">SVG</span><span class="size-badge">utility</span></div>
+            <div class="icon-category">inline svg</div>
+        </div>`;
+    });
+
+    // PNG utility icons
+    ['icon-counseling','icon-mentoring','icon-serving','icon-uniting'].forEach(name => {
+        iconSvgGrid.innerHTML += `<div class="icon-card" data-name="${name}" data-cat="inline">
+            <img src="/assets/icons/${name}.png" alt="${name}" loading="lazy" style="width:48px;height:48px">
+            <div class="icon-filename">${name}.png</div>
+            <div class="icon-sizes"><span class="size-badge">PNG</span></div>
+            <div class="icon-category">utility</div>
+        </div>`;
+    });
+
+    // Originals
+    const origsGrid = document.getElementById('grid-originals');
+    ORIGINALS.forEach(name => {
+        origsGrid.innerHTML += `<div class="original-card" data-name="${name}" data-cat="core-shield">
+            <img src="/assets/icons/originals/${name}-original.jpg" alt="${name}" loading="lazy">
+            <div class="orig-name">originals/${name}-original.jpg</div>
+        </div>`;
+    });
+
+    allCards = document.querySelectorAll('[data-name]');
+}
+
+// ── Filter & Search ────────────────────────────────────
+let activeFilter = 'all';
+
+function setFilter(cat, btn) {
+    activeFilter = cat;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    applyFilter();
+}
+
+function filterIcons() {
+    applyFilter();
+}
+
+function applyFilter() {
+    const query = document.getElementById('search-input').value.toLowerCase().trim();
+    allCards.forEach(card => {
+        const name = card.dataset.name || '';
+        const cat = card.dataset.cat || '';
+        const matchesSearch = !query || name.includes(query);
+        const matchesCat = activeFilter === 'all' || cat === activeFilter;
+        card.style.display = (matchesSearch && matchesCat) ? '' : 'none';
+    });
+
+    // Show/hide sections based on filter
+    document.querySelectorAll('.section').forEach(sec => {
+        if (activeFilter === 'all') {
+            sec.style.display = '';
+        } else {
+            const secData = sec.dataset.section;
+            sec.style.display = (!secData || secData === activeFilter || activeFilter === 'logos') ? '' : 'none';
+        }
+    });
+
+    // logos filter special case
+    if (activeFilter === 'logos') {
+        document.querySelectorAll('.section').forEach(sec => {
+            sec.style.display = sec.dataset.section === 'logos' ? '' : 'none';
+        });
+    }
+}
+
+// Keyboard support for PIN
+document.addEventListener('keydown', e => {
+    if (document.getElementById('pin-screen').classList.contains('hidden')) return;
+    if (/^[0-9]$/.test(e.key)) pinKey(e.key);
+    else if (e.key === 'Backspace') pinDel();
+});
+</script>
+</body>
+</html>
