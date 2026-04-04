@@ -3,189 +3,104 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Impassibility &mdash; The MOOP Dictionary</title>
+    <title>Impassibility — The MOOP Dictionary of the English Language</title>
     <style>
         * { margin:0; padding:0; box-sizing:border-box; }
         :root { --bg:#000; --card:#111; --gold:#D4AF37; --gold-light:#F4D470; --white:#FFF; --gray:#888; --border:#333; }
         body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--white); min-height:100vh; line-height:1.7; }
-        h1,h2,h3,h4 { font-family:'Playfair Display',serif; }
-        nav { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:4px 8px; padding:10px 16px;
-              border-bottom:1px solid var(--border); position:sticky; top:0;
-              background:rgba(0,0,0,0.95); backdrop-filter:blur(8px); z-index:100; }
-        nav a { color:var(--gray); text-decoration:none; font-size:0.8rem; display:inline-flex; align-items:center;
-                gap:3px; padding:3px 6px; border-radius:6px; transition:color 0.2s; }
-        nav a:hover, nav a.active { color:var(--gold); }
-        .site-icon { vertical-align:middle; opacity:0.8; }
-        .theme-toggle { background:none; border:1px solid var(--border); border-radius:50%; width:28px; height:28px;
-                        cursor:pointer; font-size:0.85rem; transition:all 0.3s; padding:0; color:var(--white);
-                        display:inline-flex; align-items:center; justify-content:center; }
-        .theme-toggle:hover { border-color:var(--gold); }
-        .container { max-width:820px; margin:0 auto; padding:28px 20px 60px; }
+        h1,h2,h3 { font-family:'Playfair Display',serif; }
+        .container { max-width:800px; margin:0 auto; padding:20px; }
         .word-header { text-align:center; padding:40px 0 30px; border-bottom:1px solid var(--border); margin-bottom:30px; }
-        .word-title { font-size:2.8rem; color:var(--gold-light); margin-bottom:6px; }
+        .word-title { font-size:2.5rem; color:var(--gold-light); margin-bottom:5px; }
         .pronunciation { color:var(--gray); font-size:1.1rem; font-style:italic; }
-        .pos { display:inline-block; background:var(--gold); color:#000; font-weight:700;
-               font-size:0.78rem; padding:3px 14px; border-radius:15px; margin:10px 0; }
-        .etymology { color:var(--white); font-size:0.88rem; margin:12px auto; max-width:650px; }
-        .section { margin:18px 0; padding:18px 22px; background:var(--card); border:1px solid var(--border); border-radius:10px; }
-        .section > h3 { color:var(--gold); margin-bottom:12px; font-size:1.05rem; }
-        .section p { margin:7px 0; color:var(--white); }
+        .pos { display:inline-block; background:var(--gold); color:#000; font-weight:700; font-size:0.8rem; padding:3px 12px; border-radius:15px; margin:10px 0; }
+        .etymology { color:var(--gray); font-size:0.9rem; margin:10px 0; }
+        .section { margin:25px 0; padding:20px; background:var(--card); border:1px solid var(--border); border-radius:10px; }
+        .section h3 { color:var(--gold); margin-bottom:12px; font-size:1.1rem; }
+        .section p { margin:8px 0; color:var(--white); }
         .biblical-def { border-left:3px solid var(--gold); padding-left:15px; }
-        .dict-toggle { cursor:pointer; color:var(--gold); font-size:0.92rem; user-select:none;
-                       display:inline-flex; align-items:center; gap:0; background:none; border:none;
-                       padding:0; font-family:inherit; font-weight:600; }
-        .dict-toggle:hover { color:var(--gold-light); }
-        .dict-toggle .arrow { display:inline-block; transition:transform 0.2s; margin-right:8px; font-size:0.75rem; }
-        .dict-toggle .arrow.open { transform:rotate(90deg); }
-        .dict-section { display:none; margin:10px 0 4px 0; padding:12px 16px;
-                        background:rgba(212,175,55,0.06); border-left:2px solid var(--gold);
-                        border-radius:0 6px 6px 0; }
-        .dict-section.open { display:block; }
-        .dict-section p { margin:6px 0; font-size:0.95rem; color:var(--white); }
-        .dict-section pre { font-family:'Courier New',monospace; font-size:0.82rem; color:var(--gold-light);
-                             line-height:1.7; white-space:pre-wrap; }
         .corruption { border-left:3px solid #CC0000; padding-left:15px; }
-        .corruption p { color:var(--white); }
         .verse-ref { color:var(--gold); text-decoration:none; font-weight:600; }
-        .verse-ref:hover { color:var(--gold-light); text-decoration:underline; }
-        .lexicon-link { color:var(--gold); font-family:monospace; text-decoration:none; }
-        .lexicon-link:hover { color:var(--gold-light); text-decoration:underline; }
+        .verse-ref:hover { color:var(--gold-light); }
         .related { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
-        .related a { background:var(--card); border:1px solid var(--border); padding:6px 14px;
-                     border-radius:20px; color:var(--white); text-decoration:none; font-size:0.85rem;
-                     transition:border-color 0.2s, color 0.2s; }
+        .related a { background:var(--card); border:1px solid var(--border); padding:6px 14px; border-radius:20px; color:var(--white); text-decoration:none; font-size:0.85rem; }
         .related a:hover { border-color:var(--gold); color:var(--gold); }
-        .toggle-wrap { display:flex; justify-content:center; margin:28px 0 10px; }
-        footer { text-align:center; padding:28px 20px; border-top:1px solid var(--border);
-                 margin-top:40px; color:var(--white); font-size:0.88rem; }
-        footer a { color:var(--gray); text-decoration:none; }
-        footer a:hover { color:var(--gold); }
-        body.light-mode { --bg:#F5F3EF; --card:#FFF; --white:#1a1a1a; --gray:#666; --border:#d4d0c8; }
-        body.light-mode nav { background:rgba(245,243,239,0.97); }
-        body.light-mode .section { background:#fff; border-color:#d4d0c8; }
-        body.light-mode .dict-section { background:rgba(212,175,55,0.04); }
-        body.light-mode footer { border-top-color:#d4d0c8; color:#1a1a1a; }
-        body.light-mode .related a { background:#f0ede7; border-color:#d4d0c8; color:#1a1a1a; }
-            .dict-back-nav { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:22px; padding:10px 0; border-bottom:1px solid var(--border,#333); }
+        .lexicon-link { color:var(--gold); font-family:monospace; }
+        .dict-back-nav { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:22px; padding:10px 0; border-bottom:1px solid var(--border,#333); }
         .dict-back-nav a { color:var(--gold,#D4AF37); text-decoration:none; font-size:0.88rem; font-weight:500; }
         .dict-back-nav a:hover { color:var(--gold-light,#F4D470); }
         .dict-back-nav .dict-back-center { flex:1; text-align:center; }
-</style>
+        .toggle-btn { position:fixed; top:16px; right:16px; background:var(--card); border:1px solid var(--border); color:var(--gold); padding:6px 14px; border-radius:20px; cursor:pointer; font-size:0.85rem; z-index:999; }
+        body.light { --bg:#f9f5eb; --card:#fff; --white:#1a1a1a; --gray:#555; --border:#ddd; }
+    </style>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
 </head>
 <body>
-    <nav>
-        <a href="../index.html"><img src="../assets/icons/shield-home-48.png" class="site-icon" alt="" width="16" height="16"> Home</a>
-        <a href="../watchman.html"><img src="../assets/icons/shield-bible.png" class="site-icon" alt="" width="16" height="16"> Watchman</a>
-        <a href="../bible.html"><img src="../assets/icons/shield-compass.png" class="site-icon" alt="" width="16" height="16"> BTE</a>
-        <a href="../lexicon.html"><img src="../assets/icons/shield-alpha-omega-48.png" class="site-icon" alt="" width="16" height="16"> Lexicon</a>
-        <a href="../cross-references.html"><img src="../assets/icons/shield-infinity-rope-48.png" class="site-icon" alt="" width="16" height="16"> Cross-Refs</a>
-        <a href="index.html" class="active"><img src="../assets/icons/shield-book-greek-48.png" class="site-icon" alt="" width="16" height="16"> Dictionary</a>
-        <a href="../blog.html"><img src="../assets/icons/shield-blog-quill-48.png" class="site-icon" alt="" width="16" height="16"> Blog</a>
-        <a href="../connect.html"><img src="../assets/icons/shield-handshake.png" class="site-icon" alt="" width="16" height="16"> Connect</a>
-        <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle" title="Toggle dark/light">&#127769;</button>
-    </nav>
+    <button class="toggle-btn" onclick="document.body.classList.toggle('light')">☀️ / 🌙</button>
     <div class="container">
-        <div class="dict-back-nav"><a href="impartation.html">&#8592; Impartation</a><div class="dict-back-center"><a href="index.html">&#8592; Back to Dictionary</a></div><a href="imprecation.html">Imprecation &#8594;</a></div>
+        <div class="dict-back-nav"><a href="index.html">&#8592; Back to Dictionary</a><div class="dict-back-center"><a href="index.html">📖 MOOP Dictionary</a></div><a href="index.html">Browse All &#8594;</a></div>
         <div class="word-header">
             <div class="word-title">Impassibility</div>
-            <div class="pronunciation">/ɪmˌpæs.əˈbɪl.ɪ.ti/</div>
-            <span class="pos">noun (theological attribute)</span>
-            <div class="etymology">From Medieval Latin <em>impassibilitas</em>; from <em>in-</em> (not) + <em>passibilis</em> (capable of suffering, from <em>pati</em> — to suffer, endure). The doctrine that God cannot be acted upon or caused to suffer by something external to himself; that his emotional and volitional states are not reactive in the way creaturely emotions are. Not to be confused with <em>apathy</em> (indifference) — God is fully alive and deeply caring; impassibility concerns the mode and source of his internal states.</div>
+            <div class="pronunciation">/ ɪmˌpæs·ɪˈbɪl·ɪ·ti /</div>
+            <span class="pos">noun (theological term)</span>
+            <div class="etymology">Latin <em>impassibilitas</em> — from <em>in-</em> (not) + <em>passibilis</em> (capable of suffering or being acted upon; from <em>patior</em>, to suffer, to undergo). Literally: "not able to be acted upon from outside." Divine impassibility is the classical doctrine that God does not have passions in the creaturely sense — He is not subject to emotional perturbations, involuntary reactions, or suffering imposed upon Him by external forces. He acts; He is not acted upon. This does not mean God is unfeeling — it means His love, wrath, and grief are not reactions but expressions of His eternal, unchanging nature.</div>
         </div>
 
         <div class="section">
-            <h3>&#128214; Biblical Definition</h3>
+            <h3>📖 Biblical Definition</h3>
             <div class="biblical-def">
-                <p>Divine impassibility is the classical theological teaching that <strong>God does not undergo involuntary emotional changes caused by creatures or external forces</strong>. He is not subject to passions in the way fallen humans are — he is not manipulated, destabilized, or coerced by suffering or events. This is rooted in God's aseity (self-existence), immutability (unchangeableness), and perfection. God's love, wrath, grief, and delight are real — but they flow from his unchanging nature and sovereign will, not as reactions to stimuli he did not determine. Classically affirmed in the Westminster Confession (2.1): God is "without body, parts, or passions." The challenge of impassibility is holding it alongside the genuine emotional language of Scripture — God repents (<a href="../bible.html?ref=Genesis+6:6" class="verse-ref">Gen 6:6</a>), grieves, is angry, delights. Orthodox theology handles this through the distinction between <em>anthropopathism</em> (human-emotion language applied to God to communicate real truths) and creaturely emotionalism.</p>
+                <p>Divine impassibility is one of the most contested and misunderstood attributes of God in contemporary theology. The classical position — held by virtually all the church Fathers and Reformers — is that God does not have passions in the sense that creatures do. Creaturely passions are involuntary, reactive, and subject to change: we are surprised by grief, overwhelmed by fear, provoked by anger. These states are imposed on us from outside and alter our condition. God, as the self-existent, immutable, sovereign Lord, is not subject to this kind of passional experience. He cannot be surprised, manipulated, emotionally destabilized, or made to suffer against His will.</p>
+                <p>What impassibility does NOT mean: it does not mean God is cold, indifferent, or Stoic. Scripture is saturated with divine "emotion" language — God's love (John 3:16), wrath (Rom. 1:18), jealousy (Ex. 20:5), grief (Gen. 6:6), delight (Ps. 149:4). The orthodox position reconciles this by distinguishing between: (1) anthropopathic language — Scripture's accommodation to human understanding by describing God's responses in emotional terms; and (2) the eternal divine will and nature from which those responses flow. God's love is not a feeling that comes and goes — it is an eternal attribute of His being. His wrath is not an emotional reaction — it is the necessary expression of His holiness encountering sin. These are real, not merely metaphorical — but they are not creaturely passions.</p>
+                <p>The Incarnation adds a critical dimension: the Son of God, in taking on human nature, became capable of suffering. He wept (John 11:35), grieved (Matt. 26:38), and cried out from the cross (Matt. 27:46). This is the suffering of the God-Man in His human nature — not a demonstration that the divine nature is passible, but a demonstration of the depth of the kenosis. The impassible God became passible in Christ's human nature — for us and our salvation.</p>
             </div>
         </div>
 
         <div class="section">
-            <button class="dict-toggle" onclick="toggleDict('webster')">
-                <span class="arrow">&#9658;</span>&#128220; Webster 1828 Definition
-            </button>
-            <div class="dict-section" id="webster">
-                <p><strong>IMPASSIBILITY, n.</strong> The quality of being incapable of pain, suffering or impression from external agents. Applied to the divine nature, it signifies that God cannot be caused to suffer, cannot be acted upon or changed by any external force or creature. It does not imply indifference or lack of feeling, but rather that God's being is not subject to diminishment or involuntary alteration.</p>
+            <h3>📜 Webster 1828 Definition</h3>
+            <p><strong>IMPASSIBLE</strong>, adj. [Lat. impassibilis; Fr. impassible.] Incapable of suffering; not to be moved by passion; exempt from passion, pain or suffering. In theology, <em>impassibility</em> is attributed to God as a divine perfection, denoting that He is not subject to suffering, sorrow, or passion as creatures are — not acted upon from without — His blessedness being absolute, complete, and independent of all external circumstances. Distinguished from <em>apathy</em>, which in its vulgar sense implies indifference; the divine impassibility is not coldness but transcendence.</p>
+        </div>
+
+        <div class="section">
+            <h3>⚠️ Modern Corruption</h3>
+            <div class="corruption">
+                <p>Modern theology has largely abandoned divine impassibility in favor of a "suffering God" who is genuinely, ontologically affected by creaturely pain. Jürgen Moltmann's <em>The Crucified God</em> argues that God genuinely suffered in the cross in His divine nature — that the cross changes God. Process theology goes further: God is in a constant state of "becoming," affected and enriched by creaturely experience. Open Theism posits a God who genuinely grieves, risks, and is emotionally invested in creaturely outcomes in ways that alter His state. The appeal is pastoral — a God who suffers with us seems more relatable. But the cost is catastrophic: a God who can suffer can be harmed; a God who can be harmed can be threatened; a God who can be threatened is not sovereign. The biblical God of impassibility is not cold — He is the rock, the anchor, the immovable foundation. His love does not fluctuate with our failures. His peace is not disrupted by our chaos. This is the God worth trusting.</p>
             </div>
         </div>
 
         <div class="section">
-            <h3>&#128214; Key Scripture</h3>
-            <p>&#x2022; <a href="../bible.html?ref=Malachi+3:6" class="verse-ref">Malachi 3:6</a> &mdash; "I the LORD do not change." — The foundation of impassibility: God's being does not undergo external modification.</p>
-            <p>&#x2022; <a href="../bible.html?ref=Numbers+23:19" class="verse-ref">Numbers 23:19</a> &mdash; "God is not man, that he should lie, or a son of man, that he should change his mind." — Impassibility distinguishes God from creaturely instability.</p>
-            <p>&#x2022; <a href="../bible.html?ref=James+1:17" class="verse-ref">James 1:17</a> &mdash; "With whom there is no variation or shadow due to change."</p>
-            <p>&#x2022; <a href="../bible.html?ref=Psalm+102:26-27" class="verse-ref">Psalm 102:26–27</a> &mdash; "They will perish, but you will remain…you are the same, and your years have no end."</p>
-            <p>&#x2022; <a href="../bible.html?ref=Genesis+6:6" class="verse-ref">Genesis 6:6</a> &mdash; "The LORD regretted that he had made man on the earth, and it grieved him to his heart." — Anthropopathism: God communicates real relational reality in creaturely terms.</p>
+            <h3>📖 Key Scripture</h3>
+            <p><a href="../bible.html?ref=Numbers+23:19" class="verse-ref">Numbers 23:19</a> — "God is not man, that he should lie, or a son of man, that he should change his mind." — God does not undergo the involuntary changes characteristic of creaturely emotional life.</p>
+            <p><a href="../bible.html?ref=Malachi+3:6" class="verse-ref">Malachi 3:6</a> — "For I the LORD do not change; therefore you, O children of Jacob, are not consumed." — Immutability grounds covenant faithfulness.</p>
+            <p><a href="../bible.html?ref=James+1:17" class="verse-ref">James 1:17</a> — "Every good gift and every perfect gift is from above, coming down from the Father of lights, with whom there is no variation or shadow due to change."</p>
+            <p><a href="../bible.html?ref=Psalm+102:27" class="verse-ref">Psalm 102:27</a> — "But you are the same, and your years have no end."</p>
+            <p><a href="../bible.html?ref=Isaiah+46:10" class="verse-ref">Isaiah 46:10</a> — "My counsel shall stand, and I will accomplish all my purpose." — The impassible God whose will is not subject to external interference.</p>
         </div>
 
         <div class="section">
-            <button class="dict-toggle" onclick="toggleDict('corruption')">
-                <span class="arrow">&#9658;</span>&#9888;&#65039; Modern Corruption
-            </button>
-            <div class="dict-section" id="corruption">
-                <div class="corruption">
-                    <p>Open Theism rejects impassibility entirely, claiming that God genuinely suffers with creatures, changes his mind in response to prayer, and does not exhaustively foreknow the future. Process Theology (Whitehead, Hartshorne) goes further: God is literally co-dependent with creation, growing and developing alongside it. Both views are theological capitulations to creaturely concepts of personhood — importing emotional reactivity as a divine virtue. The motive is pastoral (a "relatable" God who really suffers with us), but the result is a God who can be destabilized by events — which raises terrifying questions about ultimate sovereignty. The classical answer: God's love is more secure precisely because it is not reactive. He doesn't love you because you moved him; he loves you because of who he is.</p>
-                </div>
-            </div>
+            <h3>🔗 Greek &amp; Hebrew Roots</h3>
+            <p><a href="../lexicon/H5162.html" class="lexicon-link">H5162 — נָחַם (nacham)</a> — to be sorry, to have compassion, to repent/relent; used in Gen. 6:6 of God being "grieved." Anthropopathic language — the word describes God's response in human-relatable terms, not a literal creaturely emotional state.</p>
+            <p><a href="../lexicon/G3958.html" class="lexicon-link">G3958 — πάσχω (paschō)</a> — to suffer, to undergo, to experience; the verbal root of "passion" and "impassibility." In Christ's human nature, He suffered (1 Pet. 2:21); divine impassibility concerns the divine nature specifically.</p>
+            <p><a href="../lexicon/G665.html" class="lexicon-link">G665 / ἀπαράλλακτος</a> — unchanging; James 1:17 describes God as having "no variation" (<em>parallage</em> — shifting) — a key text for divine immutability underlying impassibility.</p>
         </div>
 
         <div class="section">
-            <button class="dict-toggle" onclick="toggleDict('proto')">
-                <span class="arrow">&#9658;</span>&#127760; Proto-Language Roots
-            </button>
-            <div class="dict-section" id="proto">
-                <pre>Latin: impassibilitas → passibilis → pati (to suffer, undergo)
-  → Proto-Indo-European *peh₁- (to protect, feed) → passio (passion, suffering)
-  
-Greek equivalent: ἀπάθεια (apatheia) — without passion/suffering
-  → ἀ- (not) + πάθος (pathos) — suffering, experience
-  Note: Greek apatheia ≠ modern "apathy" (cold indifference)
-  Classical apatheia = freedom from being controlled by external forces
-
-Theological trajectory:
-  Aristotle: "Unmoved Mover" (God moves all without being moved)
-  Patristics: Adopted impassibility to guard against Greek mythology
-    (where gods had uncontrolled passions like humans)
-  Westminster Confession (1647): "without body, parts, or passions"
-  20th c. challenges: Moltmann (The Crucified God), Open Theism</pre>
-            </div>
+            <h3>✍️ Usage</h3>
+            <p>• "You cannot wound God. You can grieve Him — but you cannot destabilize Him. His love for you is not a mood; it is a fact of His eternal nature."</p>
+            <p>• "Impassibility does not mean God is distant. It means He is the one fixed point in a universe of flux — the Rock that does not shift when the waves hit."</p>
+            <p>• "The pastoral comfort of impassibility: God's attitude toward you in Christ did not change yesterday, will not change tomorrow, and cannot be altered by anything you do tonight. He is what He is. And in Christ, He is for you."</p>
         </div>
 
         <div class="section">
             <h3>Related Words</h3>
             <div class="related">
-                <a href="immutability.html">Immutability</a>
                 <a href="aseity.html">Aseity</a>
+                <a href="immutability.html">Immutability</a>
                 <a href="sovereignty.html">Sovereignty</a>
-                <a href="transcendence.html">Transcendence</a>
-                <a href="foreknowledge.html">Foreknowledge</a>
-                <a href="omniscience.html">Omniscience</a>
+                <a href="kenosis.html">Kenosis</a>
+                <a href="attributes-of-god.html">Attributes of God</a>
+                <a href="hypostatic-union.html">Hypostatic Union</a>
             </div>
         </div>
     </div>
-
-    <div class="toggle-wrap">
-        <button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark/light" style="width:36px;height:36px;font-size:1.1rem;">&#127769;</button>
-    </div>
-
-    <footer>
-        <p>&copy; 2026 The MOOP Dictionary &mdash; <a href="index.html">All Words</a> &mdash; <a href="../index.html">Home</a></p>
-    </footer>
-
-    <script>
-        function toggleTheme(){
-            document.body.classList.toggle('light-mode');
-            const btn=document.getElementById('themeToggle');
-            if(btn) btn.textContent=document.body.classList.contains('light-mode')?'🌞':'🌙';
-        }
-        function toggleDict(id){
-            const el=document.getElementById(id);
-            if(!el)return;
-            el.classList.toggle('open');
-            const btn=el.previousElementSibling;
-            if(btn){const arrow=btn.querySelector('.arrow');if(arrow)arrow.classList.toggle('open');}
-        }
-    </script>
 </body>
 </html>
