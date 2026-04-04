@@ -856,6 +856,172 @@ ENTRIES = [
  "SKIP", "", "", [], []),  # Proper name — skip
 
 # --- H7720 ---
-("H7720", "שַׂהֲרֹן", "saharōn", "Noun, masculine", "Crescent, Moon-shaped Ornament",
- "Saharōn — crescent ornaments; the allure of pagan symbols exposed. Strong's H7720.",
- "<em>Saharōn</em> (שַׂהֲרֹן) means <strong>crescent, crescent-shaped ornament</strong>. From <em>sāhar</em> (moon). Small moon-shaped pendants worn
+("H7720", "שַׂהֲרֹן", "saharōn", "Noun, masculine", "Crescent Ornament",
+ "Saharōn — crescent ornaments; pagan symbols stripped as war spoil. Strong's H7720.",
+ "<em>Saharōn</em> (שַׂהֲרֹן) means <strong>crescent, moon-shaped ornament</strong>. From <em>sāhar</em> (moon). Small crescent pendants worn as jewelry or placed on camels as decorative amulets.",
+ "Judges 8:21,26: Gideon took the <em>crescent ornaments</em> from the Midianite kings' camels. Isaiah 3:18: God will strip away the finery of the daughters of Zion, including their '<em>crescents</em>.' These ornaments were connected to moon worship — wearing them was a subtle form of pagan identification. <strong>God calls His people to separate from the symbols of false worship</strong>, even when they seem merely decorative. What we wear and display can signal spiritual allegiance.",
+ [("Judges 8:21", "Gideon took the <em>crescent ornaments</em> that were on the camels' necks."),
+  ("Judges 8:26", "The weight of the gold rings he asked for was 1,700 shekels, not counting the <em>crescents</em>, pendants and purple garments."),
+  ("Isaiah 3:18", "In that day the Lord will snatch away their finery: bangles, headbands and <em>crescent</em> necklaces.")],
+ [("H3394", "Yārēach (Moon)"), ("H5141", "Nezem (Ring/Earring)"), ("H6287", "Pe'ēr (Headdress)")]),
+
+# --- H7975 ---
+("H7975", "שִׁלֹחַ", "Shilōach", "Noun, masculine", "Shiloah, Siloam",
+ "Shilōach — the waters of Shiloah that flow gently; trusting God's quiet provision. Strong's H7975.",
+ "<em>Shilōach</em> (שִׁלֹחַ) means <strong>a sending forth (of water)</strong> — the name of the gentle aqueduct and pool in Jerusalem. From <em>shālach</em> (to send). Same as NT Siloam (John 9:7).",
+ "Isaiah 8:6: 'Because this people has rejected the gently flowing waters of <em>Shiloah</em> and rejoices over Rezin and the son of Remaliah...' Judah preferred military alliances over God's quiet provision. The waters of Shiloah — gentle, modest, life-sustaining — represent <strong>God's unspectacular but faithful care</strong>. In contrast, God would bring the mighty Euphrates (Assyria) flooding over them. John 9:7: Jesus sends the blind man to wash in the Pool of <em>Siloam</em> ('Sent'), connecting healing to this ancient symbol of God's sending.",
+ [("Isaiah 8:6", "Because this people has rejected the gently flowing waters of <em>Shiloah</em>..."),
+  ("John 9:7", "Go, wash in the Pool of <em>Siloam</em> (this word means 'Sent'). So he went and washed, and came home seeing."),
+  ("Isaiah 8:7", "The Lord is about to bring against them the mighty floodwaters of the Euphrates.")],
+ [("H4325", "Mayim (Water)"), ("H7971", "Shālach (To Send)"), ("H1295", "Berēkāh (Pool)")]),
+
+# --- H3148 ---
+("H3148", "יוֹתֵר", "yôthēr", "Adverb/Adjective", "More, Excess, Advantage",
+ "Yôthēr — the advantage of wisdom; what remains and what matters. Strong's H3148.",
+ "<em>Yôthēr</em> (יוֹתֵר) means <strong>more, advantage, excess, remainder</strong>. From <em>yāthar</em> (to remain, to be left over). It appears in Ecclesiastes as a key philosophical term.",
+ "Ecclesiastes 6:8: 'What <em>advantage</em> does a wise person have over a fool?' Ecclesiastes 6:11: 'The <em>more</em> the words, the less the meaning.' Ecclesiastes 7:11: 'Wisdom, like an inheritance, is a good thing and benefits those who see the sun; for wisdom is a shelter... the <em>advantage</em> of knowledge is this: wisdom preserves those who have it.' <strong>The Preacher wrestles with ultimate value</strong> — what truly matters 'under the sun.' His conclusion: fear God and keep His commandments (12:13). All other advantages are vapor (<em>hevel</em>) without this foundation.",
+ [("Ecclesiastes 7:11-12", "Wisdom, like an inheritance, is a good thing. The <em>advantage</em> of knowledge is that wisdom preserves those who have it."),
+  ("Ecclesiastes 6:8", "What <em>advantage</em> does a wise person have over a fool?"),
+  ("Ecclesiastes 12:13", "Fear God and keep his commandments, for this is the duty of all mankind.")],
+ [("H2451", "Chokmāh (Wisdom)"), ("H1892", "Hevel (Vanity/Vapor)"), ("H3504", "Yithrôn (Profit/Advantage)")]),
+
+# --- H6947 ---
+("H6947", "קָדֵשׁ בַּרְנֵעַ", "Qādēsh Barnēa'", "Proper Noun", "Kadesh Barnea",
+ "SKIP", "", "", [], []),  # Place name — skip
+
+# --- H3917 ---
+("H3917", "לִילִית", "lîylîyth", "Noun, feminine", "Night Creature, Screech Owl",
+ "Lîylîyth — the night creature; desolation and the absence of God's blessing. Strong's H3917.",
+ "<em>Lîylîyth</em> (לִילִית) means <strong>night creature, screech owl, night monster</strong>. From <em>layil</em> (night). Appears once in the Hebrew Bible. In later Jewish tradition, the name became associated with a demonic figure.",
+ "Isaiah 34:14: 'Desert creatures will meet with hyenas, and wild goats will bleat to each other; there the <em>night creature</em> will also lie down and find for herself a place of rest.' This describes the utter desolation of Edom after God's judgment — a land so completely devastated that only the wildest, most fearsome creatures inhabit it. <strong>The absence of God's blessing reduces a nation to a haunt for desert creatures.</strong> The image serves as a warning: rebellion against God leads to desolation, while obedience leads to fruitfulness (Isaiah 35 immediately follows with restoration).",
+ [("Isaiah 34:14", "Desert creatures will meet with hyenas; there the <em>night creature</em> will also lie down and find rest."),
+  ("Isaiah 34:11", "The desert owl and screech owl will possess it; the great owl and the raven will nest there."),
+  ("Isaiah 35:1", "The desert and the parched land will be glad; the wilderness will rejoice and blossom.")],
+ [("H3915", "Layil (Night)"), ("H8577", "Tannîyn (Jackals/Monsters)"), ("H2723", "Chorbāh (Desolation)")]),
+
+# --- H3073 ---
+("H3073", "יְהוָה נִסִּי", "Yhvh Nissîy", "Proper Noun (Divine Name)", "The LORD Is My Banner",
+ "Yhvh Nissîy — The LORD Is My Banner; God as our rallying point in battle. Strong's H3073.",
+ "<em>Yhvh Nissîy</em> (יְהוָה נִסִּי) means <strong>The LORD Is My Banner</strong>. A compound divine name from <em>YHVH</em> + <em>nēs</em> (banner, standard, signal pole). Moses built an altar by this name after the battle with Amalek.",
+ "Exodus 17:15: 'Moses built an altar and called it <em>The LORD is my Banner</em>.' The name commemorates Israel's victory over Amalek while Aaron and Hur held Moses' arms aloft. The raised hands with the staff of God functioned as a <strong>battle standard — a rallying point</strong>. When the banner was raised, Israel prevailed; when it dropped, Amalek gained ground. <strong>God Himself is our banner</strong> — the standard around which we rally, the signal that identifies whose army we belong to. Isaiah 11:10: 'the Root of Jesse will stand as a banner for the peoples.' Christ is the ultimate banner.",
+ [("Exodus 17:15", "Moses built an altar and called it <em>The LORD is my Banner</em>."),
+  ("Exodus 17:11", "As long as Moses held up his hands, the Israelites were winning."),
+  ("Isaiah 11:10", "The Root of Jesse will stand as a banner for the peoples; the nations will rally to him.")],
+ [("H5251", "Nēs (Banner/Standard)"), ("H4196", "Mizbēach (Altar)"), ("H3068", "YHVH (The LORD)")]),
+
+# --- H6241 ---
+("H6241", "עִשָּׂרוֹן", "'issārôn", "Noun, masculine", "Tenth Part, One-Tenth (Ephah)",
+ "'Issārôn — the tenth part; the tithe principle woven into daily offerings. Strong's H6241.",
+ "<em>'Issārôn</em> (עִשָּׂרוֹן) means <strong>a tenth part, one-tenth of an ephah</strong> — a standard dry measure used in grain offerings. From <em>'eser</em> (ten). Appears frequently in Levitical instructions for daily and festival offerings.",
+ "Exodus 29:40: 'With the first lamb offer a <em>tenth</em> of an ephah of the finest flour mixed with a quarter of a hin of oil.' Numbers 28:5: 'a <em>tenth</em> of an ephah of the finest flour for a grain offering.' The <em>'issārôn</em> was the standard unit for grain offerings — <strong>the tithe principle built into the very fabric of daily worship</strong>. Every morning and evening sacrifice included this tenth-part offering, teaching Israel that a portion of their harvest belonged to God. Malachi 3:10: 'Bring the whole tithe into the storehouse.'",
+ [("Exodus 29:40", "With the first lamb offer a <em>tenth</em> of an ephah of the finest flour mixed with oil."),
+  ("Numbers 28:5", "Together with a grain offering of a <em>tenth</em> of an ephah of the finest flour."),
+  ("Malachi 3:10", "Bring the whole tithe into the storehouse, that there may be food in my house.")],
+ [("H6235", "'Eser (Ten)"), ("H4503", "Minchāh (Grain Offering)"), ("H374", "'Ēphāh (Ephah)")]),
+
+# --- H5336 ---
+("H5336", "נָצִיר", "nātsîyr", "Adjective", "Preserved, Guarded",
+ "SKIP", "", "", [], []),  # Rare variant — skip
+
+# --- H4198 ---
+("H4198", "מָזֶה", "māzeh", "Adjective", "Exhausted, Lean, Wasted",
+ "Māzeh — wasted and exhausted; the cost of untreated grief. Strong's H4198.",
+ "<em>Māzeh</em> (מָזֶה) means <strong>exhausted, lean, sucked dry, wasted</strong>. From <em>māzāh</em> (to suck out, to drain). Describes physical depletion.",
+ "Isaiah 17:4: 'In that day the glory of Jacob will fade; the fat of his body will <em>waste away</em>.' Israel's coming judgment is described in terms of physical wasting — the nation's prosperity and strength drained away. This is the consequence of persistent unfaithfulness. <strong>Sin is spiritually emaciated</strong> — it promises fullness but delivers depletion. Psalm 106:15: 'He gave them what they asked for, but sent a wasting disease upon them.' Getting what we want apart from God leads to <em>māzeh</em> — a soul sucked dry.",
+ [("Isaiah 17:4", "In that day the glory of Jacob will fade; the fat of his body will <em>waste away</em>."),
+  ("Psalm 106:15", "He gave them what they asked for, but sent a <em>wasting disease</em> upon them."),
+  ("Isaiah 10:16", "The Lord will send a <em>wasting disease</em> upon his sturdy warriors.")],
+ [("H7534", "Raq (Thin/Lean)"), ("H1803", "Dallāh (Poverty)"), ("H3615", "Kālāh (To Be Consumed)")]),
+
+# --- H8025 ---
+("H8025", "שָׁלַף", "shālaph", "Verb", "To Draw Out, To Pull Out (a sword)",
+ "Shālaph — to draw the sword; decisive action in spiritual warfare. Strong's H8025.",
+ "<em>Shālaph</em> (שָׁלַף) means <strong>to draw out, to pull out, to unsheathe</strong> — particularly drawing a sword from its scabbard. Also used for pulling off a sandal (Ruth 4:7-8).",
+ "Judges 3:22: Ehud plunged his sword into Eglon's belly, and 'even the handle sank in... and Ehud did not <em>draw</em> the sword out.' Judges 8:20: Gideon told Jether to '<em>draw</em> your sword and kill them' — but the boy was afraid. Ruth 4:7-8: the kinsman-redeemer 'drew off his sandal' — transferring rights. <strong>Drawing the sword represents decisive action.</strong> Hebrews 4:12: 'The word of God is alive and active, sharper than any double-edged sword.' When God's Word is drawn, it accomplishes its purpose.",
+ [("Judges 3:22", "Even the handle sank in after the blade, and Ehud did not <em>draw</em> the sword out."),
+  ("Ruth 4:7-8", "The guardian-redeemer <em>drew off</em> his sandal, saying to Boaz, 'Buy it yourself.'"),
+  ("Hebrews 4:12", "The word of God is alive and active. Sharper than any double-edged sword.")],
+ [("H2719", "Chereb (Sword)"), ("H5275", "Na'al (Sandal)"), ("H1350", "Gā'al (To Redeem)")]),
+
+# --- H8509 ---
+("H8509", "תַּכְרִיךְ", "takrîyk", "Noun, masculine", "Robe, Garment",
+ "SKIP", "", "", [], []),  # Rare variant — skip
+
+# --- H7191 ---
+("H7191", "קִשְׁיוֹן", "Qishyôn", "Proper Noun", "Kishion",
+ "SKIP", "", "", [], []),  # Place name — skip
+
+# --- H3658 ---
+("H3658", "כִּנּוֹר", "kinnôr", "Noun, masculine", "Lyre, Harp",
+ "Kinnôr — the lyre; music as weapon, worship, and healing. Strong's H3658.",
+ "<em>Kinnôr</em> (כִּנּוֹר) means <strong>lyre, harp</strong> — the primary stringed instrument of ancient Israel. It was David's instrument and central to temple worship. First mentioned in Genesis 4:21 as Jubal's invention.",
+ "First Samuel 16:23: 'Whenever the spirit from God came on Saul, David would take up his <em>lyre</em> and play. Then relief would come to Saul.' Music as spiritual warfare — David's <em>kinnôr</em> drove away tormenting spirits. Psalm 137:2: 'There on the willows we hung our <em>lyres</em>' — exile silenced Israel's worship. Psalm 150:3: 'Praise him with the harp and <em>lyre</em>.' <strong>The kinnôr represents the full range of human experience before God</strong>: joy in worship, healing in suffering, and silence in exile. Revelation 5:8 shows the elders with harps before the Lamb — worship restored forever.",
+ [("1 Samuel 16:23", "David would take up his <em>lyre</em> and play. Then relief would come to Saul; the evil spirit would leave him."),
+  ("Psalm 137:2", "There on the willows we hung our <em>lyres</em>."),
+  ("Psalm 150:3", "Praise him with the sounding of the trumpet, praise him with the <em>harp</em> and lyre.")],
+ [("H5035", "Nēbel (Harp/Lute)"), ("H8596", "Tōph (Tambourine)"), ("H2167", "Zāmar (To Sing Praise)")]),
+
+# --- H8477 ---
+("H8477", "תַּחַשׁ", "tachash", "Noun, masculine", "Fine Leather, Porpoise/Seal Skin",
+ "Tachash — fine leather for the tabernacle; God's dwelling covered with costly material. Strong's H8477.",
+ "<em>Tachash</em> (תַּחַשׁ) means <strong>fine leather, probably porpoise or seal skin</strong> — a durable, weather-resistant material. The exact animal is debated (dugong, dolphin, or fine-grained leather). Used for the tabernacle's outer covering.",
+ "Exodus 26:14: 'Make for the tent a covering of ram skins dyed red, and over that a covering of <em>fine leather</em>.' Numbers 4:6: the ark of the covenant was covered with <em>tachash</em> during transport. Ezekiel 16:10: God says to Jerusalem, 'I put sandals of <em>fine leather</em> on you.' <strong>The finest materials were used for God's dwelling</strong> — nothing cheap or second-rate for the place where heaven met earth. This challenges us: do we give God our best, or our leftovers?",
+ [("Exodus 26:14", "Make a covering of ram skins dyed red, and over that a covering of <em>fine leather</em>."),
+  ("Numbers 4:6", "They are to cover the ark with hides of <em>fine leather</em>, spread a cloth of solid blue over that."),
+  ("Ezekiel 16:10", "I clothed you with an embroidered dress and put sandals of <em>fine leather</em> on you.")],
+ [("H5785", "'Ôr (Skin/Leather)"), ("H4908", "Mishkān (Tabernacle)"), ("H352", "Ayil (Ram)")]),
+
+# --- H4726 ---
+("H4726", "מָקוֹר", "māqôr", "Noun, masculine", "Fountain, Source, Spring",
+ "Māqôr — the fountain of life; God as the source of all living water. Strong's H4726.",
+ "<em>Māqôr</em> (מָקוֹר) means <strong>fountain, source, spring</strong> — the origin point from which water flows. It is used both literally and as one of Scripture's richest metaphors for life, wisdom, and God Himself.",
+ "Jeremiah 2:13: 'My people have committed two sins: They have forsaken me, the <em>spring</em> of living water, and have dug their own cisterns, broken cisterns that cannot hold water.' This is the core indictment of all idolatry: abandoning the <strong>infinite fountain</strong> for cracked containers. Psalm 36:9: 'For with you is the <em>fountain</em> of life; in your light we see light.' Proverbs 14:27: 'The fear of the LORD is a <em>fountain</em> of life.' <strong>God is not a reservoir — He is a spring</strong>. His supply never runs dry; His grace is ever-flowing.",
+ [("Jeremiah 2:13", "They have forsaken me, the <em>spring</em> of living water, and have dug broken cisterns that cannot hold water."),
+  ("Psalm 36:9", "For with you is the <em>fountain</em> of life; in your light we see light."),
+  ("Proverbs 14:27", "The fear of the LORD is a <em>fountain</em> of life, turning a person from the snares of death.")],
+ [("H5869", "'Ayin (Spring/Eye)"), ("H4599", "Ma'yān (Spring)"), ("H2416", "Chay (Life)")]),
+
+# --- H1750 ---
+("H1750", "דּוּץ", "dûts", "Verb", "To Leap, To Spring",
+ "Dûts — to leap for joy; exuberant worship and deliverance. Strong's H1750.",
+ "<em>Dûts</em> (דּוּץ) means <strong>to leap, to spring, to jump</strong> — expressing joy, vitality, or sudden movement. It appears in vivid imagery of celebration and restoration.",
+ "Malachi 4:2: 'But for you who revere my name, the sun of righteousness will rise with healing in its rays. And you will go out and <em>frolic</em> like well-fed calves.' The image is of calves released from the stall — <strong>exuberant, uncontainable joy</strong>. This is the promise for the faithful remnant: healing, freedom, and overwhelming gladness. The imagery connects to Luke 6:23: 'Rejoice in that day and leap for joy, because great is your reward in heaven.' Authentic worship sometimes looks like leaping — David danced before the ark with all his might (2 Samuel 6:14).",
+ [("Malachi 4:2", "You will go out and <em>frolic</em> like well-fed calves."),
+  ("2 Samuel 6:14", "David danced before the LORD with all his might."),
+  ("Luke 6:23", "Rejoice in that day and leap for joy, because great is your reward in heaven.")],
+ [("H7540", "Rāqad (To Dance/Skip)"), ("H1523", "Gîyl (To Rejoice)"), ("H8055", "Sāmach (To Rejoice)")]),
+
+# --- H3759 ---
+("H3759", "כַּרְמֶל", "karmel", "Noun, masculine", "Fruitful Field, Garden Land",
+ "Karmel — the fruitful field; abundance as the sign of God's blessing. Strong's H3759.",
+ "<em>Karmel</em> (כַּרְמֶל) means <strong>fruitful field, garden land, orchard</strong>. It can also mean 'fresh grain' or 'full ears of grain.' Mount Carmel takes its name from this word — the 'fruitful mountain.'",
+ "Isaiah 32:15: 'till the Spirit is poured upon us from on high, and the desert becomes a <em>fertile field</em>, and the fertile field seems like a forest.' The transformation from desert to <em>karmel</em> is a prophetic image of <strong>the Holy Spirit's outpouring</strong> — turning barrenness into abundance. Isaiah 35:2: 'it will burst into bloom... the glory of Lebanon will be given to it, the splendor of <em>Carmel</em> and Sharon.' Leviticus 2:14 uses <em>karmel</em> for fresh grain offered as firstfruits — the best of the harvest given to God.",
+ [("Isaiah 32:15", "Till the Spirit is poured upon us from on high, and the desert becomes a <em>fertile field</em>."),
+  ("Isaiah 35:2", "The glory of Lebanon will be given to it, the splendor of <em>Carmel</em> and Sharon."),
+  ("Leviticus 2:14", "If you bring a grain offering of firstfruits, offer crushed heads of new grain (<em>karmel</em>) roasted in the fire.")],
+ [("H3754", "Kerem (Vineyard)"), ("H4057", "Midbār (Desert/Wilderness)"), ("H7307", "Rûach (Spirit)")]),
+
+# --- H1484 ---
+("H1484", "גּוֹרָל", "gôrāl", "Noun, masculine", "Lot, Portion, Destiny",
+ "Gôrāl — the lot; divine determination of destiny and inheritance. Strong's H1484.",
+ "<em>Gôrāl</em> (גּוֹרָל) means <strong>lot, portion, allotment, destiny</strong>. Casting lots was the primary method of determining God's will in the OT — not gambling but a sacred practice of seeking divine direction.",
+ "Proverbs 16:33: 'The <em>lot</em> is cast into the lap, but its every decision is from the LORD.' This is the theology behind casting lots: <strong>what appears random to humans is directed by God</strong>. Joshua 14:2: the Promised Land was divided 'by <em>lot</em>, as the LORD had commanded.' Leviticus 16:8: on the Day of Atonement, Aaron cast <em>lots</em> for the two goats — one for the LORD, one as the scapegoat. The apostles cast lots to replace Judas (Acts 1:26). In every case, the lot was not chance but divine appointment.",
+ [("Proverbs 16:33", "The <em>lot</em> is cast into the lap, but its every decision is from the LORD."),
+  ("Joshua 14:2", "Their inheritances were assigned by <em>lot</em>, as the LORD had commanded through Moses."),
+  ("Leviticus 16:8", "Aaron shall cast <em>lots</em> for the two goats — one lot for the LORD and the other for the scapegoat.")],
+ [("H5307", "Nāphal (To Fall/Cast)"), ("H2506", "Chēleq (Portion/Share)"), ("H5159", "Nachalāh (Inheritance)")]),
+]
+
+# ═══════════════════════════════════════════════════════════
+# MAIN EXECUTION
+# ═══════════════════════════════════════════════════════════
+
+count = 0
+for entry in ENTRIES:
+    sid, word, trans, pos, gloss, og_desc, defn, usage, verses, related = entry
+    if og_desc == "SKIP":
+        continue
+    build(sid, word, trans, pos, gloss, og_desc, defn, usage, verses, related)
+    count += 1
+
+print(f"\n✅ Generated {count} lexicon pages")
