@@ -3,183 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Magnanimity &mdash; The MOOP Dictionary</title>
+    <title>Magnanimity — The MOOP Dictionary of the English Language</title>
     <style>
         * { margin:0; padding:0; box-sizing:border-box; }
         :root { --bg:#000; --card:#111; --gold:#D4AF37; --gold-light:#F4D470; --white:#FFF; --gray:#888; --border:#333; }
         body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--white); min-height:100vh; line-height:1.7; }
-        h1,h2,h3,h4 { font-family:'Playfair Display',serif; }
-        nav { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:4px 8px; padding:10px 16px;
-              border-bottom:1px solid var(--border); position:sticky; top:0;
-              background:rgba(0,0,0,0.95); backdrop-filter:blur(8px); z-index:100; }
-        nav a { color:var(--gray); text-decoration:none; font-size:0.8rem; display:inline-flex; align-items:center;
-                gap:3px; padding:3px 6px; border-radius:6px; transition:color 0.2s; }
-        nav a:hover, nav a.active { color:var(--gold); }
-        .site-icon { vertical-align:middle; opacity:0.8; }
-        .theme-toggle { background:none; border:1px solid var(--border); border-radius:50%; width:28px; height:28px;
-                        cursor:pointer; font-size:0.85rem; transition:all 0.3s; padding:0; color:var(--white);
-                        display:inline-flex; align-items:center; justify-content:center; }
-        .theme-toggle:hover { border-color:var(--gold); }
-        .container { max-width:820px; margin:0 auto; padding:28px 20px 60px; }
+        h1,h2,h3 { font-family:'Playfair Display',serif; }
+        .container { max-width:800px; margin:0 auto; padding:20px; }
         .word-header { text-align:center; padding:40px 0 30px; border-bottom:1px solid var(--border); margin-bottom:30px; }
-        .word-title { font-size:2.8rem; color:var(--gold-light); margin-bottom:6px; }
+        .word-title { font-size:2.5rem; color:var(--gold-light); margin-bottom:5px; }
         .pronunciation { color:var(--gray); font-size:1.1rem; font-style:italic; }
-        .pos { display:inline-block; background:var(--gold); color:#000; font-weight:700;
-               font-size:0.78rem; padding:3px 14px; border-radius:15px; margin:10px 0; }
-        .etymology { color:var(--gray); font-size:0.88rem; margin:12px auto; max-width:650px; }
-        .section { margin:18px 0; padding:18px 22px; background:var(--card); border:1px solid var(--border); border-radius:10px; }
-        .section > h3 { color:var(--gold); margin-bottom:12px; font-size:1.05rem; }
-        .section p { margin:7px 0; color:var(--white); }
+        .pos { display:inline-block; background:var(--gold); color:#000; font-weight:700; font-size:0.8rem; padding:3px 12px; border-radius:15px; margin:10px 0; }
+        .etymology { color:var(--gray); font-size:0.9rem; margin:10px 0; }
+        .section { margin:25px 0; padding:20px; background:var(--card); border:1px solid var(--border); border-radius:10px; }
+        .section h3 { color:var(--gold); margin-bottom:12px; font-size:1.1rem; }
+        .section p { margin:8px 0; color:var(--white); }
         .biblical-def { border-left:3px solid var(--gold); padding-left:15px; }
-        .dict-toggle { cursor:pointer; color:var(--gold); font-size:0.92rem; user-select:none;
-                       display:inline-flex; align-items:center; gap:0; background:none; border:none;
-                       padding:0; font-family:inherit; font-weight:600; }
-        .dict-toggle:hover { color:var(--gold-light); }
-        .dict-toggle .arrow { display:inline-block; transition:transform 0.2s; margin-right:8px; font-size:0.75rem; }
-        .dict-toggle .arrow.open { transform:rotate(90deg); }
-        .dict-section { display:none; margin:10px 0 4px 0; padding:12px 16px;
-                        background:rgba(212,175,55,0.06); border-left:2px solid var(--gold);
-                        border-radius:0 6px 6px 0; }
-        .dict-section.open { display:block; }
-        .dict-section p { margin:6px 0; font-size:0.95rem; color:var(--white); }
         .corruption { border-left:3px solid #CC0000; padding-left:15px; }
         .verse-ref { color:var(--gold); text-decoration:none; font-weight:600; }
-        .verse-ref:hover { color:var(--gold-light); text-decoration:underline; }
+        .verse-ref:hover { color:var(--gold-light); }
         .related { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
-        .related a { background:var(--card); border:1px solid var(--border); padding:6px 14px;
-                     border-radius:20px; color:var(--white); text-decoration:none; font-size:0.85rem;
-                     transition:border-color 0.2s, color 0.2s; }
+        .related a { background:var(--card); border:1px solid var(--border); padding:6px 14px; border-radius:20px; color:var(--white); text-decoration:none; font-size:0.85rem; }
         .related a:hover { border-color:var(--gold); color:var(--gold); }
-        footer { text-align:center; padding:28px 20px; border-top:1px solid var(--border);
-                 margin-top:40px; color:var(--gray); font-size:0.88rem; }
-        footer a { color:var(--gray); text-decoration:none; }
-        footer a:hover { color:var(--gold); }
-        .cross-divider { margin-bottom:10px; }
-        .toggle-wrap { display:flex; justify-content:center; margin:24px 0 8px; }
-        body.light-mode { --bg:#F5F3EF; --card:#FFF; --white:#1a1a1a; --gray:#666; --border:#d4d0c8; }
-        body.light-mode nav { background:rgba(245,243,239,0.97); }
-        body.light-mode .section { background:#fff; border-color:#d4d0c8; }
-        body.light-mode .dict-section { background:rgba(212,175,55,0.04); }
-        body.light-mode footer { border-top-color:#d4d0c8; }
-        body.light-mode .related a { background:#f0ede7; border-color:#d4d0c8; color:#1a1a1a; }
-        a, a:link, a:visited { color: var(--gold, #D4AF37) !important; }
-        a:hover { color: var(--gold-light, #F4D470) !important; }
-            .dict-back-nav { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:22px; padding:10px 0; border-bottom:1px solid var(--border,#333); }
+        .lexicon-link { color:var(--gold); font-family:monospace; }
+        .dict-back-nav { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:22px; padding:10px 0; border-bottom:1px solid var(--border,#333); }
         .dict-back-nav a { color:var(--gold,#D4AF37); text-decoration:none; font-size:0.88rem; font-weight:500; }
         .dict-back-nav a:hover { color:var(--gold-light,#F4D470); }
         .dict-back-nav .dict-back-center { flex:1; text-align:center; }
-</style>
+    </style>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
 </head>
 <body>
-    <nav>
-        <a href="../index.html"><img src="../assets/icons/shield-home-48.png" class="site-icon" alt="" width="16" height="16"> Home</a>
-        <a href="../watchman.html"><img src="../assets/icons/shield-bible.png" class="site-icon" alt="" width="16" height="16"> Watchman</a>
-        <a href="../bible.html"><img src="../assets/icons/shield-compass.png" class="site-icon" alt="" width="16" height="16"> BTE</a>
-        <a href="../lexicon.html"><img src="../assets/icons/shield-alpha-omega-48.png" class="site-icon" alt="" width="16" height="16"> Lexicon</a>
-        <a href="../cross-references.html"><img src="../assets/icons/shield-infinity-rope-48.png" class="site-icon" alt="" width="16" height="16"> Cross-Refs</a>
-        <a href="index.html" class="active"><img src="../assets/icons/shield-book-greek-48.png" class="site-icon" alt="" width="16" height="16"> Dictionary</a>
-        <a href="../blog.html"><img src="../assets/icons/shield-blog-quill-48.png" class="site-icon" alt="" width="16" height="16"> Blog</a>
-        <a href="../connect.html"><img src="../assets/icons/shield-handshake.png" class="site-icon" alt="" width="16" height="16"> Connect</a>
-        <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle" title="Toggle dark/light">&#127769;</button>
-    </nav>
-
     <div class="container">
-        <div class="dict-back-nav"><a href="lust.html">&#8592; Lust</a><div class="dict-back-center"><a href="index.html">&#8592; Back to Dictionary</a></div><a href="magnificat.html">Magnificat &#8594;</a></div>
+        <div class="dict-back-nav"><a href="concupiscence.html">&#8592; Concupiscence</a><div class="dict-back-center"><a href="index.html">&#8592; Back to Dictionary</a></div><a href="maranatha.html">Maranatha &#8594;</a></div>
         <div class="word-header">
             <div class="word-title">Magnanimity</div>
-            <div class="pronunciation">/ˌmæɡ.nəˈnɪm.ɪ.ti/</div>
-            <span class="pos">noun</span>
-            <div class="etymology">From Latin <em>magnanimitas</em> — greatness of soul. From <em>magnus</em> "great" + <em>animus</em> "soul, spirit, mind." The word describes not merely generosity but an enlarged interior life — a soul capacious enough to absorb offense, overlook petty wrongs, and act from nobility rather than self-interest.</div>
+            <div class="pronunciation">/ ˌmæɡ·nəˈnɪm·ɪ·ti /</div>
+            <span class="pos">noun (classical / Christian virtue)</span>
+            <div class="etymology">Latin <em>magnanimitas</em> — greatness of soul; from <em>magnus</em> (great, large) + <em>animus</em> (soul, spirit, mind). The Latin translates Aristotle's Greek <em>megalopsychia</em> — "great-souledness." For Aristotle, magnanimity was the crown of the virtues: the man who, knowing himself to be great, acts accordingly — neither falsely modest about genuine excellence nor puffed up beyond his merit. Christian theology received this virtue and baptized it: the magnanimous man is great not in his own eyes but in the purpose of God, and he pursues great things not for his own glory but for the glory of the King he serves.</div>
         </div>
 
         <div class="section">
             <h3>📖 Biblical Definition</h3>
             <div class="biblical-def">
-                <p>The quality of a soul made great by God — large enough to bless enemies, absorb injustice without bitterness, and pursue noble aims without being derailed by small provocations. Magnanimity is not mere tolerance or passive indifference; it is active moral greatness rooted in the knowledge that one's worth comes from God, not from the opinions of men. Joseph displayed it before his brothers: "You meant evil against me, but God meant it for good" (Gen. 50:20). David demonstrated it by sparing Saul's life when vengeance was within arm's reach. Christ embodied it perfectly: praying for His executioners while they drove nails into His hands. The magnanimous soul does not calculate debts — it cancels them, because it has been cancelled of its own.</p>
+                <p>Magnanimity, Christianly understood, is the disposition of a man who thinks worthy thoughts about what God has called him to do — and then does it without shrinking. It is the virtue of the man who does not hide his talent in the ground (Matt. 25:25), who does not despise the day of small things while pursuing the large, and who is not paralyzed by the scale of the task God has set before him. It is the disposition of Caleb at 85: "Give me this mountain" (Josh. 14:12). It is David going out against Goliath — not because he was unafraid but because the cause was worthy of the risk. It is Paul saying "I can do all things through him who strengthens me" (Phil. 4:13) — not the motivational poster version but the battle-tested confidence of a man who has learned to rely on the God who is stronger than any opposition.</p>
+                <p>Magnanimity must be distinguished from arrogance, which claims greatness for oneself, and from false humility, which denies greatness for fear of pride. The magnanimous man knows he is dust and to dust he will return — and yet he also knows he is made in the image of God, redeemed by the blood of the Son, filled with the Spirit of the Almighty, and called to great purpose. This knowledge produces neither pride nor timidity but a settled, courageous engagement with the mission. The patriarch who leads his household with magnanimity shapes children who know that the world is their Father's and that they were made for something more than comfort.</p>
             </div>
         </div>
 
         <div class="section">
             <h3>📜 Webster 1828 Definition</h3>
-            <button class="dict-toggle" data-toggle="webster" onclick="toggleDict('webster')"><span class="arrow">▶</span> Show Webster 1828</button>
-            <div class="dict-section" id="webster">
-                <p><strong>MAGNANIM'ITY,</strong> <em>n.</em> [L. <em>magnanimitas</em>; <em>magnus</em>, great, and <em>animus</em>, mind.]</p>
-                <p>Greatness of mind; that elevation or dignity of soul, which encounters danger and trouble with tranquillity and firmness, which raises the possessor above revenge, and makes him delight in acts of benevolence, which makes him disdain injustice and meanness, and prompts him to sacrifice personal ease, interest and safety for the accomplishment of useful and noble objects.</p>
-            </div>
+            <p><strong>MAGNANIMITY</strong>, n. [L. magnanimitas; magnus, great, and animus, mind.] Greatness of mind; that elevation or dignity of soul which encounters danger and trouble with tranquility and firmness, which raises the possessor above revenge, and makes him delight in acts of benevolence, which makes him disdain injustice and meanness, and prompts him to sacrifice personal ease, interest, and safety for the accomplishment of noble and praiseworthy purposes. Magnanimity is a natural virtue exalted and directed by Christian principle to the service of God and the good of men.</p>
         </div>
 
         <div class="section">
             <h3>⚠️ Modern Corruption</h3>
             <div class="corruption">
-                <p>Modern culture has replaced magnanimity with two counterfeits: performative niceness (which avoids conflict at the expense of truth) and self-protective detachment (which mistakes apathy for strength). The Instagram age confuses magnanimity with being "the bigger person" — a phrase that usually means swallowing injustice while quietly nursing resentment. True magnanimity does not suppress anger; it transcends it. It does not ignore wrong; it addresses it from a position of such spiritual security that revenge becomes unnecessary. The therapeutic age also inverts magnanimity by elevating self-care to the highest virtue — but a soul consumed with its own wounds cannot be great enough to absorb another's.</p>
+                <p>Modern culture has produced two caricatures that drive out genuine magnanimity. The first is therapeutic smallness: men are taught to process their feelings, manage their expectations, and avoid any aspiration that might end in failure or criticism. The horizon of ambition shrinks to self-actualization and personal peace. This is the opposite of magnanimity — it is the timidity of the one-talent man who buries his gift and calls it prudence. The second is secular bravado: the man who claims greatness for himself, names and claims blessings, builds his own kingdom, and calls it vision. This is arrogance wearing magnanimity's clothes. Biblical magnanimity is oriented entirely outward and upward: great things for the sake of the King and His kingdom, at the cost of personal comfort, for the benefit of others. The man who leads a household, trains up sons, builds a church, and expands the kingdom in his generation is practicing magnanimity whether or not he uses the word.</p>
             </div>
         </div>
 
         <div class="section">
             <h3>📖 Key Scripture</h3>
-            <p><a href="../bible.html?ref=Genesis+50:20" class="verse-ref">Genesis 50:20</a> — "As for you, you meant evil against me, but God meant it for good, to bring it about that many people should be kept alive."</p>
-            <p><a href="../bible.html?ref=1+Samuel+26:9-11" class="verse-ref">1 Samuel 26:9–11</a> — "Do not destroy him, for who can put out his hand against the LORD's anointed and be guiltless?"</p>
-            <p><a href="../bible.html?ref=Luke+23:34" class="verse-ref">Luke 23:34</a> — "Father, forgive them, for they know not what they do."</p>
-            <p><a href="../bible.html?ref=Romans+12:21" class="verse-ref">Romans 12:21</a> — "Do not be overcome by evil, but overcome evil with good."</p>
-            <p><a href="../bible.html?ref=Proverbs+19:11" class="verse-ref">Proverbs 19:11</a> — "Good sense makes one slow to anger, and it is his glory to overlook an offense."</p>
+            <p><a href="../bible.html?ref=Joshua+14:12" class="verse-ref">Joshua 14:12</a> — "So now give me this hill country… It may be that the LORD will be with me." — Caleb at 85: magnanimity embodied.</p>
+            <p><a href="../bible.html?ref=Philippians+4:13" class="verse-ref">Philippians 4:13</a> — "I can do all things through him who strengthens me." — Not presumption but magnanimity: confidence rooted in God's sufficiency.</p>
+            <p><a href="../bible.html?ref=Matthew+25:14-30" class="verse-ref">Matthew 25:14–30</a> — The parable of the talents: the magnanimous man doubles his; the timid man buries his. God rewards investment, not self-protection.</p>
+            <p><a href="../bible.html?ref=2+Timothy+1:7" class="verse-ref">2 Timothy 1:7</a> — "For God gave us a spirit not of fear but of power and love and self-control." — The Spirit of magnanimity.</p>
+            <p><a href="../bible.html?ref=Numbers+13:30" class="verse-ref">Numbers 13:30</a> — "Caleb quieted the people… and said, 'Let us go up at once and occupy it, for we are well able to overcome it.'" — Magnanimity against the crowd.</p>
+        </div>
+
+        <div class="section">
+            <h3>🔗 Greek &amp; Hebrew Roots</h3>
+            <p><a href="../lexicon/G3167.html" class="lexicon-link">G3167 — μεγαλεῖος (megaleios)</a> — great, magnificent; used of God's mighty works (Acts 2:11). The magnanimous man is oriented toward the great works of a great God.</p>
+            <p><a href="../lexicon/G5590.html" class="lexicon-link">G5590 — ψυχή (psychē)</a> — soul, life, inner person; the "great soul" of magnanimity (<em>megalo-psychia</em>) — the man whose inner life is large enough to bear great responsibility.</p>
+            <p><a href="../lexicon/H2388.html" class="lexicon-link">H2388 — חָזַק (ḥāzaq)</a> — to be strong, to strengthen; the OT call to magnanimity — "Be strong and courageous" (Josh. 1:6–9). Repeated four times to Joshua: God's mandate for great-souled leadership.</p>
         </div>
 
         <div class="section">
             <h3>✍️ Usage</h3>
-            <p>Magnanimity is the hallmark of the spiritually mature. A small soul tallies every wrong; a great soul has lost count — not from forgetfulness but from abundance.</p>
-            <p>In leadership, magnanimity means refusing to use power for petty retribution. The magnanimous leader lifts up even those who have wronged him, because his identity is not threatened by their offense.</p>
-            <p>Magnanimity is not weakness but the highest expression of strength — it requires more courage to forgive an enemy than to destroy one.</p>
+            <p>• "Magnanimity is not swagger. It is the calm conviction of a man who knows he was made for something, has counted the cost, and will not stop short of the goal."</p>
+            <p>• "The magnanimous father does not raise sons for comfort. He raises them for mission — and models what it looks like to give your life for something worth dying for."</p>
+            <p>• "Caleb at 85, asking for the hardest mountain, is one of Scripture's greatest portraits of magnanimity. No one would have blamed him for retiring to his tent. He asked for Goliath's hometown instead."</p>
         </div>
 
         <div class="section">
             <h3>Related Words</h3>
             <div class="related">
-                <a href="forgiveness.html">Forgiveness</a>
-                <a href="grace.html">Grace</a>
-                <a href="forbearance.html">Forbearance</a>
-                <a href="nobility.html">Nobility</a>
-                <a href="generosity.html">Generosity</a>
-                <a href="mercy.html">Mercy</a>
+                <a href="courage.html">Courage</a>
+                <a href="humility.html">Humility</a>
+                <a href="faith.html">Faith</a>
+                <a href="stewardship.html">Stewardship</a>
+                <a href="sanctification.html">Sanctification</a>
             </div>
         </div>
     </div>
-
-    <div class="toggle-wrap">
-        <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle2" title="Toggle dark/light" style="width:36px;height:36px;font-size:1rem;">&#127769;</button>
-    </div>
-
-    <footer>
-        <div class="cross-divider"><img src="../assets/icons/shield-cross-bible-48.png" alt="" width="36" height="36" style="opacity:0.6;margin-bottom:10px;"></div>
-        <p>
-            <a href="../index.html#uniting"><img src="../assets/icons/shield-hands-joining.png" class="site-icon" alt="" width="20" height="20"> Uniting</a> &middot;
-            <a href="../serving.html"><img src="../assets/icons/shield-serving.png" class="site-icon" alt="" width="20" height="20"> Serving</a> &middot;
-            <a href="../mentoring.html"><img src="../assets/icons/shield-mentoring.png" class="site-icon" alt="" width="20" height="20"> Mentoring</a> &middot;
-            <a href="../counseling.html"><img src="../assets/icons/shield-family.png" class="site-icon" alt="" width="20" height="20"> Counseling</a> &middot;
-            <a href="../about.html"><img src="../assets/icons/shield-about-person-24.png" class="site-icon" alt="" width="20" height="20"> About</a>
-        </p>
-        <p style="margin-top:8px;font-size:0.78rem;color:#555;">Powered by MOOPbot Pro &mdash; &ldquo;Iron sharpens iron.&rdquo; &mdash; <a href="../bible.html?ref=Proverbs+27:17" style="color:var(--gold);text-decoration:underline;">Proverbs 27:17</a></p>
-    </footer>
-    <script>
-    function toggleDict(id){
-        var s=document.getElementById(id);
-        var b=document.querySelector('[data-toggle="'+id+'"]');
-        var a=b?b.querySelector('.arrow'):null;
-        s.classList.toggle('open');
-        if(a)a.classList.toggle('open');
-    }
-    function toggleTheme(){
-        var b=document.body,t=document.getElementById('themeToggle'),t2=document.getElementById('themeToggle2');
-        if(b.classList.contains('light-mode')){b.classList.remove('light-mode');if(t)t.textContent='\u{1F319}';if(t2)t2.textContent='\u{1F319}';localStorage.setItem('bte-theme','dark');}
-        else{b.classList.add('light-mode');if(t)t.textContent='\u2600\uFE0F';if(t2)t2.textContent='\u2600\uFE0F';localStorage.setItem('bte-theme','light');}
-    }
-    (function(){
-        if(localStorage.getItem('bte-theme')==='light'){
-            document.body.classList.add('light-mode');
-            var t=document.getElementById('themeToggle');if(t)t.textContent='\u2600\uFE0F';
-            var t2=document.getElementById('themeToggle2');if(t2)t2.textContent='\u2600\uFE0F';
-        }
-    })();
-    </script>
 </body>
 </html>
