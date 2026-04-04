@@ -688,6 +688,14 @@
                 </select>
             </div>
             <div class="filter-group">
+                <label for="filter-region">Region</label>
+                <select id="filter-region" onchange="applyFilters()">
+                    <option value="all">All Regions</option>
+                    <option value="fredericksburg">Fredericksburg, VA</option>
+                    <option value="dc-nova">DC / Northern Virginia</option>
+                </select>
+            </div>
+            <div class="filter-group">
                 <label for="filter-denomination">Denomination</label>
                 <select id="filter-denomination" onchange="applyFilters()">
                     <option value="all">All Denominations</option>
@@ -810,7 +818,7 @@
     const TIER_ORDER = { green: 0, yellow: 1, red: 2, black: 3 };
 
     /* ── Filter state ── */
-    const filters = { rating: 'all', denomination: 'all', mens: false, kids: false };
+    const filters = { rating: 'all', denomination: 'all', region: 'all', mens: false, kids: false };
 
     function toggleFilter(key) {
         filters[key] = !filters[key];
@@ -821,6 +829,7 @@
     function applyFilters() {
         filters.rating = document.getElementById('filter-rating').value;
         filters.denomination = document.getElementById('filter-denomination').value;
+        filters.region = document.getElementById('filter-region').value;
 
         const cards = document.querySelectorAll('.church-card');
         let visible = 0;
@@ -830,13 +839,15 @@
             const denomination = card.dataset.denomination;
             const hasMens = card.dataset.mens === 'true';
             const hasKids = card.dataset.kids === 'true';
+            const region = card.dataset.region || 'fredericksburg';
 
             const ratingOk = filters.rating === 'all' || rating === filters.rating;
             const denomOk = filters.denomination === 'all' || denomination === filters.denomination;
             const mensOk = !filters.mens || hasMens;
             const kidsOk = !filters.kids || hasKids;
+            const regionOk = !filters.region || filters.region === 'all' || region === filters.region;
 
-            if (ratingOk && denomOk && mensOk && kidsOk) {
+            if (ratingOk && denomOk && mensOk && kidsOk && regionOk) {
                 card.classList.remove('hidden');
                 visible++;
             } else {
@@ -851,10 +862,12 @@
     function resetFilters() {
         filters.rating = 'all';
         filters.denomination = 'all';
+        filters.region = 'all';
         filters.mens = false;
         filters.kids = false;
         document.getElementById('filter-rating').value = 'all';
         document.getElementById('filter-denomination').value = 'all';
+        document.getElementById('filter-region').value = 'all';
         document.getElementById('btn-mens').classList.remove('active');
         document.getElementById('btn-kids').classList.remove('active');
         applyFilters();
@@ -917,6 +930,7 @@
             card.dataset.denomination = church.denomination || '';
             card.dataset.mens = church.has_mens_ministry ? 'true' : 'false';
             card.dataset.kids = church.has_kids_ministry ? 'true' : 'false';
+            card.dataset.region = church.region || 'fredericksburg';
             card.setAttribute('onclick', 'toggleCard(this)');
 
             // Address (one line — strip duplicate city/zip if long)
