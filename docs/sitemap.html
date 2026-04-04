@@ -87,8 +87,8 @@
         <ul class="page-list">
             <li><a href="bible.html">MOOP Bible Translation Engine</a><span class="page-desc">— 12 translations, interlinear, MOOP blend</span></li>
             <li><a href="watchman.html">Watchman Bible Reading Plan</a><span class="page-desc">— 5-watch daily reading system with intake form</span></li>
-            <li><a href="lexicon.html">Greek & Hebrew Lexicon</a><span class="page-desc">— 5,027 word studies with theology</span></li>
-            <li><a href="cross-references.html">MOOP Cross-Chain Reference Bible</a><span class="page-desc">— 11,937+ verse connections, theological chains</span></li>
+            <li><a href="lexicon.html">Greek & Hebrew Lexicon</a><span class="page-desc">— <span id="lexDescCount">5,735</span> word studies with theology</span></li>
+            <li><a href="cross-references.html">MOOP Cross-Chain Reference Bible</a><span class="page-desc">— <span id="xrefDescCount">12,866</span>+ verse connections, theological chains</span></li>
             <li><a href="chronological.html">Chronological Bible Study</a><span class="page-desc">— Read the Bible in historical order</span></li>
             <li><a href="dictionary/index.html">MOOP Dictionary of the English Language</a><span class="page-desc">— 684 definitions, etymology, modern corruption analysis</span></li>
             <li><a href="proverbs.html">Proverbs Study</a><span class="page-desc">— 31 chapter landing pages with exposition</span></li>
@@ -120,7 +120,7 @@
         <!-- ─── CHURCH DIRECTORY ─── -->
         <h2>⛪ Church Directory</h2>
         <ul class="page-list">
-            <li><a href="churches.html">Church Directory — All Regions</a><span class="page-desc">— 140+ churches evaluated across 10 theological dimensions with engagement tracking</span></li>
+            <li><a href="churches.html">Church Directory — All Regions</a><span class="page-desc">— 200+ churches evaluated across 10 theological dimensions with engagement tracking</span></li>
             <li><a href="churches-fxbg.html">Church Directory — Fredericksburg</a><span class="page-desc">— Fredericksburg · Spotsylvania · Stafford area churches</span></li>
             <li><a href="churches-virginia.html">Church Directory — Virginia</a><span class="page-desc">— Richmond · Charlottesville · Hampton Roads · Lynchburg · Shenandoah Valley · Williamsburg</span></li>
             <li><a href="churches-dc.html">Church Directory — DC Metro</a><span class="page-desc">— Washington DC · Northern Virginia · Maryland</span></li>
@@ -180,10 +180,10 @@
         <h2>📊 Stats</h2>
         <ul class="page-list">
             <li>Blog posts: <strong>155</strong></li>
-            <li>Dictionary definitions: <strong>684+</strong></li>
-            <li>Lexicon word studies: <strong><span id="lexCount">5,027+</span></strong></li>
-            <li>Cross-reference entries: <strong><span id="xrefCount">11,937+</span></strong></li>
-            <li>Churches in directory: <strong>43</strong></li>
+            <li>Dictionary definitions: <strong><span id="dictCount">801</span>+</strong></li>
+            <li>Lexicon word studies: <strong><span id="lexCount">5,735</span>+</strong></li>
+            <li>Cross-reference entries: <strong><span id="xrefCount">12,866</span>+</strong></li>
+            <li>Churches in directory: <strong><span id="churchCount">209</span></strong></li>
             <li>Self-assessments: <strong>5</strong></li>
             <li>Intake forms: <strong>6</strong></li>
             <li>Freedom Group pages: <strong>8</strong></li>
@@ -204,13 +204,33 @@
     })();
 
     // ─── Live Stats (from manifests if available) ───
+    function updateCount(id, val) {
+        var el = document.getElementById(id);
+        if (el) el.textContent = val;
+    }
     fetch('assets/lexicon-manifest.json')
         .then(r => r.json())
-        .then(m => { document.getElementById('lexCount').textContent = m.count.toLocaleString(); })
+        .then(m => {
+            var c = m.count.toLocaleString();
+            updateCount('lexCount', c + '+');
+            updateCount('lexDescCount', c);
+        })
         .catch(() => {});
     fetch('assets/cross-references.json')
         .then(r => r.json())
-        .then(d => { document.getElementById('xrefCount').textContent = Object.keys(d).length.toLocaleString() + '+'; })
+        .then(d => {
+            var c = Object.keys(d).length.toLocaleString();
+            updateCount('xrefCount', c + '+');
+            updateCount('xrefDescCount', c);
+        })
+        .catch(() => {});
+    fetch('data/churches.json')
+        .then(r => r.json())
+        .then(d => { updateCount('churchCount', (d.churches || d).length); })
+        .catch(() => {});
+    fetch('assets/dictionary-manifest.json')
+        .then(r => r.json())
+        .then(m => { updateCount('dictCount', m.count.toLocaleString()); })
         .catch(() => {});
     </script>
 </body>
