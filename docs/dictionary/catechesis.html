@@ -26,25 +26,23 @@
         .pronunciation { color:var(--gray); font-size:1.1rem; font-style:italic; }
         .pos { display:inline-block; background:var(--gold); color:#000; font-weight:700;
                font-size:0.78rem; padding:3px 14px; border-radius:15px; margin:10px 0; }
-        .etymology { color:var(--white); font-size:0.88rem; margin:12px auto; max-width:650px; }
+        .etymology { color:var(--gray); font-size:0.88rem; margin:12px auto; max-width:650px; }
         .section { margin:18px 0; padding:18px 22px; background:var(--card); border:1px solid var(--border); border-radius:10px; }
         .section > h3 { color:var(--gold); margin-bottom:12px; font-size:1.05rem; }
-        .section p { margin:7px 0; color:var(--white); }
+        .section p { margin:7px 0; }
         .biblical-def { border-left:3px solid var(--gold); padding-left:15px; }
-        .dict-toggle { cursor:pointer; color:var(--gold); font-size:0.92rem; user-select:none;
-                       display:inline-flex; align-items:center; gap:0; background:none; border:none;
-                       padding:0; font-family:inherit; font-weight:600; }
-        .dict-toggle:hover { color:var(--gold-light); }
-        .dict-toggle .arrow { display:inline-block; transition:transform 0.2s; margin-right:8px; font-size:0.75rem; }
-        .dict-toggle .arrow.open { transform:rotate(90deg); }
-        .dict-section { display:none; margin:10px 0 4px 0; padding:12px 16px;
-                        background:rgba(212,175,55,0.06); border-left:2px solid var(--gold);
-                        border-radius:0 6px 6px 0; }
-        .dict-section.open { display:block; }
-        .dict-section p { margin:6px 0; font-size:0.95rem; color:var(--white); }
-        .dict-section pre { font-family:'Courier New',monospace; font-size:0.82rem; color:var(--gold-light);
-                             line-height:1.7; white-space:pre-wrap; }
+        .section-summary { color:var(--gray); font-size:0.92rem; font-style:italic; margin-bottom:4px; }
+        details { margin-top:8px; }
+        details summary { color:var(--gold); font-size:0.85rem; cursor:pointer; user-select:none; padding:4px 0; }
+        details summary:hover { color:var(--gold-light); }
+        details[open] summary { margin-bottom:8px; }
         .corruption { border-left:3px solid #CC0000; padding-left:15px; }
+        .corruption-inner { padding:12px 16px; background:rgba(204,0,0,0.06); border-left:2px solid #CC0000; border-radius:0 6px 6px 0; }
+        .roots-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .webster-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .proto-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .proto-inner pre { font-family:'Courier New',monospace; font-size:0.82rem; color:var(--gold-light);
+                           line-height:1.7; white-space:pre-wrap; }
         .verse-ref { color:var(--gold); text-decoration:none; font-weight:600; }
         .verse-ref:hover { color:var(--gold-light); text-decoration:underline; }
         .lexicon-link { color:var(--gold); font-family:monospace; text-decoration:none; }
@@ -55,17 +53,20 @@
                      transition:border-color 0.2s, color 0.2s; }
         .related a:hover { border-color:var(--gold); color:var(--gold); }
         footer { text-align:center; padding:28px 20px; border-top:1px solid var(--border);
-                 margin-top:40px; color:var(--white); font-size:0.88rem; }
-        footer a { color:var(--white); text-decoration:none; }
+                 margin-top:40px; color:var(--gray); font-size:0.88rem; }
+        footer a { color:var(--gray); text-decoration:none; }
         footer a:hover { color:var(--gold); }
         .cross-divider { margin-bottom:10px; }
-        .toggle-row { display:flex; justify-content:center; margin:28px 0 10px; }
         body.light-mode { --bg:#F5F3EF; --card:#FFF; --white:#1a1a1a; --gray:#666; --border:#d4d0c8; background:#F5F3EF; color:#1a1a1a; }
         body.light-mode nav { background:rgba(245,243,239,0.97); }
         body.light-mode .section { background:#fff; border-color:#d4d0c8; }
-        body.light-mode .dict-section { background:rgba(212,175,55,0.04); }
+        body.light-mode details summary { color:var(--gold); }
+        body.light-mode .corruption-inner { background:rgba(204,0,0,0.03); }
+        body.light-mode .roots-inner, body.light-mode .webster-inner, body.light-mode .proto-inner { background:rgba(212,175,55,0.04); }
         body.light-mode footer { border-top-color:#d4d0c8; }
         body.light-mode .related a { background:#f0ede7; border-color:#d4d0c8; color:#1a1a1a; }
+        a, a:link, a:visited { color: var(--gold, #D4AF37) !important; }
+        a:hover { color: var(--gold-light, #F4D470) !important; }
         .dict-back-nav { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:22px; padding:10px 0; border-bottom:1px solid var(--border,#333); }
         .dict-back-nav a { color:var(--gold,#D4AF37); text-decoration:none; font-size:0.88rem; font-weight:500; }
         .dict-back-nav a:hover { color:var(--gold-light,#F4D470); }
@@ -86,11 +87,7 @@
         <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle" title="Toggle dark/light">&#127769;</button>
     </nav>
     <div class="container">
-        <div class="dict-back-nav">
-            <a href="calling.html">&#8592; Calling</a>
-            <div class="dict-back-center"><a href="index.html">&#8592; Back to Dictionary</a></div>
-            <a href="charity.html">Charity &#8594;</a>
-        </div>
+        <div class="dict-back-nav"><a href="cataphatic.html">&#8592; Cataphatic</a><div class="dict-back-center"><a href="index.html">&#8592; Back to Dictionary</a></div><a href="catechism.html">Catechism &#8594;</a></div>
         <div class="word-header">
             <div class="word-title">Catechesis</div>
             <div class="pronunciation">/ˌkæt.əˈkiː.sɪs/</div>
@@ -107,13 +104,16 @@
         </div>
 
         <div class="section">
-            <button class="dict-toggle" data-toggle="webster" onclick="toggleDict('webster')">
-                <span class="arrow">&#9658;</span>&#128220; Webster 1828 — Catechism
-            </button>
-            <div class="dict-section" id="webster">
-                <p><strong>CATECHISM</strong> — A form of instruction by means of questions and answers, particularly in the principles of the Christian religion. A book containing a summary of principles in any science or art, but particularly in religion, reduced to the form of questions and answers.</p>
+            <h3>&#128220; Webster 1828 Definition</h3>
+            <p class="section-summary">CATECHISM — A form of instruction by means of questions and answers, particularly in the principles of the Christian ...</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="webster-inner">
+                    <p><strong>CATECHISM</strong> — A form of instruction by means of questions and answers, particularly in the principles of the Christian religion. A book containing a summary of principles in any science or art, but particularly in religion, reduced to the form of questions and answers.</p>
                 <p><strong>CATECHIZE</strong> — To instruct by asking questions and receiving answers, particularly in the principles of the Christian religion. To question, to examine or interrogate.</p>
             </div>
+                </div>
+            </details>
         </div>
 
         <div class="section">
@@ -126,22 +126,28 @@
         </div>
 
         <div class="section">
-            <button class="dict-toggle" data-toggle="corruption" onclick="toggleDict('corruption')">
-                <span class="arrow">&#9658;</span>&#9888;&#65039; Modern Corruption
-            </button>
-            <div class="dict-section" id="corruption">
-                <div class="corruption">
+            <h3>&#9888;&#65039; Modern Corruption</h3>
+            <p class="section-summary">The modern evangelical church largely abandoned structured catechesis in the 20th century, replacing it with experien...</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="corruption-inner">
+                    <div class="corruption">
                     <p>The modern evangelical church largely abandoned structured catechesis in the 20th century, replacing it with experiential-only faith formation — services built on emotional engagement, personal testimony, and entertainment-model discipleship. The result is a biblically illiterate generation that cannot articulate the Trinity, explain justification, or locate even major books of the Bible. Surveys consistently show that evangelical Americans hold beliefs indistinguishable from paganism — moralistic therapeutic deism dressed in church language. The Reformers understood what we have forgotten: <em>doctrine is not the enemy of life; it is the skeleton that gives life its shape.</em></p>
                 </div>
             </div>
+                </div>
+            </details>
         </div>
 
         <div class="section">
-            <button class="dict-toggle" data-toggle="proto" onclick="toggleDict('proto')">
-                <span class="arrow">&#9658;</span>&#127760; Proto-Language Roots
-            </button>
-            <div class="dict-section" id="proto">
-                <pre>Greek κατηχέω (katēcheō) — to resound, to teach orally
+            <h3>&#127760; Proto-Language Roots</h3>
+            <p class="section-summary">Greek κατηχέω (katēcheō) — to resound, to teach orally
+  κατά (kata) — down, according to
+  ἠχέω (ēcheō) — to sound, ...</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="proto-inner">
+                    <pre>Greek κατηχέω (katēcheō) — to resound, to teach orally
   κατά (kata) — down, according to
   ἠχέω (ēcheō) — to sound, to resound (cf. "echo")
   → katēchēsis (κατήχησις) — oral instruction
@@ -153,17 +159,15 @@ Latin: catechismus → catechism (formal Q&A structure)
   Heidelberg Catechism (1563)
   Westminster Shorter Catechism (1647)</pre>
             </div>
+                </div>
+            </details>
         </div>
 
         <div class="section">
-            <button class="dict-toggle" data-toggle="usage" onclick="toggleDict('usage')">
-                <span class="arrow">&#9658;</span>&#9997;&#65039; Usage Examples
-            </button>
-            <div class="dict-section" id="usage">
-                <p>&#x2022; "Q: What is the chief end of man? A: To glorify God and enjoy him forever. The Westminster Shorter Catechism answered in one sentence what entire seminary degrees attempt to unpack."</p>
+            <h3><img src="../assets/icons/shield-blog-quill-48.png" width="20" height="20" style="vertical-align:middle;margin-right:6px;"> Usage</h3>
+            <p>&#x2022; "Q: What is the chief end of man? A: To glorify God and enjoy him forever. The Westminster Shorter Catechism answered in one sentence what entire seminary degrees attempt to unpack."</p>
                 <p>&#x2022; "The early church did not baptize on the spot. Converts spent one to three years in catechesis — learning the faith before confessing it. We have reversed this: we baptize first and wonder why people leave."</p>
                 <p>&#x2022; "Catechesis is how the faith jumps generations. The Shema was Israel's catechism: 'Hear, O Israel' — repeated, taught, worn on the body, written on the doorpost."</p>
-            </div>
         </div>
 
         <div class="section">
@@ -177,10 +181,7 @@ Latin: catechismus → catechism (formal Q&A structure)
                 <a href="word.html">Word</a>
             </div>
         </div>
-    </div>
 
-    <div class="toggle-row">
-        <button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark/light" style="width:38px;height:38px;font-size:1.1rem;">&#127769;</button>
     </div>
 
     <footer>
@@ -192,16 +193,9 @@ Latin: catechismus → catechism (formal Q&A structure)
             <a href="../counseling.html"><img src="../assets/icons/shield-family.png" class="site-icon" alt="" width="20" height="20"> Counseling</a> &middot;
             <a href="../about.html"><img src="../assets/icons/shield-about-person-24.png" class="site-icon" alt="" width="20" height="20"> About</a>
         </p>
-        <p style="margin-top:8px;font-size:0.78rem;color:var(--white);">Powered by MOOPbot Pro &mdash; &ldquo;Iron sharpens iron.&rdquo; &mdash; <a href="../bible.html?ref=Proverbs+27:17" style="color:var(--gold);">Proverbs 27:17</a></p>
+        <p style="margin-top:8px;font-size:0.78rem;color:#555;">Powered by MOOPbot Pro &mdash; &ldquo;Iron sharpens iron.&rdquo; &mdash; <a href="../bible.html?ref=Proverbs+27:17" style="color:var(--gold);text-decoration:underline;">Proverbs 27:17</a></p>
     </footer>
     <script>
-    function toggleDict(id){
-        var s=document.getElementById(id);
-        var b=document.querySelector('[data-toggle="'+id+'"]');
-        var a=b?b.querySelector('.arrow'):null;
-        s.classList.toggle('open');
-        if(a)a.classList.toggle('open');
-    }
     function toggleTheme(){
         var b=document.body,t=document.getElementById('themeToggle');
         if(b.classList.contains('light-mode')){b.classList.remove('light-mode');t.textContent='\u{1F319}';localStorage.setItem('bte-theme','dark');}

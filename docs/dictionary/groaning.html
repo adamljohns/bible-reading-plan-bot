@@ -29,22 +29,20 @@
         .etymology { color:var(--gray); font-size:0.88rem; margin:12px auto; max-width:650px; }
         .section { margin:18px 0; padding:18px 22px; background:var(--card); border:1px solid var(--border); border-radius:10px; }
         .section > h3 { color:var(--gold); margin-bottom:12px; font-size:1.05rem; }
-        .section p { margin:7px 0; color:var(--white); }
+        .section p { margin:7px 0; }
         .biblical-def { border-left:3px solid var(--gold); padding-left:15px; }
-        .dict-toggle { cursor:pointer; color:var(--gold); font-size:0.92rem; user-select:none;
-                       display:inline-flex; align-items:center; gap:0; background:none; border:none;
-                       padding:0; font-family:inherit; font-weight:600; }
-        .dict-toggle:hover { color:var(--gold-light); }
-        .dict-toggle .arrow { display:inline-block; transition:transform 0.2s; margin-right:8px; font-size:0.75rem; }
-        .dict-toggle .arrow.open { transform:rotate(90deg); }
-        .dict-section { display:none; margin:10px 0 4px 0; padding:12px 16px;
-                        background:rgba(212,175,55,0.06); border-left:2px solid var(--gold);
-                        border-radius:0 6px 6px 0; }
-        .dict-section.open { display:block; }
-        .dict-section p { margin:6px 0; font-size:0.95rem; color:var(--white); }
-        .dict-section pre { font-family:'Courier New',monospace; font-size:0.82rem; color:var(--gold-light);
-                             line-height:1.7; white-space:pre-wrap; }
+        .section-summary { color:var(--gray); font-size:0.92rem; font-style:italic; margin-bottom:4px; }
+        details { margin-top:8px; }
+        details summary { color:var(--gold); font-size:0.85rem; cursor:pointer; user-select:none; padding:4px 0; }
+        details summary:hover { color:var(--gold-light); }
+        details[open] summary { margin-bottom:8px; }
         .corruption { border-left:3px solid #CC0000; padding-left:15px; }
+        .corruption-inner { padding:12px 16px; background:rgba(204,0,0,0.06); border-left:2px solid #CC0000; border-radius:0 6px 6px 0; }
+        .roots-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .webster-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .proto-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .proto-inner pre { font-family:'Courier New',monospace; font-size:0.82rem; color:var(--gold-light);
+                           line-height:1.7; white-space:pre-wrap; }
         .verse-ref { color:var(--gold); text-decoration:none; font-weight:600; }
         .verse-ref:hover { color:var(--gold-light); text-decoration:underline; }
         .lexicon-link { color:var(--gold); font-family:monospace; text-decoration:none; }
@@ -62,14 +60,17 @@
         body.light-mode { --bg:#F5F3EF; --card:#FFF; --white:#1a1a1a; --gray:#666; --border:#d4d0c8; background:#F5F3EF; color:#1a1a1a; }
         body.light-mode nav { background:rgba(245,243,239,0.97); }
         body.light-mode .section { background:#fff; border-color:#d4d0c8; }
-        body.light-mode .dict-section { background:rgba(212,175,55,0.04); }
+        body.light-mode details summary { color:var(--gold); }
+        body.light-mode .corruption-inner { background:rgba(204,0,0,0.03); }
+        body.light-mode .roots-inner, body.light-mode .webster-inner, body.light-mode .proto-inner { background:rgba(212,175,55,0.04); }
         body.light-mode footer { border-top-color:#d4d0c8; }
         body.light-mode .related a { background:#f0ede7; border-color:#d4d0c8; color:#1a1a1a; }
+        a, a:link, a:visited { color: var(--gold, #D4AF37) !important; }
+        a:hover { color: var(--gold-light, #F4D470) !important; }
         .dict-back-nav { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:22px; padding:10px 0; border-bottom:1px solid var(--border,#333); }
         .dict-back-nav a { color:var(--gold,#D4AF37); text-decoration:none; font-size:0.88rem; font-weight:500; }
         .dict-back-nav a:hover { color:var(--gold-light,#F4D470); }
         .dict-back-nav .dict-back-center { flex:1; text-align:center; }
-        .theme-wrap { display:flex; justify-content:center; margin:24px 0 8px; }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
 </head>
@@ -86,11 +87,7 @@
         <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle" title="Toggle dark/light">&#127769;</button>
     </nav>
     <div class="container">
-        <div class="dict-back-nav">
-            <a href="grieve.html">&#8592; Grieve</a>
-            <div class="dict-back-center"><a href="index.html">&#8592; Back to Dictionary</a></div>
-            <a href="guilt.html">Guilt &#8594;</a>
-        </div>
+        <div class="dict-back-nav"><a href="grieve.html">&#8592; Grieve</a><div class="dict-back-center"><a href="index.html">&#8592; Back to Dictionary</a></div><a href="guilt.html">Guilt &#8594;</a></div>
         <div class="word-header">
             <div class="word-title">Groaning</div>
             <div class="pronunciation">/ˈɡroʊ.nɪŋ/</div>
@@ -98,7 +95,6 @@
             <div class="etymology">Old English <em>grānian</em> — to groan, lament; from Proto-Germanic <em>*grainijaną</em> — to cry out; related to Old High German <em>grīnan</em> (to snarl, groan). The Hebrew <em>anach</em> (אָנַח) and Greek <em>stenazō</em> (στενάζω) / <em>stenagmos</em> (στεναγμός) carry the full weight of deep, inarticulate suffering that reaches God's ears.</div>
         </div>
 
-        <!-- Biblical Definition -->
         <div class="section">
             <h3>&#128214; Biblical Definition</h3>
             <div class="biblical-def">
@@ -106,20 +102,21 @@
             </div>
         </div>
 
-        <!-- Webster 1828 -->
         <div class="section">
-            <button class="dict-toggle" data-toggle="webster" onclick="toggleDict('webster')">
-                <span class="arrow">&#9658;</span>&#128220; Webster 1828 Definition
-            </button>
-            <div class="dict-section" id="webster">
-                <p><strong>GROAN</strong>, v.i. [Sax. granian.] 1. To breathe with a hoarse, harsh noise, as in pain or sorrow; to make a mournful noise. 2. To be afflicted; to be oppressed with pain, grief, or hardship. 3. To strive to make a sound; as in distress.</p>
+            <h3>&#128220; Webster 1828 Definition</h3>
+            <p class="section-summary">GROAN, v.i.</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="webster-inner">
+                    <p><strong>GROAN</strong>, v.i. [Sax. granian.] 1. To breathe with a hoarse, harsh noise, as in pain or sorrow; to make a mournful noise. 2. To be afflicted; to be oppressed with pain, grief, or hardship. 3. To strive to make a sound; as in distress.</p>
                 <p><strong>GROAN</strong>, n. A deep, mournful sound, uttered in pain, sorrow, or anguish; also, a deep murmur of disapprobation.</p>
                 <p>&bull; "The whole creation groaneth and travaileth in pain together." — Romans 8:22</p>
                 <p>&bull; Webster notes the word carries the weight of travail — birth-labor — not merely complaint. Groaning is productive suffering, not passive despair.</p>
             </div>
+                </div>
+            </details>
         </div>
 
-        <!-- Key Scripture -->
         <div class="section">
             <h3>&#128214; Key Scripture</h3>
             <p>&#x2022; <a href="../bible.html?ref=Romans+8:22-23" class="verse-ref">Romans 8:22–23</a> &mdash; "The whole creation has been groaning together in the pains of childbirth…we ourselves groan inwardly as we wait eagerly for adoption."</p>
@@ -129,38 +126,43 @@
             <p>&#x2022; <a href="../bible.html?ref=Psalm+38:9" class="verse-ref">Psalm 38:9</a> &mdash; "O Lord, all my longing is before you; my sighing is not hidden from you."</p>
         </div>
 
-        <!-- Greek & Hebrew Roots -->
         <div class="section">
-            <button class="dict-toggle" data-toggle="roots" onclick="toggleDict('roots')">
-                <span class="arrow">&#9658;</span>&#128279; Greek &amp; Hebrew Roots
-            </button>
-            <div class="dict-section" id="roots">
-                <p><a href="../lexicon/G4727.html" class="lexicon-link">G4727</a> &mdash; <strong>stenazō</strong> (στενάζω): to groan, sigh deeply; from <em>stenos</em> (narrow, constricted) — to make a sound of one pressed in or constricted by suffering. Used in Rom 8:23; 2 Cor 5:2, 4; Heb 13:17; Jas 5:9.</p>
+            <h3>&#9888;&#65039; Modern Corruption</h3>
+            <p class="section-summary">Modern Christianity's relentless positivity has pathologized groaning.</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="corruption-inner">
+                    <div class="corruption">
+                    <p>Modern Christianity's relentless positivity has pathologized groaning. "Name it and claim it" theology treats suffering, lament, and groaning as expressions of weak faith to be overcome with declarations of victory. But Paul — who wrote Philippians 4:4 ("rejoice always") — is the same apostle who wrote Romans 8:23 ("we ourselves groan"). Both are true simultaneously. The suppression of groaning produces a shallow, brittle faith that cannot survive real suffering. The church that cannot groan cannot lament; the church that cannot lament cannot intercede; the church that cannot intercede cannot advance the Kingdom. Groaning is not the opposite of faith — it is faith doing honest business with a world that is not yet what God will make it.</p>
+                </div>
+            </div>
+                </div>
+            </details>
+        </div>
+
+        <div class="section">
+            <h3>&#128279; Greek &amp; Hebrew Roots</h3>
+            <p class="section-summary">G4727 — stenazō (στενάζω): to groan, sigh deeply; from stenos (narrow, constricted) — to make a sound of one pressed ...</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="roots-inner">
+                    <p><a href="../lexicon/G4727.html" class="lexicon-link">G4727</a> &mdash; <strong>stenazō</strong> (στενάζω): to groan, sigh deeply; from <em>stenos</em> (narrow, constricted) — to make a sound of one pressed in or constricted by suffering. Used in Rom 8:23; 2 Cor 5:2, 4; Heb 13:17; Jas 5:9.</p>
                 <p><a href="../lexicon/G4726.html" class="lexicon-link">G4726</a> &mdash; <strong>stenagmos</strong> (στεναγμός): a groan, a sigh; the noun form. Used in Rom 8:26 for the Spirit's "groanings too deep for words" — <em>stenagmois alalētois</em> (ἀλαλήτοις = inexpressible, wordless).</p>
                 <p>Hebrew <strong>אָנַח</strong> (anach, H584): to groan, sigh; used in Exod 2:23–24 — Israel's groaning under slavery reached God's ears. Also <strong>נָאַק</strong> (naaq, H5008): to groan; the sound of creation's burden.</p>
                 <p>Hebrew <strong>חָבַל</strong> (chaval, H2254): to travail in birth — used in Isa 66:8 and is Paul's backdrop for "birth pains" language in Rom 8:22. Groaning is not death — it is labor.</p>
             </div>
-        </div>
-
-        <!-- Modern Corruption -->
-        <div class="section">
-            <button class="dict-toggle" data-toggle="corruption" onclick="toggleDict('corruption')">
-                <span class="arrow">&#9658;</span>&#9888;&#65039; Modern Corruption
-            </button>
-            <div class="dict-section" id="corruption">
-                <div class="corruption">
-                    <p>Modern Christianity's relentless positivity has pathologized groaning. "Name it and claim it" theology treats suffering, lament, and groaning as expressions of weak faith to be overcome with declarations of victory. But Paul — who wrote Philippians 4:4 ("rejoice always") — is the same apostle who wrote Romans 8:23 ("we ourselves groan"). Both are true simultaneously. The suppression of groaning produces a shallow, brittle faith that cannot survive real suffering. The church that cannot groan cannot lament; the church that cannot lament cannot intercede; the church that cannot intercede cannot advance the Kingdom. Groaning is not the opposite of faith — it is faith doing honest business with a world that is not yet what God will make it.</p>
                 </div>
-            </div>
+            </details>
         </div>
 
-        <!-- Proto-Language Roots -->
         <div class="section">
-            <button class="dict-toggle" data-toggle="proto" onclick="toggleDict('proto')">
-                <span class="arrow">&#9658;</span>&#127760; Proto-Language Roots
-            </button>
-            <div class="dict-section" id="proto">
-                <pre>Proto-Germanic *grainijaną → Old English grānian → "groan"
+            <h3>&#127760; Proto-Language Roots</h3>
+            <p class="section-summary">Proto-Germanic *grainijaną → Old English grānian → "groan"
+  Related to the root of "grin" (originally: to snarl in p...</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="proto-inner">
+                    <pre>Proto-Germanic *grainijaną → Old English grānian → "groan"
   Related to the root of "grin" (originally: to snarl in pain)
   Carries the sound of inarticulate, involuntary vocalization under burden.
 
@@ -175,9 +177,10 @@ Hebrew anach (אָנַח):
   Used of a sighing that God hears: Exod 2:24 — "God heard their groaning"
   The groaning that reaches heaven is never wasted sound.</pre>
             </div>
+                </div>
+            </details>
         </div>
 
-        <!-- Related Words -->
         <div class="section">
             <h3>Related Words</h3>
             <div class="related">
@@ -190,9 +193,6 @@ Hebrew anach (אָנַח):
             </div>
         </div>
 
-        <div class="theme-wrap">
-            <button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark/light mode" style="width:38px;height:38px;font-size:1.1rem;">&#127769;</button>
-        </div>
     </div>
 
     <footer>
@@ -207,13 +207,6 @@ Hebrew anach (אָנַח):
         <p style="margin-top:8px;font-size:0.78rem;color:#555;">Powered by MOOPbot Pro &mdash; &ldquo;Iron sharpens iron.&rdquo; &mdash; <a href="../bible.html?ref=Proverbs+27:17" style="color:var(--gold);text-decoration:underline;">Proverbs 27:17</a></p>
     </footer>
     <script>
-    function toggleDict(id){
-        var s=document.getElementById(id);
-        var b=document.querySelector('[data-toggle="'+id+'"]');
-        var a=b?b.querySelector('.arrow'):null;
-        s.classList.toggle('open');
-        if(a)a.classList.toggle('open');
-    }
     function toggleTheme(){
         var b=document.body,t=document.getElementById('themeToggle');
         if(b.classList.contains('light-mode')){b.classList.remove('light-mode');t.textContent='\u{1F319}';localStorage.setItem('bte-theme','dark');}

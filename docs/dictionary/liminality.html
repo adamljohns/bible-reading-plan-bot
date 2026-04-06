@@ -29,22 +29,20 @@
         .etymology { color:var(--gray); font-size:0.88rem; margin:12px auto; max-width:650px; }
         .section { margin:18px 0; padding:18px 22px; background:var(--card); border:1px solid var(--border); border-radius:10px; }
         .section > h3 { color:var(--gold); margin-bottom:12px; font-size:1.05rem; }
-        .section p { margin:7px 0; color:var(--white); }
+        .section p { margin:7px 0; }
         .biblical-def { border-left:3px solid var(--gold); padding-left:15px; }
-        .dict-toggle { cursor:pointer; color:var(--gold); font-size:0.92rem; user-select:none;
-                       display:inline-flex; align-items:center; gap:0; background:none; border:none;
-                       padding:0; font-family:inherit; font-weight:600; }
-        .dict-toggle:hover { color:var(--gold-light); }
-        .dict-toggle .arrow { display:inline-block; transition:transform 0.2s; margin-right:8px; font-size:0.75rem; }
-        .dict-toggle .arrow.open { transform:rotate(90deg); }
-        .dict-section { display:none; margin:10px 0 4px 0; padding:12px 16px;
-                        background:rgba(212,175,55,0.06); border-left:2px solid var(--gold);
-                        border-radius:0 6px 6px 0; }
-        .dict-section.open { display:block; }
-        .dict-section p { margin:6px 0; font-size:0.95rem; color:var(--white); }
-        .dict-section pre { font-family:'Courier New',monospace; font-size:0.82rem; color:var(--gold-light);
-                             line-height:1.7; white-space:pre-wrap; }
+        .section-summary { color:var(--gray); font-size:0.92rem; font-style:italic; margin-bottom:4px; }
+        details { margin-top:8px; }
+        details summary { color:var(--gold); font-size:0.85rem; cursor:pointer; user-select:none; padding:4px 0; }
+        details summary:hover { color:var(--gold-light); }
+        details[open] summary { margin-bottom:8px; }
         .corruption { border-left:3px solid #CC0000; padding-left:15px; }
+        .corruption-inner { padding:12px 16px; background:rgba(204,0,0,0.06); border-left:2px solid #CC0000; border-radius:0 6px 6px 0; }
+        .roots-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .webster-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .proto-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .proto-inner pre { font-family:'Courier New',monospace; font-size:0.82rem; color:var(--gold-light);
+                           line-height:1.7; white-space:pre-wrap; }
         .verse-ref { color:var(--gold); text-decoration:none; font-weight:600; }
         .verse-ref:hover { color:var(--gold-light); text-decoration:underline; }
         .lexicon-link { color:var(--gold); font-family:monospace; text-decoration:none; }
@@ -62,14 +60,17 @@
         body.light-mode { --bg:#F5F3EF; --card:#FFF; --white:#1a1a1a; --gray:#666; --border:#d4d0c8; background:#F5F3EF; color:#1a1a1a; }
         body.light-mode nav { background:rgba(245,243,239,0.97); }
         body.light-mode .section { background:#fff; border-color:#d4d0c8; }
-        body.light-mode .dict-section { background:rgba(212,175,55,0.04); }
+        body.light-mode details summary { color:var(--gold); }
+        body.light-mode .corruption-inner { background:rgba(204,0,0,0.03); }
+        body.light-mode .roots-inner, body.light-mode .webster-inner, body.light-mode .proto-inner { background:rgba(212,175,55,0.04); }
         body.light-mode footer { border-top-color:#d4d0c8; }
         body.light-mode .related a { background:#f0ede7; border-color:#d4d0c8; color:#1a1a1a; }
+        a, a:link, a:visited { color: var(--gold, #D4AF37) !important; }
+        a:hover { color: var(--gold-light, #F4D470) !important; }
         .dict-back-nav { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:22px; padding:10px 0; border-bottom:1px solid var(--border,#333); }
         .dict-back-nav a { color:var(--gold,#D4AF37); text-decoration:none; font-size:0.88rem; font-weight:500; }
         .dict-back-nav a:hover { color:var(--gold-light,#F4D470); }
         .dict-back-nav .dict-back-center { flex:1; text-align:center; }
-        .theme-wrap { display:flex; justify-content:center; margin:24px 0 8px; }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
 </head>
@@ -86,11 +87,7 @@
         <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle" title="Toggle dark/light">&#127769;</button>
     </nav>
     <div class="container">
-        <div class="dict-back-nav">
-            <a href="liberty.html">&#8592; Liberty</a>
-            <div class="dict-back-center"><a href="index.html">&#8592; Back to Dictionary</a></div>
-            <a href="light.html">Light &#8594;</a>
-        </div>
+        <div class="dict-back-nav"><a href="light.html">&#8592; Light</a><div class="dict-back-center"><a href="index.html">&#8592; Back to Dictionary</a></div><a href="liturgy.html">Liturgy &#8594;</a></div>
         <div class="word-header">
             <div class="word-title">Liminality</div>
             <div class="pronunciation">/ˌlɪm.ɪˈnæl.ɪ.ti/</div>
@@ -98,7 +95,6 @@
             <div class="etymology">From Latin <em>limen</em> (threshold, doorway, boundary); from Proto-Indo-European <em>*ley-</em> (to pour, flow over). Coined in anthropological context by Arnold van Gennep (1909) and developed by Victor Turner (1969) to describe the in-between stage of rites of passage — neither what one was nor yet what one will become. The concept maps onto profound biblical themes of wilderness, exile, and eschatological tension.</div>
         </div>
 
-        <!-- Biblical Definition -->
         <div class="section">
             <h3>&#128214; Biblical Definition</h3>
             <div class="biblical-def">
@@ -106,19 +102,6 @@
             </div>
         </div>
 
-        <!-- Webster 1828 / Historical -->
-        <div class="section">
-            <button class="dict-toggle" data-toggle="webster" onclick="toggleDict('webster')">
-                <span class="arrow">&#9658;</span>&#128220; Historical Context
-            </button>
-            <div class="dict-section" id="webster">
-                <p><em>Liminality</em> does not appear in Webster 1828 as a theological term — it was coined in modern anthropology. However, the concept permeates Scripture under other names: wilderness, exile, sojourn, pilgrimage, watch.</p>
-                <p><strong>Victor Turner</strong> (1969, <em>The Ritual Process</em>): Liminal persons "slip through the network of classifications that normally locate states and positions in cultural space." They are "betwixt and between." Turner saw this as socially dangerous but spiritually potent — the place where transformation happens.</p>
-                <p><strong>Biblical equivalents:</strong> The Hebrew <em>midbar</em> (מִדְבָּר) — wilderness, literally "the place of speaking" — is Israel's great liminal space. God meets his people in the in-between.</p>
-            </div>
-        </div>
-
-        <!-- Key Scripture -->
         <div class="section">
             <h3>&#128214; Key Scripture</h3>
             <p>&#x2022; <a href="../bible.html?ref=Philippians+3:20-21" class="verse-ref">Philippians 3:20–21</a> &mdash; "Our citizenship is in heaven…we await a Savior" — the liminal posture of the church.</p>
@@ -128,37 +111,29 @@
             <p>&#x2022; <a href="../bible.html?ref=Revelation+6:10" class="verse-ref">Revelation 6:10</a> &mdash; "How long, O Lord?" — the cry of those in the liminal space, awaiting consummation.</p>
         </div>
 
-        <!-- Greek & Hebrew Roots -->
         <div class="section">
-            <button class="dict-toggle" data-toggle="roots" onclick="toggleDict('roots')">
-                <span class="arrow">&#9658;</span>&#128279; Biblical Language Parallels
-            </button>
-            <div class="dict-section" id="roots">
-                <p>Hebrew <strong>מִדְבָּר</strong> (midbar, H4057): wilderness, desert — from <em>dabar</em> (to speak); the threshold place where God speaks to his people in the absence of normal structures. Moses, Elijah, John the Baptist, Jesus — all underwent liminal wilderness formation.</p>
-                <p>Hebrew <strong>עֵבֶר</strong> (eber, H5676): the other side, beyond — root of "Hebrew" (one who crosses over); Abraham was the great liminal crosser — out of Ur, across rivers, into promise.</p>
-                <p>Greek <strong>παρεπίδημος</strong> (parepidēmos, G3927): sojourner, stranger passing through — used in 1 Pet 2:11: "I urge you as sojourners and exiles…" The Christian's address is always the threshold.</p>
-            </div>
-        </div>
-
-        <!-- Modern Corruption -->
-        <div class="section">
-            <button class="dict-toggle" data-toggle="corruption" onclick="toggleDict('corruption')">
-                <span class="arrow">&#9658;</span>&#9888;&#65039; Modern Corruption
-            </button>
-            <div class="dict-section" id="corruption">
-                <div class="corruption">
+            <h3>&#9888;&#65039; Modern Corruption</h3>
+            <p class="section-summary">Secular culture treats liminality as a problem to be solved rather than a space to be inhabited with faith.</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="corruption-inner">
+                    <div class="corruption">
                     <p>Secular culture treats liminality as a problem to be solved rather than a space to be inhabited with faith. Therapeutic culture rushes through grief, transition, and uncertainty — anything to escape the discomfort of the threshold. But the biblical witness is that God does his deepest work in the liminal: the burning bush was in the wilderness; the transfiguration was on a mountain; the resurrection was in a garden at dawn. Modern prosperity theology is the antithesis of liminal faith: it promises premature arrival, turning the pilgrim into a settler and the wayfarer into a homeowner. The "already" crowds out the "not yet," and the soul grows fat and self-satisfied on a threshold it was meant to cross.</p>
                 </div>
             </div>
+                </div>
+            </details>
         </div>
 
-        <!-- Proto-Language Roots -->
         <div class="section">
-            <button class="dict-toggle" data-toggle="proto" onclick="toggleDict('proto')">
-                <span class="arrow">&#9658;</span>&#127760; Proto-Language Roots
-            </button>
-            <div class="dict-section" id="proto">
-                <pre>Proto-Indo-European *ley- (to pour, to flow over, to cross a boundary)
+            <h3>&#127760; Proto-Language Roots</h3>
+            <p class="section-summary">Proto-Indo-European *ley- (to pour, to flow over, to cross a boundary)
+  → Latin limen (threshold, doorway, lintel)
+ ...</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="proto-inner">
+                    <pre>Proto-Indo-European *ley- (to pour, to flow over, to cross a boundary)
   → Latin limen (threshold, doorway, lintel)
   → Latin limes (boundary, border, limit)
   → "liminal" (of or relating to a threshold)
@@ -173,9 +148,10 @@ Theological resonance:
   Crossing a threshold was a ritual act. Christ himself is the Door (θύρα, John 10:9) —
   to enter through him IS the crossing of the ultimate threshold.</pre>
             </div>
+                </div>
+            </details>
         </div>
 
-        <!-- Related Words -->
         <div class="section">
             <h3>Related Words</h3>
             <div class="related">
@@ -188,9 +164,20 @@ Theological resonance:
             </div>
         </div>
 
-        <div class="theme-wrap">
-            <button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark/light mode" style="width:38px;height:38px;font-size:1.1rem;">&#127769;</button>
+        <div class="section">
+            <p><em>Liminality</em> does not appear in Webster 1828 as a theological term — it was coined in modern anthropology. However, the concept permeates Scripture under other names: wilderness, exile, sojourn, pilgrimage, watch.</p>
+                <p><strong>Victor Turner</strong> (1969, <em>The Ritual Process</em>): Liminal persons "slip through the network of classifications that normally locate states and positions in cultural space." They are "betwixt and between." Turner saw this as socially dangerous but spiritually potent — the place where transformation happens.</p>
+                <p><strong>Biblical equivalents:</strong> The Hebrew <em>midbar</em> (מִדְבָּר) — wilderness, literally "the place of speaking" — is Israel's great liminal space. God meets his people in the in-between.</p>
+            </div>
         </div>
+
+        <div class="section">
+            <p>Hebrew <strong>מִדְבָּר</strong> (midbar, H4057): wilderness, desert — from <em>dabar</em> (to speak); the threshold place where God speaks to his people in the absence of normal structures. Moses, Elijah, John the Baptist, Jesus — all underwent liminal wilderness formation.</p>
+                <p>Hebrew <strong>עֵבֶר</strong> (eber, H5676): the other side, beyond — root of "Hebrew" (one who crosses over); Abraham was the great liminal crosser — out of Ur, across rivers, into promise.</p>
+                <p>Greek <strong>παρεπίδημος</strong> (parepidēmos, G3927): sojourner, stranger passing through — used in 1 Pet 2:11: "I urge you as sojourners and exiles…" The Christian's address is always the threshold.</p>
+            </div>
+        </div>
+
     </div>
 
     <footer>
@@ -205,13 +192,6 @@ Theological resonance:
         <p style="margin-top:8px;font-size:0.78rem;color:#555;">Powered by MOOPbot Pro &mdash; &ldquo;Iron sharpens iron.&rdquo; &mdash; <a href="../bible.html?ref=Proverbs+27:17" style="color:var(--gold);text-decoration:underline;">Proverbs 27:17</a></p>
     </footer>
     <script>
-    function toggleDict(id){
-        var s=document.getElementById(id);
-        var b=document.querySelector('[data-toggle="'+id+'"]');
-        var a=b?b.querySelector('.arrow'):null;
-        s.classList.toggle('open');
-        if(a)a.classList.toggle('open');
-    }
     function toggleTheme(){
         var b=document.body,t=document.getElementById('themeToggle');
         if(b.classList.contains('light-mode')){b.classList.remove('light-mode');t.textContent='\u{1F319}';localStorage.setItem('bte-theme','dark');}

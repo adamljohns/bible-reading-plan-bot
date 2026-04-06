@@ -31,20 +31,18 @@
         .section > h3 { color:var(--gold); margin-bottom:12px; font-size:1.05rem; }
         .section p { margin:7px 0; }
         .biblical-def { border-left:3px solid var(--gold); padding-left:15px; }
-        .dict-toggle { cursor:pointer; color:var(--gold); font-size:0.92rem; user-select:none;
-                       display:inline-flex; align-items:center; gap:0; background:none; border:none;
-                       padding:0; font-family:inherit; font-weight:600; }
-        .dict-toggle:hover { color:var(--gold-light); }
-        .dict-toggle .arrow { display:inline-block; transition:transform 0.2s; margin-right:8px; font-size:0.75rem; }
-        .dict-toggle .arrow.open { transform:rotate(90deg); }
-        .dict-section { display:none; margin:10px 0 4px 0; padding:12px 16px;
-                        background:rgba(212,175,55,0.06); border-left:2px solid var(--gold);
-                        border-radius:0 6px 6px 0; }
-        .dict-section.open { display:block; }
-        .dict-section p { margin:6px 0; font-size:0.95rem; }
-        .dict-section pre { font-family:'Courier New',monospace; font-size:0.82rem; color:var(--gold-light);
-                             line-height:1.7; white-space:pre-wrap; }
+        .section-summary { color:var(--gray); font-size:0.92rem; font-style:italic; margin-bottom:4px; }
+        details { margin-top:8px; }
+        details summary { color:var(--gold); font-size:0.85rem; cursor:pointer; user-select:none; padding:4px 0; }
+        details summary:hover { color:var(--gold-light); }
+        details[open] summary { margin-bottom:8px; }
         .corruption { border-left:3px solid #CC0000; padding-left:15px; }
+        .corruption-inner { padding:12px 16px; background:rgba(204,0,0,0.06); border-left:2px solid #CC0000; border-radius:0 6px 6px 0; }
+        .roots-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .webster-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .proto-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .proto-inner pre { font-family:'Courier New',monospace; font-size:0.82rem; color:var(--gold-light);
+                           line-height:1.7; white-space:pre-wrap; }
         .verse-ref { color:var(--gold); text-decoration:none; font-weight:600; }
         .verse-ref:hover { color:var(--gold-light); text-decoration:underline; }
         .lexicon-link { color:var(--gold); font-family:monospace; text-decoration:none; }
@@ -62,18 +60,18 @@
         body.light-mode { --bg:#F5F3EF; --card:#FFF; --white:#1a1a1a; --gray:#666; --border:#d4d0c8; background:#F5F3EF; color:#1a1a1a; }
         body.light-mode nav { background:rgba(245,243,239,0.97); }
         body.light-mode .section { background:#fff; border-color:#d4d0c8; }
-        body.light-mode .dict-section { background:rgba(212,175,55,0.04); }
+        body.light-mode details summary { color:var(--gold); }
+        body.light-mode .corruption-inner { background:rgba(204,0,0,0.03); }
+        body.light-mode .roots-inner, body.light-mode .webster-inner, body.light-mode .proto-inner { background:rgba(212,175,55,0.04); }
         body.light-mode footer { border-top-color:#d4d0c8; }
         body.light-mode .related a { background:#f0ede7; border-color:#d4d0c8; color:#1a1a1a; }
-
-    
         a, a:link, a:visited { color: var(--gold, #D4AF37) !important; }
         a:hover { color: var(--gold-light, #F4D470) !important; }
-            .dict-back-nav { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:22px; padding:10px 0; border-bottom:1px solid var(--border,#333); }
+        .dict-back-nav { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:22px; padding:10px 0; border-bottom:1px solid var(--border,#333); }
         .dict-back-nav a { color:var(--gold,#D4AF37); text-decoration:none; font-size:0.88rem; font-weight:500; }
         .dict-back-nav a:hover { color:var(--gold-light,#F4D470); }
         .dict-back-nav .dict-back-center { flex:1; text-align:center; }
-</style>
+    </style>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -97,7 +95,6 @@
             <div class="etymology">From Latin <em>sanctificatio</em>; <em>sanctus</em> (holy, set apart) + <em>facere</em> (to make). Greek: <em>hagiasmos</em> (ἁγιασμός) — holiness, sanctification; from <em>hagios</em> (holy, set apart). Hebrew: <em>qadash</em> (קָדַשׁ) — to be holy, to set apart, to consecrate.</div>
         </div>
 
-        <!-- Biblical Definition — always visible -->
         <div class="section">
             <h3>&#128214; Biblical Definition</h3>
             <div class="biblical-def">
@@ -105,63 +102,68 @@
             </div>
         </div>
 
-        <!-- Webster 1828 — collapsible -->
         <div class="section">
-            <button class="dict-toggle" data-toggle="webster" onclick="toggleDict('webster')">
-                <span class="arrow">&#9658;</span>&#128220; Webster 1828 Definition
-            </button>
-            <div class="dict-section" id="webster">
-                <p>• <a href="../bible.html?ref=1+Thessalonians+5:23" class="verse-ref">1 Thessalonians 5:23</a> — "May the God of peace himself sanctify you completely…"</p>
+            <h3>&#128220; Webster 1828 Definition</h3>
+            <p class="section-summary">1 Thessalonians 5:23 — "May the God of peace himself sanctify you completely…"
+            • Romans 8:29 — "Those who...</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="webster-inner">
+                    <p>• <a href="../bible.html?ref=1+Thessalonians+5:23" class="verse-ref">1 Thessalonians 5:23</a> — "May the God of peace himself sanctify you completely…"</p>
             <p>• <a href="../bible.html?ref=Romans+8:29" class="verse-ref">Romans 8:29</a> — "Those whom he foreknew he also predestined to be conformed to the image of his Son."</p>
             <p>• <a href="../bible.html?ref=Philippians+2:12-13" class="verse-ref">Philippians 2:12–13</a> — "Work out your own salvation…for it is God who works in you."</p>
             <p>• <a href="../bible.html?ref=Hebrews+12:14" class="verse-ref">Hebrews 12:14</a> — "Strive for peace with everyone, and for the holiness without which no one will see the Lord."</p>
             <p>• <a href="../bible.html?ref=2+Corinthians+3:18" class="verse-ref">2 Corinthians 3:18</a> — "We all…are being transformed into the same image from one degree of glory to another."</p>
         </div>
-
-        <div class="section">
-            <h3>🔗 Greek &amp; Hebrew Roots</h3>
-            <p><a href="../lexicon/G38.html" class="lexicon-link">G38</a> — <strong>hagiasmos</strong> (ἁγιασμός): sanctification, holiness; the process and state of being set apart for God.</p>
-            <p><a href="../lexicon/G37.html" class="lexicon-link">G37</a> — <strong>hagiazō</strong> (ἁγιάζω): to sanctify, consecrate, make holy; used of God's action on believers and of believers' consecration to God.</p>
-            <p><a href="../lexicon/H6942.html" class="lexicon-link">H6942</a> — <strong>qadash</strong> (קָדַשׁ): to be holy, to set apart; root of <em>qodesh</em> (holiness), <em>qadosh</em> (holy one), <em>mikdash</em> (sanctuary).</p>
+                </div>
+            </details>
         </div>
 
         <div class="section">
-            <h3><img src="../assets/icons/shield-blog-quill-48.png" width="20" height="20" style="vertical-align:middle;margin-right:6px;"> Usage</h3>
-            <p>• "Sanctification is not moral self-improvement; it is the Spirit using Scripture, suffering, and community to kill the old man and raise the new."</p>
-            <p>• "You are already holy (positional) and you are becoming holy (progressive) — both are true simultaneously in Christ."</p>
-            <p>• "The Christian life is not about trying harder but about staying connected to the Vine — the fruit grows from the branch, not by effort of the branch." (<a href="../bible.html?ref=John+15:5" style="color:var(--gold);text-decoration:underline;">John 15:5</a>)</p>
+            <h3>&#128214; Key Scripture</h3>
+            <p>&#x2022; <a href="../bible.html?ref=1+Thessalonians+5:23" class="verse-ref">1 Thessalonians 5:23</a> &mdash; "May the God of peace himself sanctify you completely…"</p>
+            <p>&#x2022; <a href="../bible.html?ref=Romans+8:29" class="verse-ref">Romans 8:29</a> &mdash; "Those whom he foreknew he also predestined to be conformed to the image of his Son."</p>
+            <p>&#x2022; <a href="../bible.html?ref=Philippians+2:12-13" class="verse-ref">Philippians 2:12–13</a> &mdash; "Work out your own salvation…for it is God who works in you."</p>
+            <p>&#x2022; <a href="../bible.html?ref=Hebrews+12:14" class="verse-ref">Hebrews 12:14</a> &mdash; "Strive for peace with everyone, and for the holiness without which no one will see the Lord."</p>
+            <p>&#x2022; <a href="../bible.html?ref=2+Corinthians+3:18" class="verse-ref">2 Corinthians 3:18</a> &mdash; "We all…are being transformed into the same image from one degree of glory to another."</p>
         </div>
 
         <div class="section">
-            <h3>Related Words</h3>
-            <div class="related">
-                <a href="justification.html">Justification</a>
-                <a href="holiness.html">Holiness</a>
-                <a href="righteousness.html">Righteousness</a>
-                <a href="repentance.html">Repentance</a>
-                <a href="worship.html">Worship</a>
-            </div>
-        </div>
-
-        <!-- Modern Corruption — collapsible -->
-        <div class="section">
-            <button class="dict-toggle" data-toggle="corruption" onclick="toggleDict('corruption')">
-                <span class="arrow">&#9658;</span>&#9888;&#65039; Modern Corruption
-            </button>
-            <div class="dict-section" id="corruption">
-                <div class="corruption">
+            <h3>&#9888;&#65039; Modern Corruption</h3>
+            <p class="section-summary">The modern church often collapses sanctification into self-improvement programs — therapy, discipline, habit formatio...</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="corruption-inner">
+                    <div class="corruption">
                     <p>The modern church often collapses sanctification into self-improvement programs — therapy, discipline, habit formation — divorced from the agency of the Holy Spirit. On the other extreme, "let go and let God" quietism removes human responsibility entirely. Both err. Scripture teaches synergism in sanctification: "Work out your own salvation with fear and trembling, for it is God who works in you" (Phil 2:12–13). Cultural Christianity often skips sanctification entirely, treating conversion as the destination rather than the starting line. True sanctification costs something — it is the ongoing crucifixion of the flesh (Gal 5:24).</p>
                 </div>
             </div>
+                </div>
+            </details>
         </div>
 
-        <!-- Proto-Language Roots — collapsible -->
         <div class="section">
-            <button class="dict-toggle" data-toggle="proto" onclick="toggleDict('proto')">
-                <span class="arrow">&#9658;</span>&#127760; Proto-Language Roots
-            </button>
-            <div class="dict-section" id="proto">
-                <pre>Latin sanctificare ("to make holy")
+            <h3>&#128279; Greek &amp; Hebrew Roots</h3>
+            <p class="section-summary">G38 — hagiasmos (ἁγιασμός): sanctification, holiness; the process and state of being set apart for God.</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="roots-inner">
+                    <p><a href="../lexicon/G38.html" class="lexicon-link">G38</a> — <strong>hagiasmos</strong> (ἁγιασμός): sanctification, holiness; the process and state of being set apart for God.</p>
+            <p><a href="../lexicon/G37.html" class="lexicon-link">G37</a> — <strong>hagiazō</strong> (ἁγιάζω): to sanctify, consecrate, make holy; used of God's action on believers and of believers' consecration to God.</p>
+            <p><a href="../lexicon/H6942.html" class="lexicon-link">H6942</a> — <strong>qadash</strong> (קָדַשׁ): to be holy, to set apart; root of <em>qodesh</em> (holiness), <em>qadosh</em> (holy one), <em>mikdash</em> (sanctuary).</p>
+                </div>
+            </details>
+        </div>
+
+        <div class="section">
+            <h3>&#127760; Proto-Language Roots</h3>
+            <p class="section-summary">Latin sanctificare ("to make holy")
+  → sanctus ("holy, consecrated") + facere ("to make")
+    → PIE *seh₂k- ("to san...</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="proto-inner">
+                    <pre>Latin sanctificare ("to make holy")
   → sanctus ("holy, consecrated") + facere ("to make")
     → PIE *seh₂k- ("to sanctify") + *dheh₁- ("to do, make")
   → Old French sanctification → Modern English "sanctification"
@@ -181,40 +183,18 @@ Proto-Semitic *qdš → Hebrew קָדַשׁ (qadash, H6942) — to make holy, sa
   → מִקְדָּשׁ (miqdash) — sanctuary, holy place
   → Sanctification in Hebrew = being progressively set apart for God's use</pre>
             </div>
+                </div>
+            </details>
         </div>
 
-        <!-- Key Scripture — always visible -->
         <div class="section">
-            <h3>&#128214; Key Scripture</h3>
-            <p>&#x2022; <a href="../bible.html?ref=1+Thessalonians+5:23" class="verse-ref">1 Thessalonians 5:23</a> &mdash; "May the God of peace himself sanctify you completely…"</p>
-            <p>&#x2022; <a href="../bible.html?ref=Romans+8:29" class="verse-ref">Romans 8:29</a> &mdash; "Those whom he foreknew he also predestined to be conformed to the image of his Son."</p>
-            <p>&#x2022; <a href="../bible.html?ref=Philippians+2:12-13" class="verse-ref">Philippians 2:12–13</a> &mdash; "Work out your own salvation…for it is God who works in you."</p>
-            <p>&#x2022; <a href="../bible.html?ref=Hebrews+12:14" class="verse-ref">Hebrews 12:14</a> &mdash; "Strive for peace with everyone, and for the holiness without which no one will see the Lord."</p>
-            <p>&#x2022; <a href="../bible.html?ref=2+Corinthians+3:18" class="verse-ref">2 Corinthians 3:18</a> &mdash; "We all…are being transformed into the same image from one degree of glory to another."</p>
-        </div>
-
-        <!-- Greek & Hebrew Roots — collapsible -->
-        <div class="section">
-            <button class="dict-toggle" data-toggle="roots" onclick="toggleDict('roots')">
-                <span class="arrow">&#9658;</span>&#128279; Greek &amp; Hebrew Roots
-            </button>
-            <div class="dict-section" id="roots">
-            </div>
-        </div>
-
-        <!-- Usage Examples — collapsible -->
-        <div class="section">
-            <button class="dict-toggle" data-toggle="usage" onclick="toggleDict('usage')">
-                <span class="arrow">&#9658;</span>&#9997;&#65039; Usage Examples
-            </button>
-            <div class="dict-section" id="usage">
+            <h3><img src="../assets/icons/shield-blog-quill-48.png" width="20" height="20" style="vertical-align:middle;margin-right:6px;"> Usage</h3>
             <p>&#x2022; "Sanctification is not moral self-improvement; it is the Spirit using Scripture, suffering, and community to kill the old man and raise the new."</p>
             <p>&#x2022; "You are already holy (positional) and you are becoming holy (progressive) — both are true simultaneously in Christ."</p>
             <p>&#x2022; "The Christian life is not about trying harder but about staying connected to the Vine — the fruit grows from the branch, not by effort of the branch." (<a href="../bible.html?ref=John+15:5" style="color:var(--gold);text-decoration:underline;">John 15:5</a>)</p>
             </div>
         </div>
 
-        <!-- Related Words — always visible -->
         <div class="section">
             <h3>Related Words</h3>
             <div class="related">
@@ -240,13 +220,6 @@ Proto-Semitic *qdš → Hebrew קָדַשׁ (qadash, H6942) — to make holy, sa
         <p style="margin-top:8px;font-size:0.78rem;color:#555;">Powered by MOOPbot Pro &mdash; &ldquo;Iron sharpens iron.&rdquo; &mdash; <a href="../bible.html?ref=Proverbs+27:17" style="color:var(--gold);text-decoration:underline;">Proverbs 27:17</a></p>
     </footer>
     <script>
-    function toggleDict(id){
-        var s=document.getElementById(id);
-        var b=document.querySelector('[data-toggle="'+id+'"]');
-        var a=b?b.querySelector('.arrow'):null;
-        s.classList.toggle('open');
-        if(a)a.classList.toggle('open');
-    }
     function toggleTheme(){
         var b=document.body,t=document.getElementById('themeToggle');
         if(b.classList.contains('light-mode')){b.classList.remove('light-mode');t.textContent='\u{1F319}';localStorage.setItem('bte-theme','dark');}

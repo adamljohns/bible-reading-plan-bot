@@ -31,20 +31,18 @@
         .section > h3 { color:var(--gold); margin-bottom:12px; font-size:1.05rem; }
         .section p { margin:7px 0; }
         .biblical-def { border-left:3px solid var(--gold); padding-left:15px; }
-        .dict-toggle { cursor:pointer; color:var(--gold); font-size:0.92rem; user-select:none;
-                       display:inline-flex; align-items:center; gap:0; background:none; border:none;
-                       padding:0; font-family:inherit; font-weight:600; }
-        .dict-toggle:hover { color:var(--gold-light); }
-        .dict-toggle .arrow { display:inline-block; transition:transform 0.2s; margin-right:8px; font-size:0.75rem; }
-        .dict-toggle .arrow.open { transform:rotate(90deg); }
-        .dict-section { display:none; margin:10px 0 4px 0; padding:12px 16px;
-                        background:rgba(212,175,55,0.06); border-left:2px solid var(--gold);
-                        border-radius:0 6px 6px 0; }
-        .dict-section.open { display:block; }
-        .dict-section p { margin:6px 0; font-size:0.95rem; }
-        .dict-section pre { font-family:'Courier New',monospace; font-size:0.82rem; color:var(--gold-light);
-                             line-height:1.7; white-space:pre-wrap; }
+        .section-summary { color:var(--gray); font-size:0.92rem; font-style:italic; margin-bottom:4px; }
+        details { margin-top:8px; }
+        details summary { color:var(--gold); font-size:0.85rem; cursor:pointer; user-select:none; padding:4px 0; }
+        details summary:hover { color:var(--gold-light); }
+        details[open] summary { margin-bottom:8px; }
         .corruption { border-left:3px solid #CC0000; padding-left:15px; }
+        .corruption-inner { padding:12px 16px; background:rgba(204,0,0,0.06); border-left:2px solid #CC0000; border-radius:0 6px 6px 0; }
+        .roots-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .webster-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .proto-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .proto-inner pre { font-family:'Courier New',monospace; font-size:0.82rem; color:var(--gold-light);
+                           line-height:1.7; white-space:pre-wrap; }
         .verse-ref { color:var(--gold); text-decoration:none; font-weight:600; }
         .verse-ref:hover { color:var(--gold-light); text-decoration:underline; }
         .lexicon-link { color:var(--gold); font-family:monospace; text-decoration:none; }
@@ -62,18 +60,18 @@
         body.light-mode { --bg:#F5F3EF; --card:#FFF; --white:#1a1a1a; --gray:#666; --border:#d4d0c8; background:#F5F3EF; color:#1a1a1a; }
         body.light-mode nav { background:rgba(245,243,239,0.97); }
         body.light-mode .section { background:#fff; border-color:#d4d0c8; }
-        body.light-mode .dict-section { background:rgba(212,175,55,0.04); }
+        body.light-mode details summary { color:var(--gold); }
+        body.light-mode .corruption-inner { background:rgba(204,0,0,0.03); }
+        body.light-mode .roots-inner, body.light-mode .webster-inner, body.light-mode .proto-inner { background:rgba(212,175,55,0.04); }
         body.light-mode footer { border-top-color:#d4d0c8; }
         body.light-mode .related a { background:#f0ede7; border-color:#d4d0c8; color:#1a1a1a; }
-
-    
         a, a:link, a:visited { color: var(--gold, #D4AF37) !important; }
         a:hover { color: var(--gold-light, #F4D470) !important; }
-            .dict-back-nav { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:22px; padding:10px 0; border-bottom:1px solid var(--border,#333); }
+        .dict-back-nav { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:22px; padding:10px 0; border-bottom:1px solid var(--border,#333); }
         .dict-back-nav a { color:var(--gold,#D4AF37); text-decoration:none; font-size:0.88rem; font-weight:500; }
         .dict-back-nav a:hover { color:var(--gold-light,#F4D470); }
         .dict-back-nav .dict-back-center { flex:1; text-align:center; }
-</style>
+    </style>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -97,7 +95,6 @@
             <div class="etymology">Old French <em>joie</em>, from Latin <em>gaudia</em> (pl. of <em>gaudium</em>, joy, delight). Greek root: <em>chara</em> (χαρά), sharing its root with <em>charis</em> (grace) — suggesting that joy and grace flow from the same divine source.</div>
         </div>
 
-        <!-- Biblical Definition — always visible -->
         <div class="section">
             <h3>&#128214; Biblical Definition</h3>
             <div class="biblical-def">
@@ -105,62 +102,68 @@
             </div>
         </div>
 
-        <!-- Webster 1828 — collapsible -->
         <div class="section">
-            <button class="dict-toggle" data-toggle="webster" onclick="toggleDict('webster')">
-                <span class="arrow">&#9658;</span>&#128220; Webster 1828 Definition
-            </button>
-            <div class="dict-section" id="webster">
-                <p><a href="../bible.html?ref=Nehemiah+8:10" class="verse-ref">Nehemiah 8:10</a> — "The joy of the LORD is your strength."</p>
+            <h3>&#128220; Webster 1828 Definition</h3>
+            <p class="section-summary">Nehemiah 8:10 — "The joy of the LORD is your strength."
+            John 15:11 — "These things I have spoken to you, ...</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="webster-inner">
+                    <p><a href="../bible.html?ref=Nehemiah+8:10" class="verse-ref">Nehemiah 8:10</a> — "The joy of the LORD is your strength."</p>
             <p><a href="../bible.html?ref=John+15:11" class="verse-ref">John 15:11</a> — "These things I have spoken to you, that My joy may remain in you, and that your joy may be full."</p>
             <p><a href="../bible.html?ref=James+1:2-3" class="verse-ref">James 1:2–3</a> — "Count it all joy, my brothers, when you meet trials of various kinds, for you know that the testing of your faith produces steadfastness."</p>
             <p><a href="../bible.html?ref=Galatians+5:22" class="verse-ref">Galatians 5:22</a> — "But the fruit of the Spirit is love, joy, peace, patience, kindness, goodness, faithfulness…"</p>
             <p><a href="../bible.html?ref=Psalm+16:11" class="verse-ref">Psalm 16:11</a> — "In Your presence there is fullness of joy; at Your right hand are pleasures forevermore."</p>
         </div>
-
-        <div class="section">
-            <h3>🔗 Greek &amp; Hebrew Roots</h3>
-            <p><a href="../lexicon/H8057.html" class="lexicon-link">H8057</a> — <strong>simchah</strong> (שִׂמְחָה): joy, gladness, mirth; from H8055 <em>samach</em> (to rejoice, be glad). Used of both human and divine joy.</p>
-            <p><a href="../lexicon/G5479.html" class="lexicon-link">G5479</a> — <strong>chara</strong> (χαρά): joy, delight, gladness; related to G5485 <em>charis</em> (grace) — suggesting joy as the felt response to grace received.</p>
+                </div>
+            </details>
         </div>
 
         <div class="section">
-            <h3><img src="../assets/icons/shield-blog-quill-48.png" width="20" height="20" style="vertical-align:middle;margin-right:6px;"> Usage</h3>
-            <p>"Her joy was unshaken by the diagnosis because it was anchored in what could not be taken from her."</p>
-            <p>"The early church sang hymns at midnight in prison — joy untethered from comfort."</p>
-            <p>"A joyful man is a witness that God keeps His promises."</p>
+            <h3>&#128214; Key Scripture</h3>
+            <p>&#x2022; <a href="../bible.html?ref=Nehemiah+8:10" class="verse-ref">Nehemiah 8:10</a> &mdash; "The joy of the LORD is your strength."</p>
+            <p>&#x2022; <a href="../bible.html?ref=John+15:11" class="verse-ref">John 15:11</a> &mdash; "These things I have spoken to you, that My joy may remain in you, and that your joy may be full."</p>
+            <p>&#x2022; <a href="../bible.html?ref=James+1:2-3" class="verse-ref">James 1:2–3</a> &mdash; "Count it all joy, my brothers, when you meet trials of various kinds, for you know that the testing of your faith produces steadfastness."</p>
+            <p>&#x2022; <a href="../bible.html?ref=Galatians+5:22" class="verse-ref">Galatians 5:22</a> &mdash; "But the fruit of the Spirit is love, joy, peace, patience, kindness, goodness, faithfulness…"</p>
+            <p>&#x2022; <a href="../bible.html?ref=Psalm+16:11" class="verse-ref">Psalm 16:11</a> &mdash; "In Your presence there is fullness of joy; at Your right hand are pleasures forevermore."</p>
         </div>
 
         <div class="section">
-            <h3>Related Words</h3>
-            <div class="related">
-                <a href="peace.html">Peace</a>
-                <a href="hope.html">Hope</a>
-                <a href="blessing.html">Blessing</a>
-                <a href="worship.html">Worship</a>
-                <a href="glory.html">Glory</a>
-            </div>
-        </div>
-
-        <!-- Modern Corruption — collapsible -->
-        <div class="section">
-            <button class="dict-toggle" data-toggle="corruption" onclick="toggleDict('corruption')">
-                <span class="arrow">&#9658;</span>&#9888;&#65039; Modern Corruption
-            </button>
-            <div class="dict-section" id="corruption">
-                <div class="corruption">
+            <h3>&#9888;&#65039; Modern Corruption</h3>
+            <p class="section-summary">Contemporary culture conflates joy with happiness, reducing it to a feeling dependent on favorable circumstances, sel...</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="corruption-inner">
+                    <div class="corruption">
                     <p>Contemporary culture conflates joy with happiness, reducing it to a feeling dependent on favorable circumstances, self-fulfillment, or entertainment. "Joy" has been commercialized (Marie Kondo's "spark joy"), psychologized (positive emotions as self-generated states), and weaponized ("your joy is valid" as permission for any desire). By detaching joy from its theological root — God Himself as the ultimate object of delight — modern culture leaves people in a perpetual pursuit of joy that always slips away, because it is sought in things that cannot ultimately satisfy.</p>
                 </div>
             </div>
+                </div>
+            </details>
         </div>
 
-        <!-- Proto-Language Roots — collapsible -->
         <div class="section">
-            <button class="dict-toggle" data-toggle="proto" onclick="toggleDict('proto')">
-                <span class="arrow">&#9658;</span>&#127760; Proto-Language Roots
-            </button>
-            <div class="dict-section" id="proto">
-                <pre>PIE *gāu- ("to rejoice, to be glad")
+            <h3>&#128279; Greek &amp; Hebrew Roots</h3>
+            <p class="section-summary">H8057 — simchah (שִׂמְחָה): joy, gladness, mirth; from H8055 samach (to rejoice, be glad).</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="roots-inner">
+                    <p><a href="../lexicon/H8057.html" class="lexicon-link">H8057</a> &mdash; <strong>simchah</strong> (שִׂמְחָה): joy, gladness, mirth; from H8055 <em>samach</em> (to rejoice, be glad). Used of both human and divine joy.</p>
+            <p><a href="../lexicon/G5479.html" class="lexicon-link">G5479</a> &mdash; <strong>chara</strong> (χαρά): joy, delight, gladness; related to G5485 <em>charis</em> (grace) — suggesting joy as the felt response to grace received.</p>
+            </div>
+                </div>
+            </details>
+        </div>
+
+        <div class="section">
+            <h3>&#127760; Proto-Language Roots</h3>
+            <p class="section-summary">PIE *gāu- ("to rejoice, to be glad")
+  → Latin gaudēre ("to rejoice") → gaudium ("joy, delight")
+    → Old French joi...</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="proto-inner">
+                    <pre>PIE *gāu- ("to rejoice, to be glad")
   → Latin gaudēre ("to rejoice") → gaudium ("joy, delight")
     → Old French joie → Middle English joie → Modern English "joy"
 
@@ -177,42 +180,18 @@ Proto-Semitic *śmḥ → Hebrew שָׂמַח (samach, H8055) — to rejoice
   → שָׂשׂוֹן (sason, H8342) — exultation, great joy
   → גִּיל (gil, H1523) — to exult, often associated with the messianic era</pre>
             </div>
+                </div>
+            </details>
         </div>
 
-        <!-- Key Scripture — always visible -->
         <div class="section">
-            <h3>&#128214; Key Scripture</h3>
-            <p>&#x2022; <a href="../bible.html?ref=Nehemiah+8:10" class="verse-ref">Nehemiah 8:10</a> &mdash; "The joy of the LORD is your strength."</p>
-            <p>&#x2022; <a href="../bible.html?ref=John+15:11" class="verse-ref">John 15:11</a> &mdash; "These things I have spoken to you, that My joy may remain in you, and that your joy may be full."</p>
-            <p>&#x2022; <a href="../bible.html?ref=James+1:2-3" class="verse-ref">James 1:2–3</a> &mdash; "Count it all joy, my brothers, when you meet trials of various kinds, for you know that the testing of your faith produces steadfastness."</p>
-            <p>&#x2022; <a href="../bible.html?ref=Galatians+5:22" class="verse-ref">Galatians 5:22</a> &mdash; "But the fruit of the Spirit is love, joy, peace, patience, kindness, goodness, faithfulness…"</p>
-            <p>&#x2022; <a href="../bible.html?ref=Psalm+16:11" class="verse-ref">Psalm 16:11</a> &mdash; "In Your presence there is fullness of joy; at Your right hand are pleasures forevermore."</p>
-        </div>
-
-        <!-- Greek & Hebrew Roots — collapsible -->
-        <div class="section">
-            <button class="dict-toggle" data-toggle="roots" onclick="toggleDict('roots')">
-                <span class="arrow">&#9658;</span>&#128279; Greek &amp; Hebrew Roots
-            </button>
-            <div class="dict-section" id="roots">
-            <p><a href="../lexicon/H8057.html" class="lexicon-link">H8057</a> &mdash; <strong>simchah</strong> (שִׂמְחָה): joy, gladness, mirth; from H8055 <em>samach</em> (to rejoice, be glad). Used of both human and divine joy.</p>
-            <p><a href="../lexicon/G5479.html" class="lexicon-link">G5479</a> &mdash; <strong>chara</strong> (χαρά): joy, delight, gladness; related to G5485 <em>charis</em> (grace) — suggesting joy as the felt response to grace received.</p>
-            </div>
-        </div>
-
-        <!-- Usage Examples — collapsible -->
-        <div class="section">
-            <button class="dict-toggle" data-toggle="usage" onclick="toggleDict('usage')">
-                <span class="arrow">&#9658;</span>&#9997;&#65039; Usage Examples
-            </button>
-            <div class="dict-section" id="usage">
+            <h3><img src="../assets/icons/shield-blog-quill-48.png" width="20" height="20" style="vertical-align:middle;margin-right:6px;"> Usage</h3>
             <p>&#x2022; "Her joy was unshaken by the diagnosis because it was anchored in what could not be taken from her."</p>
             <p>&#x2022; "The early church sang hymns at midnight in prison — joy untethered from comfort."</p>
             <p>&#x2022; "A joyful man is a witness that God keeps His promises."</p>
             </div>
         </div>
 
-        <!-- Related Words — always visible -->
         <div class="section">
             <h3>Related Words</h3>
             <div class="related">
@@ -238,13 +217,6 @@ Proto-Semitic *śmḥ → Hebrew שָׂמַח (samach, H8055) — to rejoice
         <p style="margin-top:8px;font-size:0.78rem;color:#555;">Powered by MOOPbot Pro &mdash; &ldquo;Iron sharpens iron.&rdquo; &mdash; <a href="../bible.html?ref=Proverbs+27:17" style="color:var(--gold);text-decoration:underline;">Proverbs 27:17</a></p>
     </footer>
     <script>
-    function toggleDict(id){
-        var s=document.getElementById(id);
-        var b=document.querySelector('[data-toggle="'+id+'"]');
-        var a=b?b.querySelector('.arrow'):null;
-        s.classList.toggle('open');
-        if(a)a.classList.toggle('open');
-    }
     function toggleTheme(){
         var b=document.body,t=document.getElementById('themeToggle');
         if(b.classList.contains('light-mode')){b.classList.remove('light-mode');t.textContent='\u{1F319}';localStorage.setItem('bte-theme','dark');}

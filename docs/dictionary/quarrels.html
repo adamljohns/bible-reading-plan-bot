@@ -29,23 +29,22 @@
         .etymology { color:var(--gray); font-size:0.88rem; margin:12px auto; max-width:650px; }
         .section { margin:18px 0; padding:18px 22px; background:var(--card); border:1px solid var(--border); border-radius:10px; }
         .section > h3 { color:var(--gold); margin-bottom:12px; font-size:1.05rem; }
-        .section p { margin:7px 0; color:var(--white); }
+        .section p { margin:7px 0; }
         .biblical-def { border-left:3px solid var(--gold); padding-left:15px; }
-        .dict-toggle { cursor:pointer; color:var(--gold); font-size:0.92rem; user-select:none;
-                       display:inline-flex; align-items:center; gap:0; background:none; border:none;
-                       padding:0; font-family:inherit; font-weight:600; }
-        .dict-toggle:hover { color:var(--gold-light); }
-        .dict-toggle .arrow { display:inline-block; transition:transform 0.2s; margin-right:8px; font-size:0.75rem; }
-        .dict-toggle .arrow.open { transform:rotate(90deg); }
-        .dict-section { display:none; margin:10px 0 4px 0; padding:12px 16px;
-                        background:rgba(212,175,55,0.06); border-left:2px solid var(--gold);
-                        border-radius:0 6px 6px 0; }
-        .dict-section.open { display:block; }
-        .dict-section p { margin:6px 0; font-size:0.95rem; color:var(--white); }
+        .section-summary { color:var(--gray); font-size:0.92rem; font-style:italic; margin-bottom:4px; }
+        details { margin-top:8px; }
+        details summary { color:var(--gold); font-size:0.85rem; cursor:pointer; user-select:none; padding:4px 0; }
+        details summary:hover { color:var(--gold-light); }
+        details[open] summary { margin-bottom:8px; }
         .corruption { border-left:3px solid #CC0000; padding-left:15px; }
-        .corruption p { color:var(--white); }
-        .verse-link { color:var(--gold); text-decoration:none; font-weight:600; }
-        .verse-link:hover { color:var(--gold-light); text-decoration:underline; }
+        .corruption-inner { padding:12px 16px; background:rgba(204,0,0,0.06); border-left:2px solid #CC0000; border-radius:0 6px 6px 0; }
+        .roots-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .webster-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .proto-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .proto-inner pre { font-family:'Courier New',monospace; font-size:0.82rem; color:var(--gold-light);
+                           line-height:1.7; white-space:pre-wrap; }
+        .verse-ref { color:var(--gold); text-decoration:none; font-weight:600; }
+        .verse-ref:hover { color:var(--gold-light); text-decoration:underline; }
         .lexicon-link { color:var(--gold); font-family:monospace; text-decoration:none; }
         .lexicon-link:hover { color:var(--gold-light); text-decoration:underline; }
         .related { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
@@ -61,16 +60,18 @@
         body.light-mode { --bg:#F5F3EF; --card:#FFF; --white:#1a1a1a; --gray:#666; --border:#d4d0c8; background:#F5F3EF; color:#1a1a1a; }
         body.light-mode nav { background:rgba(245,243,239,0.97); }
         body.light-mode .section { background:#fff; border-color:#d4d0c8; }
-        body.light-mode .dict-section { background:rgba(212,175,55,0.04); }
+        body.light-mode details summary { color:var(--gold); }
+        body.light-mode .corruption-inner { background:rgba(204,0,0,0.03); }
+        body.light-mode .roots-inner, body.light-mode .webster-inner, body.light-mode .proto-inner { background:rgba(212,175,55,0.04); }
         body.light-mode footer { border-top-color:#d4d0c8; }
         body.light-mode .related a { background:#f0ede7; border-color:#d4d0c8; color:#1a1a1a; }
         a, a:link, a:visited { color: var(--gold, #D4AF37) !important; }
         a:hover { color: var(--gold-light, #F4D470) !important; }
-            .dict-back-nav { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:22px; padding:10px 0; border-bottom:1px solid var(--border,#333); }
+        .dict-back-nav { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:22px; padding:10px 0; border-bottom:1px solid var(--border,#333); }
         .dict-back-nav a { color:var(--gold,#D4AF37); text-decoration:none; font-size:0.88rem; font-weight:500; }
         .dict-back-nav a:hover { color:var(--gold-light,#F4D470); }
         .dict-back-nav .dict-back-center { flex:1; text-align:center; }
-</style>
+    </style>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -102,28 +103,20 @@
         </div>
 
         <div class="section">
-            <button class="dict-toggle" data-toggle="webster" onclick="toggleDict('webster')">
-                <span class="arrow">&#9658;</span>&#128220; Webster 1828 Definition
-            </button>
-            <div class="dict-section" id="webster">
-                <p><strong>QUAR'REL, n.</strong> [Fr. querelle; L. querela, from queror, to complain.]</p>
+            <h3>&#128220; Webster 1828 Definition</h3>
+            <p class="section-summary">QUAR'REL, n.</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="webster-inner">
+                    <p><strong>QUAR'REL, n.</strong> [Fr. querelle; L. querela, from queror, to complain.]</p>
                 <p>1. A brawl; a petty fight or scuffle; a contest of anger; an angry dispute.</p>
                 <p>2. A dispute; a contest; controversy; subject of dispute.</p>
                 <p>3. Cause of dispute; ground of objection; complaint; accusation.</p>
                 <p>4. Breach of friendship or concord.</p>
                 <p><em>To pick a quarrel</em> — to seek or study to occasion a quarrel; to find pretexts for dispute.</p>
             </div>
-        </div>
-
-        <div class="section">
-            <button class="dict-toggle" data-toggle="corruption" onclick="toggleDict('corruption')">
-                <span class="arrow">&#9658;</span>&#9888;&#65039; Modern Corruption
-            </button>
-            <div class="dict-section" id="corruption">
-                <div class="corruption">
-                    <p>Modern culture has canonized quarreling as civic duty. "Speaking your truth," "calling people out," "not staying silent," and "advocacy" have turned every dispute into an invitation for mass insertion. Social media has perfected the quarrel — strangers pile into conflicts they know nothing about, adding heat but no light, and walking away unaccountable for the damage done. The biblical warning against grabbing a passing dog by the ears has never been more relevant: the dog will turn and bite you, but you chose to grab it. Worse, culture now shames the person who refuses to insert themselves — "silence is violence" demands you make every quarrel your own. Scripture says the opposite: the man of understanding holds his peace (Prov 11:12).</p>
                 </div>
-            </div>
+            </details>
         </div>
 
         <div class="section">
@@ -136,15 +129,32 @@
         </div>
 
         <div class="section">
-            <button class="dict-toggle" data-toggle="roots" onclick="toggleDict('roots')">
-                <span class="arrow">&#9658;</span>&#128279; Hebrew &amp; Greek Roots
-            </button>
-            <div class="dict-section" id="roots">
-                <p><a href="../lexicon/H4066.html" class="lexicon-link">H4066</a> &mdash; <strong>madon</strong> (מָדוֹן): strife, contention, quarrel; used extensively in Proverbs; a quarrelsome wife is compared to a dripping faucet (Prov 19:13); the contentious man stirs up strife (Prov 15:18).</p>
+            <h3>&#9888;&#65039; Modern Corruption</h3>
+            <p class="section-summary">Modern culture has canonized quarreling as civic duty.</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="corruption-inner">
+                    <div class="corruption">
+                    <p>Modern culture has canonized quarreling as civic duty. "Speaking your truth," "calling people out," "not staying silent," and "advocacy" have turned every dispute into an invitation for mass insertion. Social media has perfected the quarrel — strangers pile into conflicts they know nothing about, adding heat but no light, and walking away unaccountable for the damage done. The biblical warning against grabbing a passing dog by the ears has never been more relevant: the dog will turn and bite you, but you chose to grab it. Worse, culture now shames the person who refuses to insert themselves — "silence is violence" demands you make every quarrel your own. Scripture says the opposite: the man of understanding holds his peace (Prov 11:12).</p>
+                </div>
+            </div>
+                </div>
+            </details>
+        </div>
+
+        <div class="section">
+            <h3>&#128279; Greek &amp; Hebrew Roots</h3>
+            <p class="section-summary">H4066 — madon (מָדוֹן): strife, contention, quarrel; used extensively in Proverbs; a quarrelsome wife is compared to ...</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="roots-inner">
+                    <p><a href="../lexicon/H4066.html" class="lexicon-link">H4066</a> &mdash; <strong>madon</strong> (מָדוֹן): strife, contention, quarrel; used extensively in Proverbs; a quarrelsome wife is compared to a dripping faucet (Prov 19:13); the contentious man stirs up strife (Prov 15:18).</p>
                 <p><a href="../lexicon/H7379.html" class="lexicon-link">H7379</a> &mdash; <strong>rib</strong> (רִיב): strife, dispute, legal controversy; broader than mere fighting — includes formal litigation and serious conflict; Moses uses it for Israel's quarrels at Massah (Exod 17:7).</p>
                 <p><a href="../lexicon/G3163.html" class="lexicon-link">G3163</a> &mdash; <strong>mache</strong> (μάχη): fight, quarrel, conflict; used in James 4:1; 2 Tim 2:23 — "avoid foolish controversies, knowing they breed quarrels."</p>
                 <p><a href="../lexicon/G2054.html" class="lexicon-link">G2054</a> &mdash; <strong>eris</strong> (ἔρις): strife, contention, rivalry; listed among "works of the flesh" in Gal 5:20 alongside enmity, jealousy, and dissension.</p>
             </div>
+                </div>
+            </details>
         </div>
 
         <div class="section">
@@ -174,13 +184,6 @@
         <p style="margin-top:8px;font-size:0.78rem;color:#555;">Powered by MOOPbot Pro &mdash; &ldquo;Iron sharpens iron.&rdquo; &mdash; <a href="../bible.html?ref=Proverbs+27:17" style="color:var(--gold);text-decoration:underline;">Proverbs 27:17</a></p>
     </footer>
     <script>
-    function toggleDict(id){
-        var s=document.getElementById(id);
-        var b=document.querySelector('[data-toggle="'+id+'"]');
-        var a=b?b.querySelector('.arrow'):null;
-        s.classList.toggle('open');
-        if(a)a.classList.toggle('open');
-    }
     function toggleTheme(){
         var b=document.body,t=document.getElementById('themeToggle');
         if(b.classList.contains('light-mode')){b.classList.remove('light-mode');t.textContent='\u{1F319}';localStorage.setItem('bte-theme','dark');}

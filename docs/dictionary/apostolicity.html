@@ -3,43 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Apostolicity — The MOOP Dictionary of the English Language</title>
+    <title>Apostolicity &mdash; The MOOP Dictionary</title>
     <style>
         * { margin:0; padding:0; box-sizing:border-box; }
         :root { --bg:#000; --card:#111; --gold:#D4AF37; --gold-light:#F4D470; --white:#FFF; --gray:#888; --border:#333; }
-        [data-theme="light"] { --bg:#FAF8F5; --card:#FFF; --gold:#B8941F; --gold-light:#8B6F14; --white:#1a1a1a; --gray:#555; --border:#DDD; }
         body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--white); min-height:100vh; line-height:1.7; }
-        h1,h2,h3 { font-family:'Playfair Display',serif; }
-        .container { max-width:800px; margin:0 auto; padding:20px; }
+        h1,h2,h3,h4 { font-family:'Playfair Display',serif; }
+        nav { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:4px 8px; padding:10px 16px;
+              border-bottom:1px solid var(--border); position:sticky; top:0;
+              background:rgba(0,0,0,0.95); backdrop-filter:blur(8px); z-index:100; }
+        nav a { color:var(--gray); text-decoration:none; font-size:0.8rem; display:inline-flex; align-items:center;
+                gap:3px; padding:3px 6px; border-radius:6px; transition:color 0.2s; }
+        nav a:hover, nav a.active { color:var(--gold); }
+        .site-icon { vertical-align:middle; opacity:0.8; }
+        .theme-toggle { background:none; border:1px solid var(--border); border-radius:50%; width:28px; height:28px;
+                        cursor:pointer; font-size:0.85rem; transition:all 0.3s; padding:0; color:var(--white);
+                        display:inline-flex; align-items:center; justify-content:center; }
+        .theme-toggle:hover { border-color:var(--gold); }
+        .container { max-width:820px; margin:0 auto; padding:28px 20px 60px; }
         .word-header { text-align:center; padding:40px 0 30px; border-bottom:1px solid var(--border); margin-bottom:30px; }
-        .word-title { font-size:2.5rem; color:var(--gold-light); margin-bottom:5px; }
+        .word-title { font-size:2.8rem; color:var(--gold-light); margin-bottom:6px; }
         .pronunciation { color:var(--gray); font-size:1.1rem; font-style:italic; }
-        .pos { display:inline-block; background:var(--gold); color:#000; font-weight:700; font-size:0.8rem; padding:3px 12px; border-radius:15px; margin:10px 0; }
-        .etymology { color:var(--gray); font-size:0.9rem; margin:10px 0; }
-        .section { margin:25px 0; padding:20px; background:var(--card); border:1px solid var(--border); border-radius:10px; }
-        .section h3 { color:var(--gold); margin-bottom:12px; font-size:1.1rem; }
-        .section p { margin:8px 0; }
+        .pos { display:inline-block; background:var(--gold); color:#000; font-weight:700;
+               font-size:0.78rem; padding:3px 14px; border-radius:15px; margin:10px 0; }
+        .etymology { color:var(--gray); font-size:0.88rem; margin:12px auto; max-width:650px; }
+        .section { margin:18px 0; padding:18px 22px; background:var(--card); border:1px solid var(--border); border-radius:10px; }
+        .section > h3 { color:var(--gold); margin-bottom:12px; font-size:1.05rem; }
+        .section p { margin:7px 0; }
         .biblical-def { border-left:3px solid var(--gold); padding-left:15px; }
+        .section-summary { color:var(--gray); font-size:0.92rem; font-style:italic; margin-bottom:4px; }
+        details { margin-top:8px; }
+        details summary { color:var(--gold); font-size:0.85rem; cursor:pointer; user-select:none; padding:4px 0; }
+        details summary:hover { color:var(--gold-light); }
+        details[open] summary { margin-bottom:8px; }
         .corruption { border-left:3px solid #CC0000; padding-left:15px; }
+        .corruption-inner { padding:12px 16px; background:rgba(204,0,0,0.06); border-left:2px solid #CC0000; border-radius:0 6px 6px 0; }
+        .roots-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .webster-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .proto-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .proto-inner pre { font-family:'Courier New',monospace; font-size:0.82rem; color:var(--gold-light);
+                           line-height:1.7; white-space:pre-wrap; }
         .verse-ref { color:var(--gold); text-decoration:none; font-weight:600; }
-        .verse-ref:hover { color:var(--gold-light); }
+        .verse-ref:hover { color:var(--gold-light); text-decoration:underline; }
+        .lexicon-link { color:var(--gold); font-family:monospace; text-decoration:none; }
+        .lexicon-link:hover { color:var(--gold-light); text-decoration:underline; }
         .related { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
-        .related a { background:var(--card); border:1px solid var(--border); padding:6px 14px; border-radius:20px; color:var(--white); text-decoration:none; font-size:0.85rem; }
+        .related a { background:var(--card); border:1px solid var(--border); padding:6px 14px;
+                     border-radius:20px; color:var(--white); text-decoration:none; font-size:0.85rem;
+                     transition:border-color 0.2s, color 0.2s; }
         .related a:hover { border-color:var(--gold); color:var(--gold); }
-        .lexicon-link { color:var(--gold); font-family:monospace; }
-        .dict-back-nav { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:22px; padding:10px 0; border-bottom:1px solid var(--border); }
-        .dict-back-nav a { color:var(--gold); text-decoration:none; font-size:0.88rem; font-weight:500; }
-        .dict-back-nav a:hover { color:var(--gold-light); }
+        footer { text-align:center; padding:28px 20px; border-top:1px solid var(--border);
+                 margin-top:40px; color:var(--gray); font-size:0.88rem; }
+        footer a { color:var(--gray); text-decoration:none; }
+        footer a:hover { color:var(--gold); }
+        .cross-divider { margin-bottom:10px; }
+        body.light-mode { --bg:#F5F3EF; --card:#FFF; --white:#1a1a1a; --gray:#666; --border:#d4d0c8; background:#F5F3EF; color:#1a1a1a; }
+        body.light-mode nav { background:rgba(245,243,239,0.97); }
+        body.light-mode .section { background:#fff; border-color:#d4d0c8; }
+        body.light-mode details summary { color:var(--gold); }
+        body.light-mode .corruption-inner { background:rgba(204,0,0,0.03); }
+        body.light-mode .roots-inner, body.light-mode .webster-inner, body.light-mode .proto-inner { background:rgba(212,175,55,0.04); }
+        body.light-mode footer { border-top-color:#d4d0c8; }
+        body.light-mode .related a { background:#f0ede7; border-color:#d4d0c8; color:#1a1a1a; }
+        a, a:link, a:visited { color: var(--gold, #D4AF37) !important; }
+        a:hover { color: var(--gold-light, #F4D470) !important; }
+        .dict-back-nav { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:22px; padding:10px 0; border-bottom:1px solid var(--border,#333); }
+        .dict-back-nav a { color:var(--gold,#D4AF37); text-decoration:none; font-size:0.88rem; font-weight:500; }
+        .dict-back-nav a:hover { color:var(--gold-light,#F4D470); }
         .dict-back-nav .dict-back-center { flex:1; text-align:center; }
-        .theme-toggle { text-align:center; margin:30px 0 10px; }
-        .theme-toggle button { background:var(--card); border:1px solid var(--border); color:var(--white); padding:8px 18px; border-radius:20px; cursor:pointer; font-size:0.85rem; }
-        .theme-toggle button:hover { border-color:var(--gold); color:var(--gold); }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
 </head>
 <body>
+    <nav>
+        <a href="../index.html"><img src="../assets/icons/shield-home-48.png" class="site-icon" alt="" width="16" height="16"> Home</a>
+        <a href="../watchman.html"><img src="../assets/icons/shield-bible.png" class="site-icon" alt="" width="16" height="16"> Watchman</a>
+        <a href="../bible.html"><img src="../assets/icons/shield-compass.png" class="site-icon" alt="" width="16" height="16"> BTE</a>
+        <a href="../lexicon.html"><img src="../assets/icons/shield-alpha-omega-48.png" class="site-icon" alt="" width="16" height="16"> Lexicon</a>
+        <a href="../cross-references.html"><img src="../assets/icons/shield-infinity-rope-48.png" class="site-icon" alt="" width="16" height="16"> Cross-Refs</a>
+        <a href="index.html" class="active"><img src="../assets/icons/shield-book-greek-48.png" class="site-icon" alt="" width="16" height="16"> Dictionary</a>
+        <a href="../blog.html"><img src="../assets/icons/shield-blog-quill-48.png" class="site-icon" alt="" width="16" height="16"> Blog</a>
+        <a href="../connect.html"><img src="../assets/icons/shield-handshake.png" class="site-icon" alt="" width="16" height="16"> Connect</a>
+        <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle" title="Toggle dark/light">&#127769;</button>
+    </nav>
     <div class="container">
-        <div class="dict-back-nav"><a href="index.html">← Back to Dictionary</a></div>
+        <div class="dict-back-nav"><a href="apostolic.html">&#8592; Apostolic</a><div class="dict-back-center"><a href="index.html">&#8592; Back to Dictionary</a></div><a href="appointed.html">Appointed &#8594;</a></div>
         <div class="word-header">
             <div class="word-title">Apostolicity</div>
             <div class="pronunciation">/əˌpɒs.tɒˈlɪs.ɪ.ti/</div>
@@ -48,26 +96,26 @@
         </div>
 
         <div class="section">
-            <h3>📖 Biblical Definition</h3>
+            <h3>&#128214; Biblical Definition</h3>
             <div class="biblical-def">
                 <p>The mark of the true Church by which it remains anchored to the faith once delivered through the apostles of Jesus Christ. Apostolicity is one of the four classical marks of the Church confessed in the Nicene Creed: one, holy, catholic, and apostolic. It means the Church is not self-originating — it was founded on the apostles and prophets, with Christ Jesus Himself as the cornerstone (Eph. 2:20). The early Church "devoted themselves to the apostles' teaching" (Acts 2:42) — not to innovation, not to cultural adaptation, not to progressive revelation beyond what was given. Apostolicity is the doctrine that guards the Church against chronological snobbery: the assumption that newer is better, that the Spirit leads the Church away from its foundations rather than deeper into them. A church is apostolic not because it claims institutional succession from Peter, but because it holds fast to what Peter preached.</p>
             </div>
         </div>
 
         <div class="section">
-            <h3>📜 Webster 1828 Definition</h3>
-            <p><strong>APOSTOLICITY</strong> was not a headword in Webster 1828, though <strong>APOSTOLIC</strong> and <strong>APOSTOLICAL</strong> were defined: <em>"Pertaining to the apostles; according to the doctrines of the apostles; as apostolic faith or practice."</em> The noun form "apostolicity" came into wider English theological usage during 19th-century ecclesiological debates over what constitutes a legitimate church. The concept, however, is as old as the apostles themselves — Paul warned that even an angel from heaven preaching a different gospel should be accursed (Gal. 1:8), establishing apostolic teaching as the permanent standard.</p>
+            <h3>&#128220; Webster 1828 Definition</h3>
+            <p class="section-summary">APOSTOLICITY was not a headword in Webster 1828, though APOSTOLIC and APOSTOLICAL were defined: "Pertaining to the ap...</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="webster-inner">
+                    <p><strong>APOSTOLICITY</strong> was not a headword in Webster 1828, though <strong>APOSTOLIC</strong> and <strong>APOSTOLICAL</strong> were defined: <em>"Pertaining to the apostles; according to the doctrines of the apostles; as apostolic faith or practice."</em> The noun form "apostolicity" came into wider English theological usage during 19th-century ecclesiological debates over what constitutes a legitimate church. The concept, however, is as old as the apostles themselves — Paul warned that even an angel from heaven preaching a different gospel should be accursed (Gal. 1:8), establishing apostolic teaching as the permanent standard.</p>
+                </div>
+                </div>
+            </details>
         </div>
 
         <div class="section">
-            <h3>⚠️ Modern Corruption</h3>
-            <div class="corruption">
-                <p>Apostolicity has been corrupted in two opposite directions. On one side, institutional traditions reduce it to apostolic succession — an unbroken chain of ordination from bishop to bishop — as though the apostolic deposit is transmitted by the laying on of hands regardless of what is taught. On the other side, low-church movements dismiss apostolicity entirely, treating every generation as a blank slate free to reinvent Christianity from scratch. Both errors orphan the Church from its foundation. True apostolicity is neither institutional genealogy nor doctrinal amnesia — it is fidelity to the apostolic witness preserved in Scripture. A church with unbroken succession that ordains what the apostles condemned is not apostolic. A church planted last Tuesday that faithfully teaches what the apostles taught is.</p>
-            </div>
-        </div>
-
-        <div class="section">
-            <h3>📖 Key Scripture</h3>
+            <h3>&#128214; Key Scripture</h3>
             <p><a href="../bible.html?ref=Ephesians+2:19-20" class="verse-ref">Ephesians 2:19–20</a> — "You are fellow citizens with the saints and members of the household of God, built on the foundation of the apostles and prophets, Christ Jesus Himself being the cornerstone."</p>
             <p><a href="../bible.html?ref=Acts+2:42" class="verse-ref">Acts 2:42</a> — "And they devoted themselves to the apostles' teaching and the fellowship, to the breaking of bread and the prayers."</p>
             <p><a href="../bible.html?ref=Galatians+1:8-9" class="verse-ref">Galatians 1:8–9</a> — "But even if we or an angel from heaven should preach to you a gospel contrary to the one we preached to you, let him be accursed."</p>
@@ -75,13 +123,21 @@
         </div>
 
         <div class="section">
-            <h3>🔗 Greek Roots</h3>
-            <p><a href="lexicon/G652.html" class="lexicon-link">G652 — ἀπόστολος (apostolos)</a> — one sent with a commission; a delegate bearing the authority of the sender. Not merely a messenger but an authorized representative — the apostles spoke with the authority of Christ who sent them (John 20:21).</p>
-            <p><a href="lexicon/G1319.html" class="lexicon-link">G1319 — διδασκαλία (didaskalia)</a> — teaching, instruction, doctrine; the content transmitted by the apostles that defines apostolicity (1 Tim. 4:16, 2 Tim. 3:16).</p>
+            <h3>&#9888;&#65039; Modern Corruption</h3>
+            <p class="section-summary">Apostolicity has been corrupted in two opposite directions.</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="corruption-inner">
+                    <div class="corruption">
+                <p>Apostolicity has been corrupted in two opposite directions. On one side, institutional traditions reduce it to apostolic succession — an unbroken chain of ordination from bishop to bishop — as though the apostolic deposit is transmitted by the laying on of hands regardless of what is taught. On the other side, low-church movements dismiss apostolicity entirely, treating every generation as a blank slate free to reinvent Christianity from scratch. Both errors orphan the Church from its foundation. True apostolicity is neither institutional genealogy nor doctrinal amnesia — it is fidelity to the apostolic witness preserved in Scripture. A church with unbroken succession that ordains what the apostles condemned is not apostolic. A church planted last Tuesday that faithfully teaches what the apostles taught is.</p>
+            </div>
+                </div>
+                </div>
+            </details>
         </div>
 
         <div class="section">
-            <h3>✍️ Usage</h3>
+            <h3><img src="../assets/icons/shield-blog-quill-48.png" width="20" height="20" style="vertical-align:middle;margin-right:6px;"> Usage</h3>
             <p>Apostolicity is the Church's immune system against theological novelty. Every doctrine, every practice, every innovation must pass through the filter: "Is this what the apostles taught?" If yes, receive it. If no, reject it — no matter how culturally appealing, emotionally satisfying, or numerically successful it proves to be.</p>
             <p>The test of apostolicity is not "Does this feel Spirit-led?" but "Does this align with what the Spirit already said through the apostles?" The Spirit does not contradict Himself. What He inspired in Scripture He will never revoke in experience.</p>
         </div>
@@ -99,9 +155,36 @@
             </div>
         </div>
 
-        <div class="theme-toggle">
-            <button onclick="document.body.dataset.theme = document.body.dataset.theme === 'light' ? '' : 'light'">🌓 Toggle Light/Dark</button>
+        <div class="section">
+            <p><a href="lexicon/G652.html" class="lexicon-link">G652 — ἀπόστολος (apostolos)</a> — one sent with a commission; a delegate bearing the authority of the sender. Not merely a messenger but an authorized representative — the apostles spoke with the authority of Christ who sent them (John 20:21).</p>
+            <p><a href="lexicon/G1319.html" class="lexicon-link">G1319 — διδασκαλία (didaskalia)</a> — teaching, instruction, doctrine; the content transmitted by the apostles that defines apostolicity (1 Tim. 4:16, 2 Tim. 3:16).</p>
         </div>
+
     </div>
+
+    <footer>
+        <div class="cross-divider"><img src="../assets/icons/shield-cross-bible-48.png" alt="" width="36" height="36" style="opacity:0.6;margin-bottom:10px;"></div>
+        <p>
+            <a href="../index.html#uniting"><img src="../assets/icons/shield-hands-joining.png" class="site-icon" alt="" width="20" height="20"> Uniting</a> &middot;
+            <a href="../serving.html"><img src="../assets/icons/shield-serving.png" class="site-icon" alt="" width="20" height="20"> Serving</a> &middot;
+            <a href="../mentoring.html"><img src="../assets/icons/shield-mentoring.png" class="site-icon" alt="" width="20" height="20"> Mentoring</a> &middot;
+            <a href="../counseling.html"><img src="../assets/icons/shield-family.png" class="site-icon" alt="" width="20" height="20"> Counseling</a> &middot;
+            <a href="../about.html"><img src="../assets/icons/shield-about-person-24.png" class="site-icon" alt="" width="20" height="20"> About</a>
+        </p>
+        <p style="margin-top:8px;font-size:0.78rem;color:#555;">Powered by MOOPbot Pro &mdash; &ldquo;Iron sharpens iron.&rdquo; &mdash; <a href="../bible.html?ref=Proverbs+27:17" style="color:var(--gold);text-decoration:underline;">Proverbs 27:17</a></p>
+    </footer>
+    <script>
+    function toggleTheme(){
+        var b=document.body,t=document.getElementById('themeToggle');
+        if(b.classList.contains('light-mode')){b.classList.remove('light-mode');t.textContent='\u{1F319}';localStorage.setItem('bte-theme','dark');}
+        else{b.classList.add('light-mode');t.textContent='\u2600\uFE0F';localStorage.setItem('bte-theme','light');}
+    }
+    (function(){
+        if(localStorage.getItem('bte-theme')==='light'){
+            document.body.classList.add('light-mode');
+            var t=document.getElementById('themeToggle');if(t)t.textContent='\u2600\uFE0F';
+        }
+    })();
+    </script>
 </body>
 </html>

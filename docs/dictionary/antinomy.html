@@ -29,20 +29,20 @@
         .etymology { color:var(--gray); font-size:0.88rem; margin:12px auto; max-width:650px; }
         .section { margin:18px 0; padding:18px 22px; background:var(--card); border:1px solid var(--border); border-radius:10px; }
         .section > h3 { color:var(--gold); margin-bottom:12px; font-size:1.05rem; }
-        .section p { margin:7px 0; color:var(--white); }
+        .section p { margin:7px 0; }
         .biblical-def { border-left:3px solid var(--gold); padding-left:15px; }
-        .dict-toggle { cursor:pointer; color:var(--gold); font-size:0.92rem; user-select:none;
-                       display:inline-flex; align-items:center; gap:0; background:none; border:none;
-                       padding:0; font-family:inherit; font-weight:600; }
-        .dict-toggle:hover { color:var(--gold-light); }
-        .dict-toggle .arrow { display:inline-block; transition:transform 0.2s; margin-right:8px; font-size:0.75rem; }
-        .dict-toggle .arrow.open { transform:rotate(90deg); }
-        .dict-section { display:none; margin:10px 0 4px 0; padding:12px 16px;
-                        background:rgba(212,175,55,0.06); border-left:2px solid var(--gold);
-                        border-radius:0 6px 6px 0; }
-        .dict-section.open { display:block; }
-        .dict-section p { margin:6px 0; font-size:0.95rem; color:var(--white); }
+        .section-summary { color:var(--gray); font-size:0.92rem; font-style:italic; margin-bottom:4px; }
+        details { margin-top:8px; }
+        details summary { color:var(--gold); font-size:0.85rem; cursor:pointer; user-select:none; padding:4px 0; }
+        details summary:hover { color:var(--gold-light); }
+        details[open] summary { margin-bottom:8px; }
         .corruption { border-left:3px solid #CC0000; padding-left:15px; }
+        .corruption-inner { padding:12px 16px; background:rgba(204,0,0,0.06); border-left:2px solid #CC0000; border-radius:0 6px 6px 0; }
+        .roots-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .webster-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .proto-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .proto-inner pre { font-family:'Courier New',monospace; font-size:0.82rem; color:var(--gold-light);
+                           line-height:1.7; white-space:pre-wrap; }
         .verse-ref { color:var(--gold); text-decoration:none; font-weight:600; }
         .verse-ref:hover { color:var(--gold-light); text-decoration:underline; }
         .lexicon-link { color:var(--gold); font-family:monospace; text-decoration:none; }
@@ -52,7 +52,6 @@
                      border-radius:20px; color:var(--white); text-decoration:none; font-size:0.85rem;
                      transition:border-color 0.2s, color 0.2s; }
         .related a:hover { border-color:var(--gold); color:var(--gold); }
-        .theme-toggle-center { display:flex; justify-content:center; margin:30px 0 10px; }
         footer { text-align:center; padding:28px 20px; border-top:1px solid var(--border);
                  margin-top:40px; color:var(--gray); font-size:0.88rem; }
         footer a { color:var(--gray); text-decoration:none; }
@@ -61,7 +60,9 @@
         body.light-mode { --bg:#F5F3EF; --card:#FFF; --white:#1a1a1a; --gray:#666; --border:#d4d0c8; background:#F5F3EF; color:#1a1a1a; }
         body.light-mode nav { background:rgba(245,243,239,0.97); }
         body.light-mode .section { background:#fff; border-color:#d4d0c8; }
-        body.light-mode .dict-section { background:rgba(212,175,55,0.04); }
+        body.light-mode details summary { color:var(--gold); }
+        body.light-mode .corruption-inner { background:rgba(204,0,0,0.03); }
+        body.light-mode .roots-inner, body.light-mode .webster-inner, body.light-mode .proto-inner { background:rgba(212,175,55,0.04); }
         body.light-mode footer { border-top-color:#d4d0c8; }
         body.light-mode .related a { background:#f0ede7; border-color:#d4d0c8; color:#1a1a1a; }
         a, a:link, a:visited { color: var(--gold, #D4AF37) !important; }
@@ -86,11 +87,7 @@
         <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle" title="Toggle dark/light">&#127769;</button>
     </nav>
     <div class="container">
-        <div class="dict-back-nav">
-            <a href="index.html">&#8592; Back to Dictionary</a>
-            <div class="dict-back-center"><a href="antinomianism.html">&#8592; Antinomianism</a></div>
-            <a href="apocrypha.html">Apocrypha &#8594;</a>
-        </div>
+        <div class="dict-back-nav"><a href="antinomianism.html">&#8592; Antinomianism</a><div class="dict-back-center"><a href="index.html">&#8592; Back to Dictionary</a></div><a href="apatheia.html">Apatheia &#8594;</a></div>
         <div class="word-header">
             <div class="word-title">Antinomy</div>
             <div class="pronunciation">/ænˈtɪn.ə.mi/</div>
@@ -106,25 +103,17 @@
         </div>
 
         <div class="section">
-            <button class="dict-toggle" data-toggle="webster" onclick="toggleDict('webster')">
-                <span class="arrow">&#9658;</span>&#128220; Webster 1828 / Historical Definition
-            </button>
-            <div class="dict-section" id="webster">
-                <p><strong>Webster 1828:</strong> "A contradiction or opposition between two laws or rules of the same authority; a real or apparent inconsistency of two principles or conclusions."</p>
+            <h3>&#128220; Webster 1828 Definition</h3>
+            <p class="section-summary">Webster 1828: "A contradiction or opposition between two laws or rules of the same authority; a real or apparent inco...</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="webster-inner">
+                    <p><strong>Webster 1828:</strong> "A contradiction or opposition between two laws or rules of the same authority; a real or apparent inconsistency of two principles or conclusions."</p>
                 <p><strong>J.I. Packer (1961):</strong> "An antinomy exists when a pair of principles stand side by side, seemingly irreconcilable, yet both undeniable. There are cogent reasons for believing each of them; each rests on clear and solid evidence; but it is a mystery to you how they can be squared with each other."</p>
                 <p><strong>Immanuel Kant, <em>Critique of Pure Reason</em> (1781):</strong> Identified four antinomies of pure reason — places where rational argument produces equally valid proofs for contradictory conclusions. Theologians borrowed the term for similar tensions within revealed doctrine.</p>
             </div>
-        </div>
-
-        <div class="section">
-            <button class="dict-toggle" data-toggle="corruption" onclick="toggleDict('corruption')">
-                <span class="arrow">&#9658;</span>&#9888;&#65039; Modern Corruption
-            </button>
-            <div class="dict-section" id="corruption">
-                <div class="corruption">
-                    <p>Modern theology tends to handle antinomies by eliminating one pole of the tension. Hyper-Calvinism dissolves the antinomy of sovereignty and responsibility by making human responsibility essentially meaningless — leading to fatalism and the death of evangelism. Open Theism dissolves it from the other side by limiting divine sovereignty — leading to a god who watches rather than governs. Both errors are more comfortable than holding the tension. The antinomy is a gift: it keeps us intellectually humble, prevents systematic overreach, and reminds us that we are creatures thinking about the Creator, not equals reverse-engineering his mind.</p>
                 </div>
-            </div>
+            </details>
         </div>
 
         <div class="section">
@@ -137,25 +126,38 @@
         </div>
 
         <div class="section">
-            <button class="dict-toggle" data-toggle="roots" onclick="toggleDict('roots')">
-                <span class="arrow">&#9658;</span>&#128279; Greek &amp; Hebrew Roots
-            </button>
-            <div class="dict-section" id="roots">
-                <p><a href="../lexicon/G473.html" class="lexicon-link">G473</a> &mdash; <strong>anti</strong> (ἀντί): against, in place of, opposite; the prefix signals opposition or reversal — here, two things standing against each other in seeming conflict.</p>
-                <p><a href="../lexicon/G3551.html" class="lexicon-link">G3551</a> &mdash; <strong>nomos</strong> (νόμος): law, principle, rule; used 194 times in NT. In this context, two "laws" or logical principles that stand in apparent opposition.</p>
-                <p><a href="../lexicon/H5641.html" class="lexicon-link">H5641</a> &mdash; <strong>sathar</strong> (סָתַר): to hide, to conceal; <a href="../bible.html?ref=Deuteronomy+29:29" class="verse-ref">Deuteronomy 29:29</a>: "The secret things belong to the LORD our God" — the biblical warrant for living with unresolved antinomies.</p>
+            <h3>&#9888;&#65039; Modern Corruption</h3>
+            <p class="section-summary">Modern theology tends to handle antinomies by eliminating one pole of the tension.</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="corruption-inner">
+                    <div class="corruption">
+                    <p>Modern theology tends to handle antinomies by eliminating one pole of the tension. Hyper-Calvinism dissolves the antinomy of sovereignty and responsibility by making human responsibility essentially meaningless — leading to fatalism and the death of evangelism. Open Theism dissolves it from the other side by limiting divine sovereignty — leading to a god who watches rather than governs. Both errors are more comfortable than holding the tension. The antinomy is a gift: it keeps us intellectually humble, prevents systematic overreach, and reminds us that we are creatures thinking about the Creator, not equals reverse-engineering his mind.</p>
+                </div>
             </div>
+                </div>
+            </details>
         </div>
 
         <div class="section">
-            <button class="dict-toggle" data-toggle="usage" onclick="toggleDict('usage')">
-                <span class="arrow">&#9658;</span>&#9997;&#65039; Usage Examples
-            </button>
-            <div class="dict-section" id="usage">
-                <p>&#x2022; "The sovereignty/responsibility antinomy is not a problem to solve at your desk — it's a mystery to live with in the pew, the prayer closet, and the pulpit."</p>
+            <h3>&#128279; Greek &amp; Hebrew Roots</h3>
+            <p class="section-summary">G473 — anti (ἀντί): against, in place of, opposite; the prefix signals opposition or reversal — here, two things stan...</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="roots-inner">
+                    <p><a href="../lexicon/G473.html" class="lexicon-link">G473</a> &mdash; <strong>anti</strong> (ἀντί): against, in place of, opposite; the prefix signals opposition or reversal — here, two things standing against each other in seeming conflict.</p>
+                <p><a href="../lexicon/G3551.html" class="lexicon-link">G3551</a> &mdash; <strong>nomos</strong> (νόμος): law, principle, rule; used 194 times in NT. In this context, two "laws" or logical principles that stand in apparent opposition.</p>
+                <p><a href="../lexicon/H5641.html" class="lexicon-link">H5641</a> &mdash; <strong>sathar</strong> (סָתַר): to hide, to conceal; <a href="../bible.html?ref=Deuteronomy+29:29" class="verse-ref">Deuteronomy 29:29</a>: "The secret things belong to the LORD our God" — the biblical warrant for living with unresolved antinomies.</p>
+            </div>
+                </div>
+            </details>
+        </div>
+
+        <div class="section">
+            <h3><img src="../assets/icons/shield-blog-quill-48.png" width="20" height="20" style="vertical-align:middle;margin-right:6px;"> Usage</h3>
+            <p>&#x2022; "The sovereignty/responsibility antinomy is not a problem to solve at your desk — it's a mystery to live with in the pew, the prayer closet, and the pulpit."</p>
                 <p>&#x2022; "Every time you pray, you're acting as though your request matters. Every time you trust God's providence, you're acting as though his will is certain. Somehow both are true. That's an antinomy — live in it."</p>
                 <p>&#x2022; "Packer's insight was brilliant: antinomies don't need resolution, they need respect. Stop trying to be smarter than the text."</p>
-            </div>
         </div>
 
         <div class="section">
@@ -170,9 +172,6 @@
             </div>
         </div>
 
-        <div class="theme-toggle-center">
-            <button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark/light mode" style="width:38px;height:38px;font-size:1.1rem;">&#127769;</button>
-        </div>
     </div>
 
     <footer>
@@ -187,13 +186,6 @@
         <p style="margin-top:8px;font-size:0.78rem;color:#555;">Powered by MOOPbot Pro &mdash; &ldquo;Iron sharpens iron.&rdquo; &mdash; <a href="../bible.html?ref=Proverbs+27:17" style="color:var(--gold);text-decoration:underline;">Proverbs 27:17</a></p>
     </footer>
     <script>
-    function toggleDict(id){
-        var s=document.getElementById(id);
-        var b=document.querySelector('[data-toggle="'+id+'"]');
-        var a=b?b.querySelector('.arrow'):null;
-        s.classList.toggle('open');
-        if(a)a.classList.toggle('open');
-    }
     function toggleTheme(){
         var b=document.body,t=document.getElementById('themeToggle');
         if(b.classList.contains('light-mode')){b.classList.remove('light-mode');t.textContent='\u{1F319}';localStorage.setItem('bte-theme','dark');}

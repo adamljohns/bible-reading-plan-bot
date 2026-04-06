@@ -31,20 +31,18 @@
         .section > h3 { color:var(--gold); margin-bottom:12px; font-size:1.05rem; }
         .section p { margin:7px 0; }
         .biblical-def { border-left:3px solid var(--gold); padding-left:15px; }
-        .dict-toggle { cursor:pointer; color:var(--gold); font-size:0.92rem; user-select:none;
-                       display:inline-flex; align-items:center; gap:0; background:none; border:none;
-                       padding:0; font-family:inherit; font-weight:600; }
-        .dict-toggle:hover { color:var(--gold-light); }
-        .dict-toggle .arrow { display:inline-block; transition:transform 0.2s; margin-right:8px; font-size:0.75rem; }
-        .dict-toggle .arrow.open { transform:rotate(90deg); }
-        .dict-section { display:none; margin:10px 0 4px 0; padding:12px 16px;
-                        background:rgba(212,175,55,0.06); border-left:2px solid var(--gold);
-                        border-radius:0 6px 6px 0; }
-        .dict-section.open { display:block; }
-        .dict-section p { margin:6px 0; font-size:0.95rem; }
-        .dict-section pre { font-family:'Courier New',monospace; font-size:0.82rem; color:var(--gold-light);
-                             line-height:1.7; white-space:pre-wrap; }
+        .section-summary { color:var(--gray); font-size:0.92rem; font-style:italic; margin-bottom:4px; }
+        details { margin-top:8px; }
+        details summary { color:var(--gold); font-size:0.85rem; cursor:pointer; user-select:none; padding:4px 0; }
+        details summary:hover { color:var(--gold-light); }
+        details[open] summary { margin-bottom:8px; }
         .corruption { border-left:3px solid #CC0000; padding-left:15px; }
+        .corruption-inner { padding:12px 16px; background:rgba(204,0,0,0.06); border-left:2px solid #CC0000; border-radius:0 6px 6px 0; }
+        .roots-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .webster-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .proto-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .proto-inner pre { font-family:'Courier New',monospace; font-size:0.82rem; color:var(--gold-light);
+                           line-height:1.7; white-space:pre-wrap; }
         .verse-ref { color:var(--gold); text-decoration:none; font-weight:600; }
         .verse-ref:hover { color:var(--gold-light); text-decoration:underline; }
         .lexicon-link { color:var(--gold); font-family:monospace; text-decoration:none; }
@@ -62,18 +60,18 @@
         body.light-mode { --bg:#F5F3EF; --card:#FFF; --white:#1a1a1a; --gray:#666; --border:#d4d0c8; background:#F5F3EF; color:#1a1a1a; }
         body.light-mode nav { background:rgba(245,243,239,0.97); }
         body.light-mode .section { background:#fff; border-color:#d4d0c8; }
-        body.light-mode .dict-section { background:rgba(212,175,55,0.04); }
+        body.light-mode details summary { color:var(--gold); }
+        body.light-mode .corruption-inner { background:rgba(204,0,0,0.03); }
+        body.light-mode .roots-inner, body.light-mode .webster-inner, body.light-mode .proto-inner { background:rgba(212,175,55,0.04); }
         body.light-mode footer { border-top-color:#d4d0c8; }
         body.light-mode .related a { background:#f0ede7; border-color:#d4d0c8; color:#1a1a1a; }
-
-    
         a, a:link, a:visited { color: var(--gold, #D4AF37) !important; }
         a:hover { color: var(--gold-light, #F4D470) !important; }
-            .dict-back-nav { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:22px; padding:10px 0; border-bottom:1px solid var(--border,#333); }
+        .dict-back-nav { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:22px; padding:10px 0; border-bottom:1px solid var(--border,#333); }
         .dict-back-nav a { color:var(--gold,#D4AF37); text-decoration:none; font-size:0.88rem; font-weight:500; }
         .dict-back-nav a:hover { color:var(--gold-light,#F4D470); }
         .dict-back-nav .dict-back-center { flex:1; text-align:center; }
-</style>
+    </style>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -89,7 +87,7 @@
         <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle" title="Toggle dark/light">&#127769;</button>
     </nav>
     <div class="container">
-        <div class="dict-back-nav"><a href="revival.html">&#8592; Revival</a><div class="dict-back-center"><a href="index.html">&#8592; Back to Dictionary</a></div><a href="rights.html">Rights &#8594;</a></div>
+        <div class="dict-back-nav"><a href="rhema.html">&#8592; Rhema</a><div class="dict-back-center"><a href="index.html">&#8592; Back to Dictionary</a></div><a href="rights.html">Rights &#8594;</a></div>
         <div class="word-header">
             <div class="word-title">Righteousness</div>
             <div class="pronunciation">/ˈraɪ.tʃəs.nəs/</div>
@@ -97,7 +95,6 @@
             <div class="etymology">From Old English <em>rihtwīsnes</em>; <em>riht</em> (right) + <em>wīs</em> (manner, way) + <em>-nes</em> (suffix). Greek: <em>dikaiosynē</em> (δικαιοσύνη) — justice, righteousness, conformity to the divine standard. Hebrew: <em>tsedaqah</em> (צְדָקָה) — rightness, justice, righteous acts; from <em>tsedeq</em> (straightness, conformity to a norm).</div>
         </div>
 
-        <!-- Biblical Definition — always visible -->
         <div class="section">
             <h3>&#128214; Biblical Definition</h3>
             <div class="biblical-def">
@@ -105,63 +102,66 @@
             </div>
         </div>
 
-        <!-- Webster 1828 — collapsible -->
         <div class="section">
-            <button class="dict-toggle" data-toggle="webster" onclick="toggleDict('webster')">
-                <span class="arrow">&#9658;</span>&#128220; Webster 1828 Definition
-            </button>
-            <div class="dict-section" id="webster">
-                <p>• <a href="../bible.html?ref=Romans+3:21-22" class="verse-ref">Romans 3:21–22</a> — "The righteousness of God has been manifested…the righteousness of God through faith in Jesus Christ for all who believe."</p>
+            <h3>&#128220; Webster 1828 Definition</h3>
+            <p class="section-summary">Romans 3:21–22 — "The righteousness of God has been manifested…the righteousness of God through faith in Jesus Christ...</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="webster-inner">
+                    <p>• <a href="../bible.html?ref=Romans+3:21-22" class="verse-ref">Romans 3:21–22</a> — "The righteousness of God has been manifested…the righteousness of God through faith in Jesus Christ for all who believe."</p>
             <p>• <a href="../bible.html?ref=Isaiah+64:6" class="verse-ref">Isaiah 64:6</a> — "All our righteous acts are like filthy rags" — human righteousness apart from God.</p>
             <p>• <a href="../bible.html?ref=Matthew+5:6" class="verse-ref">Matthew 5:6</a> — "Blessed are those who hunger and thirst for righteousness, for they shall be satisfied."</p>
             <p>• <a href="../bible.html?ref=Philippians+3:9" class="verse-ref">Philippians 3:9</a> — "Not having a righteousness of my own that comes from the law, but…the righteousness from God that depends on faith."</p>
             <p>• <a href="../bible.html?ref=Proverbs+14:34" class="verse-ref">Proverbs 14:34</a> — "Righteousness exalts a nation, but sin is a reproach to any people."</p>
         </div>
-
-        <div class="section">
-            <h3>🔗 Greek &amp; Hebrew Roots</h3>
-            <p><a href="../lexicon/G1343.html" class="lexicon-link">G1343</a> — <strong>dikaiosynē</strong> (δικαιοσύνη): righteousness, justice; central to Paul's gospel (appears 91 times in NT, 57 times in Paul).</p>
-            <p><a href="../lexicon/H6666.html" class="lexicon-link">H6666</a> — <strong>tsedaqah</strong> (צְדָקָה): righteousness, justice, right conduct; often synonymous with acts of charity and justice in the OT.</p>
-            <p><a href="../lexicon/H6664.html" class="lexicon-link">H6664</a> — <strong>tsedeq</strong> (צֶדֶק): rightness, uprightness; used of honest weights and measures (Lev 19:36) — righteousness has practical, societal dimensions.</p>
+                </div>
+            </details>
         </div>
 
         <div class="section">
-            <h3><img src="../assets/icons/shield-blog-quill-48.png" width="20" height="20" style="vertical-align:middle;margin-right:6px;"> Usage</h3>
-            <p>• "Imputed righteousness is the ground of justification; imparted righteousness is the evidence of sanctification — both are gifts of grace."</p>
-            <p>• "A righteous nation is not one that calls itself righteous but one whose laws and culture conform to God's moral order."</p>
-            <p>• "Hunger for righteousness (Matt 5:6) is the mark of the genuine believer: a dissatisfaction with one's current conformity to God and a longing for more."</p>
+            <h3>&#128214; Key Scripture</h3>
+            <p>&#x2022; <a href="../bible.html?ref=Romans+3:21-22" class="verse-ref">Romans 3:21–22</a> &mdash; "The righteousness of God has been manifested…the righteousness of God through faith in Jesus Christ for all who believe."</p>
+            <p>&#x2022; <a href="../bible.html?ref=Isaiah+64:6" class="verse-ref">Isaiah 64:6</a> &mdash; "All our righteous acts are like filthy rags" — human righteousness apart from God.</p>
+            <p>&#x2022; <a href="../bible.html?ref=Matthew+5:6" class="verse-ref">Matthew 5:6</a> &mdash; "Blessed are those who hunger and thirst for righteousness, for they shall be satisfied."</p>
+            <p>&#x2022; <a href="../bible.html?ref=Philippians+3:9" class="verse-ref">Philippians 3:9</a> &mdash; "Not having a righteousness of my own that comes from the law, but…the righteousness from God that depends on faith."</p>
+            <p>&#x2022; <a href="../bible.html?ref=Proverbs+14:34" class="verse-ref">Proverbs 14:34</a> &mdash; "Righteousness exalts a nation, but sin is a reproach to any people."</p>
         </div>
 
         <div class="section">
-            <h3>Related Words</h3>
-            <div class="related">
-                <a href="justification.html">Justification</a>
-                <a href="holiness.html">Holiness</a>
-                <a href="sanctification.html">Sanctification</a>
-                <a href="justice.html">Justice</a>
-                <a href="faith.html">Faith</a>
-            </div>
-        </div>
-
-        <!-- Modern Corruption — collapsible -->
-        <div class="section">
-            <button class="dict-toggle" data-toggle="corruption" onclick="toggleDict('corruption')">
-                <span class="arrow">&#9658;</span>&#9888;&#65039; Modern Corruption
-            </button>
-            <div class="dict-section" id="corruption">
-                <div class="corruption">
+            <h3>&#9888;&#65039; Modern Corruption</h3>
+            <p class="section-summary">In modern usage, righteousness has been secularized into social justice activism — "righteousness" now often means co...</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="corruption-inner">
+                    <div class="corruption">
                     <p>In modern usage, righteousness has been secularized into <strong>social justice activism</strong> — "righteousness" now often means conformity to progressive cultural norms rather than divine law. The term "self-righteous" is frequently weaponized to shut down any moral conviction, equating all moral standards with arrogance. Conversely, the prosperity gospel equates righteousness with material blessing, reversing cause and effect. True biblical righteousness is God-defined, not culturally negotiated; it is received by grace (imputed) and expressed through obedience (imparted) — neither earned by works nor reduced to feelings of virtue.</p>
                 </div>
             </div>
+                </div>
+            </details>
         </div>
 
-        <!-- Proto-Language Roots — collapsible -->
         <div class="section">
-            <button class="dict-toggle" data-toggle="proto" onclick="toggleDict('proto')">
-                <span class="arrow">&#9658;</span>&#127760; Proto-Language Roots
-            </button>
-            <div class="dict-section" id="proto">
-                <pre>Latin rectus ("right, straight, correct") → directus → right
+            <h3>&#128279; Greek &amp; Hebrew Roots</h3>
+            <p class="section-summary">G1343 — dikaiosynē (δικαιοσύνη): righteousness, justice; central to Paul's gospel (appears 91 times in NT, 57 times i...</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="roots-inner">
+                    <p><a href="../lexicon/G1343.html" class="lexicon-link">G1343</a> — <strong>dikaiosynē</strong> (δικαιοσύνη): righteousness, justice; central to Paul's gospel (appears 91 times in NT, 57 times in Paul).</p>
+            <p><a href="../lexicon/H6666.html" class="lexicon-link">H6666</a> — <strong>tsedaqah</strong> (צְדָקָה): righteousness, justice, right conduct; often synonymous with acts of charity and justice in the OT.</p>
+            <p><a href="../lexicon/H6664.html" class="lexicon-link">H6664</a> — <strong>tsedeq</strong> (צֶדֶק): rightness, uprightness; used of honest weights and measures (Lev 19:36) — righteousness has practical, societal dimensions.</p>
+                </div>
+            </details>
+        </div>
+
+        <div class="section">
+            <h3>&#127760; Proto-Language Roots</h3>
+            <p class="section-summary">Latin rectus ("right, straight, correct") → directus → right
+  → Old English riht ("just, good, straight") + wīs ("ma...</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="proto-inner">
+                    <pre>Latin rectus ("right, straight, correct") → directus → right
   → Old English riht ("just, good, straight") + wīs ("manner") + -ness
     → Middle English rightwisness → Modern English "righteousness"
 
@@ -180,40 +180,18 @@ Proto-Semitic *ṣdq → Hebrew צֶדֶק (tsedeq, H6664) — righteousness, ju
   → צַדִּיק (tsaddiq, H6662) — righteous one, just person
   → Melchizedek (malki-tsedeq) = "my king is righteousness" (Gen 14:18)</pre>
             </div>
+                </div>
+            </details>
         </div>
 
-        <!-- Key Scripture — always visible -->
         <div class="section">
-            <h3>&#128214; Key Scripture</h3>
-            <p>&#x2022; <a href="../bible.html?ref=Romans+3:21-22" class="verse-ref">Romans 3:21–22</a> &mdash; "The righteousness of God has been manifested…the righteousness of God through faith in Jesus Christ for all who believe."</p>
-            <p>&#x2022; <a href="../bible.html?ref=Isaiah+64:6" class="verse-ref">Isaiah 64:6</a> &mdash; "All our righteous acts are like filthy rags" — human righteousness apart from God.</p>
-            <p>&#x2022; <a href="../bible.html?ref=Matthew+5:6" class="verse-ref">Matthew 5:6</a> &mdash; "Blessed are those who hunger and thirst for righteousness, for they shall be satisfied."</p>
-            <p>&#x2022; <a href="../bible.html?ref=Philippians+3:9" class="verse-ref">Philippians 3:9</a> &mdash; "Not having a righteousness of my own that comes from the law, but…the righteousness from God that depends on faith."</p>
-            <p>&#x2022; <a href="../bible.html?ref=Proverbs+14:34" class="verse-ref">Proverbs 14:34</a> &mdash; "Righteousness exalts a nation, but sin is a reproach to any people."</p>
-        </div>
-
-        <!-- Greek & Hebrew Roots — collapsible -->
-        <div class="section">
-            <button class="dict-toggle" data-toggle="roots" onclick="toggleDict('roots')">
-                <span class="arrow">&#9658;</span>&#128279; Greek &amp; Hebrew Roots
-            </button>
-            <div class="dict-section" id="roots">
-            </div>
-        </div>
-
-        <!-- Usage Examples — collapsible -->
-        <div class="section">
-            <button class="dict-toggle" data-toggle="usage" onclick="toggleDict('usage')">
-                <span class="arrow">&#9658;</span>&#9997;&#65039; Usage Examples
-            </button>
-            <div class="dict-section" id="usage">
+            <h3><img src="../assets/icons/shield-blog-quill-48.png" width="20" height="20" style="vertical-align:middle;margin-right:6px;"> Usage</h3>
             <p>&#x2022; "Imputed righteousness is the ground of justification; imparted righteousness is the evidence of sanctification — both are gifts of grace."</p>
             <p>&#x2022; "A righteous nation is not one that calls itself righteous but one whose laws and culture conform to God's moral order."</p>
             <p>&#x2022; "Hunger for righteousness (Matt 5:6) is the mark of the genuine believer: a dissatisfaction with one's current conformity to God and a longing for more."</p>
             </div>
         </div>
 
-        <!-- Related Words — always visible -->
         <div class="section">
             <h3>Related Words</h3>
             <div class="related">
@@ -239,13 +217,6 @@ Proto-Semitic *ṣdq → Hebrew צֶדֶק (tsedeq, H6664) — righteousness, ju
         <p style="margin-top:8px;font-size:0.78rem;color:#555;">Powered by MOOPbot Pro &mdash; &ldquo;Iron sharpens iron.&rdquo; &mdash; <a href="../bible.html?ref=Proverbs+27:17" style="color:var(--gold);text-decoration:underline;">Proverbs 27:17</a></p>
     </footer>
     <script>
-    function toggleDict(id){
-        var s=document.getElementById(id);
-        var b=document.querySelector('[data-toggle="'+id+'"]');
-        var a=b?b.querySelector('.arrow'):null;
-        s.classList.toggle('open');
-        if(a)a.classList.toggle('open');
-    }
     function toggleTheme(){
         var b=document.body,t=document.getElementById('themeToggle');
         if(b.classList.contains('light-mode')){b.classList.remove('light-mode');t.textContent='\u{1F319}';localStorage.setItem('bte-theme','dark');}

@@ -3,33 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Forensic — The MOOP Dictionary of the English Language</title>
+    <title>Forensic &mdash; The MOOP Dictionary</title>
     <style>
         * { margin:0; padding:0; box-sizing:border-box; }
         :root { --bg:#000; --card:#111; --gold:#D4AF37; --gold-light:#F4D470; --white:#FFF; --gray:#888; --border:#333; }
         body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--white); min-height:100vh; line-height:1.7; }
-        h1,h2,h3 { font-family:'Playfair Display',serif; }
-        .container { max-width:800px; margin:0 auto; padding:20px; }
+        h1,h2,h3,h4 { font-family:'Playfair Display',serif; }
+        nav { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:4px 8px; padding:10px 16px;
+              border-bottom:1px solid var(--border); position:sticky; top:0;
+              background:rgba(0,0,0,0.95); backdrop-filter:blur(8px); z-index:100; }
+        nav a { color:var(--gray); text-decoration:none; font-size:0.8rem; display:inline-flex; align-items:center;
+                gap:3px; padding:3px 6px; border-radius:6px; transition:color 0.2s; }
+        nav a:hover, nav a.active { color:var(--gold); }
+        .site-icon { vertical-align:middle; opacity:0.8; }
+        .theme-toggle { background:none; border:1px solid var(--border); border-radius:50%; width:28px; height:28px;
+                        cursor:pointer; font-size:0.85rem; transition:all 0.3s; padding:0; color:var(--white);
+                        display:inline-flex; align-items:center; justify-content:center; }
+        .theme-toggle:hover { border-color:var(--gold); }
+        .container { max-width:820px; margin:0 auto; padding:28px 20px 60px; }
         .word-header { text-align:center; padding:40px 0 30px; border-bottom:1px solid var(--border); margin-bottom:30px; }
-        .word-title { font-size:2.5rem; color:var(--gold-light); margin-bottom:5px; }
-        .pronunciation { color:var(--white); font-size:1.1rem; font-style:italic; }
-        .pos { display:inline-block; background:var(--gold); color:#000; font-weight:700; font-size:0.8rem; padding:3px 12px; border-radius:15px; margin:10px 0; }
-        .etymology { color:var(--white); font-size:0.9rem; margin:10px 0; }
-        .section { margin:25px 0; padding:20px; background:var(--card); border:1px solid var(--border); border-radius:10px; }
-        .section h3 { color:var(--gold); margin-bottom:12px; font-size:1.1rem; }
-        .section p { margin:8px 0; color:var(--white); }
+        .word-title { font-size:2.8rem; color:var(--gold-light); margin-bottom:6px; }
+        .pronunciation { color:var(--gray); font-size:1.1rem; font-style:italic; }
+        .pos { display:inline-block; background:var(--gold); color:#000; font-weight:700;
+               font-size:0.78rem; padding:3px 14px; border-radius:15px; margin:10px 0; }
+        .etymology { color:var(--gray); font-size:0.88rem; margin:12px auto; max-width:650px; }
+        .section { margin:18px 0; padding:18px 22px; background:var(--card); border:1px solid var(--border); border-radius:10px; }
+        .section > h3 { color:var(--gold); margin-bottom:12px; font-size:1.05rem; }
+        .section p { margin:7px 0; }
         .biblical-def { border-left:3px solid var(--gold); padding-left:15px; }
+        .section-summary { color:var(--gray); font-size:0.92rem; font-style:italic; margin-bottom:4px; }
+        details { margin-top:8px; }
+        details summary { color:var(--gold); font-size:0.85rem; cursor:pointer; user-select:none; padding:4px 0; }
+        details summary:hover { color:var(--gold-light); }
+        details[open] summary { margin-bottom:8px; }
         .corruption { border-left:3px solid #CC0000; padding-left:15px; }
+        .corruption-inner { padding:12px 16px; background:rgba(204,0,0,0.06); border-left:2px solid #CC0000; border-radius:0 6px 6px 0; }
+        .roots-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .webster-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .proto-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .proto-inner pre { font-family:'Courier New',monospace; font-size:0.82rem; color:var(--gold-light);
+                           line-height:1.7; white-space:pre-wrap; }
         .verse-ref { color:var(--gold); text-decoration:none; font-weight:600; }
-        .verse-ref:hover { color:var(--gold-light); }
+        .verse-ref:hover { color:var(--gold-light); text-decoration:underline; }
+        .lexicon-link { color:var(--gold); font-family:monospace; text-decoration:none; }
+        .lexicon-link:hover { color:var(--gold-light); text-decoration:underline; }
         .related { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
-        .related a { background:var(--card); border:1px solid var(--border); padding:6px 14px; border-radius:20px; color:var(--white); text-decoration:none; font-size:0.85rem; }
+        .related a { background:var(--card); border:1px solid var(--border); padding:6px 14px;
+                     border-radius:20px; color:var(--white); text-decoration:none; font-size:0.85rem;
+                     transition:border-color 0.2s, color 0.2s; }
         .related a:hover { border-color:var(--gold); color:var(--gold); }
-        .lexicon-link { color:var(--gold); font-family:monospace; }
-        .toggle-wrap { text-align:center; margin:30px 0 10px; }
-        .toggle-btn { background:var(--card); border:1px solid var(--border); color:var(--white); padding:8px 20px; border-radius:20px; cursor:pointer; font-size:0.85rem; }
-        .toggle-btn:hover { border-color:var(--gold); color:var(--gold); }
-        body.light { --bg:#f5f0e8; --card:#fff; --white:#111; --border:#ccc; }
+        footer { text-align:center; padding:28px 20px; border-top:1px solid var(--border);
+                 margin-top:40px; color:var(--gray); font-size:0.88rem; }
+        footer a { color:var(--gray); text-decoration:none; }
+        footer a:hover { color:var(--gold); }
+        .cross-divider { margin-bottom:10px; }
+        body.light-mode { --bg:#F5F3EF; --card:#FFF; --white:#1a1a1a; --gray:#666; --border:#d4d0c8; background:#F5F3EF; color:#1a1a1a; }
+        body.light-mode nav { background:rgba(245,243,239,0.97); }
+        body.light-mode .section { background:#fff; border-color:#d4d0c8; }
+        body.light-mode details summary { color:var(--gold); }
+        body.light-mode .corruption-inner { background:rgba(204,0,0,0.03); }
+        body.light-mode .roots-inner, body.light-mode .webster-inner, body.light-mode .proto-inner { background:rgba(212,175,55,0.04); }
+        body.light-mode footer { border-top-color:#d4d0c8; }
+        body.light-mode .related a { background:#f0ede7; border-color:#d4d0c8; color:#1a1a1a; }
+        a, a:link, a:visited { color: var(--gold, #D4AF37) !important; }
+        a:hover { color: var(--gold-light, #F4D470) !important; }
         .dict-back-nav { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:22px; padding:10px 0; border-bottom:1px solid var(--border,#333); }
         .dict-back-nav a { color:var(--gold,#D4AF37); text-decoration:none; font-size:0.88rem; font-weight:500; }
         .dict-back-nav a:hover { color:var(--gold-light,#F4D470); }
@@ -38,13 +75,19 @@
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
 </head>
 <body>
+    <nav>
+        <a href="../index.html"><img src="../assets/icons/shield-home-48.png" class="site-icon" alt="" width="16" height="16"> Home</a>
+        <a href="../watchman.html"><img src="../assets/icons/shield-bible.png" class="site-icon" alt="" width="16" height="16"> Watchman</a>
+        <a href="../bible.html"><img src="../assets/icons/shield-compass.png" class="site-icon" alt="" width="16" height="16"> BTE</a>
+        <a href="../lexicon.html"><img src="../assets/icons/shield-alpha-omega-48.png" class="site-icon" alt="" width="16" height="16"> Lexicon</a>
+        <a href="../cross-references.html"><img src="../assets/icons/shield-infinity-rope-48.png" class="site-icon" alt="" width="16" height="16"> Cross-Refs</a>
+        <a href="index.html" class="active"><img src="../assets/icons/shield-book-greek-48.png" class="site-icon" alt="" width="16" height="16"> Dictionary</a>
+        <a href="../blog.html"><img src="../assets/icons/shield-blog-quill-48.png" class="site-icon" alt="" width="16" height="16"> Blog</a>
+        <a href="../connect.html"><img src="../assets/icons/shield-handshake.png" class="site-icon" alt="" width="16" height="16"> Connect</a>
+        <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle" title="Toggle dark/light">&#127769;</button>
+    </nav>
     <div class="container">
-        <div class="dict-back-nav">
-            <a href="forbearance.html">&#8592; Forbearance</a>
-            <div class="dict-back-center"><a href="index.html">&#8592; Back to Dictionary</a></div>
-            <a href="forgiveness.html">Forgiveness &#8594;</a>
-        </div>
-
+        <div class="dict-back-nav"><a href="foreknowledge.html">&#8592; Foreknowledge</a><div class="dict-back-center"><a href="index.html">&#8592; Back to Dictionary</a></div><a href="forgiveness.html">Forgiveness &#8594;</a></div>
         <div class="word-header">
             <div class="word-title">Forensic</div>
             <div class="pronunciation">/ fə·REN·zik /</div>
@@ -53,27 +96,27 @@
         </div>
 
         <div class="section">
-            <h3>📖 Biblical Definition</h3>
+            <h3>&#128214; Biblical Definition</h3>
             <div class="biblical-def">
                 <p>In theology, <em>forensic</em> refers to that which belongs to the realm of legal declaration — specifically, to justification as a divine verdict rendered from God's courtroom rather than a moral transformation worked within the soul. To say that justification is forensic is to say that when God justifies the ungodly (Romans 4:5), He is pronouncing a legal declaration: "This person is righteous in my sight." The declaration is real and effective — it changes the person's standing before God completely — but it is distinct from the internal work of regeneration and sanctification. God does not justify sinners by making them righteous first and then declaring it; He declares them righteous on the basis of Christ's imputed righteousness, and <em>then</em> the internal work of renewal follows. The Greek verb <em>dikaioō</em> (to justify) functions forensically throughout Paul — to "justify" does not mean "to make just" (as Rome taught) but "to declare just," as a judge acquits a defendant. This distinction is not pedantic. It is the difference between a righteousness that depends on the believer's moral progress and a righteousness that depends on Christ's completed work alone.</p>
             </div>
         </div>
 
         <div class="section">
-            <h3>📜 Webster 1828 Definition</h3>
-            <p><strong>FORENSIC</strong> — (Webster 1828) Belonging to courts of judicature or to public discussion and debate; used in courts or legal proceedings, or in public discussions. <em>"Forensic eloquence"</em> — the kind of argument adapted to courts of law. <em>"A forensic dispute"</em> — a dispute in the manner of the courts.</p>
+            <h3>&#128220; Webster 1828 Definition</h3>
+            <p class="section-summary">FORENSIC — (Webster 1828) Belonging to courts of judicature or to public discussion and debate; used in courts or leg...</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="webster-inner">
+                    <p><strong>FORENSIC</strong> — (Webster 1828) Belonging to courts of judicature or to public discussion and debate; used in courts or legal proceedings, or in public discussions. <em>"Forensic eloquence"</em> — the kind of argument adapted to courts of law. <em>"A forensic dispute"</em> — a dispute in the manner of the courts.</p>
             <p><strong>JUSTIFY</strong> — (Webster 1828) To pronounce free from guilt or blame; to absolve; to declare innocent. In theology, to pardon and clear from guilt; to accept as righteous on account of the merits of Christ, by the application of his atonement.</p>
+                </div>
+                </div>
+            </details>
         </div>
 
         <div class="section">
-            <h3>⚠️ Modern Corruption</h3>
-            <div class="corruption">
-                <p>The Roman Catholic objection to forensic justification — unchanged from Trent (1547) to the present — is that declaring a sinner righteous without first making them righteous is a legal fiction. God would be lying, they argue, if He called the ungodly righteous when they are in fact not. The Protestant answer is that God is not lying: Christ's actual righteousness is actually imputed to the believer, so God sees the believer in Christ, covered in His perfect obedience. It is not fiction; it is the real transfer of a real righteousness. The modern corruption within Protestantism is subtler: a therapeutic model of salvation has quietly replaced the forensic one. Salvation is now primarily described as healing, wholeness, recovery, inner transformation — all true secondary effects — while the legal dimension (guilty verdict, substitutionary death, divine acquittal) recedes. This is not entirely wrong, but when the courtroom disappears, so does the urgency of guilt, the necessity of atonement, and the wonder of justification. You cannot be amazed by the verdict if you have forgotten you were on trial.</p>
-            </div>
-        </div>
-
-        <div class="section">
-            <h3>📖 Key Scripture</h3>
+            <h3>&#128214; Key Scripture</h3>
             <p>• <a href="../bible.html?ref=Romans+4:5" class="verse-ref">Romans 4:5</a> — "To the one who does not work but believes in him who justifies the ungodly, his faith is counted as righteousness."</p>
             <p>• <a href="../bible.html?ref=Romans+3:26" class="verse-ref">Romans 3:26</a> — "He is just and the justifier of the one who has faith in Jesus."</p>
             <p>• <a href="../bible.html?ref=Romans+8:33" class="verse-ref">Romans 8:33</a> — "Who shall bring any charge against God's elect? It is God who justifies."</p>
@@ -82,20 +125,28 @@
         </div>
 
         <div class="section">
-            <h3>📝 Greek Note</h3>
-            <p><a href="lexicon/G1344.html" class="lexicon-link">G1344 — dikaioō (δικαιόω)</a> — to declare righteous, to pronounce a verdict of acquittal; forensic declaration, not moral renovation.</p>
-            <p><a href="lexicon/G1345.html" class="lexicon-link">G1345 — dikaiōma (δικαίωμα)</a> — righteous requirement, ordinance, just verdict; the righteous decree of the court.</p>
+            <h3>&#9888;&#65039; Modern Corruption</h3>
+            <p class="section-summary">The Roman Catholic objection to forensic justification — unchanged from Trent (1547) to the present — is that declari...</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="corruption-inner">
+                    <div class="corruption">
+                <p>The Roman Catholic objection to forensic justification — unchanged from Trent (1547) to the present — is that declaring a sinner righteous without first making them righteous is a legal fiction. God would be lying, they argue, if He called the ungodly righteous when they are in fact not. The Protestant answer is that God is not lying: Christ's actual righteousness is actually imputed to the believer, so God sees the believer in Christ, covered in His perfect obedience. It is not fiction; it is the real transfer of a real righteousness. The modern corruption within Protestantism is subtler: a therapeutic model of salvation has quietly replaced the forensic one. Salvation is now primarily described as healing, wholeness, recovery, inner transformation — all true secondary effects — while the legal dimension (guilty verdict, substitutionary death, divine acquittal) recedes. This is not entirely wrong, but when the courtroom disappears, so does the urgency of guilt, the necessity of atonement, and the wonder of justification. You cannot be amazed by the verdict if you have forgotten you were on trial.</p>
+            </div>
+                </div>
+                </div>
+            </details>
         </div>
 
         <div class="section">
-            <h3>✍️ Usage</h3>
+            <h3><img src="../assets/icons/shield-blog-quill-48.png" width="20" height="20" style="vertical-align:middle;margin-right:6px;"> Usage</h3>
             <p>• Forensic justification does not make sanctification unnecessary — it makes it possible. You don't run to earn what you don't have; you run because you've already been declared what you couldn't earn.</p>
             <p>• The forensic frame answers the question: "Why did Jesus have to die?" Not primarily to inspire us, heal us, or set an example — but to absorb the legal penalty of sin so that a perfectly just God could pronounce a perfectly guilty sinner righteous without lying.</p>
             <p>• "Forensic" is not cold or abstract — it is the word that protects the gospel from collapsing into moralism or mysticism.</p>
         </div>
 
         <div class="section">
-            <h3>🔗 Related Words</h3>
+            <h3>Related Words</h3>
             <div class="related">
                 <a href="justification.html">Justification</a>
                 <a href="imputation.html">Imputation</a>
@@ -106,9 +157,36 @@
             </div>
         </div>
 
-        <div class="toggle-wrap">
-            <button class="toggle-btn" onclick="document.body.classList.toggle('light')">🌓 Toggle Light / Dark</button>
+        <div class="section">
+            <p><a href="lexicon/G1344.html" class="lexicon-link">G1344 — dikaioō (δικαιόω)</a> — to declare righteous, to pronounce a verdict of acquittal; forensic declaration, not moral renovation.</p>
+            <p><a href="lexicon/G1345.html" class="lexicon-link">G1345 — dikaiōma (δικαίωμα)</a> — righteous requirement, ordinance, just verdict; the righteous decree of the court.</p>
         </div>
+
     </div>
+
+    <footer>
+        <div class="cross-divider"><img src="../assets/icons/shield-cross-bible-48.png" alt="" width="36" height="36" style="opacity:0.6;margin-bottom:10px;"></div>
+        <p>
+            <a href="../index.html#uniting"><img src="../assets/icons/shield-hands-joining.png" class="site-icon" alt="" width="20" height="20"> Uniting</a> &middot;
+            <a href="../serving.html"><img src="../assets/icons/shield-serving.png" class="site-icon" alt="" width="20" height="20"> Serving</a> &middot;
+            <a href="../mentoring.html"><img src="../assets/icons/shield-mentoring.png" class="site-icon" alt="" width="20" height="20"> Mentoring</a> &middot;
+            <a href="../counseling.html"><img src="../assets/icons/shield-family.png" class="site-icon" alt="" width="20" height="20"> Counseling</a> &middot;
+            <a href="../about.html"><img src="../assets/icons/shield-about-person-24.png" class="site-icon" alt="" width="20" height="20"> About</a>
+        </p>
+        <p style="margin-top:8px;font-size:0.78rem;color:#555;">Powered by MOOPbot Pro &mdash; &ldquo;Iron sharpens iron.&rdquo; &mdash; <a href="../bible.html?ref=Proverbs+27:17" style="color:var(--gold);text-decoration:underline;">Proverbs 27:17</a></p>
+    </footer>
+    <script>
+    function toggleTheme(){
+        var b=document.body,t=document.getElementById('themeToggle');
+        if(b.classList.contains('light-mode')){b.classList.remove('light-mode');t.textContent='\u{1F319}';localStorage.setItem('bte-theme','dark');}
+        else{b.classList.add('light-mode');t.textContent='\u2600\uFE0F';localStorage.setItem('bte-theme','light');}
+    }
+    (function(){
+        if(localStorage.getItem('bte-theme')==='light'){
+            document.body.classList.add('light-mode');
+            var t=document.getElementById('themeToggle');if(t)t.textContent='\u2600\uFE0F';
+        }
+    })();
+    </script>
 </body>
 </html>

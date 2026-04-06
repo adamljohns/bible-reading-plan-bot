@@ -31,20 +31,18 @@
         .section > h3 { color:var(--gold); margin-bottom:12px; font-size:1.05rem; }
         .section p { margin:7px 0; }
         .biblical-def { border-left:3px solid var(--gold); padding-left:15px; }
-        .dict-toggle { cursor:pointer; color:var(--gold); font-size:0.92rem; user-select:none;
-                       display:inline-flex; align-items:center; gap:0; background:none; border:none;
-                       padding:0; font-family:inherit; font-weight:600; }
-        .dict-toggle:hover { color:var(--gold-light); }
-        .dict-toggle .arrow { display:inline-block; transition:transform 0.2s; margin-right:8px; font-size:0.75rem; }
-        .dict-toggle .arrow.open { transform:rotate(90deg); }
-        .dict-section { display:none; margin:10px 0 4px 0; padding:12px 16px;
-                        background:rgba(212,175,55,0.06); border-left:2px solid var(--gold);
-                        border-radius:0 6px 6px 0; }
-        .dict-section.open { display:block; }
-        .dict-section p { margin:6px 0; font-size:0.95rem; }
-        .dict-section pre { font-family:'Courier New',monospace; font-size:0.82rem; color:var(--gold-light);
-                             line-height:1.7; white-space:pre-wrap; }
+        .section-summary { color:var(--gray); font-size:0.92rem; font-style:italic; margin-bottom:4px; }
+        details { margin-top:8px; }
+        details summary { color:var(--gold); font-size:0.85rem; cursor:pointer; user-select:none; padding:4px 0; }
+        details summary:hover { color:var(--gold-light); }
+        details[open] summary { margin-bottom:8px; }
         .corruption { border-left:3px solid #CC0000; padding-left:15px; }
+        .corruption-inner { padding:12px 16px; background:rgba(204,0,0,0.06); border-left:2px solid #CC0000; border-radius:0 6px 6px 0; }
+        .roots-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .webster-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .proto-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .proto-inner pre { font-family:'Courier New',monospace; font-size:0.82rem; color:var(--gold-light);
+                           line-height:1.7; white-space:pre-wrap; }
         .verse-ref { color:var(--gold); text-decoration:none; font-weight:600; }
         .verse-ref:hover { color:var(--gold-light); text-decoration:underline; }
         .lexicon-link { color:var(--gold); font-family:monospace; text-decoration:none; }
@@ -62,18 +60,18 @@
         body.light-mode { --bg:#F5F3EF; --card:#FFF; --white:#1a1a1a; --gray:#666; --border:#d4d0c8; background:#F5F3EF; color:#1a1a1a; }
         body.light-mode nav { background:rgba(245,243,239,0.97); }
         body.light-mode .section { background:#fff; border-color:#d4d0c8; }
-        body.light-mode .dict-section { background:rgba(212,175,55,0.04); }
+        body.light-mode details summary { color:var(--gold); }
+        body.light-mode .corruption-inner { background:rgba(204,0,0,0.03); }
+        body.light-mode .roots-inner, body.light-mode .webster-inner, body.light-mode .proto-inner { background:rgba(212,175,55,0.04); }
         body.light-mode footer { border-top-color:#d4d0c8; }
         body.light-mode .related a { background:#f0ede7; border-color:#d4d0c8; color:#1a1a1a; }
-
-    
         a, a:link, a:visited { color: var(--gold, #D4AF37) !important; }
         a:hover { color: var(--gold-light, #F4D470) !important; }
-            .dict-back-nav { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:22px; padding:10px 0; border-bottom:1px solid var(--border,#333); }
+        .dict-back-nav { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:22px; padding:10px 0; border-bottom:1px solid var(--border,#333); }
         .dict-back-nav a { color:var(--gold,#D4AF37); text-decoration:none; font-size:0.88rem; font-weight:500; }
         .dict-back-nav a:hover { color:var(--gold-light,#F4D470); }
         .dict-back-nav .dict-back-center { flex:1; text-align:center; }
-</style>
+    </style>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -89,7 +87,7 @@
         <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle" title="Toggle dark/light">&#127769;</button>
     </nav>
     <div class="container">
-        <div class="dict-back-nav"><a href="justice.html">&#8592; Justice</a><div class="dict-back-center"><a href="index.html">&#8592; Back to Dictionary</a></div><a href="kairos.html">Kairos &#8594;</a></div>
+        <div class="dict-back-nav"><a href="justice.html">&#8592; Justice</a><div class="dict-back-center"><a href="index.html">&#8592; Back to Dictionary</a></div><a href="kabod.html">Kabod &#8594;</a></div>
         <div class="word-header">
             <div class="word-title">Justification</div>
             <div class="pronunciation">/ˌdʒʌs.tɪ.fɪˈkeɪ.ʃən/</div>
@@ -97,7 +95,6 @@
             <div class="etymology">From Latin <em>justificatio</em> (act of justifying), from <em>justificare</em> (to make just or righteous); <em>justus</em> (just) + <em>facere</em> (to make). Greek: <em>dikaiōsis</em> (δικαίωσις) — justification, acquittal; from <em>dikaioō</em> (to declare righteous). A legal-forensic term from the law court.</div>
         </div>
 
-        <!-- Biblical Definition — always visible -->
         <div class="section">
             <h3>&#128214; Biblical Definition</h3>
             <div class="biblical-def">
@@ -105,63 +102,69 @@
             </div>
         </div>
 
-        <!-- Webster 1828 — collapsible -->
         <div class="section">
-            <button class="dict-toggle" data-toggle="webster" onclick="toggleDict('webster')">
-                <span class="arrow">&#9658;</span>&#128220; Webster 1828 Definition
-            </button>
-            <div class="dict-section" id="webster">
-                <p>• <a href="../bible.html?ref=Romans+3:24" class="verse-ref">Romans 3:24</a> — "Justified by his grace as a gift, through the redemption that is in Christ Jesus."</p>
+            <h3>&#128220; Webster 1828 Definition</h3>
+            <p class="section-summary">Romans 3:24 — "Justified by his grace as a gift, through the redemption that is in Christ Jesus."
+            • Roman...</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="webster-inner">
+                    <p>• <a href="../bible.html?ref=Romans+3:24" class="verse-ref">Romans 3:24</a> — "Justified by his grace as a gift, through the redemption that is in Christ Jesus."</p>
             <p>• <a href="../bible.html?ref=Romans+5:1" class="verse-ref">Romans 5:1</a> — "Therefore, since we have been justified by faith, we have peace with God through our Lord Jesus Christ."</p>
             <p>• <a href="../bible.html?ref=Galatians+2:16" class="verse-ref">Galatians 2:16</a> — "A person is not justified by works of the law but through faith in Jesus Christ."</p>
             <p>• <a href="../bible.html?ref=Romans+4:5" class="verse-ref">Romans 4:5</a> — "To the one who does not work but believes…his faith is counted as righteousness."</p>
             <p>• <a href="../bible.html?ref=2+Corinthians+5:21" class="verse-ref">2 Corinthians 5:21</a> — "For our sake he made him to be sin who knew no sin, so that in him we might become the righteousness of God."</p>
         </div>
-
-        <div class="section">
-            <h3>🔗 Greek &amp; Hebrew Roots</h3>
-            <p><a href="../lexicon/G1347.html" class="lexicon-link">G1347</a> — <strong>dikaiōsis</strong> (δικαίωσις): justification, vindication; appears only twice in the NT (Rom 4:25; 5:18).</p>
-            <p><a href="../lexicon/G1344.html" class="lexicon-link">G1344</a> — <strong>dikaioō</strong> (δικαιόω): to declare righteous, acquit, justify; a forensic verb — the judge pronounces the verdict.</p>
-            <p><a href="../lexicon/H6663.html" class="lexicon-link">H6663</a> — <strong>tsadaq</strong> (צָדַק): to be righteous, to justify; in legal contexts, to declare someone not guilty (Deut 25:1; Prov 17:15).</p>
+                </div>
+            </details>
         </div>
 
         <div class="section">
-            <h3><img src="../assets/icons/shield-blog-quill-48.png" width="20" height="20" style="vertical-align:middle;margin-right:6px;"> Usage</h3>
-            <p>• "Justification is not God making us good enough to enter heaven — it is God declaring us righteous in Christ, who is more than good enough."</p>
-            <p>• "The moment a sinner believes, the entire righteousness of Christ is credited to his account — justification is complete before sanctification begins."</p>
-            <p>• "Luther called justification the article of a standing or falling church: get it wrong and everything downstream goes with it."</p>
+            <h3>&#128214; Key Scripture</h3>
+            <p>&#x2022; <a href="../bible.html?ref=Romans+3:24" class="verse-ref">Romans 3:24</a> &mdash; "Justified by his grace as a gift, through the redemption that is in Christ Jesus."</p>
+            <p>&#x2022; <a href="../bible.html?ref=Romans+5:1" class="verse-ref">Romans 5:1</a> &mdash; "Therefore, since we have been justified by faith, we have peace with God through our Lord Jesus Christ."</p>
+            <p>&#x2022; <a href="../bible.html?ref=Galatians+2:16" class="verse-ref">Galatians 2:16</a> &mdash; "A person is not justified by works of the law but through faith in Jesus Christ."</p>
+            <p>&#x2022; <a href="../bible.html?ref=Romans+4:5" class="verse-ref">Romans 4:5</a> &mdash; "To the one who does not work but believes…his faith is counted as righteousness."</p>
+            <p>&#x2022; <a href="../bible.html?ref=2+Corinthians+5:21" class="verse-ref">2 Corinthians 5:21</a> &mdash; "For our sake he made him to be sin who knew no sin, so that in him we might become the righteousness of God."</p>
         </div>
 
         <div class="section">
-            <h3>Related Words</h3>
-            <div class="related">
-                <a href="sanctification.html">Sanctification</a>
-                <a href="righteousness.html">Righteousness</a>
-                <a href="faith.html">Faith</a>
-                <a href="atonement.html">Atonement</a>
-                <a href="redemption.html">Redemption</a>
-            </div>
-        </div>
-
-        <!-- Modern Corruption — collapsible -->
-        <div class="section">
-            <button class="dict-toggle" data-toggle="corruption" onclick="toggleDict('corruption')">
-                <span class="arrow">&#9658;</span>&#9888;&#65039; Modern Corruption
-            </button>
-            <div class="dict-section" id="corruption">
-                <div class="corruption">
+            <h3>&#9888;&#65039; Modern Corruption</h3>
+            <p class="section-summary">Roman Catholic theology blurs the distinction between justification and sanctification, treating justification as an ...</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="corruption-inner">
+                    <div class="corruption">
                     <p>Roman Catholic theology blurs the distinction between justification and sanctification, treating justification as an ongoing process involving merit and sacramental infusion — making it partly God's act and partly human achievement. Modern evangelical culture often collapses justification into "God accepting me as I am" without grasping the legal exchange: Christ's righteousness credited, our guilt removed. Conversely, progressive Christianity reduces justification to social liberation from systemic oppression, evacuating the term of its personal, forensic, and redemptive content. The Reformers saw clearly: if justification is corrupted, the entire gospel collapses.</p>
                 </div>
             </div>
+                </div>
+            </details>
         </div>
 
-        <!-- Proto-Language Roots — collapsible -->
         <div class="section">
-            <button class="dict-toggle" data-toggle="proto" onclick="toggleDict('proto')">
-                <span class="arrow">&#9658;</span>&#127760; Proto-Language Roots
-            </button>
-            <div class="dict-section" id="proto">
-                <pre>Latin iustus ("just, righteous") + facere ("to make, do")
+            <h3>&#128279; Greek &amp; Hebrew Roots</h3>
+            <p class="section-summary">G1347 — dikaiōsis (δικαίωσις): justification, vindication; appears only twice in the NT (Rom 4:25; 5:18).</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="roots-inner">
+                    <p><a href="../lexicon/G1347.html" class="lexicon-link">G1347</a> &mdash; <strong>dikaiōsis</strong> (δικαίωσις): justification, vindication; appears only twice in the NT (Rom 4:25; 5:18).</p>
+            <p><a href="../lexicon/G1344.html" class="lexicon-link">G1344</a> &mdash; <strong>dikaioō</strong> (δικαιόω): to declare righteous, acquit, justify; a forensic verb — the judge pronounces the verdict.</p>
+            <p><a href="../lexicon/H6663.html" class="lexicon-link">H6663</a> &mdash; <strong>tsadaq</strong> (צָדַק): to be righteous, to justify; in legal contexts, to declare someone not guilty (Deut 25:1; Prov 17:15).</p>
+            </div>
+                </div>
+            </details>
+        </div>
+
+        <div class="section">
+            <h3>&#127760; Proto-Language Roots</h3>
+            <p class="section-summary">Latin iustus ("just, righteous") + facere ("to make, do")
+  → iustificare ("to justify, show to be just")
+    → Late ...</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="proto-inner">
+                    <pre>Latin iustus ("just, righteous") + facere ("to make, do")
   → iustificare ("to justify, show to be just")
     → Late Latin iustificatio → Old French justification
       → Middle English justificacion → Modern English "justification"
@@ -179,43 +182,18 @@ Proto-Semitic *ṣdq → Hebrew צָדַק (tsadak, H6663) — to be righteous, 
   → צַדִּיק (tsaddiq, H6662) — righteous one
   → צְדָקָה (tsedaqah, H6666) — righteousness, justice</pre>
             </div>
+                </div>
+            </details>
         </div>
 
-        <!-- Key Scripture — always visible -->
         <div class="section">
-            <h3>&#128214; Key Scripture</h3>
-            <p>&#x2022; <a href="../bible.html?ref=Romans+3:24" class="verse-ref">Romans 3:24</a> &mdash; "Justified by his grace as a gift, through the redemption that is in Christ Jesus."</p>
-            <p>&#x2022; <a href="../bible.html?ref=Romans+5:1" class="verse-ref">Romans 5:1</a> &mdash; "Therefore, since we have been justified by faith, we have peace with God through our Lord Jesus Christ."</p>
-            <p>&#x2022; <a href="../bible.html?ref=Galatians+2:16" class="verse-ref">Galatians 2:16</a> &mdash; "A person is not justified by works of the law but through faith in Jesus Christ."</p>
-            <p>&#x2022; <a href="../bible.html?ref=Romans+4:5" class="verse-ref">Romans 4:5</a> &mdash; "To the one who does not work but believes…his faith is counted as righteousness."</p>
-            <p>&#x2022; <a href="../bible.html?ref=2+Corinthians+5:21" class="verse-ref">2 Corinthians 5:21</a> &mdash; "For our sake he made him to be sin who knew no sin, so that in him we might become the righteousness of God."</p>
-        </div>
-
-        <!-- Greek & Hebrew Roots — collapsible -->
-        <div class="section">
-            <button class="dict-toggle" data-toggle="roots" onclick="toggleDict('roots')">
-                <span class="arrow">&#9658;</span>&#128279; Greek &amp; Hebrew Roots
-            </button>
-            <div class="dict-section" id="roots">
-            <p><a href="../lexicon/G1347.html" class="lexicon-link">G1347</a> &mdash; <strong>dikaiōsis</strong> (δικαίωσις): justification, vindication; appears only twice in the NT (Rom 4:25; 5:18).</p>
-            <p><a href="../lexicon/G1344.html" class="lexicon-link">G1344</a> &mdash; <strong>dikaioō</strong> (δικαιόω): to declare righteous, acquit, justify; a forensic verb — the judge pronounces the verdict.</p>
-            <p><a href="../lexicon/H6663.html" class="lexicon-link">H6663</a> &mdash; <strong>tsadaq</strong> (צָדַק): to be righteous, to justify; in legal contexts, to declare someone not guilty (Deut 25:1; Prov 17:15).</p>
-            </div>
-        </div>
-
-        <!-- Usage Examples — collapsible -->
-        <div class="section">
-            <button class="dict-toggle" data-toggle="usage" onclick="toggleDict('usage')">
-                <span class="arrow">&#9658;</span>&#9997;&#65039; Usage Examples
-            </button>
-            <div class="dict-section" id="usage">
+            <h3><img src="../assets/icons/shield-blog-quill-48.png" width="20" height="20" style="vertical-align:middle;margin-right:6px;"> Usage</h3>
             <p>&#x2022; "Justification is not God making us good enough to enter heaven — it is God declaring us righteous in Christ, who is more than good enough."</p>
             <p>&#x2022; "The moment a sinner believes, the entire righteousness of Christ is credited to his account — justification is complete before sanctification begins."</p>
             <p>&#x2022; "Luther called justification the article of a standing or falling church: get it wrong and everything downstream goes with it."</p>
             </div>
         </div>
 
-        <!-- Related Words — always visible -->
         <div class="section">
             <h3>Related Words</h3>
             <div class="related">
@@ -241,13 +219,6 @@ Proto-Semitic *ṣdq → Hebrew צָדַק (tsadak, H6663) — to be righteous, 
         <p style="margin-top:8px;font-size:0.78rem;color:#555;">Powered by MOOPbot Pro &mdash; &ldquo;Iron sharpens iron.&rdquo; &mdash; <a href="../bible.html?ref=Proverbs+27:17" style="color:var(--gold);text-decoration:underline;">Proverbs 27:17</a></p>
     </footer>
     <script>
-    function toggleDict(id){
-        var s=document.getElementById(id);
-        var b=document.querySelector('[data-toggle="'+id+'"]');
-        var a=b?b.querySelector('.arrow'):null;
-        s.classList.toggle('open');
-        if(a)a.classList.toggle('open');
-    }
     function toggleTheme(){
         var b=document.body,t=document.getElementById('themeToggle');
         if(b.classList.contains('light-mode')){b.classList.remove('light-mode');t.textContent='\u{1F319}';localStorage.setItem('bte-theme','dark');}

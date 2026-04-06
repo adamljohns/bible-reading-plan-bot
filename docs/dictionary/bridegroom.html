@@ -31,20 +31,18 @@
         .section > h3 { color:var(--gold); margin-bottom:12px; font-size:1.05rem; }
         .section p { margin:7px 0; }
         .biblical-def { border-left:3px solid var(--gold); padding-left:15px; }
-        .dict-toggle { cursor:pointer; color:var(--gold); font-size:0.92rem; user-select:none;
-                       display:inline-flex; align-items:center; gap:0; background:none; border:none;
-                       padding:0; font-family:inherit; font-weight:600; }
-        .dict-toggle:hover { color:var(--gold-light); }
-        .dict-toggle .arrow { display:inline-block; transition:transform 0.2s; margin-right:8px; font-size:0.75rem; }
-        .dict-toggle .arrow.open { transform:rotate(90deg); }
-        .dict-section { display:none; margin:10px 0 4px 0; padding:12px 16px;
-                        background:rgba(212,175,55,0.06); border-left:2px solid var(--gold);
-                        border-radius:0 6px 6px 0; }
-        .dict-section.open { display:block; }
-        .dict-section p { margin:6px 0; font-size:0.95rem; }
-        .dict-section pre { font-family:'Courier New',monospace; font-size:0.82rem; color:var(--gold-light);
-                             line-height:1.7; white-space:pre-wrap; }
+        .section-summary { color:var(--gray); font-size:0.92rem; font-style:italic; margin-bottom:4px; }
+        details { margin-top:8px; }
+        details summary { color:var(--gold); font-size:0.85rem; cursor:pointer; user-select:none; padding:4px 0; }
+        details summary:hover { color:var(--gold-light); }
+        details[open] summary { margin-bottom:8px; }
         .corruption { border-left:3px solid #CC0000; padding-left:15px; }
+        .corruption-inner { padding:12px 16px; background:rgba(204,0,0,0.06); border-left:2px solid #CC0000; border-radius:0 6px 6px 0; }
+        .roots-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .webster-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .proto-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .proto-inner pre { font-family:'Courier New',monospace; font-size:0.82rem; color:var(--gold-light);
+                           line-height:1.7; white-space:pre-wrap; }
         .verse-ref { color:var(--gold); text-decoration:none; font-weight:600; }
         .verse-ref:hover { color:var(--gold-light); text-decoration:underline; }
         .lexicon-link { color:var(--gold); font-family:monospace; text-decoration:none; }
@@ -62,16 +60,18 @@
         body.light-mode { --bg:#F5F3EF; --card:#FFF; --white:#1a1a1a; --gray:#666; --border:#d4d0c8; background:#F5F3EF; color:#1a1a1a; }
         body.light-mode nav { background:rgba(245,243,239,0.97); }
         body.light-mode .section { background:#fff; border-color:#d4d0c8; }
-        body.light-mode .dict-section { background:rgba(212,175,55,0.04); }
+        body.light-mode details summary { color:var(--gold); }
+        body.light-mode .corruption-inner { background:rgba(204,0,0,0.03); }
+        body.light-mode .roots-inner, body.light-mode .webster-inner, body.light-mode .proto-inner { background:rgba(212,175,55,0.04); }
         body.light-mode footer { border-top-color:#d4d0c8; }
         body.light-mode .related a { background:#f0ede7; border-color:#d4d0c8; color:#1a1a1a; }
         a, a:link, a:visited { color: var(--gold, #D4AF37) !important; }
         a:hover { color: var(--gold-light, #F4D470) !important; }
-            .dict-back-nav { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:22px; padding:10px 0; border-bottom:1px solid var(--border,#333); }
+        .dict-back-nav { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:22px; padding:10px 0; border-bottom:1px solid var(--border,#333); }
         .dict-back-nav a { color:var(--gold,#D4AF37); text-decoration:none; font-size:0.88rem; font-weight:500; }
         .dict-back-nav a:hover { color:var(--gold-light,#F4D470); }
         .dict-back-nav .dict-back-center { flex:1; text-align:center; }
-</style>
+    </style>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -87,7 +87,7 @@
         <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle" title="Toggle dark/light">&#127769;</button>
     </nav>
     <div class="container">
-        <div class="dict-back-nav"><a href="brethren.html">&#8592; Brethren</a><div class="dict-back-center"><a href="index.html">&#8592; Back to Dictionary</a></div><a href="brokenness.html">Brokenness &#8594;</a></div>
+        <div class="dict-back-nav"><a href="bride.html">&#8592; Bride</a><div class="dict-back-center"><a href="index.html">&#8592; Back to Dictionary</a></div><a href="brokenness.html">Brokenness &#8594;</a></div>
         <div class="word-header">
             <div class="word-title">Bridegroom</div>
             <div class="pronunciation">/ˈbraɪd.ɡruːm/</div>
@@ -103,31 +103,51 @@
         </div>
 
         <div class="section">
-            <button class="dict-toggle" data-toggle="webster" onclick="toggleDict('webster')">
-                <span class="arrow">&#9658;</span>&#128220; Webster 1828 Definition
-            </button>
-            <div class="dict-section" id="webster">
-                <p><strong>BRIDEGROOM</strong>, <em>n.</em> A man newly married, or just about to be married. In Scripture, Christ is called the bridegroom of the church, as being the object of the church's highest love and as the one who adorns and prepares her for eternal union with himself.</p>
+            <h3>&#128220; Webster 1828 Definition</h3>
+            <p class="section-summary">BRIDEGROOM, n.</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="webster-inner">
+                    <p><strong>BRIDEGROOM</strong>, <em>n.</em> A man newly married, or just about to be married. In Scripture, Christ is called the bridegroom of the church, as being the object of the church's highest love and as the one who adorns and prepares her for eternal union with himself.</p>
             </div>
+                </div>
+            </details>
         </div>
 
         <div class="section">
-            <button class="dict-toggle" data-toggle="corruption" onclick="toggleDict('corruption')">
-                <span class="arrow">&#9658;</span>&#9888;&#65039; Modern Corruption
-            </button>
-            <div class="dict-section" id="corruption">
-                <div class="corruption">
+            <h3>&#128214; Key Scripture</h3>
+            <p>&#x2022; <a href="../bible.html?ref=Matthew+9:15" class="verse-ref">Matthew 9:15</a> &mdash; "Can the guests of the bridegroom mourn while he is with them?"</p>
+            <p>&#x2022; <a href="../bible.html?ref=John+3:29" class="verse-ref">John 3:29</a> &mdash; "The friend who attends the bridegroom waits and listens for him, and is full of joy when he hears the bridegroom's voice."</p>
+            <p>&#x2022; <a href="../bible.html?ref=Matthew+25:1-13" class="verse-ref">Matthew 25:1–13</a> &mdash; The parable of the ten virgins awaiting the bridegroom.</p>
+            <p>&#x2022; <a href="../bible.html?ref=Revelation+19:7" class="verse-ref">Revelation 19:7</a> &mdash; "Let us rejoice and be glad and give him glory! For the wedding of the Lamb has come."</p>
+            <p>&#x2022; <a href="../bible.html?ref=Isaiah+62:5" class="verse-ref">Isaiah 62:5</a> &mdash; "As a bridegroom rejoices over his bride, so will your God rejoice over you."</p>
+        </div>
+
+        <div class="section">
+            <h3>&#9888;&#65039; Modern Corruption</h3>
+            <p class="section-summary">The bridegroom metaphor has been eroded in two directions.</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="corruption-inner">
+                    <div class="corruption">
                     <p>The bridegroom metaphor has been eroded in two directions. First, by <strong>gender-neutral theology</strong> that refuses the masculine framing of Christ as Bridegroom and the Church as Bride — dissolving a covenant structure Scripture treats as non-negotiable. Second, by a hyper-individualism that reduces the Church-Bridegroom relationship to a personal romance ("Jesus is my boyfriend") rather than a covenantal, corporate, eschatological reality. The Bridegroom is coming for a prepared Bride — a corporate Body purified and adorned through suffering, not a collection of private spiritual experiences. The metaphor demands both love and readiness.</p>
                 </div>
             </div>
+                </div>
+            </details>
         </div>
 
         <div class="section">
-            <button class="dict-toggle" data-toggle="proto" onclick="toggleDict('proto')">
-                <span class="arrow">&#9658;</span>&#127760; Proto-Language Roots
-            </button>
-            <div class="dict-section" id="proto">
-                <pre>Old English brȳdguma:
+            <h3>&#127760; Proto-Language Roots</h3>
+            <p class="section-summary">Old English brȳdguma:
+  brȳd ("bride") + guma ("man") ← PIE *gʰwṓn ("person, man")
+
+Hebrew:
+חָתָן (chatan, H2860) — b...</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="proto-inner">
+                    <pre>Old English brȳdguma:
   brȳd ("bride") + guma ("man") ← PIE *gʰwṓn ("person, man")
 
 Hebrew:
@@ -140,15 +160,8 @@ Greek:
   → νύμφη (numphē, G3565) — bride, daughter-in-law
   ← PIE *sneu- ("to bind, spin") → betrothal imagery</pre>
             </div>
-        </div>
-
-        <div class="section">
-            <h3>&#128214; Key Scripture</h3>
-            <p>&#x2022; <a href="../bible.html?ref=Matthew+9:15" class="verse-ref">Matthew 9:15</a> &mdash; "Can the guests of the bridegroom mourn while he is with them?"</p>
-            <p>&#x2022; <a href="../bible.html?ref=John+3:29" class="verse-ref">John 3:29</a> &mdash; "The friend who attends the bridegroom waits and listens for him, and is full of joy when he hears the bridegroom's voice."</p>
-            <p>&#x2022; <a href="../bible.html?ref=Matthew+25:1-13" class="verse-ref">Matthew 25:1–13</a> &mdash; The parable of the ten virgins awaiting the bridegroom.</p>
-            <p>&#x2022; <a href="../bible.html?ref=Revelation+19:7" class="verse-ref">Revelation 19:7</a> &mdash; "Let us rejoice and be glad and give him glory! For the wedding of the Lamb has come."</p>
-            <p>&#x2022; <a href="../bible.html?ref=Isaiah+62:5" class="verse-ref">Isaiah 62:5</a> &mdash; "As a bridegroom rejoices over his bride, so will your God rejoice over you."</p>
+                </div>
+            </details>
         </div>
 
         <div class="section">
@@ -176,13 +189,6 @@ Greek:
         <p style="margin-top:8px;font-size:0.78rem;color:#555;">Powered by MOOPbot Pro &mdash; &ldquo;Iron sharpens iron.&rdquo; &mdash; <a href="../bible.html?ref=Proverbs+27:17" style="color:var(--gold);text-decoration:underline;">Proverbs 27:17</a></p>
     </footer>
     <script>
-    function toggleDict(id){
-        var s=document.getElementById(id);
-        var b=document.querySelector('[data-toggle="'+id+'"]');
-        var a=b?b.querySelector('.arrow'):null;
-        s.classList.toggle('open');
-        if(a)a.classList.toggle('open');
-    }
     function toggleTheme(){
         var b=document.body,t=document.getElementById('themeToggle');
         if(b.classList.contains('light-mode')){b.classList.remove('light-mode');t.textContent='\u{1F319}';localStorage.setItem('bte-theme','dark');}

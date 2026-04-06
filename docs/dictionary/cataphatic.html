@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cataphatic — The MOOP Dictionary of the English Language</title>
+    <title>Cataphatic &mdash; The MOOP Dictionary</title>
     <style>
         * { margin:0; padding:0; box-sizing:border-box; }
         :root { --bg:#000; --card:#111; --gold:#D4AF37; --gold-light:#F4D470; --white:#FFF; --gray:#888; --border:#333; }
@@ -29,22 +29,20 @@
         .etymology { color:var(--gray); font-size:0.88rem; margin:12px auto; max-width:650px; }
         .section { margin:18px 0; padding:18px 22px; background:var(--card); border:1px solid var(--border); border-radius:10px; }
         .section > h3 { color:var(--gold); margin-bottom:12px; font-size:1.05rem; }
-        .section p { margin:7px 0; color:var(--white); }
+        .section p { margin:7px 0; }
         .biblical-def { border-left:3px solid var(--gold); padding-left:15px; }
-        .dict-toggle { cursor:pointer; color:var(--gold); font-size:0.92rem; user-select:none;
-                       display:inline-flex; align-items:center; gap:0; background:none; border:none;
-                       padding:0; font-family:inherit; font-weight:600; }
-        .dict-toggle:hover { color:var(--gold-light); }
-        .dict-toggle .arrow { display:inline-block; transition:transform 0.2s; margin-right:8px; font-size:0.75rem; }
-        .dict-toggle .arrow.open { transform:rotate(90deg); }
-        .dict-section { display:none; margin:10px 0 4px 0; padding:12px 16px;
-                        background:rgba(212,175,55,0.06); border-left:2px solid var(--gold);
-                        border-radius:0 6px 6px 0; }
-        .dict-section.open { display:block; }
-        .dict-section p { margin:6px 0; font-size:0.95rem; color:var(--white); }
-        .dict-section pre { font-family:'Courier New',monospace; font-size:0.82rem; color:var(--gold-light);
-                             line-height:1.7; white-space:pre-wrap; }
+        .section-summary { color:var(--gray); font-size:0.92rem; font-style:italic; margin-bottom:4px; }
+        details { margin-top:8px; }
+        details summary { color:var(--gold); font-size:0.85rem; cursor:pointer; user-select:none; padding:4px 0; }
+        details summary:hover { color:var(--gold-light); }
+        details[open] summary { margin-bottom:8px; }
         .corruption { border-left:3px solid #CC0000; padding-left:15px; }
+        .corruption-inner { padding:12px 16px; background:rgba(204,0,0,0.06); border-left:2px solid #CC0000; border-radius:0 6px 6px 0; }
+        .roots-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .webster-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .proto-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .proto-inner pre { font-family:'Courier New',monospace; font-size:0.82rem; color:var(--gold-light);
+                           line-height:1.7; white-space:pre-wrap; }
         .verse-ref { color:var(--gold); text-decoration:none; font-weight:600; }
         .verse-ref:hover { color:var(--gold-light); text-decoration:underline; }
         .lexicon-link { color:var(--gold); font-family:monospace; text-decoration:none; }
@@ -62,14 +60,18 @@
         body.light-mode { --bg:#F5F3EF; --card:#FFF; --white:#1a1a1a; --gray:#666; --border:#d4d0c8; background:#F5F3EF; color:#1a1a1a; }
         body.light-mode nav { background:rgba(245,243,239,0.97); }
         body.light-mode .section { background:#fff; border-color:#d4d0c8; }
-        body.light-mode .dict-section { background:rgba(212,175,55,0.04); }
+        body.light-mode details summary { color:var(--gold); }
+        body.light-mode .corruption-inner { background:rgba(204,0,0,0.03); }
+        body.light-mode .roots-inner, body.light-mode .webster-inner, body.light-mode .proto-inner { background:rgba(212,175,55,0.04); }
         body.light-mode footer { border-top-color:#d4d0c8; }
         body.light-mode .related a { background:#f0ede7; border-color:#d4d0c8; color:#1a1a1a; }
-            .dict-back-nav { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:22px; padding:10px 0; border-bottom:1px solid var(--border,#333); }
+        a, a:link, a:visited { color: var(--gold, #D4AF37) !important; }
+        a:hover { color: var(--gold-light, #F4D470) !important; }
+        .dict-back-nav { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:22px; padding:10px 0; border-bottom:1px solid var(--border,#333); }
         .dict-back-nav a { color:var(--gold,#D4AF37); text-decoration:none; font-size:0.88rem; font-weight:500; }
         .dict-back-nav a:hover { color:var(--gold-light,#F4D470); }
         .dict-back-nav .dict-back-center { flex:1; text-align:center; }
-</style>
+    </style>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -85,7 +87,7 @@
         <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle" title="Toggle dark/light">&#127769;</button>
     </nav>
     <div class="container">
-        <div class="dict-back-nav"><a href="carnal.html">&#8592; Carnal</a><div class="dict-back-center"><a href="index.html">&#8592; Back to Dictionary</a></div><a href="catechism.html">Catechism &#8594;</a></div>
+        <div class="dict-back-nav"><a href="carnal.html">&#8592; Carnal</a><div class="dict-back-center"><a href="index.html">&#8592; Back to Dictionary</a></div><a href="catechesis.html">Catechesis &#8594;</a></div>
         <div class="word-header">
             <div class="word-title">Cataphatic</div>
             <div class="pronunciation">/ˌkæt.əˈfæt.ɪk/</div>
@@ -93,7 +95,6 @@
             <div class="etymology">From Greek <em>καταφατικός</em> (kataphatikos) — affirmative; from <em>κατά</em> (kata, down/according to) + <em>φάναι</em> (phanai, to say/speak). The cataphatic way (<em>via positiva</em> in Latin) is the approach to theology through <em>positive affirmations</em> about God — saying what God <em>is</em> — as distinct from the apophatic way (<em>via negativa</em>), which approaches God through negations of what He is not. Together they form the twin pillars of classical Christian theological method.</div>
         </div>
 
-        <!-- Biblical Definition -->
         <div class="section">
             <h3>&#128214; Biblical Definition</h3>
             <div class="biblical-def">
@@ -101,27 +102,20 @@
             </div>
         </div>
 
-        <!-- Webster 1828 -->
         <div class="section">
-            <button class="dict-toggle" data-toggle="webster" onclick="toggleDict('webster')">
-                <span class="arrow">&#9658;</span>&#128214; Webster 1828
-            </button>
-            <div class="dict-section" id="webster">
-                <p><strong>CATAPHATIC</strong> — Not listed in Webster 1828. The term belongs primarily to the tradition of patristic and medieval theology (Pseudo-Dionysius the Areopagite, Aquinas).</p>
+            <h3>&#128220; Webster 1828 Definition</h3>
+            <p class="section-summary">CATAPHATIC — Not listed in Webster 1828.</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="webster-inner">
+                    <p><strong>CATAPHATIC</strong> — Not listed in Webster 1828. The term belongs primarily to the tradition of patristic and medieval theology (Pseudo-Dionysius the Areopagite, Aquinas).</p>
                 <p>Related to Webster's concept of <strong>AFFIRMATION</strong>: "The act of affirming or asserting as true; opposed to negation or denial." — Webster 1828. Cataphatic theology is the application of this principle to the knowledge of God: God has revealed Himself in positive terms, and we receive and affirm those terms as true.</p>
                 <p>Webster defined <strong>ATTRIBUTE</strong>: "That which is attributed; that which is considered as belonging to, or inherent in, a person or thing." The divine attributes are the content of cataphatic theology.</p>
             </div>
+                </div>
+            </details>
         </div>
 
-        <!-- Modern Corruption -->
-        <div class="section">
-            <h3>&#9888;&#65039; Modern Corruption</h3>
-            <div class="corruption">
-                <p>Two errors distort the cataphatic tradition today. The first is <em>univocal cataphasis</em> — speaking of God as if His attributes were identical in nature to human attributes: God is "loving" the way a kind neighbor is loving, God is "angry" the way a toddler is angry. This collapses the infinite into the finite and produces a domesticated, manageable God. The second error is the opposite: <em>deconstruction of cataphatic language</em> — the postmodern impulse to treat all God-language as purely metaphorical, projective, or culturally conditioned, effectively erasing revealed content and leaving theology as poetry about our own spiritual feelings. Classical theology navigates between these errors with the doctrine of <em>analogy</em>: God's attributes are truly His own, genuinely corresponding to the revealed words, but transcending them infinitely. We know truly, but not exhaustively. The names God gives Himself in Scripture are reliable — and that is enough to build a life on.</p>
-            </div>
-        </div>
-
-        <!-- Key Scripture -->
         <div class="section">
             <h3>&#128214; Key Scripture</h3>
             <p>&#x2022; <a href="../bible.html?ref=Exodus+3:14" class="verse-ref">Exodus 3:14</a> &mdash; "God said to Moses, 'I AM WHO I AM.'" — The foundational cataphatic self-disclosure of God.</p>
@@ -131,41 +125,27 @@
             <p>&#x2022; <a href="../bible.html?ref=Isaiah+6:3" class="verse-ref">Isaiah 6:3</a> &mdash; "Holy, holy, holy is the LORD of hosts; the whole earth is full of his glory." — Cataphatic doxology at its apex.</p>
         </div>
 
-        <!-- Roots -->
         <div class="section">
-            <button class="dict-toggle" data-toggle="roots" onclick="toggleDict('roots')">
-                <span class="arrow">&#9658;</span>&#128279; Greek &amp; Latin Roots
-            </button>
-            <div class="dict-section" id="roots">
-                <pre>Greek:
-καταφατικός (kataphatikos) — affirmative, positive
-  κατά (kata) — down, according to, in keeping with
-  φαίνω / φάναι (phainō / phanai) — to appear, to say, to make manifest
-
-Latin theological equivalent:
-Via positiva / Theologia affirmativa — the positive way of theology
-  Opposite: Via negativa / Theologia negativa / Apophatic theology
-
-Key theological contrast:
-Cataphatic: "God is wise, loving, just, powerful, holy"
-Apophatic: "God is not finite, not limited, not changeable, not comprehensible"
-Both are necessary; neither alone is sufficient for full Christian theology.</pre>
+            <h3>&#9888;&#65039; Modern Corruption</h3>
+            <p class="section-summary">Two errors distort the cataphatic tradition today.</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="corruption-inner">
+                    <div class="corruption">
+                <p>Two errors distort the cataphatic tradition today. The first is <em>univocal cataphasis</em> — speaking of God as if His attributes were identical in nature to human attributes: God is "loving" the way a kind neighbor is loving, God is "angry" the way a toddler is angry. This collapses the infinite into the finite and produces a domesticated, manageable God. The second error is the opposite: <em>deconstruction of cataphatic language</em> — the postmodern impulse to treat all God-language as purely metaphorical, projective, or culturally conditioned, effectively erasing revealed content and leaving theology as poetry about our own spiritual feelings. Classical theology navigates between these errors with the doctrine of <em>analogy</em>: God's attributes are truly His own, genuinely corresponding to the revealed words, but transcending them infinitely. We know truly, but not exhaustively. The names God gives Himself in Scripture are reliable — and that is enough to build a life on.</p>
             </div>
+                </div>
+                </div>
+            </details>
         </div>
 
-        <!-- Usage Examples -->
         <div class="section">
-            <button class="dict-toggle" data-toggle="usage" onclick="toggleDict('usage')">
-                <span class="arrow">&#9658;</span>&#9997;&#65039; Usage Examples
-            </button>
-            <div class="dict-section" id="usage">
-                <p>&#x2022; "The Psalms are an extended cataphatic exercise — one attribute of God after another, named, praised, and trusted."</p>
+            <h3><img src="../assets/icons/shield-blog-quill-48.png" width="20" height="20" style="vertical-align:middle;margin-right:6px;"> Usage</h3>
+            <p>&#x2022; "The Psalms are an extended cataphatic exercise — one attribute of God after another, named, praised, and trusted."</p>
                 <p>&#x2022; "Cataphatic theology is not arrogance about knowing God fully; it is gratitude for knowing God truly. He spoke. We listen. We affirm."</p>
                 <p>&#x2022; "You need both ways: the cataphatic gives you content to praise; the apophatic keeps you from thinking you've captured God in a concept."</p>
-            </div>
         </div>
 
-        <!-- Related Words -->
         <div class="section">
             <h3>Related Words</h3>
             <div class="related">
@@ -179,10 +159,22 @@ Both are necessary; neither alone is sufficient for full Christian theology.</pr
             </div>
         </div>
 
-    </div>
+        <div class="section">
+            <pre>Greek:
+καταφατικός (kataphatikos) — affirmative, positive
+  κατά (kata) — down, according to, in keeping with
+  φαίνω / φάναι (phainō / phanai) — to appear, to say, to make manifest
 
-    <div style="text-align:center; margin:0 0 20px 0;">
-        <button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark/light" style="width:36px;height:36px;font-size:1rem;">&#127769;</button>
+Latin theological equivalent:
+Via positiva / Theologia affirmativa — the positive way of theology
+  Opposite: Via negativa / Theologia negativa / Apophatic theology
+
+Key theological contrast:
+Cataphatic: "God is wise, loving, just, powerful, holy"
+Apophatic: "God is not finite, not limited, not changeable, not comprehensible"
+Both are necessary; neither alone is sufficient for full Christian theology.</pre>
+        </div>
+
     </div>
 
     <footer>
@@ -194,16 +186,9 @@ Both are necessary; neither alone is sufficient for full Christian theology.</pr
             <a href="../counseling.html"><img src="../assets/icons/shield-family.png" class="site-icon" alt="" width="20" height="20"> Counseling</a> &middot;
             <a href="../about.html"><img src="../assets/icons/shield-about-person-24.png" class="site-icon" alt="" width="20" height="20"> About</a>
         </p>
-        <p style="margin-top:8px;font-size:0.78rem;color:#555;">Powered by MOOPbot Pro &mdash; &ldquo;Iron sharpens iron.&rdquo; &mdash; <a href="../bible.html?ref=Proverbs+27:17" style="color:var(--gold);">Proverbs 27:17</a></p>
+        <p style="margin-top:8px;font-size:0.78rem;color:#555;">Powered by MOOPbot Pro &mdash; &ldquo;Iron sharpens iron.&rdquo; &mdash; <a href="../bible.html?ref=Proverbs+27:17" style="color:var(--gold);text-decoration:underline;">Proverbs 27:17</a></p>
     </footer>
     <script>
-    function toggleDict(id){
-        var s=document.getElementById(id);
-        var b=document.querySelector('[data-toggle="'+id+'"]');
-        var a=b?b.querySelector('.arrow'):null;
-        s.classList.toggle('open');
-        if(a)a.classList.toggle('open');
-    }
     function toggleTheme(){
         var b=document.body,t=document.getElementById('themeToggle');
         if(b.classList.contains('light-mode')){b.classList.remove('light-mode');t.textContent='\u{1F319}';localStorage.setItem('bte-theme','dark');}

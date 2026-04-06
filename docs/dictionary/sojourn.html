@@ -29,22 +29,24 @@
         .etymology { color:var(--gray); font-size:0.88rem; margin:12px auto; max-width:650px; }
         .section { margin:18px 0; padding:18px 22px; background:var(--card); border:1px solid var(--border); border-radius:10px; }
         .section > h3 { color:var(--gold); margin-bottom:12px; font-size:1.05rem; }
-        .section p { margin:7px 0; color:var(--white); }
+        .section p { margin:7px 0; }
         .biblical-def { border-left:3px solid var(--gold); padding-left:15px; }
-        .dict-toggle { cursor:pointer; color:var(--gold); font-size:0.92rem; user-select:none;
-                       display:inline-flex; align-items:center; gap:0; background:none; border:none;
-                       padding:0; font-family:inherit; font-weight:600; }
-        .dict-toggle:hover { color:var(--gold-light); }
-        .dict-toggle .arrow { display:inline-block; transition:transform 0.2s; margin-right:8px; font-size:0.75rem; }
-        .dict-toggle .arrow.open { transform:rotate(90deg); }
-        .dict-section { display:none; margin:10px 0 4px 0; padding:12px 16px;
-                        background:rgba(212,175,55,0.06); border-left:2px solid var(--gold);
-                        border-radius:0 6px 6px 0; }
-        .dict-section.open { display:block; }
-        .dict-section p { margin:6px 0; font-size:0.95rem; color:var(--white); }
+        .section-summary { color:var(--gray); font-size:0.92rem; font-style:italic; margin-bottom:4px; }
+        details { margin-top:8px; }
+        details summary { color:var(--gold); font-size:0.85rem; cursor:pointer; user-select:none; padding:4px 0; }
+        details summary:hover { color:var(--gold-light); }
+        details[open] summary { margin-bottom:8px; }
         .corruption { border-left:3px solid #CC0000; padding-left:15px; }
+        .corruption-inner { padding:12px 16px; background:rgba(204,0,0,0.06); border-left:2px solid #CC0000; border-radius:0 6px 6px 0; }
+        .roots-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .webster-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .proto-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .proto-inner pre { font-family:'Courier New',monospace; font-size:0.82rem; color:var(--gold-light);
+                           line-height:1.7; white-space:pre-wrap; }
         .verse-ref { color:var(--gold); text-decoration:none; font-weight:600; }
         .verse-ref:hover { color:var(--gold-light); text-decoration:underline; }
+        .lexicon-link { color:var(--gold); font-family:monospace; text-decoration:none; }
+        .lexicon-link:hover { color:var(--gold-light); text-decoration:underline; }
         .related { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
         .related a { background:var(--card); border:1px solid var(--border); padding:6px 14px;
                      border-radius:20px; color:var(--white); text-decoration:none; font-size:0.85rem;
@@ -55,20 +57,21 @@
         footer a { color:var(--gray); text-decoration:none; }
         footer a:hover { color:var(--gold); }
         .cross-divider { margin-bottom:10px; }
-        .toggle-wrap { display:flex; justify-content:center; margin:24px 0 8px; }
-        body.light-mode { --bg:#F5F3EF; --card:#FFF; --white:#1a1a1a; --gray:#666; --border:#d4d0c8; }
+        body.light-mode { --bg:#F5F3EF; --card:#FFF; --white:#1a1a1a; --gray:#666; --border:#d4d0c8; background:#F5F3EF; color:#1a1a1a; }
         body.light-mode nav { background:rgba(245,243,239,0.97); }
         body.light-mode .section { background:#fff; border-color:#d4d0c8; }
-        body.light-mode .dict-section { background:rgba(212,175,55,0.04); }
+        body.light-mode details summary { color:var(--gold); }
+        body.light-mode .corruption-inner { background:rgba(204,0,0,0.03); }
+        body.light-mode .roots-inner, body.light-mode .webster-inner, body.light-mode .proto-inner { background:rgba(212,175,55,0.04); }
         body.light-mode footer { border-top-color:#d4d0c8; }
         body.light-mode .related a { background:#f0ede7; border-color:#d4d0c8; color:#1a1a1a; }
         a, a:link, a:visited { color: var(--gold, #D4AF37) !important; }
         a:hover { color: var(--gold-light, #F4D470) !important; }
-            .dict-back-nav { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:22px; padding:10px 0; border-bottom:1px solid var(--border,#333); }
+        .dict-back-nav { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:22px; padding:10px 0; border-bottom:1px solid var(--border,#333); }
         .dict-back-nav a { color:var(--gold,#D4AF37); text-decoration:none; font-size:0.88rem; font-weight:500; }
         .dict-back-nav a:hover { color:var(--gold-light,#F4D470); }
         .dict-back-nav .dict-back-center { flex:1; text-align:center; }
-</style>
+    </style>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -83,7 +86,6 @@
         <a href="../connect.html"><img src="../assets/icons/shield-handshake.png" class="site-icon" alt="" width="16" height="16"> Connect</a>
         <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle" title="Toggle dark/light">&#127769;</button>
     </nav>
-
     <div class="container">
         <div class="dict-back-nav"><a href="sobriety.html">&#8592; Sobriety</a><div class="dict-back-center"><a href="index.html">&#8592; Back to Dictionary</a></div><a href="sojourner.html">Sojourner &#8594;</a></div>
         <div class="word-header">
@@ -94,32 +96,29 @@
         </div>
 
         <div class="section">
-            <h3>📖 Biblical Definition</h3>
+            <h3>&#128214; Biblical Definition</h3>
             <div class="biblical-def">
                 <p>To dwell temporarily in a land that is not one's own — to live as a resident alien, a stranger passing through, one who occupies space without claiming ownership. The patriarchs were sojourners: Abraham sojourned in Canaan though it was promised to him (Gen. 23:4); Israel sojourned in Egypt for four hundred years; the entire people of God are described as "strangers and exiles on the earth" (Heb. 11:13). To sojourn is to hold the present world loosely — to plant crops and build houses while knowing that your citizenship is elsewhere. It is the posture of the pilgrim: fully engaged with the land you walk through, but never confused about where home truly is. The Christian life is, in its essence, a sojourn — a temporary dwelling in a world that is passing away, en route to the city "whose designer and builder is God" (Heb. 11:10).</p>
             </div>
         </div>
 
         <div class="section">
-            <h3>📜 Webster 1828 Definition</h3>
-            <button class="dict-toggle" data-toggle="webster" onclick="toggleDict('webster')"><span class="arrow">▶</span> Show Webster 1828</button>
-            <div class="dict-section" id="webster">
-                <p><strong>SO'JOURN,</strong> <em>v.i.</em> [Old Fr. <em>sojorner</em>.]</p>
+            <h3>&#128220; Webster 1828 Definition</h3>
+            <p class="section-summary">SO'JOURN, v.i.</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="webster-inner">
+                    <p><strong>SO'JOURN,</strong> <em>v.i.</em> [Old Fr. <em>sojorner</em>.]</p>
                 <p>To dwell for a time; to dwell or live in a place as a temporary resident, or as a stranger, not considering the place as his permanent habitation.</p>
                 <p><em>"Abram went down into Egypt to sojourn there." Gen. 12.</em></p>
                 <p><strong>SO'JOURN,</strong> <em>n.</em> A temporary residence, as that of a traveler in a foreign land.</p>
             </div>
+                </div>
+            </details>
         </div>
 
         <div class="section">
-            <h3>⚠️ Modern Corruption</h3>
-            <div class="corruption">
-                <p>Modern culture has lost the concept of sojourning almost entirely. We are taught to put down roots, build empires, and treat the present moment as all there is. The "settle down" mentality — owning property, accumulating possessions, building permanence — has replaced the pilgrim consciousness that defined the early Church. On the opposite extreme, modern rootlessness (digital nomadism, commitment-phobia, "keeping options open") mimics sojourning's impermanence without its purposefulness. The biblical sojourner was not a drifter — he was a man on mission, passing through with intention, engaged but not entangled. The corruption is double: we have either domesticated faith into comfortable permanence or stripped away its purposeful direction, leaving only restless wandering.</p>
-            </div>
-        </div>
-
-        <div class="section">
-            <h3>📖 Key Scripture</h3>
+            <h3>&#128214; Key Scripture</h3>
             <p><a href="../bible.html?ref=Genesis+23:4" class="verse-ref">Genesis 23:4</a> — "I am a sojourner and foreigner among you; give me property among you for a burying place."</p>
             <p><a href="../bible.html?ref=1+Peter+2:11" class="verse-ref">1 Peter 2:11</a> — "Beloved, I urge you as sojourners and exiles to abstain from the passions of the flesh, which wage war against your soul."</p>
             <p><a href="../bible.html?ref=Hebrews+11:13-16" class="verse-ref">Hebrews 11:13–16</a> — "They acknowledged that they were strangers and exiles on the earth…they desire a better country, that is, a heavenly one."</p>
@@ -128,7 +127,20 @@
         </div>
 
         <div class="section">
-            <h3>✍️ Usage</h3>
+            <h3>&#9888;&#65039; Modern Corruption</h3>
+            <p class="section-summary">Modern culture has lost the concept of sojourning almost entirely.</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="corruption-inner">
+                    <div class="corruption">
+                <p>Modern culture has lost the concept of sojourning almost entirely. We are taught to put down roots, build empires, and treat the present moment as all there is. The "settle down" mentality — owning property, accumulating possessions, building permanence — has replaced the pilgrim consciousness that defined the early Church. On the opposite extreme, modern rootlessness (digital nomadism, commitment-phobia, "keeping options open") mimics sojourning's impermanence without its purposefulness. The biblical sojourner was not a drifter — he was a man on mission, passing through with intention, engaged but not entangled. The corruption is double: we have either domesticated faith into comfortable permanence or stripped away its purposeful direction, leaving only restless wandering.</p>
+            </div>
+                </div>
+            </details>
+        </div>
+
+        <div class="section">
+            <h3><img src="../assets/icons/shield-blog-quill-48.png" width="20" height="20" style="vertical-align:middle;margin-right:6px;"> Usage</h3>
             <p>The sojourner lives with open hands. He invests in the land where God has placed him — loving neighbors, serving communities, raising families — but he holds it all as stewardship, not possession.</p>
             <p>Abraham is the archetype of the sojourner: he obeyed God's call to leave Ur, lived in tents in the promised land itself, bought only a burial plot, and "looked forward to the city that has foundations" (Heb. 11:10). He was fully present and fully passing through.</p>
             <p>Sojourning is not escapism — it is the most grounded way to live, because it plants one's identity in the only foundation that cannot be shaken.</p>
@@ -146,10 +158,7 @@
                 <a href="wilderness.html">Wilderness</a>
             </div>
         </div>
-    </div>
 
-    <div class="toggle-wrap">
-        <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle2" title="Toggle dark/light" style="width:36px;height:36px;font-size:1rem;">&#127769;</button>
     </div>
 
     <footer>
@@ -164,23 +173,15 @@
         <p style="margin-top:8px;font-size:0.78rem;color:#555;">Powered by MOOPbot Pro &mdash; &ldquo;Iron sharpens iron.&rdquo; &mdash; <a href="../bible.html?ref=Proverbs+27:17" style="color:var(--gold);text-decoration:underline;">Proverbs 27:17</a></p>
     </footer>
     <script>
-    function toggleDict(id){
-        var s=document.getElementById(id);
-        var b=document.querySelector('[data-toggle="'+id+'"]');
-        var a=b?b.querySelector('.arrow'):null;
-        s.classList.toggle('open');
-        if(a)a.classList.toggle('open');
-    }
     function toggleTheme(){
-        var b=document.body,t=document.getElementById('themeToggle'),t2=document.getElementById('themeToggle2');
-        if(b.classList.contains('light-mode')){b.classList.remove('light-mode');if(t)t.textContent='\u{1F319}';if(t2)t2.textContent='\u{1F319}';localStorage.setItem('bte-theme','dark');}
-        else{b.classList.add('light-mode');if(t)t.textContent='\u2600\uFE0F';if(t2)t2.textContent='\u2600\uFE0F';localStorage.setItem('bte-theme','light');}
+        var b=document.body,t=document.getElementById('themeToggle');
+        if(b.classList.contains('light-mode')){b.classList.remove('light-mode');t.textContent='\u{1F319}';localStorage.setItem('bte-theme','dark');}
+        else{b.classList.add('light-mode');t.textContent='\u2600\uFE0F';localStorage.setItem('bte-theme','light');}
     }
     (function(){
         if(localStorage.getItem('bte-theme')==='light'){
             document.body.classList.add('light-mode');
             var t=document.getElementById('themeToggle');if(t)t.textContent='\u2600\uFE0F';
-            var t2=document.getElementById('themeToggle2');if(t2)t2.textContent='\u2600\uFE0F';
         }
     })();
     </script>

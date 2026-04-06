@@ -31,20 +31,18 @@
         .section > h3 { color:var(--gold); margin-bottom:12px; font-size:1.05rem; }
         .section p { margin:7px 0; }
         .biblical-def { border-left:3px solid var(--gold); padding-left:15px; }
-        .dict-toggle { cursor:pointer; color:var(--gold); font-size:0.92rem; user-select:none;
-                       display:inline-flex; align-items:center; gap:0; background:none; border:none;
-                       padding:0; font-family:inherit; font-weight:600; }
-        .dict-toggle:hover { color:var(--gold-light); }
-        .dict-toggle .arrow { display:inline-block; transition:transform 0.2s; margin-right:8px; font-size:0.75rem; }
-        .dict-toggle .arrow.open { transform:rotate(90deg); }
-        .dict-section { display:none; margin:10px 0 4px 0; padding:12px 16px;
-                        background:rgba(212,175,55,0.06); border-left:2px solid var(--gold);
-                        border-radius:0 6px 6px 0; }
-        .dict-section.open { display:block; }
-        .dict-section p { margin:6px 0; font-size:0.95rem; }
-        .dict-section pre { font-family:'Courier New',monospace; font-size:0.82rem; color:var(--gold-light);
-                             line-height:1.7; white-space:pre-wrap; }
+        .section-summary { color:var(--gray); font-size:0.92rem; font-style:italic; margin-bottom:4px; }
+        details { margin-top:8px; }
+        details summary { color:var(--gold); font-size:0.85rem; cursor:pointer; user-select:none; padding:4px 0; }
+        details summary:hover { color:var(--gold-light); }
+        details[open] summary { margin-bottom:8px; }
         .corruption { border-left:3px solid #CC0000; padding-left:15px; }
+        .corruption-inner { padding:12px 16px; background:rgba(204,0,0,0.06); border-left:2px solid #CC0000; border-radius:0 6px 6px 0; }
+        .roots-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .webster-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .proto-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .proto-inner pre { font-family:'Courier New',monospace; font-size:0.82rem; color:var(--gold-light);
+                           line-height:1.7; white-space:pre-wrap; }
         .verse-ref { color:var(--gold); text-decoration:none; font-weight:600; }
         .verse-ref:hover { color:var(--gold-light); text-decoration:underline; }
         .lexicon-link { color:var(--gold); font-family:monospace; text-decoration:none; }
@@ -62,16 +60,18 @@
         body.light-mode { --bg:#F5F3EF; --card:#FFF; --white:#1a1a1a; --gray:#666; --border:#d4d0c8; background:#F5F3EF; color:#1a1a1a; }
         body.light-mode nav { background:rgba(245,243,239,0.97); }
         body.light-mode .section { background:#fff; border-color:#d4d0c8; }
-        body.light-mode .dict-section { background:rgba(212,175,55,0.04); }
+        body.light-mode details summary { color:var(--gold); }
+        body.light-mode .corruption-inner { background:rgba(204,0,0,0.03); }
+        body.light-mode .roots-inner, body.light-mode .webster-inner, body.light-mode .proto-inner { background:rgba(212,175,55,0.04); }
         body.light-mode footer { border-top-color:#d4d0c8; }
         body.light-mode .related a { background:#f0ede7; border-color:#d4d0c8; color:#1a1a1a; }
         a, a:link, a:visited { color: var(--gold, #D4AF37) !important; }
         a:hover { color: var(--gold-light, #F4D470) !important; }
-            .dict-back-nav { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:22px; padding:10px 0; border-bottom:1px solid var(--border,#333); }
+        .dict-back-nav { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:22px; padding:10px 0; border-bottom:1px solid var(--border,#333); }
         .dict-back-nav a { color:var(--gold,#D4AF37); text-decoration:none; font-size:0.88rem; font-weight:500; }
         .dict-back-nav a:hover { color:var(--gold-light,#F4D470); }
         .dict-back-nav .dict-back-center { flex:1; text-align:center; }
-</style>
+    </style>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -87,7 +87,7 @@
         <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle" title="Toggle dark/light">&#127769;</button>
     </nav>
     <div class="container">
-        <div class="dict-back-nav"><a href="dualism.html">&#8592; Dualism</a><div class="dict-back-center"><a href="index.html">&#8592; Back to Dictionary</a></div><a href="dwelling.html">Dwelling &#8594;</a></div>
+        <div class="dict-back-nav"><a href="dunamis.html">&#8592; Dunamis</a><div class="dict-back-center"><a href="index.html">&#8592; Back to Dictionary</a></div><a href="dwelling.html">Dwelling &#8594;</a></div>
         <div class="word-header">
             <div class="word-title">Dwell</div>
             <div class="pronunciation">/dwɛl/</div>
@@ -103,16 +103,19 @@
         </div>
 
         <div class="section">
-            <button class="dict-toggle" data-toggle="webster" onclick="toggleDict('webster')">
-                <span class="arrow">&#9658;</span>&#128220; Webster 1828 Definition
-            </button>
-            <div class="dict-section" id="webster">
-                <p><strong>DWELL</strong>, verb intransitive [Saxon dwellan, to err, to delay; Gr. to roll about; L. to wander.]</p>
+            <h3>&#128220; Webster 1828 Definition</h3>
+            <p class="section-summary">DWELL, verb intransitive [Saxon dwellan, to err, to delay; Gr.</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="webster-inner">
+                    <p><strong>DWELL</strong>, verb intransitive [Saxon dwellan, to err, to delay; Gr. to roll about; L. to wander.]</p>
                 <p>1. To abide as a permanent resident; to inhabit; to live in a place. "The Lord your God will dwell in it." 1 Kings 6.</p>
                 <p>2. To be in any state or condition; to continue for a time. "To dwell in doubtful joy."</p>
                 <p>3. To continue long; as, to dwell on a subject in discourse.</p>
                 <p>DWELLER, noun An inhabitant; a resident. DWELLING, noun Habitation; place of residence; abode.</p>
             </div>
+                </div>
+            </details>
         </div>
 
         <div class="section">
@@ -125,34 +128,43 @@
         </div>
 
         <div class="section">
-            <button class="dict-toggle" data-toggle="roots" onclick="toggleDict('roots')">
-                <span class="arrow">&#9658;</span>&#128279; Hebrew &amp; Greek Roots
-            </button>
-            <div class="dict-section" id="roots">
-                <p><a href="../lexicon/H7931.html" class="lexicon-link">H7931</a> &mdash; <strong>shakan</strong> (שָׁכַן): to settle, abide, dwell; root of <em>mishkan</em> (tabernacle) and <em>Shekinah</em> (God's indwelling glory); 130+ uses in OT; carries the idea of permanent, committed settlement.</p>
+            <h3>&#9888;&#65039; Modern Corruption</h3>
+            <p class="section-summary">Modern theology often reduces "dwelling" to metaphor — the Holy Spirit "dwells" in believers in some vague, symbolic ...</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="corruption-inner">
+                    <div class="corruption">
+                    <p>Modern theology often reduces "dwelling" to metaphor — the Holy Spirit "dwells" in believers in some vague, symbolic sense, not a real, personal, present indwelling. This strips the Incarnation and Pentecost of their scandal. God actually chose to inhabit human flesh; the Spirit actually takes up residence in the bodies of believers. The same word (<em>skenoō</em>) John uses for the Incarnation (John 1:14) is used for the New Jerusalem (Rev 21:3). God's dwelling with man is the endpoint of cosmic history — not a poetic flourish. The trivialization of divine indwelling produces anemic spirituality: we treat the Spirit as a distant influence rather than a present Person who inhabits, transforms, and leads.</p>
+                </div>
+            </div>
+                </div>
+            </details>
+        </div>
+
+        <div class="section">
+            <h3>&#128279; Greek &amp; Hebrew Roots</h3>
+            <p class="section-summary">H7931 — shakan (שָׁכַן): to settle, abide, dwell; root of mishkan (tabernacle) and Shekinah (God's indwelling glory);...</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="roots-inner">
+                    <p><a href="../lexicon/H7931.html" class="lexicon-link">H7931</a> &mdash; <strong>shakan</strong> (שָׁכַן): to settle, abide, dwell; root of <em>mishkan</em> (tabernacle) and <em>Shekinah</em> (God's indwelling glory); 130+ uses in OT; carries the idea of permanent, committed settlement.</p>
                 <p><a href="../lexicon/H3427.html" class="lexicon-link">H3427</a> &mdash; <strong>yashab</strong> (יָשַׁב): to sit, dwell, remain; 1,000+ uses in OT — the most common word for dwelling; emphasizes settled rest and residence.</p>
                 <p><a href="../lexicon/G4637.html" class="lexicon-link">G4637</a> &mdash; <strong>skenoō</strong> (σκηνόω): to pitch a tent, tabernacle among; from <em>skēnē</em> = tent; John 1:14 deliberately echoes the OT tabernacle: the Incarnation is God's new tabernacle.</p>
                 <p><a href="../lexicon/G3306.html" class="lexicon-link">G3306</a> &mdash; <strong>menō</strong> (μένω): to remain, abide, continue; key word in John's Gospel — Jesus tells his disciples to "abide in me" (John 15:4–9); 120+ uses in NT.</p>
             </div>
-        </div>
-
-        <div class="section">
-            <button class="dict-toggle" data-toggle="corruption" onclick="toggleDict('corruption')">
-                <span class="arrow">&#9658;</span>&#9888;&#65039; Modern Corruption
-            </button>
-            <div class="dict-section" id="corruption">
-                <div class="corruption">
-                    <p>Modern theology often reduces "dwelling" to metaphor — the Holy Spirit "dwells" in believers in some vague, symbolic sense, not a real, personal, present indwelling. This strips the Incarnation and Pentecost of their scandal. God actually chose to inhabit human flesh; the Spirit actually takes up residence in the bodies of believers. The same word (<em>skenoō</em>) John uses for the Incarnation (John 1:14) is used for the New Jerusalem (Rev 21:3). God's dwelling with man is the endpoint of cosmic history — not a poetic flourish. The trivialization of divine indwelling produces anemic spirituality: we treat the Spirit as a distant influence rather than a present Person who inhabits, transforms, and leads.</p>
                 </div>
-            </div>
+            </details>
         </div>
 
         <div class="section">
-            <button class="dict-toggle" data-toggle="proto" onclick="toggleDict('proto')">
-                <span class="arrow">&#9658;</span>&#127760; Proto-Language Roots
-            </button>
-            <div class="dict-section" id="proto">
-                <pre>Hebrew שָׁכַן (shakan, H7931)
+            <h3>&#127760; Proto-Language Roots</h3>
+            <p class="section-summary">Hebrew שָׁכַן (shakan, H7931)
+  Proto-Semitic *škn = to be settled, to dwell
+  → מִשְׁכָּן (mishkan) = tabernacle, dw...</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="proto-inner">
+                    <pre>Hebrew שָׁכַן (shakan, H7931)
   Proto-Semitic *škn = to be settled, to dwell
   → מִשְׁכָּן (mishkan) = tabernacle, dwelling place
   → שְׁכִינָה (Shekinah, post-biblical) = God's dwelling glory
@@ -172,17 +184,15 @@ The story of dwelling in Scripture:
   Pentecost → God dwells in his people
   New Jerusalem → God dwells with man forever</pre>
             </div>
+                </div>
+            </details>
         </div>
 
         <div class="section">
-            <button class="dict-toggle" data-toggle="usage" onclick="toggleDict('usage')">
-                <span class="arrow">&#9658;</span>&#9997;&#65039; Usage Examples
-            </button>
-            <div class="dict-section" id="usage">
-                <p>&#x2022; "John 1:14 — 'The Word tabernacled among us.' God didn't visit earth. He moved in. The Incarnation was not a temporary tour; it was permanent, incarnate, covenant dwelling."</p>
+            <h3><img src="../assets/icons/shield-blog-quill-48.png" width="20" height="20" style="vertical-align:middle;margin-right:6px;"> Usage</h3>
+            <p>&#x2022; "John 1:14 — 'The Word tabernacled among us.' God didn't visit earth. He moved in. The Incarnation was not a temporary tour; it was permanent, incarnate, covenant dwelling."</p>
                 <p>&#x2022; "One thing David wanted: to dwell in God's house all his life (Ps 27:4). Not gifts from God — the presence of God. The greatest Christian is not the one with the most blessings; it's the one who most wants to be with God."</p>
                 <p>&#x2022; "Revelation 21:3: 'The dwelling place of God is with man.' All of Scripture — 66 books, 1,189 chapters — is moving toward this sentence. Emmanuel. God with us. Always."</p>
-            </div>
         </div>
 
         <div class="section">
@@ -210,13 +220,6 @@ The story of dwelling in Scripture:
         <p style="margin-top:8px;font-size:0.78rem;color:#555;">Powered by MOOPbot Pro &mdash; &ldquo;Iron sharpens iron.&rdquo; &mdash; <a href="../bible.html?ref=Proverbs+27:17" style="color:var(--gold);text-decoration:underline;">Proverbs 27:17</a></p>
     </footer>
     <script>
-    function toggleDict(id){
-        var s=document.getElementById(id);
-        var b=document.querySelector('[data-toggle="'+id+'"]');
-        var a=b?b.querySelector('.arrow'):null;
-        s.classList.toggle('open');
-        if(a)a.classList.toggle('open');
-    }
     function toggleTheme(){
         var b=document.body,t=document.getElementById('themeToggle');
         if(b.classList.contains('light-mode')){b.classList.remove('light-mode');t.textContent='\u{1F319}';localStorage.setItem('bte-theme','dark');}

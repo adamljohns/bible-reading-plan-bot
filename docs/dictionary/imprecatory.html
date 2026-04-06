@@ -29,22 +29,20 @@
         .etymology { color:var(--gray); font-size:0.88rem; margin:12px auto; max-width:650px; }
         .section { margin:18px 0; padding:18px 22px; background:var(--card); border:1px solid var(--border); border-radius:10px; }
         .section > h3 { color:var(--gold); margin-bottom:12px; font-size:1.05rem; }
-        .section p { margin:7px 0; color:var(--white); }
+        .section p { margin:7px 0; }
         .biblical-def { border-left:3px solid var(--gold); padding-left:15px; }
-        .dict-toggle { cursor:pointer; color:var(--gold); font-size:0.92rem; user-select:none;
-                       display:inline-flex; align-items:center; gap:0; background:none; border:none;
-                       padding:0; font-family:inherit; font-weight:600; }
-        .dict-toggle:hover { color:var(--gold-light); }
-        .dict-toggle .arrow { display:inline-block; transition:transform 0.2s; margin-right:8px; font-size:0.75rem; }
-        .dict-toggle .arrow.open { transform:rotate(90deg); }
-        .dict-section { display:none; margin:10px 0 4px 0; padding:12px 16px;
-                        background:rgba(212,175,55,0.06); border-left:2px solid var(--gold);
-                        border-radius:0 6px 6px 0; }
-        .dict-section.open { display:block; }
-        .dict-section p { margin:6px 0; font-size:0.95rem; color:var(--white); }
-        .dict-section pre { font-family:'Courier New',monospace; font-size:0.82rem; color:var(--gold-light);
-                             line-height:1.7; white-space:pre-wrap; }
+        .section-summary { color:var(--gray); font-size:0.92rem; font-style:italic; margin-bottom:4px; }
+        details { margin-top:8px; }
+        details summary { color:var(--gold); font-size:0.85rem; cursor:pointer; user-select:none; padding:4px 0; }
+        details summary:hover { color:var(--gold-light); }
+        details[open] summary { margin-bottom:8px; }
         .corruption { border-left:3px solid #CC0000; padding-left:15px; }
+        .corruption-inner { padding:12px 16px; background:rgba(204,0,0,0.06); border-left:2px solid #CC0000; border-radius:0 6px 6px 0; }
+        .roots-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .webster-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .proto-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .proto-inner pre { font-family:'Courier New',monospace; font-size:0.82rem; color:var(--gold-light);
+                           line-height:1.7; white-space:pre-wrap; }
         .verse-ref { color:var(--gold); text-decoration:none; font-weight:600; }
         .verse-ref:hover { color:var(--gold-light); text-decoration:underline; }
         .lexicon-link { color:var(--gold); font-family:monospace; text-decoration:none; }
@@ -58,19 +56,22 @@
                  margin-top:40px; color:var(--gray); font-size:0.88rem; }
         footer a { color:var(--gray); text-decoration:none; }
         footer a:hover { color:var(--gold); }
-        body.light-mode { --bg:#F5F3EF; --card:#FFF; --white:#1a1a1a; --gray:#666; --border:#d4d0c8; }
+        .cross-divider { margin-bottom:10px; }
+        body.light-mode { --bg:#F5F3EF; --card:#FFF; --white:#1a1a1a; --gray:#666; --border:#d4d0c8; background:#F5F3EF; color:#1a1a1a; }
         body.light-mode nav { background:rgba(245,243,239,0.97); }
         body.light-mode .section { background:#fff; border-color:#d4d0c8; }
-        body.light-mode .dict-section { background:rgba(212,175,55,0.04); }
+        body.light-mode details summary { color:var(--gold); }
+        body.light-mode .corruption-inner { background:rgba(204,0,0,0.03); }
+        body.light-mode .roots-inner, body.light-mode .webster-inner, body.light-mode .proto-inner { background:rgba(212,175,55,0.04); }
         body.light-mode footer { border-top-color:#d4d0c8; }
         body.light-mode .related a { background:#f0ede7; border-color:#d4d0c8; color:#1a1a1a; }
         a, a:link, a:visited { color: var(--gold, #D4AF37) !important; }
         a:hover { color: var(--gold-light, #F4D470) !important; }
-            .dict-back-nav { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:22px; padding:10px 0; border-bottom:1px solid var(--border,#333); }
+        .dict-back-nav { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:22px; padding:10px 0; border-bottom:1px solid var(--border,#333); }
         .dict-back-nav a { color:var(--gold,#D4AF37); text-decoration:none; font-size:0.88rem; font-weight:500; }
         .dict-back-nav a:hover { color:var(--gold-light,#F4D470); }
         .dict-back-nav .dict-back-center { flex:1; text-align:center; }
-</style>
+    </style>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -102,13 +103,16 @@
         </div>
 
         <div class="section">
-            <button class="dict-toggle" onclick="toggleDict('webster')">
-                <span class="arrow">&#9658;</span>&#128220; Webster 1828 Definition
-            </button>
-            <div class="dict-section" id="webster">
-                <p><strong>IMPRECATION, n.</strong> [L. imprecatio.] A prayer to God for evil to fall on some person or thing; a curse. Imprecations imply a belief of divine providence and government. They are the language of men in deep distress, imploring God's interference for their deliverance.</p>
+            <h3>&#128220; Webster 1828 Definition</h3>
+            <p class="section-summary">IMPRECATION, n.</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="webster-inner">
+                    <p><strong>IMPRECATION, n.</strong> [L. imprecatio.] A prayer to God for evil to fall on some person or thing; a curse. Imprecations imply a belief of divine providence and government. They are the language of men in deep distress, imploring God's interference for their deliverance.</p>
                 <p><strong>IMPRECATE, v.t.</strong> To invoke evil on; to pray that a curse or calamity may fall on. We imprecate evil on our enemies, or on those who have injured us.</p>
             </div>
+                </div>
+            </details>
         </div>
 
         <div class="section">
@@ -121,36 +125,17 @@
         </div>
 
         <div class="section">
-            <button class="dict-toggle" onclick="toggleDict('roots')">
-                <span class="arrow">&#9658;</span>&#128279; Latin &amp; Hebrew Roots
-            </button>
-            <div class="dict-section" id="roots">
-                <pre>Latin:
-  im- (upon) + precari (to pray) → imprecari (to invoke evil upon)
-  Related: precarious (hanging by prayer), deprecate (pray away evil)
-  imprecation = a curse-prayer directed toward God, not self-executed
-
-Hebrew Psalms context:
-  אָרַר (arar, H779) — to curse, invoke doom
-  קָלַל (qalal, H7043) — to make light of, revile, curse
-  נָקַם (naqam, H5358) — to avenge, execute vengeance
-
-Key distinction:
-  Imprecation ≠ personal hatred
-  Imprecation = covenantal appeal for God's justice
-  The pray-er submits vengeance to God, not takes it personally</pre>
-            </div>
-        </div>
-
-        <div class="section">
-            <button class="dict-toggle" onclick="toggleDict('corruption')">
-                <span class="arrow">&#9658;</span>&#9888;&#65039; Modern Corruption
-            </button>
-            <div class="dict-section" id="corruption">
-                <div class="corruption">
+            <h3>&#9888;&#65039; Modern Corruption</h3>
+            <p class="section-summary">Modern Christianity is deeply uncomfortable with imprecatory psalms, often cutting them from lectionaries or softenin...</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="corruption-inner">
+                    <div class="corruption">
                     <p>Modern Christianity is deeply uncomfortable with imprecatory psalms, often cutting them from lectionaries or softening them as culturally primitive. This sentimental revision domesticates the Psalter and produces a thin, safe piety that cannot honestly reckon with evil. If these psalms are inspired Scripture, the discomfort belongs to us — not to them. Removing the imprecatory psalms from Christian vocabulary robs the church of honest lament, covenantal boldness, and the deep comfort that God hears the cries of the oppressed and will act. The alternative to imprecation is not love — it is either suppression or vigilantism.</p>
                 </div>
             </div>
+                </div>
+            </details>
         </div>
 
         <div class="section">
@@ -164,46 +149,49 @@ Key distinction:
                 <a href="wrath.html">Wrath</a>
             </div>
         </div>
-    </div>
 
-    <div style="text-align:center; margin-top:30px; padding-bottom:10px;">
-        <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle2" title="Toggle dark/light" style="width:36px;height:36px;font-size:1rem;">&#127769;</button>
+        <div class="section">
+            <pre>Latin:
+  im- (upon) + precari (to pray) → imprecari (to invoke evil upon)
+  Related: precarious (hanging by prayer), deprecate (pray away evil)
+  imprecation = a curse-prayer directed toward God, not self-executed
+
+Hebrew Psalms context:
+  אָרַר (arar, H779) — to curse, invoke doom
+  קָלַל (qalal, H7043) — to make light of, revile, curse
+  נָקַם (naqam, H5358) — to avenge, execute vengeance
+
+Key distinction:
+  Imprecation ≠ personal hatred
+  Imprecation = covenantal appeal for God's justice
+  The pray-er submits vengeance to God, not takes it personally</pre>
+        </div>
+
     </div>
 
     <footer>
-        <p><a href="index.html">&#8592; The MOOP Dictionary</a> &nbsp;|&nbsp; <a href="../bible.html">BTE</a> &nbsp;|&nbsp; <a href="../lexicon.html">Lexicon</a></p>
-        <p style="margin-top:8px;">&#169; USMC Ministries &mdash; All Scripture references use the ESV unless noted.</p>
+        <div class="cross-divider"><img src="../assets/icons/shield-cross-bible-48.png" alt="" width="36" height="36" style="opacity:0.6;margin-bottom:10px;"></div>
+        <p>
+            <a href="../index.html#uniting"><img src="../assets/icons/shield-hands-joining.png" class="site-icon" alt="" width="20" height="20"> Uniting</a> &middot;
+            <a href="../serving.html"><img src="../assets/icons/shield-serving.png" class="site-icon" alt="" width="20" height="20"> Serving</a> &middot;
+            <a href="../mentoring.html"><img src="../assets/icons/shield-mentoring.png" class="site-icon" alt="" width="20" height="20"> Mentoring</a> &middot;
+            <a href="../counseling.html"><img src="../assets/icons/shield-family.png" class="site-icon" alt="" width="20" height="20"> Counseling</a> &middot;
+            <a href="../about.html"><img src="../assets/icons/shield-about-person-24.png" class="site-icon" alt="" width="20" height="20"> About</a>
+        </p>
+        <p style="margin-top:8px;font-size:0.78rem;color:#555;">Powered by MOOPbot Pro &mdash; &ldquo;Iron sharpens iron.&rdquo; &mdash; <a href="../bible.html?ref=Proverbs+27:17" style="color:var(--gold);text-decoration:underline;">Proverbs 27:17</a></p>
     </footer>
-
     <script>
-        function toggleTheme() {
-            document.body.classList.toggle('light-mode');
-            const btn1 = document.getElementById('themeToggle');
-            const btn2 = document.getElementById('themeToggle2');
-            const isLight = document.body.classList.contains('light-mode');
-            if (btn1) btn1.innerHTML = isLight ? '&#9728;&#65039;' : '&#127769;';
-            if (btn2) btn2.innerHTML = isLight ? '&#9728;&#65039;' : '&#127769;';
-            localStorage.setItem('theme', isLight ? 'light' : 'dark');
+    function toggleTheme(){
+        var b=document.body,t=document.getElementById('themeToggle');
+        if(b.classList.contains('light-mode')){b.classList.remove('light-mode');t.textContent='\u{1F319}';localStorage.setItem('bte-theme','dark');}
+        else{b.classList.add('light-mode');t.textContent='\u2600\uFE0F';localStorage.setItem('bte-theme','light');}
+    }
+    (function(){
+        if(localStorage.getItem('bte-theme')==='light'){
+            document.body.classList.add('light-mode');
+            var t=document.getElementById('themeToggle');if(t)t.textContent='\u2600\uFE0F';
         }
-        function toggleDict(id) {
-            const el = document.getElementById(id);
-            const btn = el ? el.previousElementSibling : null;
-            if (!el) return;
-            el.classList.toggle('open');
-            if (btn) {
-                const arrow = btn.querySelector('.arrow');
-                if (arrow) arrow.classList.toggle('open', el.classList.contains('open'));
-            }
-        }
-        (function() {
-            if (localStorage.getItem('theme') === 'light') {
-                document.body.classList.add('light-mode');
-                const btn1 = document.getElementById('themeToggle');
-                const btn2 = document.getElementById('themeToggle2');
-                if (btn1) btn1.innerHTML = '&#9728;&#65039;';
-                if (btn2) btn2.innerHTML = '&#9728;&#65039;';
-            }
-        })();
+    })();
     </script>
 </body>
 </html>

@@ -31,22 +31,22 @@
         .section > h3 { color:var(--gold); margin-bottom:12px; font-size:1.05rem; }
         .section p { margin:7px 0; }
         .biblical-def { border-left:3px solid var(--gold); padding-left:15px; }
-        .dict-toggle { cursor:pointer; color:var(--gold); font-size:0.92rem; user-select:none;
-                       display:inline-flex; align-items:center; gap:0; background:none; border:none;
-                       padding:0; font-family:inherit; font-weight:600; }
-        .dict-toggle:hover { color:var(--gold-light); }
-        .dict-toggle .arrow { display:inline-block; transition:transform 0.2s; margin-right:8px; font-size:0.75rem; }
-        .dict-toggle .arrow.open { transform:rotate(90deg); }
-        .dict-section { display:none; margin:10px 0 4px 0; padding:12px 16px;
-                        background:rgba(212,175,55,0.06); border-left:2px solid var(--gold);
-                        border-radius:0 6px 6px 0; }
-        .dict-section.open { display:block; }
-        .dict-section p { margin:6px 0; font-size:0.95rem; }
-        .dict-section pre { font-family:'Courier New',monospace; font-size:0.82rem; color:var(--gold-light);
-                             line-height:1.7; white-space:pre-wrap; }
+        .section-summary { color:var(--gray); font-size:0.92rem; font-style:italic; margin-bottom:4px; }
+        details { margin-top:8px; }
+        details summary { color:var(--gold); font-size:0.85rem; cursor:pointer; user-select:none; padding:4px 0; }
+        details summary:hover { color:var(--gold-light); }
+        details[open] summary { margin-bottom:8px; }
         .corruption { border-left:3px solid #CC0000; padding-left:15px; }
+        .corruption-inner { padding:12px 16px; background:rgba(204,0,0,0.06); border-left:2px solid #CC0000; border-radius:0 6px 6px 0; }
+        .roots-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .webster-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .proto-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .proto-inner pre { font-family:'Courier New',monospace; font-size:0.82rem; color:var(--gold-light);
+                           line-height:1.7; white-space:pre-wrap; }
         .verse-ref { color:var(--gold); text-decoration:none; font-weight:600; }
         .verse-ref:hover { color:var(--gold-light); text-decoration:underline; }
+        .lexicon-link { color:var(--gold); font-family:monospace; text-decoration:none; }
+        .lexicon-link:hover { color:var(--gold-light); text-decoration:underline; }
         .related { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
         .related a { background:var(--card); border:1px solid var(--border); padding:6px 14px;
                      border-radius:20px; color:var(--white); text-decoration:none; font-size:0.85rem;
@@ -56,19 +56,22 @@
                  margin-top:40px; color:var(--gray); font-size:0.88rem; }
         footer a { color:var(--gray); text-decoration:none; }
         footer a:hover { color:var(--gold); }
+        .cross-divider { margin-bottom:10px; }
         body.light-mode { --bg:#F5F3EF; --card:#FFF; --white:#1a1a1a; --gray:#666; --border:#d4d0c8; background:#F5F3EF; color:#1a1a1a; }
         body.light-mode nav { background:rgba(245,243,239,0.97); }
         body.light-mode .section { background:#fff; border-color:#d4d0c8; }
-        body.light-mode .dict-section { background:rgba(212,175,55,0.04); }
+        body.light-mode details summary { color:var(--gold); }
+        body.light-mode .corruption-inner { background:rgba(204,0,0,0.03); }
+        body.light-mode .roots-inner, body.light-mode .webster-inner, body.light-mode .proto-inner { background:rgba(212,175,55,0.04); }
         body.light-mode footer { border-top-color:#d4d0c8; }
         body.light-mode .related a { background:#f0ede7; border-color:#d4d0c8; color:#1a1a1a; }
         a, a:link, a:visited { color: var(--gold, #D4AF37) !important; }
         a:hover { color: var(--gold-light, #F4D470) !important; }
-            .dict-back-nav { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:22px; padding:10px 0; border-bottom:1px solid var(--border,#333); }
+        .dict-back-nav { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:22px; padding:10px 0; border-bottom:1px solid var(--border,#333); }
         .dict-back-nav a { color:var(--gold,#D4AF37); text-decoration:none; font-size:0.88rem; font-weight:500; }
         .dict-back-nav a:hover { color:var(--gold-light,#F4D470); }
         .dict-back-nav .dict-back-center { flex:1; text-align:center; }
-</style>
+    </style>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -81,12 +84,14 @@
         <a href="index.html" class="active"><img src="../assets/icons/shield-book-greek-48.png" class="site-icon" alt="" width="16" height="16"> Dictionary</a>
         <a href="../blog.html"><img src="../assets/icons/shield-blog-quill-48.png" class="site-icon" alt="" width="16" height="16"> Blog</a>
         <a href="../connect.html"><img src="../assets/icons/shield-handshake.png" class="site-icon" alt="" width="16" height="16"> Connect</a>
+        <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle" title="Toggle dark/light">&#127769;</button>
     </nav>
     <div class="container">
-        <div class="dict-back-nav"><a href="cleanse.html">&#8592; Cleanse</a><div class="dict-back-center"><a href="index.html">&#8592; Back to Dictionary</a></div><a href="clement.html">Clement &#8594;</a></div>
+        <div class="dict-back-nav"><a href="cleanse.html">&#8592; Cleanse</a><div class="dict-back-center"><a href="index.html">&#8592; Back to Dictionary</a></div><a href="clement.html">Clement</h1>
+            <div class="pronunciation">/ ˈkle-mənt / &#8594;</a></div>
         <div class="word-header">
             <div class="word-title">Clemency</div>
-            <div class="pronunciation">/ˈklɛmənsi/</div>
+            <div class="pronunciation">/ ˈkle-mənt / &#8594;</a></div>
             <span class="pos">noun</span>
             <div class="etymology">From Latin <em>clementia</em> (mildness, gentleness, mercy); from <em>clemens</em> (mild, gentle, merciful). Greek: <em>epieikeia</em> (ἐπιείκεια) — gentleness, forbearance, clemency. Hebrew: <em>rachamim</em> (רַחֲמִים) — compassion, mercy; <em>chesed</em> (חֶסֶד) — steadfast love, mercy.</div>
         </div>
@@ -99,12 +104,12 @@
         </div>
 
         <div class="section">
-            <h3>&#128218; Webster's 1828 Dictionary</h3>
-            <button class="dict-toggle" onclick="toggleDict()">
-                <span class="arrow">▶</span>Show Webster's Definition
-            </button>
-            <div class="dict-section" id="dict1828">
-                <pre>CLEM'ENCY, n. [L. clementia.]
+            <h3>&#128220; Webster 1828 Definition</h3>
+            <p class="section-summary">CLEM'ENCY, n.</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="webster-inner">
+                    <pre>CLEM'ENCY, n. [L. clementia.]
 
 1. Mildness of temper; gentleness; disposition to
    treat with tenderness and compassion; opposed to
@@ -117,17 +122,12 @@
 "The clemency of the prince appeared in pardoning
 the rebels."</pre>
             </div>
+                </div>
+            </details>
         </div>
 
         <div class="section">
-            <h3>&#9888; Modern Corruption</h3>
-            <div class="corruption">
-                <p>Modern usage has reduced clemency to a mere legal technicality — presidential pardons or gubernatorial commutations — stripped of its theological and moral gravity. The concept has also been corrupted by sentimentalism: clemency is often confused with permissiveness or moral relativism, as if showing mercy requires abandoning truth or justice. Contemporary culture sometimes mocks clemency as "soft on crime" or "enabling," failing to recognize that true clemency presupposes guilt and accountability. The therapeutic mindset further distorts clemency into mere tolerance of behavior rather than the <em>deliberate choice to withhold deserved penalty</em>. Biblical clemency holds justice and mercy in tension; modern clemency often collapses one into the other.</p>
-            </div>
-        </div>
-
-        <div class="section">
-            <h3>&#128209; Scripture References</h3>
+            <h3>&#128214; Key Scripture</h3>
             <p><a href="../bible.html?ref=Psalm+103:8-10" class="verse-ref">Psalm 103:8-10</a> — "The LORD is merciful and gracious, slow to anger and abounding in steadfast love...He does not deal with us according to our sins, nor repay us according to our iniquities."</p>
             <p><a href="../bible.html?ref=Romans+2:4" class="verse-ref">Romans 2:4</a> — "Or do you presume on the riches of his kindness and forbearance and patience, not knowing that God's kindness is meant to lead you to repentance?"</p>
             <p><a href="../bible.html?ref=Ephesians+4:32" class="verse-ref">Ephesians 4:32</a> — "Be kind to one another, tenderhearted, forgiving one another, as God in Christ forgave you."</p>
@@ -136,7 +136,21 @@ the rebels."</pre>
         </div>
 
         <div class="section">
-            <h3>&#128279; Related Words</h3>
+            <h3>&#9888;&#65039; Modern Corruption</h3>
+            <p class="section-summary">Modern usage has reduced clemency to a mere legal technicality — presidential pardons or gubernatorial commutations —...</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="corruption-inner">
+                    <div class="corruption">
+                <p>Modern usage has reduced clemency to a mere legal technicality — presidential pardons or gubernatorial commutations — stripped of its theological and moral gravity. The concept has also been corrupted by sentimentalism: clemency is often confused with permissiveness or moral relativism, as if showing mercy requires abandoning truth or justice. Contemporary culture sometimes mocks clemency as "soft on crime" or "enabling," failing to recognize that true clemency presupposes guilt and accountability. The therapeutic mindset further distorts clemency into mere tolerance of behavior rather than the <em>deliberate choice to withhold deserved penalty</em>. Biblical clemency holds justice and mercy in tension; modern clemency often collapses one into the other.</p>
+            </div>
+                </div>
+                </div>
+            </details>
+        </div>
+
+        <div class="section">
+            <h3>Related Words</h3>
             <div class="related">
                 <a href="mercy.html">Mercy</a>
                 <a href="grace.html">Grace</a>
@@ -149,40 +163,29 @@ the rebels."</pre>
 
     </div>
 
-    <div style="text-align:center; margin:30px 0 10px;">
-        <button class="theme-toggle" onclick="toggleTheme()" id="themeToggleFooter" title="Toggle dark/light">&#127769;</button>
-    </div>
-
     <footer>
-        <p>&copy; 2026 <a href="../index.html">USMC Ministries</a> &mdash; <a href="index.html">Dictionary Home</a></p>
+        <div class="cross-divider"><img src="../assets/icons/shield-cross-bible-48.png" alt="" width="36" height="36" style="opacity:0.6;margin-bottom:10px;"></div>
+        <p>
+            <a href="../index.html#uniting"><img src="../assets/icons/shield-hands-joining.png" class="site-icon" alt="" width="20" height="20"> Uniting</a> &middot;
+            <a href="../serving.html"><img src="../assets/icons/shield-serving.png" class="site-icon" alt="" width="20" height="20"> Serving</a> &middot;
+            <a href="../mentoring.html"><img src="../assets/icons/shield-mentoring.png" class="site-icon" alt="" width="20" height="20"> Mentoring</a> &middot;
+            <a href="../counseling.html"><img src="../assets/icons/shield-family.png" class="site-icon" alt="" width="20" height="20"> Counseling</a> &middot;
+            <a href="../about.html"><img src="../assets/icons/shield-about-person-24.png" class="site-icon" alt="" width="20" height="20"> About</a>
+        </p>
+        <p style="margin-top:8px;font-size:0.78rem;color:#555;">Powered by MOOPbot Pro &mdash; &ldquo;Iron sharpens iron.&rdquo; &mdash; <a href="../bible.html?ref=Proverbs+27:17" style="color:var(--gold);text-decoration:underline;">Proverbs 27:17</a></p>
     </footer>
-
     <script>
-        function toggleDict() {
-            const content = document.getElementById('dict1828');
-            const arrow = document.querySelector('.dict-toggle .arrow');
-            const button = document.querySelector('.dict-toggle');
-            content.classList.toggle('open');
-            arrow.classList.toggle('open');
-            button.childNodes[1].textContent = content.classList.contains('open') ? 'Hide Webster\'s Definition' : 'Show Webster\'s Definition';
-        }
-
-        function toggleTheme() {
-            document.body.classList.toggle('light-mode');
-            const isLight = document.body.classList.contains('light-mode');
-            localStorage.setItem('theme', isLight ? 'light' : 'dark');
-            document.querySelectorAll('.theme-toggle').forEach(btn => {
-                btn.textContent = isLight ? '☀️' : '🌙';
-            });
-        }
-
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme === 'light') {
+    function toggleTheme(){
+        var b=document.body,t=document.getElementById('themeToggle');
+        if(b.classList.contains('light-mode')){b.classList.remove('light-mode');t.textContent='\u{1F319}';localStorage.setItem('bte-theme','dark');}
+        else{b.classList.add('light-mode');t.textContent='\u2600\uFE0F';localStorage.setItem('bte-theme','light');}
+    }
+    (function(){
+        if(localStorage.getItem('bte-theme')==='light'){
             document.body.classList.add('light-mode');
-            document.querySelectorAll('.theme-toggle').forEach(btn => {
-                btn.textContent = '☀️';
-            });
+            var t=document.getElementById('themeToggle');if(t)t.textContent='\u2600\uFE0F';
         }
+    })();
     </script>
 </body>
 </html>

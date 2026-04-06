@@ -26,25 +26,23 @@
         .pronunciation { color:var(--gray); font-size:1.1rem; font-style:italic; }
         .pos { display:inline-block; background:var(--gold); color:#000; font-weight:700;
                font-size:0.78rem; padding:3px 14px; border-radius:15px; margin:10px 0; }
-        .etymology { color:var(--white); font-size:0.88rem; margin:12px auto; max-width:650px; }
+        .etymology { color:var(--gray); font-size:0.88rem; margin:12px auto; max-width:650px; }
         .section { margin:18px 0; padding:18px 22px; background:var(--card); border:1px solid var(--border); border-radius:10px; }
         .section > h3 { color:var(--gold); margin-bottom:12px; font-size:1.05rem; }
-        .section p { margin:7px 0; color:var(--white); }
+        .section p { margin:7px 0; }
         .biblical-def { border-left:3px solid var(--gold); padding-left:15px; }
-        .dict-toggle { cursor:pointer; color:var(--gold); font-size:0.92rem; user-select:none;
-                       display:inline-flex; align-items:center; gap:0; background:none; border:none;
-                       padding:0; font-family:inherit; font-weight:600; }
-        .dict-toggle:hover { color:var(--gold-light); }
-        .dict-toggle .arrow { display:inline-block; transition:transform 0.2s; margin-right:8px; font-size:0.75rem; }
-        .dict-toggle .arrow.open { transform:rotate(90deg); }
-        .dict-section { display:none; margin:10px 0 4px 0; padding:12px 16px;
-                        background:rgba(212,175,55,0.06); border-left:2px solid var(--gold);
-                        border-radius:0 6px 6px 0; }
-        .dict-section.open { display:block; }
-        .dict-section p { margin:6px 0; font-size:0.95rem; color:var(--white); }
-        .dict-section pre { font-family:'Courier New',monospace; font-size:0.82rem; color:var(--gold-light);
-                             line-height:1.7; white-space:pre-wrap; }
+        .section-summary { color:var(--gray); font-size:0.92rem; font-style:italic; margin-bottom:4px; }
+        details { margin-top:8px; }
+        details summary { color:var(--gold); font-size:0.85rem; cursor:pointer; user-select:none; padding:4px 0; }
+        details summary:hover { color:var(--gold-light); }
+        details[open] summary { margin-bottom:8px; }
         .corruption { border-left:3px solid #CC0000; padding-left:15px; }
+        .corruption-inner { padding:12px 16px; background:rgba(204,0,0,0.06); border-left:2px solid #CC0000; border-radius:0 6px 6px 0; }
+        .roots-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .webster-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .proto-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .proto-inner pre { font-family:'Courier New',monospace; font-size:0.82rem; color:var(--gold-light);
+                           line-height:1.7; white-space:pre-wrap; }
         .verse-ref { color:var(--gold); text-decoration:none; font-weight:600; }
         .verse-ref:hover { color:var(--gold-light); text-decoration:underline; }
         .lexicon-link { color:var(--gold); font-family:monospace; text-decoration:none; }
@@ -58,17 +56,22 @@
                  margin-top:40px; color:var(--gray); font-size:0.88rem; }
         footer a { color:var(--gray); text-decoration:none; }
         footer a:hover { color:var(--gold); }
-        body.light-mode { --bg:#F5F3EF; --card:#FFF; --white:#1a1a1a; --gray:#666; --border:#d4d0c8; }
+        .cross-divider { margin-bottom:10px; }
+        body.light-mode { --bg:#F5F3EF; --card:#FFF; --white:#1a1a1a; --gray:#666; --border:#d4d0c8; background:#F5F3EF; color:#1a1a1a; }
         body.light-mode nav { background:rgba(245,243,239,0.97); }
         body.light-mode .section { background:#fff; border-color:#d4d0c8; }
-        body.light-mode .dict-section { background:rgba(212,175,55,0.04); }
+        body.light-mode details summary { color:var(--gold); }
+        body.light-mode .corruption-inner { background:rgba(204,0,0,0.03); }
+        body.light-mode .roots-inner, body.light-mode .webster-inner, body.light-mode .proto-inner { background:rgba(212,175,55,0.04); }
         body.light-mode footer { border-top-color:#d4d0c8; }
         body.light-mode .related a { background:#f0ede7; border-color:#d4d0c8; color:#1a1a1a; }
-            .dict-back-nav { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:22px; padding:10px 0; border-bottom:1px solid var(--border,#333); }
+        a, a:link, a:visited { color: var(--gold, #D4AF37) !important; }
+        a:hover { color: var(--gold-light, #F4D470) !important; }
+        .dict-back-nav { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:22px; padding:10px 0; border-bottom:1px solid var(--border,#333); }
         .dict-back-nav a { color:var(--gold,#D4AF37); text-decoration:none; font-size:0.88rem; font-weight:500; }
         .dict-back-nav a:hover { color:var(--gold-light,#F4D470); }
         .dict-back-nav .dict-back-center { flex:1; text-align:center; }
-</style>
+    </style>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -100,35 +103,64 @@
         </div>
 
         <div class="section">
-            <button class="dict-toggle" onclick="toggleDict('webster')">
-                <span class="arrow">&#9658;</span>&#128220; Webster 1828 Definition
-            </button>
-            <div class="dict-section" id="webster">
-                <p><strong>VEIL</strong>, <em>n.</em> [L. <em>velum</em>, a sail or curtain; Fr. <em>voile</em>.]</p>
+            <h3>&#128220; Webster 1828 Definition</h3>
+            <p class="section-summary">VEIL, n.</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="webster-inner">
+                    <p><strong>VEIL</strong>, <em>n.</em> [L. <em>velum</em>, a sail or curtain; Fr. <em>voile</em>.]</p>
                 <p>1. A cover; a curtain; something spread over or before a thing to conceal it.</p>
                 <p>2. The curtain of the tabernacle or temple which separated the holy of holies from the outer apartment. Heb. 6:19; 9:3; 10:20.</p>
                 <p>3. A piece of thin cloth or silk worn by females to hide the face, or as an ornament.</p>
                 <p>4. In a figurative sense, a cover; disguise; something that hides or conceals. "Through the veil of his flesh." Heb. 10:20. "The veil of Moses," 2 Cor. 3. denotes the obscurity of the Mosaic dispensation, or the difficulty of discerning the spiritual sense of the types and ceremonies.</p>
             </div>
+                </div>
+            </details>
         </div>
 
         <div class="section">
-            <button class="dict-toggle" onclick="toggleDict('corruption')">
-                <span class="arrow">&#9658;</span>&#9888;&#65039; Modern Corruption
-            </button>
-            <div class="dict-section" id="corruption">
-                <div class="corruption">
+            <h3>&#128214; Key Scripture</h3>
+            <p>&#x2022; <a href="../bible.html?ref=Matthew+27:51" class="verse-ref">Matthew 27:51</a> &mdash; "The curtain of the temple was torn in two, from top to bottom. And the earth shook, and the rocks were split."</p>
+            <p>&#x2022; <a href="../bible.html?ref=Hebrews+10:19-22" class="verse-ref">Hebrews 10:19–22</a> &mdash; "We have confidence to enter the holy places by the blood of Jesus, by the new and living way that he opened for us through the curtain, that is, through his flesh."</p>
+            <p>&#x2022; <a href="../bible.html?ref=2+Corinthians+3:14-16" class="verse-ref">2 Corinthians 3:14–16</a> &mdash; "To this day the same veil remains… only through Christ is it taken away. But when anyone turns to the Lord, the veil is removed."</p>
+            <p>&#x2022; <a href="../bible.html?ref=Exodus+26:31-33" class="verse-ref">Exodus 26:31–33</a> &mdash; The construction of the veil: "You shall make a veil of blue and purple and scarlet yarns… it shall separate for you the Holy Place from the Most Holy."</p>
+            <p>&#x2022; <a href="../bible.html?ref=Exodus+34:33-35" class="verse-ref">Exodus 34:33–35</a> &mdash; Moses wearing the veil after descending from Sinai; removed when he spoke to the LORD.</p>
+        </div>
+
+        <div class="section">
+            <h3>&#9888;&#65039; Modern Corruption</h3>
+            <p class="section-summary">The torn veil is perhaps the most under-preached doctrine of the New Covenant.</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="corruption-inner">
+                    <div class="corruption">
                     <p>The torn veil is perhaps the most under-preached doctrine of the New Covenant. Its implications are staggering: every believer now has direct, unmediated, Spirit-enabled access to the Most Holy Place through the blood of Jesus (<a href="../bible.html?ref=Hebrews+10:19-22" class="verse-ref">Heb 10:19–22</a>). Yet much of Christian practice — certain liturgical traditions, clericalism, the professional pastor as intermediary, the sense that "ordinary" Christians can't really approach God directly — effectively re-erects the veil. Paul's warning about the veil over the mind that prevents seeing Christ in Scripture (<a href="../bible.html?ref=2+Corinthians+3:14" class="verse-ref">2 Cor 3:14</a>) applies directly to any interpretive tradition that reads the Bible without Christ at the center. <strong>Where the Spirit of the Lord is, the veil is removed; where institutions or traditions replace the Spirit, veils multiply.</strong></p>
                 </div>
             </div>
+                </div>
+            </details>
         </div>
 
         <div class="section">
-            <button class="dict-toggle" onclick="toggleDict('proto')">
-                <span class="arrow">&#9658;</span>&#127760; Proto-Language Roots
-            </button>
-            <div class="dict-section" id="proto">
-                <pre>Latin velum (sail, curtain, covering) → vela → Old French voile → Middle English veile → "veil"
+            <h3>&#128279; Greek &amp; Hebrew Roots</h3>
+            <p class="section-summary">H6532 — paroket (פָּרֹכֶת): the inner veil of the Tabernacle/Temple; the physical barrier between sinful humanity and...</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="roots-inner">
+                    <p><a href="../lexicon/H6532.html" class="lexicon-link">H6532</a> — <strong>paroket</strong> (פָּרֹכֶת): the inner veil of the Tabernacle/Temple; the physical barrier between sinful humanity and God's holy presence; torn by Christ's death.</p>
+            <p><a href="../lexicon/G2665.html" class="lexicon-link">G2665</a> — <strong>katapetasma</strong> (καταπέτασμα): the Temple veil; torn at the crucifixion; used in Hebrews of Christ's flesh as the way of access into God's presence.</p>
+                </div>
+            </details>
+        </div>
+
+        <div class="section">
+            <h3>&#127760; Proto-Language Roots</h3>
+            <p class="section-summary">Latin velum (sail, curtain, covering) → vela → Old French voile → Middle English veile → "veil"
+  → Related: reveal (...</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="proto-inner">
+                    <pre>Latin velum (sail, curtain, covering) → vela → Old French voile → Middle English veile → "veil"
   → Related: reveal (re + velum — to un-cover), revelation, develop (de + veloper — to unwrap)
 
 Hebrew:
@@ -145,21 +177,8 @@ Greek:
   → Heb 6:19; 9:3; 10:20 — Christ's flesh as the new veil; his death = its tearing
 κάλυμμα (kalymma, G2571) — the covering/veil (2 Cor 3:13-16)</pre>
             </div>
-        </div>
-
-        <div class="section">
-            <h3>&#128214; Key Scripture</h3>
-            <p>&#x2022; <a href="../bible.html?ref=Matthew+27:51" class="verse-ref">Matthew 27:51</a> &mdash; "The curtain of the temple was torn in two, from top to bottom. And the earth shook, and the rocks were split."</p>
-            <p>&#x2022; <a href="../bible.html?ref=Hebrews+10:19-22" class="verse-ref">Hebrews 10:19–22</a> &mdash; "We have confidence to enter the holy places by the blood of Jesus, by the new and living way that he opened for us through the curtain, that is, through his flesh."</p>
-            <p>&#x2022; <a href="../bible.html?ref=2+Corinthians+3:14-16" class="verse-ref">2 Corinthians 3:14–16</a> &mdash; "To this day the same veil remains… only through Christ is it taken away. But when anyone turns to the Lord, the veil is removed."</p>
-            <p>&#x2022; <a href="../bible.html?ref=Exodus+26:31-33" class="verse-ref">Exodus 26:31–33</a> &mdash; The construction of the veil: "You shall make a veil of blue and purple and scarlet yarns… it shall separate for you the Holy Place from the Most Holy."</p>
-            <p>&#x2022; <a href="../bible.html?ref=Exodus+34:33-35" class="verse-ref">Exodus 34:33–35</a> &mdash; Moses wearing the veil after descending from Sinai; removed when he spoke to the LORD.</p>
-        </div>
-
-        <div class="section">
-            <h3>&#128279; Greek &amp; Hebrew Roots</h3>
-            <p><a href="../lexicon/H6532.html" class="lexicon-link">H6532</a> — <strong>paroket</strong> (פָּרֹכֶת): the inner veil of the Tabernacle/Temple; the physical barrier between sinful humanity and God's holy presence; torn by Christ's death.</p>
-            <p><a href="../lexicon/G2665.html" class="lexicon-link">G2665</a> — <strong>katapetasma</strong> (καταπέτασμα): the Temple veil; torn at the crucifixion; used in Hebrews of Christ's flesh as the way of access into God's presence.</p>
+                </div>
+            </details>
         </div>
 
         <div class="section">
@@ -172,21 +191,32 @@ Greek:
                 <a href="new-covenant.html">New Covenant</a>
             </div>
         </div>
+
     </div>
+
     <footer>
-        <p>&copy; 2026 The MOOP Dictionary &mdash; <a href="index.html">All Words</a></p>
+        <div class="cross-divider"><img src="../assets/icons/shield-cross-bible-48.png" alt="" width="36" height="36" style="opacity:0.6;margin-bottom:10px;"></div>
+        <p>
+            <a href="../index.html#uniting"><img src="../assets/icons/shield-hands-joining.png" class="site-icon" alt="" width="20" height="20"> Uniting</a> &middot;
+            <a href="../serving.html"><img src="../assets/icons/shield-serving.png" class="site-icon" alt="" width="20" height="20"> Serving</a> &middot;
+            <a href="../mentoring.html"><img src="../assets/icons/shield-mentoring.png" class="site-icon" alt="" width="20" height="20"> Mentoring</a> &middot;
+            <a href="../counseling.html"><img src="../assets/icons/shield-family.png" class="site-icon" alt="" width="20" height="20"> Counseling</a> &middot;
+            <a href="../about.html"><img src="../assets/icons/shield-about-person-24.png" class="site-icon" alt="" width="20" height="20"> About</a>
+        </p>
+        <p style="margin-top:8px;font-size:0.78rem;color:#555;">Powered by MOOPbot Pro &mdash; &ldquo;Iron sharpens iron.&rdquo; &mdash; <a href="../bible.html?ref=Proverbs+27:17" style="color:var(--gold);text-decoration:underline;">Proverbs 27:17</a></p>
     </footer>
     <script>
-        function toggleDict(id) {
-            const el = document.getElementById(id);
-            const btn = el.previousElementSibling;
-            const arrow = btn.querySelector('.arrow');
-            el.classList.toggle('open');
-            if (arrow) arrow.classList.toggle('open');
+    function toggleTheme(){
+        var b=document.body,t=document.getElementById('themeToggle');
+        if(b.classList.contains('light-mode')){b.classList.remove('light-mode');t.textContent='\u{1F319}';localStorage.setItem('bte-theme','dark');}
+        else{b.classList.add('light-mode');t.textContent='\u2600\uFE0F';localStorage.setItem('bte-theme','light');}
+    }
+    (function(){
+        if(localStorage.getItem('bte-theme')==='light'){
+            document.body.classList.add('light-mode');
+            var t=document.getElementById('themeToggle');if(t)t.textContent='\u2600\uFE0F';
         }
-        function toggleTheme() {
-            document.body.classList.toggle('light-mode');
-        }
+    })();
     </script>
 </body>
 </html>

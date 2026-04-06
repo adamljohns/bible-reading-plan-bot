@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Parrhesia — The MOOP Dictionary of the English Language</title>
+    <title>Parrhesia &mdash; The MOOP Dictionary</title>
     <style>
         * { margin:0; padding:0; box-sizing:border-box; }
         :root { --bg:#000; --card:#111; --gold:#D4AF37; --gold-light:#F4D470; --white:#FFF; --gray:#888; --border:#333; }
@@ -29,22 +29,20 @@
         .etymology { color:var(--gray); font-size:0.88rem; margin:12px auto; max-width:650px; }
         .section { margin:18px 0; padding:18px 22px; background:var(--card); border:1px solid var(--border); border-radius:10px; }
         .section > h3 { color:var(--gold); margin-bottom:12px; font-size:1.05rem; }
-        .section p { margin:7px 0; color:var(--white); }
+        .section p { margin:7px 0; }
         .biblical-def { border-left:3px solid var(--gold); padding-left:15px; }
-        .dict-toggle { cursor:pointer; color:var(--gold); font-size:0.92rem; user-select:none;
-                       display:inline-flex; align-items:center; gap:0; background:none; border:none;
-                       padding:0; font-family:inherit; font-weight:600; }
-        .dict-toggle:hover { color:var(--gold-light); }
-        .dict-toggle .arrow { display:inline-block; transition:transform 0.2s; margin-right:8px; font-size:0.75rem; }
-        .dict-toggle .arrow.open { transform:rotate(90deg); }
-        .dict-section { display:none; margin:10px 0 4px 0; padding:12px 16px;
-                        background:rgba(212,175,55,0.06); border-left:2px solid var(--gold);
-                        border-radius:0 6px 6px 0; }
-        .dict-section.open { display:block; }
-        .dict-section p { margin:6px 0; font-size:0.95rem; color:var(--white); }
-        .dict-section pre { font-family:'Courier New',monospace; font-size:0.82rem; color:var(--gold-light);
-                             line-height:1.7; white-space:pre-wrap; }
+        .section-summary { color:var(--gray); font-size:0.92rem; font-style:italic; margin-bottom:4px; }
+        details { margin-top:8px; }
+        details summary { color:var(--gold); font-size:0.85rem; cursor:pointer; user-select:none; padding:4px 0; }
+        details summary:hover { color:var(--gold-light); }
+        details[open] summary { margin-bottom:8px; }
         .corruption { border-left:3px solid #CC0000; padding-left:15px; }
+        .corruption-inner { padding:12px 16px; background:rgba(204,0,0,0.06); border-left:2px solid #CC0000; border-radius:0 6px 6px 0; }
+        .roots-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .webster-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .proto-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .proto-inner pre { font-family:'Courier New',monospace; font-size:0.82rem; color:var(--gold-light);
+                           line-height:1.7; white-space:pre-wrap; }
         .verse-ref { color:var(--gold); text-decoration:none; font-weight:600; }
         .verse-ref:hover { color:var(--gold-light); text-decoration:underline; }
         .lexicon-link { color:var(--gold); font-family:monospace; text-decoration:none; }
@@ -62,14 +60,18 @@
         body.light-mode { --bg:#F5F3EF; --card:#FFF; --white:#1a1a1a; --gray:#666; --border:#d4d0c8; background:#F5F3EF; color:#1a1a1a; }
         body.light-mode nav { background:rgba(245,243,239,0.97); }
         body.light-mode .section { background:#fff; border-color:#d4d0c8; }
-        body.light-mode .dict-section { background:rgba(212,175,55,0.04); }
+        body.light-mode details summary { color:var(--gold); }
+        body.light-mode .corruption-inner { background:rgba(204,0,0,0.03); }
+        body.light-mode .roots-inner, body.light-mode .webster-inner, body.light-mode .proto-inner { background:rgba(212,175,55,0.04); }
         body.light-mode footer { border-top-color:#d4d0c8; }
         body.light-mode .related a { background:#f0ede7; border-color:#d4d0c8; color:#1a1a1a; }
-            .dict-back-nav { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:22px; padding:10px 0; border-bottom:1px solid var(--border,#333); }
+        a, a:link, a:visited { color: var(--gold, #D4AF37) !important; }
+        a:hover { color: var(--gold-light, #F4D470) !important; }
+        .dict-back-nav { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:22px; padding:10px 0; border-bottom:1px solid var(--border,#333); }
         .dict-back-nav a { color:var(--gold,#D4AF37); text-decoration:none; font-size:0.88rem; font-weight:500; }
         .dict-back-nav a:hover { color:var(--gold-light,#F4D470); }
         .dict-back-nav .dict-back-center { flex:1; text-align:center; }
-</style>
+    </style>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -85,7 +87,7 @@
         <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle" title="Toggle dark/light">&#127769;</button>
     </nav>
     <div class="container">
-        <div class="dict-back-nav"><a href="parousia.html">&#8592; Parousia</a><div class="dict-back-center"><a href="index.html">&#8592; Back to Dictionary</a></div><a href="passive-aggressive.html">Passive Aggressive &#8594;</a></div>
+        <div class="dict-back-nav"><a href="parousia.html">&#8592; Parousia</a><div class="dict-back-center"><a href="index.html">&#8592; Back to Dictionary</a></div><a href="passive-aggressive.html">Passive-Aggressive &#8594;</a></div>
         <div class="word-header">
             <div class="word-title">Parrhesia</div>
             <div class="pronunciation">/pəˈrɛ.zi.ə/</div>
@@ -93,7 +95,6 @@
             <div class="etymology">From Greek <em>παρρησία</em> (parrhesia) — literally "all speech," from <em>πᾶν</em> (pan, all) + <em>ῥῆσις</em> (rhēsis, speech/utterance). The compound means <em>frankness</em>, <em>boldness</em>, <em>freedom of speech</em> — especially the freedom of a citizen before his governing body, or a child before his father. In the New Testament it becomes the hallmark of Spirit-filled apostolic proclamation and the believer's confident access to God.</div>
         </div>
 
-        <!-- Biblical Definition -->
         <div class="section">
             <h3>&#128214; Biblical Definition</h3>
             <div class="biblical-def">
@@ -101,26 +102,19 @@
             </div>
         </div>
 
-        <!-- Webster 1828 -->
         <div class="section">
-            <button class="dict-toggle" data-toggle="webster" onclick="toggleDict('webster')">
-                <span class="arrow">&#9658;</span>&#128214; Webster 1828
-            </button>
-            <div class="dict-section" id="webster">
-                <p><strong>PARRHESIA</strong> — Webster 1828 does not include this term as a main entry. However, it appears in theological and rhetorical Latin literature of the period as a figure of speech: <em>"A figure in rhetoric by which the speaker, while reproving another, seems to ask pardon for his freedom of speech."</em></p>
+            <h3>&#128220; Webster 1828 Definition</h3>
+            <p class="section-summary">PARRHESIA — Webster 1828 does not include this term as a main entry.</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="webster-inner">
+                    <p><strong>PARRHESIA</strong> — Webster 1828 does not include this term as a main entry. However, it appears in theological and rhetorical Latin literature of the period as a figure of speech: <em>"A figure in rhetoric by which the speaker, while reproving another, seems to ask pardon for his freedom of speech."</em></p>
                 <p>Webster would have recognized the related English concept under <strong>BOLDNESS</strong>: "Freedom from timidity; confidence; courage in speaking. Applied to religious matters, it denotes the liberty of access to God, which Christ procures for believers." — Webster 1828</p>
             </div>
+                </div>
+            </details>
         </div>
 
-        <!-- Modern Corruption -->
-        <div class="section">
-            <h3>&#9888;&#65039; Modern Corruption</h3>
-            <div class="corruption">
-                <p>Two corruptions plague the modern church's understanding of parrhesia. The first is <em>religious cowardice</em> — the "seeker-sensitive" impulse that sands down the hard edges of the gospel to avoid offense. A preacher who cannot say "repent" without an apology, who hedges every conviction with "but who am I to judge," has lost his parrhesia. The second corruption runs the other direction: <em>presumptuous familiarity</em> — the casual, irreverent approach to God that treats prayer like a text to a friend and worship like a personal experience to be curated. True parrhesia is not casualness; it is the confident boldness of a child who knows his Father's majesty <em>and</em> his Father's love, and approaches accordingly — with reverence and without terror. The Spirit gives both: a spirit of adoption that cries "Abba! Father!" not a spirit of fear, and not a spirit of cheap familiarity (Romans 8:15).</p>
-            </div>
-        </div>
-
-        <!-- Key Scripture -->
         <div class="section">
             <h3>&#128214; Key Scripture</h3>
             <p>&#x2022; <a href="../bible.html?ref=Acts+4:29-31" class="verse-ref">Acts 4:29–31</a> &mdash; "Grant to your servants to continue to speak your word with all boldness… And they were all filled with the Holy Spirit and continued to speak the word of God with boldness."</p>
@@ -130,37 +124,27 @@
             <p>&#x2022; <a href="../bible.html?ref=Acts+4:13" class="verse-ref">Acts 4:13</a> &mdash; "Now when they saw the boldness of Peter and John… they recognized that they had been with Jesus."</p>
         </div>
 
-        <!-- Roots -->
         <div class="section">
-            <button class="dict-toggle" data-toggle="roots" onclick="toggleDict('roots')">
-                <span class="arrow">&#9658;</span>&#128279; Greek Roots
-            </button>
-            <div class="dict-section" id="roots">
-                <pre>Greek:
-παρρησία (parrhesia, G3954) — boldness, confidence, plainness of speech, freedom of access
-  πᾶν (pan) — all, every
-  ῥῆσις (rhēsis) — speech, utterance (from ῥέω, to flow)
-  → Used 31x in NT: Acts 2:29; 4:13,29,31; Jn 7:4; 10:24; 2Cor 3:12; Eph 3:12; Heb 4:16; 10:19; 1Jn 2:28; 3:21; 4:17; 5:14
-
-Hebrew parallel:
-עָז (az) — strength, boldness, might (Prov 28:1: "the righteous are bold as a lion")
-בִּטָּחוֹן (bittachon) — confidence, security, trust in God</pre>
+            <h3>&#9888;&#65039; Modern Corruption</h3>
+            <p class="section-summary">Two corruptions plague the modern church's understanding of parrhesia.</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="corruption-inner">
+                    <div class="corruption">
+                <p>Two corruptions plague the modern church's understanding of parrhesia. The first is <em>religious cowardice</em> — the "seeker-sensitive" impulse that sands down the hard edges of the gospel to avoid offense. A preacher who cannot say "repent" without an apology, who hedges every conviction with "but who am I to judge," has lost his parrhesia. The second corruption runs the other direction: <em>presumptuous familiarity</em> — the casual, irreverent approach to God that treats prayer like a text to a friend and worship like a personal experience to be curated. True parrhesia is not casualness; it is the confident boldness of a child who knows his Father's majesty <em>and</em> his Father's love, and approaches accordingly — with reverence and without terror. The Spirit gives both: a spirit of adoption that cries "Abba! Father!" not a spirit of fear, and not a spirit of cheap familiarity (Romans 8:15).</p>
             </div>
+                </div>
+            </details>
         </div>
 
-        <!-- Usage Examples -->
         <div class="section">
-            <button class="dict-toggle" data-toggle="usage" onclick="toggleDict('usage')">
-                <span class="arrow">&#9658;</span>&#9997;&#65039; Usage Examples
-            </button>
-            <div class="dict-section" id="usage">
-                <p>&#x2022; "The parrhesia of the early church was not manufactured courage — it was the natural overflow of men who had seen the risen Christ."</p>
+            <h3><img src="../assets/icons/shield-blog-quill-48.png" width="20" height="20" style="vertical-align:middle;margin-right:6px;"> Usage</h3>
+            <p>&#x2022; "The parrhesia of the early church was not manufactured courage — it was the natural overflow of men who had seen the risen Christ."</p>
                 <p>&#x2022; "You cannot have parrhesia in the pulpit if you do not have parrhesia in the prayer closet. Boldness before men is born in the presence of God."</p>
                 <p>&#x2022; "Christian prayer is an act of parrhesia: the creature approaching the Creator, the sinner addressing the Holy One, not by merit but by blood-bought right."</p>
             </div>
         </div>
 
-        <!-- Related Words -->
         <div class="section">
             <h3>Related Words</h3>
             <div class="related">
@@ -174,10 +158,19 @@ Hebrew parallel:
             </div>
         </div>
 
-    </div>
+        <div class="section">
+            <pre>Greek:
+παρρησία (parrhesia, G3954) — boldness, confidence, plainness of speech, freedom of access
+  πᾶν (pan) — all, every
+  ῥῆσις (rhēsis) — speech, utterance (from ῥέω, to flow)
+  → Used 31x in NT: Acts 2:29; 4:13,29,31; Jn 7:4; 10:24; 2Cor 3:12; Eph 3:12; Heb 4:16; 10:19; 1Jn 2:28; 3:21; 4:17; 5:14
 
-    <div style="text-align:center; margin:0 0 20px 0;">
-        <button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark/light" style="width:36px;height:36px;font-size:1rem;">&#127769;</button>
+Hebrew parallel:
+עָז (az) — strength, boldness, might (Prov 28:1: "the righteous are bold as a lion")
+בִּטָּחוֹן (bittachon) — confidence, security, trust in God</pre>
+            </div>
+        </div>
+
     </div>
 
     <footer>
@@ -189,16 +182,9 @@ Hebrew parallel:
             <a href="../counseling.html"><img src="../assets/icons/shield-family.png" class="site-icon" alt="" width="20" height="20"> Counseling</a> &middot;
             <a href="../about.html"><img src="../assets/icons/shield-about-person-24.png" class="site-icon" alt="" width="20" height="20"> About</a>
         </p>
-        <p style="margin-top:8px;font-size:0.78rem;color:#555;">Powered by MOOPbot Pro &mdash; &ldquo;Iron sharpens iron.&rdquo; &mdash; <a href="../bible.html?ref=Proverbs+27:17" style="color:var(--gold);">Proverbs 27:17</a></p>
+        <p style="margin-top:8px;font-size:0.78rem;color:#555;">Powered by MOOPbot Pro &mdash; &ldquo;Iron sharpens iron.&rdquo; &mdash; <a href="../bible.html?ref=Proverbs+27:17" style="color:var(--gold);text-decoration:underline;">Proverbs 27:17</a></p>
     </footer>
     <script>
-    function toggleDict(id){
-        var s=document.getElementById(id);
-        var b=document.querySelector('[data-toggle="'+id+'"]');
-        var a=b?b.querySelector('.arrow'):null;
-        s.classList.toggle('open');
-        if(a)a.classList.toggle('open');
-    }
     function toggleTheme(){
         var b=document.body,t=document.getElementById('themeToggle');
         if(b.classList.contains('light-mode')){b.classList.remove('light-mode');t.textContent='\u{1F319}';localStorage.setItem('bte-theme','dark');}

@@ -3,60 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sacrilege — The MOOP Dictionary of the English Language</title>
+    <title>Sacrilege &mdash; The MOOP Dictionary</title>
     <style>
         * { margin:0; padding:0; box-sizing:border-box; }
         :root { --bg:#000; --card:#111; --gold:#D4AF37; --gold-light:#F4D470; --white:#FFF; --gray:#888; --border:#333; }
         body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--white); min-height:100vh; line-height:1.7; }
-        h1,h2,h3 { font-family:'Playfair Display',serif; }
-        nav { display:flex; align-items:center; gap:14px; padding:10px 20px; background:rgba(0,0,0,0.95); border-bottom:1px solid var(--border); flex-wrap:wrap; position:sticky; top:0; z-index:100; }
-        nav a { color:var(--gold); text-decoration:none; font-size:0.82rem; font-weight:500; display:flex; align-items:center; gap:4px; white-space:nowrap; }
-        nav a:hover, nav a.active { color:var(--gold-light); }
-        .site-icon { vertical-align:middle; opacity:0.85; }
+        h1,h2,h3,h4 { font-family:'Playfair Display',serif; }
+        nav { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:4px 8px; padding:10px 16px;
+              border-bottom:1px solid var(--border); position:sticky; top:0;
+              background:rgba(0,0,0,0.95); backdrop-filter:blur(8px); z-index:100; }
+        nav a { color:var(--gray); text-decoration:none; font-size:0.8rem; display:inline-flex; align-items:center;
+                gap:3px; padding:3px 6px; border-radius:6px; transition:color 0.2s; }
+        nav a:hover, nav a.active { color:var(--gold); }
+        .site-icon { vertical-align:middle; opacity:0.8; }
         .theme-toggle { background:none; border:1px solid var(--border); border-radius:50%; width:28px; height:28px;
                         cursor:pointer; font-size:0.85rem; transition:all 0.3s; padding:0; color:var(--white);
-                        display:inline-flex; align-items:center; justify-content:center; margin-left:auto; }
+                        display:inline-flex; align-items:center; justify-content:center; }
         .theme-toggle:hover { border-color:var(--gold); }
         .container { max-width:820px; margin:0 auto; padding:28px 20px 60px; }
         .word-header { text-align:center; padding:40px 0 30px; border-bottom:1px solid var(--border); margin-bottom:30px; }
         .word-title { font-size:2.8rem; color:var(--gold-light); margin-bottom:6px; }
-        .pronunciation { color:var(--white); font-size:1.1rem; font-style:italic; }
+        .pronunciation { color:var(--gray); font-size:1.1rem; font-style:italic; }
         .pos { display:inline-block; background:var(--gold); color:#000; font-weight:700;
                font-size:0.78rem; padding:3px 14px; border-radius:15px; margin:10px 0; }
-        .etymology { color:var(--white); font-size:0.88rem; margin:12px auto; max-width:650px; }
+        .etymology { color:var(--gray); font-size:0.88rem; margin:12px auto; max-width:650px; }
         .section { margin:18px 0; padding:18px 22px; background:var(--card); border:1px solid var(--border); border-radius:10px; }
         .section > h3 { color:var(--gold); margin-bottom:12px; font-size:1.05rem; }
-        .section p { margin:7px 0; color:var(--white); }
+        .section p { margin:7px 0; }
         .biblical-def { border-left:3px solid var(--gold); padding-left:15px; }
-        .dict-toggle { cursor:pointer; color:var(--gold); font-size:0.92rem; user-select:none;
-                       display:inline-flex; align-items:center; gap:0; background:none; border:none;
-                       padding:0; font-family:inherit; font-weight:600; }
-        .dict-toggle:hover { color:var(--gold-light); }
-        .dict-toggle .arrow { display:inline-block; transition:transform 0.2s; margin-right:8px; font-size:0.75rem; }
-        .dict-toggle .arrow.open { transform:rotate(90deg); }
-        .dict-section { display:none; margin:10px 0 4px 0; padding:12px 16px;
-                        background:rgba(212,175,55,0.06); border-left:2px solid var(--gold);
-                        border-radius:0 6px 6px 0; }
-        .dict-section.open { display:block; }
-        .dict-section p { margin:6px 0; font-size:0.95rem; color:var(--white); }
+        .section-summary { color:var(--gray); font-size:0.92rem; font-style:italic; margin-bottom:4px; }
+        details { margin-top:8px; }
+        details summary { color:var(--gold); font-size:0.85rem; cursor:pointer; user-select:none; padding:4px 0; }
+        details summary:hover { color:var(--gold-light); }
+        details[open] summary { margin-bottom:8px; }
         .corruption { border-left:3px solid #CC0000; padding-left:15px; }
+        .corruption-inner { padding:12px 16px; background:rgba(204,0,0,0.06); border-left:2px solid #CC0000; border-radius:0 6px 6px 0; }
+        .roots-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .webster-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .proto-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .proto-inner pre { font-family:'Courier New',monospace; font-size:0.82rem; color:var(--gold-light);
+                           line-height:1.7; white-space:pre-wrap; }
         .verse-ref { color:var(--gold); text-decoration:none; font-weight:600; }
         .verse-ref:hover { color:var(--gold-light); text-decoration:underline; }
+        .lexicon-link { color:var(--gold); font-family:monospace; text-decoration:none; }
+        .lexicon-link:hover { color:var(--gold-light); text-decoration:underline; }
         .related { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
         .related a { background:var(--card); border:1px solid var(--border); padding:6px 14px;
                      border-radius:20px; color:var(--white); text-decoration:none; font-size:0.85rem;
                      transition:border-color 0.2s, color 0.2s; }
         .related a:hover { border-color:var(--gold); color:var(--gold); }
         footer { text-align:center; padding:28px 20px; border-top:1px solid var(--border);
-                 margin-top:40px; color:var(--white); font-size:0.88rem; }
-        footer a { color:var(--white); text-decoration:none; }
+                 margin-top:40px; color:var(--gray); font-size:0.88rem; }
+        footer a { color:var(--gray); text-decoration:none; }
         footer a:hover { color:var(--gold); }
-        body.light-mode { --bg:#F5F3EF; --card:#FFF; --white:#1a1a1a; --gray:#666; --border:#d4d0c8; }
+        .cross-divider { margin-bottom:10px; }
+        body.light-mode { --bg:#F5F3EF; --card:#FFF; --white:#1a1a1a; --gray:#666; --border:#d4d0c8; background:#F5F3EF; color:#1a1a1a; }
         body.light-mode nav { background:rgba(245,243,239,0.97); }
         body.light-mode .section { background:#fff; border-color:#d4d0c8; }
-        body.light-mode .dict-section { background:rgba(212,175,55,0.04); }
+        body.light-mode details summary { color:var(--gold); }
+        body.light-mode .corruption-inner { background:rgba(204,0,0,0.03); }
+        body.light-mode .roots-inner, body.light-mode .webster-inner, body.light-mode .proto-inner { background:rgba(212,175,55,0.04); }
         body.light-mode footer { border-top-color:#d4d0c8; }
         body.light-mode .related a { background:#f0ede7; border-color:#d4d0c8; color:#1a1a1a; }
+        a, a:link, a:visited { color: var(--gold, #D4AF37) !important; }
+        a:hover { color: var(--gold-light, #F4D470) !important; }
         .dict-back-nav { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:22px; padding:10px 0; border-bottom:1px solid var(--border,#333); }
         .dict-back-nav a { color:var(--gold,#D4AF37); text-decoration:none; font-size:0.88rem; font-weight:500; }
         .dict-back-nav a:hover { color:var(--gold-light,#F4D470); }
@@ -77,11 +87,7 @@
         <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle" title="Toggle dark/light">&#127769;</button>
     </nav>
     <div class="container">
-        <div class="dict-back-nav">
-            <span></span>
-            <div class="dict-back-center"><a href="index.html">&#8592; Back to Dictionary</a></div>
-            <span></span>
-        </div>
+        <div class="dict-back-nav"><a href="sacrifice.html">&#8592; Sacrifice</a><div class="dict-back-center"><a href="index.html">&#8592; Back to Dictionary</a></div><a href="sacrosanct.html">Sacrosanct &#8594;</a></div>
         <div class="word-header">
             <div class="word-title">Sacrilege</div>
             <div class="pronunciation">/ ˈsæk.rɪ.lɪdʒ /</div>
@@ -99,27 +105,19 @@
         </div>
 
         <div class="section">
-            <button class="dict-toggle" data-toggle="webster" onclick="toggleDict('webster')">
-                <span class="arrow">&#9658;</span>&#128220; Webster 1828 Definition
-            </button>
-            <div class="dict-section" id="webster">
-                <p><strong>SACRILEGE</strong>, n. [Latin <em>sacrilegium</em>; <em>sacer</em>, sacred, and <em>lego</em>, to steal.] The crime of violating or profaning sacred things; the alienating to laymen or to common purposes what has been appropriated or consecrated to religious persons or uses. In its most comprehensive sense, any act of impiety or irreverence toward the things of God — His name, His worship, His Word, or His servants — constitutes sacrilege. The church has always regarded it as among the most serious of offenses, for it strikes not merely at human order but at the honor of God Himself.</p>
+            <h3>&#128220; Webster 1828 Definition</h3>
+            <p class="section-summary">SACRILEGE, n.</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="webster-inner">
+                    <p><strong>SACRILEGE</strong>, n. [Latin <em>sacrilegium</em>; <em>sacer</em>, sacred, and <em>lego</em>, to steal.] The crime of violating or profaning sacred things; the alienating to laymen or to common purposes what has been appropriated or consecrated to religious persons or uses. In its most comprehensive sense, any act of impiety or irreverence toward the things of God — His name, His worship, His Word, or His servants — constitutes sacrilege. The church has always regarded it as among the most serious of offenses, for it strikes not merely at human order but at the honor of God Himself.</p>
             </div>
-        </div>
-
-        <div class="section">
-            <button class="dict-toggle" data-toggle="corruption" onclick="toggleDict('corruption')">
-                <span class="arrow">&#9658;</span>&#9888;&#65039; Modern Corruption
-            </button>
-            <div class="dict-section" id="corruption">
-                <div class="corruption">
-                    <p>Modernity has almost entirely abolished the category of sacrilege — not by solving its problem but by denying its premise. If nothing is holy, nothing can be profaned. The secular mind uses "sacrilege" only as hyperbole: "It's practically sacrilege to put ketchup on a steak." This trivialization is itself a symptom of the deeper sacrilege: the desacralization of reality, the flattening of all things into the commercial and ordinary. Within the church, the danger is a casual familiarity with holy things that has crossed into contempt. Preaching reduced to entertainment. Communion treated as a snack. The name of God thrown around to close sales ("God told me to tell you to give"). Prayer used as performance. The Scripture read without reverence. These are not minor taste differences — they are forms of sacrilege, the profaning of what God has consecrated. The fear of the Lord is the beginning of wisdom; the loss of it produces a church that handles holy things with dirty hands and wonders why the power is gone.</p>
                 </div>
-            </div>
+            </details>
         </div>
 
         <div class="section">
-            <h3>&#128218; Scripture References</h3>
+            <h3>&#128214; Key Scripture</h3>
             <p>&#x2022; <a href="../bible.html?ref=2+Samuel+6:6-7" class="verse-ref">2 Samuel 6:6–7</a> — Uzzah touches the Ark; the LORD strikes him dead. "The anger of the LORD was kindled against Uzzah, and God struck him down there because of his error."</p>
             <p>&#x2022; <a href="../bible.html?ref=Daniel+5:2-4" class="verse-ref">Daniel 5:2–4</a> — Belshazzar uses the sacred Temple vessels for a pagan feast — and the handwriting appears on the wall.</p>
             <p>&#x2022; <a href="../bible.html?ref=John+2:13-17" class="verse-ref">John 2:13–17</a> — Jesus drives out the Temple merchants: "Do not make my Father's house a house of trade." (Disciples recall: "Zeal for your house will consume me.")</p>
@@ -128,21 +126,41 @@
         </div>
 
         <div class="section">
-            <h3>&#128279; Greek &amp; Hebrew Roots</h3>
-            <p><a href="../lexicon/H2490.html" class="verse-ref">H2490 — חָלַל (chalal)</a> — "to profane, defile, desecrate" — the primary Hebrew term for sacrilege; to treat as common what God has declared holy.</p>
-            <p><a href="../lexicon/G953.html" class="verse-ref">G953 — βεβηλόω (bebēloō)</a> — "to profane, desecrate, treat as common" — New Testament equivalent; used of the Sabbath (Matt. 12:5) and implicitly of all holy things.</p>
-            <p><a href="../lexicon/G37.html" class="verse-ref">G37 — ἁγιάζω (hagiazō)</a> — "to sanctify, make holy, set apart" — the positive counterpart; to fail to sanctify what God sanctifies is the essence of sacrilege.</p>
+            <h3>&#9888;&#65039; Modern Corruption</h3>
+            <p class="section-summary">Modernity has almost entirely abolished the category of sacrilege — not by solving its problem but by denying its pre...</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="corruption-inner">
+                    <div class="corruption">
+                    <p>Modernity has almost entirely abolished the category of sacrilege — not by solving its problem but by denying its premise. If nothing is holy, nothing can be profaned. The secular mind uses "sacrilege" only as hyperbole: "It's practically sacrilege to put ketchup on a steak." This trivialization is itself a symptom of the deeper sacrilege: the desacralization of reality, the flattening of all things into the commercial and ordinary. Within the church, the danger is a casual familiarity with holy things that has crossed into contempt. Preaching reduced to entertainment. Communion treated as a snack. The name of God thrown around to close sales ("God told me to tell you to give"). Prayer used as performance. The Scripture read without reverence. These are not minor taste differences — they are forms of sacrilege, the profaning of what God has consecrated. The fear of the Lord is the beginning of wisdom; the loss of it produces a church that handles holy things with dirty hands and wonders why the power is gone.</p>
+                </div>
+            </div>
+                </div>
+            </details>
         </div>
 
         <div class="section">
-            <h3>&#9997;&#65039; Usage</h3>
+            <h3>&#128279; Greek &amp; Hebrew Roots</h3>
+            <p class="section-summary">H2490 — חָלַל (chalal) — "to profane, defile, desecrate" — the primary Hebrew term for sacrilege; to treat as common ...</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="roots-inner">
+                    <p><a href="../lexicon/H2490.html" class="verse-ref">H2490 — חָלַל (chalal)</a> — "to profane, defile, desecrate" — the primary Hebrew term for sacrilege; to treat as common what God has declared holy.</p>
+            <p><a href="../lexicon/G953.html" class="verse-ref">G953 — βεβηλόω (bebēloō)</a> — "to profane, desecrate, treat as common" — New Testament equivalent; used of the Sabbath (Matt. 12:5) and implicitly of all holy things.</p>
+            <p><a href="../lexicon/G37.html" class="verse-ref">G37 — ἁγιάζω (hagiazō)</a> — "to sanctify, make holy, set apart" — the positive counterpart; to fail to sanctify what God sanctifies is the essence of sacrilege.</p>
+                </div>
+            </details>
+        </div>
+
+        <div class="section">
+            <h3><img src="../assets/icons/shield-blog-quill-48.png" width="20" height="20" style="vertical-align:middle;margin-right:6px;"> Usage</h3>
             <p>"The death of Uzzah is not embarrassing — it is instructive. God is holy. The sacred is real. And well-intentioned carelessness toward holy things is still sacrilege."</p>
             <p>"A church that has lost the sense of the sacred will inevitably commit sacrilege without knowing it. When the fear of God goes, the profaning of holy things follows."</p>
             <p>"Sacrilege is not primarily about objects or places — it is about the honor of God. Anything that dishonors what He has consecrated — His name, His Word, His table, His people — is a violation of the sacred."</p>
         </div>
 
         <div class="section">
-            <h3>&#128279; Related Words</h3>
+            <h3>Related Words</h3>
             <div class="related">
                 <a href="holiness.html">Holiness</a>
                 <a href="simony.html">Simony</a>
@@ -153,17 +171,32 @@
                 <a href="idolatry.html">Idolatry</a>
             </div>
         </div>
+
     </div>
+
     <footer>
-        <div style="text-align:center; margin-bottom:12px;">
-            <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle2" title="Toggle dark/light" style="margin:0 auto;">&#127769;</button>
-        </div>
-        <a href="index.html">&#8592; The MOOP Dictionary</a> &nbsp;|&nbsp; &copy; USMC Ministries
+        <div class="cross-divider"><img src="../assets/icons/shield-cross-bible-48.png" alt="" width="36" height="36" style="opacity:0.6;margin-bottom:10px;"></div>
+        <p>
+            <a href="../index.html#uniting"><img src="../assets/icons/shield-hands-joining.png" class="site-icon" alt="" width="20" height="20"> Uniting</a> &middot;
+            <a href="../serving.html"><img src="../assets/icons/shield-serving.png" class="site-icon" alt="" width="20" height="20"> Serving</a> &middot;
+            <a href="../mentoring.html"><img src="../assets/icons/shield-mentoring.png" class="site-icon" alt="" width="20" height="20"> Mentoring</a> &middot;
+            <a href="../counseling.html"><img src="../assets/icons/shield-family.png" class="site-icon" alt="" width="20" height="20"> Counseling</a> &middot;
+            <a href="../about.html"><img src="../assets/icons/shield-about-person-24.png" class="site-icon" alt="" width="20" height="20"> About</a>
+        </p>
+        <p style="margin-top:8px;font-size:0.78rem;color:#555;">Powered by MOOPbot Pro &mdash; &ldquo;Iron sharpens iron.&rdquo; &mdash; <a href="../bible.html?ref=Proverbs+27:17" style="color:var(--gold);text-decoration:underline;">Proverbs 27:17</a></p>
     </footer>
     <script>
-        function toggleDict(id){var s=document.getElementById(id);var b=document.querySelector('[data-toggle="'+id+'"]');var a=b?b.querySelector('.arrow'):null;s.classList.toggle('open');if(a)a.classList.toggle('open');}
-        function toggleTheme(){var b=document.body,t=document.getElementById('themeToggle'),t2=document.getElementById('themeToggle2');var moon='\u{1F319}',sun='\u2600\uFE0F';if(b.classList.contains('light-mode')){b.classList.remove('light-mode');if(t)t.textContent=moon;if(t2)t2.textContent=moon;localStorage.setItem('bte-theme','dark');}else{b.classList.add('light-mode');if(t)t.textContent=sun;if(t2)t2.textContent=sun;localStorage.setItem('bte-theme','light');}}
-        (function(){var t=localStorage.getItem('bte-theme');if(t==='light'){document.body.classList.add('light-mode');var t1=document.getElementById('themeToggle'),t2=document.getElementById('themeToggle2');if(t1)t1.textContent='\u2600\uFE0F';if(t2)t2.textContent='\u2600\uFE0F';}})();
+    function toggleTheme(){
+        var b=document.body,t=document.getElementById('themeToggle');
+        if(b.classList.contains('light-mode')){b.classList.remove('light-mode');t.textContent='\u{1F319}';localStorage.setItem('bte-theme','dark');}
+        else{b.classList.add('light-mode');t.textContent='\u2600\uFE0F';localStorage.setItem('bte-theme','light');}
+    }
+    (function(){
+        if(localStorage.getItem('bte-theme')==='light'){
+            document.body.classList.add('light-mode');
+            var t=document.getElementById('themeToggle');if(t)t.textContent='\u2600\uFE0F';
+        }
+    })();
     </script>
 </body>
 </html>

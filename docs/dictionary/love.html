@@ -31,20 +31,18 @@
         .section > h3 { color:var(--gold); margin-bottom:12px; font-size:1.05rem; }
         .section p { margin:7px 0; }
         .biblical-def { border-left:3px solid var(--gold); padding-left:15px; }
-        .dict-toggle { cursor:pointer; color:var(--gold); font-size:0.92rem; user-select:none;
-                       display:inline-flex; align-items:center; gap:0; background:none; border:none;
-                       padding:0; font-family:inherit; font-weight:600; }
-        .dict-toggle:hover { color:var(--gold-light); }
-        .dict-toggle .arrow { display:inline-block; transition:transform 0.2s; margin-right:8px; font-size:0.75rem; }
-        .dict-toggle .arrow.open { transform:rotate(90deg); }
-        .dict-section { display:none; margin:10px 0 4px 0; padding:12px 16px;
-                        background:rgba(212,175,55,0.06); border-left:2px solid var(--gold);
-                        border-radius:0 6px 6px 0; }
-        .dict-section.open { display:block; }
-        .dict-section p { margin:6px 0; font-size:0.95rem; }
-        .dict-section pre { font-family:'Courier New',monospace; font-size:0.82rem; color:var(--gold-light);
-                             line-height:1.7; white-space:pre-wrap; }
+        .section-summary { color:var(--gray); font-size:0.92rem; font-style:italic; margin-bottom:4px; }
+        details { margin-top:8px; }
+        details summary { color:var(--gold); font-size:0.85rem; cursor:pointer; user-select:none; padding:4px 0; }
+        details summary:hover { color:var(--gold-light); }
+        details[open] summary { margin-bottom:8px; }
         .corruption { border-left:3px solid #CC0000; padding-left:15px; }
+        .corruption-inner { padding:12px 16px; background:rgba(204,0,0,0.06); border-left:2px solid #CC0000; border-radius:0 6px 6px 0; }
+        .roots-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .webster-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .proto-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .proto-inner pre { font-family:'Courier New',monospace; font-size:0.82rem; color:var(--gold-light);
+                           line-height:1.7; white-space:pre-wrap; }
         .verse-ref { color:var(--gold); text-decoration:none; font-weight:600; }
         .verse-ref:hover { color:var(--gold-light); text-decoration:underline; }
         .lexicon-link { color:var(--gold); font-family:monospace; text-decoration:none; }
@@ -62,18 +60,18 @@
         body.light-mode { --bg:#F5F3EF; --card:#FFF; --white:#1a1a1a; --gray:#666; --border:#d4d0c8; background:#F5F3EF; color:#1a1a1a; }
         body.light-mode nav { background:rgba(245,243,239,0.97); }
         body.light-mode .section { background:#fff; border-color:#d4d0c8; }
-        body.light-mode .dict-section { background:rgba(212,175,55,0.04); }
+        body.light-mode details summary { color:var(--gold); }
+        body.light-mode .corruption-inner { background:rgba(204,0,0,0.03); }
+        body.light-mode .roots-inner, body.light-mode .webster-inner, body.light-mode .proto-inner { background:rgba(212,175,55,0.04); }
         body.light-mode footer { border-top-color:#d4d0c8; }
         body.light-mode .related a { background:#f0ede7; border-color:#d4d0c8; color:#1a1a1a; }
-
-    
         a, a:link, a:visited { color: var(--gold, #D4AF37) !important; }
         a:hover { color: var(--gold-light, #F4D470) !important; }
-            .dict-back-nav { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:22px; padding:10px 0; border-bottom:1px solid var(--border,#333); }
+        .dict-back-nav { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:22px; padding:10px 0; border-bottom:1px solid var(--border,#333); }
         .dict-back-nav a { color:var(--gold,#D4AF37); text-decoration:none; font-size:0.88rem; font-weight:500; }
         .dict-back-nav a:hover { color:var(--gold-light,#F4D470); }
         .dict-back-nav .dict-back-center { flex:1; text-align:center; }
-</style>
+    </style>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -97,7 +95,6 @@
             <div class="etymology">From Old English <em>lufu</em> (noun), <em>lufian</em> (verb); Proto-Germanic <em>*lubō</em>; related to Latin <em>lubēre</em> (to please). Greek: <em>agapē</em> (ἀγάπη), <em>philia</em> (φιλία), <em>eros</em> (ἔρως). Hebrew: <em>ahavah</em> (אַהֲבָה), <em>chesed</em> (חֶסֶד).</div>
         </div>
 
-        <!-- Biblical Definition — always visible -->
         <div class="section">
             <h3>&#128214; Biblical Definition</h3>
             <div class="biblical-def">
@@ -105,64 +102,69 @@
             </div>
         </div>
 
-        <!-- Webster 1828 — collapsible -->
         <div class="section">
-            <button class="dict-toggle" data-toggle="webster" onclick="toggleDict('webster')">
-                <span class="arrow">&#9658;</span>&#128220; Webster 1828 Definition
-            </button>
-            <div class="dict-section" id="webster">
-                <p>• <a href="../bible.html?ref=John+3:16" class="verse-ref">John 3:16</a> — "For God so loved the world that he gave his only Son…"</p>
+            <h3>&#128220; Webster 1828 Definition</h3>
+            <p class="section-summary">John 3:16 — "For God so loved the world that he gave his only Son…"
+            • 1 Corinthians 13:4–7 — The anatomy ...</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="webster-inner">
+                    <p>• <a href="../bible.html?ref=John+3:16" class="verse-ref">John 3:16</a> — "For God so loved the world that he gave his only Son…"</p>
             <p>• <a href="../bible.html?ref=1+Corinthians+13:4-7" class="verse-ref">1 Corinthians 13:4–7</a> — The anatomy of love: patient, kind, not self-seeking.</p>
             <p>• <a href="../bible.html?ref=1+John+4:8" class="verse-ref">1 <a href="../bible.html?ref=John+4:8" style="color:var(--gold);text-decoration:underline;">John 4:8</a></a> — "Anyone who does not love does not know God, because God is love."</p>
             <p>• <a href="../bible.html?ref=Matthew+22:37-39" class="verse-ref">Matthew 22:37–39</a> — Love God and neighbor: the two great commandments.</p>
             <p>• <a href="../bible.html?ref=Romans+5:8" class="verse-ref">Romans 5:8</a> — "God demonstrates his own love for us in this: While we were still sinners, Christ died for us."</p>
         </div>
-
-        <div class="section">
-            <h3>🔗 Greek &amp; Hebrew Roots</h3>
-            <p><a href="../lexicon/G26.html" class="lexicon-link">G26</a> — <strong>agapē</strong> (ἀγάπη): unconditional, covenantal love; the love of God and commanded love of neighbor.</p>
-            <p><a href="../lexicon/G5368.html" class="lexicon-link">G5368</a> — <strong>phileō</strong> (φιλέω): brotherly affection, warm friendship.</p>
-            <p><a href="../lexicon/H157.html" class="lexicon-link">H157</a> — <strong>ahav</strong> (אָהַב): to love; used of God's love for Israel and of human covenant love.</p>
-            <p><a href="../lexicon/H2617.html" class="lexicon-link">H2617</a> — <strong>chesed</strong> (חֶסֶד): steadfast lovingkindness; covenant loyalty and mercy.</p>
+                </div>
+            </details>
         </div>
 
         <div class="section">
-            <h3><img src="../assets/icons/shield-blog-quill-48.png" width="20" height="20" style="vertical-align:middle;margin-right:6px;"> Usage</h3>
-            <p>• "A father disciplines his son because he loves him — love is not the absence of correction but its motivation." (cf. Prov 3:12)</p>
-            <p>• "Love without truth is sentimentality; truth without love is cruelty — the biblical call is to speak truth <em>in love</em>." (Eph 4:15)</p>
-            <p>• "The measure of love is not how it feels but what it costs: Christ's cross is the definitive definition."</p>
+            <h3>&#128214; Key Scripture</h3>
+            <p>&#x2022; <a href="../bible.html?ref=John+3:16" class="verse-ref">John 3:16</a> &mdash; "For God so loved the world that he gave his only Son…"</p>
+            <p>&#x2022; <a href="../bible.html?ref=1+Corinthians+13:4-7" class="verse-ref">1 Corinthians 13:4–7</a> &mdash; The anatomy of love: patient, kind, not self-seeking.</p>
+            <p>&#x2022; <a href="../bible.html?ref=1+John+4:8" class="verse-ref">1 <a href="../bible.html?ref=John+4:8" style="color:var(--gold);text-decoration:underline;">John 4:8</a></a> &mdash; "Anyone who does not love does not know God, because God is love."</p>
+            <p>&#x2022; <a href="../bible.html?ref=Matthew+22:37-39" class="verse-ref">Matthew 22:37–39</a> &mdash; Love God and neighbor: the two great commandments.</p>
+            <p>&#x2022; <a href="../bible.html?ref=Romans+5:8" class="verse-ref">Romans 5:8</a> &mdash; "God demonstrates his own love for us in this: While we were still sinners, Christ died for us."</p>
         </div>
 
         <div class="section">
-            <h3>Related Words</h3>
-            <div class="related">
-                <a href="grace.html">Grace</a>
-                <a href="mercy.html">Mercy</a>
-                <a href="covenant.html">Covenant</a>
-                <a href="faith.html">Faith</a>
-                <a href="joy.html">Joy</a>
-            </div>
-        </div>
-
-        <!-- Modern Corruption — collapsible -->
-        <div class="section">
-            <button class="dict-toggle" data-toggle="corruption" onclick="toggleDict('corruption')">
-                <span class="arrow">&#9658;</span>&#9888;&#65039; Modern Corruption
-            </button>
-            <div class="dict-section" id="corruption">
-                <div class="corruption">
+            <h3>&#9888;&#65039; Modern Corruption</h3>
+            <p class="section-summary">Modern culture has collapsed love into romantic feeling and sexual attraction, reducing agapē to eros.</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="corruption-inner">
+                    <div class="corruption">
                     <p>Modern culture has collapsed love into <strong>romantic feeling and sexual attraction</strong>, reducing <em>agapē</em> to <em>eros</em>. "Love is love" has become a slogan to legitimize any desire as moral and beyond critique, conflating affection with approval. The biblical definition — a covenantal, self-sacrificial, truth-bound commitment — is often dismissed as "conditional" or unloving when it involves correction, boundaries, or calls to repentance. True love, as Scripture defines it, "rejoices with the truth" (1 Cor 13:6) and sometimes looks like loving rebuke rather than affirmation.</p>
                 </div>
             </div>
+                </div>
+            </details>
         </div>
 
-        <!-- Proto-Language Roots — collapsible -->
         <div class="section">
-            <button class="dict-toggle" data-toggle="proto" onclick="toggleDict('proto')">
-                <span class="arrow">&#9658;</span>&#127760; Proto-Language Roots
-            </button>
-            <div class="dict-section" id="proto">
-                <pre>PIE *leubh- ("to care, desire, love")
+            <h3>&#128279; Greek &amp; Hebrew Roots</h3>
+            <p class="section-summary">G26 — agapē (ἀγάπη): unconditional, covenantal love; the love of God and commanded love of neighbor.</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="roots-inner">
+                    <p><a href="../lexicon/G26.html" class="lexicon-link">G26</a> — <strong>agapē</strong> (ἀγάπη): unconditional, covenantal love; the love of God and commanded love of neighbor.</p>
+            <p><a href="../lexicon/G5368.html" class="lexicon-link">G5368</a> — <strong>phileō</strong> (φιλέω): brotherly affection, warm friendship.</p>
+            <p><a href="../lexicon/H157.html" class="lexicon-link">H157</a> — <strong>ahav</strong> (אָהַב): to love; used of God's love for Israel and of human covenant love.</p>
+            <p><a href="../lexicon/H2617.html" class="lexicon-link">H2617</a> — <strong>chesed</strong> (חֶסֶד): steadfast lovingkindness; covenant loyalty and mercy.</p>
+                </div>
+            </details>
+        </div>
+
+        <div class="section">
+            <h3>&#127760; Proto-Language Roots</h3>
+            <p class="section-summary">PIE *leubh- ("to care, desire, love")
+  → Proto-Germanic *lubō (love, affection)
+    → Old English lufu (noun), lufia...</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="proto-inner">
+                    <pre>PIE *leubh- ("to care, desire, love")
   → Proto-Germanic *lubō (love, affection)
     → Old English lufu (noun), lufian (verb)
       → Middle English love → Modern English "love"
@@ -180,40 +182,18 @@ Proto-Semitic *ʾhb → Hebrew אָהַב (ahav, H157) — to love, desire
   → אַהֲבָה (ahavah) — love as covenant bond
   → חֶסֶד (chesed, H2617) — steadfast lovingkindness, covenant loyalty</pre>
             </div>
+                </div>
+            </details>
         </div>
 
-        <!-- Key Scripture — always visible -->
         <div class="section">
-            <h3>&#128214; Key Scripture</h3>
-            <p>&#x2022; <a href="../bible.html?ref=John+3:16" class="verse-ref">John 3:16</a> &mdash; "For God so loved the world that he gave his only Son…"</p>
-            <p>&#x2022; <a href="../bible.html?ref=1+Corinthians+13:4-7" class="verse-ref">1 Corinthians 13:4–7</a> &mdash; The anatomy of love: patient, kind, not self-seeking.</p>
-            <p>&#x2022; <a href="../bible.html?ref=1+John+4:8" class="verse-ref">1 <a href="../bible.html?ref=John+4:8" style="color:var(--gold);text-decoration:underline;">John 4:8</a></a> &mdash; "Anyone who does not love does not know God, because God is love."</p>
-            <p>&#x2022; <a href="../bible.html?ref=Matthew+22:37-39" class="verse-ref">Matthew 22:37–39</a> &mdash; Love God and neighbor: the two great commandments.</p>
-            <p>&#x2022; <a href="../bible.html?ref=Romans+5:8" class="verse-ref">Romans 5:8</a> &mdash; "God demonstrates his own love for us in this: While we were still sinners, Christ died for us."</p>
-        </div>
-
-        <!-- Greek & Hebrew Roots — collapsible -->
-        <div class="section">
-            <button class="dict-toggle" data-toggle="roots" onclick="toggleDict('roots')">
-                <span class="arrow">&#9658;</span>&#128279; Greek &amp; Hebrew Roots
-            </button>
-            <div class="dict-section" id="roots">
-            </div>
-        </div>
-
-        <!-- Usage Examples — collapsible -->
-        <div class="section">
-            <button class="dict-toggle" data-toggle="usage" onclick="toggleDict('usage')">
-                <span class="arrow">&#9658;</span>&#9997;&#65039; Usage Examples
-            </button>
-            <div class="dict-section" id="usage">
+            <h3><img src="../assets/icons/shield-blog-quill-48.png" width="20" height="20" style="vertical-align:middle;margin-right:6px;"> Usage</h3>
             <p>&#x2022; "A father disciplines his son because he loves him — love is not the absence of correction but its motivation." (cf. Prov 3:12)</p>
             <p>&#x2022; "Love without truth is sentimentality; truth without love is cruelty — the biblical call is to speak truth <em>in love</em>." (Eph 4:15)</p>
             <p>&#x2022; "The measure of love is not how it feels but what it costs: Christ's cross is the definitive definition."</p>
             </div>
         </div>
 
-        <!-- Related Words — always visible -->
         <div class="section">
             <h3>Related Words</h3>
             <div class="related">
@@ -239,13 +219,6 @@ Proto-Semitic *ʾhb → Hebrew אָהַב (ahav, H157) — to love, desire
         <p style="margin-top:8px;font-size:0.78rem;color:#555;">Powered by MOOPbot Pro &mdash; &ldquo;Iron sharpens iron.&rdquo; &mdash; <a href="../bible.html?ref=Proverbs+27:17" style="color:var(--gold);text-decoration:underline;">Proverbs 27:17</a></p>
     </footer>
     <script>
-    function toggleDict(id){
-        var s=document.getElementById(id);
-        var b=document.querySelector('[data-toggle="'+id+'"]');
-        var a=b?b.querySelector('.arrow'):null;
-        s.classList.toggle('open');
-        if(a)a.classList.toggle('open');
-    }
     function toggleTheme(){
         var b=document.body,t=document.getElementById('themeToggle');
         if(b.classList.contains('light-mode')){b.classList.remove('light-mode');t.textContent='\u{1F319}';localStorage.setItem('bte-theme','dark');}

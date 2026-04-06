@@ -29,20 +29,20 @@
         .etymology { color:var(--gray); font-size:0.88rem; margin:12px auto; max-width:650px; }
         .section { margin:18px 0; padding:18px 22px; background:var(--card); border:1px solid var(--border); border-radius:10px; }
         .section > h3 { color:var(--gold); margin-bottom:12px; font-size:1.05rem; }
-        .section p { margin:7px 0; color:var(--white); }
+        .section p { margin:7px 0; }
         .biblical-def { border-left:3px solid var(--gold); padding-left:15px; }
-        .dict-toggle { cursor:pointer; color:var(--gold); font-size:0.92rem; user-select:none;
-                       display:inline-flex; align-items:center; gap:0; background:none; border:none;
-                       padding:0; font-family:inherit; font-weight:600; }
-        .dict-toggle:hover { color:var(--gold-light); }
-        .dict-toggle .arrow { display:inline-block; transition:transform 0.2s; margin-right:8px; font-size:0.75rem; }
-        .dict-toggle .arrow.open { transform:rotate(90deg); }
-        .dict-section { display:none; margin:10px 0 4px 0; padding:12px 16px;
-                        background:rgba(212,175,55,0.06); border-left:2px solid var(--gold);
-                        border-radius:0 6px 6px 0; }
-        .dict-section.open { display:block; }
-        .dict-section p { margin:6px 0; font-size:0.95rem; color:var(--white); }
+        .section-summary { color:var(--gray); font-size:0.92rem; font-style:italic; margin-bottom:4px; }
+        details { margin-top:8px; }
+        details summary { color:var(--gold); font-size:0.85rem; cursor:pointer; user-select:none; padding:4px 0; }
+        details summary:hover { color:var(--gold-light); }
+        details[open] summary { margin-bottom:8px; }
         .corruption { border-left:3px solid #CC0000; padding-left:15px; }
+        .corruption-inner { padding:12px 16px; background:rgba(204,0,0,0.06); border-left:2px solid #CC0000; border-radius:0 6px 6px 0; }
+        .roots-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .webster-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .proto-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .proto-inner pre { font-family:'Courier New',monospace; font-size:0.82rem; color:var(--gold-light);
+                           line-height:1.7; white-space:pre-wrap; }
         .verse-ref { color:var(--gold); text-decoration:none; font-weight:600; }
         .verse-ref:hover { color:var(--gold-light); text-decoration:underline; }
         .lexicon-link { color:var(--gold); font-family:monospace; text-decoration:none; }
@@ -52,7 +52,6 @@
                      border-radius:20px; color:var(--white); text-decoration:none; font-size:0.85rem;
                      transition:border-color 0.2s, color 0.2s; }
         .related a:hover { border-color:var(--gold); color:var(--gold); }
-        .theme-toggle-center { display:flex; justify-content:center; margin:30px 0 10px; }
         footer { text-align:center; padding:28px 20px; border-top:1px solid var(--border);
                  margin-top:40px; color:var(--gray); font-size:0.88rem; }
         footer a { color:var(--gray); text-decoration:none; }
@@ -61,7 +60,9 @@
         body.light-mode { --bg:#F5F3EF; --card:#FFF; --white:#1a1a1a; --gray:#666; --border:#d4d0c8; background:#F5F3EF; color:#1a1a1a; }
         body.light-mode nav { background:rgba(245,243,239,0.97); }
         body.light-mode .section { background:#fff; border-color:#d4d0c8; }
-        body.light-mode .dict-section { background:rgba(212,175,55,0.04); }
+        body.light-mode details summary { color:var(--gold); }
+        body.light-mode .corruption-inner { background:rgba(204,0,0,0.03); }
+        body.light-mode .roots-inner, body.light-mode .webster-inner, body.light-mode .proto-inner { background:rgba(212,175,55,0.04); }
         body.light-mode footer { border-top-color:#d4d0c8; }
         body.light-mode .related a { background:#f0ede7; border-color:#d4d0c8; color:#1a1a1a; }
         a, a:link, a:visited { color: var(--gold, #D4AF37) !important; }
@@ -86,11 +87,7 @@
         <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle" title="Toggle dark/light">&#127769;</button>
     </nav>
     <div class="container">
-        <div class="dict-back-nav">
-            <a href="index.html">&#8592; Back to Dictionary</a>
-            <div class="dict-back-center"><a href="theologia-crucis.html">&#8592; Theologia Crucis</a></div>
-            <a href="theodicy.html">Theodicy &#8594;</a>
-        </div>
+        <div class="dict-back-nav"><a href="theologia-crucis.html">&#8592; Theologia Crucis</a><div class="dict-back-center"><a href="index.html">&#8592; Back to Dictionary</a></div><a href="theomachy.html">Theomachy &#8594;</a></div>
         <div class="word-header">
             <div class="word-title">Theologia Gloriae</div>
             <div class="pronunciation">/ˌteɪ.ə.ˈlɒ.dʒi.ə ˈɡlɔːr.i.eɪ/</div>
@@ -106,25 +103,17 @@
         </div>
 
         <div class="section">
-            <button class="dict-toggle" data-toggle="webster" onclick="toggleDict('webster')">
-                <span class="arrow">&#9658;</span>&#128220; Webster 1828 / Historical Definition
-            </button>
-            <div class="dict-section" id="webster">
-                <p><strong>Luther (Heidelberg Disputation, 1518):</strong> "A theologian of glory calls evil good and good evil. A theologian of the cross calls the thing what it actually is." (Thesis 21)</p>
+            <h3>&#128220; Webster 1828 Definition</h3>
+            <p class="section-summary">Luther (Heidelberg Disputation, 1518): "A theologian of glory calls evil good and good evil.</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="webster-inner">
+                    <p><strong>Luther (Heidelberg Disputation, 1518):</strong> "A theologian of glory calls evil good and good evil. A theologian of the cross calls the thing what it actually is." (Thesis 21)</p>
                 <p><strong>Thesis 19:</strong> "That person does not deserve to be called a theologian who looks upon the invisible things of God as though they were clearly perceptible in those things which have actually happened."</p>
                 <p><strong>Thesis 20:</strong> "He deserves to be called a theologian, however, who comprehends the visible and manifest things of God seen through suffering and the cross."</p>
             </div>
-        </div>
-
-        <div class="section">
-            <button class="dict-toggle" data-toggle="corruption" onclick="toggleDict('corruption')">
-                <span class="arrow">&#9658;</span>&#9888;&#65039; Modern Corruption
-            </button>
-            <div class="dict-section" id="corruption">
-                <div class="corruption">
-                    <p>The prosperity gospel is pure <em>theologia gloriae</em>: God's blessing is measured in wealth, health, and visible success. If you are sick, poor, or suffering, something must be wrong with your faith. This inverts the cross entirely — where Christ was poorest, weakest, most forsaken, most glorified. Contemporary evangelicalism also flirts with glory theology through celebrity pastor culture, impressive buildings, attendance metrics, and the equation of numerical growth with divine favor. The church that looks most successful to the world may be the one God finds most chilling.</p>
                 </div>
-            </div>
+            </details>
         </div>
 
         <div class="section">
@@ -137,22 +126,36 @@
         </div>
 
         <div class="section">
-            <button class="dict-toggle" data-toggle="roots" onclick="toggleDict('roots')">
-                <span class="arrow">&#9658;</span>&#128279; Greek &amp; Hebrew Roots
-            </button>
-            <div class="dict-section" id="roots">
-                <p><a href="../lexicon/G1391.html" class="lexicon-link">G1391</a> &mdash; <strong>doxa</strong> (δόξα): glory, honor, splendor; used 168 times in NT; the visible radiance of God's presence. The theologian of glory seeks this directly through power and achievement rather than through cruciform hiddenness.</p>
-                <p><a href="../lexicon/G4716.html" class="lexicon-link">G4716</a> &mdash; <strong>stauros</strong> (σταυρός): cross; the instrument of ultimate shame in Roman culture — precisely where God chose to be most fully revealed. To the theologian of glory, the cross is a stumbling block; to the theologian of the cross, it is the power of God.</p>
-                <p><a href="../lexicon/G3472.html" class="lexicon-link">G3472</a> &mdash; <strong>mōria</strong> (μωρία): foolishness; what the cross appears to be from the perspective of human glory-seeking wisdom.</p>
+            <h3>&#9888;&#65039; Modern Corruption</h3>
+            <p class="section-summary">The prosperity gospel is pure theologia gloriae: God's blessing is measured in wealth, health, and visible success.</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="corruption-inner">
+                    <div class="corruption">
+                    <p>The prosperity gospel is pure <em>theologia gloriae</em>: God's blessing is measured in wealth, health, and visible success. If you are sick, poor, or suffering, something must be wrong with your faith. This inverts the cross entirely — where Christ was poorest, weakest, most forsaken, most glorified. Contemporary evangelicalism also flirts with glory theology through celebrity pastor culture, impressive buildings, attendance metrics, and the equation of numerical growth with divine favor. The church that looks most successful to the world may be the one God finds most chilling.</p>
+                </div>
             </div>
+                </div>
+            </details>
         </div>
 
         <div class="section">
-            <button class="dict-toggle" data-toggle="usage" onclick="toggleDict('usage')">
-                <span class="arrow">&#9658;</span>&#9997;&#65039; Usage Examples
-            </button>
-            <div class="dict-section" id="usage">
-                <p>&#x2022; "Prosperity preaching is <em>theologia gloriae</em> dressed in a pinstripe suit — it wants the crown without the cross, the resurrection without the tomb."</p>
+            <h3>&#128279; Greek &amp; Hebrew Roots</h3>
+            <p class="section-summary">G1391 — doxa (δόξα): glory, honor, splendor; used 168 times in NT; the visible radiance of God's presence.</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="roots-inner">
+                    <p><a href="../lexicon/G1391.html" class="lexicon-link">G1391</a> &mdash; <strong>doxa</strong> (δόξα): glory, honor, splendor; used 168 times in NT; the visible radiance of God's presence. The theologian of glory seeks this directly through power and achievement rather than through cruciform hiddenness.</p>
+                <p><a href="../lexicon/G4716.html" class="lexicon-link">G4716</a> &mdash; <strong>stauros</strong> (σταυρός): cross; the instrument of ultimate shame in Roman culture — precisely where God chose to be most fully revealed. To the theologian of glory, the cross is a stumbling block; to the theologian of the cross, it is the power of God.</p>
+                <p><a href="../lexicon/G3472.html" class="lexicon-link">G3472</a> &mdash; <strong>mōria</strong> (μωρία): foolishness; what the cross appears to be from the perspective of human glory-seeking wisdom.</p>
+            </div>
+                </div>
+            </details>
+        </div>
+
+        <div class="section">
+            <h3><img src="../assets/icons/shield-blog-quill-48.png" width="20" height="20" style="vertical-align:middle;margin-right:6px;"> Usage</h3>
+            <p>&#x2022; "Prosperity preaching is <em>theologia gloriae</em> dressed in a pinstripe suit — it wants the crown without the cross, the resurrection without the tomb."</p>
                 <p>&#x2022; "The glory theologian builds megachurches; the cross theologian plants seeds in hard ground and trusts God for the harvest."</p>
                 <p>&#x2022; "When you judge your spiritual life by how good things are going, you're already thinking like a theologian of glory."</p>
             </div>
@@ -170,9 +173,6 @@
             </div>
         </div>
 
-        <div class="theme-toggle-center">
-            <button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark/light mode" style="width:38px;height:38px;font-size:1.1rem;">&#127769;</button>
-        </div>
     </div>
 
     <footer>
@@ -187,13 +187,6 @@
         <p style="margin-top:8px;font-size:0.78rem;color:#555;">Powered by MOOPbot Pro &mdash; &ldquo;Iron sharpens iron.&rdquo; &mdash; <a href="../bible.html?ref=Proverbs+27:17" style="color:var(--gold);text-decoration:underline;">Proverbs 27:17</a></p>
     </footer>
     <script>
-    function toggleDict(id){
-        var s=document.getElementById(id);
-        var b=document.querySelector('[data-toggle="'+id+'"]');
-        var a=b?b.querySelector('.arrow'):null;
-        s.classList.toggle('open');
-        if(a)a.classList.toggle('open');
-    }
     function toggleTheme(){
         var b=document.body,t=document.getElementById('themeToggle');
         if(b.classList.contains('light-mode')){b.classList.remove('light-mode');t.textContent='\u{1F319}';localStorage.setItem('bte-theme','dark');}

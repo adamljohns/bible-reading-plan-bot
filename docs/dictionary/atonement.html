@@ -31,20 +31,18 @@
         .section > h3 { color:var(--gold); margin-bottom:12px; font-size:1.05rem; }
         .section p { margin:7px 0; }
         .biblical-def { border-left:3px solid var(--gold); padding-left:15px; }
-        .dict-toggle { cursor:pointer; color:var(--gold); font-size:0.92rem; user-select:none;
-                       display:inline-flex; align-items:center; gap:0; background:none; border:none;
-                       padding:0; font-family:inherit; font-weight:600; }
-        .dict-toggle:hover { color:var(--gold-light); }
-        .dict-toggle .arrow { display:inline-block; transition:transform 0.2s; margin-right:8px; font-size:0.75rem; }
-        .dict-toggle .arrow.open { transform:rotate(90deg); }
-        .dict-section { display:none; margin:10px 0 4px 0; padding:12px 16px;
-                        background:rgba(212,175,55,0.06); border-left:2px solid var(--gold);
-                        border-radius:0 6px 6px 0; }
-        .dict-section.open { display:block; }
-        .dict-section p { margin:6px 0; font-size:0.95rem; }
-        .dict-section pre { font-family:'Courier New',monospace; font-size:0.82rem; color:var(--gold-light);
-                             line-height:1.7; white-space:pre-wrap; }
+        .section-summary { color:var(--gray); font-size:0.92rem; font-style:italic; margin-bottom:4px; }
+        details { margin-top:8px; }
+        details summary { color:var(--gold); font-size:0.85rem; cursor:pointer; user-select:none; padding:4px 0; }
+        details summary:hover { color:var(--gold-light); }
+        details[open] summary { margin-bottom:8px; }
         .corruption { border-left:3px solid #CC0000; padding-left:15px; }
+        .corruption-inner { padding:12px 16px; background:rgba(204,0,0,0.06); border-left:2px solid #CC0000; border-radius:0 6px 6px 0; }
+        .roots-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .webster-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .proto-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .proto-inner pre { font-family:'Courier New',monospace; font-size:0.82rem; color:var(--gold-light);
+                           line-height:1.7; white-space:pre-wrap; }
         .verse-ref { color:var(--gold); text-decoration:none; font-weight:600; }
         .verse-ref:hover { color:var(--gold-light); text-decoration:underline; }
         .lexicon-link { color:var(--gold); font-family:monospace; text-decoration:none; }
@@ -62,18 +60,18 @@
         body.light-mode { --bg:#F5F3EF; --card:#FFF; --white:#1a1a1a; --gray:#666; --border:#d4d0c8; background:#F5F3EF; color:#1a1a1a; }
         body.light-mode nav { background:rgba(245,243,239,0.97); }
         body.light-mode .section { background:#fff; border-color:#d4d0c8; }
-        body.light-mode .dict-section { background:rgba(212,175,55,0.04); }
+        body.light-mode details summary { color:var(--gold); }
+        body.light-mode .corruption-inner { background:rgba(204,0,0,0.03); }
+        body.light-mode .roots-inner, body.light-mode .webster-inner, body.light-mode .proto-inner { background:rgba(212,175,55,0.04); }
         body.light-mode footer { border-top-color:#d4d0c8; }
         body.light-mode .related a { background:#f0ede7; border-color:#d4d0c8; color:#1a1a1a; }
-
-    
         a, a:link, a:visited { color: var(--gold, #D4AF37) !important; }
         a:hover { color: var(--gold-light, #F4D470) !important; }
-            .dict-back-nav { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:22px; padding:10px 0; border-bottom:1px solid var(--border,#333); }
+        .dict-back-nav { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:22px; padding:10px 0; border-bottom:1px solid var(--border,#333); }
         .dict-back-nav a { color:var(--gold,#D4AF37); text-decoration:none; font-size:0.88rem; font-weight:500; }
         .dict-back-nav a:hover { color:var(--gold-light,#F4D470); }
         .dict-back-nav .dict-back-center { flex:1; text-align:center; }
-</style>
+    </style>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -89,7 +87,7 @@
         <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle" title="Toggle dark/light">&#127769;</button>
     </nav>
     <div class="container">
-        <div class="dict-back-nav"><a href="atonement-day.html">&#8592; Atonement Day</a><div class="dict-back-center"><a href="index.html">&#8592; Back to Dictionary</a></div><a href="authority.html">Authority &#8594;</a></div>
+        <div class="dict-back-nav"><a href="atonement-day.html">&#8592; Day of Atonement</a><div class="dict-back-center"><a href="index.html">&#8592; Back to Dictionary</a></div><a href="authority.html">Authority &#8594;</a></div>
         <div class="word-header">
             <div class="word-title">Atonement</div>
             <div class="pronunciation">/əˈtoʊn.mənt/</div>
@@ -97,7 +95,6 @@
             <div class="etymology">A distinctly English word; coined ~1513 from the phrase <em>at one</em> + suffix <em>-ment</em> — literally "at-one-ment," the state of being reconciled or made one. Used to translate Hebrew <em>kaphar</em> (כָּפַר) — to cover, to make propitiation. Greek: <em>hilasmos</em> (ἱλασμός) — propitiation, appeasement; <em>katallagē</em> (καταλλαγή) — reconciliation.</div>
         </div>
 
-        <!-- Biblical Definition — always visible -->
         <div class="section">
             <h3>&#128214; Biblical Definition</h3>
             <div class="biblical-def">
@@ -105,63 +102,69 @@
             </div>
         </div>
 
-        <!-- Webster 1828 — collapsible -->
         <div class="section">
-            <button class="dict-toggle" data-toggle="webster" onclick="toggleDict('webster')">
-                <span class="arrow">&#9658;</span>&#128220; Webster 1828 Definition
-            </button>
-            <div class="dict-section" id="webster">
-                <p>• <a href="../bible.html?ref=Romans+3:25" class="verse-ref">Romans 3:25</a> — "God presented Christ as a propitiation through faith in his blood."</p>
+            <h3>&#128220; Webster 1828 Definition</h3>
+            <p class="section-summary">Romans 3:25 — "God presented Christ as a propitiation through faith in his blood."
+            • 1 John 2:2 — "He is ...</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="webster-inner">
+                    <p>• <a href="../bible.html?ref=Romans+3:25" class="verse-ref">Romans 3:25</a> — "God presented Christ as a propitiation through faith in his blood."</p>
             <p>• <a href="../bible.html?ref=1+John+2:2" class="verse-ref">1 <a href="../bible.html?ref=John+2:2" style="color:var(--gold);text-decoration:underline;">John 2:2</a></a> — "He is the propitiation for our sins, and not for ours only but also for the sins of the whole world."</p>
             <p>• <a href="../bible.html?ref=Isaiah+53:5" class="verse-ref">Isaiah 53:5</a> — "He was pierced for our transgressions; he was crushed for our iniquities…upon him was the chastisement that brought us peace."</p>
             <p>• <a href="../bible.html?ref=Leviticus+16:30" class="verse-ref">Leviticus 16:30</a> — The Day of Atonement: "Before the LORD you shall be clean from all your sins."</p>
             <p>• <a href="../bible.html?ref=Hebrews+9:22" class="verse-ref">Hebrews 9:22</a> — "Without the shedding of blood there is no forgiveness of sins."</p>
         </div>
-
-        <div class="section">
-            <h3>🔗 Greek &amp; Hebrew Roots</h3>
-            <p><a href="../lexicon/H3722.html" class="lexicon-link">H3722</a> — <strong>kaphar</strong> (כָּפַר): to cover, to make atonement, to propitiate; the root of <em>Yom Kippur</em> (Day of Atonement); used ~100 times for atoning sacrifices.</p>
-            <p><a href="../lexicon/G2435.html" class="lexicon-link">G2435</a> — <strong>hilastērion</strong> (ἱλαστήριον): mercy seat (the cover of the Ark of the Covenant); also translated "propitiation" (Rom 3:25) — Christ is the new mercy seat.</p>
-            <p><a href="../lexicon/G2433.html" class="lexicon-link">G2433</a> — <strong>hilaskomai</strong> (ἱλάσκομαι): to propitiate, to make atonement; used in <a href="../bible.html?ref=Luke+18:13" style="color:var(--gold);text-decoration:underline;">Luke 18:13</a> ("God, be merciful to me, a sinner") and <a href="../bible.html?ref=Hebrews+2:17" style="color:var(--gold);text-decoration:underline;">Hebrews 2:17</a>.</p>
+                </div>
+            </details>
         </div>
 
         <div class="section">
-            <h3><img src="../assets/icons/shield-blog-quill-48.png" width="20" height="20" style="vertical-align:middle;margin-right:6px;"> Usage</h3>
-            <p>• "At-one-ment: the cross is the only place where a holy God and sinful man can occupy the same space — because the penalty that kept them apart has been paid."</p>
-            <p>• "The OT sacrificial system was not primitive religion; it was a 1,500-year object lesson preparing the world to understand what happened on Calvary."</p>
-            <p>• "There is no Christianity without the atonement — remove penal substitution and you have a philosopher, not a Savior."</p>
+            <h3>&#128214; Key Scripture</h3>
+            <p>&#x2022; <a href="../bible.html?ref=Romans+3:25" class="verse-ref">Romans 3:25</a> &mdash; "God presented Christ as a propitiation through faith in his blood."</p>
+            <p>&#x2022; <a href="../bible.html?ref=1+John+2:2" class="verse-ref">1 <a href="../bible.html?ref=John+2:2" style="color:var(--gold);text-decoration:underline;">John 2:2</a></a> &mdash; "He is the propitiation for our sins, and not for ours only but also for the sins of the whole world."</p>
+            <p>&#x2022; <a href="../bible.html?ref=Isaiah+53:5" class="verse-ref">Isaiah 53:5</a> &mdash; "He was pierced for our transgressions; he was crushed for our iniquities…upon him was the chastisement that brought us peace."</p>
+            <p>&#x2022; <a href="../bible.html?ref=Leviticus+16:30" class="verse-ref">Leviticus 16:30</a> &mdash; The Day of Atonement: "Before the LORD you shall be clean from all your sins."</p>
+            <p>&#x2022; <a href="../bible.html?ref=Hebrews+9:22" class="verse-ref">Hebrews 9:22</a> &mdash; "Without the shedding of blood there is no forgiveness of sins."</p>
         </div>
 
         <div class="section">
-            <h3>Related Words</h3>
-            <div class="related">
-                <a href="redemption.html">Redemption</a>
-                <a href="salvation.html">Salvation</a>
-                <a href="justification.html">Justification</a>
-                <a href="grace.html">Grace</a>
-                <a href="sin.html">Sin</a>
-            </div>
-        </div>
-
-        <!-- Modern Corruption — collapsible -->
-        <div class="section">
-            <button class="dict-toggle" data-toggle="corruption" onclick="toggleDict('corruption')">
-                <span class="arrow">&#9658;</span>&#9888;&#65039; Modern Corruption
-            </button>
-            <div class="dict-section" id="corruption">
-                <div class="corruption">
+            <h3>&#9888;&#65039; Modern Corruption</h3>
+            <p class="section-summary">Liberal theology, beginning in the 19th century, rejected penal substitutionary atonement as "cosmic child abuse" — a...</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="corruption-inner">
+                    <div class="corruption">
                     <p>Liberal theology, beginning in the 19th century, rejected penal substitutionary atonement as "cosmic child abuse" — a God punishing his own Son. This misreads the doctrine: it is not the Father punishing the Son but God himself (in the Son) absorbing the penalty that justice required, because love demanded it. Reducing atonement to a "moral example" (Christ showing us how to love) evacuates the cross of its forensic and substitutionary power. The cross without propitiation is just a noble death — and a noble death saves no one. Modern therapeutic culture replaces atonement with therapy, cosmic guilt with personal shame, and the need for a Savior with the need for self-acceptance.</p>
                 </div>
             </div>
+                </div>
+            </details>
         </div>
 
-        <!-- Proto-Language Roots — collapsible -->
         <div class="section">
-            <button class="dict-toggle" data-toggle="proto" onclick="toggleDict('proto')">
-                <span class="arrow">&#9658;</span>&#127760; Proto-Language Roots
-            </button>
-            <div class="dict-section" id="proto">
-                <pre>Unique English coinage (~1513 CE):
+            <h3>&#128279; Greek &amp; Hebrew Roots</h3>
+            <p class="section-summary">H3722 — kaphar (כָּפַר): to cover, to make atonement, to propitiate; the root of Yom Kippur (Day of Atonement); used ...</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="roots-inner">
+                    <p><a href="../lexicon/H3722.html" class="lexicon-link">H3722</a> &mdash; <strong>kaphar</strong> (כָּפַר): to cover, to make atonement, to propitiate; the root of <em>Yom Kippur</em> (Day of Atonement); used ~100 times for atoning sacrifices.</p>
+            <p><a href="../lexicon/G2435.html" class="lexicon-link">G2435</a> &mdash; <strong>hilastērion</strong> (ἱλαστήριον): mercy seat (the cover of the Ark of the Covenant); also translated "propitiation" (Rom 3:25) — Christ is the new mercy seat.</p>
+            <p><a href="../lexicon/G2433.html" class="lexicon-link">G2433</a> &mdash; <strong>hilaskomai</strong> (ἱλάσκομαι): to propitiate, to make atonement; used in <a href="../bible.html?ref=Luke+18:13" style="color:var(--gold);text-decoration:underline;">Luke 18:13</a> ("God, be merciful to me, a sinner") and <a href="../bible.html?ref=Hebrews+2:17" style="color:var(--gold);text-decoration:underline;">Hebrews 2:17</a>.</p>
+            </div>
+                </div>
+            </details>
+        </div>
+
+        <div class="section">
+            <h3>&#127760; Proto-Language Roots</h3>
+            <p class="section-summary">Unique English coinage (~1513 CE):
+  at + one + -ment
+    "at one" = in harmony, reconciled (13th-c. Middle English p...</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="proto-inner">
+                    <pre>Unique English coinage (~1513 CE):
   at + one + -ment
     "at one" = in harmony, reconciled (13th-c. Middle English phrase)
     -ment = Latin suffix indicating result or state
@@ -179,43 +182,17 @@ Greek:
 ἱλαστήριον (hilastērion, G2435) — mercy seat / place of atonement (Rom 3:25)
 καταλλαγή (katallagē, G2643) — reconciliation (Rom 5:11)</pre>
             </div>
+                </div>
+            </details>
         </div>
 
-        <!-- Key Scripture — always visible -->
         <div class="section">
-            <h3>&#128214; Key Scripture</h3>
-            <p>&#x2022; <a href="../bible.html?ref=Romans+3:25" class="verse-ref">Romans 3:25</a> &mdash; "God presented Christ as a propitiation through faith in his blood."</p>
-            <p>&#x2022; <a href="../bible.html?ref=1+John+2:2" class="verse-ref">1 <a href="../bible.html?ref=John+2:2" style="color:var(--gold);text-decoration:underline;">John 2:2</a></a> &mdash; "He is the propitiation for our sins, and not for ours only but also for the sins of the whole world."</p>
-            <p>&#x2022; <a href="../bible.html?ref=Isaiah+53:5" class="verse-ref">Isaiah 53:5</a> &mdash; "He was pierced for our transgressions; he was crushed for our iniquities…upon him was the chastisement that brought us peace."</p>
-            <p>&#x2022; <a href="../bible.html?ref=Leviticus+16:30" class="verse-ref">Leviticus 16:30</a> &mdash; The Day of Atonement: "Before the LORD you shall be clean from all your sins."</p>
-            <p>&#x2022; <a href="../bible.html?ref=Hebrews+9:22" class="verse-ref">Hebrews 9:22</a> &mdash; "Without the shedding of blood there is no forgiveness of sins."</p>
-        </div>
-
-        <!-- Greek & Hebrew Roots — collapsible -->
-        <div class="section">
-            <button class="dict-toggle" data-toggle="roots" onclick="toggleDict('roots')">
-                <span class="arrow">&#9658;</span>&#128279; Greek &amp; Hebrew Roots
-            </button>
-            <div class="dict-section" id="roots">
-            <p><a href="../lexicon/H3722.html" class="lexicon-link">H3722</a> &mdash; <strong>kaphar</strong> (כָּפַר): to cover, to make atonement, to propitiate; the root of <em>Yom Kippur</em> (Day of Atonement); used ~100 times for atoning sacrifices.</p>
-            <p><a href="../lexicon/G2435.html" class="lexicon-link">G2435</a> &mdash; <strong>hilastērion</strong> (ἱλαστήριον): mercy seat (the cover of the Ark of the Covenant); also translated "propitiation" (Rom 3:25) — Christ is the new mercy seat.</p>
-            <p><a href="../lexicon/G2433.html" class="lexicon-link">G2433</a> &mdash; <strong>hilaskomai</strong> (ἱλάσκομαι): to propitiate, to make atonement; used in <a href="../bible.html?ref=Luke+18:13" style="color:var(--gold);text-decoration:underline;">Luke 18:13</a> ("God, be merciful to me, a sinner") and <a href="../bible.html?ref=Hebrews+2:17" style="color:var(--gold);text-decoration:underline;">Hebrews 2:17</a>.</p>
-            </div>
-        </div>
-
-        <!-- Usage Examples — collapsible -->
-        <div class="section">
-            <button class="dict-toggle" data-toggle="usage" onclick="toggleDict('usage')">
-                <span class="arrow">&#9658;</span>&#9997;&#65039; Usage Examples
-            </button>
-            <div class="dict-section" id="usage">
+            <h3><img src="../assets/icons/shield-blog-quill-48.png" width="20" height="20" style="vertical-align:middle;margin-right:6px;"> Usage</h3>
             <p>&#x2022; "At-one-ment: the cross is the only place where a holy God and sinful man can occupy the same space — because the penalty that kept them apart has been paid."</p>
             <p>&#x2022; "The OT sacrificial system was not primitive religion; it was a 1,500-year object lesson preparing the world to understand what happened on Calvary."</p>
             <p>&#x2022; "There is no Christianity without the atonement — remove penal substitution and you have a philosopher, not a Savior."</p>
-            </div>
         </div>
 
-        <!-- Related Words — always visible -->
         <div class="section">
             <h3>Related Words</h3>
             <div class="related">
@@ -241,13 +218,6 @@ Greek:
         <p style="margin-top:8px;font-size:0.78rem;color:#555;">Powered by MOOPbot Pro &mdash; &ldquo;Iron sharpens iron.&rdquo; &mdash; <a href="../bible.html?ref=Proverbs+27:17" style="color:var(--gold);text-decoration:underline;">Proverbs 27:17</a></p>
     </footer>
     <script>
-    function toggleDict(id){
-        var s=document.getElementById(id);
-        var b=document.querySelector('[data-toggle="'+id+'"]');
-        var a=b?b.querySelector('.arrow'):null;
-        s.classList.toggle('open');
-        if(a)a.classList.toggle('open');
-    }
     function toggleTheme(){
         var b=document.body,t=document.getElementById('themeToggle');
         if(b.classList.contains('light-mode')){b.classList.remove('light-mode');t.textContent='\u{1F319}';localStorage.setItem('bte-theme','dark');}
