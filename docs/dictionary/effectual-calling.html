@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Effectual Calling</h1>
-            <div class="pronunciation">/ i-ˈfek-chü-əl ˈkȯ-liŋ / &mdash; The MOOP Dictionary</title>
+    <title>Effectual Calling &mdash; The MOOP Dictionary</title>
     <style>
         * { margin:0; padding:0; box-sizing:border-box; }
         :root { --bg:#000; --card:#111; --gold:#D4AF37; --gold-light:#F4D470; --white:#FFF; --gray:#888; --border:#333; }
@@ -27,27 +26,27 @@
         .pronunciation { color:var(--gray); font-size:1.1rem; font-style:italic; }
         .pos { display:inline-block; background:var(--gold); color:#000; font-weight:700;
                font-size:0.78rem; padding:3px 14px; border-radius:15px; margin:10px 0; }
-        .etymology { color:var(--gray); font-size:0.88rem; margin:12px auto; max-width:650px; }
+        .etymology { color:var(--white); font-size:0.88rem; margin:12px auto; max-width:650px; }
         .section { margin:18px 0; padding:18px 22px; background:var(--card); border:1px solid var(--border); border-radius:10px; }
         .section > h3 { color:var(--gold); margin-bottom:12px; font-size:1.05rem; }
-        .section p { margin:7px 0; }
+        .section p { margin:7px 0; color:var(--white); }
         .biblical-def { border-left:3px solid var(--gold); padding-left:15px; }
-        .section-summary { color:var(--gray); font-size:0.92rem; font-style:italic; margin-bottom:4px; }
-        details { margin-top:8px; }
-        details summary { color:var(--gold); font-size:0.85rem; cursor:pointer; user-select:none; padding:4px 0; }
-        details summary:hover { color:var(--gold-light); }
-        details[open] summary { margin-bottom:8px; }
+        .dict-toggle { cursor:pointer; color:var(--gold); font-size:0.92rem; user-select:none;
+                       display:inline-flex; align-items:center; gap:0; background:none; border:none;
+                       padding:0; font-family:inherit; font-weight:600; }
+        .dict-toggle:hover { color:var(--gold-light); }
+        .dict-toggle .arrow { display:inline-block; transition:transform 0.2s; margin-right:8px; font-size:0.75rem; }
+        .dict-toggle .arrow.open { transform:rotate(90deg); }
+        .dict-section { display:none; margin:10px 0 4px 0; padding:12px 16px;
+                        background:rgba(212,175,55,0.06); border-left:2px solid var(--gold);
+                        border-radius:0 6px 6px 0; }
+        .dict-section.open { display:block; }
+        .dict-section p { margin:6px 0; font-size:0.95rem; color:var(--white); }
+        .dict-section pre { font-family:'Courier New',monospace; font-size:0.82rem; color:var(--gold-light);
+                             line-height:1.7; white-space:pre-wrap; }
         .corruption { border-left:3px solid #CC0000; padding-left:15px; }
-        .corruption-inner { padding:12px 16px; background:rgba(204,0,0,0.06); border-left:2px solid #CC0000; border-radius:0 6px 6px 0; }
-        .roots-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
-        .webster-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
-        .proto-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
-        .proto-inner pre { font-family:'Courier New',monospace; font-size:0.82rem; color:var(--gold-light);
-                           line-height:1.7; white-space:pre-wrap; }
         .verse-ref { color:var(--gold); text-decoration:none; font-weight:600; }
         .verse-ref:hover { color:var(--gold-light); text-decoration:underline; }
-        .lexicon-link { color:var(--gold); font-family:monospace; text-decoration:none; }
-        .lexicon-link:hover { color:var(--gold-light); text-decoration:underline; }
         .related { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
         .related a { background:var(--card); border:1px solid var(--border); padding:6px 14px;
                      border-radius:20px; color:var(--white); text-decoration:none; font-size:0.85rem;
@@ -61,18 +60,17 @@
         body.light-mode { --bg:#F5F3EF; --card:#FFF; --white:#1a1a1a; --gray:#666; --border:#d4d0c8; background:#F5F3EF; color:#1a1a1a; }
         body.light-mode nav { background:rgba(245,243,239,0.97); }
         body.light-mode .section { background:#fff; border-color:#d4d0c8; }
-        body.light-mode details summary { color:var(--gold); }
-        body.light-mode .corruption-inner { background:rgba(204,0,0,0.03); }
-        body.light-mode .roots-inner, body.light-mode .webster-inner, body.light-mode .proto-inner { background:rgba(212,175,55,0.04); }
+        body.light-mode .dict-section { background:rgba(212,175,55,0.04); }
         body.light-mode footer { border-top-color:#d4d0c8; }
         body.light-mode .related a { background:#f0ede7; border-color:#d4d0c8; color:#1a1a1a; }
         a, a:link, a:visited { color: var(--gold, #D4AF37) !important; }
         a:hover { color: var(--gold-light, #F4D470) !important; }
-        .dict-back-nav { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:22px; padding:10px 0; border-bottom:1px solid var(--border,#333); }
+        .toggle-wrap { display:flex; justify-content:center; margin:20px 0 10px; }
+            .dict-back-nav { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:22px; padding:10px 0; border-bottom:1px solid var(--border,#333); }
         .dict-back-nav a { color:var(--gold,#D4AF37); text-decoration:none; font-size:0.88rem; font-weight:500; }
         .dict-back-nav a:hover { color:var(--gold-light,#F4D470); }
         .dict-back-nav .dict-back-center { flex:1; text-align:center; }
-    </style>
+</style>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -81,104 +79,17 @@
         <a href="../watchman.html"><img src="../assets/icons/shield-bible.png" class="site-icon" alt="" width="16" height="16"> Watchman</a>
         <a href="../bible.html"><img src="../assets/icons/shield-compass.png" class="site-icon" alt="" width="16" height="16"> BTE</a>
         <a href="../lexicon.html"><img src="../assets/icons/shield-alpha-omega-48.png" class="site-icon" alt="" width="16" height="16"> Lexicon</a>
-        <a href="../cross-references.html"><img src="../assets/icons/shield-infinity-rope-48.png" class="site-icon" alt="" width="16" height="16"> Cross-Refs</a>
-        <a href="index.html" class="active"><img src="../assets/icons/shield-book-greek-48.png" class="site-icon" alt="" width="16" height="16"> Dictionary</a>
-        <a href="../blog.html"><img src="../assets/icons/shield-blog-quill-48.png" class="site-icon" alt="" width="16" height="16"> Blog</a>
-        <a href="../connect.html"><img src="../assets/icons/shield-handshake.png" class="site-icon" alt="" width="16" height="16"> Connect</a>
-        <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle" title="Toggle dark/light">&#127769;</button>
+        <a href="index.html" class="active"><img src="../assets/icons/shield-dictionary-48.png" class="site-icon" alt="" width="16" height="16"> Dictionary</a>
+        <button id="themeToggle" class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">🌙</button>
     </nav>
+
     <div class="container">
-        <div class="dict-back-nav"><a href="edify.html">&#8592; Edify</a><div class="dict-back-center"><a href="index.html">&#8592; Back to Dictionary</a></div><a href="efficacious.html">Efficacious &#8594;</a></div>
+        <div class="dict-back-nav"><a href="edify.html">&#8592; Edify</a><div class="dict-back-center"><a href="index.html">&#8592; Back to Dictionary</a></div><a href="ekklesia.html">Ekklesia &#8594;</a></div>
         <div class="word-header">
-            <div class="word-title">Effectual Calling</h1>
+            <div class="word-title">Effectual Calling</div>
             <div class="pronunciation">/ i-ˈfek-chü-əl ˈkȯ-liŋ /</div>
-            <div class="pronunciation">/ i-ˈfek-chü-əl ˈkȯ-liŋ / &mdash; The MOOP Dictionary</title>
-    <style>
-        * { margin:0; padding:0; box-sizing:border-box; }
-        :root { --bg:#000; --card:#111; --gold:#D4AF37; --gold-light:#F4D470; --white:#FFF; --gray:#888; --border:#333; }
-        body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--white); min-height:100vh; line-height:1.7; }
-        h1,h2,h3,h4 { font-family:'Playfair Display',serif; }
-        nav { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:4px 8px; padding:10px 16px;
-              border-bottom:1px solid var(--border); position:sticky; top:0;
-              background:rgba(0,0,0,0.95); backdrop-filter:blur(8px); z-index:100; }
-        nav a { color:var(--gray); text-decoration:none; font-size:0.8rem; display:inline-flex; align-items:center;
-                gap:3px; padding:3px 6px; border-radius:6px; transition:color 0.2s; }
-        nav a:hover, nav a.active { color:var(--gold); }
-        .site-icon { vertical-align:middle; opacity:0.8; }
-        .theme-toggle { background:none; border:1px solid var(--border); border-radius:50%; width:28px; height:28px;
-                        cursor:pointer; font-size:0.85rem; transition:all 0.3s; padding:0; color:var(--white);
-                        display:inline-flex; align-items:center; justify-content:center; }
-        .theme-toggle:hover { border-color:var(--gold); }
-        .container { max-width:820px; margin:0 auto; padding:28px 20px 60px; }
-        .word-header { text-align:center; padding:40px 0 30px; border-bottom:1px solid var(--border); margin-bottom:30px; }
-        .word-title { font-size:2.8rem; color:var(--gold-light); margin-bottom:6px; }
-        .pronunciation { color:var(--gray); font-size:1.1rem; font-style:italic; }
-        .pos { display:inline-block; background:var(--gold); color:#000; font-weight:700;
-               font-size:0.78rem; padding:3px 14px; border-radius:15px; margin:10px 0; }
-        .etymology { color:var(--gray); font-size:0.88rem; margin:12px auto; max-width:650px; }
-        .section { margin:18px 0; padding:18px 22px; background:var(--card); border:1px solid var(--border); border-radius:10px; }
-        .section > h3 { color:var(--gold); margin-bottom:12px; font-size:1.05rem; }
-        .section p { margin:7px 0; }
-        .biblical-def { border-left:3px solid var(--gold); padding-left:15px; }
-        .section-summary { color:var(--gray); font-size:0.92rem; font-style:italic; margin-bottom:4px; }
-        details { margin-top:8px; }
-        details summary { color:var(--gold); font-size:0.85rem; cursor:pointer; user-select:none; padding:4px 0; }
-        details summary:hover { color:var(--gold-light); }
-        details[open] summary { margin-bottom:8px; }
-        .corruption { border-left:3px solid #CC0000; padding-left:15px; }
-        .corruption-inner { padding:12px 16px; background:rgba(204,0,0,0.06); border-left:2px solid #CC0000; border-radius:0 6px 6px 0; }
-        .roots-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
-        .webster-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
-        .proto-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
-        .proto-inner pre { font-family:'Courier New',monospace; font-size:0.82rem; color:var(--gold-light);
-                           line-height:1.7; white-space:pre-wrap; }
-        .verse-ref { color:var(--gold); text-decoration:none; font-weight:600; }
-        .verse-ref:hover { color:var(--gold-light); text-decoration:underline; }
-        .lexicon-link { color:var(--gold); font-family:monospace; text-decoration:none; }
-        .lexicon-link:hover { color:var(--gold-light); text-decoration:underline; }
-        .related { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
-        .related a { background:var(--card); border:1px solid var(--border); padding:6px 14px;
-                     border-radius:20px; color:var(--white); text-decoration:none; font-size:0.85rem;
-                     transition:border-color 0.2s, color 0.2s; }
-        .related a:hover { border-color:var(--gold); color:var(--gold); }
-        footer { text-align:center; padding:28px 20px; border-top:1px solid var(--border);
-                 margin-top:40px; color:var(--gray); font-size:0.88rem; }
-        footer a { color:var(--gray); text-decoration:none; }
-        footer a:hover { color:var(--gold); }
-        .cross-divider { margin-bottom:10px; }
-        body.light-mode { --bg:#F5F3EF; --card:#FFF; --white:#1a1a1a; --gray:#666; --border:#d4d0c8; background:#F5F3EF; color:#1a1a1a; }
-        body.light-mode nav { background:rgba(245,243,239,0.97); }
-        body.light-mode .section { background:#fff; border-color:#d4d0c8; }
-        body.light-mode details summary { color:var(--gold); }
-        body.light-mode .corruption-inner { background:rgba(204,0,0,0.03); }
-        body.light-mode .roots-inner, body.light-mode .webster-inner, body.light-mode .proto-inner { background:rgba(212,175,55,0.04); }
-        body.light-mode footer { border-top-color:#d4d0c8; }
-        body.light-mode .related a { background:#f0ede7; border-color:#d4d0c8; color:#1a1a1a; }
-        a, a:link, a:visited { color: var(--gold, #D4AF37) !important; }
-        a:hover { color: var(--gold-light, #F4D470) !important; }
-        .dict-back-nav { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:22px; padding:10px 0; border-bottom:1px solid var(--border,#333); }
-        .dict-back-nav a { color:var(--gold,#D4AF37); text-decoration:none; font-size:0.88rem; font-weight:500; }
-        .dict-back-nav a:hover { color:var(--gold-light,#F4D470); }
-        .dict-back-nav .dict-back-center { flex:1; text-align:center; }
-    </style>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
-</head>
-<body>
-    <nav>
-        <a href="../index.html"><img src="../assets/icons/shield-home-48.png" class="site-icon" alt="" width="16" height="16"> Home</a>
-        <a href="../watchman.html"><img src="../assets/icons/shield-bible.png" class="site-icon" alt="" width="16" height="16"> Watchman</a>
-        <a href="../bible.html"><img src="../assets/icons/shield-compass.png" class="site-icon" alt="" width="16" height="16"> BTE</a>
-        <a href="../lexicon.html"><img src="../assets/icons/shield-alpha-omega-48.png" class="site-icon" alt="" width="16" height="16"> Lexicon</a>
-        <a href="../cross-references.html"><img src="../assets/icons/shield-infinity-rope-48.png" class="site-icon" alt="" width="16" height="16"> Cross-Refs</a>
-        <a href="index.html" class="active"><img src="../assets/icons/shield-book-greek-48.png" class="site-icon" alt="" width="16" height="16"> Dictionary</a>
-        <a href="../blog.html"><img src="../assets/icons/shield-blog-quill-48.png" class="site-icon" alt="" width="16" height="16"> Blog</a>
-        <a href="../connect.html"><img src="../assets/icons/shield-handshake.png" class="site-icon" alt="" width="16" height="16"> Connect</a>
-        <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle" title="Toggle dark/light">&#127769;</button>
-    </nav>
-    <div class="container">
-        <div class="dict-back-nav"><a href="edify.html">&#8592; Edify</a><div class="dict-back-center"><a href="index.html">&#8592; Back to Dictionary</a></div>
-            <span class="pos">noun phrase (theology)</div>
-            <p class="etymology">Latin effectus ("result, effect, execution") from efficere ("to accomplish, carry out"). Combined with "calling" (Old English ceallian, "to call out"). An effectual call is one that produces what it summons — the opposite of an invitation that may be accepted or refused.</p>
+            <div class="pos">noun phrase (theology)</div>
+            <div class="etymology">Latin effectus ("result, effect, execution") from efficere ("to accomplish, carry out"). Combined with "calling" (Old English ceallian, "to call out"). An effectual call is one that produces what it summons — the opposite of an invitation that may be accepted or refused.</div>
         </div>
 
         <div class="section biblical-def">
@@ -188,25 +99,23 @@
 
         <div class="section">
             <button class="dict-toggle" data-toggle="webster" onclick="toggleDict('webster')">
-                <span class="arrow">&#9658;</span>
-            <div class="etymology">Latin effectus ("result, effect, execution") from efficere ("to accomplish, carry out"). Combined with "calling" (Old English ceallian, "to call out"). An effectual call is one that produces what it summons — the opposite of an invitation that may be accepted or refused.</p></div>
-        </div>
-
-        <div class="section">
-            <h3>&#128220; Webster 1828 Definition</h3>
-            <p class="section-summary">EFFECTUAL — Producing the intended effect; having power adequate to the purpose; efficacious; as an effectual remedy;...</p>
-            <details>
-                <summary><em style="color:var(--gray)">expand to see more</em></summary>
-                <div class="webster-inner">
-                    <p><strong>EFFECTUAL</strong> — Producing the intended effect; having power adequate to the purpose; efficacious; as an effectual remedy; an effectual call in religion, is a call by the divine Spirit, that reaches the heart and produces the desired effect.</p>
+                <span class="arrow">&#9658;</span>📚 Webster's 1828
+            </button>
+            <div class="dict-section" id="webster">
+                <p><strong>EFFECTUAL</strong> — Producing the intended effect; having power adequate to the purpose; efficacious; as an effectual remedy; an effectual call in religion, is a call by the divine Spirit, that reaches the heart and produces the desired effect.</p>
                 <p><strong>EFFICACIOUS</strong> — Producing the intended effect; possessing the power to produce the intended effect; as an efficacious remedy. In theology: an efficacious grace that, unlike common grace, infallibly secures the conversion of the sinner.</p>
             </div>
-                </div>
-            </details>
         </div>
 
         <div class="section">
-            <h3>&#128214; Key Scripture</h3>
+            <h3>⚠️ Modern Corruption</h3>
+            <div class="corruption">
+                <p>Arminian and semi-Pelagian theologies flatten all calling to the "general call" — God extends an invitation, humans choose whether to accept. This makes salvation ultimately contingent on human decision rather than divine action, undermining the absolute deadness of the unregenerate will described in Ephesians 2:1 ("dead in trespasses and sins"). The concept of effectual calling is also domesticated in some charismatic contexts into "feeling called" — a subjective emotional pull rather than the objective, life-giving work of the Spirit. The effectual call is not a feeling; it is a resurrection.</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>📖 Key Scripture</h3>
             <p>• <a href="../bible.html?ref=Romans+8:29-30" class="verse-ref">Romans 8:29–30</a> — "Those whom he predestined he also called, and those whom he called he also justified." — the golden chain of redemption</p>
             <p>• <a href="../bible.html?ref=John+6:37-44" class="verse-ref">John 6:37–44</a> — "All that the Father gives me will come to me…No one can come to me unless the Father who sent me draws him."</p>
             <p>• <a href="../bible.html?ref=Ezekiel+36:26-27" class="verse-ref">Ezekiel 36:26–27</a> — "I will give you a new heart and put a new spirit in you…and cause you to walk in my statutes." — the effectual call in the New Covenant</p>
@@ -215,27 +124,11 @@
         </div>
 
         <div class="section">
-            <h3>&#9888;&#65039; Modern Corruption</h3>
-            <p class="section-summary">Arminian and semi-Pelagian theologies flatten all calling to the "general call" — God extends an invitation, humans c...</p>
-            <details>
-                <summary><em style="color:var(--gray)">expand to see more</em></summary>
-                <div class="corruption-inner">
-                    <div class="corruption">
-                <p>Arminian and semi-Pelagian theologies flatten all calling to the "general call" — God extends an invitation, humans choose whether to accept. This makes salvation ultimately contingent on human decision rather than divine action, undermining the absolute deadness of the unregenerate will described in Ephesians 2:1 ("dead in trespasses and sins"). The concept of effectual calling is also domesticated in some charismatic contexts into "feeling called" — a subjective emotional pull rather than the objective, life-giving work of the Spirit. The effectual call is not a feeling; it is a resurrection.</p>
-            </div>
-                </div>
-                </div>
-            </details>
-        </div>
-
-        <div class="section">
-            <h3>&#128279; Greek &amp; Hebrew Roots</h3>
-            <p class="section-summary">Greek καλέω (kaleō, G2564) — to call, summon, invite, name
-  → Used of God's sovereign calling: Romans 8:30, 9:24; 1 ...</p>
-            <details>
-                <summary><em style="color:var(--gray)">expand to see more</em></summary>
-                <div class="roots-inner">
-                    <pre>Greek καλέω (kaleō, G2564) — to call, summon, invite, name
+            <button class="dict-toggle" data-toggle="roots" onclick="toggleDict('roots')">
+                <span class="arrow">&#9658;</span>🔗 Greek &amp; Hebrew Roots
+            </button>
+            <div class="dict-section" id="roots">
+                <pre>Greek καλέω (kaleō, G2564) — to call, summon, invite, name
   → Used of God's sovereign calling: Romans 8:30, 9:24; 1 Corinthians 1:9
   → The called ones (κλητοί, klētoi) are those God has effectually summoned
   → Not all who are externally invited are klētoi: "many are called (klētoi), few chosen" (Matthew 22:14)
@@ -255,15 +148,17 @@ Hebrew קָרָא (qara, H7121) — to call, call out, proclaim, summon
   → Isaiah 48:15: "I, even I, have spoken and called him"
   → God's call in OT creates what it announces — same pattern as New Covenant</pre>
             </div>
-                </div>
-            </details>
         </div>
 
         <div class="section">
-            <h3><img src="../assets/icons/shield-blog-quill-48.png" width="20" height="20" style="vertical-align:middle;margin-right:6px;"> Usage</h3>
-            <p>• "The effectual call is not God saying 'I hope you'll come' — it is God saying 'Come' and the dead man rising because the One who calls him is the Resurrection."</p>
+            <button class="dict-toggle" data-toggle="usage" onclick="toggleDict('usage')">
+                <span class="arrow">&#9658;</span>✍️ Usage Examples
+            </button>
+            <div class="dict-section" id="usage">
+                <p>• "The effectual call is not God saying 'I hope you'll come' — it is God saying 'Come' and the dead man rising because the One who calls him is the Resurrection."</p>
                 <p>• "Every person who comes to Christ does so freely — and every person who comes does so because the Father drew them. Both are true simultaneously."</p>
                 <p>• "The ordo salutis makes effectual calling the hinge: it is where eternity touches time, where election becomes regeneration, where the dead come alive."</p>
+            </div>
         </div>
 
         <div class="section">
@@ -276,13 +171,10 @@ Hebrew קָרָא (qara, H7121) — to call, call out, proclaim, summon
                 <a href="monergism.html">Monergism</a>
             </div>
         </div>
+    </div>
 
-        <div class="section">
-            <button class="dict-toggle" data-toggle="webster" onclick="toggleDict('webster')">
-                <span class="arrow">&#9658;</span>
-            <div class="etymology">Latin effectus ("result, effect, execution") from efficere ("to accomplish, carry out"). Combined with "calling" (Old English ceallian, "to call out"). An effectual call is one that produces what it summons — the opposite of an invitation that may be accepted or refused.</p></div>
-        </div>
-
+    <div class="toggle-wrap">
+        <button id="themeToggle2" class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">🌙</button>
     </div>
 
     <footer>
@@ -297,17 +189,9 @@ Hebrew קָרָא (qara, H7121) — to call, call out, proclaim, summon
         <p style="margin-top:8px;font-size:0.78rem;color:#555;">Powered by MOOPbot Pro &mdash; &ldquo;Iron sharpens iron.&rdquo; &mdash; <a href="../bible.html?ref=Proverbs+27:17" style="color:var(--gold);text-decoration:underline;">Proverbs 27:17</a></p>
     </footer>
     <script>
-    function toggleTheme(){
-        var b=document.body,t=document.getElementById('themeToggle');
-        if(b.classList.contains('light-mode')){b.classList.remove('light-mode');t.textContent='\u{1F319}';localStorage.setItem('bte-theme','dark');}
-        else{b.classList.add('light-mode');t.textContent='\u2600\uFE0F';localStorage.setItem('bte-theme','light');}
-    }
-    (function(){
-        if(localStorage.getItem('bte-theme')==='light'){
-            document.body.classList.add('light-mode');
-            var t=document.getElementById('themeToggle');if(t)t.textContent='\u2600\uFE0F';
-        }
-    })();
+    function toggleDict(id){var s=document.getElementById(id);var b=document.querySelector('[data-toggle="'+id+'"]');var a=b?b.querySelector('.arrow'):null;s.classList.toggle('open');if(a)a.classList.toggle('open');}
+    function toggleTheme(){var b=document.body;var t1=document.getElementById('themeToggle');var t2=document.getElementById('themeToggle2');if(b.classList.contains('light-mode')){b.classList.remove('light-mode');if(t1)t1.textContent='🌙';if(t2)t2.textContent='🌙';localStorage.setItem('bte-theme','dark');}else{b.classList.add('light-mode');if(t1)t1.textContent='☀️';if(t2)t2.textContent='☀️';localStorage.setItem('bte-theme','light');}}
+    (function(){if(localStorage.getItem('bte-theme')==='light'){document.body.classList.add('light-mode');var t1=document.getElementById('themeToggle');var t2=document.getElementById('themeToggle2');if(t1)t1.textContent='☀️';if(t2)t2.textContent='☀️';}})();
     </script>
 </body>
 </html>

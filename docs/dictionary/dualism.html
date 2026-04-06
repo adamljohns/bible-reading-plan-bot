@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dualism</h1>
-            <div class="pronunciation">/ ˈd(y)ü-ə-ˌli-zəm / &mdash; The MOOP Dictionary</title>
+    <title>Dualism &mdash; The MOOP Dictionary</title>
     <style>
         * { margin:0; padding:0; box-sizing:border-box; }
         :root { --bg:#000; --card:#111; --gold:#D4AF37; --gold-light:#F4D470; --white:#FFF; --gray:#888; --border:#333; }
@@ -27,27 +26,27 @@
         .pronunciation { color:var(--gray); font-size:1.1rem; font-style:italic; }
         .pos { display:inline-block; background:var(--gold); color:#000; font-weight:700;
                font-size:0.78rem; padding:3px 14px; border-radius:15px; margin:10px 0; }
-        .etymology { color:var(--gray); font-size:0.88rem; margin:12px auto; max-width:650px; }
+        .etymology { color:var(--white); font-size:0.88rem; margin:12px auto; max-width:650px; }
         .section { margin:18px 0; padding:18px 22px; background:var(--card); border:1px solid var(--border); border-radius:10px; }
         .section > h3 { color:var(--gold); margin-bottom:12px; font-size:1.05rem; }
-        .section p { margin:7px 0; }
+        .section p { margin:7px 0; color:var(--white); }
         .biblical-def { border-left:3px solid var(--gold); padding-left:15px; }
-        .section-summary { color:var(--gray); font-size:0.92rem; font-style:italic; margin-bottom:4px; }
-        details { margin-top:8px; }
-        details summary { color:var(--gold); font-size:0.85rem; cursor:pointer; user-select:none; padding:4px 0; }
-        details summary:hover { color:var(--gold-light); }
-        details[open] summary { margin-bottom:8px; }
+        .dict-toggle { cursor:pointer; color:var(--gold); font-size:0.92rem; user-select:none;
+                       display:inline-flex; align-items:center; gap:0; background:none; border:none;
+                       padding:0; font-family:inherit; font-weight:600; }
+        .dict-toggle:hover { color:var(--gold-light); }
+        .dict-toggle .arrow { display:inline-block; transition:transform 0.2s; margin-right:8px; font-size:0.75rem; }
+        .dict-toggle .arrow.open { transform:rotate(90deg); }
+        .dict-section { display:none; margin:10px 0 4px 0; padding:12px 16px;
+                        background:rgba(212,175,55,0.06); border-left:2px solid var(--gold);
+                        border-radius:0 6px 6px 0; }
+        .dict-section.open { display:block; }
+        .dict-section p { margin:6px 0; font-size:0.95rem; color:var(--white); }
+        .dict-section pre { font-family:'Courier New',monospace; font-size:0.82rem; color:var(--gold-light);
+                             line-height:1.7; white-space:pre-wrap; }
         .corruption { border-left:3px solid #CC0000; padding-left:15px; }
-        .corruption-inner { padding:12px 16px; background:rgba(204,0,0,0.06); border-left:2px solid #CC0000; border-radius:0 6px 6px 0; }
-        .roots-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
-        .webster-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
-        .proto-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
-        .proto-inner pre { font-family:'Courier New',monospace; font-size:0.82rem; color:var(--gold-light);
-                           line-height:1.7; white-space:pre-wrap; }
         .verse-ref { color:var(--gold); text-decoration:none; font-weight:600; }
         .verse-ref:hover { color:var(--gold-light); text-decoration:underline; }
-        .lexicon-link { color:var(--gold); font-family:monospace; text-decoration:none; }
-        .lexicon-link:hover { color:var(--gold-light); text-decoration:underline; }
         .related { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
         .related a { background:var(--card); border:1px solid var(--border); padding:6px 14px;
                      border-radius:20px; color:var(--white); text-decoration:none; font-size:0.85rem;
@@ -61,18 +60,17 @@
         body.light-mode { --bg:#F5F3EF; --card:#FFF; --white:#1a1a1a; --gray:#666; --border:#d4d0c8; background:#F5F3EF; color:#1a1a1a; }
         body.light-mode nav { background:rgba(245,243,239,0.97); }
         body.light-mode .section { background:#fff; border-color:#d4d0c8; }
-        body.light-mode details summary { color:var(--gold); }
-        body.light-mode .corruption-inner { background:rgba(204,0,0,0.03); }
-        body.light-mode .roots-inner, body.light-mode .webster-inner, body.light-mode .proto-inner { background:rgba(212,175,55,0.04); }
+        body.light-mode .dict-section { background:rgba(212,175,55,0.04); }
         body.light-mode footer { border-top-color:#d4d0c8; }
         body.light-mode .related a { background:#f0ede7; border-color:#d4d0c8; color:#1a1a1a; }
         a, a:link, a:visited { color: var(--gold, #D4AF37) !important; }
         a:hover { color: var(--gold-light, #F4D470) !important; }
-        .dict-back-nav { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:22px; padding:10px 0; border-bottom:1px solid var(--border,#333); }
+        .toggle-wrap { display:flex; justify-content:center; margin:20px 0 10px; }
+            .dict-back-nav { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:22px; padding:10px 0; border-bottom:1px solid var(--border,#333); }
         .dict-back-nav a { color:var(--gold,#D4AF37); text-decoration:none; font-size:0.88rem; font-weight:500; }
         .dict-back-nav a:hover { color:var(--gold-light,#F4D470); }
         .dict-back-nav .dict-back-center { flex:1; text-align:center; }
-    </style>
+</style>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -81,104 +79,17 @@
         <a href="../watchman.html"><img src="../assets/icons/shield-bible.png" class="site-icon" alt="" width="16" height="16"> Watchman</a>
         <a href="../bible.html"><img src="../assets/icons/shield-compass.png" class="site-icon" alt="" width="16" height="16"> BTE</a>
         <a href="../lexicon.html"><img src="../assets/icons/shield-alpha-omega-48.png" class="site-icon" alt="" width="16" height="16"> Lexicon</a>
-        <a href="../cross-references.html"><img src="../assets/icons/shield-infinity-rope-48.png" class="site-icon" alt="" width="16" height="16"> Cross-Refs</a>
-        <a href="index.html" class="active"><img src="../assets/icons/shield-book-greek-48.png" class="site-icon" alt="" width="16" height="16"> Dictionary</a>
-        <a href="../blog.html"><img src="../assets/icons/shield-blog-quill-48.png" class="site-icon" alt="" width="16" height="16"> Blog</a>
-        <a href="../connect.html"><img src="../assets/icons/shield-handshake.png" class="site-icon" alt="" width="16" height="16"> Connect</a>
-        <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle" title="Toggle dark/light">&#127769;</button>
+        <a href="index.html" class="active"><img src="../assets/icons/shield-dictionary-48.png" class="site-icon" alt="" width="16" height="16"> Dictionary</a>
+        <button id="themeToggle" class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">🌙</button>
     </nav>
+
     <div class="container">
-        <div class="dict-back-nav"><a href="dread.html">&#8592; Dread</a><div class="dict-back-center"><a href="index.html">&#8592; Back to Dictionary</a></div><a href="dunamis.html">Dunamis &#8594;</a></div>
+        <div class="dict-back-nav"><a href="dread.html">&#8592; Dread</a><div class="dict-back-center"><a href="index.html">&#8592; Back to Dictionary</a></div><a href="dwell.html">Dwell &#8594;</a></div>
         <div class="word-header">
-            <div class="word-title">Dualism</h1>
+            <div class="word-title">Dualism</div>
             <div class="pronunciation">/ ˈd(y)ü-ə-ˌli-zəm /</div>
-            <div class="pronunciation">/ ˈd(y)ü-ə-ˌli-zəm / &mdash; The MOOP Dictionary</title>
-    <style>
-        * { margin:0; padding:0; box-sizing:border-box; }
-        :root { --bg:#000; --card:#111; --gold:#D4AF37; --gold-light:#F4D470; --white:#FFF; --gray:#888; --border:#333; }
-        body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--white); min-height:100vh; line-height:1.7; }
-        h1,h2,h3,h4 { font-family:'Playfair Display',serif; }
-        nav { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:4px 8px; padding:10px 16px;
-              border-bottom:1px solid var(--border); position:sticky; top:0;
-              background:rgba(0,0,0,0.95); backdrop-filter:blur(8px); z-index:100; }
-        nav a { color:var(--gray); text-decoration:none; font-size:0.8rem; display:inline-flex; align-items:center;
-                gap:3px; padding:3px 6px; border-radius:6px; transition:color 0.2s; }
-        nav a:hover, nav a.active { color:var(--gold); }
-        .site-icon { vertical-align:middle; opacity:0.8; }
-        .theme-toggle { background:none; border:1px solid var(--border); border-radius:50%; width:28px; height:28px;
-                        cursor:pointer; font-size:0.85rem; transition:all 0.3s; padding:0; color:var(--white);
-                        display:inline-flex; align-items:center; justify-content:center; }
-        .theme-toggle:hover { border-color:var(--gold); }
-        .container { max-width:820px; margin:0 auto; padding:28px 20px 60px; }
-        .word-header { text-align:center; padding:40px 0 30px; border-bottom:1px solid var(--border); margin-bottom:30px; }
-        .word-title { font-size:2.8rem; color:var(--gold-light); margin-bottom:6px; }
-        .pronunciation { color:var(--gray); font-size:1.1rem; font-style:italic; }
-        .pos { display:inline-block; background:var(--gold); color:#000; font-weight:700;
-               font-size:0.78rem; padding:3px 14px; border-radius:15px; margin:10px 0; }
-        .etymology { color:var(--gray); font-size:0.88rem; margin:12px auto; max-width:650px; }
-        .section { margin:18px 0; padding:18px 22px; background:var(--card); border:1px solid var(--border); border-radius:10px; }
-        .section > h3 { color:var(--gold); margin-bottom:12px; font-size:1.05rem; }
-        .section p { margin:7px 0; }
-        .biblical-def { border-left:3px solid var(--gold); padding-left:15px; }
-        .section-summary { color:var(--gray); font-size:0.92rem; font-style:italic; margin-bottom:4px; }
-        details { margin-top:8px; }
-        details summary { color:var(--gold); font-size:0.85rem; cursor:pointer; user-select:none; padding:4px 0; }
-        details summary:hover { color:var(--gold-light); }
-        details[open] summary { margin-bottom:8px; }
-        .corruption { border-left:3px solid #CC0000; padding-left:15px; }
-        .corruption-inner { padding:12px 16px; background:rgba(204,0,0,0.06); border-left:2px solid #CC0000; border-radius:0 6px 6px 0; }
-        .roots-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
-        .webster-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
-        .proto-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
-        .proto-inner pre { font-family:'Courier New',monospace; font-size:0.82rem; color:var(--gold-light);
-                           line-height:1.7; white-space:pre-wrap; }
-        .verse-ref { color:var(--gold); text-decoration:none; font-weight:600; }
-        .verse-ref:hover { color:var(--gold-light); text-decoration:underline; }
-        .lexicon-link { color:var(--gold); font-family:monospace; text-decoration:none; }
-        .lexicon-link:hover { color:var(--gold-light); text-decoration:underline; }
-        .related { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
-        .related a { background:var(--card); border:1px solid var(--border); padding:6px 14px;
-                     border-radius:20px; color:var(--white); text-decoration:none; font-size:0.85rem;
-                     transition:border-color 0.2s, color 0.2s; }
-        .related a:hover { border-color:var(--gold); color:var(--gold); }
-        footer { text-align:center; padding:28px 20px; border-top:1px solid var(--border);
-                 margin-top:40px; color:var(--gray); font-size:0.88rem; }
-        footer a { color:var(--gray); text-decoration:none; }
-        footer a:hover { color:var(--gold); }
-        .cross-divider { margin-bottom:10px; }
-        body.light-mode { --bg:#F5F3EF; --card:#FFF; --white:#1a1a1a; --gray:#666; --border:#d4d0c8; background:#F5F3EF; color:#1a1a1a; }
-        body.light-mode nav { background:rgba(245,243,239,0.97); }
-        body.light-mode .section { background:#fff; border-color:#d4d0c8; }
-        body.light-mode details summary { color:var(--gold); }
-        body.light-mode .corruption-inner { background:rgba(204,0,0,0.03); }
-        body.light-mode .roots-inner, body.light-mode .webster-inner, body.light-mode .proto-inner { background:rgba(212,175,55,0.04); }
-        body.light-mode footer { border-top-color:#d4d0c8; }
-        body.light-mode .related a { background:#f0ede7; border-color:#d4d0c8; color:#1a1a1a; }
-        a, a:link, a:visited { color: var(--gold, #D4AF37) !important; }
-        a:hover { color: var(--gold-light, #F4D470) !important; }
-        .dict-back-nav { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:22px; padding:10px 0; border-bottom:1px solid var(--border,#333); }
-        .dict-back-nav a { color:var(--gold,#D4AF37); text-decoration:none; font-size:0.88rem; font-weight:500; }
-        .dict-back-nav a:hover { color:var(--gold-light,#F4D470); }
-        .dict-back-nav .dict-back-center { flex:1; text-align:center; }
-    </style>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
-</head>
-<body>
-    <nav>
-        <a href="../index.html"><img src="../assets/icons/shield-home-48.png" class="site-icon" alt="" width="16" height="16"> Home</a>
-        <a href="../watchman.html"><img src="../assets/icons/shield-bible.png" class="site-icon" alt="" width="16" height="16"> Watchman</a>
-        <a href="../bible.html"><img src="../assets/icons/shield-compass.png" class="site-icon" alt="" width="16" height="16"> BTE</a>
-        <a href="../lexicon.html"><img src="../assets/icons/shield-alpha-omega-48.png" class="site-icon" alt="" width="16" height="16"> Lexicon</a>
-        <a href="../cross-references.html"><img src="../assets/icons/shield-infinity-rope-48.png" class="site-icon" alt="" width="16" height="16"> Cross-Refs</a>
-        <a href="index.html" class="active"><img src="../assets/icons/shield-book-greek-48.png" class="site-icon" alt="" width="16" height="16"> Dictionary</a>
-        <a href="../blog.html"><img src="../assets/icons/shield-blog-quill-48.png" class="site-icon" alt="" width="16" height="16"> Blog</a>
-        <a href="../connect.html"><img src="../assets/icons/shield-handshake.png" class="site-icon" alt="" width="16" height="16"> Connect</a>
-        <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle" title="Toggle dark/light">&#127769;</button>
-    </nav>
-    <div class="container">
-        <div class="dict-back-nav"><a href="dread.html">&#8592; Dread</a><div class="dict-back-center"><a href="index.html">&#8592; Back to Dictionary</a></div>
-            <span class="pos">noun</div>
-            <p class="etymology">Latin dualis ("containing two") + -ism. From duo ("two"). As a philosophical/theological term, dualism denotes any worldview that posits two ultimate, irreducible, and often opposing principles — whether cosmic (good vs. evil as equal eternal powers), metaphysical (mind vs. matter), or anthropological (soul vs. body). The term was coined by Thomas Hyde in 1700 to describe Zoroastrian theology, but the underlying ideas are far older, appearing in Platonic philosophy, Gnosticism, Manichaeism, and various Eastern religious traditions. Biblical Christianity is explicitly and rigorously anti-dualistic in every sense that matters.</p>
+            <div class="pos">noun</div>
+            <div class="etymology">Latin dualis ("containing two") + -ism. From duo ("two"). As a philosophical/theological term, dualism denotes any worldview that posits two ultimate, irreducible, and often opposing principles — whether cosmic (good vs. evil as equal eternal powers), metaphysical (mind vs. matter), or anthropological (soul vs. body). The term was coined by Thomas Hyde in 1700 to describe Zoroastrian theology, but the underlying ideas are far older, appearing in Platonic philosophy, Gnosticism, Manichaeism, and various Eastern religious traditions. Biblical Christianity is explicitly and rigorously anti-dualistic in every sense that matters.</div>
         </div>
 
         <div class="section biblical-def">
@@ -188,25 +99,23 @@
 
         <div class="section">
             <button class="dict-toggle" data-toggle="webster" onclick="toggleDict('webster')">
-                <span class="arrow">&#9658;</span>
-            <div class="etymology">Latin dualis ("containing two") + -ism. From duo ("two"). As a philosophical/theological term, dualism denotes any worldview that posits two ultimate, irreducible, and often opposing principles — whether cosmic (good vs. evil as equal eternal powers), metaphysical (mind vs. matter), or anthropological (soul vs. body). The term was coined by Thomas Hyde in 1700 to describe Zoroastrian theology, but the underlying ideas are far older, appearing in Platonic philosophy, Gnosticism, Manichaeism, and various Eastern religious traditions. Biblical Christianity is explicitly and rigorously anti-dualistic in every sense that matters.</p></div>
-        </div>
-
-        <div class="section">
-            <h3>&#128220; Webster 1828 Definition</h3>
-            <p class="section-summary">DUALISM — The doctrine that the universe has two ultimate principles, as mind and matter, or good and evil.</p>
-            <details>
-                <summary><em style="color:var(--gray)">expand to see more</em></summary>
-                <div class="webster-inner">
-                    <p><strong>DUALISM</strong> — The doctrine that the universe has two ultimate principles, as mind and matter, or good and evil. The doctrine of those who hold that there are two distinct principles in man, the soul and the body. [Webster 1828]</p>
+                <span class="arrow">&#9658;</span>📚 Webster's 1828
+            </button>
+            <div class="dict-section" id="webster">
+                <p><strong>DUALISM</strong> — The doctrine that the universe has two ultimate principles, as mind and matter, or good and evil. The doctrine of those who hold that there are two distinct principles in man, the soul and the body. [Webster 1828]</p>
                 <p style="margin-top:10px;"><em>Webster's era saw dualism primarily through the lens of the Manichaean heresy (condemned by Augustine) and Cartesian mind-body philosophy. The Christian response in both cases was the same: God is the sole Creator and ultimate reality; matter is not evil but corrupted; redemption is restoration of the whole person, not escape from the body.</em></p>
             </div>
-                </div>
-            </details>
         </div>
 
         <div class="section">
-            <h3>&#128214; Key Scripture</h3>
+            <h3>⚠️ Modern Corruption</h3>
+            <div class="corruption">
+                <p>Practical dualism infects contemporary evangelicalism in ways that go unnoticed. The "sacred vs. secular" division — where Sunday worship is "spiritual" and Monday work is merely tolerated — is functional dualism that Christ rejected by His incarnation. "Soul-saving" theology that dismisses care for bodies, communities, and creation as unspiritual is Gnostic dualism with a evangelical accent. Charismatic streams sometimes veer into cosmic dualism by treating Satan as nearly God's equal — engaging in prolonged "spiritual warfare" that implies the outcome is uncertain. Conversely, the therapeutic model that reduces sin to psychological dysfunction and salvation to mental wellness is a secular body-soul dualism that privileges the "inner life" while ignoring the body's resurrection. The Incarnation is the ultimate anti-dualist declaration: God became flesh, and the flesh is redeemable.</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>📖 Key Scripture</h3>
             <p>• <a href="../bible.html?ref=Isaiah+45:6-7" class="verse-ref">Isaiah 45:6–7</a> — "I am the LORD, and there is no other. I form light and create darkness, I make well-being and create calamity; I am the LORD, who does all these things."</p>
             <p>• <a href="../bible.html?ref=Genesis+1:31" class="verse-ref">Genesis 1:31</a> — "God saw everything that he had made, and behold, it was very good" — the anti-Gnostic, anti-dualist verdict on matter.</p>
             <p>• <a href="../bible.html?ref=Colossians+2:15" class="verse-ref">Colossians 2:15</a> — Christ "disarmed the rulers and authorities and put them to open shame" — Satan's defeat is decisive, not ongoing stalemate.</p>
@@ -215,27 +124,11 @@
         </div>
 
         <div class="section">
-            <h3>&#9888;&#65039; Modern Corruption</h3>
-            <p class="section-summary">Practical dualism infects contemporary evangelicalism in ways that go unnoticed.</p>
-            <details>
-                <summary><em style="color:var(--gray)">expand to see more</em></summary>
-                <div class="corruption-inner">
-                    <div class="corruption">
-                <p>Practical dualism infects contemporary evangelicalism in ways that go unnoticed. The "sacred vs. secular" division — where Sunday worship is "spiritual" and Monday work is merely tolerated — is functional dualism that Christ rejected by His incarnation. "Soul-saving" theology that dismisses care for bodies, communities, and creation as unspiritual is Gnostic dualism with a evangelical accent. Charismatic streams sometimes veer into cosmic dualism by treating Satan as nearly God's equal — engaging in prolonged "spiritual warfare" that implies the outcome is uncertain. Conversely, the therapeutic model that reduces sin to psychological dysfunction and salvation to mental wellness is a secular body-soul dualism that privileges the "inner life" while ignoring the body's resurrection. The Incarnation is the ultimate anti-dualist declaration: God became flesh, and the flesh is redeemable.</p>
-            </div>
-                </div>
-                </div>
-            </details>
-        </div>
-
-        <div class="section">
-            <h3>&#128279; Greek &amp; Hebrew Roots</h3>
-            <p class="section-summary">Greek σάρξ (sarx, G4561) — flesh; in Paul, the sin-dominated disposition (NOT matter per se)
-  → Romans 8:5–8: "Mind ...</p>
-            <details>
-                <summary><em style="color:var(--gray)">expand to see more</em></summary>
-                <div class="roots-inner">
-                    <pre>Greek σάρξ (sarx, G4561) — flesh; in Paul, the sin-dominated disposition (NOT matter per se)
+            <button class="dict-toggle" data-toggle="roots" onclick="toggleDict('roots')">
+                <span class="arrow">&#9658;</span>🔗 Greek &amp; Hebrew Roots
+            </button>
+            <div class="dict-section" id="roots">
+                <pre>Greek σάρξ (sarx, G4561) — flesh; in Paul, the sin-dominated disposition (NOT matter per se)
   → Romans 8:5–8: "Mind set on the flesh" = dualism of moral orientation, not substance
   → Galatians 5:16–17: Flesh vs. Spirit = competing allegiances, not matter vs. soul
 
@@ -257,15 +150,17 @@ Historical heresies rooted in dualism:
   Marcionism: OT God (material, harsh) vs. NT God (spiritual, loving) — rejected as heresy
   Docetism: Christ only appeared to have a body — condemned in 1 John 4:2</pre>
             </div>
-                </div>
-            </details>
         </div>
 
         <div class="section">
-            <h3><img src="../assets/icons/shield-blog-quill-48.png" width="20" height="20" style="vertical-align:middle;margin-right:6px;"> Usage</h3>
-            <p>• "The Incarnation is the ultimate refutation of dualism: the eternal Son took on human flesh not as a concession but as the definitive declaration that matter, redeemed, can bear the presence of God."</p>
+            <button class="dict-toggle" data-toggle="usage" onclick="toggleDict('usage')">
+                <span class="arrow">&#9658;</span>✍️ Usage Examples
+            </button>
+            <div class="dict-section" id="usage">
+                <p>• "The Incarnation is the ultimate refutation of dualism: the eternal Son took on human flesh not as a concession but as the definitive declaration that matter, redeemed, can bear the presence of God."</p>
                 <p>• "Every time a Christian says 'the spiritual things are what really matter' and dismisses physical suffering, work, or embodied care, they are trafficking in Gnostic dualism — not biblical Christianity."</p>
                 <p>• "Paul's flesh vs. spirit language is not Platonic dualism in disguise. Sarx (flesh) is a moral orientation, not a substance — even glorified resurrection bodies will be pneumatikon (Spirit-animated), not immaterial."</p>
+            </div>
         </div>
 
         <div class="section">
@@ -279,13 +174,10 @@ Historical heresies rooted in dualism:
                 <a href="new-creation.html">New Creation</a>
             </div>
         </div>
+    </div>
 
-        <div class="section">
-            <button class="dict-toggle" data-toggle="webster" onclick="toggleDict('webster')">
-                <span class="arrow">&#9658;</span>
-            <div class="etymology">Latin dualis ("containing two") + -ism. From duo ("two"). As a philosophical/theological term, dualism denotes any worldview that posits two ultimate, irreducible, and often opposing principles — whether cosmic (good vs. evil as equal eternal powers), metaphysical (mind vs. matter), or anthropological (soul vs. body). The term was coined by Thomas Hyde in 1700 to describe Zoroastrian theology, but the underlying ideas are far older, appearing in Platonic philosophy, Gnosticism, Manichaeism, and various Eastern religious traditions. Biblical Christianity is explicitly and rigorously anti-dualistic in every sense that matters.</p></div>
-        </div>
-
+    <div class="toggle-wrap">
+        <button id="themeToggle2" class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">🌙</button>
     </div>
 
     <footer>
@@ -300,17 +192,9 @@ Historical heresies rooted in dualism:
         <p style="margin-top:8px;font-size:0.78rem;color:#555;">Powered by MOOPbot Pro &mdash; &ldquo;Iron sharpens iron.&rdquo; &mdash; <a href="../bible.html?ref=Proverbs+27:17" style="color:var(--gold);text-decoration:underline;">Proverbs 27:17</a></p>
     </footer>
     <script>
-    function toggleTheme(){
-        var b=document.body,t=document.getElementById('themeToggle');
-        if(b.classList.contains('light-mode')){b.classList.remove('light-mode');t.textContent='\u{1F319}';localStorage.setItem('bte-theme','dark');}
-        else{b.classList.add('light-mode');t.textContent='\u2600\uFE0F';localStorage.setItem('bte-theme','light');}
-    }
-    (function(){
-        if(localStorage.getItem('bte-theme')==='light'){
-            document.body.classList.add('light-mode');
-            var t=document.getElementById('themeToggle');if(t)t.textContent='\u2600\uFE0F';
-        }
-    })();
+    function toggleDict(id){var s=document.getElementById(id);var b=document.querySelector('[data-toggle="'+id+'"]');var a=b?b.querySelector('.arrow'):null;s.classList.toggle('open');if(a)a.classList.toggle('open');}
+    function toggleTheme(){var b=document.body;var t1=document.getElementById('themeToggle');var t2=document.getElementById('themeToggle2');if(b.classList.contains('light-mode')){b.classList.remove('light-mode');if(t1)t1.textContent='🌙';if(t2)t2.textContent='🌙';localStorage.setItem('bte-theme','dark');}else{b.classList.add('light-mode');if(t1)t1.textContent='☀️';if(t2)t2.textContent='☀️';localStorage.setItem('bte-theme','light');}}
+    (function(){if(localStorage.getItem('bte-theme')==='light'){document.body.classList.add('light-mode');var t1=document.getElementById('themeToggle');var t2=document.getElementById('themeToggle2');if(t1)t1.textContent='☀️';if(t2)t2.textContent='☀️';}})();
     </script>
 </body>
 </html>
