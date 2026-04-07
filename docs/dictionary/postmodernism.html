@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Postmodernism &mdash; The MOOP Dictionary</title>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        :root { --bg:#000; --card:#111; --gold:#D4AF37; --gold-light:#F4D470; --white:#FFF; --gray:#888; --border:#333; }
+        body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--white); min-height:100vh; line-height:1.7; }
+        h1,h2,h3,h4 { font-family:'Playfair Display',serif; }
+        nav { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:4px 8px; padding:10px 16px;
+              border-bottom:1px solid var(--border); position:sticky; top:0;
+              background:rgba(0,0,0,0.95); backdrop-filter:blur(8px); z-index:100; }
+        nav a { color:var(--gray); text-decoration:none; font-size:0.8rem; display:inline-flex; align-items:center;
+                gap:3px; padding:3px 6px; border-radius:6px; transition:color 0.2s; }
+        nav a:hover, nav a.active { color:var(--gold); }
+        .site-icon { vertical-align:middle; opacity:0.8; }
+        .theme-toggle { background:none; border:1px solid var(--border); border-radius:50%; width:28px; height:28px;
+                        cursor:pointer; font-size:0.85rem; transition:all 0.3s; padding:0; color:var(--white);
+                        display:inline-flex; align-items:center; justify-content:center; }
+        .theme-toggle:hover { border-color:var(--gold); }
+        .container { max-width:820px; margin:0 auto; padding:28px 20px 60px; }
+        .word-header { text-align:center; padding:40px 0 30px; border-bottom:1px solid var(--border); margin-bottom:30px; }
+        .word-title { font-size:2.8rem; color:var(--gold-light); margin-bottom:6px; }
+        .pronunciation { color:var(--gray); font-size:1.1rem; font-style:italic; }
+        .pos { display:inline-block; background:var(--gold); color:#000; font-weight:700;
+               font-size:0.78rem; padding:3px 14px; border-radius:15px; margin:10px 0; }
+        .etymology { color:var(--gray); font-size:0.88rem; margin:12px auto; max-width:650px; }
+        .section { margin:18px 0; padding:18px 22px; background:var(--card); border:1px solid var(--border); border-radius:10px; }
+        .section > h3 { color:var(--gold); margin-bottom:12px; font-size:1.05rem; }
+        .section p { margin:7px 0; }
+        .biblical-def { border-left:3px solid var(--gold); padding-left:15px; }
+        .section-summary { color:var(--gray); font-size:0.92rem; font-style:italic; margin-bottom:4px; }
+        details { margin-top:8px; }
+        details summary { color:var(--gold); font-size:0.85rem; cursor:pointer; user-select:none; padding:4px 0; }
+        details summary:hover { color:var(--gold-light); }
+        details[open] summary { margin-bottom:8px; }
+        .corruption { border-left:3px solid #CC0000; padding-left:15px; }
+        .corruption-inner { padding:12px 16px; background:rgba(204,0,0,0.06); border-left:2px solid #CC0000; border-radius:0 6px 6px 0; }
+        .roots-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .webster-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .proto-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .proto-inner pre { font-family:'Courier New',monospace; font-size:0.82rem; color:var(--gold-light);
+                           line-height:1.7; white-space:pre-wrap; }
+        .verse-ref { color:var(--gold); text-decoration:none; font-weight:600; }
+        .verse-ref:hover { color:var(--gold-light); text-decoration:underline; }
+        .lexicon-link { color:var(--gold); font-family:monospace; text-decoration:none; }
+        .lexicon-link:hover { color:var(--gold-light); text-decoration:underline; }
+        .related { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+        .related a { background:var(--card); border:1px solid var(--border); padding:6px 14px;
+                     border-radius:20px; color:var(--white); text-decoration:none; font-size:0.85rem;
+                     transition:border-color 0.2s, color 0.2s; }
+        .related a:hover { border-color:var(--gold); color:var(--gold); }
+        footer { text-align:center; padding:28px 20px; border-top:1px solid var(--border);
+                 margin-top:40px; color:var(--gray); font-size:0.88rem; }
+        footer a { color:var(--gray); text-decoration:none; }
+        footer a:hover { color:var(--gold); }
+        .cross-divider { margin-bottom:10px; }
+        body.light-mode { --bg:#F5F3EF; --card:#FFF; --white:#1a1a1a; --gray:#666; --border:#d4d0c8; background:#F5F3EF; color:#1a1a1a; }
+        body.light-mode nav { background:rgba(245,243,239,0.97); }
+        body.light-mode .section { background:#fff; border-color:#d4d0c8; }
+        body.light-mode details summary { color:var(--gold); }
+        body.light-mode .corruption-inner { background:rgba(204,0,0,0.03); }
+        body.light-mode .roots-inner, body.light-mode .webster-inner, body.light-mode .proto-inner { background:rgba(212,175,55,0.04); }
+        body.light-mode footer { border-top-color:#d4d0c8; }
+        body.light-mode .related a { background:#f0ede7; border-color:#d4d0c8; color:#1a1a1a; }
+        a, a:link, a:visited { color: var(--gold, #D4AF37) !important; }
+        a:hover { color: var(--gold-light, #F4D470) !important; }
+        .dict-back-nav { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:22px; padding:10px 0; border-bottom:1px solid var(--border,#333); }
+        .dict-back-nav a { color:var(--gold,#D4AF37); text-decoration:none; font-size:0.88rem; font-weight:500; }
+        .dict-back-nav a:hover { color:var(--gold-light,#F4D470); }
+        .dict-back-nav .dict-back-center { flex:1; text-align:center; }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav>
+        <a href="../index.html"><img src="../assets/icons/shield-home-48.png" class="site-icon" alt="" width="16" height="16"> Home</a>
+        <a href="../watchman.html"><img src="../assets/icons/shield-bible.png" class="site-icon" alt="" width="16" height="16"> Watchman</a>
+        <a href="../bible.html"><img src="../assets/icons/shield-compass.png" class="site-icon" alt="" width="16" height="16"> BTE</a>
+        <a href="../lexicon.html"><img src="../assets/icons/shield-alpha-omega-48.png" class="site-icon" alt="" width="16" height="16"> Lexicon</a>
+        <a href="../cross-references.html"><img src="../assets/icons/shield-infinity-rope-48.png" class="site-icon" alt="" width="16" height="16"> Cross-Refs</a>
+        <a href="index.html" class="active"><img src="../assets/icons/shield-book-greek-48.png" class="site-icon" alt="" width="16" height="16"> Dictionary</a>
+        <a href="../blog.html"><img src="../assets/icons/shield-blog-quill-48.png" class="site-icon" alt="" width="16" height="16"> Blog</a>
+        <a href="../connect.html"><img src="../assets/icons/shield-handshake.png" class="site-icon" alt="" width="16" height="16"> Connect</a>
+        <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle" title="Toggle dark/light">&#127769;</button>
+    </nav>
+    <div class="container">
+        <div class="dict-back-nav"><span></span><div class="dict-back-center"><a href="index.html">&#8592; Back to Dictionary</a></div><span></span></div>
+        <div class="word-header">
+            <div class="word-title">Postmodernism</div>
+            <div class="pronunciation">/post-MOD-ern-iz-um/</div>
+            <span class="pos">noun</span>
+            <div class="etymology">From Latin <em>post</em> ("after") + <em>modernus</em> ("of the present") + <em>-ism</em>. The term emerged in the mid-20th century to describe a broad intellectual movement reacting against Enlightenment modernism. Key figures include Jacques Derrida (deconstruction), Michel Foucault (power/knowledge), Jean-Fran&ccedil;ois Lyotard (who defined postmodernism as "incredulity toward metanarratives"), and Richard Rorty (anti-foundationalism). The movement gained dominance in Western humanities departments from the 1970s onward.</div>
+        </div>
+
+        <div class="section">
+            <h3>&#128214; Biblical Definition</h3>
+            <div class="biblical-def">
+                <p>Postmodernism is the philosophical movement that denies the existence of objective truth, rejects overarching explanatory narratives ("metanarratives"), and reduces all truth claims to expressions of power. From a biblical perspective, it is the most comprehensive assault on the foundations of the faith since Gnosticism.</p>
+                <p>The Bible <em>is</em> a metanarrative &mdash; the supreme metanarrative: creation, fall, redemption, consummation. It claims to tell the true story of the whole world, from Genesis to Revelation. Postmodernism's foundational principle &mdash; that no such story can be trusted &mdash; is a direct denial of the Bible's central claim about itself.</p>
+                <p>Furthermore, postmodernism's insistence that "truth" is merely a function of power inverts the biblical order. In Scripture, truth is grounded in the character of God ("I am the truth," <a href="../bible.html?ref=John+14:6" class="verse-ref">John 14:6</a>), and power is legitimate only when submitted to truth. In postmodernism, truth is a product of power, which means whoever has power gets to define what is "true." This is the philosophy of the serpent in Genesis 3 &mdash; the suggestion that God's Word is not a revelation of reality but a mechanism of control.</p>
+                <p>Derrida's claim that texts have no fixed meaning directly attacks the intelligibility of Scripture. If the author's intention is irrelevant and meaning is created by the reader, then the Bible says whatever anyone wants it to say &mdash; which is the same as saying it says nothing at all.</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>&#128220; Webster 1828 Definition</h3>
+            <p class="section-summary">The term did not exist in 1828. The intellectual project it represents would have been inconceivable to Webster.</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="webster-inner">
+                    <p>No entry exists. Webster 1828 defined <strong>TRUTH</strong> as "conformity to fact or reality" &mdash; a definition that postmodernism exists specifically to destroy. Webster's entire life work &mdash; a dictionary &mdash; presupposes that words have stable, knowable meanings tied to objective realities. Postmodernism denies every one of those presuppositions. The man who wrote the dictionary and the men who deconstructed language cannot both be right.</p>
+                </div>
+            </details>
+        </div>
+
+        <div class="section">
+            <h3>&#128214; Key Scripture</h3>
+            <p>&#x2022; <a href="../bible.html?ref=John+14:6" class="verse-ref">John 14:6</a> &mdash; "I am the way, the truth, and the life."</p>
+            <p>&#x2022; <a href="../bible.html?ref=Genesis+3:1" class="verse-ref">Genesis 3:1</a> &mdash; "Yea, hath God said...?" The first act of deconstruction.</p>
+            <p>&#x2022; <a href="../bible.html?ref=2+Timothy+4:3-4" class="verse-ref">2 Timothy 4:3-4</a> &mdash; "For the time will come when they will not endure sound doctrine; but after their own lusts shall they heap to themselves teachers, having itching ears; and they shall turn away their ears from the truth, and shall be turned unto fables."</p>
+            <p>&#x2022; <a href="../bible.html?ref=Colossians+2:8" class="verse-ref">Colossians 2:8</a> &mdash; "Beware lest any man spoil you through philosophy and vain deceit, after the tradition of men, after the rudiments of the world, and not after Christ."</p>
+            <p>&#x2022; <a href="../bible.html?ref=Isaiah+5:20" class="verse-ref">Isaiah 5:20</a> &mdash; "Woe unto them that call evil good, and good evil."</p>
+        </div>
+
+        <div class="section">
+            <h3>&#9888;&#65039; Modern Corruption</h3>
+            <p class="section-summary">Postmodernism is the philosophical acid that has dissolved the West's capacity to say what is true, what is good, and what is real &mdash; including what a man and a woman are.</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="corruption-inner">
+                    <p><strong>The intellectual genealogy matters.</strong> Postmodernism did not appear from nowhere. It descends from a specific lineage: Kant separated the world-as-it-is from the world-as-we-experience-it. Hegel historicized truth. Marx politicized it. Nietzsche killed God and announced the consequences. The postmodernists inherited the ruins and declared that ruins are all there ever was.</p>
+                    <p><strong>The practical consequences are everywhere.</strong> If there is no objective truth, then biology does not determine sex &mdash; identity is self-defined. If there are no metanarratives, then the biblical story of creation-fall-redemption has no more authority than any other story. If all language is a power game, then "God said" is just another power move to be deconstructed.</p>
+                    <p><strong>The church has been infiltrated.</strong> "Progressive Christianity" is postmodernism wearing a clerical collar. When a pastor says "we need to reimagine what the Bible says about sexuality," he is performing Derridean deconstruction on Scripture. When a seminary teaches that the resurrection is a "metaphor for transformation," that is Bultmannian demythologization &mdash; which is postmodernism's grandfather. The terms change; the operation is the same: separate the biblical text from any claim to objective truth.</p>
+                    <p><strong>The irony is devastating.</strong> Postmodernism claims all truth is relative &mdash; but its practitioners insist with absolute certainty that racism is wrong, that "marginalized voices" must be centered, and that those who disagree are morally deficient. They borrowed every one of these moral convictions from the Christian metanarrative they claim to have dismantled. They are living on stolen capital, and the account is running dry.</p>
+                </div>
+            </details>
+        </div>
+
+        <div class="section">
+            <h3><img src="../assets/icons/shield-blog-quill-48.png" width="20" height="20" style="vertical-align:middle;margin-right:6px;"> Usage</h3>
+            <p>&#x2022; "The serpent in the Garden was the first postmodernist: 'Hath God said?' is the original act of deconstruction."</p>
+            <p>&#x2022; "Postmodernism says there are no metanarratives &mdash; which is itself a metanarrative. The philosophy cannot survive its own opening move."</p>
+            <p>&#x2022; "A culture that cannot say what a woman is has not progressed beyond modernism &mdash; it has regressed below language."</p>
+        </div>
+
+        <div class="section">
+            <h3>Related Words</h3>
+            <div class="related">
+                <a href="relativism.html">Relativism</a>
+                <a href="nihilism.html">Nihilism</a>
+                <a href="marxism.html">Marxism</a>
+                <a href="truth.html">Truth</a>
+                <a href="deconstruction.html">Deconstruction</a>
+            </div>
+        </div>
+
+    </div>
+
+    <footer>
+        <div class="cross-divider"><img src="../assets/icons/shield-cross-bible-48.png" alt="" width="36" height="36" style="opacity:0.6;margin-bottom:10px;"></div>
+        <p>
+            <a href="../index.html#uniting"><img src="../assets/icons/shield-hands-joining.png" class="site-icon" alt="" width="20" height="20"> Uniting</a> &middot;
+            <a href="../serving.html"><img src="../assets/icons/shield-serving.png" class="site-icon" alt="" width="20" height="20"> Serving</a> &middot;
+            <a href="../mentoring.html"><img src="../assets/icons/shield-mentoring.png" class="site-icon" alt="" width="20" height="20"> Mentoring</a> &middot;
+            <a href="../counseling.html"><img src="../assets/icons/shield-family.png" class="site-icon" alt="" width="20" height="20"> Counseling</a> &middot;
+            <a href="../about.html"><img src="../assets/icons/shield-about-person-24.png" class="site-icon" alt="" width="20" height="20"> About</a>
+        </p>
+        <p style="margin-top:8px;font-size:0.78rem;color:#555;">Powered by MOOPbot Pro &mdash; &ldquo;Iron sharpens iron.&rdquo; &mdash; <a href="../bible.html?ref=Proverbs+27:17" style="color:var(--gold);text-decoration:underline;">Proverbs 27:17</a></p>
+    </footer>
+    <script>
+    function toggleTheme(){
+        var b=document.body,t=document.getElementById('themeToggle');
+        if(b.classList.contains('light-mode')){b.classList.remove('light-mode');t.textContent='\u{1F319}';localStorage.setItem('bte-theme','dark');}
+        else{b.classList.add('light-mode');t.textContent='\u2600\uFE0F';localStorage.setItem('bte-theme','light');}
+    }
+    (function(){
+        if(localStorage.getItem('bte-theme')==='light'){
+            document.body.classList.add('light-mode');
+            var t=document.getElementById('themeToggle');if(t)t.textContent='\u2600\uFE0F';
+        }
+    })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Greed &mdash; The MOOP Dictionary</title>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        :root { --bg:#000; --card:#111; --gold:#D4AF37; --gold-light:#F4D470; --white:#FFF; --gray:#888; --border:#333; }
+        body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--white); min-height:100vh; line-height:1.7; }
+        h1,h2,h3,h4 { font-family:'Playfair Display',serif; }
+        nav { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:4px 8px; padding:10px 16px;
+              border-bottom:1px solid var(--border); position:sticky; top:0;
+              background:rgba(0,0,0,0.95); backdrop-filter:blur(8px); z-index:100; }
+        nav a { color:var(--gray); text-decoration:none; font-size:0.8rem; display:inline-flex; align-items:center;
+                gap:3px; padding:3px 6px; border-radius:6px; transition:color 0.2s; }
+        nav a:hover, nav a.active { color:var(--gold); }
+        .site-icon { vertical-align:middle; opacity:0.8; }
+        .theme-toggle { background:none; border:1px solid var(--border); border-radius:50%; width:28px; height:28px;
+                        cursor:pointer; font-size:0.85rem; transition:all 0.3s; padding:0; color:var(--white);
+                        display:inline-flex; align-items:center; justify-content:center; }
+        .theme-toggle:hover { border-color:var(--gold); }
+        .container { max-width:820px; margin:0 auto; padding:28px 20px 60px; }
+        .word-header { text-align:center; padding:40px 0 30px; border-bottom:1px solid var(--border); margin-bottom:30px; }
+        .word-title { font-size:2.8rem; color:var(--gold-light); margin-bottom:6px; }
+        .pronunciation { color:var(--gray); font-size:1.1rem; font-style:italic; }
+        .pos { display:inline-block; background:var(--gold); color:#000; font-weight:700;
+               font-size:0.78rem; padding:3px 14px; border-radius:15px; margin:10px 0; }
+        .etymology { color:var(--gray); font-size:0.88rem; margin:12px auto; max-width:650px; }
+        .section { margin:18px 0; padding:18px 22px; background:var(--card); border:1px solid var(--border); border-radius:10px; }
+        .section > h3 { color:var(--gold); margin-bottom:12px; font-size:1.05rem; }
+        .section p { margin:7px 0; }
+        .biblical-def { border-left:3px solid var(--gold); padding-left:15px; }
+        .section-summary { color:var(--gray); font-size:0.92rem; font-style:italic; margin-bottom:4px; }
+        details { margin-top:8px; }
+        details summary { color:var(--gold); font-size:0.85rem; cursor:pointer; user-select:none; padding:4px 0; }
+        details summary:hover { color:var(--gold-light); }
+        details[open] summary { margin-bottom:8px; }
+        .corruption { border-left:3px solid #CC0000; padding-left:15px; }
+        .corruption-inner { padding:12px 16px; background:rgba(204,0,0,0.06); border-left:2px solid #CC0000; border-radius:0 6px 6px 0; }
+        .roots-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .webster-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .proto-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .proto-inner pre { font-family:'Courier New',monospace; font-size:0.82rem; color:var(--gold-light);
+                           line-height:1.7; white-space:pre-wrap; }
+        .verse-ref { color:var(--gold); text-decoration:none; font-weight:600; }
+        .verse-ref:hover { color:var(--gold-light); text-decoration:underline; }
+        .lexicon-link { color:var(--gold); font-family:monospace; text-decoration:none; }
+        .lexicon-link:hover { color:var(--gold-light); text-decoration:underline; }
+        .related { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+        .related a { background:var(--card); border:1px solid var(--border); padding:6px 14px;
+                     border-radius:20px; color:var(--white); text-decoration:none; font-size:0.85rem;
+                     transition:border-color 0.2s, color 0.2s; }
+        .related a:hover { border-color:var(--gold); color:var(--gold); }
+        footer { text-align:center; padding:28px 20px; border-top:1px solid var(--border);
+                 margin-top:40px; color:var(--gray); font-size:0.88rem; }
+        footer a { color:var(--gray); text-decoration:none; }
+        footer a:hover { color:var(--gold); }
+        .cross-divider { margin-bottom:10px; }
+        body.light-mode { --bg:#F5F3EF; --card:#FFF; --white:#1a1a1a; --gray:#666; --border:#d4d0c8; background:#F5F3EF; color:#1a1a1a; }
+        body.light-mode nav { background:rgba(245,243,239,0.97); }
+        body.light-mode .section { background:#fff; border-color:#d4d0c8; }
+        body.light-mode details summary { color:var(--gold); }
+        body.light-mode .corruption-inner { background:rgba(204,0,0,0.03); }
+        body.light-mode .roots-inner, body.light-mode .webster-inner, body.light-mode .proto-inner { background:rgba(212,175,55,0.04); }
+        body.light-mode footer { border-top-color:#d4d0c8; }
+        body.light-mode .related a { background:#f0ede7; border-color:#d4d0c8; color:#1a1a1a; }
+        a, a:link, a:visited { color: var(--gold, #D4AF37) !important; }
+        a:hover { color: var(--gold-light, #F4D470) !important; }
+        .dict-back-nav { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:22px; padding:10px 0; border-bottom:1px solid var(--border,#333); }
+        .dict-back-nav a { color:var(--gold,#D4AF37); text-decoration:none; font-size:0.88rem; font-weight:500; }
+        .dict-back-nav a:hover { color:var(--gold-light,#F4D470); }
+        .dict-back-nav .dict-back-center { flex:1; text-align:center; }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav>
+        <a href="../index.html"><img src="../assets/icons/shield-home-48.png" class="site-icon" alt="" width="16" height="16"> Home</a>
+        <a href="../watchman.html"><img src="../assets/icons/shield-bible.png" class="site-icon" alt="" width="16" height="16"> Watchman</a>
+        <a href="../bible.html"><img src="../assets/icons/shield-compass.png" class="site-icon" alt="" width="16" height="16"> BTE</a>
+        <a href="../lexicon.html"><img src="../assets/icons/shield-alpha-omega-48.png" class="site-icon" alt="" width="16" height="16"> Lexicon</a>
+        <a href="../cross-references.html"><img src="../assets/icons/shield-infinity-rope-48.png" class="site-icon" alt="" width="16" height="16"> Cross-Refs</a>
+        <a href="index.html" class="active"><img src="../assets/icons/shield-book-greek-48.png" class="site-icon" alt="" width="16" height="16"> Dictionary</a>
+        <a href="../blog.html"><img src="../assets/icons/shield-blog-quill-48.png" class="site-icon" alt="" width="16" height="16"> Blog</a>
+        <a href="../connect.html"><img src="../assets/icons/shield-handshake.png" class="site-icon" alt="" width="16" height="16"> Connect</a>
+        <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle" title="Toggle dark/light">&#127769;</button>
+    </nav>
+    <div class="container">
+        <div class="dict-back-nav"><span></span><div class="dict-back-center"><a href="index.html">&#8592; Back to Dictionary</a></div><span></span></div>
+        <div class="word-header">
+            <div class="word-title">Greed</div>
+            <div class="pronunciation">/GREED/</div>
+            <span class="pos">noun</span>
+            <div class="etymology">From Old English <em>gr&#x0113;dig</em> ("hungry, covetous"), from Proto-Germanic <em>*gr&#x0113;dagaz</em>. The biblical concept is expressed in Hebrew as <em>betsa</em> (&#x5D1;&#x5E6;&#x5E2;) &mdash; "unjust gain, covetousness" &mdash; and in Greek as <em>pleonexia</em> (&pi;&lambda;&epsilon;&omicron;&nu;&epsilon;&xi;&#x03AF;&alpha;) &mdash; literally "the desire to have more," from <em>pleon</em> (more) + <em>echein</em> (to have).</div>
+        </div>
+
+        <div class="section">
+            <h3>&#128214; Biblical Definition</h3>
+            <div class="biblical-def">
+                <p><strong>Greed</strong> (<em>pleonexia</em>) is the insatiable desire to acquire more than one needs, particularly at the expense of others. Scripture treats greed not as a personality trait but as idolatry itself. Paul makes this explicit in <a href="../bible.html?ref=Colossians+3:5" class="verse-ref">Colossians 3:5</a>: covetousness (<em>pleonexia</em>) "is idolatry" &mdash; because the greedy man has replaced God with gain as his ultimate object of trust and worship.</p>
+                <p>The Hebrew <em>betsa</em> carries the connotation of cutting or breaking off &mdash; unjust gain ripped from others. Samuel's sons perverted justice because of <em>betsa</em> (<a href="../bible.html?ref=1+Samuel+8:3" class="verse-ref">1 Samuel 8:3</a>). Jeremiah condemned the prophets and priests who were all given to <em>betsa</em> (<a href="../bible.html?ref=Jeremiah+6:13" class="verse-ref">Jeremiah 6:13</a>).</p>
+                <p>Jesus warned against greed more than nearly any other sin, telling the parable of the rich fool (<a href="../bible.html?ref=Luke+12:15-21" class="verse-ref">Luke 12:15-21</a>) and declaring that a man's life does not consist in the abundance of his possessions. The tenth commandment &mdash; "Thou shalt not covet" &mdash; is unique among the ten because it governs the interior desire that drives all external theft, fraud, and exploitation.</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>&#128220; Webster 1828 Definition</h3>
+            <p class="section-summary">Webster understood greed through the lens of its older form: an eager desire for gain that consumes the soul.</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="webster-inner">
+                    <p><strong>GREED'Y,</strong> <em>adj.</em> 1. Having a keen appetite for food or drink; ravenous; voracious. 2. Having a keen desire for anything; eager to obtain; as <em>greedy of gain</em>.</p>
+                    <p>Webster's 1828 entry links greed to both physical appetite and the desire for gain &mdash; recognizing what Scripture teaches: the same disordered desire that drives gluttony also drives avarice. Both are the flesh demanding more than God has appointed.</p>
+                </div>
+            </details>
+        </div>
+
+        <div class="section">
+            <h3>&#128214; Key Scripture</h3>
+            <p>&#x2022; <a href="../bible.html?ref=Colossians+3:5" class="verse-ref">Colossians 3:5</a> &mdash; "Mortify therefore... covetousness, which is idolatry."</p>
+            <p>&#x2022; <a href="../bible.html?ref=Luke+12:15" class="verse-ref">Luke 12:15</a> &mdash; "Take heed, and beware of covetousness: for a man's life consisteth not in the abundance of the things which he possesseth."</p>
+            <p>&#x2022; <a href="../bible.html?ref=1+Timothy+6:10" class="verse-ref">1 Timothy 6:10</a> &mdash; "For the love of money is the root of all evil."</p>
+            <p>&#x2022; <a href="../bible.html?ref=Proverbs+15:27" class="verse-ref">Proverbs 15:27</a> &mdash; "He that is greedy of gain troubleth his own house."</p>
+            <p>&#x2022; <a href="../bible.html?ref=Hebrews+13:5" class="verse-ref">Hebrews 13:5</a> &mdash; "Let your conversation be without covetousness; and be content with such things as ye have."</p>
+        </div>
+
+        <div class="section">
+            <h3>&#9888;&#65039; Modern Corruption</h3>
+            <p class="section-summary">Greed has been rebranded as "ambition" and "hustle culture" while simultaneously being weaponized as a political accusation against anyone with wealth.</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="corruption-inner">
+                    <p>The modern corruption of "greed" runs in two opposite directions, and both miss the biblical mark.</p>
+                    <p><strong>On the right:</strong> Prosperity theology and "hustle culture" have baptized greed in Christian language. The desire for more is rebranded as "vision," "ambition," or "God's blessing." The rich fool of Luke 12 would be a keynote speaker at most church leadership conferences. When a pastor drives a Lamborghini and calls it "favor," that is <em>pleonexia</em> wearing a cross.</p>
+                    <p><strong>On the left:</strong> "Greed" is deployed as a political weapon against anyone who has more than the accuser thinks they should. In Marxist-influenced thought, all wealth is assumed to be stolen, so mere possession becomes evidence of greed. This is envy masquerading as justice. Scripture never condemns wealth itself &mdash; Abraham, Job, and Joseph of Arimathea were all wealthy &mdash; but it relentlessly condemns the love of money and the exploitation of the poor.</p>
+                    <p>The biblical answer to greed is not redistribution by force; it is generosity from a transformed heart. Contentment &mdash; <em>autarkeia</em> (&alpha;&#x1F50;&tau;&#x03AC;&rho;&kappa;&epsilon;&iota;&alpha;) &mdash; is the virtue that greed cannot survive. A man who is content with what God has given him is immune to both the prosperity preacher and the political demagogue.</p>
+                </div>
+            </details>
+        </div>
+
+        <div class="section">
+            <h3><img src="../assets/icons/shield-blog-quill-48.png" width="20" height="20" style="vertical-align:middle;margin-right:6px;"> Usage</h3>
+            <p>&#x2022; "Greed is not defined by how much you have but by how much your having has you."</p>
+            <p>&#x2022; "The prosperity gospel is greed with a proof-text &mdash; Mammon wearing a prayer shawl."</p>
+            <p>&#x2022; "Calling every wealthy man greedy is just envy wearing a justice costume."</p>
+        </div>
+
+        <div class="section">
+            <h3>Related Words</h3>
+            <div class="related">
+                <a href="gluttony.html">Gluttony</a>
+                <a href="covetousness.html">Covetousness</a>
+                <a href="idolatry.html">Idolatry</a>
+                <a href="mammon.html">Mammon</a>
+                <a href="contentment.html">Contentment</a>
+            </div>
+        </div>
+
+    </div>
+
+    <footer>
+        <div class="cross-divider"><img src="../assets/icons/shield-cross-bible-48.png" alt="" width="36" height="36" style="opacity:0.6;margin-bottom:10px;"></div>
+        <p>
+            <a href="../index.html#uniting"><img src="../assets/icons/shield-hands-joining.png" class="site-icon" alt="" width="20" height="20"> Uniting</a> &middot;
+            <a href="../serving.html"><img src="../assets/icons/shield-serving.png" class="site-icon" alt="" width="20" height="20"> Serving</a> &middot;
+            <a href="../mentoring.html"><img src="../assets/icons/shield-mentoring.png" class="site-icon" alt="" width="20" height="20"> Mentoring</a> &middot;
+            <a href="../counseling.html"><img src="../assets/icons/shield-family.png" class="site-icon" alt="" width="20" height="20"> Counseling</a> &middot;
+            <a href="../about.html"><img src="../assets/icons/shield-about-person-24.png" class="site-icon" alt="" width="20" height="20"> About</a>
+        </p>
+        <p style="margin-top:8px;font-size:0.78rem;color:#555;">Powered by MOOPbot Pro &mdash; &ldquo;Iron sharpens iron.&rdquo; &mdash; <a href="../bible.html?ref=Proverbs+27:17" style="color:var(--gold);text-decoration:underline;">Proverbs 27:17</a></p>
+    </footer>
+    <script>
+    function toggleTheme(){
+        var b=document.body,t=document.getElementById('themeToggle');
+        if(b.classList.contains('light-mode')){b.classList.remove('light-mode');t.textContent='\u{1F319}';localStorage.setItem('bte-theme','dark');}
+        else{b.classList.add('light-mode');t.textContent='\u2600\uFE0F';localStorage.setItem('bte-theme','light');}
+    }
+    (function(){
+        if(localStorage.getItem('bte-theme')==='light'){
+            document.body.classList.add('light-mode');
+            var t=document.getElementById('themeToggle');if(t)t.textContent='\u2600\uFE0F';
+        }
+    })();
+    </script>
+</body>
+</html>
