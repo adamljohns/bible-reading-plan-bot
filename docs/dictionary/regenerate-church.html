@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Regenerate Church &mdash; The MOOP Dictionary</title>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        :root { --bg:#000; --card:#111; --gold:#D4AF37; --gold-light:#F4D470; --white:#FFF; --gray:#888; --border:#333; }
+        body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--white); min-height:100vh; line-height:1.7; }
+        h1,h2,h3,h4 { font-family:'Playfair Display',serif; }
+        nav { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:4px 8px; padding:10px 16px; border-bottom:1px solid var(--border); position:sticky; top:0; background:rgba(0,0,0,0.95); backdrop-filter:blur(8px); z-index:100; }
+        nav a { color:var(--gray); text-decoration:none; font-size:0.8rem; display:inline-flex; align-items:center; gap:3px; padding:3px 6px; border-radius:6px; transition:color 0.2s; }
+        nav a:hover, nav a.active { color:var(--gold); }
+        .site-icon { vertical-align:middle; opacity:0.8; }
+        .theme-toggle { background:none; border:1px solid var(--border); border-radius:50%; width:28px; height:28px; cursor:pointer; font-size:0.85rem; transition:all 0.3s; padding:0; color:var(--white); display:inline-flex; align-items:center; justify-content:center; }
+        .theme-toggle:hover { border-color:var(--gold); }
+        .container { max-width:820px; margin:0 auto; padding:28px 20px 60px; }
+        .word-header { text-align:center; padding:40px 0 30px; border-bottom:1px solid var(--border); margin-bottom:30px; }
+        .word-title { font-size:2.8rem; color:var(--gold-light); margin-bottom:6px; }
+        .pronunciation { color:var(--gray); font-size:1.1rem; font-style:italic; }
+        .pos { display:inline-block; background:var(--gold); color:#000; font-weight:700; font-size:0.78rem; padding:3px 14px; border-radius:15px; margin:10px 0; }
+        .etymology { color:var(--gray); font-size:0.88rem; margin:12px auto; max-width:650px; }
+        .section { margin:18px 0; padding:18px 22px; background:var(--card); border:1px solid var(--border); border-radius:10px; }
+        .section > h3 { color:var(--gold); margin-bottom:12px; font-size:1.05rem; }
+        .section p { margin:7px 0; }
+        .biblical-def { border-left:3px solid var(--gold); padding-left:15px; }
+        .section-summary { color:var(--gray); font-size:0.92rem; font-style:italic; margin-bottom:4px; }
+        details { margin-top:8px; }
+        details summary { color:var(--gold); font-size:0.85rem; cursor:pointer; user-select:none; padding:4px 0; }
+        details summary:hover { color:var(--gold-light); }
+        details[open] summary { margin-bottom:8px; }
+        .corruption-inner { padding:12px 16px; background:rgba(204,0,0,0.06); border-left:2px solid #CC0000; border-radius:0 6px 6px 0; }
+        .webster-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .verse-ref { color:var(--gold); text-decoration:none; font-weight:600; }
+        .verse-ref:hover { color:var(--gold-light); text-decoration:underline; }
+        .related { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+        .related a { background:var(--card); border:1px solid var(--border); padding:6px 14px; border-radius:20px; color:var(--white); text-decoration:none; font-size:0.85rem; transition:border-color 0.2s, color 0.2s; }
+        .related a:hover { border-color:var(--gold); color:var(--gold); }
+        footer { text-align:center; padding:28px 20px; border-top:1px solid var(--border); margin-top:40px; color:var(--gray); font-size:0.88rem; }
+        footer a { color:var(--gray); text-decoration:none; }
+        footer a:hover { color:var(--gold); }
+        .cross-divider { margin-bottom:10px; }
+        body.light-mode { --bg:#F5F3EF; --card:#FFF; --white:#1a1a1a; --gray:#666; --border:#d4d0c8; background:#F5F3EF; color:#1a1a1a; }
+        body.light-mode nav { background:rgba(245,243,239,0.97); }
+        body.light-mode .section { background:#fff; border-color:#d4d0c8; }
+        body.light-mode details summary { color:var(--gold); }
+        body.light-mode .corruption-inner { background:rgba(204,0,0,0.03); }
+        body.light-mode .webster-inner { background:rgba(212,175,55,0.04); }
+        body.light-mode footer { border-top-color:#d4d0c8; }
+        body.light-mode .related a { background:#f0ede7; border-color:#d4d0c8; color:#1a1a1a; }
+        a, a:link, a:visited { color: var(--gold, #D4AF37) !important; }
+        a:hover { color: var(--gold-light, #F4D470) !important; }
+        .dict-back-nav { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:22px; padding:10px 0; border-bottom:1px solid var(--border,#333); }
+        .dict-back-nav a { color:var(--gold,#D4AF37); text-decoration:none; font-size:0.88rem; font-weight:500; }
+        .dict-back-nav a:hover { color:var(--gold-light,#F4D470); }
+        .dict-back-nav .dict-back-center { flex:1; text-align:center; }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav>
+        <a href="../index.html"><img src="../assets/icons/shield-home-48.png" class="site-icon" alt="" width="16" height="16"> Home</a>
+        <a href="../watchman.html"><img src="../assets/icons/shield-bible.png" class="site-icon" alt="" width="16" height="16"> Watchman</a>
+        <a href="../bible.html"><img src="../assets/icons/shield-compass.png" class="site-icon" alt="" width="16" height="16"> BTE</a>
+        <a href="../lexicon.html"><img src="../assets/icons/shield-alpha-omega-48.png" class="site-icon" alt="" width="16" height="16"> Lexicon</a>
+        <a href="../cross-references.html"><img src="../assets/icons/shield-infinity-rope-48.png" class="site-icon" alt="" width="16" height="16"> Cross-Refs</a>
+        <a href="index.html" class="active"><img src="../assets/icons/shield-book-greek-48.png" class="site-icon" alt="" width="16" height="16"> Dictionary</a>
+        <a href="../blog.html"><img src="../assets/icons/shield-blog-quill-48.png" class="site-icon" alt="" width="16" height="16"> Blog</a>
+        <a href="../connect.html"><img src="../assets/icons/shield-handshake.png" class="site-icon" alt="" width="16" height="16"> Connect</a>
+        <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle" title="Toggle dark/light">&#127769;</button>
+    </nav>
+    <div class="container">
+        <div class="dict-back-nav"><span></span><div class="dict-back-center"><a href="index.html">&#8592; Back to Dictionary</a></div><span></span></div>
+        <div class="word-header">
+            <div class="word-title">Regenerate Church</div>
+            <div class="pronunciation">/rɪˈdʒɛn.ər.ɪt tʃɜːrtʃ/</div>
+            <span class="pos">noun phrase</span>
+            <div class="etymology">From Latin <em>regenerare</em> (to bring forth again, be born again) and Greek <em>ekklesia</em> (assembly, congregation). The doctrine that the local church should be composed of those who have been born again by the Holy Spirit and who give credible profession of saving faith — as opposed to a mixed multitude of believers and unbelievers joined by birth, geography, or civil requirement.</div>
+        </div>
+
+        <div class="section">
+            <h3>&#128214; Biblical Definition</h3>
+            <div class="biblical-def">
+                <p>A regenerate church is a local congregation composed, as far as humanly possible, of those who have been born again by the Spirit of God and who give a credible confession of faith in Jesus Christ. The New Testament pattern is clear: "those who received his word were baptized, and there were added that day about three thousand souls" (<a href="../bible.html?ref=Acts+2:41" class="verse-ref">Acts 2:41</a>). Reception of the word preceded baptism, and baptism preceded church membership. The church is not a building, a parish district, or a national institution — it is the gathered body of the redeemed. This conviction undergirds believer's baptism, meaningful church membership, and restorative church discipline. Without a regenerate membership, the church becomes indistinguishable from the world, and the distinction between the covenant community and the surrounding culture collapses.</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>&#128220; Webster 1828 Definition</h3>
+            <p class="section-summary">REGENERATE: Born anew; reproduced. In theology, renewed in heart; changed from a natural to a spiritual state.</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="webster-inner">
+                    <p><strong>REGEN'ERATE, adj.</strong> [L. <em>regeneratus</em>.] 1. Reproduced. 2. Born anew; renovated in heart; changed from a natural to a spiritual state. <em>Note:</em> Webster understood regeneration as a genuine spiritual transformation — the prerequisite for church membership in the New Testament pattern.</p>
+                </div>
+            </details>
+        </div>
+
+        <div class="section">
+            <h3>&#128214; Key Scripture</h3>
+            <p>&#x2022; <a href="../bible.html?ref=Acts+2:41-47" class="verse-ref">Acts 2:41-47</a> &mdash; "Those who received his word were baptized, and there were added that day about three thousand souls."</p>
+            <p>&#x2022; <a href="../bible.html?ref=John+3:3" class="verse-ref">John 3:3</a> &mdash; "Unless one is born again he cannot see the kingdom of God."</p>
+            <p>&#x2022; <a href="../bible.html?ref=1+Corinthians+5:12-13" class="verse-ref">1 Corinthians 5:12-13</a> &mdash; "Is it not those inside the church whom you are to judge? God judges those outside. Purge the evil person from among you."</p>
+        </div>
+
+        <div class="section">
+            <h3>&#9888;&#65039; Modern Corruption</h3>
+            <p class="section-summary">Regenerate church membership has been undermined by easy believism and the abolition of church discipline.</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="corruption-inner">
+                    <p>Even churches that formally affirm regenerate membership have functionally abandoned it. Membership rolls are bloated with people who prayed a prayer years ago but show no fruit of regeneration. Church discipline — the God-given mechanism for maintaining a regenerate body — has been abandoned as "judgmental" or "unloving." The seeker-sensitive movement further eroded the concept by designing churches for the unregenerate, making the gathered assembly indistinguishable from an entertainment venue. State churches and infant baptism traditions explicitly reject regenerate membership by incorporating all citizens or all baptized infants into the church. The result in every case is the same: a church that cannot be distinguished from the world because it is filled with the world.</p>
+                </div>
+            </details>
+        </div>
+
+        <div class="section">
+            <h3><img src="../assets/icons/shield-blog-quill-48.png" width="20" height="20" style="vertical-align:middle;margin-right:6px;"> Usage</h3>
+            <p>&#x2022; "A regenerate church is not elitist — it is biblical. The New Testament knows no other kind of church than one composed of the born-again."</p>
+            <p>&#x2022; "Without church discipline, regenerate church membership is a polite fiction — and the church becomes a religious club rather than the body of Christ."</p>
+        </div>
+
+        <div class="section">
+            <h3>Related Words</h3>
+            <div class="related">
+                <a href="ekklesia.html">Ekklesia</a>
+                <a href="radical-reformation.html">Radical Reformation</a>
+                <a href="excommunication.html">Excommunication</a>
+                <a href="seeker-sensitive.html">Seeker-Sensitive</a>
+            </div>
+        </div>
+
+    </div>
+
+    <footer>
+        <div class="cross-divider"><img src="../assets/icons/shield-cross-bible-48.png" alt="" width="36" height="36" style="opacity:0.6;margin-bottom:10px;"></div>
+        <p>
+            <a href="../index.html#uniting"><img src="../assets/icons/shield-hands-joining.png" class="site-icon" alt="" width="20" height="20"> Uniting</a> &middot;
+            <a href="../serving.html"><img src="../assets/icons/shield-serving.png" class="site-icon" alt="" width="20" height="20"> Serving</a> &middot;
+            <a href="../mentoring.html"><img src="../assets/icons/shield-mentoring.png" class="site-icon" alt="" width="20" height="20"> Mentoring</a> &middot;
+            <a href="../counseling.html"><img src="../assets/icons/shield-family.png" class="site-icon" alt="" width="20" height="20"> Counseling</a> &middot;
+            <a href="../about.html"><img src="../assets/icons/shield-about-person-24.png" class="site-icon" alt="" width="20" height="20"> About</a>
+        </p>
+        <p style="margin-top:8px;font-size:0.78rem;color:#555;">Powered by MOOPbot Pro &mdash; &ldquo;Iron sharpens iron.&rdquo; &mdash; <a href="../bible.html?ref=Proverbs+27:17" style="color:var(--gold);text-decoration:underline;">Proverbs 27:17</a></p>
+    </footer>
+    <script>
+    function toggleTheme(){
+        var b=document.body,t=document.getElementById('themeToggle');
+        if(b.classList.contains('light-mode')){b.classList.remove('light-mode');t.textContent='\u{1F319}';localStorage.setItem('bte-theme','dark');}
+        else{b.classList.add('light-mode');t.textContent='\u2600\uFE0F';localStorage.setItem('bte-theme','light');}
+    }
+    (function(){
+        if(localStorage.getItem('bte-theme')==='light'){
+            document.body.classList.add('light-mode');
+            var t=document.getElementById('themeToggle');if(t)t.textContent='\u2600\uFE0F';
+        }
+    })();
+
+    // Hide section-summary when details expands
+    document.querySelectorAll('details').forEach(function(d){
+        d.addEventListener('toggle', function(){
+            var sum = d.previousElementSibling;
+            if(sum && sum.classList.contains('section-summary')){
+                sum.style.display = d.open ? 'none' : '';
+            }
+        });
+    });
+    </script>
+</body>
+</html>
