@@ -351,7 +351,7 @@
 
         /* BTE v5.2 Phase 4: Font Size Controls */
         .font-controls { display: flex; align-items: center; gap: 2px; margin-left: 6px; }
-        .font-btn { background: none; border: 1px solid var(--border); color: var(--gray); width: 22px; height: 22px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; font-weight: 700; transition: all 0.2s; display: flex; align-items: center; justify-content: center; padding: 0; }
+        .font-btn { background: none; border: 1px solid var(--border); color: var(--gray); height: 22px; border-radius: 4px; cursor: pointer; font-weight: 600; transition: all 0.2s; display: flex; align-items: center; justify-content: center; padding: 0 6px; white-space: nowrap; }
         .font-btn:hover { border-color: var(--gold); color: var(--gold); }
 
         /* BTE v5.2 Phase 4: Reading Streak */
@@ -615,8 +615,8 @@
             <span class="toggle-icon sun-icon">☀️</span>
         </div>
         <div class="font-controls">
-            <button class="font-btn" onclick="adjustFontSize(-1)" title="Smaller text">A-</button>
-            <button class="font-btn" onclick="adjustFontSize(1)" title="Larger text">A+</button>
+            <button class="font-btn" onclick="adjustFontSize(-1)" title="Smaller text" style="font-size:0.6rem;">txt −</button>
+            <button class="font-btn" onclick="adjustFontSize(1)" title="Larger text" style="font-size:0.75rem;">TXT +</button>
         </div>
     </nav>
 
@@ -1483,10 +1483,8 @@
                 html += '<button onclick="switchToVerseMode()" style="' + btnStyle + '"><span style="color:#888;">Read </span><span style="color:#D4AF37;font-weight:600;">Verse by Verse</span></button>';
             } else {
                 html += '<button onclick="switchToChapterMode()" style="' + btnStyle + '"><span style="color:#888;">Read </span><span style="color:#D4AF37;font-weight:600;">Full Chapter</span></button>';
-                // BTE v5.2 Phase 4: All 12 translations button (single verse mode only)
-                if (currentViewMode === 'verse') {
-                    html += ' <button onclick="showAllTranslations()" style="' + btnStyle + 'margin-left:8px;"><span style="color:#888;">See </span><span style="color:#D4AF37;font-weight:600;">All 12 Translations</span></button>';
-                }
+                // BTE v5.2 Phase 4: All 12 translations button (verse and range modes)
+                html += ' <button onclick="showAllTranslations()" style="' + btnStyle + 'margin-left:8px;"><span style="color:#888;">See </span><span style="color:#D4AF37;font-weight:600;">All 12 Translations</span></button>';
             }
             html += '</div>';
             return html;
@@ -1837,11 +1835,11 @@
             var bmActive = isBookmarked(bmRef) ? ' active' : '';
             var bmIcon = isBookmarked(bmRef) ? 'shield-star.png' : 'shield-compass.png';
             nav += '<div class="goto-bar">' +
-                '<label>Go to:</label>' +
-                '<input type="text" class="goto-input" id="gotoInput" placeholder="e.g. 3:16" onkeydown="if(event.key===\'Enter\')gotoChapterVerse()">' +
+                '<label>Jump to ch:v</label>' +
+                '<input type="text" class="goto-input" id="gotoInput" placeholder="ch:verse" onkeydown="if(event.key===\'Enter\')gotoChapterVerse()" style="width:80px;">' +
                 '<button class="goto-btn" onclick="gotoChapterVerse()">Go</button>' +
-                '<span style="color:var(--border);margin:0 4px;">|</span>' +
-                '<span class="bookmark-btn' + bmActive + '" onclick="toggleBookmark(\'' + bmRef.replace(/'/g, "\\'") + '\')" title="Bookmark this passage"><img src="assets/icons/' + bmIcon + '" class="site-icon" alt="bookmark" width="20" height="20"></span>' +
+                '<span style="color:var(--border);margin:0 6px;">|</span>' +
+                '<span class="bookmark-btn' + bmActive + '" onclick="toggleBookmark(\'' + bmRef.replace(/'/g, "\\'") + '\')" title="Bookmark this passage" style="display:inline-flex;align-items:center;gap:4px;cursor:pointer;"><img src="assets/icons/' + bmIcon + '" class="site-icon" alt="bookmark" width="20" height="20"><span style="font-size:0.75rem;color:var(--gray);">' + (isBookmarked(bmRef) ? 'Saved' : 'Bookmark') + '</span></span>' +
                 '</div>';
             // BTE v5.2: Word search (chapter mode only)
             if (currentViewMode === 'chapter') {
@@ -2111,9 +2109,15 @@
             html += renderToggleButton();
             // OT books 1-39 use cord/rope icon, NT books 40-66 use handshake
             var shareIcon = (ref.bookId <= 39) ? 'assets/icons/shield-infinity-rope-48.png' : 'assets/icons/shield-handshake.png';
-            html += '<div style="display:flex;justify-content:space-between;align-items:center;font-size:0.75em;color:#888;margin:-5px 0 8px;">';
-            html += '<span><img src="' + shareIcon + '" alt="share" width="20" height="20" style="vertical-align:middle;opacity:0.6;margin-right:3px;">Tap to copy shareable link</span>';
-            html += '<span><img src="assets/icons/shield-bible.png" alt="cross-ref" width="20" height="20" style="vertical-align:middle;opacity:0.6;margin-right:3px;">Tap for cross-references</span>';
+            html += '<div style="display:flex;flex-wrap:wrap;gap:12px;justify-content:center;align-items:center;font-size:0.72em;color:#666;margin:-5px 0 10px;padding:8px 12px;background:rgba(212,175,55,0.03);border-radius:8px;border:1px solid #222;">';
+            html += '<span style="color:var(--gold);font-weight:600;margin-right:4px;">Verse Tools:</span>';
+            html += '<span><img src="' + shareIcon + '" alt="" width="16" height="16" style="vertical-align:middle;opacity:0.5;margin-right:2px;">Share Link</span>';
+            html += '<span><img src="assets/icons/shield-lock-48.png" alt="" width="14" height="14" style="vertical-align:middle;opacity:0.5;margin-right:2px;">Highlight</span>';
+            html += '<span><img src="assets/icons/shield-blog-quill-48.png" alt="" width="14" height="14" style="vertical-align:middle;opacity:0.5;margin-right:2px;">Add Note</span>';
+            html += '<span><img src="assets/icons/shield-about-person-24.png" alt="" width="12" height="12" style="vertical-align:middle;opacity:0.5;margin-right:2px;">Copy Text</span>';
+            if (currentViewMode === 'chapter') {
+                html += '<span><img src="assets/icons/shield-bible.png" alt="" width="16" height="16" style="vertical-align:middle;opacity:0.5;margin-right:2px;">Cross-Refs</span>';
+            }
             html += '</div>';
 
             // BTE v3.4: Verse blocks — verse numbers always clickable
@@ -2956,7 +2960,7 @@
         // ── BTE v5.2 Phase 4: All 12 Translations View ─────────────────────
         // Adds a "Show All 12" button to single-verse mode
         async function showAllTranslations() {
-            if (!currentRef || currentViewMode !== 'verse') return;
+            if (!currentRef) return;
             var v = currentRef.startVerse;
             var existing = document.getElementById('allTransPanel');
             if (existing) { existing.remove(); return; } // Toggle off
