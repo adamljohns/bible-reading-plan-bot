@@ -8,19 +8,19 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-touch-icon.png">
     <link rel="manifest" href="/manifest.json">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta property="og:title" content="MOOP Bible Translation Engine V5.1">
-    <meta property="og:description" content="12 English translations blended with interlinear Hebrew and Greek roots. Strong's Concordance links. Cross-references. Built for deep word study.">
-    <meta property="og:image" content="https://usmcmin.org/assets/og/og-bible.png?v=51">
+    <meta property="og:title" content="MOOP Bible Translation Engine V5.2">
+    <meta property="og:description" content="12 English translations blended with interlinear Hebrew and Greek roots. Strong's Concordance links. Cross-references. Bookmarks. Word search. Built for deep word study.">
+    <meta property="og:image" content="https://usmcmin.org/assets/og/og-bible.png?v=52">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://usmcmin.org/bible.html">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="MOOP Bible Translation Engine V5.1">
-    <meta name="twitter:description" content="12 English translations blended with interlinear Hebrew and Greek roots. Strong's Concordance links. Cross-references. Built for deep word study.">
-    <meta name="twitter:image" content="https://usmcmin.org/assets/og/og-bible.png?v=51">
-    <meta name="description" content="12 English translations blended with interlinear Hebrew and Greek roots. Strong's Concordance links. Cross-references. Built for deep word study.">
-    <title>The MOOP Bible Translation Engine V5.1 — USMC Ministries</title>
+    <meta name="twitter:title" content="MOOP Bible Translation Engine V5.2">
+    <meta name="twitter:description" content="12 English translations blended with interlinear Hebrew and Greek roots. Strong's Concordance links. Cross-references. Bookmarks. Word search. Built for deep word study.">
+    <meta name="twitter:image" content="https://usmcmin.org/assets/og/og-bible.png?v=52">
+    <meta name="description" content="12 English translations blended with interlinear Hebrew and Greek roots. Strong's Concordance links. Cross-references. Bookmarks. Word search. Built for deep word study.">
+    <title>The MOOP Bible Translation Engine V5.2 — USMC Ministries</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -153,6 +153,176 @@
         .crossref-inline-body a:hover { color: var(--gold-light); border-bottom-style: solid; }
         .share-toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: var(--gold); color: #000; padding: 10px 24px; border-radius: 8px; font-weight: 600; font-size: 0.95rem; z-index: 9999; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
         .share-toast.show { opacity: 1; }
+
+        /* BTE v5.2: Go to Chapter quick input */
+        .goto-bar {
+            display: flex; align-items: center; gap: 8px; justify-content: center;
+            margin: 8px 0 4px; flex-wrap: wrap;
+        }
+        .goto-bar label { color: var(--gray); font-size: 0.8rem; font-family: 'Inter', sans-serif; }
+        .goto-input {
+            background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px;
+            color: var(--white); font-size: 0.9rem; padding: 6px 12px; width: 110px;
+            font-family: 'Inter', sans-serif; outline: none; text-align: center;
+        }
+        .goto-input:focus { border-color: var(--gold); }
+        .goto-input::placeholder { color: #555; }
+        .goto-btn {
+            background: var(--gold); color: #000; border: none; padding: 6px 14px;
+            border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 0.8rem;
+            font-family: 'Inter', sans-serif; transition: all 0.2s;
+        }
+        .goto-btn:hover { background: var(--gold-light); }
+
+        /* BTE v5.2: Bookmark button */
+        .bookmark-btn {
+            cursor: pointer; font-size: 0.85rem; transition: all 0.2s;
+            user-select: none; opacity: 0.5; vertical-align: middle; margin-left: 2px;
+        }
+        .bookmark-btn:hover { opacity: 1; }
+        .bookmark-btn.active { opacity: 1; }
+        .bookmarks-panel {
+            background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px;
+            padding: 16px; margin: 15px 0; animation: fadeIn 0.3s ease-in;
+        }
+        .bookmarks-panel h4 { color: var(--gold); font-family: 'Playfair Display', serif; margin-bottom: 10px; }
+        .bookmark-item {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 8px 12px; margin: 4px 0; background: rgba(212,175,55,0.06);
+            border-left: 2px solid var(--gold); border-radius: 0 6px 6px 0;
+            font-size: 0.9rem; transition: background 0.2s;
+        }
+        .bookmark-item:hover { background: rgba(212,175,55,0.12); }
+        .bookmark-item a { color: var(--gold); text-decoration: none; flex: 1; }
+        .bookmark-item .bm-remove { color: #666; cursor: pointer; font-size: 0.8rem; padding: 2px 6px; }
+        .bookmark-item .bm-remove:hover { color: #f44; }
+
+        /* BTE v5.2: Word search highlight */
+        .word-search-bar {
+            display: flex; align-items: center; gap: 8px; justify-content: center;
+            margin: 6px 0; flex-wrap: wrap;
+        }
+        .word-search-input {
+            background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px;
+            color: var(--white); font-size: 0.85rem; padding: 5px 10px; width: 160px;
+            font-family: 'Inter', sans-serif; outline: none;
+        }
+        .word-search-input:focus { border-color: var(--gold); }
+        .word-search-input::placeholder { color: #555; }
+        .word-highlight { background: rgba(212,175,55,0.35); border-radius: 2px; padding: 0 1px; }
+
+        /* BTE v5.2: Verse highlighting */
+        .verse-block.highlighted { background: rgba(212,175,55,0.08); border-left: 3px solid var(--gold); padding-left: 12px; margin-left: -15px; border-radius: 0 4px 4px 0; }
+        body.light-mode .verse-block.highlighted { background: rgba(212,175,55,0.1); }
+        .highlight-btn {
+            cursor: pointer; font-size: 0.8rem; opacity: 0.4; transition: opacity 0.2s;
+            user-select: none; vertical-align: middle; margin-left: 2px;
+        }
+        .highlight-btn:hover { opacity: 1; }
+        .highlight-btn.active { opacity: 1; }
+
+        /* BTE v5.2 Phase 2: Reading History */
+        .history-panel {
+            background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px;
+            padding: 16px; margin: 15px 0; animation: fadeIn 0.3s ease-in;
+        }
+        .history-panel h4 { color: var(--gold); font-family: 'Playfair Display', serif; margin-bottom: 10px; }
+        .history-item {
+            display: inline-block; background: #1a1a1a; color: var(--gold); padding: 5px 12px;
+            border-radius: 16px; font-size: 0.82rem; cursor: pointer; margin: 3px;
+            border: 1px solid #333; transition: all 0.2s; text-decoration: none;
+        }
+        .history-item:hover { background: rgba(212,175,55,0.15); border-color: var(--gold); }
+
+        /* BTE v5.2 Phase 2: Verse Notes */
+        .note-toggle {
+            cursor: pointer; font-size: 0.8rem; opacity: 0.4; transition: opacity 0.2s;
+            user-select: none; vertical-align: middle; margin-left: 2px;
+        }
+        .note-toggle:hover { opacity: 1; }
+        .note-toggle.has-note { opacity: 0.8; }
+        .verse-note-area {
+            margin: 6px 0 8px 24px; animation: fadeIn 0.2s ease-in;
+        }
+        .verse-note-input {
+            width: 100%; background: rgba(212,175,55,0.04); border: 1px solid var(--border);
+            border-radius: 6px; color: var(--white); font-size: 0.85rem; padding: 8px 10px;
+            font-family: 'Inter', sans-serif; outline: none; resize: vertical; min-height: 50px;
+        }
+        .verse-note-input:focus { border-color: var(--gold); }
+        .verse-note-input::placeholder { color: #555; }
+        .verse-note-saved {
+            margin: 6px 0 8px 24px; padding: 8px 12px; background: rgba(212,175,55,0.06);
+            border-left: 2px solid var(--gold); border-radius: 0 6px 6px 0;
+            font-size: 0.85rem; color: #bbb; cursor: pointer;
+        }
+        body.light-mode .verse-note-input { background: rgba(212,175,55,0.04); color: #1a1a1a; }
+        body.light-mode .verse-note-saved { background: rgba(212,175,55,0.06); color: #555; }
+
+        /* BTE v5.2 Phase 2: Today's Watchman Reading */
+        .watchman-widget {
+            background: linear-gradient(135deg, rgba(212,175,55,0.08) 0%, rgba(212,175,55,0.02) 100%);
+            border: 1px solid rgba(212,175,55,0.2); border-radius: 12px;
+            padding: 18px 20px; margin: 20px 0; text-align: center;
+        }
+        .watchman-widget h4 { color: var(--gold); font-family: 'Playfair Display', serif; margin-bottom: 12px; font-size: 1rem; }
+        .watchman-readings { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+        .watchman-reading {
+            background: #1a1a1a; border: 1px solid #333; border-radius: 8px;
+            padding: 8px 14px; cursor: pointer; transition: all 0.2s; text-decoration: none;
+        }
+        .watchman-reading:hover { border-color: var(--gold); background: rgba(212,175,55,0.1); }
+        .watchman-reading .wr-label { font-size: 0.65rem; color: var(--gray); text-transform: uppercase; letter-spacing: 0.5px; display: block; }
+        .watchman-reading .wr-ref { font-size: 0.85rem; color: var(--gold); font-weight: 500; }
+        body.light-mode .watchman-widget { background: linear-gradient(135deg, rgba(212,175,55,0.06) 0%, rgba(212,175,55,0.02) 100%); border-color: rgba(212,175,55,0.15); }
+        body.light-mode .watchman-reading { background: #f5f3ef; border-color: #d4d0c8; }
+
+        /* BTE v5.2 Phase 3: Copy verse button */
+        .copy-btn {
+            cursor: pointer; font-size: 0.8rem; opacity: 0.4; transition: opacity 0.2s;
+            user-select: none; vertical-align: middle; margin-left: 2px;
+        }
+        .copy-btn:hover { opacity: 1; }
+
+        /* BTE v5.2 Phase 3: Scroll-to-top button */
+        .scroll-top-btn {
+            position: fixed; bottom: 24px; right: 24px; width: 44px; height: 44px;
+            background: var(--gold); color: #000; border: none; border-radius: 50%;
+            cursor: pointer; font-size: 1.2rem; display: none; align-items: center;
+            justify-content: center; z-index: 200; box-shadow: 0 2px 12px rgba(0,0,0,0.4);
+            transition: all 0.3s;
+        }
+        .scroll-top-btn:hover { transform: scale(1.1); box-shadow: 0 4px 20px rgba(212,175,55,0.4); }
+        .scroll-top-btn.visible { display: flex; }
+
+        /* BTE v5.2 Phase 3: Chapter progress bar */
+        .chapter-progress {
+            position: fixed; top: 0; left: 0; height: 3px; background: var(--gold);
+            z-index: 200; transition: width 0.1s linear; width: 0;
+        }
+
+        /* BTE v5.2 Phase 3: Keyboard shortcut hint */
+        .kbd-hint {
+            position: fixed; bottom: 24px; left: 24px; background: rgba(0,0,0,0.85);
+            border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px;
+            font-size: 0.75rem; color: var(--gray); z-index: 200; display: none;
+            backdrop-filter: blur(8px); max-width: 220px;
+        }
+        .kbd-hint kbd { background: #333; border: 1px solid #555; border-radius: 3px; padding: 1px 5px; font-size: 0.7rem; color: var(--gold); }
+        .kbd-hint.visible { display: block; }
+
+        /* BTE v5.2 Phase 3: Export panel */
+        .export-panel {
+            background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px;
+            padding: 18px; margin: 15px 0; animation: fadeIn 0.3s ease-in;
+        }
+        .export-panel h4 { color: var(--gold); font-family: 'Playfair Display', serif; margin-bottom: 10px; }
+        .export-btn {
+            background: #1a1a1a; color: var(--gold); border: 1px solid #333; border-radius: 8px;
+            padding: 8px 16px; cursor: pointer; font-size: 0.85rem; font-family: 'Inter', sans-serif;
+            transition: all 0.2s; margin: 4px;
+        }
+        .export-btn:hover { border-color: var(--gold); background: rgba(212,175,55,0.1); }
         .amplification {
             background: rgba(212,175,55,0.08); border-left: 3px solid var(--gold);
             padding: 10px 15px; margin: 8px 0; border-radius: 0 8px 8px 0;
@@ -282,21 +452,20 @@
             transition: all 0.3s; padding: 0; margin-left: 6px;
         }
         .theme-toggle:hover { border-color: var(--gold); transform: scale(1.1); }
-        /* ── BTE Sliding Theme Toggle ── */
+        /* ── BTE v5.2: Nav-integrated Theme Toggle ── */
         .bte-theme-toggle {
-            justify-content: center; margin: 8px auto 0; width: fit-content;
             display: flex; align-items: center; gap: 0;
             background: rgba(30,30,30,0.85); border: 1px solid #333;
-            border-radius: 20px; padding: 3px 6px; cursor: pointer;
-            font-size: 0.7rem; user-select: none; backdrop-filter: blur(6px);
+            border-radius: 20px; padding: 3px 8px; cursor: pointer;
+            font-size: 0.7rem; user-select: none; margin-left: 4px;
         }
         .bte-theme-toggle:hover { border-color: #D4AF37; }
-        .bte-theme-toggle .toggle-icon { width: 18px; text-align: center; }
-        .bte-theme-toggle .toggle-track { width: 28px; height: 14px; background: #444; border-radius: 7px; position: relative; margin: 0 4px; }
-        .bte-theme-toggle .toggle-knob { width: 10px; height: 10px; background: #D4AF37; border-radius: 50%; position: absolute; top: 2px; left: 2px; transition: left 0.3s; }
+        .bte-theme-toggle .toggle-icon { width: 16px; text-align: center; font-size: 0.75rem; }
+        .bte-theme-toggle .toggle-track { width: 24px; height: 12px; background: #444; border-radius: 6px; position: relative; margin: 0 3px; }
+        .bte-theme-toggle .toggle-knob { width: 8px; height: 8px; background: #D4AF37; border-radius: 50%; position: absolute; top: 2px; left: 2px; transition: left 0.3s; }
         body.light-mode .bte-theme-toggle { background: rgba(240,238,233,0.9); border-color: #ccc; }
         body.light-mode .bte-theme-toggle .toggle-track { background: #bbb; }
-        body.light-mode .bte-theme-toggle .toggle-knob { left: 16px; }
+        body.light-mode .bte-theme-toggle .toggle-knob { left: 14px; }
 
         /* Light mode overrides */
         body.light-mode {
@@ -371,6 +540,16 @@
     </style>
 </head>
 <body>
+    <!-- BTE v5.2 Phase 3: Progress bar & scroll-to-top -->
+    <div class="chapter-progress" id="chapterProgress"></div>
+    <button class="scroll-top-btn" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Back to top">↑</button>
+    <div class="kbd-hint" id="kbdHint">
+        <strong style="color:var(--gold);">Keyboard Shortcuts</strong><br>
+        <kbd>←</kbd> <kbd>→</kbd> Navigate verses<br>
+        <kbd>/</kbd> Focus search<br>
+        <kbd>?</kbd> Toggle this hint<br>
+        <kbd>H</kbd> Go home
+    </div>
         <nav>
         <a href="index.html"><img src="assets/icons/shield-home-48.png" class="site-icon" alt="" width="16" height="16"> Home</a>
         <a href="watchman.html"><img src="assets/icons/shield-bible.png" class="site-icon" alt="" width="16" height="16"> Watchman</a>
@@ -380,20 +559,19 @@
         <a href="dictionary/index.html"><img src="assets/icons/shield-book-greek-48.png" class="site-icon" alt="" width="16" height="16"> Dictionary</a>
         <a href="blog.html"><img src="assets/icons/shield-blog-quill-48.png" class="site-icon" alt="" width="16" height="16"> Blog</a>
         <a href="connect.html"><img src="assets/icons/shield-handshake.png" class="site-icon" alt="" width="16" height="16"> Connect</a>
-    </nav>
-    <div style="text-align:center; margin-top:8px; margin-bottom:4px;">
         <div class="bte-theme-toggle" onclick="bteToggleTheme()" title="Toggle dark/light mode">
             <span class="toggle-icon moon-icon">🌙</span>
             <div class="toggle-track"><div class="toggle-knob"></div></div>
             <span class="toggle-icon sun-icon">☀️</span>
         </div>
+    </nav>
 
     <div class="container">
         <div id="home-panel">
             <section class="hero">
                 <img src="assets/images/usmc-logo-shield-cross.png" alt="U.S.M.C. Ministries" onerror="this.style.display='none'">
                 <h1>The MOOP Bible Translation Engine</h1>
-                <p class="subtitle">V5.1 · 12 Translations · Interlinear Hebrew &amp; Greek · Strong's Concordance · Cross-References</p>
+                <p class="subtitle">V5.2 · 12 Translations · Interlinear Hebrew &amp; Greek · Strong's Concordance · Cross-References · Bookmarks</p>
                 <p class="desc">
                     Type any Bible reference below. The engine blends 12 English translations with
                     NKJV as the primary voice, surfaces meaningful divergences, and provides
@@ -425,6 +603,18 @@
                 <span class="quick-link" onclick="tryRef('2 Timothy 1:7')">2 Timothy 1:7</span>
                 <span class="quick-link" onclick="tryRef('Luke 14:33')">Luke 14:33</span>
             </div>
+
+            <!-- BTE v5.2 Phase 2: Today's Watchman Reading -->
+            <div id="watchmanWidget"></div>
+
+            <!-- BTE v5.2 Phase 2: Reading History -->
+            <div id="historyPanel"></div>
+
+            <!-- BTE v5.2: Bookmarks Panel (shown on home screen) -->
+            <div id="bookmarksPanel" style="margin-bottom:20px;"></div>
+
+            <!-- BTE v5.2 Phase 3: Export Panel -->
+            <div id="exportPanel"></div>
 
             <!-- BTE v5.1: Bible Navigator (OT/NT → Category → Book → Chapter) -->
             <div id="bibleNav" style="text-align:center; margin-bottom:30px;"></div>
@@ -1560,19 +1750,40 @@
         }
 
         function renderTopNav(rangeStr) {
+            var nav;
             if (currentViewMode === 'chapter') {
-                return '<div class="nav-arrows">' +
+                nav = '<div class="nav-arrows">' +
                     '<div class="nav-btn-wrap"><button class="nav-arrow" onclick="navChapter(-1)" title="Previous Chapter">' + LEFT_SVG + '</button><span class="nav-label">Prev Chapter</span></div>' +
                     '<span class="nav-ref">' + rangeStr + '</span>' +
                     '<div class="nav-btn-wrap"><button class="nav-arrow" onclick="navChapter(1)" title="Next Chapter">' + RIGHT_SVG + '</button><span class="nav-label">Next Chapter</span></div>' +
                     '</div>';
             } else {
-                return '<div class="nav-arrows">' +
+                nav = '<div class="nav-arrows">' +
                     '<div class="nav-btn-wrap"><button class="nav-arrow" onclick="navVerse(-1)" title="Previous Verse">' + LEFT_SVG + '</button><span class="nav-label">Prev Verse</span></div>' +
                     '<span class="nav-ref">' + rangeStr + '</span>' +
                     '<div class="nav-btn-wrap"><button class="nav-arrow" onclick="navVerse(1)" title="Next Verse">' + RIGHT_SVG + '</button><span class="nav-label">Next Verse</span></div>' +
                     '</div>';
             }
+            // BTE v5.2: Go to Chapter quick input + bookmark current + word search
+            var bookName = currentRef ? BOOK_NAMES[currentRef.bookId].replace(/\b\w/g, function(c){return c.toUpperCase();}) : '';
+            var bmRef = rangeStr;
+            var bmActive = isBookmarked(bmRef) ? ' active' : '';
+            var bmIcon = isBookmarked(bmRef) ? 'shield-star.png' : 'shield-compass.png';
+            nav += '<div class="goto-bar">' +
+                '<label>Go to:</label>' +
+                '<input type="text" class="goto-input" id="gotoInput" placeholder="e.g. 3:16" onkeydown="if(event.key===\'Enter\')gotoChapterVerse()">' +
+                '<button class="goto-btn" onclick="gotoChapterVerse()">Go</button>' +
+                '<span style="color:var(--border);margin:0 4px;">|</span>' +
+                '<span class="bookmark-btn' + bmActive + '" onclick="toggleBookmark(\'' + bmRef.replace(/'/g, "\\'") + '\')" title="Bookmark this passage"><img src="assets/icons/' + bmIcon + '" class="site-icon" alt="bookmark" width="20" height="20"></span>' +
+                '</div>';
+            // BTE v5.2: Word search (chapter mode only)
+            if (currentViewMode === 'chapter') {
+                nav += '<div class="word-search-bar">' +
+                    '<input type="text" class="word-search-input" id="wordSearchInput" placeholder="Search in chapter..." oninput="wordSearchHighlight()">' +
+                    '<span id="wordSearchCount" style="color:var(--gray);font-size:0.75rem;"></span>' +
+                    '</div>';
+            }
+            return nav;
         }
 
         function renderBottomNav(rangeStr) {
@@ -1843,8 +2054,20 @@
             allVerses.forEach(function(v) {
                 var shareBookName = (BOOK_NAMES[ref.bookId] || '').replace(/\b\w/g, function(c){return c.toUpperCase();});
                 var shareRef = shareBookName + ' ' + ref.chapter + ':' + v.num;
-                html += '<div class="verse-block"><span class="verse-num clickable" onclick="goToVerse(' + ref.chapter + ',' + v.num + ')" title="View verse ' + v.num + ' in detail">' + v.num + '</span> <span class="verse-text">' + v.text + '</span>';
+                var verseKey = ref.bookId + '_' + ref.chapter + '_' + v.num;
+                var hlClass = isHighlighted(verseKey) ? ' highlighted' : '';
+                var hlBtnClass = isHighlighted(verseKey) ? ' active' : '';
+                var hlIcon = isHighlighted(verseKey) ? 'shield-star.png' : 'shield-lock-48.png';
+                html += '<div class="verse-block' + hlClass + '" id="vb-' + verseKey + '"><span class="verse-num clickable" onclick="goToVerse(' + ref.chapter + ',' + v.num + ')" title="View verse ' + v.num + ' in detail">' + v.num + '</span> <span class="verse-text">' + v.text + '</span>';
                 html += ' <span class="share-btn" data-testament="' + (ref.bookId <= 39 ? 'ot' : 'nt') + '" onclick="shareVerse(\'' + shareRef.replace(/'/g, "\\'") + '\', this)" title="Tap to copy shareable link for this verse"><img src="' + shareIcon + '" class="site-icon" alt="share" width="20" height="20"></span>';
+                // BTE v5.2: Highlight toggle per verse
+                html += ' <span class="highlight-btn' + hlBtnClass + '" onclick="toggleHighlight(\'' + verseKey + '\', this)" title="Highlight this verse"><img src="assets/icons/' + hlIcon + '" class="site-icon" alt="highlight" width="16" height="16"></span>';
+                // BTE v5.2 Phase 2: Note toggle per verse
+                var hasNote = getVerseNote(verseKey) ? ' has-note' : '';
+                html += ' <span class="note-toggle' + hasNote + '" onclick="toggleNoteArea(\'' + verseKey + '\')" title="Add note"><img src="assets/icons/shield-blog-quill-48.png" class="site-icon" alt="note" width="16" height="16"></span>';
+                // BTE v5.2 Phase 3: Copy verse text button
+                var copyRef = shareRef.replace(/'/g, "\\'");
+                html += ' <span class="copy-btn" onclick="copyVerseText(\'' + copyRef + '\', \'' + verseKey + '\', this)" title="Copy verse text"><img src="assets/icons/shield-about-person-24.png" class="site-icon" alt="copy" width="14" height="14"></span>';
                 // BTE v5.0: Inline cross-ref indicator in chapter mode
                 if (currentViewMode === 'chapter') {
                     html += buildInlineCrossRef(ref.bookId, ref.chapter, v.num);
@@ -1852,6 +2075,13 @@
                 v.amps.forEach(function(a) {
                     html += '<div class="amplification"><span class="amp-label">' + a.label + ':</span> ' + a.text + '</div>';
                 });
+                // BTE v5.2 Phase 2: Show saved note if exists
+                var savedNote = getVerseNote(verseKey);
+                if (savedNote) {
+                    html += '<div class="verse-note-saved" id="vns-' + verseKey + '" onclick="toggleNoteArea(\'' + verseKey + '\')" title="Click to edit note"><img src="assets/icons/shield-blog-quill-48.png" class="site-icon" alt="note" width="14" height="14" style="vertical-align:middle;margin-right:4px;opacity:0.6;"> ' + savedNote.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</div>';
+                }
+                // Note input area (hidden by default)
+                html += '<div class="verse-note-area" id="vna-' + verseKey + '" style="display:none;"><textarea class="verse-note-input" id="vni-' + verseKey + '" placeholder="Add a note..." onblur="saveVerseNote(\'' + verseKey + '\', this.value)">' + (savedNote || '') + '</textarea></div>';
                 html += '</div>';
             });
 
@@ -1906,7 +2136,7 @@
 
             // BTE v5.0: Cross-reference count in stats footer
             var crossRefStatStr = crossRefResult.count > 0 ? ' · ' + crossRefResult.count + ' cross-reference' + (crossRefResult.count !== 1 ? 's' : '') + ' found' : '';
-            html += '<div class="engine-info">The MOOP Bible Translation Engine V5.1 · 12 translations · Interlinear ' +
+            html += '<div class="engine-info">The MOOP Bible Translation Engine V5.2 · 12 translations · Interlinear ' +
                 (ref.isOT ? 'Hebrew' : 'Greek') + ' backbone' + crossRefStatStr + '</div>';
             html += '</div>';
             html += renderBottomNav(rangeStr);
@@ -1915,6 +2145,14 @@
             updateNavBoundaries();
             document.getElementById('searchBtn').disabled = false;
             document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+            // BTE v5.2 Phase 2: Track reading history
+            addToHistory(rangeStr);
+
+            // BTE v5.2 Phase 2: Preload adjacent chapters for faster navigation
+            if (currentViewMode === 'chapter') {
+                setTimeout(function() { preloadAdjacentChapters(ref.bookId, ref.chapter); }, 500);
+            }
         }
 
         function quickLook(ref) {
@@ -2013,6 +2251,532 @@
                 lookupVerse();
             }
         })();
+
+        // ── BTE v5.2: Go to Chapter:Verse ──────────────────────────────────────
+        function gotoChapterVerse() {
+            if (!currentRef) return;
+            var input = (document.getElementById('gotoInput') || {}).value || '';
+            input = input.trim();
+            if (!input) return;
+            var bookName = BOOK_NAMES[currentRef.bookId].replace(/\b\w/g, function(c){return c.toUpperCase();});
+            // Parse: "3:16" or "3" (chapter only) or "16" (verse in current chapter)
+            var m = input.match(/^(\d+)\s*:\s*(\d+)(?:\s*-\s*(\d+))?$/);
+            if (m) {
+                // Chapter:Verse or Chapter:Start-End
+                var ref = bookName + ' ' + m[1] + ':' + m[2];
+                if (m[3]) ref += '-' + m[3];
+                document.getElementById('refInput').value = ref;
+            } else {
+                var num = parseInt(input);
+                if (isNaN(num)) return;
+                // If number > max chapters, treat as verse in current chapter
+                var maxCh = BIBLE_INDEX[currentRef.bookId] ? BIBLE_INDEX[currentRef.bookId].length : 999;
+                if (num <= maxCh && currentViewMode === 'chapter') {
+                    document.getElementById('refInput').value = bookName + ' ' + num;
+                } else {
+                    document.getElementById('refInput').value = bookName + ' ' + currentRef.chapter + ':' + num;
+                }
+            }
+            lookupVerse();
+        }
+
+        // ── BTE v5.2: Bookmarking System (localStorage) ─────────────────────
+        function getBookmarks() {
+            try { return JSON.parse(localStorage.getItem('bte-bookmarks') || '[]'); }
+            catch(e) { return []; }
+        }
+        function saveBookmarks(bm) {
+            localStorage.setItem('bte-bookmarks', JSON.stringify(bm));
+        }
+        function isBookmarked(ref) {
+            return getBookmarks().some(function(b) { return b.ref === ref; });
+        }
+        function toggleBookmark(ref) {
+            var bm = getBookmarks();
+            var idx = bm.findIndex(function(b) { return b.ref === ref; });
+            if (idx >= 0) {
+                bm.splice(idx, 1);
+                showToast('Bookmark removed: ' + ref);
+            } else {
+                bm.unshift({ ref: ref, ts: Date.now() });
+                if (bm.length > 50) bm = bm.slice(0, 50); // cap at 50
+                showToast('Bookmarked: ' + ref);
+            }
+            saveBookmarks(bm);
+            // Re-render top nav bookmark icon
+            var btns = document.querySelectorAll('.bookmark-btn');
+            btns.forEach(function(btn) {
+                var isNowBm = isBookmarked(ref);
+                btn.className = 'bookmark-btn' + (isNowBm ? ' active' : '');
+                btn.querySelector('img').src = 'assets/icons/' + (isNowBm ? 'shield-star.png' : 'shield-compass.png');
+            });
+            // Update bookmarks panel if visible
+            renderBookmarksPanel();
+        }
+        function renderBookmarksPanel() {
+            var panel = document.getElementById('bookmarksPanel');
+            if (!panel) return;
+            var bm = getBookmarks();
+            if (!bm.length) {
+                panel.innerHTML = '<div class="bookmarks-panel"><h4><img src="assets/icons/shield-star.png" class="site-icon" alt="star" width="20" height="20"> Bookmarks</h4><p style="color:var(--gray);font-size:0.85rem;">No bookmarks yet. Tap the bookmark icon on any passage to save it.</p></div>';
+                return;
+            }
+            var html = '<div class="bookmarks-panel"><h4><img src="assets/icons/shield-star.png" class="site-icon" alt="star" width="20" height="20"> Bookmarks (' + bm.length + ')</h4>';
+            bm.forEach(function(b) {
+                var link = 'bible.html?ref=' + encodeURIComponent(b.ref);
+                html += '<div class="bookmark-item"><a href="' + link + '">' + b.ref + '</a><span class="bm-remove" onclick="removeBookmark(\'' + b.ref.replace(/'/g, "\\'") + '\')" title="Remove">✕</span></div>';
+            });
+            html += '</div>';
+            panel.innerHTML = html;
+        }
+        function removeBookmark(ref) {
+            var bm = getBookmarks().filter(function(b) { return b.ref !== ref; });
+            saveBookmarks(bm);
+            renderBookmarksPanel();
+            showToast('Removed: ' + ref);
+        }
+
+        // ── BTE v5.2: Verse Highlighting (localStorage) ─────────────────────
+        function getHighlights() {
+            try { return JSON.parse(localStorage.getItem('bte-highlights') || '{}'); }
+            catch(e) { return {}; }
+        }
+        function saveHighlights(hl) {
+            localStorage.setItem('bte-highlights', JSON.stringify(hl));
+        }
+        function isHighlighted(verseKey) {
+            return !!getHighlights()[verseKey];
+        }
+        function toggleHighlight(verseKey, btn) {
+            var hl = getHighlights();
+            var block = document.getElementById('vb-' + verseKey);
+            if (hl[verseKey]) {
+                delete hl[verseKey];
+                if (block) block.classList.remove('highlighted');
+                if (btn) {
+                    btn.classList.remove('active');
+                    btn.querySelector('img').src = 'assets/icons/shield-lock-48.png';
+                }
+            } else {
+                hl[verseKey] = Date.now();
+                if (block) block.classList.add('highlighted');
+                if (btn) {
+                    btn.classList.add('active');
+                    btn.querySelector('img').src = 'assets/icons/shield-star.png';
+                }
+            }
+            saveHighlights(hl);
+        }
+
+        // ── BTE v5.2: Word Search within Chapter ─────────────────────────────
+        function wordSearchHighlight() {
+            var input = (document.getElementById('wordSearchInput') || {}).value || '';
+            var countEl = document.getElementById('wordSearchCount');
+            var blocks = document.querySelectorAll('.verse-text');
+            if (!input.trim()) {
+                // Clear highlights
+                blocks.forEach(function(el) {
+                    el.innerHTML = el.innerHTML.replace(/<span class="word-highlight">([^<]*)<\/span>/gi, '$1');
+                });
+                if (countEl) countEl.textContent = '';
+                return;
+            }
+            var term = input.trim();
+            var escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            var regex = new RegExp('(' + escaped + ')', 'gi');
+            var total = 0;
+            blocks.forEach(function(el) {
+                // Strip existing highlights first
+                var clean = el.innerHTML.replace(/<span class="word-highlight">([^<]*)<\/span>/gi, '$1');
+                var matches = clean.match(regex);
+                if (matches) total += matches.length;
+                el.innerHTML = clean.replace(regex, '<span class="word-highlight">$1</span>');
+            });
+            if (countEl) {
+                countEl.textContent = total > 0 ? total + ' found' : 'not found';
+                countEl.style.color = total > 0 ? 'var(--gold)' : '#f44';
+            }
+        }
+
+        // ── BTE v5.2 Phase 2: Verse Notes (localStorage) ─────────────────────
+        function getVerseNotes() {
+            try { return JSON.parse(localStorage.getItem('bte-notes') || '{}'); }
+            catch(e) { return {}; }
+        }
+        function getVerseNote(verseKey) {
+            return getVerseNotes()[verseKey] || '';
+        }
+        function saveVerseNote(verseKey, text) {
+            var notes = getVerseNotes();
+            text = text.trim();
+            if (text) {
+                notes[verseKey] = text;
+            } else {
+                delete notes[verseKey];
+            }
+            try { localStorage.setItem('bte-notes', JSON.stringify(notes)); } catch(e) {}
+            // Update the saved display
+            var savedEl = document.getElementById('vns-' + verseKey);
+            var noteToggle = document.querySelector('[onclick*="toggleNoteArea(\\\'' + verseKey + '\\\')"].note-toggle');
+            if (text) {
+                if (!savedEl) {
+                    // Create saved note element
+                    var area = document.getElementById('vna-' + verseKey);
+                    if (area) {
+                        var div = document.createElement('div');
+                        div.className = 'verse-note-saved';
+                        div.id = 'vns-' + verseKey;
+                        div.onclick = function() { toggleNoteArea(verseKey); };
+                        div.title = 'Click to edit note';
+                        div.innerHTML = '<img src="assets/icons/shield-blog-quill-48.png" class="site-icon" alt="note" width="14" height="14" style="vertical-align:middle;margin-right:4px;opacity:0.6;"> ' + text.replace(/</g,'&lt;').replace(/>/g,'&gt;');
+                        area.parentNode.insertBefore(div, area);
+                    }
+                } else {
+                    savedEl.innerHTML = '<img src="assets/icons/shield-blog-quill-48.png" class="site-icon" alt="note" width="14" height="14" style="vertical-align:middle;margin-right:4px;opacity:0.6;"> ' + text.replace(/</g,'&lt;').replace(/>/g,'&gt;');
+                    savedEl.style.display = '';
+                }
+            } else if (savedEl) {
+                savedEl.style.display = 'none';
+            }
+        }
+        function toggleNoteArea(verseKey) {
+            var area = document.getElementById('vna-' + verseKey);
+            var saved = document.getElementById('vns-' + verseKey);
+            if (!area) return;
+            if (area.style.display === 'none') {
+                area.style.display = '';
+                if (saved) saved.style.display = 'none';
+                var input = document.getElementById('vni-' + verseKey);
+                if (input) { input.focus(); input.selectionStart = input.value.length; }
+            } else {
+                area.style.display = 'none';
+                if (saved && getVerseNote(verseKey)) saved.style.display = '';
+            }
+        }
+
+        // ── BTE v5.2 Phase 2: Reading History (localStorage) ────────────────
+        function getReadingHistory() {
+            try { return JSON.parse(localStorage.getItem('bte-history') || '[]'); }
+            catch(e) { return []; }
+        }
+        function addToHistory(ref) {
+            var hist = getReadingHistory();
+            // Remove duplicate
+            hist = hist.filter(function(h) { return h.ref !== ref; });
+            hist.unshift({ ref: ref, ts: Date.now() });
+            if (hist.length > 20) hist = hist.slice(0, 20);
+            try { localStorage.setItem('bte-history', JSON.stringify(hist)); } catch(e) {}
+        }
+        function renderHistoryPanel() {
+            var panel = document.getElementById('historyPanel');
+            if (!panel) return;
+            var hist = getReadingHistory();
+            if (!hist.length) { panel.innerHTML = ''; return; }
+            var html = '<div class="history-panel"><h4><img src="assets/icons/shield-compass.png" class="site-icon" alt="" width="20" height="20"> Recently Read</h4>';
+            hist.slice(0, 12).forEach(function(h) {
+                html += '<a class="history-item" href="bible.html?ref=' + encodeURIComponent(h.ref) + '">' + h.ref + '</a>';
+            });
+            html += '</div>';
+            panel.innerHTML = html;
+        }
+
+        // ── BTE v5.2 Phase 2: Watchman Daily Readings Widget ────────────────
+        // Simple 5-reading daily schedule based on day-of-year
+        // Each reading maps to a slot: Morning Wisdom, Husband's Post, Father's Charge, Citizen's Stand, Evening Peace
+        function getWatchmanReadings() {
+            var now = new Date();
+            var start = new Date(now.getFullYear(), 0, 0);
+            var dayOfYear = Math.floor((now - start) / 86400000);
+            // Curated reading pools — rotate through by day
+            var wisdom = [ // Proverbs + Psalms — Morning Wisdom
+                'Proverbs ' + ((dayOfYear % 31) + 1), // Proverbs 1-31 by day
+            ];
+            var husband = [ // Marriage & family — Husband's Post
+                'Ephesians 5', 'Colossians 3', '1 Peter 3', 'Proverbs 31',
+                'Song of Solomon 1', 'Song of Solomon 2', 'Song of Solomon 4',
+                'Genesis 2', '1 Corinthians 7', '1 Corinthians 13',
+                'Malachi 2', 'Hebrews 13', 'Titus 2', 'Proverbs 5',
+                'Proverbs 12', 'Proverbs 18', 'Proverbs 19', 'Ruth 1',
+                'Ruth 2', 'Ruth 3', 'Ruth 4', 'Genesis 24', 'Genesis 29',
+                'Hosea 1', 'Hosea 2', 'Hosea 3', 'Matthew 19', 'Mark 10',
+                'Ecclesiastes 4', 'Ecclesiastes 9', 'Proverbs 14'
+            ];
+            var father = [ // Fatherhood & teaching — Father's Charge
+                'Deuteronomy 6', 'Psalm 78', 'Proverbs 1', 'Proverbs 2',
+                'Proverbs 3', 'Proverbs 4', 'Proverbs 22', 'Proverbs 23',
+                'Ephesians 6', 'Colossians 3', 'Genesis 18', 'Joshua 24',
+                'Psalm 127', 'Psalm 128', 'Psalm 103', 'Isaiah 38',
+                '2 Timothy 1', '2 Timothy 2', '2 Timothy 3', '3 John 1',
+                'Malachi 4', 'Luke 15', 'Hebrews 12', 'Proverbs 13',
+                'Proverbs 19', 'Proverbs 20', 'Proverbs 29', '1 Samuel 1',
+                '1 Samuel 2', '1 Samuel 3', 'Genesis 22'
+            ];
+            var citizen = [ // Cultural engagement & mission — Citizen's Stand
+                'Romans 13', 'Daniel 1', 'Daniel 3', 'Daniel 6', 'Acts 4',
+                'Acts 5', 'Jeremiah 29', 'Matthew 5', 'Matthew 28',
+                'Isaiah 6', 'Ezekiel 22', 'Ezekiel 33', 'Nehemiah 1',
+                'Nehemiah 2', 'Nehemiah 4', '1 Peter 2', '1 Peter 3',
+                'Titus 3', 'Philippians 2', 'Philippians 3', 'Micah 6',
+                'Amos 5', 'Isaiah 1', 'Isaiah 58', 'Proverbs 21',
+                'Proverbs 24', 'Proverbs 28', 'Proverbs 29', 'Psalm 2',
+                'Psalm 33', 'Psalm 146'
+            ];
+            var evening = [ // Psalms & rest — Evening Peace
+                'Psalm ' + ((dayOfYear % 150) + 1), // Psalms 1-150 by day
+            ];
+            return [
+                { label: 'Morning Wisdom', ref: wisdom[dayOfYear % wisdom.length] },
+                { label: "Husband's Post", ref: husband[dayOfYear % husband.length] },
+                { label: "Father's Charge", ref: father[dayOfYear % father.length] },
+                { label: "Citizen's Stand", ref: citizen[dayOfYear % citizen.length] },
+                { label: 'Evening Peace', ref: evening[dayOfYear % evening.length] }
+            ];
+        }
+        function renderWatchmanWidget() {
+            var panel = document.getElementById('watchmanWidget');
+            if (!panel) return;
+            var readings = getWatchmanReadings();
+            var html = '<div class="watchman-widget"><h4><img src="assets/icons/shield-bible.png" class="site-icon" alt="" width="22" height="22"> Today\'s Watchman Readings</h4>';
+            html += '<div class="watchman-readings">';
+            readings.forEach(function(r) {
+                html += '<a class="watchman-reading" href="bible.html?ref=' + encodeURIComponent(r.ref) + '"><span class="wr-label">' + r.label + '</span><span class="wr-ref">' + r.ref + '</span></a>';
+            });
+            html += '</div></div>';
+            panel.innerHTML = html;
+        }
+
+        // ── BTE v5.2 Phase 2: Adjacent Chapter Preload ─────────────────────
+        // After rendering a chapter, silently preload the next and previous chapters
+        function preloadAdjacentChapters(bookId, chapter) {
+            var maxCh = BIBLE_INDEX[bookId] ? BIBLE_INDEX[bookId].length : 0;
+            // Preload next chapter
+            if (chapter < maxCh) {
+                TRANSLATIONS.slice(0, 4).forEach(function(t) { // Only preload top 4 translations
+                    fetchChapterData(bookId, chapter + 1, t);
+                });
+            } else if (bookId < 66) {
+                TRANSLATIONS.slice(0, 4).forEach(function(t) {
+                    fetchChapterData(bookId + 1, 1, t);
+                });
+            }
+            // Preload previous chapter
+            if (chapter > 1) {
+                TRANSLATIONS.slice(0, 4).forEach(function(t) {
+                    fetchChapterData(bookId, chapter - 1, t);
+                });
+            } else if (bookId > 1) {
+                var prevMaxCh = BIBLE_INDEX[bookId - 1] ? BIBLE_INDEX[bookId - 1].length : 1;
+                TRANSLATIONS.slice(0, 4).forEach(function(t) {
+                    fetchChapterData(bookId - 1, prevMaxCh, t);
+                });
+            }
+        }
+
+        // ── BTE v5.2 Phase 2: Mobile Swipe Navigation ──────────────────────
+        (function() {
+            var touchStartX = 0;
+            var touchStartY = 0;
+            var touchEndX = 0;
+            var touchEndY = 0;
+            var minSwipeDistance = 80;
+            var maxVerticalDistance = 100;
+
+            document.addEventListener('touchstart', function(e) {
+                touchStartX = e.changedTouches[0].screenX;
+                touchStartY = e.changedTouches[0].screenY;
+            }, { passive: true });
+
+            document.addEventListener('touchend', function(e) {
+                touchEndX = e.changedTouches[0].screenX;
+                touchEndY = e.changedTouches[0].screenY;
+                handleSwipe();
+            }, { passive: true });
+
+            function handleSwipe() {
+                if (!currentRef) return;
+                var dx = touchEndX - touchStartX;
+                var dy = Math.abs(touchEndY - touchStartY);
+                // Only trigger on horizontal swipes (not vertical scrolling)
+                if (dy > maxVerticalDistance) return;
+                if (Math.abs(dx) < minSwipeDistance) return;
+
+                if (dx > 0) {
+                    // Swipe right → go back
+                    if (currentViewMode === 'chapter') navChapter(-1);
+                    else navVerse(-1);
+                } else {
+                    // Swipe left → go forward
+                    if (currentViewMode === 'chapter') navChapter(1);
+                    else navVerse(1);
+                }
+            }
+        })();
+
+        // ── BTE v5.2 Phase 3: Copy Verse Text ─────────────────────────────────
+        function copyVerseText(verseRef, verseKey, btn) {
+            var block = document.getElementById('vb-' + verseKey);
+            if (!block) return;
+            var textEl = block.querySelector('.verse-text');
+            if (!textEl) return;
+            var plainText = verseRef + ' — ' + textEl.textContent.trim();
+            navigator.clipboard.writeText(plainText).then(function() {
+                showToast('Copied: ' + verseRef);
+                btn.style.opacity = '1';
+                setTimeout(function() { btn.style.opacity = ''; }, 1500);
+            }).catch(function() {
+                var ta = document.createElement('textarea');
+                ta.value = plainText; ta.style.position = 'fixed'; ta.style.opacity = '0';
+                document.body.appendChild(ta); ta.select(); document.execCommand('copy');
+                document.body.removeChild(ta);
+                showToast('Copied: ' + verseRef);
+            });
+        }
+
+        // ── BTE v5.2 Phase 3: Scroll-to-Top Button ─────────────────────────
+        (function() {
+            var btn = document.getElementById('scrollTopBtn');
+            window.addEventListener('scroll', function() {
+                if (window.scrollY > 400) {
+                    btn.classList.add('visible');
+                } else {
+                    btn.classList.remove('visible');
+                }
+            }, { passive: true });
+        })();
+
+        // ── BTE v5.2 Phase 3: Chapter Progress Bar ─────────────────────────
+        (function() {
+            var bar = document.getElementById('chapterProgress');
+            window.addEventListener('scroll', function() {
+                var h = document.documentElement.scrollHeight - window.innerHeight;
+                if (h <= 0) { bar.style.width = '0'; return; }
+                var pct = Math.min(100, (window.scrollY / h) * 100);
+                bar.style.width = pct + '%';
+            }, { passive: true });
+        })();
+
+        // ── BTE v5.2 Phase 3: Keyboard Shortcuts ───────────────────────────
+        (function() {
+            document.addEventListener('keydown', function(e) {
+                // Don't trigger when typing in inputs
+                var tag = (e.target.tagName || '').toLowerCase();
+                if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
+
+                switch(e.key) {
+                    case 'ArrowLeft':
+                        e.preventDefault();
+                        if (!currentRef) return;
+                        if (currentViewMode === 'chapter') navChapter(-1);
+                        else navVerse(-1);
+                        break;
+                    case 'ArrowRight':
+                        e.preventDefault();
+                        if (!currentRef) return;
+                        if (currentViewMode === 'chapter') navChapter(1);
+                        else navVerse(1);
+                        break;
+                    case '/':
+                        e.preventDefault();
+                        var input = document.getElementById('refInput');
+                        if (input) { input.focus(); input.select(); }
+                        break;
+                    case '?':
+                        var hint = document.getElementById('kbdHint');
+                        if (hint) hint.classList.toggle('visible');
+                        break;
+                    case 'h':
+                    case 'H':
+                        if (!e.ctrlKey && !e.metaKey) showHome();
+                        break;
+                }
+            });
+        })();
+
+        // ── BTE v5.2 Phase 3: Export Highlights & Notes ─────────────────────
+        function exportHighlightsAndNotes() {
+            var highlights = getHighlights();
+            var notes = getVerseNotes();
+            var bookmarks = getBookmarks();
+            var lines = [];
+            lines.push('═══════════════════════════════════════════════');
+            lines.push('  MOOP Bible Translation Engine — Personal Data Export');
+            lines.push('  Exported: ' + new Date().toLocaleDateString());
+            lines.push('═══════════════════════════════════════════════');
+            lines.push('');
+
+            // Bookmarks
+            if (bookmarks.length) {
+                lines.push('📑 BOOKMARKS (' + bookmarks.length + ')');
+                lines.push('───────────────────────────────────────────────');
+                bookmarks.forEach(function(b) {
+                    lines.push('  • ' + b.ref);
+                });
+                lines.push('');
+            }
+
+            // Highlights
+            var hlKeys = Object.keys(highlights);
+            if (hlKeys.length) {
+                lines.push('✦ HIGHLIGHTED VERSES (' + hlKeys.length + ')');
+                lines.push('───────────────────────────────────────────────');
+                hlKeys.forEach(function(k) {
+                    var parts = k.split('_');
+                    var bookName = CROSSREF_BOOK_NAMES[parseInt(parts[0])] || parts[0];
+                    lines.push('  • ' + bookName + ' ' + parts[1] + ':' + parts[2]);
+                });
+                lines.push('');
+            }
+
+            // Notes
+            var noteKeys = Object.keys(notes);
+            if (noteKeys.length) {
+                lines.push('✎ VERSE NOTES (' + noteKeys.length + ')');
+                lines.push('───────────────────────────────────────────────');
+                noteKeys.forEach(function(k) {
+                    var parts = k.split('_');
+                    var bookName = CROSSREF_BOOK_NAMES[parseInt(parts[0])] || parts[0];
+                    var ref = bookName + ' ' + parts[1] + ':' + parts[2];
+                    lines.push('');
+                    lines.push('  ' + ref);
+                    lines.push('  ' + notes[k]);
+                });
+                lines.push('');
+            }
+
+            if (!bookmarks.length && !hlKeys.length && !noteKeys.length) {
+                lines.push('No bookmarks, highlights, or notes saved yet.');
+                lines.push('Start reading and use the icons on each verse to save your study.');
+            }
+
+            lines.push('');
+            lines.push('═══════════════════════════════════════════════');
+            lines.push('  usmcmin.org/bible.html — Proverbs 27:17');
+            lines.push('═══════════════════════════════════════════════');
+
+            var text = lines.join('\n');
+            var blob = new Blob([text], { type: 'text/plain' });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = 'bte-study-notes-' + new Date().toISOString().slice(0,10) + '.txt';
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('Exported study data');
+        }
+
+        function renderExportPanel() {
+            var panel = document.getElementById('exportPanel');
+            if (!panel) return;
+            var hl = Object.keys(getHighlights()).length;
+            var notes = Object.keys(getVerseNotes()).length;
+            var bm = getBookmarks().length;
+            if (!hl && !notes && !bm) { panel.innerHTML = ''; return; }
+            var html = '<div class="export-panel"><h4><img src="assets/icons/shield-checklist-48.png" class="site-icon" alt="" width="20" height="20"> Study Data</h4>';
+            html += '<p style="color:var(--gray);font-size:0.82rem;margin-bottom:10px;">' + bm + ' bookmarks · ' + hl + ' highlights · ' + notes + ' notes</p>';
+            html += '<button class="export-btn" onclick="exportHighlightsAndNotes()"><img src="assets/icons/shield-compass.png" class="site-icon" alt="" width="14" height="14" style="vertical-align:middle;margin-right:4px;"> Export as Text File</button>';
+            html += '</div>';
+            panel.innerHTML = html;
+        }
 
         // ── BTE v5.1: Bible Navigator ──────────────────────────────────────────
         (function() {
@@ -2229,6 +2993,12 @@
             renderNav();
         })();
         // ── End Bible Navigator ────────────────────────────────────────────────
+
+        // BTE v5.2: Render home screen panels
+        renderWatchmanWidget();
+        renderHistoryPanel();
+        renderBookmarksPanel();
+        renderExportPanel();
 
         // ── BTE v5.0: Dark/Light Mode Toggle ──────────────────────────────────
         function toggleTheme() {
