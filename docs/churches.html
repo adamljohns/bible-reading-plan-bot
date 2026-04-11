@@ -1031,9 +1031,12 @@
                 </div>`;
             }).join('');
 
-            // Church page link (only if individual page exists — check via presence convention)
-            // Link provided as progressive enhancement; page may not exist yet
-            const churchPageLink = `<a class="church-page-link" href="/churches/${church.id}.html" onclick="stopProp(event)">View Full Church Profile →</a>`;
+            // Church page link — use slug field from JSON, fallback to generated slug
+            function makeSlug(name) {
+                return name.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').trim();
+            }
+            const churchSlug = church.slug || makeSlug(church.name);
+            const churchPageLink = `<a class="church-page-link" href="/churches/${churchSlug}.html" onclick="stopProp(event)"><img src="assets/icons/shield-church-48.png" alt="" width="14" height="14" style="vertical-align:middle;margin-right:4px;"> View Full Church Profile →</a>`;
 
             // Expanded view
             const expandedHtml = `
