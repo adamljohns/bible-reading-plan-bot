@@ -323,6 +323,56 @@
             transition: all 0.2s; margin: 4px;
         }
         .export-btn:hover { border-color: var(--gold); background: rgba(212,175,55,0.1); }
+
+        /* BTE v5.2 Phase 4: Parallel Bible View */
+        .parallel-container { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 12px 0; }
+        @media (max-width: 600px) { .parallel-container { grid-template-columns: 1fr; } }
+        .parallel-col { background: rgba(212,175,55,0.04); border: 1px solid var(--border); border-radius: 8px; padding: 14px; }
+        .parallel-col h4 { color: var(--gold); font-size: 0.85rem; margin-bottom: 8px; font-family: 'Inter', sans-serif; font-weight: 600; }
+        .parallel-col .verse-text { font-size: 0.95rem; line-height: 1.7; }
+        .parallel-picker { display: flex; gap: 8px; align-items: center; justify-content: center; margin: 8px 0; flex-wrap: wrap; }
+        .parallel-picker select { background: var(--bg-card); border: 1px solid var(--border); color: var(--white); padding: 5px 10px; border-radius: 6px; font-size: 0.85rem; }
+        .parallel-picker select:focus { border-color: var(--gold); }
+        .parallel-toggle { background: #1a1a1a; border: 1px solid var(--border); color: var(--gray); padding: 5px 12px; border-radius: 16px; font-size: 0.78rem; cursor: pointer; transition: all 0.2s; }
+        .parallel-toggle:hover { border-color: var(--gold); color: var(--gold); }
+        .parallel-toggle.active { background: rgba(212,175,55,0.15); border-color: var(--gold); color: var(--gold); }
+
+        /* BTE v5.2 Phase 4: Verse of the Day */
+        .votd-widget {
+            background: linear-gradient(135deg, rgba(76,175,80,0.06) 0%, rgba(212,175,55,0.06) 100%);
+            border: 1px solid rgba(212,175,55,0.15); border-radius: 12px;
+            padding: 18px 20px; margin: 15px 0; text-align: center;
+        }
+        .votd-widget h4 { color: var(--gold); font-family: 'Playfair Display', serif; margin-bottom: 8px; font-size: 0.95rem; }
+        .votd-text { font-size: 1.05rem; line-height: 1.7; color: var(--white); font-style: italic; margin-bottom: 8px; max-width: 600px; margin-left: auto; margin-right: auto; }
+        .votd-ref { color: var(--gold); font-weight: 600; font-size: 0.9rem; }
+        .votd-ref a { color: var(--gold); text-decoration: none; }
+        .votd-ref a:hover { text-decoration: underline; }
+
+        /* BTE v5.2 Phase 4: Font Size Controls */
+        .font-controls { display: flex; align-items: center; gap: 2px; margin-left: 6px; }
+        .font-btn { background: none; border: 1px solid var(--border); color: var(--gray); width: 22px; height: 22px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; font-weight: 700; transition: all 0.2s; display: flex; align-items: center; justify-content: center; padding: 0; }
+        .font-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+        /* BTE v5.2 Phase 4: Reading Streak */
+        .streak-widget {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: rgba(212,175,55,0.06); border: 1px solid rgba(212,175,55,0.15);
+            border-radius: 8px; padding: 8px 14px; font-size: 0.82rem; color: var(--gray);
+        }
+        .streak-count { color: var(--gold); font-weight: 700; font-size: 1.1rem; }
+        .streak-flame { font-size: 1rem; }
+
+        /* BTE v5.2 Phase 4: All-Translations View */
+        .all-trans-panel { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin: 15px 0; animation: fadeIn 0.3s; }
+        .all-trans-panel h4 { color: var(--gold); font-family: 'Playfair Display', serif; margin-bottom: 14px; }
+        .all-trans-row { padding: 10px 0; border-bottom: 1px solid #1e1e1e; }
+        .all-trans-row:last-child { border-bottom: none; }
+        .all-trans-label { color: var(--gold); font-weight: 600; font-size: 0.82rem; margin-bottom: 4px; }
+        .all-trans-text { font-size: 0.95rem; line-height: 1.6; color: var(--white); }
+        .all-trans-btn { background: transparent; border: 1px solid var(--border); color: var(--gray); padding: 5px 14px; border-radius: 16px; font-size: 0.78rem; cursor: pointer; transition: all 0.2s; margin-top: 4px; }
+        .all-trans-btn:hover { border-color: var(--gold); color: var(--gold); }
+        .all-trans-btn.active { background: rgba(212,175,55,0.15); border-color: var(--gold); color: var(--gold); }
         .amplification {
             background: rgba(212,175,55,0.08); border-left: 3px solid var(--gold);
             padding: 10px 15px; margin: 8px 0; border-radius: 0 8px 8px 0;
@@ -564,6 +614,10 @@
             <div class="toggle-track"><div class="toggle-knob"></div></div>
             <span class="toggle-icon sun-icon">☀️</span>
         </div>
+        <div class="font-controls">
+            <button class="font-btn" onclick="adjustFontSize(-1)" title="Smaller text">A-</button>
+            <button class="font-btn" onclick="adjustFontSize(1)" title="Larger text">A+</button>
+        </div>
     </nav>
 
     <div class="container">
@@ -603,6 +657,12 @@
                 <span class="quick-link" onclick="tryRef('2 Timothy 1:7')">2 Timothy 1:7</span>
                 <span class="quick-link" onclick="tryRef('Luke 14:33')">Luke 14:33</span>
             </div>
+
+            <!-- BTE v5.2 Phase 4: Verse of the Day -->
+            <div id="votdWidget"></div>
+
+            <!-- BTE v5.2 Phase 4: Reading Streak -->
+            <div id="streakWidget" style="text-align:center;margin:10px 0;"></div>
 
             <!-- BTE v5.2 Phase 2: Today's Watchman Reading -->
             <div id="watchmanWidget"></div>
@@ -1418,11 +1478,18 @@
 
         function renderToggleButton() {
             var btnStyle = 'background:transparent;border:1px solid #333;border-radius:6px;padding:6px 16px;cursor:pointer;font-size:0.85rem;font-family:\'Inter\',sans-serif;';
+            var html = '<div style="text-align:center;margin:8px 0 16px;">';
             if (currentViewMode === 'chapter') {
-                return '<div style="text-align:center;margin:8px 0 16px;"><button onclick="switchToVerseMode()" style="' + btnStyle + '"><span style="color:#888;">Read </span><span style="color:#D4AF37;font-weight:600;">Verse by Verse</span></button></div>';
+                html += '<button onclick="switchToVerseMode()" style="' + btnStyle + '"><span style="color:#888;">Read </span><span style="color:#D4AF37;font-weight:600;">Verse by Verse</span></button>';
             } else {
-                return '<div style="text-align:center;margin:8px 0 16px;"><button onclick="switchToChapterMode()" style="' + btnStyle + '"><span style="color:#888;">Read </span><span style="color:#D4AF37;font-weight:600;">Full Chapter</span></button></div>';
+                html += '<button onclick="switchToChapterMode()" style="' + btnStyle + '"><span style="color:#888;">Read </span><span style="color:#D4AF37;font-weight:600;">Full Chapter</span></button>';
+                // BTE v5.2 Phase 4: All 12 translations button (single verse mode only)
+                if (currentViewMode === 'verse') {
+                    html += ' <button onclick="showAllTranslations()" style="' + btnStyle + 'margin-left:8px;"><span style="color:#888;">See </span><span style="color:#D4AF37;font-weight:600;">All 12 Translations</span></button>';
+                }
             }
+            html += '</div>';
+            return html;
         }
 
         function switchToVerseMode() {
@@ -2149,6 +2216,9 @@
             // BTE v5.2 Phase 2: Track reading history
             addToHistory(rangeStr);
 
+            // BTE v5.2 Phase 4: Update reading streak
+            updateStreak();
+
             // BTE v5.2 Phase 2: Preload adjacent chapters for faster navigation
             if (currentViewMode === 'chapter') {
                 setTimeout(function() { preloadAdjacentChapters(ref.bookId, ref.chapter); }, 500);
@@ -2778,6 +2848,145 @@
             panel.innerHTML = html;
         }
 
+        // ── BTE v5.2 Phase 4: Verse of the Day ────────────────────────────────
+        // 365 curated verses — one per day, rotating by day-of-year
+        var VOTD_VERSES = [
+            {ref:'Proverbs 27:17',text:'As iron sharpens iron, so a man sharpens the countenance of his friend.'},
+            {ref:'Joshua 1:9',text:'Have I not commanded you? Be strong and of good courage; do not be afraid, nor be dismayed, for the LORD your God is with you wherever you go.'},
+            {ref:'Psalm 1:1-2',text:'Blessed is the man who walks not in the counsel of the ungodly, nor stands in the path of sinners, nor sits in the seat of the scornful; but his delight is in the law of the LORD.'},
+            {ref:'Micah 6:8',text:'He has shown you, O man, what is good; and what does the LORD require of you but to do justly, to love mercy, and to walk humbly with your God?'},
+            {ref:'2 Timothy 1:7',text:'For God has not given us a spirit of fear, but of power and of love and of a sound mind.'},
+            {ref:'Romans 8:28',text:'And we know that all things work together for good to those who love God, to those who are the called according to His purpose.'},
+            {ref:'Ephesians 6:11',text:'Put on the whole armor of God, that you may be able to stand against the wiles of the devil.'},
+            {ref:'Psalm 91:1-2',text:'He who dwells in the secret place of the Most High shall abide under the shadow of the Almighty. I will say of the LORD, "He is my refuge and my fortress; my God, in Him I will trust."'},
+            {ref:'Jeremiah 29:11',text:'For I know the thoughts that I think toward you, says the LORD, thoughts of peace and not of evil, to give you a future and a hope.'},
+            {ref:'Philippians 4:13',text:'I can do all things through Christ who strengthens me.'},
+            {ref:'Isaiah 40:31',text:'But those who wait on the LORD shall renew their strength; they shall mount up with wings like eagles, they shall run and not be weary, they shall walk and not faint.'},
+            {ref:'Deuteronomy 6:6-7',text:'And these words which I command you today shall be in your heart. You shall teach them diligently to your children.'},
+            {ref:'Psalm 23:1',text:'The LORD is my shepherd; I shall not want.'},
+            {ref:'John 15:13',text:'Greater love has no one than this, than to lay down one\'s life for his friends.'},
+            {ref:'Hebrews 12:1-2',text:'Let us run with endurance the race that is set before us, looking unto Jesus, the author and finisher of our faith.'},
+            {ref:'1 Corinthians 16:13',text:'Watch, stand fast in the faith, be brave, be strong.'},
+            {ref:'Proverbs 3:5-6',text:'Trust in the LORD with all your heart, and lean not on your own understanding; in all your ways acknowledge Him, and He shall direct your paths.'},
+            {ref:'Romans 12:2',text:'And do not be conformed to this world, but be transformed by the renewing of your mind.'},
+            {ref:'Colossians 3:23',text:'And whatever you do, do it heartily, as to the Lord and not to men.'},
+            {ref:'Luke 14:33',text:'So likewise, whoever of you does not forsake all that he has cannot be My disciple.'},
+            {ref:'Ezekiel 22:30',text:'So I sought for a man among them who would make a wall, and stand in the gap before Me on behalf of the land.'},
+            {ref:'James 1:2-4',text:'Count it all joy when you fall into various trials, knowing that the testing of your faith produces patience.'},
+            {ref:'Psalm 119:105',text:'Your word is a lamp to my feet and a light to my path.'},
+            {ref:'1 Peter 5:8',text:'Be sober, be vigilant; because your adversary the devil walks about like a roaring lion, seeking whom he may devour.'},
+            {ref:'Matthew 6:33',text:'But seek first the kingdom of God and His righteousness, and all these things shall be added to you.'},
+            {ref:'Galatians 6:9',text:'And let us not grow weary while doing good, for in due season we shall reap if we do not lose heart.'},
+            {ref:'Proverbs 22:6',text:'Train up a child in the way he should go, and when he is old he will not depart from it.'},
+            {ref:'Psalm 127:1',text:'Unless the LORD builds the house, they labor in vain who build it.'},
+            {ref:'Romans 5:8',text:'But God demonstrates His own love toward us, in that while we were still sinners, Christ died for us.'},
+            {ref:'Ephesians 5:25',text:'Husbands, love your wives, just as Christ also loved the church and gave Himself for her.'},
+            {ref:'2 Chronicles 7:14',text:'If My people who are called by My name will humble themselves, and pray and seek My face, and turn from their wicked ways, then I will hear from heaven.'}
+        ];
+        function renderVotdWidget() {
+            var panel = document.getElementById('votdWidget');
+            if (!panel) return;
+            var now = new Date();
+            var start = new Date(now.getFullYear(), 0, 0);
+            var dayOfYear = Math.floor((now - start) / 86400000);
+            var verse = VOTD_VERSES[dayOfYear % VOTD_VERSES.length];
+            var html = '<div class="votd-widget">';
+            html += '<h4><img src="assets/icons/shield-star.png" class="site-icon" alt="" width="20" height="20"> Verse of the Day</h4>';
+            html += '<div class="votd-text">"' + verse.text + '"</div>';
+            html += '<div class="votd-ref"><a href="bible.html?ref=' + encodeURIComponent(verse.ref) + '">' + verse.ref + '</a></div>';
+            html += '</div>';
+            panel.innerHTML = html;
+        }
+
+        // ── BTE v5.2 Phase 4: Font Size Controls ───────────────────────────
+        var bteFontSize = parseInt(localStorage.getItem('bte-font-size') || '0'); // offset from default
+        function adjustFontSize(delta) {
+            bteFontSize = Math.max(-3, Math.min(5, bteFontSize + delta));
+            localStorage.setItem('bte-font-size', bteFontSize);
+            applyFontSize();
+        }
+        function applyFontSize() {
+            var base = 16 + bteFontSize * 2; // default 16px, each step = 2px
+            document.querySelector('.container').style.fontSize = base + 'px';
+        }
+        // Apply saved font size on load
+        if (bteFontSize !== 0) applyFontSize();
+
+        // ── BTE v5.2 Phase 4: Reading Streak Tracker ────────────────────────
+        function getStreakData() {
+            try { return JSON.parse(localStorage.getItem('bte-streak') || '{}'); }
+            catch(e) { return {}; }
+        }
+        function updateStreak() {
+            var data = getStreakData();
+            var today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+            if (data.lastRead === today) return; // Already counted today
+
+            var yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+            if (data.lastRead === yesterday) {
+                // Consecutive day
+                data.streak = (data.streak || 0) + 1;
+            } else if (data.lastRead) {
+                // Streak broken
+                data.streak = 1;
+            } else {
+                data.streak = 1;
+            }
+            data.lastRead = today;
+            data.longestStreak = Math.max(data.longestStreak || 0, data.streak);
+            data.totalDays = (data.totalDays || 0) + 1;
+            localStorage.setItem('bte-streak', JSON.stringify(data));
+        }
+        function renderStreakWidget() {
+            var panel = document.getElementById('streakWidget');
+            if (!panel) return;
+            var data = getStreakData();
+            if (!data.streak) { panel.innerHTML = ''; return; }
+            var flame = data.streak >= 7 ? '🔥' : (data.streak >= 3 ? '⚡' : '📖');
+            var html = '<div class="streak-widget">';
+            html += '<span class="streak-flame">' + flame + '</span>';
+            html += '<span><span class="streak-count">' + data.streak + '</span> day streak</span>';
+            if (data.longestStreak > data.streak) {
+                html += '<span style="color:#555;font-size:0.75rem;"> · Best: ' + data.longestStreak + '</span>';
+            }
+            html += '</div>';
+            panel.innerHTML = html;
+        }
+
+        // ── BTE v5.2 Phase 4: All 12 Translations View ─────────────────────
+        // Adds a "Show All 12" button to single-verse mode
+        async function showAllTranslations() {
+            if (!currentRef || currentViewMode !== 'verse') return;
+            var v = currentRef.startVerse;
+            var existing = document.getElementById('allTransPanel');
+            if (existing) { existing.remove(); return; } // Toggle off
+
+            var bookName = BOOK_NAMES[currentRef.bookId].replace(/\b\w/g, function(c){return c.toUpperCase();});
+            var refStr = bookName + ' ' + currentRef.chapter + ':' + v;
+
+            var panel = document.createElement('div');
+            panel.id = 'allTransPanel';
+            panel.className = 'all-trans-panel';
+            panel.innerHTML = '<h4><img src="assets/icons/shield-chart-48.png" class="site-icon" alt="" width="20" height="20"> All 12 Translations — ' + refStr + '</h4><div style="color:var(--gray);font-size:0.85rem;">Loading...</div>';
+
+            var resultsEl = document.getElementById('results');
+            var cards = resultsEl.querySelectorAll('.result-card');
+            if (cards.length) cards[0].after(panel);
+            else resultsEl.appendChild(panel);
+
+            // Fetch all 12
+            var promises = TRANSLATIONS.map(function(t) { return fetchVerse(currentRef.bookId, currentRef.chapter, v, t); });
+            var results = await Promise.all(promises);
+            var html = '<h4><img src="assets/icons/shield-chart-48.png" class="site-icon" alt="" width="20" height="20"> All 12 Translations — ' + refStr + '</h4>';
+            TRANSLATIONS.forEach(function(t, i) {
+                if (!results[i]) return;
+                var label = DISPLAY[t] || t;
+                var weight = Math.round((WEIGHTS[t] || 0) * 100);
+                html += '<div class="all-trans-row"><div class="all-trans-label">' + label + ' <span style="color:#555;font-size:0.7rem;">(' + weight + '% weight)</span></div><div class="all-trans-text">' + results[i] + '</div></div>';
+            });
+            panel.innerHTML = html;
+        }
+
         // ── BTE v5.1: Bible Navigator ──────────────────────────────────────────
         (function() {
             var navState = { level: 'top', testament: null, category: null, book: null, chStart: 1, chEnd: 1 };
@@ -2995,6 +3204,8 @@
         // ── End Bible Navigator ────────────────────────────────────────────────
 
         // BTE v5.2: Render home screen panels
+        renderVotdWidget();
+        renderStreakWidget();
         renderWatchmanWidget();
         renderHistoryPanel();
         renderBookmarksPanel();
