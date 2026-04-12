@@ -407,13 +407,21 @@ function buildPage(church) {
   // Website button
   const websiteBtn = church.website ? `<a href="${escapeHtml(church.website)}" target="_blank" rel="noopener" class="btn-gold">🌐 Visit Their Website</a>` : '';
 
-  // Social media links
+  // Church social media links
   const socialLinks = [];
   if (church.facebook) socialLinks.push(`<a href="${escapeHtml(church.facebook)}" target="_blank" rel="noopener" class="social-link facebook" title="Facebook">📘 Facebook</a>`);
   if (church.youtube) socialLinks.push(`<a href="${escapeHtml(church.youtube)}" target="_blank" rel="noopener" class="social-link youtube" title="YouTube">▶️ YouTube</a>`);
   if (church.instagram) socialLinks.push(`<a href="${escapeHtml(church.instagram)}" target="_blank" rel="noopener" class="social-link instagram" title="Instagram">📷 Instagram</a>`);
   if (church.twitter) socialLinks.push(`<a href="${escapeHtml(church.twitter)}" target="_blank" rel="noopener" class="social-link twitter" title="X/Twitter">𝕏 X/Twitter</a>`);
-  const socialHtml = socialLinks.length ? `<div class="social-links">${socialLinks.join('')}</div>` : '';
+  const socialHtml = socialLinks.length ? `<div class="social-links"><div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:1px;color:var(--gray);margin-bottom:6px;font-weight:600;">Church Social Media</div>${socialLinks.join('')}</div>` : '';
+
+  // Pastor social media links
+  const pastorSocial = [];
+  if (church.pastor_facebook) pastorSocial.push(`<a href="${escapeHtml(church.pastor_facebook)}" target="_blank" rel="noopener" class="social-link facebook" title="Pastor Facebook">📘 Pastor FB</a>`);
+  if (church.pastor_twitter) pastorSocial.push(`<a href="${escapeHtml(church.pastor_twitter)}" target="_blank" rel="noopener" class="social-link twitter" title="Pastor X/Twitter">𝕏 Pastor X</a>`);
+  if (church.pastor_instagram) pastorSocial.push(`<a href="${escapeHtml(church.pastor_instagram)}" target="_blank" rel="noopener" class="social-link instagram" title="Pastor Instagram">📷 Pastor IG</a>`);
+  if (church.pastor_linkedin) pastorSocial.push(`<a href="${escapeHtml(church.pastor_linkedin)}" target="_blank" rel="noopener" class="social-link" style="color:#0A66C2;" title="Pastor LinkedIn">💼 Pastor LinkedIn</a>`);
+  const pastorSocialHtml = pastorSocial.length ? `<div class="social-links" style="margin-top:8px;"><div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:1px;color:var(--gray);margin-bottom:6px;font-weight:600;">Pastor Social Media</div>${pastorSocial.join('')}</div>` : '';
 
   // Defunct marker
   const isDefunct = church.services && church.services.toLowerCase().includes('no longer');
@@ -511,6 +519,7 @@ ${NAV}
     <a href="/churches.html" class="btn-outline">← Back to Church Directory</a>
   </div>
   ${socialHtml}
+  ${pastorSocialHtml}
 
   <div class="back-row">
     <a href="/churches.html">← Return to Full Church Directory</a>
