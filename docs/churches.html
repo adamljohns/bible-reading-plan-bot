@@ -829,9 +829,13 @@
             fd.append('_template','table');
             fd.append('_captcha','false');
             fetch('https://formsubmit.co/ajax/usmcministries2022@gmail.com',{method:'POST',body:fd})
-            .then(function(){
+            .then(function(res){
+                if (!res.ok) throw new Error('Server error');
                 document.getElementById('suggestChurchForm').style.display='none';
                 document.getElementById('suggestSuccess').style.display='block';
+            })
+            .catch(function(){
+                alert('Failed to submit — please check your connection and try again.');
             });
         });
         </script>
@@ -928,6 +932,12 @@
         applyFilters();
     }
 
+    /* ── Escape HTML to prevent XSS ── */
+    function esc(str) {
+        if (!str) return '';
+        return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
     /* ── Card toggle (click anywhere on compact) ── */
     function toggleCard(cardEl) {
         cardEl.classList.toggle('expanded');
@@ -996,28 +1006,28 @@
             const compactHtml = `
                 <div class="card-compact">
                     <div class="compact-header">
-                        <div class="church-name">${church.name}</div>
+                        <div class="church-name">${esc(church.name)}</div>
                         <div class="compact-right">
                             <span class="rating-emoji">${EMOJI[church.overall_rating] || '⬜'}</span>
                             <span class="card-chevron">▼</span>
                         </div>
                     </div>
                     <div class="compact-meta">
-                        <div class="compact-meta-row"><span class="meta-icon"><img src="assets/icons/shield-church-48.png" alt="" width="16" height="16" style="vertical-align:middle;"></span><span>${church.denomination || 'Independent'}${church.founded ? ' · Est. ' + church.founded : ''}</span></div>
-                        <div class="compact-meta-row"><span class="meta-icon">👤</span><span>${church.pastor}${church.pastor_credentials ? ' — <em style="color:var(--gray)">' + church.pastor_credentials + '</em>' : ''}</span></div>
-                        <div class="compact-meta-row"><span class="meta-icon"><img src="assets/icons/shield-map-48.png" alt="" width="16" height="16" style="vertical-align:middle;"></span><span>${address}</span></div>
+                        <div class="compact-meta-row"><span class="meta-icon"><img src="assets/icons/shield-church-48.png" alt="" width="16" height="16" style="vertical-align:middle;"></span><span>${esc(church.denomination) || 'Independent'}${church.founded ? ' · Est. ' + esc(church.founded) : ''}</span></div>
+                        <div class="compact-meta-row"><span class="meta-icon">👤</span><span>${esc(church.pastor)}${church.pastor_credentials ? ' — <em style="color:var(--gray)">' + esc(church.pastor_credentials) + '</em>' : ''}</span></div>
+                        <div class="compact-meta-row"><span class="meta-icon"><img src="assets/icons/shield-map-48.png" alt="" width="16" height="16" style="vertical-align:middle;"></span><span>${esc(address)}</span></div>
                     </div>
                 </div>`;
 
             // Expanded: website + address consolidated
             const websitePart = church.website
-                ? ` · <a href="${church.website}" target="_blank" rel="noopener" style="color:var(--gold);" onclick="stopProp(event)">${church.website.replace(/^https?:\/\//, '')}</a>`
+                ? ` · <a href="${esc(church.website)}" target="_blank" rel="noopener" style="color:var(--gold);" onclick="stopProp(event)">${esc(church.website.replace(/^https?:\/\//, ''))}</a>`
                 : '';
 
             const expandedInfoHtml = `
                 <div class="expanded-info">
-                    <div class="expanded-info-row"><span class="meta-icon"><img src="assets/icons/shield-map-48.png" alt="" width="16" height="16" style="vertical-align:middle;"></span><span>${address}${websitePart}</span></div>
-                    ${church.services ? `<div class="expanded-info-row"><span class="meta-icon">🕐</span><span>${church.services}</span></div>` : ''}
+                    <div class="expanded-info-row"><span class="meta-icon"><img src="assets/icons/shield-map-48.png" alt="" width="16" height="16" style="vertical-align:middle;"></span><span>${esc(address)}${websitePart}</span></div>
+                    ${church.services ? `<div class="expanded-info-row"><span class="meta-icon">🕐</span><span>${esc(church.services)}</span></div>` : ''}
                     <div class="ministry-flags">
                         <span class="ministry-flag" style="color:${church.has_mens_ministry ? 'var(--green)' : '#555'};"><img src="assets/icons/shield-chain-sword-48.png" alt="" width="16" height="16" style="vertical-align:middle;"> Men's Min.</span>
                         <span class="ministry-flag" style="color:${church.has_kids_ministry ? 'var(--green)' : '#555'};">👶 Kids Min.</span>
@@ -1026,7 +1036,7 @@
 
             // Tags
             const tagsHtml = (church.tags || []).length
-                ? `<div class="card-tags">${(church.tags).map(t => `<span class="tag">${t.replace(/-/g, ' ')}</span>`).join('')}</div>`
+                ? `<div class="card-tags">${(church.tags).map(t => `<span class="tag">${esc(t.replace(/-/g, ' '))}</span>`).join('')}</div>`
                 : '';
 
             // Scorecard rows (denomination NOT repeated here since it's in compact)
@@ -1038,9 +1048,9 @@
                 let noteHtml = '';
                 if (note) {
                     const prefix = score === 'yellow' ? '🟡 ' : score === 'red' ? '⚠️ ' : score === 'black' ? '⬛ ' : '';
-                    noteHtml = `<div class="score-note">${prefix}${note}</div>`;
+                    noteHtml = `<div class="score-note">${prefix}${esc(note)}</div>`;
                 }
-                const genderDetailHtml = genderDetail ? `<div class="score-gender-detail">↳ ${genderDetail}</div>` : '';
+                const genderDetailHtml = genderDetail ? `<div class="score-gender-detail">↳ ${esc(genderDetail)}</div>` : '';
 
                 return `
                 <div class="score-row ${score}">
@@ -1066,7 +1076,7 @@
                     <div class="score-rows">${scorecardRowsHtml}</div>
                     <div class="assessment-block">
                         <h5>Assessment</h5>
-                        <p>${church.assessment}</p>
+                        <p>${esc(church.assessment)}</p>
                     </div>
                     ${churchPageLink}
                 </div>`;

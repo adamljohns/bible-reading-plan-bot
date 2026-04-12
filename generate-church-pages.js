@@ -22,12 +22,14 @@ function colorLabel(score) {
 function ratingBadgeClass(r) {
   if (r === 'green') return 'rating-green';
   if (r === 'red') return 'rating-red';
+  if (r === 'black') return 'rating-black';
   return 'rating-yellow';
 }
 
 function ratingIcon(r) {
   if (r === 'green') return '✅';
   if (r === 'red') return '🔴';
+  if (r === 'black') return '⛔';
   return '⚠️';
 }
 
@@ -145,6 +147,7 @@ const CSS = `
   .threat-badge.rating-green { background: rgba(76,175,80,0.18); border-color: var(--green); color: #7edd80; }
   .threat-badge.rating-yellow { background: rgba(255,193,7,0.15); border-color: var(--yellow); color: #ffd85a; }
   .threat-badge.rating-red { background: rgba(244,67,54,0.15); border-color: var(--red); color: #ff7c74; }
+  .threat-badge.rating-black { background: rgba(50,50,50,0.6); border-color: #555; color: #aaa; }
   .threat-icon { font-size: 1.3rem; }
 
   /* Main layout */
