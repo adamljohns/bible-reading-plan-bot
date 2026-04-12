@@ -16,6 +16,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
+        .site-icon { vertical-align:middle; margin-right:4px; }
+        body.light-mode .site-icon { filter: brightness(0.6); }
         * { margin:0; padding:0; box-sizing:border-box; }
         :root { --bg-dark:#000; --bg-card:#111; --gold:#D4AF37; --gold-light:#F4D470; --white:#FFF; --gray:#888; --border:#333; --scarlet:#CC0000; }
         body { font-family:'Inter',sans-serif; background:var(--bg-dark); color:var(--white); min-height:100vh; line-height:1.6; }
@@ -161,16 +163,19 @@
             </div>
         </div>
 
+        <!-- Lexicon Word of the Day -->
+        <div id="lexWotd" style="background:linear-gradient(135deg,rgba(212,175,55,0.08) 0%,rgba(212,175,55,0.02) 100%);border:1px solid rgba(212,175,55,0.2);border-radius:12px;padding:18px 22px;margin:20px 0;text-align:center;"></div>
+
         <div class="search-box">
-            <span class="search-icon"><img src="assets/icons/shield-compass.png" alt="" width="16" height="16" style="vertical-align:middle;margin-right:3px;"></span>
+            <span class="search-icon"><img class="site-icon" src="assets/icons/shield-compass.png" alt="" width="16" height="16"></span>
             <input type="text" id="lexSearch" placeholder="Search by word, Strong's number, or meaning..." oninput="filterWords()">
         </div>
 
         <div class="lex-nav-wrap" id="lexNavWrap">
             <!-- Quick toggle buttons -->
             <div class="lex-toggle-row">
-                <button class="lex-toggle-btn" onclick="scrollToSection('hebrew', this)"><img src="assets/icons/shield-scroll-hebrew-48.png" width="20" height="20" style="vertical-align:middle;margin-right:4px;"> Hebrew (OT)</button>
-                <button class="lex-toggle-btn" onclick="scrollToSection('greek', this)"><img src="assets/icons/shield-book-greek-48.png" width="20" height="20" style="vertical-align:middle;margin-right:4px;"> Greek (NT)</button>
+                <button class="lex-toggle-btn" onclick="scrollToSection('hebrew', this)"><img class="site-icon" src="assets/icons/shield-scroll-hebrew-48.png" width="20" height="20"> Hebrew (OT)</button>
+                <button class="lex-toggle-btn" onclick="scrollToSection('greek', this)"><img class="site-icon" src="assets/icons/shield-book-greek-48.png" width="20" height="20"> Greek (NT)</button>
                 <button class="lex-toggle-btn" id="sortNumBtn" onclick="sortEntries('number')" style="display:none">🔢 By Number</button>
                 <button class="lex-toggle-btn" id="sortAlphaBtn" onclick="sortEntries('alpha')" style="display:none">🔤 Alphabetical</button>
             </div>
@@ -3349,7 +3354,7 @@
 <a href="lexicon/H8668.html" class="word-card" data-search="h8668 teshû'āh salvation, deliverance, victory"><span class="wc-strongs">H8668</span><span class="wc-original">תְּשׁוּעָה</span><span class="wc-translit">teshû'āh</span><span class="wc-def">Salvation, Deliverance, Victory</span></a>
 <!-- HEBREW_CARDS_END -->
 </div>
-        <h2 class="section-header" id="greek-section" style="display:none;"><img src="assets/icons/shield-bible.png" alt="" width="16" height="16" style="vertical-align:middle;margin-right:3px;"> Greek (New Testament)</h2>
+        <h2 class="section-header" id="greek-section" style="display:none;"><img class="site-icon" src="assets/icons/shield-bible.png" alt="" width="16" height="16"> Greek (New Testament)</h2>
         <p class="section-sub" id="greek-sub" style="display:none;">3155 words from the Greek New Testament</p>
         <div class="word-grid" id="greek-grid">
 <!-- GREEK_CARDS_START -->
@@ -6537,6 +6542,58 @@
     </script>
 <script>
 function bteToggleTheme(){document.body.classList.toggle("light-mode");localStorage.setItem("bte-theme",document.body.classList.contains("light-mode")?"light":"dark");}
+
+// Lexicon Word of the Day — Hebrew on odd days, Greek on even days
+(function(){
+    var HEBREW_WOTD = [
+        {num:'H3068',word:'YHWH',translit:'יהוה',def:'The self-existent, covenant-keeping God. "I AM WHO I AM." The most sacred name in Scripture.'},
+        {num:'H2617',word:'Chesed',translit:'חֶסֶד',def:'Covenant faithfulness. Loyal love that keeps promises even when the other party fails.'},
+        {num:'H7965',word:'Shalom',translit:'שָׁלוֹם',def:'Far more than peace — wholeness, completeness, nothing broken, nothing missing.'},
+        {num:'H6918',word:'Qadosh',translit:'קָדוֹשׁ',def:'Holy. Set apart. Wholly other. God is categorically different from everything else.'},
+        {num:'H3519',word:'Kavod',translit:'כָּבוֹד',def:'Glory. Literally "weight" — God\'s overwhelming moral and majestic reality made visible.'},
+        {num:'H8451',word:'Torah',translit:'תּוֹרָה',def:'Instruction, teaching. Not just "law" — a father\'s loving guidance for life.'},
+        {num:'H982',word:'Batach',translit:'בָּטַח',def:'To trust. To lean your full weight on something. Complete dependence.'},
+        {num:'H5315',word:'Nephesh',translit:'נֶפֶשׁ',def:'Soul. The whole living person. You don\'t HAVE a nephesh — you ARE one.'},
+        {num:'H1285',word:'Berith',translit:'בְּרִית',def:'Covenant. A binding, blood-sealed commitment. God doesn\'t negotiate — He commits.'},
+        {num:'H7307',word:'Ruach',translit:'רוּחַ',def:'Spirit, wind, breath — all in one word. The Spirit who hovered over creation breathes life into you.'},
+        {num:'H2451',word:'Chokmah',translit:'חָכְמָה',def:'Wisdom. The skill of living well. The fear of the LORD is the beginning of it.'},
+        {num:'H4268',word:'Machseh',translit:'מַחְסֶה',def:'Refuge. Shelter in the storm. Active, confident trust in God\'s protection.'},
+        {num:'H1350',word:'Gaal',translit:'גָּאַל',def:'To redeem. The kinsman-redeemer who buys back what was lost.'},
+        {num:'H530',word:'Emunah',translit:'אֱמוּנָה',def:'Faithfulness. Steadfast reliability. What makes God\'s promises bankable.'},
+        {num:'H3820',word:'Lev',translit:'לֵב',def:'Heart. The control center — thoughts, will, emotions. Guard it, for everything flows from it.'},
+    ];
+    var GREEK_WOTD = [
+        {num:'G26',word:'Agape',translit:'ἀγάπη',def:'Unconditional love. A deliberate choice to seek another\'s good. The love of the cross.'},
+        {num:'G5485',word:'Charis',translit:'χάρις',def:'Grace. God\'s unmerited favor that costs us nothing and cost Him everything.'},
+        {num:'G4102',word:'Pistis',translit:'πίστις',def:'Faith. Trust that moves you to act. Demons believe and tremble — that\'s not saving pistis.'},
+        {num:'G3056',word:'Logos',translit:'λόγος',def:'Word. Divine self-expression that creates reality. In the beginning was the Logos.'},
+        {num:'G4991',word:'Soteria',translit:'σωτηρία',def:'Salvation. Comprehensive rescue — forgiveness, healing, restoration, transformation.'},
+        {num:'G3341',word:'Metanoia',translit:'μετάνοια',def:'Repentance. A complete change of mind and direction. A full about-face.'},
+        {num:'G1680',word:'Elpis',translit:'ἐλπίς',def:'Hope. Confident expectation based on God\'s proven character. An anchor for the soul.'},
+        {num:'G932',word:'Basileia',translit:'βασιλεία',def:'Kingdom. Kingly rule. Arrives wherever God\'s authority is fully honored.'},
+        {num:'G1411',word:'Dynamis',translit:'δύναμις',def:'Power. The explosive, transformative power of God that raises the dead.'},
+        {num:'G3875',word:'Parakletos',translit:'παράκλητος',def:'Advocate. One called alongside. Jesus our Advocate; the Spirit our Comforter.'},
+        {num:'G1577',word:'Ekklesia',translit:'ἐκκλησία',def:'Church. The called-out ones. Not a building — an assembly summoned by God.'},
+        {num:'G2222',word:'Zoe',translit:'ζωή',def:'Life. Divine, eternal, resurrection life. I am the way, the truth, and the zoe.'},
+        {num:'G4678',word:'Sophia',translit:'σοφία',def:'Wisdom. Christ IS the wisdom of God — not a concept but a Person.'},
+        {num:'G225',word:'Aletheia',translit:'ἀλήθεια',def:'Truth. Unconcealed reality. Jesus said I am the aletheia.'},
+        {num:'G40',word:'Hagios',translit:'ἅγιος',def:'Holy. Sacred. Set apart. Called to be different — not better, but other.'},
+    ];
+    var now = new Date();
+    var dayOfYear = Math.floor((now - new Date(now.getFullYear(),0,0)) / 86400000);
+    var isOddDay = dayOfYear % 2 === 1;
+    var pool = isOddDay ? HEBREW_WOTD : GREEK_WOTD;
+    var entry = pool[Math.floor(dayOfYear / 2) % pool.length];
+    var lang = isOddDay ? 'Hebrew' : 'Greek';
+    var icon = isOddDay ? 'shield-scroll-hebrew-48.png' : 'shield-book-greek-48.png';
+    var el = document.getElementById('lexWotd');
+    if (el) {
+        el.innerHTML = '<h4 style="color:var(--gold,#D4AF37);font-family:Playfair Display,serif;font-size:0.95rem;margin-bottom:8px;"><img src="assets/icons/' + icon + '" alt="" width="20" height="20" style="vertical-align:middle;margin-right:6px;"> ' + lang + ' Word of the Day</h4>' +
+            '<div style="font-family:Playfair Display,serif;font-size:1.6rem;color:var(--white,#fff);margin-bottom:2px;"><a href="lexicon/' + entry.num + '.html" style="color:var(--white,#fff);text-decoration:none;">' + entry.word + '</a> <span style="font-size:1.2rem;color:var(--gold,#D4AF37);opacity:0.7;">' + entry.translit + '</span></div>' +
+            '<div style="color:var(--gray,#888);font-size:0.78rem;margin-bottom:6px;">' + entry.num + '</div>' +
+            '<div style="color:var(--gray,#888);font-size:0.9rem;line-height:1.6;max-width:600px;margin:0 auto;">' + entry.def + '</div>';
+    }
+})();
 (function(){if(localStorage.getItem("bte-theme")==="light")document.body.classList.add("light-mode");})();
 </script>
 <script>

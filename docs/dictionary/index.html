@@ -14,7 +14,7 @@
         nav a:hover { color:var(--gold); border-color:var(--border); }
         nav a:link,nav a:visited,nav a:active { color:var(--gray) !important; text-decoration:none !important; }
         nav a.active { color:var(--gold) !important; border-color:var(--gold); }
-        .site-icon { vertical-align:middle; opacity:0.8; }
+        .site-icon { vertical-align:middle; margin-right:4px; }
         .bte-theme-toggle {
             justify-content: center; margin: 8px auto 0; width: fit-content;
             display: flex; align-items: center; gap: 0;
@@ -110,6 +110,33 @@
         body.light-mode .suggest-section { background: #fff; border-color: #d4d0c8; }
         body.light-mode .suggest-section input[type="text"],
         body.light-mode .suggest-section textarea { background: #f5f3ef; border-color: #d4d0c8; color: #1a1a1a; }
+        /* Word of the Day */
+        .wotd-widget { background:linear-gradient(135deg,rgba(212,175,55,0.08) 0%,rgba(212,175,55,0.02) 100%); border:1px solid rgba(212,175,55,0.2); border-radius:12px; padding:20px 24px; margin:20px 0; text-align:center; }
+        .wotd-widget h4 { color:var(--gold); font-family:'Playfair Display',serif; font-size:1rem; margin-bottom:10px; }
+        .wotd-word { font-family:'Playfair Display',serif; font-size:1.8rem; color:var(--white); margin-bottom:4px; }
+        .wotd-word a { color:var(--white); text-decoration:none; }
+        .wotd-word a:hover { color:var(--gold); }
+        .wotd-pos { color:var(--gray); font-size:0.82rem; font-style:italic; margin-bottom:8px; }
+        .wotd-def { color:var(--gray); font-size:0.92rem; line-height:1.6; max-width:600px; margin:0 auto; }
+        body.light-mode .wotd-widget { background:linear-gradient(135deg,rgba(212,175,55,0.06) 0%,rgba(212,175,55,0.02) 100%); }
+
+        /* A-Z Jump Nav */
+        .az-nav { display:flex; flex-wrap:wrap; gap:4px; justify-content:center; margin:16px 0; padding:10px; background:var(--card); border:1px solid var(--border); border-radius:8px; }
+        .az-btn { width:32px; height:32px; display:flex; align-items:center; justify-content:center; background:transparent; border:1px solid var(--border); border-radius:6px; color:var(--gray); font-size:0.82rem; font-weight:600; cursor:pointer; transition:all 0.2s; text-decoration:none; font-family:'Inter',sans-serif; }
+        .az-btn:hover { border-color:var(--gold); color:var(--gold); background:rgba(212,175,55,0.08); }
+        body.light-mode .az-nav { background:#fff; border-color:#d4d0c8; }
+
+        /* Most Corrupted Words */
+        .corrupted-section { background:rgba(244,67,54,0.04); border:1px solid rgba(244,67,54,0.15); border-radius:12px; padding:20px 24px; margin:30px 0; }
+        .corrupted-section h3 { color:#f44336; font-family:'Playfair Display',serif; font-size:1.1rem; margin-bottom:6px; }
+        .corrupted-section .subtitle { color:var(--gray); font-size:0.82rem; margin-bottom:16px; font-style:italic; }
+        .corrupted-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:8px; }
+        .corrupted-card { background:rgba(244,67,54,0.06); border:1px solid rgba(244,67,54,0.12); border-radius:8px; padding:10px 14px; text-decoration:none; transition:all 0.2s; text-align:center; }
+        .corrupted-card:hover { border-color:#f44336; background:rgba(244,67,54,0.12); }
+        .corrupted-card .cword { color:var(--white); font-weight:600; font-size:0.9rem; }
+        .corrupted-card .ctag { color:#f44336; font-size:0.65rem; text-transform:uppercase; letter-spacing:0.5px; }
+        body.light-mode .corrupted-section { background:rgba(244,67,54,0.03); }
+
         @media (min-width: 1025px) { .container { max-width: 1100px; } }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
@@ -141,6 +168,12 @@
             <p style="margin-top:20px;">Words have been stolen, redefined, and weaponized. This dictionary reclaims them &mdash; returning to the etymological roots, the biblical meaning, and the Webster 1828 definitions that shaped Western civilization, against which modern corruptions are measured.</p>
             <p style="margin-top:10px;font-size:0.85rem;color:var(--gold);">1,777 entries &middot; Proto-language roots &middot; Collapsible deep-dive sections</p>
         </section>
+
+        <!-- Word of the Day -->
+        <div class="wotd-widget" id="wotdWidget"></div>
+
+        <!-- A-Z Jump Nav -->
+        <div class="az-nav" id="azNav"></div>
 
         <!-- Search -->
         <div class="search-wrap">
@@ -1912,7 +1945,37 @@
         </form>
     </div>
 
-    <footer style="text-align:center; padding:28px 20px; border-top:1px solid var(--border,#333); margin-top:40px; color:var(--gray,#888); font-size:0.88rem;">
+            <!-- Most Corrupted Words -->
+        <div class="corrupted-section" id="corruptedSection">
+            <h3><img class="site-icon" src="../assets/icons/shield-chain-fire-48.png" alt="" width="20" height="20"> Most Corrupted Words</h3>
+            <p class="subtitle">Words that modern culture has stolen, redefined, or weaponized beyond recognition. Click any word to see what it actually means.</p>
+            <div class="corrupted-grid">
+                <a href="love.html" class="corrupted-card"><div class="cword">Love</div><div class="ctag">Redefined</div></a>
+                <a href="tolerance.html" class="corrupted-card"><div class="cword">Tolerance</div><div class="ctag">Weaponized</div></a>
+                <a href="equity.html" class="corrupted-card"><div class="cword">Equity</div><div class="ctag">Hijacked</div></a>
+                <a href="justice.html" class="corrupted-card"><div class="cword">Justice</div><div class="ctag">Distorted</div></a>
+                <a href="diversity.html" class="corrupted-card"><div class="cword">Diversity</div><div class="ctag">Weaponized</div></a>
+                <a href="inclusion.html" class="corrupted-card"><div class="cword">Inclusion</div><div class="ctag">Hijacked</div></a>
+                <a href="pride.html" class="corrupted-card"><div class="cword">Pride</div><div class="ctag">Inverted</div></a>
+                <a href="empathy.html" class="corrupted-card"><div class="cword">Empathy</div><div class="ctag">Weaponized</div></a>
+                <a href="truth.html" class="corrupted-card"><div class="cword">Truth</div><div class="ctag">Relativized</div></a>
+                <a href="privilege.html" class="corrupted-card"><div class="cword">Privilege</div><div class="ctag">Weaponized</div></a>
+                <a href="toxic.html" class="corrupted-card"><div class="cword">Toxic</div><div class="ctag">Weaponized</div></a>
+                <a href="authenticity.html" class="corrupted-card"><div class="cword">Authenticity</div><div class="ctag">Corrupted</div></a>
+                <a href="safe-space.html" class="corrupted-card"><div class="cword">Safe Space</div><div class="ctag">Weaponized</div></a>
+                <a href="trauma.html" class="corrupted-card"><div class="cword">Trauma</div><div class="ctag">Inflated</div></a>
+                <a href="problematic.html" class="corrupted-card"><div class="cword">Problematic</div><div class="ctag">Weaponized</div></a>
+                <a href="trigger-warning.html" class="corrupted-card"><div class="cword">Trigger Warning</div><div class="ctag">Invented</div></a>
+                <a href="gender.html" class="corrupted-card"><div class="cword">Gender</div><div class="ctag">Stolen</div></a>
+                <a href="woke.html" class="corrupted-card"><div class="cword">Woke</div><div class="ctag">Hijacked</div></a>
+                <a href="deconstruction.html" class="corrupted-card"><div class="cword">Deconstruction</div><div class="ctag">Repurposed</div></a>
+                <a href="grace.html" class="corrupted-card"><div class="cword">Grace</div><div class="ctag">Cheapened</div></a>
+            </div>
+        </div>
+
+    </div><!-- end container -->
+
+<footer style="text-align:center; padding:28px 20px; border-top:1px solid var(--border,#333); margin-top:40px; color:var(--gray,#888); font-size:0.88rem;">
     <div style="margin-bottom:10px;"><img src="../assets/icons/shield-handshake.png" alt="" width="36" height="36" style="opacity:0.6;"></div>
     <p><a href="../index.html" style="color:var(--gray,#888);text-decoration:none;"><img src="../assets/icons/shield-home-48.png" style="vertical-align:middle;opacity:0.8;" alt="" width="16" height="16"> Home</a> &middot;
         <a href="../churches.html" style="color:var(--gray,#888);text-decoration:none;"><img src="../assets/icons/shield-church-48.png" style="vertical-align:middle;opacity:0.8;" alt="" width="16" height="16"> Churches</a> &middot;
@@ -1959,6 +2022,85 @@
     }
     function bteToggleTheme(){document.body.classList.toggle('light-mode');localStorage.setItem('bte-theme',document.body.classList.contains('light-mode')?'light':'dark');}
     (function(){if(localStorage.getItem('bte-theme')==='light')document.body.classList.add('light-mode');})();
+
+    // Word of the Day — curated entries rotating by day
+    (function(){
+        var WOTD = [
+            {word:'Repentance',slug:'repentance',pos:'noun',def:'A complete turning — not just feeling sorry, but a full reversal of direction. The Greek metanoia means a change of mind that changes everything.'},
+            {word:'Covenant',slug:'covenant',pos:'noun',def:'A binding, unbreakable agreement initiated by the stronger party. God does not negotiate — He commits.'},
+            {word:'Sanctification',slug:'sanctification',pos:'noun',def:'The lifelong process of being set apart. You are holy; now be holy. Positional truth becoming practical reality.'},
+            {word:'Sovereignty',slug:'sovereignty',pos:'noun',def:'God\'s absolute authority over all things. Nothing surprises Him. Nothing thwarts Him. Nothing escapes His governance.'},
+            {word:'Justification',slug:'justification',pos:'noun',def:'God declares the sinner righteous — not because of what you did, but because of what Christ did. A courtroom verdict, not a gradual process.'},
+            {word:'Atonement',slug:'atonement',pos:'noun',def:'The covering of sin. Yom Kippur — the Day of Covering. Christ\'s once-for-all sacrifice that satisfied the justice of God.'},
+            {word:'Redemption',slug:'redemption',pos:'noun',def:'Buying back a slave. Christ paid the ransom price to free us from sin\'s bondage. You were purchased — act like it.'},
+            {word:'Longsuffering',slug:'longsuffering',pos:'noun',def:'Patience under provocation — endurance without retaliation. The capacity to absorb offense and keep loving. God\'s posture toward sinners.'},
+            {word:'Abide',slug:'abide',pos:'verb',def:'To remain, to dwell, to stay connected. Jesus said remain in Me. Not visit — abide. Make your home there.'},
+            {word:'Watchman',slug:'watchman',pos:'noun',def:'One who stands on the wall and sounds the alarm. Not a spectator — a guardian. Called to see what others miss and speak what others won\'t.'},
+            {word:'Patriarch',slug:'patriarch',pos:'noun',def:'The founding father of a family or nation. Abraham, Isaac, Jacob — men who carried the covenant forward by faith and obedience.'},
+            {word:'Fortress',slug:'fortress',pos:'noun',def:'A place of absolute safety built on unshakable ground. God Himself is the fortress — not the walls, but the Presence behind them.'},
+            {word:'Disciple',slug:'disciple',pos:'noun',def:'A learner who follows, imitates, and obeys. Not a fan — a student under authority. The cost is everything; the reward is Christ.'},
+            {word:'Integrity',slug:'integrity',pos:'noun',def:'Wholeness. The state of being undivided. When your public life and private life are the same man. No cracks, no compartments.'},
+            {word:'Prudence',slug:'prudence',pos:'noun',def:'Wisdom applied to action. Seeing the consequences before they arrive and adjusting course. The opposite of recklessness.'},
+            {word:'Valor',slug:'valor',pos:'noun',def:'Strength of mind in the face of danger. Not the absence of fear — the mastery of it. Moral courage under fire.'},
+            {word:'Meekness',slug:'meekness',pos:'noun',def:'Strength under control. Not weakness — a warhorse reined in. Power submitted to purpose. Jesus was meek and He flipped tables.'},
+            {word:'Obedience',slug:'obedience',pos:'noun',def:'The willful submission to rightful authority. Not blind compliance — joyful alignment with God\'s revealed will.'},
+            {word:'Steadfastness',slug:'steadfastness',pos:'noun',def:'Immovable faithfulness. The refusal to be moved by circumstances, feelings, or opposition. Anchored to the Rock.'},
+            {word:'Kindness',slug:'kindness',pos:'noun',def:'Goodness in action toward another — not softness, but deliberate generosity of spirit. God\'s kindness leads to repentance.'},
+            {word:'Mercy',slug:'mercy',pos:'noun',def:'Not getting what you deserve. Active compassion that moves you to help — not just feeling sorry but doing something about it.'},
+            {word:'Grace',slug:'grace',pos:'noun',def:'Getting what you don\'t deserve. God\'s unmerited favor that costs us nothing and cost Him everything. The engine of salvation.'},
+            {word:'Fatherhood',slug:'fatherhood-of-god',pos:'noun',def:'The primary metaphor God chose for His relationship with us. Not distant, not abusive — intimate, authoritative, and sacrificial.'},
+            {word:'Calling',slug:'calling',pos:'noun',def:'Not a career — a summons. God doesn\'t suggest; He calls. Your life has a purpose that preceded your birth.'},
+            {word:'Armor',slug:'armor-of-god',pos:'noun',def:'The full equipment of God for spiritual warfare. Belt of truth, breastplate of righteousness, shield of faith — every piece is Christ Himself.'},
+            {word:'Perseverance',slug:'perseverance',pos:'noun',def:'The grit to keep going when everything says stop. Not talent — endurance. The saints who overcome are the ones who simply refused to quit.'},
+            {word:'Humility',slug:'humility',pos:'noun',def:'Accurate self-assessment before God. Not thinking less of yourself — thinking of yourself less. The prerequisite for every other virtue.'},
+            {word:'Sacrifice',slug:'sacrifice',pos:'noun',def:'To make sacred by giving up. Real sacrifice costs something you value. If it doesn\'t hurt, it\'s not a sacrifice — it\'s a donation.'},
+            {word:'Dominion',slug:'dominion',pos:'noun',def:'Rightful rule and stewardship. God gave man dominion over creation — not exploitation, but responsible governance under His authority.'},
+            {word:'Faithfulness',slug:'faithfulness',pos:'noun',def:'The quality of keeping your word when it costs you. Showing up when no one\'s watching. God is faithful — and He calls us to mirror it.'},
+            {word:'Reverence',slug:'reverence',pos:'noun',def:'Deep respect born of awe. The fear of the LORD is the beginning of wisdom — not terror, but the breathtaking awareness of who He is.'},
+        ];
+        var now = new Date();
+        var dayOfYear = Math.floor((now - new Date(now.getFullYear(),0,0)) / 86400000);
+        var entry = WOTD[dayOfYear % WOTD.length];
+        var el = document.getElementById('wotdWidget');
+        if (el) {
+            el.innerHTML = '<h4><img class="site-icon" src="../assets/icons/shield-star.png" alt="" width="20" height="20"> Word of the Day</h4>' +
+                '<div class="wotd-word"><a href="' + entry.slug + '.html">' + entry.word + '</a></div>' +
+                '<div class="wotd-pos">' + entry.pos + '</div>' +
+                '<div class="wotd-def">' + entry.def + '</div>';
+        }
+    })();
+
+    // A-Z Jump Nav
+    (function(){
+        var el = document.getElementById('azNav');
+        if (!el) return;
+        var letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+        // Map letters to range panels
+        var letterMap = {A:'range-AD',B:'range-AD',C:'range-AD',D:'range-AD',E:'range-EI',F:'range-EI',G:'range-EI',H:'range-EI',I:'range-EI',J:'range-JN',K:'range-JN',L:'range-JN',M:'range-JN',N:'range-JN',O:'range-OS',P:'range-OS',Q:'range-OS',R:'range-OS',S:'range-OS',T:'range-TZ',U:'range-TZ',V:'range-TZ',W:'range-TZ',X:'range-TZ',Y:'range-TZ',Z:'range-TZ'};
+        var btnMap = {A:'btn-AD',B:'btn-AD',C:'btn-AD',D:'btn-AD',E:'btn-EI',F:'btn-EI',G:'btn-EI',H:'btn-EI',I:'btn-EI',J:'btn-JN',K:'btn-JN',L:'btn-JN',M:'btn-JN',N:'btn-JN',O:'btn-OS',P:'btn-OS',Q:'btn-OS',R:'btn-OS',S:'btn-OS',T:'btn-TZ',U:'btn-TZ',V:'btn-TZ',W:'btn-TZ',X:'btn-TZ',Y:'btn-TZ',Z:'btn-TZ'};
+        var html = '';
+        letters.forEach(function(L) {
+            html += '<a class="az-btn" href="#" onclick="event.preventDefault();jumpToLetter(\'' + L + '\',\'' + letterMap[L] + '\',\'' + btnMap[L] + '\')">' + L + '</a>';
+        });
+        el.innerHTML = html;
+    })();
+
+    function jumpToLetter(letter, panelId, btnId) {
+        // Open the range panel
+        toggleRange(panelId, btnId);
+        // Find the letter heading and scroll to it
+        setTimeout(function() {
+            var panel = document.getElementById(panelId);
+            if (!panel) return;
+            var headings = panel.querySelectorAll('h2');
+            for (var i = 0; i < headings.length; i++) {
+                if (headings[i].textContent.trim().charAt(0) === letter) {
+                    headings[i].scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    break;
+                }
+            }
+        }, 100);
+    }
     </script>
 </body>
 </html>
