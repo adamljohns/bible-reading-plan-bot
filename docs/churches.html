@@ -806,12 +806,35 @@
             <p>Try adjusting your filters or <button class="filter-reset" onclick="resetFilters()" style="display:inline;cursor:pointer;background:transparent;border:none;color:var(--gold);font-size:1em;text-decoration:underline;">reset all</button> to see all churches.</p>
         </div>
 
-        <!-- Submit CTA -->
-        <div class="submit-cta">
-            <h3><img src="assets/icons/shield-church-48.png" alt="" width="16" height="16" style="vertical-align:middle;"> Know a Church We Should Review?</h3>
-            <p>This directory grows by the community. If you know a church in the Fredericksburg area that deserves theological evaluation, reach out.</p>
-            <a href="connect.html">Suggest a Church →</a>
+        <!-- Submit CTA — Suggest a Church Form -->
+        <div class="submit-cta" style="max-width:600px;margin:30px auto;">
+            <h3><img src="assets/icons/shield-church-48.png" alt="" width="20" height="20" style="vertical-align:middle;margin-right:4px;"> Know a Church We Should Review?</h3>
+            <p style="color:var(--gray);font-size:0.88rem;margin-bottom:16px;">This nationwide directory grows by the community. Suggest a church and we'll assess it.</p>
+            <form id="suggestChurchForm" style="display:flex;flex-direction:column;gap:10px;">
+                <input type="text" name="church_name" placeholder="Church name" required style="padding:10px 14px;background:var(--bg,#000);border:1px solid var(--border,#333);border-radius:8px;color:var(--white,#e8e8e8);font-size:0.9rem;">
+                <input type="text" name="church_city" placeholder="City, State" required style="padding:10px 14px;background:var(--bg,#000);border:1px solid var(--border,#333);border-radius:8px;color:var(--white,#e8e8e8);font-size:0.9rem;">
+                <input type="text" name="church_website" placeholder="Website (if known)" style="padding:10px 14px;background:var(--bg,#000);border:1px solid var(--border,#333);border-radius:8px;color:var(--white,#e8e8e8);font-size:0.9rem;">
+                <input type="text" name="submitter_name" placeholder="Your name" required style="padding:10px 14px;background:var(--bg,#000);border:1px solid var(--border,#333);border-radius:8px;color:var(--white,#e8e8e8);font-size:0.9rem;">
+                <input type="email" name="submitter_email" placeholder="Your email" required style="padding:10px 14px;background:var(--bg,#000);border:1px solid var(--border,#333);border-radius:8px;color:var(--white,#e8e8e8);font-size:0.9rem;">
+                <textarea name="notes" rows="3" placeholder="Why should we review this church? Any details..." style="padding:10px 14px;background:var(--bg,#000);border:1px solid var(--border,#333);border-radius:8px;color:var(--white,#e8e8e8);font-size:0.9rem;resize:vertical;"></textarea>
+                <button type="submit" style="background:var(--gold,#D4AF37);color:#000;font-weight:700;font-size:0.9rem;padding:11px 22px;border-radius:8px;border:none;cursor:pointer;align-self:flex-start;">Submit Suggestion</button>
+            </form>
+            <div id="suggestSuccess" style="display:none;padding:16px;background:rgba(76,175,80,.15);border:1px solid var(--green,#4CAF50);border-radius:8px;color:#7edd80;margin-top:12px;">Thank you! We'll review this church and add it to the directory.</div>
         </div>
+        <script>
+        document.getElementById('suggestChurchForm').addEventListener('submit',function(e){
+            e.preventDefault();
+            var fd=new FormData(this);
+            fd.append('_subject','Church Suggestion: ' + fd.get('church_name'));
+            fd.append('_template','table');
+            fd.append('_captcha','false');
+            fetch('https://formsubmit.co/ajax/usmcministries2022@gmail.com',{method:'POST',body:fd})
+            .then(function(){
+                document.getElementById('suggestChurchForm').style.display='none';
+                document.getElementById('suggestSuccess').style.display='block';
+            });
+        });
+        </script>
 
     </main>
 
