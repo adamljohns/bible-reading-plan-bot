@@ -877,10 +877,10 @@
         filters.region = document.getElementById('filter-region').value;
         filters.search = document.getElementById('filter-search').value.toLowerCase();
 
-        const cards = document.querySelectorAll('.church-card');
-        let visible = 0;
-
-        cards.forEach(card => {
+        // Filter allCards array (set by loadChurches)
+        if (!window._allCards) return;
+        const filtered = window._allCards.filter(c => {
+            const card = c.element;
             const rating = card.dataset.rating;
             const denomination = card.dataset.denomination;
             const hasMens = card.dataset.mens === 'true';
@@ -894,7 +894,6 @@
             const kidsOk = !filters.kids || hasKids;
             const searchOk = !filters.search || searchText.includes(filters.search);
 
-            // Region matching: 'fxbg' matches no-region churches
             let regionOk = filters.region === 'all';
             if (!regionOk) {
                 if (filters.region === 'fxbg') {
@@ -904,16 +903,12 @@
                 }
             }
 
-            if (ratingOk && denomOk && mensOk && kidsOk && regionOk && searchOk) {
-                card.classList.remove('hidden');
-                visible++;
-            } else {
-                card.classList.add('hidden');
-            }
+            return ratingOk && denomOk && mensOk && kidsOk && regionOk && searchOk;
         });
 
-        document.getElementById('visible-count').textContent = visible;
-        document.getElementById('no-results').classList.toggle('visible', visible === 0);
+        window._filteredCards = filtered;
+        window.paginate(1);
+        document.getElementById('no-results').classList.toggle('visible', filtered.length === 0);
     }
 
     function resetFilters() {
@@ -985,7 +980,12 @@
         document.getElementById('total-count').textContent = total;
         document.getElementById('visible-count').textContent = total;
 
-        // Render cards
+        // Pagination config
+        const PAGE_SIZE = 50;
+        let currentPage = 1;
+        let allCards = []; // stores {church, element} for filtering
+
+        // Render cards (build all DOM elements but only show PAGE_SIZE at a time)
         const grid = document.getElementById('church-grid');
         sorted.forEach(church => {
             const isBlack = church.overall_rating === 'black';
@@ -1082,8 +1082,74 @@
                 </div>`;
 
             card.innerHTML = `<div class="rating-stripe ${church.overall_rating}"></div>${compactHtml}${expandedHtml}`;
+            card.style.display = 'none'; // hidden by default, pagination controls visibility
             grid.appendChild(card);
+            allCards.push({ church, element: card });
         });
+
+        // Pagination controls
+        function showPage(page, filtered) {
+            const cards = filtered || allCards;
+            const totalPages = Math.ceil(cards.length / PAGE_SIZE);
+            currentPage = Math.max(1, Math.min(page, totalPages || 1));
+            const start = (currentPage - 1) * PAGE_SIZE;
+            const end = start + PAGE_SIZE;
+
+            // Hide all, show current page
+            allCards.forEach(c => c.element.style.display = 'none');
+            cards.forEach((c, i) => {
+                c.element.style.display = (i >= start && i < end) ? '' : 'none';
+            });
+
+            // Update visible count
+            document.getElementById('visible-count').textContent = cards.length;
+
+            // Render pagination nav
+            let paginationEl = document.getElementById('pagination-nav');
+            if (!paginationEl) {
+                paginationEl = document.createElement('div');
+                paginationEl.id = 'pagination-nav';
+                paginationEl.style.cssText = 'display:flex;justify-content:center;align-items:center;gap:8px;padding:20px;flex-wrap:wrap;';
+                grid.parentNode.insertBefore(paginationEl, grid.nextSibling);
+            }
+            if (totalPages <= 1) { paginationEl.innerHTML = ''; return; }
+
+            let html = '';
+            const btnStyle = 'padding:6px 14px;border-radius:6px;border:1px solid var(--border,#333);background:var(--bg,#000);color:var(--white,#e8e8e8);cursor:pointer;font-size:0.85rem;';
+            const activeStyle = 'padding:6px 14px;border-radius:6px;border:1px solid var(--gold,#D4AF37);background:rgba(212,175,55,0.2);color:var(--gold,#D4AF37);font-weight:700;font-size:0.85rem;cursor:default;';
+
+            if (currentPage > 1) html += `<button onclick="paginate(${currentPage-1})" style="${btnStyle}">← Prev</button>`;
+
+            // Show page numbers with ellipsis
+            for (let p = 1; p <= totalPages; p++) {
+                if (p === currentPage) {
+                    html += `<button style="${activeStyle}">${p}</button>`;
+                } else if (p <= 2 || p >= totalPages - 1 || Math.abs(p - currentPage) <= 2) {
+                    html += `<button onclick="paginate(${p})" style="${btnStyle}">${p}</button>`;
+                } else if (p === 3 && currentPage > 5) {
+                    html += `<span style="color:var(--gray,#888);">…</span>`;
+                } else if (p === totalPages - 2 && currentPage < totalPages - 4) {
+                    html += `<span style="color:var(--gray,#888);">…</span>`;
+                }
+            }
+
+            if (currentPage < totalPages) html += `<button onclick="paginate(${currentPage+1})" style="${btnStyle}">Next →</button>`;
+            paginationEl.innerHTML = html;
+
+            // Scroll to top of grid
+            if (page !== 1 || filtered) grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // Global paginate function (called by onclick)
+        window._filteredCards = allCards;
+        window.paginate = function(page) { showPage(page, window._filteredCards); };
+
+        // Make allCards accessible to applyFilters
+        window._allCards = allCards;
+        window._filteredCards = allCards;
+
+        // Initial render — page 1
+        showPage(1, allCards);
     }
 
     loadChurches().catch(err => {

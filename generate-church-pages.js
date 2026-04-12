@@ -49,6 +49,27 @@ function threatBadge(church) {
   </div>`;
 }
 
+// Verification badge — shows how this church was verified
+function verificationBadge(church) {
+  const e = church.engagement || {};
+  if (e.attended_personally || e.attended_services || e.know_members_personally || e.visited_facility) {
+    return `<div class="verification-badge moop-verified" title="Personally verified by MOOP — attended, visited, or knows members">
+      <span class="verify-icon">🛡️</span>
+      <span class="verify-label">MOOP Verified</span>
+    </div>`;
+  }
+  if (e.researched_website || e.viewed_online_services || (church.website && String(church.website).startsWith('http'))) {
+    return `<div class="verification-badge web-verified" title="Verified via website research, online sermons, or public data">
+      <span class="verify-icon">🔍</span>
+      <span class="verify-label">Web Verified</span>
+    </div>`;
+  }
+  return `<div class="verification-badge unverified" title="Not yet verified — data is preliminary">
+    <span class="verify-icon">❓</span>
+    <span class="verify-label">Unverified</span>
+  </div>`;
+}
+
 function mapSrc(address) {
   return `https://maps.google.com/maps?q=${encodeURIComponent(address)}&output=embed`;
 }
@@ -107,8 +128,41 @@ const CSS = `
   .top-nav a:hover { color: var(--gold); border-color: var(--border); }
   .top-nav a:first-child { color: var(--gold); border-color: var(--border); }
 
+  /* Verification badge */
+  .verification-badge {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .verification-badge.moop-verified {
+    background: rgba(212,175,55,0.2);
+    border: 1px solid var(--gold);
+    color: var(--gold-light);
+  }
+  .verification-badge.web-verified {
+    background: rgba(100,149,237,0.15);
+    border: 1px solid #6495ED;
+    color: #8BB8FF;
+  }
+  .verification-badge.unverified {
+    background: rgba(80,80,80,0.3);
+    border: 1px solid #555;
+    color: #888;
+  }
+  .verify-icon { font-size: 0.9rem; }
+
   /* Hero */
   .hero {
+    position: relative;
     padding: 48px 24px 36px;
     text-align: center;
     background: linear-gradient(180deg, rgba(212,175,55,0.08) 0%, transparent 100%);
@@ -365,6 +419,7 @@ function buildPage(church) {
 ${NAV}
 
 <div class="hero">
+  ${verificationBadge(church)}
   <div class="denom-tag">${escapeHtml(church.type || church.denomination || 'Church')}</div>
   <h1>${escapeHtml(church.name)}</h1>
   <div class="address">📍 ${escapeHtml(church.address)}</div>
