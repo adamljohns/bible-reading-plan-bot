@@ -871,11 +871,22 @@
         applyFilters();
     }
 
+    // Fuzzy search: strip stop words, match all significant words in any order
+    const STOP_WORDS = new Set(['the','of','a','an','in','at','and','or','for','to','on','by','is','it','its','church','churches']);
+    function fuzzyMatch(query, text) {
+        if (!query) return true;
+        // Split query into significant words (strip stop words, short words)
+        const words = query.split(/\s+/).filter(w => w.length > 1 && !STOP_WORDS.has(w));
+        if (words.length === 0) return text.includes(query); // fallback to exact if all stop words
+        // Every significant word must appear somewhere in the text
+        return words.every(w => text.includes(w));
+    }
+
     function applyFilters() {
         filters.rating = document.getElementById('filter-rating').value;
         filters.denomination = document.getElementById('filter-denomination').value;
         filters.region = document.getElementById('filter-region').value;
-        filters.search = document.getElementById('filter-search').value.toLowerCase();
+        filters.search = document.getElementById('filter-search').value.toLowerCase().trim();
 
         // Filter allCards array (set by loadChurches)
         if (!window._allCards) return;
@@ -892,7 +903,7 @@
             const denomOk = filters.denomination === 'all' || denomination === filters.denomination;
             const mensOk = !filters.mens || hasMens;
             const kidsOk = !filters.kids || hasKids;
-            const searchOk = !filters.search || searchText.includes(filters.search);
+            const searchOk = fuzzyMatch(filters.search, searchText);
 
             let regionOk = filters.region === 'all';
             if (!regionOk) {
@@ -996,7 +1007,7 @@
             card.dataset.mens = church.has_mens_ministry ? 'true' : 'false';
             card.dataset.kids = church.has_kids_ministry ? 'true' : 'false';
             card.dataset.region = church.region || '';
-            card.dataset.search = (church.name + ' ' + (church.pastor || '') + ' ' + (church.denomination || '')).toLowerCase();
+            card.dataset.search = (church.name + ' ' + (church.pastor || '') + ' ' + (church.denomination || '') + ' ' + (church.address || '') + ' ' + (church.type || '')).toLowerCase();
             card.setAttribute('onclick', 'toggleCard(this)');
 
             // Address (one line — strip duplicate city/zip if long)

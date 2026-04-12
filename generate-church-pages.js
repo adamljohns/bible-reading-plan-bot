@@ -291,6 +291,20 @@ const CSS = `
     color: var(--gray); font-size: 0.72rem;
     padding: 3px 10px; border-radius: 20px;
   }
+  .social-links {
+    display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px;
+  }
+  .social-link {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 16px; border-radius: 8px; font-size: 0.85rem;
+    font-weight: 600; text-decoration: none; border: 1px solid var(--border);
+    transition: all 0.2s;
+  }
+  .social-link:hover { border-color: var(--gold); color: var(--gold-light); }
+  .social-link.facebook { color: #8B9DC3; }
+  .social-link.youtube { color: #FF6B6B; }
+  .social-link.instagram { color: #C77DBA; }
+  .social-link.twitter { color: #AAA; }
 
   /* Map */
   .map-wrap {
@@ -393,6 +407,14 @@ function buildPage(church) {
   // Website button
   const websiteBtn = church.website ? `<a href="${escapeHtml(church.website)}" target="_blank" rel="noopener" class="btn-gold">🌐 Visit Their Website</a>` : '';
 
+  // Social media links
+  const socialLinks = [];
+  if (church.facebook) socialLinks.push(`<a href="${escapeHtml(church.facebook)}" target="_blank" rel="noopener" class="social-link facebook" title="Facebook">📘 Facebook</a>`);
+  if (church.youtube) socialLinks.push(`<a href="${escapeHtml(church.youtube)}" target="_blank" rel="noopener" class="social-link youtube" title="YouTube">▶️ YouTube</a>`);
+  if (church.instagram) socialLinks.push(`<a href="${escapeHtml(church.instagram)}" target="_blank" rel="noopener" class="social-link instagram" title="Instagram">📷 Instagram</a>`);
+  if (church.twitter) socialLinks.push(`<a href="${escapeHtml(church.twitter)}" target="_blank" rel="noopener" class="social-link twitter" title="X/Twitter">𝕏 X/Twitter</a>`);
+  const socialHtml = socialLinks.length ? `<div class="social-links">${socialLinks.join('')}</div>` : '';
+
   // Defunct marker
   const isDefunct = church.services && church.services.toLowerCase().includes('no longer');
   const isNotFound = church.overall_label && (church.overall_label.toLowerCase().includes('not found') || church.overall_label.toLowerCase().includes('defunct') || church.overall_label.toLowerCase().includes('search result'));
@@ -488,6 +510,7 @@ ${NAV}
     ${websiteBtn}
     <a href="/churches.html" class="btn-outline">← Back to Church Directory</a>
   </div>
+  ${socialHtml}
 
   <div class="back-row">
     <a href="/churches.html">← Return to Full Church Directory</a>
