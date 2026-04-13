@@ -25,6 +25,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
+        .site-icon { vertical-align:middle; margin-right:4px; }
+        body.light-mode .site-icon { filter: brightness(0.6); }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
             --bg-dark: #000000;
@@ -1476,11 +1478,19 @@
             } catch { return null; }
         }
 
+        // BTE v5.2: Track parallel visibility state
+        var showParallels = true;
+
         function renderToggleButton() {
             var btnStyle = 'background:transparent;border:1px solid #333;border-radius:6px;padding:6px 16px;cursor:pointer;font-size:0.85rem;font-family:\'Inter\',sans-serif;';
+            var activeStyle = 'background:rgba(212,175,55,0.15);border:1px solid var(--gold,#D4AF37);border-radius:6px;padding:6px 16px;cursor:pointer;font-size:0.85rem;font-family:\'Inter\',sans-serif;';
             var html = '<div style="text-align:center;margin:8px 0 16px;">';
             if (currentViewMode === 'chapter') {
                 html += '<button onclick="switchToVerseMode()" style="' + btnStyle + '"><span style="color:#888;">Read </span><span style="color:#D4AF37;font-weight:600;">Verse by Verse</span></button>';
+                // BTE v5.2: MOOP Only toggle — hides parallel translations in chapter mode
+                var moopStyle = showParallels ? btnStyle : activeStyle;
+                var moopLabel = showParallels ? 'MOOP Only' : 'MOOP Only ✓';
+                html += ' <button id="moopOnlyBtn" onclick="toggleParallels()" style="' + moopStyle + 'margin-left:8px;"><span style="color:' + (showParallels ? '#888' : 'var(--gold,#D4AF37)') + ';font-weight:600;">' + moopLabel + '</span></button>';
             } else {
                 html += '<button onclick="switchToChapterMode()" style="' + btnStyle + '"><span style="color:#888;">Read </span><span style="color:#D4AF37;font-weight:600;">Full Chapter</span></button>';
                 // BTE v5.2 Phase 4: All 12 translations button (verse and range modes)
@@ -1488,6 +1498,35 @@
             }
             html += '</div>';
             return html;
+        }
+
+        // BTE v5.2: Toggle parallel translations on/off
+        function toggleParallels() {
+            showParallels = !showParallels;
+            var amps = document.querySelectorAll('.amplification');
+            amps.forEach(function(el) {
+                el.style.display = showParallels ? '' : 'none';
+            });
+            // Also hide/show the trans-label indicators on each verse
+            var labels = document.querySelectorAll('.trans-label');
+            labels.forEach(function(el) {
+                el.style.display = showParallels ? '' : 'none';
+            });
+            // Update button appearance
+            var btn = document.getElementById('moopOnlyBtn');
+            if (btn) {
+                if (showParallels) {
+                    btn.style.background = 'transparent';
+                    btn.style.borderColor = '#333';
+                    btn.querySelector('span').style.color = '#888';
+                    btn.querySelector('span').textContent = 'MOOP Only';
+                } else {
+                    btn.style.background = 'rgba(212,175,55,0.15)';
+                    btn.style.borderColor = 'var(--gold,#D4AF37)';
+                    btn.querySelector('span').style.color = 'var(--gold,#D4AF37)';
+                    btn.querySelector('span').textContent = 'MOOP Only ✓';
+                }
+            }
         }
 
         function switchToVerseMode() {
@@ -2112,11 +2151,11 @@
             html += '<div style="display:flex;flex-wrap:wrap;gap:12px;justify-content:center;align-items:center;font-size:0.72em;color:#666;margin:-5px 0 10px;padding:8px 12px;background:rgba(212,175,55,0.03);border-radius:8px;border:1px solid #222;">';
             html += '<span style="color:var(--gold);font-weight:600;margin-right:4px;">Verse Tools:</span>';
             html += '<span><img src="' + shareIcon + '" alt="" width="16" height="16" style="vertical-align:middle;opacity:0.5;margin-right:2px;">Share Link</span>';
-            html += '<span><img src="assets/icons/shield-lock-48.png" alt="" width="14" height="14" style="vertical-align:middle;opacity:0.5;margin-right:2px;">Highlight</span>';
-            html += '<span><img src="assets/icons/shield-blog-quill-48.png" alt="" width="14" height="14" style="vertical-align:middle;opacity:0.5;margin-right:2px;">Add Note</span>';
+            html += '<span><img class="site-icon" src="assets/icons/shield-lock-48.png" alt="" width="16" height="16" style="vertical-align:middle;opacity:0.5;margin-right:2px;">Highlight</span>';
+            html += '<span><img class="site-icon" src="assets/icons/shield-blog-quill-48.png" alt="" width="16" height="16" style="vertical-align:middle;opacity:0.5;margin-right:2px;">Add Note</span>';
             html += '<span><img src="assets/icons/shield-about-person-24.png" alt="" width="12" height="12" style="vertical-align:middle;opacity:0.5;margin-right:2px;">Copy Text</span>';
             if (currentViewMode === 'chapter') {
-                html += '<span><img src="assets/icons/shield-bible.png" alt="" width="16" height="16" style="vertical-align:middle;opacity:0.5;margin-right:2px;">Cross-Refs</span>';
+                html += '<span><img class="site-icon" src="assets/icons/shield-bible.png" alt="" width="16" height="16" style="vertical-align:middle;opacity:0.5;margin-right:2px;">Cross-Refs</span>';
             }
             html += '</div>';
 
@@ -2138,7 +2177,7 @@
                 html += ' <span class="note-toggle' + hasNote + '" onclick="toggleNoteArea(\'' + verseKey + '\')" title="Add note"><img src="assets/icons/shield-blog-quill-48.png" class="site-icon" alt="note" width="16" height="16"></span>';
                 // BTE v5.2 Phase 3: Copy verse text button
                 var copyRef = shareRef.replace(/'/g, "\\'");
-                html += ' <span class="copy-btn" onclick="copyVerseText(\'' + copyRef + '\', \'' + verseKey + '\', this)" title="Copy verse text"><img src="assets/icons/shield-about-person-24.png" class="site-icon" alt="copy" width="14" height="14"></span>';
+                html += ' <span class="copy-btn" onclick="copyVerseText(\'' + copyRef + '\', \'' + verseKey + '\', this)" title="Copy verse text"><img src="assets/icons/shield-about-person-24.png" class="site-icon" alt="copy" width="16" height="16"></span>';
                 // BTE v5.0: Inline cross-ref indicator in chapter mode
                 if (currentViewMode === 'chapter') {
                     html += buildInlineCrossRef(ref.bookId, ref.chapter, v.num);
@@ -2149,7 +2188,7 @@
                 // BTE v5.2 Phase 2: Show saved note if exists
                 var savedNote = getVerseNote(verseKey);
                 if (savedNote) {
-                    html += '<div class="verse-note-saved" id="vns-' + verseKey + '" onclick="toggleNoteArea(\'' + verseKey + '\')" title="Click to edit note"><img src="assets/icons/shield-blog-quill-48.png" class="site-icon" alt="note" width="14" height="14" style="vertical-align:middle;margin-right:4px;opacity:0.6;"> ' + savedNote.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</div>';
+                    html += '<div class="verse-note-saved" id="vns-' + verseKey + '" onclick="toggleNoteArea(\'' + verseKey + '\')" title="Click to edit note"><img src="assets/icons/shield-blog-quill-48.png" class="site-icon" alt="note" width="16" height="16" style="vertical-align:middle;margin-right:4px;opacity:0.6;"> ' + savedNote.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</div>';
                 }
                 // Note input area (hidden by default)
                 html += '<div class="verse-note-area" id="vna-' + verseKey + '" style="display:none;"><textarea class="verse-note-input" id="vni-' + verseKey + '" placeholder="Add a note..." onblur="saveVerseNote(\'' + verseKey + '\', this.value)">' + (savedNote || '') + '</textarea></div>';
@@ -2501,11 +2540,11 @@
                         div.id = 'vns-' + verseKey;
                         div.onclick = function() { toggleNoteArea(verseKey); };
                         div.title = 'Click to edit note';
-                        div.innerHTML = '<img src="assets/icons/shield-blog-quill-48.png" class="site-icon" alt="note" width="14" height="14" style="vertical-align:middle;margin-right:4px;opacity:0.6;"> ' + text.replace(/</g,'&lt;').replace(/>/g,'&gt;');
+                        div.innerHTML = '<img src="assets/icons/shield-blog-quill-48.png" class="site-icon" alt="note" width="16" height="16" style="vertical-align:middle;margin-right:4px;opacity:0.6;"> ' + text.replace(/</g,'&lt;').replace(/>/g,'&gt;');
                         area.parentNode.insertBefore(div, area);
                     }
                 } else {
-                    savedEl.innerHTML = '<img src="assets/icons/shield-blog-quill-48.png" class="site-icon" alt="note" width="14" height="14" style="vertical-align:middle;margin-right:4px;opacity:0.6;"> ' + text.replace(/</g,'&lt;').replace(/>/g,'&gt;');
+                    savedEl.innerHTML = '<img src="assets/icons/shield-blog-quill-48.png" class="site-icon" alt="note" width="16" height="16" style="vertical-align:middle;margin-right:4px;opacity:0.6;"> ' + text.replace(/</g,'&lt;').replace(/>/g,'&gt;');
                     savedEl.style.display = '';
                 }
             } else if (savedEl) {
@@ -2846,7 +2885,7 @@
             if (!hl && !notes && !bm) { panel.innerHTML = ''; return; }
             var html = '<div class="export-panel"><h4><img src="assets/icons/shield-checklist-48.png" class="site-icon" alt="" width="20" height="20"> Study Data</h4>';
             html += '<p style="color:var(--gray);font-size:0.82rem;margin-bottom:10px;">' + bm + ' bookmarks · ' + hl + ' highlights · ' + notes + ' notes</p>';
-            html += '<button class="export-btn" onclick="exportHighlightsAndNotes()"><img src="assets/icons/shield-compass.png" class="site-icon" alt="" width="14" height="14" style="vertical-align:middle;margin-right:4px;"> Export as Text File</button>';
+            html += '<button class="export-btn" onclick="exportHighlightsAndNotes()"><img src="assets/icons/shield-compass.png" class="site-icon" alt="" width="16" height="16" style="vertical-align:middle;margin-right:4px;"> Export as Text File</button>';
             html += '</div>';
             panel.innerHTML = html;
         }
@@ -3034,7 +3073,7 @@
                 }
             };
 
-            var CROSS_ICON = '<img src="assets/icons/shield-cross.png" width="18" height="18" style="vertical-align:middle;margin-right:6px;">';
+            var CROSS_ICON = '<img class="site-icon" src="assets/icons/shield-cross.png" width="18" height="18">';
 
             // Parse chapter range from labels like "Matthew (chs 24–25)" or "Mark (ch 13)"
             function parseChapterRange(label) {
