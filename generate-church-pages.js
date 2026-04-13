@@ -53,20 +53,48 @@ function threatBadge(church) {
 function verificationBadge(church) {
   const e = church.engagement || {};
   if (e.attended_personally || e.attended_services || e.know_members_personally || e.visited_facility) {
-    return `<div class="verification-badge moop-verified" title="Personally verified by MOOP — attended, visited, or knows members">
-      <span class="verify-icon">🛡️</span>
-      <span class="verify-label">MOOP Verified</span>
+    return `<div class="verification-badge moop-verified" title="Personally verified by MOOP">
+      <img src="/assets/icons/shield-chain-faith-48.png" alt="" width="14" height="14" style="vertical-align:middle;filter:brightness(1.5);"> MOOP Verified
     </div>`;
   }
   if (e.researched_website || e.viewed_online_services || (church.website && String(church.website).startsWith('http'))) {
-    return `<div class="verification-badge web-verified" title="Verified via website research, online sermons, or public data">
-      <span class="verify-icon">🔍</span>
-      <span class="verify-label">Web Verified</span>
+    return `<div class="verification-badge web-verified" title="Verified via website and public data">
+      <img src="/assets/icons/shield-checklist-48.png" alt="" width="14" height="14" style="vertical-align:middle;filter:brightness(1.3);"> Web Verified
     </div>`;
   }
   return `<div class="verification-badge unverified" title="Not yet verified — data is preliminary">
-    <span class="verify-icon">❓</span>
-    <span class="verify-label">Unverified</span>
+      <img src="/assets/icons/shield-chain-faith-48.png" alt="" width="14" height="14" style="vertical-align:middle;opacity:0.5;"> Unverified
+  </div>`;
+}
+
+// Engagement detail section — explains exactly how verification was done
+function engagementSection(church) {
+  const e = church.engagement || {};
+  const checks = [
+    { key: 'visited_facility', label: 'Visited the facility in person', icon: '🏛️' },
+    { key: 'attended_services', label: 'Attended a worship service', icon: '⛪' },
+    { key: 'attended_personally', label: 'Personally attended by MOOP', icon: '🪖' },
+    { key: 'viewed_online_services', label: 'Watched online sermons/services', icon: '📺' },
+    { key: 'researched_website', label: 'Researched church website', icon: '🌐' },
+    { key: 'know_members_personally', label: 'Personally knows church members', icon: '🤝' },
+    { key: 'interacted_with_leadership', label: 'Interacted with church leadership', icon: '👔' },
+  ];
+
+  const hasAny = checks.some(c => e[c.key]);
+  if (!hasAny) return '';
+
+  const rows = checks.map(c => {
+    const done = e[c.key];
+    return `<div class="engage-row" style="display:flex;align-items:center;gap:8px;padding:4px 0;">
+      <span style="font-size:1rem;opacity:${done ? '1' : '0.3'};">${done ? '✅' : '⬜'}</span>
+      <span style="color:${done ? 'var(--white)' : 'var(--gray)'};font-size:0.85rem;">${c.icon} ${escapeHtml(c.label)}</span>
+    </div>`;
+  }).join('');
+
+  return `<div class="card" style="margin-top:28px;">
+    <div class="card-title"><img class="site-icon" src="/assets/icons/shield-chain-faith-48.png" alt="" width="20" height="20"> MOOP Engagement Tracker</div>
+    <p style="color:var(--gray);font-size:0.82rem;margin-bottom:12px;">How this church was personally verified by the MOOP directory team:</p>
+    ${rows}
   </div>`;
 }
 
@@ -520,6 +548,8 @@ ${NAV}
   </div>
   ${socialHtml}
   ${pastorSocialHtml}
+
+  ${engagementSection(church)}
 
   <div class="back-row">
     <a href="/churches.html">← Return to Full Church Directory</a>
