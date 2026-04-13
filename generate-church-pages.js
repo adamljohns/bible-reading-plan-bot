@@ -12,11 +12,16 @@ function colorClass(score) {
   return 'score-yellow';
 }
 
+// Inline icon helper
+function ico(name, size=16) {
+  return `<img class="site-icon" src="/assets/icons/${name}" alt="" width="${size}" height="${size}" style="vertical-align:middle;">`;
+}
+
 function colorLabel(score) {
-  if (score === 'green') return '✅ Strong';
-  if (score === 'red') return '🔴 Concern';
-  if (score === 'black') return '⛔ Disqualifier';
-  return '⚠️ Caution';
+  if (score === 'green') return `${ico('shield-chain-salvation-48.png')} Strong`;
+  if (score === 'red') return `${ico('shield-warning-48.png')} Concern`;
+  if (score === 'black') return `${ico('shield-warning-48.png')} Disqualifier`;
+  return `${ico('shield-chain-faith-48.png')} Caution`;
 }
 
 function ratingBadgeClass(r) {
@@ -27,10 +32,10 @@ function ratingBadgeClass(r) {
 }
 
 function ratingIcon(r) {
-  if (r === 'green') return '✅';
-  if (r === 'red') return '🔴';
-  if (r === 'black') return '⛔';
-  return '⚠️';
+  if (r === 'green') return ico('shield-chain-salvation-48.png', 18);
+  if (r === 'red') return ico('shield-warning-48.png', 18);
+  if (r === 'black') return ico('shield-warning-48.png', 18);
+  return ico('shield-chain-faith-48.png', 18);
 }
 
 function escapeHtml(str) {
@@ -71,13 +76,13 @@ function verificationBadge(church) {
 function engagementSection(church) {
   const e = church.engagement || {};
   const checks = [
-    { key: 'visited_facility', label: 'Visited the facility in person', icon: '🏛️' },
-    { key: 'attended_services', label: 'Attended a worship service', icon: '⛪' },
-    { key: 'attended_personally', label: 'Personally attended by MOOP', icon: '🪖' },
-    { key: 'viewed_online_services', label: 'Watched online sermons/services', icon: '📺' },
-    { key: 'researched_website', label: 'Researched church website', icon: '🌐' },
-    { key: 'know_members_personally', label: 'Personally knows church members', icon: '🤝' },
-    { key: 'interacted_with_leadership', label: 'Interacted with church leadership', icon: '👔' },
+    { key: 'visited_facility', label: 'Visited the facility in person', icon: ico('shield-church-48.png', 14) },
+    { key: 'attended_services', label: 'Attended a worship service', icon: ico('shield-cross-48.png', 14) },
+    { key: 'attended_personally', label: 'Personally attended by MOOP', icon: ico('shield-chain-sword-48.png', 14) },
+    { key: 'viewed_online_services', label: 'Watched online sermons/services', icon: ico('shield-globe-48.png', 14) },
+    { key: 'researched_website', label: 'Researched church website', icon: ico('shield-checklist-48.png', 14) },
+    { key: 'know_members_personally', label: 'Personally knows church members', icon: ico('shield-handshake-48.png', 14) },
+    { key: 'interacted_with_leadership', label: 'Interacted with church leadership', icon: ico('shield-about-person-48.png', 14) },
   ];
 
   const hasAny = checks.some(c => e[c.key]);
@@ -86,7 +91,7 @@ function engagementSection(church) {
   const rows = checks.map(c => {
     const done = e[c.key];
     return `<div class="engage-row" style="display:flex;align-items:center;gap:8px;padding:4px 0;">
-      <span style="font-size:1rem;opacity:${done ? '1' : '0.3'};">${done ? '✅' : '⬜'}</span>
+      <span style="opacity:${done ? '1' : '0.3'};">${done ? ico('shield-chain-salvation-48.png', 16) : ico('shield-chain-faith-48.png', 16)}</span>
       <span style="color:${done ? 'var(--white)' : 'var(--gray)'};font-size:0.85rem;">${c.icon} ${escapeHtml(c.label)}</span>
     </div>`;
   }).join('');
@@ -408,7 +413,7 @@ function buildPage(church) {
           <div class="score-label">${escapeHtml(rubric.label)}</div>
           <div class="score-desc">${escapeHtml(rubric.description)}</div>
           ${note ? `<div class="score-note">${escapeHtml(note)}</div>` : ''}
-          ${gd ? `<div class="gender-detail">👤 ${escapeHtml(gd)}</div>` : ''}
+          ${gd ? `<div class="gender-detail">${ico('shield-about-person-48.png', 14)} ${escapeHtml(gd)}</div>` : ''}
         </div>
         <div>
           <span class="score-badge ${colorClass(score)}">${colorLabel(score)}</span>
@@ -433,22 +438,22 @@ function buildPage(church) {
     </div>` : '';
 
   // Website button
-  const websiteBtn = church.website ? `<a href="${escapeHtml(church.website)}" target="_blank" rel="noopener" class="btn-gold">🌐 Visit Their Website</a>` : '';
+  const websiteBtn = church.website ? `<a href="${escapeHtml(church.website)}" target="_blank" rel="noopener" class="btn-gold">${ico('shield-globe-48.png', 14)} Visit Their Website</a>` : '';
 
   // Church social media links
   const socialLinks = [];
-  if (church.facebook) socialLinks.push(`<a href="${escapeHtml(church.facebook)}" target="_blank" rel="noopener" class="social-link facebook" title="Facebook">📘 Facebook</a>`);
-  if (church.youtube) socialLinks.push(`<a href="${escapeHtml(church.youtube)}" target="_blank" rel="noopener" class="social-link youtube" title="YouTube">▶️ YouTube</a>`);
-  if (church.instagram) socialLinks.push(`<a href="${escapeHtml(church.instagram)}" target="_blank" rel="noopener" class="social-link instagram" title="Instagram">📷 Instagram</a>`);
-  if (church.twitter) socialLinks.push(`<a href="${escapeHtml(church.twitter)}" target="_blank" rel="noopener" class="social-link twitter" title="X/Twitter">𝕏 X/Twitter</a>`);
+  if (church.facebook) socialLinks.push(`<a href="${escapeHtml(church.facebook)}" target="_blank" rel="noopener" class="social-link facebook" title="Facebook">Facebook</a>`);
+  if (church.youtube) socialLinks.push(`<a href="${escapeHtml(church.youtube)}" target="_blank" rel="noopener" class="social-link youtube" title="YouTube">YouTube</a>`);
+  if (church.instagram) socialLinks.push(`<a href="${escapeHtml(church.instagram)}" target="_blank" rel="noopener" class="social-link instagram" title="Instagram">Instagram</a>`);
+  if (church.twitter) socialLinks.push(`<a href="${escapeHtml(church.twitter)}" target="_blank" rel="noopener" class="social-link twitter" title="X/Twitter">X/Twitter</a>`);
   const socialHtml = socialLinks.length ? `<div class="social-links"><div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:1px;color:var(--gray);margin-bottom:6px;font-weight:600;">Church Social Media</div>${socialLinks.join('')}</div>` : '';
 
   // Pastor social media links
   const pastorSocial = [];
-  if (church.pastor_facebook) pastorSocial.push(`<a href="${escapeHtml(church.pastor_facebook)}" target="_blank" rel="noopener" class="social-link facebook" title="Pastor Facebook">📘 Pastor FB</a>`);
-  if (church.pastor_twitter) pastorSocial.push(`<a href="${escapeHtml(church.pastor_twitter)}" target="_blank" rel="noopener" class="social-link twitter" title="Pastor X/Twitter">𝕏 Pastor X</a>`);
-  if (church.pastor_instagram) pastorSocial.push(`<a href="${escapeHtml(church.pastor_instagram)}" target="_blank" rel="noopener" class="social-link instagram" title="Pastor Instagram">📷 Pastor IG</a>`);
-  if (church.pastor_linkedin) pastorSocial.push(`<a href="${escapeHtml(church.pastor_linkedin)}" target="_blank" rel="noopener" class="social-link" style="color:#0A66C2;" title="Pastor LinkedIn">💼 Pastor LinkedIn</a>`);
+  if (church.pastor_facebook) pastorSocial.push(`<a href="${escapeHtml(church.pastor_facebook)}" target="_blank" rel="noopener" class="social-link facebook" title="Pastor Facebook">Pastor FB</a>`);
+  if (church.pastor_twitter) pastorSocial.push(`<a href="${escapeHtml(church.pastor_twitter)}" target="_blank" rel="noopener" class="social-link twitter" title="Pastor X/Twitter">Pastor X</a>`);
+  if (church.pastor_instagram) pastorSocial.push(`<a href="${escapeHtml(church.pastor_instagram)}" target="_blank" rel="noopener" class="social-link instagram" title="Pastor Instagram">Pastor IG</a>`);
+  if (church.pastor_linkedin) pastorSocial.push(`<a href="${escapeHtml(church.pastor_linkedin)}" target="_blank" rel="noopener" class="social-link" style="color:#0A66C2;" title="Pastor LinkedIn">Pastor LinkedIn</a>`);
   const pastorSocialHtml = pastorSocial.length ? `<div class="social-links" style="margin-top:8px;"><div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:1px;color:var(--gray);margin-bottom:6px;font-weight:600;">Pastor Social Media</div>${pastorSocial.join('')}</div>` : '';
 
   // Defunct marker
@@ -480,7 +485,7 @@ ${NAV}
   ${verificationBadge(church)}
   <div class="denom-tag">${escapeHtml(church.type || church.denomination || 'Church')}</div>
   <h1>${escapeHtml(church.name)}</h1>
-  <div class="address">📍 ${escapeHtml(church.address)}</div>
+  <div class="address">${ico('shield-map-48.png', 14)} ${escapeHtml(church.address)}</div>
   ${threatBadge(church)}
 </div>
 
@@ -508,11 +513,11 @@ ${NAV}
       </div>
       <div class="fact-item">
         <span class="fact-label">Men's Ministry</span>
-        <span class="fact-value ${church.has_mens_ministry ? 'has-yes' : 'has-no'}">${church.has_mens_ministry ? '✅ Yes' : '✗ No'}</span>
+        <span class="fact-value ${church.has_mens_ministry ? 'has-yes' : 'has-no'}">${church.has_mens_ministry ? 'Yes' : 'No'}</span>
       </div>
       <div class="fact-item">
         <span class="fact-label">Kids Ministry</span>
-        <span class="fact-value ${church.has_kids_ministry ? 'has-yes' : 'has-no'}">${church.has_kids_ministry ? '✅ Yes' : '✗ No'}</span>
+        <span class="fact-value ${church.has_kids_ministry ? 'has-yes' : 'has-no'}">${church.has_kids_ministry ? 'Yes' : 'No'}</span>
       </div>
       ${church.website ? `<div class="fact-item">
         <span class="fact-label">Website</span>
@@ -527,13 +532,13 @@ ${NAV}
 
   <!-- 10-Point Scorecard -->
   <div class="card">
-    <div class="card-title">📊 10-Point Theological Scorecard</div>
+    <div class="card-title">${ico('shield-checklist-48.png', 20)} 10-Point Theological Scorecard</div>
     ${scorecardRows}
   </div>
 
   <!-- Assessment / Notes -->
   ${assessment ? `<div class="card">
-    <div class="card-title">📝 Assessment</div>
+    <div class="card-title">${ico('shield-blog-quill-48.png', 20)} Assessment</div>
     <div class="note-block note-assessment">${escapeHtml(assessment)}</div>
     ${tags.length > 0 ? `<div class="note-tag-row">${tags.map(t => `<span class="tag">#${escapeHtml(t)}</span>`).join('')}</div>` : ''}
   </div>` : ''}
@@ -550,6 +555,15 @@ ${NAV}
   ${pastorSocialHtml}
 
   ${engagementSection(church)}
+
+  <!-- Page metadata -->
+  <div style="margin-top:28px;padding:16px;border-top:1px solid var(--border);display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;">
+    <div style="color:var(--gray);font-size:0.78rem;">
+      ${ico('shield-checklist-48.png', 12)} Last reviewed: <strong style="color:var(--gray-light);">${data.meta.updated}</strong>
+      <span style="margin-left:8px;opacity:0.6;">— Annual review recommended</span>
+    </div>
+    <div id="page-views" style="color:var(--gray);font-size:0.78rem;"></div>
+  </div>
 
   <div class="back-row">
     <a href="/churches.html">← Return to Full Church Directory</a>
