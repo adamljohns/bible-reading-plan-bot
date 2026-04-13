@@ -170,7 +170,7 @@ const CSS = `
     gap: 6px;
     padding: 5px 12px;
     border-radius: 20px;
-    font-size: 0.72rem;
+    font-size: 0.8rem;
     font-weight: 700;
     letter-spacing: 0.5px;
     text-transform: uppercase;
@@ -268,7 +268,7 @@ const CSS = `
     gap: 14px;
   }
   .fact-item { display: flex; flex-direction: column; gap: 3px; }
-  .fact-label { font-size: 0.72rem; color: var(--gray); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+  .fact-label { font-size: 0.8rem; color: var(--gray); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
   .fact-value { font-size: 0.92rem; color: var(--white); font-weight: 500; }
   .fact-value a { color: var(--gold); text-decoration: none; }
   .fact-value a:hover { text-decoration: underline; }
@@ -320,7 +320,7 @@ const CSS = `
   }
   .tag {
     background: #1a1a1a; border: 1px solid #333;
-    color: var(--gray); font-size: 0.72rem;
+    color: var(--gray); font-size: 0.8rem;
     padding: 3px 10px; border-radius: 20px;
   }
   .social-links {
@@ -445,7 +445,7 @@ function buildPage(church) {
   if (church.youtube) socialLinks.push(`<a href="${escapeHtml(church.youtube)}" target="_blank" rel="noopener" class="social-link youtube" title="YouTube">YouTube</a>`);
   if (church.instagram) socialLinks.push(`<a href="${escapeHtml(church.instagram)}" target="_blank" rel="noopener" class="social-link instagram" title="Instagram">Instagram</a>`);
   if (church.twitter) socialLinks.push(`<a href="${escapeHtml(church.twitter)}" target="_blank" rel="noopener" class="social-link twitter" title="X/Twitter">X/Twitter</a>`);
-  const socialHtml = socialLinks.length ? `<div class="social-links"><div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:1px;color:var(--gray);margin-bottom:6px;font-weight:600;">Church Social Media</div>${socialLinks.join('')}</div>` : '';
+  const socialHtml = socialLinks.length ? `<div class="social-links"><div style="font-size:0.8rem;text-transform:uppercase;letter-spacing:1px;color:var(--gray);margin-bottom:6px;font-weight:600;">Church Social Media</div>${socialLinks.join('')}</div>` : '';
 
   // Pastor social media links
   const pastorSocial = [];
@@ -453,7 +453,7 @@ function buildPage(church) {
   if (church.pastor_twitter) pastorSocial.push(`<a href="${escapeHtml(church.pastor_twitter)}" target="_blank" rel="noopener" class="social-link twitter" title="Pastor X/Twitter">Pastor X</a>`);
   if (church.pastor_instagram) pastorSocial.push(`<a href="${escapeHtml(church.pastor_instagram)}" target="_blank" rel="noopener" class="social-link instagram" title="Pastor Instagram">Pastor IG</a>`);
   if (church.pastor_linkedin) pastorSocial.push(`<a href="${escapeHtml(church.pastor_linkedin)}" target="_blank" rel="noopener" class="social-link" style="color:#0A66C2;" title="Pastor LinkedIn">Pastor LinkedIn</a>`);
-  const pastorSocialHtml = pastorSocial.length ? `<div class="social-links" style="margin-top:8px;"><div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:1px;color:var(--gray);margin-bottom:6px;font-weight:600;">Pastor Social Media</div>${pastorSocial.join('')}</div>` : '';
+  const pastorSocialHtml = pastorSocial.length ? `<div class="social-links" style="margin-top:8px;"><div style="font-size:0.8rem;text-transform:uppercase;letter-spacing:1px;color:var(--gray);margin-bottom:6px;font-weight:600;">Pastor Social Media</div>${pastorSocial.join('')}</div>` : '';
 
   // Defunct marker
   const isDefunct = church.services && church.services.toLowerCase().includes('no longer');
@@ -492,7 +492,7 @@ ${NAV}
 
   <!-- Quick Facts -->
   <div class="card">
-    <div class="card-title">📋 Quick Facts</div>
+    <div class="card-title">${ico('shield-checklist-48.png', 20)} Quick Facts</div>
     <div class="facts-grid">
       <div class="fact-item">
         <span class="fact-label">Pastor</span>
