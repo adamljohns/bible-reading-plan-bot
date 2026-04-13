@@ -974,8 +974,8 @@
             return a.name.localeCompare(b.name);
         });
 
-        // Populate denomination filter (sorted)
-        const denomSet = new Set(sorted.map(c => c.denomination).filter(Boolean));
+        // Populate denomination filter using denomination_family (consolidated)
+        const denomSet = new Set(sorted.map(c => c.denomination_family || c.denomination).filter(Boolean));
         const denomSelect = document.getElementById('filter-denomination');
         [...denomSet].sort().forEach(d => {
             const opt = document.createElement('option');
@@ -1003,7 +1003,7 @@
             const card = document.createElement('div');
             card.className = 'church-card' + (isBlack ? ' black-tier' : '');
             card.dataset.rating = church.overall_rating;
-            card.dataset.denomination = church.denomination || '';
+            card.dataset.denomination = church.denomination_family || church.denomination || '';
             card.dataset.mens = church.has_mens_ministry ? 'true' : 'false';
             card.dataset.kids = church.has_kids_ministry ? 'true' : 'false';
             card.dataset.region = church.region || '';
