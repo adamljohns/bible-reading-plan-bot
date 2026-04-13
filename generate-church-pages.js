@@ -78,7 +78,6 @@ function engagementSection(church) {
   const checks = [
     { key: 'visited_facility', label: 'Visited the facility in person', icon: ico('shield-church-48.png', 14) },
     { key: 'attended_services', label: 'Attended a worship service', icon: ico('shield-cross-48.png', 14) },
-    { key: 'attended_personally', label: 'Personally attended by MOOP', icon: ico('shield-chain-sword-48.png', 14) },
     { key: 'viewed_online_services', label: 'Watched online sermons/services', icon: ico('shield-globe-48.png', 14) },
     { key: 'researched_website', label: 'Researched church website', icon: ico('shield-checklist-48.png', 14) },
     { key: 'know_members_personally', label: 'Personally knows church members', icon: ico('shield-handshake-48.png', 14) },
@@ -88,11 +87,11 @@ function engagementSection(church) {
   const hasAny = checks.some(c => e[c.key]);
   if (!hasAny) return '';
 
-  const rows = checks.map(c => {
-    const done = e[c.key];
-    return `<div class="engage-row" style="display:flex;align-items:center;gap:8px;padding:4px 0;">
-      <span style="opacity:${done ? '1' : '0.3'};">${done ? ico('shield-chain-salvation-48.png', 16) : ico('shield-chain-faith-48.png', 16)}</span>
-      <span style="color:${done ? 'var(--white)' : 'var(--gray)'};font-size:0.85rem;">${c.icon} ${escapeHtml(c.label)}</span>
+  // Only show rows that are checked (true) — no greyed-out items
+  const rows = checks.filter(c => e[c.key]).map(c => {
+    return `<div class="engage-row" style="display:flex;align-items:center;gap:8px;padding:6px 0;">
+      ${ico('shield-chain-salvation-48.png', 16)}
+      <span style="color:var(--white);font-size:0.85rem;">${c.icon} ${escapeHtml(c.label)}</span>
     </div>`;
   }).join('');
 
