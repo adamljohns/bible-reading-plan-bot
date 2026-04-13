@@ -90,8 +90,8 @@ function engagementSection(church) {
   // Only show rows that are checked (true) — no greyed-out items
   const rows = checks.filter(c => e[c.key]).map(c => {
     return `<div class="engage-row" style="display:flex;align-items:center;gap:8px;padding:6px 0;">
-      ${ico('shield-chain-salvation-48.png', 16)}
-      <span style="color:var(--white);font-size:0.85rem;">${c.icon} ${escapeHtml(c.label)}</span>
+      <span style="color:var(--green);font-weight:700;font-size:0.9rem;">&#10003;</span>
+      <span style="color:var(--white);font-size:0.85rem;">${escapeHtml(c.label)}</span>
     </div>`;
   }).join('');
 
@@ -575,16 +575,16 @@ ${NAV}
 </footer>
 <script data-goatcounter="https://usmcmin.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 <script>
-// Show page view count from GoatCounter
-if (window.goatcounter && window.goatcounter.count) {
-  // GoatCounter API: fetch page view count for this path
-  fetch('https://usmcmin.goatcounter.com/counter/' + encodeURIComponent(location.pathname) + '.json')
-    .then(r => r.json())
-    .then(d => {
-      const el = document.getElementById('page-views');
-      if (el && d.count) el.textContent = d.count + ' page views';
-    })
-    .catch(() => {});
+// Show page view count from GoatCounter public counter API
+// Requires "Allow public counter" enabled in GoatCounter Settings
+var pvEl = document.getElementById('page-views');
+if (pvEl) {
+  var countImg = document.createElement('img');
+  countImg.src = 'https://usmcmin.goatcounter.com/counter/' + encodeURIComponent(location.pathname) + '.svg';
+  countImg.alt = 'page views';
+  countImg.style.cssText = 'height:14px;vertical-align:middle;opacity:0.7;';
+  countImg.onerror = function() { pvEl.textContent = ''; };
+  pvEl.appendChild(countImg);
 }
 </script>
 </body>
