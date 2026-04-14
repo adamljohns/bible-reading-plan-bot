@@ -439,20 +439,23 @@ function buildPage(church) {
   // Website button
   const websiteBtn = church.website ? `<a href="${escapeHtml(church.website)}" target="_blank" rel="noopener" class="btn-gold">${ico('shield-globe-48.png', 14)} Visit Their Website</a>` : '';
 
-  // Church social media links
+  // Brand icon helper — uses MOOP brand SVG assets
+  const brandIco = (name) => `<img src="/assets/icons/${name}" alt="" width="18" height="18" style="vertical-align:middle;margin-right:6px;">`;
+
+  // Church social media links (with brand icons)
   const socialLinks = [];
-  if (church.facebook) socialLinks.push(`<a href="${escapeHtml(church.facebook)}" target="_blank" rel="noopener" class="social-link facebook" title="Facebook">Facebook</a>`);
-  if (church.youtube) socialLinks.push(`<a href="${escapeHtml(church.youtube)}" target="_blank" rel="noopener" class="social-link youtube" title="YouTube">YouTube</a>`);
-  if (church.instagram) socialLinks.push(`<a href="${escapeHtml(church.instagram)}" target="_blank" rel="noopener" class="social-link instagram" title="Instagram">Instagram</a>`);
-  if (church.twitter) socialLinks.push(`<a href="${escapeHtml(church.twitter)}" target="_blank" rel="noopener" class="social-link twitter" title="X/Twitter">X/Twitter</a>`);
+  if (church.facebook) socialLinks.push(`<a href="${escapeHtml(church.facebook)}" target="_blank" rel="noopener" class="social-link facebook" title="Facebook">${brandIco('brand-facebook.svg')}Facebook</a>`);
+  if (church.youtube) socialLinks.push(`<a href="${escapeHtml(church.youtube)}" target="_blank" rel="noopener" class="social-link youtube" title="YouTube">${brandIco('brand-youtube.svg')}YouTube</a>`);
+  if (church.instagram) socialLinks.push(`<a href="${escapeHtml(church.instagram)}" target="_blank" rel="noopener" class="social-link instagram" title="Instagram">${brandIco('brand-instagram.svg')}Instagram</a>`);
+  if (church.twitter) socialLinks.push(`<a href="${escapeHtml(church.twitter)}" target="_blank" rel="noopener" class="social-link twitter" title="X/Twitter">${brandIco('brand-x.svg')}X/Twitter</a>`);
   const socialHtml = socialLinks.length ? `<div class="social-links"><div style="font-size:0.8rem;text-transform:uppercase;letter-spacing:1px;color:var(--gray);margin-bottom:6px;font-weight:600;">Church Social Media</div>${socialLinks.join('')}</div>` : '';
 
-  // Pastor social media links
+  // Pastor social media links (with brand icons)
   const pastorSocial = [];
-  if (church.pastor_facebook) pastorSocial.push(`<a href="${escapeHtml(church.pastor_facebook)}" target="_blank" rel="noopener" class="social-link facebook" title="Pastor Facebook">Pastor FB</a>`);
-  if (church.pastor_twitter) pastorSocial.push(`<a href="${escapeHtml(church.pastor_twitter)}" target="_blank" rel="noopener" class="social-link twitter" title="Pastor X/Twitter">Pastor X</a>`);
-  if (church.pastor_instagram) pastorSocial.push(`<a href="${escapeHtml(church.pastor_instagram)}" target="_blank" rel="noopener" class="social-link instagram" title="Pastor Instagram">Pastor IG</a>`);
-  if (church.pastor_linkedin) pastorSocial.push(`<a href="${escapeHtml(church.pastor_linkedin)}" target="_blank" rel="noopener" class="social-link" style="color:#0A66C2;" title="Pastor LinkedIn">Pastor LinkedIn</a>`);
+  if (church.pastor_facebook) pastorSocial.push(`<a href="${escapeHtml(church.pastor_facebook)}" target="_blank" rel="noopener" class="social-link facebook" title="Pastor Facebook">${brandIco('brand-facebook.svg')}Pastor FB</a>`);
+  if (church.pastor_twitter) pastorSocial.push(`<a href="${escapeHtml(church.pastor_twitter)}" target="_blank" rel="noopener" class="social-link twitter" title="Pastor X/Twitter">${brandIco('brand-x.svg')}Pastor X</a>`);
+  if (church.pastor_instagram) pastorSocial.push(`<a href="${escapeHtml(church.pastor_instagram)}" target="_blank" rel="noopener" class="social-link instagram" title="Pastor Instagram">${brandIco('brand-instagram.svg')}Pastor IG</a>`);
+  if (church.pastor_linkedin) pastorSocial.push(`<a href="${escapeHtml(church.pastor_linkedin)}" target="_blank" rel="noopener" class="social-link" style="color:#0A66C2;" title="Pastor LinkedIn">${ico('shield-about-person-48.png', 18)} Pastor LinkedIn</a>`);
   const pastorSocialHtml = pastorSocial.length ? `<div class="social-links" style="margin-top:8px;"><div style="font-size:0.8rem;text-transform:uppercase;letter-spacing:1px;color:var(--gray);margin-bottom:6px;font-weight:600;">Pastor Social Media</div>${pastorSocial.join('')}</div>` : '';
 
   // Defunct marker
