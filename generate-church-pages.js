@@ -498,8 +498,12 @@ ${NAV}
     <div class="card-title">${ico('shield-checklist-48.png', 20)} Quick Facts</div>
     <div class="facts-grid">
       <div class="fact-item">
-        <span class="fact-label">Pastor</span>
-        <span class="fact-value">${escapeHtml(church.pastor || 'Unknown')}</span>
+        <span class="fact-label">Pastor <span style="font-size:0.65rem;color:var(--gray);font-style:italic;normal-case:none;text-transform:none;letter-spacing:0;">— the shepherd God holds accountable</span></span>
+        <span class="fact-value">${
+          church.website && String(church.website).startsWith('http') && church.pastor && church.pastor !== 'See website' && church.pastor !== 'Verify'
+            ? `<a href="${escapeHtml(church.website)}" target="_blank" rel="noopener" style="color:var(--gold);text-decoration:none;border-bottom:1px dashed var(--gold);" title="Visit church website to learn more about the pastor">${escapeHtml(church.pastor)}</a>`
+            : escapeHtml(church.pastor || 'Unknown')
+        }</span>
       </div>
       <div class="fact-item">
         <span class="fact-label">Founded</span>
