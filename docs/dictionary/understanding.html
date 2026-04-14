@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Understanding &mdash; The MOOP Dictionary</title>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        :root { --bg:#000; --card:#111; --gold:#D4AF37; --gold-light:#F4D470; --white:#FFF; --gray:#888; --border:#333; }
+        body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--white); min-height:100vh; line-height:1.7; }
+        h1,h2,h3,h4 { font-family:'Playfair Display',serif; }
+        nav { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:4px 8px; padding:10px 16px;
+              border-bottom:1px solid var(--border); position:sticky; top:0;
+              background:rgba(0,0,0,0.95); backdrop-filter:blur(8px); z-index:100; }
+        nav a { color:var(--gray); text-decoration:none; font-size:0.8rem; display:inline-flex; align-items:center;
+                gap:3px; padding:3px 6px; border-radius:6px; transition:color 0.2s; }
+        nav a:hover, nav a.active { color:var(--gold); }
+        .site-icon { vertical-align:middle; margin-right:4px; }
+        .theme-toggle { background:none; border:1px solid var(--border); border-radius:50%; width:28px; height:28px;
+                        cursor:pointer; font-size:0.85rem; transition:all 0.3s; padding:0; color:var(--white);
+                        display:inline-flex; align-items:center; justify-content:center; }
+        .theme-toggle:hover { border-color:var(--gold); }
+        .container { max-width:820px; margin:0 auto; padding:28px 20px 60px; }
+        .word-header { text-align:center; padding:40px 0 30px; border-bottom:1px solid var(--border); margin-bottom:30px; }
+        .word-title { font-size:2.8rem; color:var(--gold-light); margin-bottom:6px; }
+        .pronunciation { color:var(--gray); font-size:1.1rem; font-style:italic; }
+        .pos { display:inline-block; background:var(--gold); color:#000; font-weight:700;
+               font-size:0.78rem; padding:3px 14px; border-radius:15px; margin:10px 0; }
+        .etymology { color:var(--gray); font-size:0.88rem; margin:12px auto; max-width:650px; }
+        .section { margin:18px 0; padding:18px 22px; background:var(--card); border:1px solid var(--border); border-radius:10px; }
+        .section > h3 { color:var(--gold); margin-bottom:12px; font-size:1.05rem; }
+        .section p { margin:7px 0; }
+        .biblical-def { border-left:3px solid var(--gold); padding-left:15px; }
+        .section-summary { color:var(--gray); font-size:0.92rem; font-style:italic; margin-bottom:4px; }
+        details { margin-top:8px; }
+        details summary { color:var(--gold); font-size:0.85rem; cursor:pointer; user-select:none; padding:4px 0; }
+        details summary:hover { color:var(--gold-light); }
+        details[open] summary { margin-bottom:8px; }
+        .corruption { border-left:3px solid #CC0000; padding-left:15px; }
+        .corruption-inner { padding:12px 16px; background:rgba(204,0,0,0.06); border-left:2px solid #CC0000; border-radius:0 6px 6px 0; }
+        .roots-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .webster-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .proto-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .verse-ref { color:var(--gold); text-decoration:none; font-weight:600; }
+        .verse-ref:hover { color:var(--gold-light); text-decoration:underline; }
+        .lexicon-link { color:var(--gold); font-family:monospace; text-decoration:none; }
+        .lexicon-link:hover { color:var(--gold-light); text-decoration:underline; }
+        .related { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+        .related a { background:var(--card); border:1px solid var(--border); padding:6px 14px;
+                     border-radius:20px; color:var(--white); text-decoration:none; font-size:0.85rem;
+                     transition:border-color 0.2s, color 0.2s; }
+        .related a:hover { border-color:var(--gold); color:var(--gold); }
+        footer { text-align:center; padding:28px 20px; border-top:1px solid var(--border);
+                 margin-top:40px; color:var(--gray); font-size:0.88rem; }
+        footer a { color:var(--gray); text-decoration:none; }
+        footer a:hover { color:var(--gold); }
+        .cross-divider { margin-bottom:10px; }
+        body.light-mode { --bg:#F5F3EF; --card:#FFF; --white:#1a1a1a; --gray:#666; --border:#d4d0c8; background:#F5F3EF; color:#1a1a1a; }
+        body.light-mode nav { background:rgba(245,243,239,0.97); }
+        body.light-mode .section { background:#fff; border-color:#d4d0c8; }
+        body.light-mode details summary { color:var(--gold); }
+        body.light-mode .corruption-inner { background:rgba(204,0,0,0.03); }
+        body.light-mode .roots-inner, body.light-mode .webster-inner, body.light-mode .proto-inner { background:rgba(212,175,55,0.04); }
+        body.light-mode footer { border-top-color:#d4d0c8; }
+        body.light-mode .related a { background:#f0ede7; border-color:#d4d0c8; color:#1a1a1a; }
+        a, a:link, a:visited { color: var(--gold, #D4AF37) !important; }
+        a:hover { color: var(--gold-light, #F4D470) !important; }
+        .dict-back-nav { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:22px; padding:10px 0; border-bottom:1px solid var(--border,#333); }
+        .dict-back-nav a { color:var(--gold,#D4AF37); text-decoration:none; font-size:0.88rem; font-weight:500; }
+        .dict-back-nav a:hover { color:var(--gold-light,#F4D470); }
+        .dict-back-nav .dict-back-center { flex:1; text-align:center; }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav>
+        <a href="../index.html"><img src="../assets/icons/shield-home-48.png" class="site-icon" alt="" width="16" height="16"> Home</a>
+        <a href="../watchman.html"><img src="../assets/icons/shield-bible.png" class="site-icon" alt="" width="16" height="16"> Watchman</a>
+        <a href="../bible.html"><img src="../assets/icons/shield-compass.png" class="site-icon" alt="" width="16" height="16"> BTE</a>
+        <a href="../lexicon.html"><img src="../assets/icons/shield-alpha-omega-48.png" class="site-icon" alt="" width="16" height="16"> Lexicon</a>
+        <a href="../cross-references.html"><img src="../assets/icons/shield-infinity-rope-48.png" class="site-icon" alt="" width="16" height="16"> Cross-Refs</a>
+        <a href="index.html" class="active"><img src="../assets/icons/shield-book-greek-48.png" class="site-icon" alt="" width="16" height="16"> Dictionary</a>
+        <a href="../blog.html"><img src="../assets/icons/shield-blog-quill-48.png" class="site-icon" alt="" width="16" height="16"> Blog</a>
+        <a href="../connect.html"><img src="../assets/icons/shield-handshake.png" class="site-icon" alt="" width="16" height="16"> Connect</a>
+        <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle" title="Toggle dark/light">&#127769;</button>
+    </nav>
+    <div class="container">
+        <div class="dict-back-nav"><a href="unbelief.html">&#8592; Unbelief</a><div class="dict-back-center"><a href="index.html">&#8592; Back to Dictionary</a></div><a href="union-with-christ.html">Union with Christ &#8594;</a></div>
+        <div class="word-header">
+            <div class="word-title">Understanding</div>
+            <div class="pronunciation">/ˌʌn.dərˈstæn.dɪŋ/</div>
+            <span class="pos">noun</span>
+            <div class="etymology">Old English <em>understandan</em> — literally "to stand among" or "to stand in the midst of." The faculty by which one comprehends, discerns, and perceives the meaning of things. Not mere knowledge of facts but insight into their significance, their relations, and their application. To understand is to stand under — to submit to the reality of a thing as it actually is.</div>
+        </div>
+
+        <div class="section">
+            <h3>&#128214; Biblical Definition</h3>
+            <div class="biblical-def">
+                <p>Biblical understanding is the God-given capacity to discern truth, distinguish between good and evil, and perceive the meaning of God's revelation. It is always paired with wisdom and knowledge in Scripture, but it is distinct from both: knowledge is the apprehension of facts, wisdom is the skill of applying them, and understanding is the insight that connects the two. The Hebrew <em>binah</em> comes from a root meaning "to separate" or "to distinguish between" — understanding is the ability to see differences that matter. The Greek <em>synesis</em> means "bringing together" — putting the pieces into their proper relationship. Solomon asked God for "an understanding heart to judge your people, that I may discern between good and evil" (1 Kings 3:9), and this request pleased God more than any other. Biblical understanding is not achieved by intellect alone but granted by the Spirit to those who fear the LORD (Proverbs 9:10). It is both a gift to be received and a responsibility to be pursued.</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>&#128220; Webster 1828 Definition</h3>
+            <p class="section-summary">UNDERSTAND'ING, n.</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="webster-inner">
+                    <p><strong>UNDERSTAND'ING, n.</strong> 1. The faculty of the human mind by which it apprehends the real state of things presented to it, or by which it receives or comprehends the ideas which others express and intend to communicate. The understanding is called also the intellectual faculty. It is the faculty by means of which we obtain a great part of our knowledge. 2. Knowledge; exact comprehension. Right understanding consists in the perception of the visible or probable agreement or disagreement of ideas. 3. Intelligence; terms of communication. He and his brother are on good terms of understanding. 4. The power to understand; skill. He that was so hard and inflexible before, is now softened into good understanding. 5. Discernment; judgment. In Scripture, a distinct apprehension of divine truth with a just sense of its relation to the conduct of life, considered as the fruit of divine illumination.</p>
+                </div>
+            </details>
+        </div>
+
+        <div class="section">
+            <h3>&#128214; Key Scripture</h3>
+            <p><a href="../bible.html?ref=Proverbs+3:5-6" class="verse-ref">Proverbs 3:5&ndash;6</a> &mdash; "Trust in the LORD with all your heart, and lean not on your own understanding; in all your ways acknowledge Him, and He shall direct your paths."</p>
+            <p><a href="../bible.html?ref=Proverbs+9:10" class="verse-ref">Proverbs 9:10</a> &mdash; "The fear of the LORD is the beginning of wisdom, and the knowledge of the Holy One is understanding."</p>
+            <p><a href="../bible.html?ref=Colossians+2:2-3" class="verse-ref">Colossians 2:2&ndash;3</a> &mdash; "...that their hearts may be encouraged, being knit together in love, and attaining to all riches of the full assurance of understanding, to the knowledge of the mystery of God, both of the Father and of Christ, in whom are hidden all the treasures of wisdom and knowledge."</p>
+            <p><a href="../bible.html?ref=Psalm+119:130" class="verse-ref">Psalm 119:130</a> &mdash; "The entrance of Your words gives light; it gives understanding to the simple."</p>
+            <p><a href="../bible.html?ref=1+Kings+3:9" class="verse-ref">1 Kings 3:9</a> &mdash; "Therefore give to Your servant an understanding heart to judge Your people, that I may discern between good and evil."</p>
+        </div>
+
+        <div class="section">
+            <h3>&#9888;&#65039; Modern Corruption</h3>
+            <p class="section-summary">Modern culture has reduced "understanding" to mere agreement or emotional validation.</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="corruption-inner">
+                    <p>Modern culture has reduced "understanding" to mere agreement or emotional validation. When someone says "you just don't understand me," they rarely mean "you have failed to discern the truth of my position" &mdash; they almost always mean "you refuse to affirm my feelings." This corruption severs understanding from objective reality. To understand no longer means to perceive what is true; it means to acquiesce to what another person claims is true for them. The therapeutic age has weaponized "understanding" into a demand for unconditional affirmation, so that a refusal to affirm is labeled as a failure to understand. But biblical understanding requires the courage to discern &mdash; to distinguish between truth and falsehood, right and wrong, good and evil. It is an act of judgment, not a gesture of acceptance. A man may understand another perfectly and still disagree with him &mdash; indeed, genuine understanding often produces disagreement, because it sees clearly what the other has gotten wrong. The fool calls such clarity "judgmental"; Scripture calls it wisdom.</p>
+                </div>
+            </details>
+        </div>
+
+        <div class="section">
+            <h3>&#128279; Greek &amp; Hebrew Roots</h3>
+            <p class="section-summary">H998 &mdash; בִּינָה (binah) &mdash; understanding, discernment; from the root <em>bin</em>, to separate or distinguish...</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="roots-inner">
+                    <p><a href="../lexicon/H998.html" class="lexicon-link">H998 &mdash; בִּינָה (binah)</a> &mdash; understanding, discernment; from the root <em>bin</em>, meaning "to separate" or "to distinguish between"; the capacity to perceive the differences that matter</p>
+                    <p><a href="../lexicon/H8394.html" class="lexicon-link">H8394 &mdash; תְּבוּנָה (tebunah)</a> &mdash; understanding, intelligence, skill; the applied outcome of <em>binah</em>; often paired with <em>chokmah</em> (wisdom)</p>
+                    <p><a href="../lexicon/G4907.html" class="lexicon-link">G4907 &mdash; σύνεσις (synesis)</a> &mdash; understanding, insight; literally "bringing together" &mdash; putting things into their proper relationship</p>
+                    <p><a href="../lexicon/G3563.html" class="lexicon-link">G3563 &mdash; νοῦς (nous)</a> &mdash; mind, intellect, understanding; the faculty of moral reasoning; that which Paul says must be renewed (Romans 12:2)</p>
+                    <p><a href="../lexicon/G1271.html" class="lexicon-link">G1271 &mdash; διάνοια (dianoia)</a> &mdash; mind, understanding; the deep faculty of thought; the inner workings of the <em>nous</em></p>
+                </div>
+            </details>
+        </div>
+
+        <div class="section">
+            <h3><img class="site-icon" src="../assets/icons/shield-blog-quill-48.png" width="20" height="20"> Usage</h3>
+            <p>&bull; "A man may know many things and <em>understand</em> none of them; understanding is the faculty that grasps the relations between things and sees them in the light of eternity."</p>
+            <p>&bull; "Solomon asked for an <em>understanding</em> heart, and God gave him both &mdash; understanding and everything else a king could want, because a king without understanding is a tyrant in waiting."</p>
+            <p>&bull; "The modern man demands to be <em>understood</em>, but what he wants is to be affirmed; genuine understanding sometimes wounds before it heals."</p>
+        </div>
+
+        <div class="section">
+            <h3>Related Words</h3>
+            <div class="related">
+                <a href="wisdom.html">Wisdom</a>
+                <a href="knowledge.html">Knowledge</a>
+                <a href="discernment.html">Discernment</a>
+                <a href="prudence.html">Prudence</a>
+                <a href="truth.html">Truth</a>
+                <a href="fear-of-the-lord.html">Fear of the LORD</a>
+            </div>
+        </div>
+
+    </div>
+
+    <footer>
+        <div class="cross-divider"><img src="../assets/icons/shield-cross-bible-48.png" alt="" width="36" height="36" style="opacity:0.6;margin-bottom:10px;"></div>
+        <p>
+            <a href="../index.html#uniting"><img src="../assets/icons/shield-hands-joining.png" class="site-icon" alt="" width="20" height="20"> Uniting</a> &middot;
+            <a href="../serving.html"><img src="../assets/icons/shield-serving.png" class="site-icon" alt="" width="20" height="20"> Serving</a> &middot;
+            <a href="../mentoring.html"><img src="../assets/icons/shield-mentoring.png" class="site-icon" alt="" width="20" height="20"> Mentoring</a> &middot;
+            <a href="../counseling.html"><img src="../assets/icons/shield-family.png" class="site-icon" alt="" width="20" height="20"> Counseling</a> &middot;
+            <a href="../about.html"><img src="../assets/icons/shield-about-person-24.png" class="site-icon" alt="" width="20" height="20"> About</a>
+        </p>
+        <p style="margin-top:8px;font-size:0.78rem;color:#555;">&ldquo;Iron sharpens iron.&rdquo; &mdash; <a href="../bible.html?ref=Proverbs+27:17" style="color:var(--gold);text-decoration:underline;">Proverbs 27:17</a> &middot; Built for the brotherhood.</p>
+    </footer>
+    <script>
+    function toggleTheme(){
+        var b=document.body,t=document.getElementById('themeToggle');
+        if(b.classList.contains('light-mode')){b.classList.remove('light-mode');t.textContent='\u{1F319}';localStorage.setItem('bte-theme','dark');}
+        else{b.classList.add('light-mode');t.textContent='\u2600\uFE0F';localStorage.setItem('bte-theme','light');}
+    }
+    (function(){
+        if(localStorage.getItem('bte-theme')==='light'){
+            document.body.classList.add('light-mode');
+            var t=document.getElementById('themeToggle');if(t)t.textContent='\u2600\uFE0F';
+        }
+    })();
+
+    // Hide section-summary when details expands
+    document.querySelectorAll('details').forEach(function(d){
+        d.addEventListener('toggle', function(){
+            var sum = d.previousElementSibling;
+            if(sum && sum.classList.contains('section-summary')){
+                sum.style.display = d.open ? 'none' : '';
+            }
+        });
+    });
+    </script>
+</body>
+</html>
