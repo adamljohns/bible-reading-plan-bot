@@ -27,12 +27,17 @@ const fs = require('fs');
 const path = require('path');
 
 const CHURCHES_PATH = path.resolve(__dirname, '../docs/data/churches.json');
-const PATCH_FILES = [
-  '/tmp/enrich-results-fb-1.json',
-  '/tmp/enrich-results-fb-2.json',
-  '/tmp/enrich-results-yt-1.json',
-  '/tmp/enrich-results-new-1.json',
-];
+const PATCH_DIR = '/tmp';
+const ARCHIVE_DIR = '/tmp/enrich-archive';
+// Auto-discover all unprocessed patch files at run time
+function discoverPatchFiles() {
+  if (!fs.existsSync(ARCHIVE_DIR)) fs.mkdirSync(ARCHIVE_DIR, { recursive: true });
+  return fs
+    .readdirSync(PATCH_DIR)
+    .filter((n) => /^enrich-results-.+\.json$/.test(n))
+    .map((n) => path.join(PATCH_DIR, n));
+}
+const PATCH_FILES = discoverPatchFiles();
 
 function readJSONSafe(p) {
   if (!fs.existsSync(p)) {
@@ -145,6 +150,18 @@ function main() {
     '/tmp/enrich-merge-summary.json',
     JSON.stringify({ final_count: churches.length, ...totals }, null, 2)
   );
+
+  // Archive processed patches so a future merge run doesn't reapply them
+  const ts = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+  for (const pf of PATCH_FILES) {
+    const dst = path.join(ARCHIVE_DIR, `${ts}__${path.basename(pf)}`);
+    try {
+      fs.renameSync(pf, dst);
+    } catch (e) {
+      console.warn(`   could not archive ${pf}: ${e.message}`);
+    }
+  }
+  console.log(`\n==> Archived ${PATCH_FILES.length} patch file(s) to ${ARCHIVE_DIR}/`);
 }
 
 main();
