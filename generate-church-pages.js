@@ -337,6 +337,7 @@ const CSS = `
   .social-link.youtube { color: #FF6B6B; }
   .social-link.instagram { color: #C77DBA; }
   .social-link.twitter { color: #AAA; }
+  .social-link.vimeo { color: #1AB7EA; }
 
   /* Map */
   .map-wrap {
@@ -448,6 +449,7 @@ function buildPage(church) {
   if (church.youtube) socialLinks.push(`<a href="${escapeHtml(church.youtube)}" target="_blank" rel="noopener" class="social-link youtube" title="YouTube">${brandIco('brand-youtube.svg')}YouTube</a>`);
   if (church.instagram) socialLinks.push(`<a href="${escapeHtml(church.instagram)}" target="_blank" rel="noopener" class="social-link instagram" title="Instagram">${brandIco('brand-instagram.svg')}Instagram</a>`);
   if (church.twitter) socialLinks.push(`<a href="${escapeHtml(church.twitter)}" target="_blank" rel="noopener" class="social-link twitter" title="X/Twitter">${brandIco('brand-x.svg')}X/Twitter</a>`);
+  if (church.vimeo) socialLinks.push(`<a href="${escapeHtml(church.vimeo)}" target="_blank" rel="noopener" class="social-link vimeo" title="Vimeo">${brandIco('brand-vimeo.svg')}Vimeo</a>`);
   const socialHtml = socialLinks.length ? `<div class="social-links"><div style="font-size:0.8rem;text-transform:uppercase;letter-spacing:1px;color:var(--gray);margin-bottom:6px;font-weight:600;">Church Social Media</div>${socialLinks.join('')}</div>` : '';
 
   // Pastor social media links (with brand icons)
