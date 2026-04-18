@@ -497,6 +497,20 @@
     </style>
 </head>
 <body>
+<div id="auth-gate" style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:#000;padding:20px;font-family:Inter,sans-serif;">
+  <div style="max-width:360px;width:100%;background:#111;border:1px solid #333;border-radius:12px;padding:32px 24px;text-align:center;">
+    <div style="font-size:42px;margin-bottom:8px;">&#x1F512;</div>
+    <h2 style="color:#F4D470;font-size:1.3rem;margin-bottom:8px;font-family:'Playfair Display',serif;">Private Page</h2>
+    <p style="color:#888;margin-bottom:20px;">Enter the PIN to continue.</p>
+    <input type="password" id="auth-input" placeholder="PIN"
+      style="width:100%;padding:12px;background:#000;border:1px solid #333;border-radius:8px;color:#e8e8e8;font-size:1.2rem;text-align:center;letter-spacing:8px;box-sizing:border-box;"
+      maxlength="4" onkeydown="if(event.key==='Enter')checkAuth()">
+    <button onclick="checkAuth()" style="display:block;width:100%;margin-top:12px;padding:12px;background:#D4AF37;color:#000;border:none;border-radius:8px;font-weight:700;cursor:pointer;">Enter</button>
+    <p id="auth-error" style="color:#f44336;margin-top:10px;display:none;">Wrong PIN.</p>
+  </div>
+</div>
+<div id="main-content" style="display:none;">
+
 
 <!-- ── PIN Screen ── -->
 <div id="pin-screen">
@@ -561,7 +575,28 @@
         <a class="iam-creed-btn" onclick="showCreedModal()">🎙️ Hear the SWO Creed</a>
     </div>
     <script>
-    // Rotating Family SWO values — leadership framework for TACC
+    
+function checkAuth(){
+  var i=document.getElementById('auth-input');
+  if(i.value==='5683'){
+    document.getElementById('auth-gate').style.display='none';
+    document.getElementById('main-content').style.display='block';
+    sessionStorage.setItem('admin_auth','1');
+  } else {
+    document.getElementById('auth-error').style.display='block';
+    i.value=''; i.focus();
+  }
+}
+if(sessionStorage.getItem('admin_auth')==='1'){
+  document.getElementById('auth-gate').style.display='none';
+  document.getElementById('main-content').style.display='block';
+} else {
+  document.addEventListener('DOMContentLoaded', function(){
+    var gi=document.getElementById('auth-input'); if(gi) gi.focus();
+  });
+}
+
+// Rotating Family SWO values — leadership framework for TACC
     // The 10 Johns Family Values
     const captainValues = [
         "1. ❤️ Loving Forgiveness — We forgive freely because Christ forgave us first",
@@ -2341,5 +2376,6 @@ document.addEventListener('keydown', (e) => {
             <a href="sitemap.html" style="color:var(--gray,#888);text-decoration:none;"><img src="assets/icons/shield-map-48.png" style="vertical-align:middle;opacity:0.8;" alt="" width="20" height="20"> Site Map</a></p>
         <p style="margin-top:8px;font-size:0.78rem;color:#555;">Powered by MOOPbot Pro &mdash; &ldquo;Iron sharpens iron.&rdquo; &mdash; <a href="bible.html?ref=Proverbs+27:17" style="color:var(--gold,#D4AF37);text-decoration:underline;">Proverbs 27:17</a></p>
     </footer>
+</div>  <!-- end main-content -->
 </body>
 </html>
