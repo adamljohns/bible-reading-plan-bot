@@ -65,6 +65,16 @@ The following have wrong website/address/state data. I could run a DQ agent pass
 
 *(BPC website fix auto-resolved, -5 minutes; moop-context Preacher John + reorder + PIN gate landed +12 min, see below)*
 
+## Email autopilot — Gmail app passwords (added 2026-04-18 PM)
+
+**Status:** OAuth path abandoned after Google removed client_secret from new Auth Platform UI. Pivoted to IMAP + app passwords.
+
+Step-by-step guide: `~/.openclaw/workspace/email-autopilot/GMAIL-APP-PASSWORDS.md` — full walkthrough for generating 4 Gmail app passwords and storing in Keychain. `run.py` is already rewritten (v4, commit `37d4c08`) to use unified IMAP for all 5 accounts.
+
+- [ ] **(~5 min × 4 accounts = 20 min)** Generate app password at https://myaccount.google.com/apppasswords for each of: personal, B&A, USMC, fit20 Gmail accounts. Drop each into Keychain under standard service names (EMAIL_PERSONAL_APP_PASSWORD / EMAIL_BA_APP_PASSWORD / EMAIL_USMC_APP_PASSWORD / EMAIL_FIT20_APP_PASSWORD). 2FA must be on per account. Claude can run the Keychain commands when you have the passwords — just say "done for X, password is Y".
+- [ ] **(1 min)** After all 4 passwords stored, run `python3.13 ~/.openclaw/workspace/email-autopilot/run.py` once to verify. Expected: triage report across all 5 inboxes (iCloud + 4 Gmail), with auto-trash/archive counts.
+- [ ] **(1 min)** Re-enable the 7AM daily autopilot cron (currently paused because gog broke).
+
 ## Private-pages security audit (added 2026-04-17 PM)
 
 - [x] ~~Audit the other "Private"-badged pages for PIN gates~~ **DONE 2026-04-18.** Audit found 10 pages labeled Private: 4 already had gates (crew-quarters `admin_auth`, family-meeting `fm-auth`, moop-context `ctx-auth`, timeline `tl-auth`), 2 had their own custom PIN UX with different ID patterns my initial grep missed (brand-assets `BA_SESSION_KEY`, workflows `WF_SESSION_KEY`), and 4 were genuinely ungated. I added `admin_auth`-keyed gates to the 4: contacts.html, dev-resources.html, first-officer.html, tacc.html. One PIN entry on any of those 4 now unlocks all 4 (shared sessionStorage key). The other 6 private pages still use their per-page keys — if you want to unify the whole ring, say so and I'll update them to also respect `admin_auth`.
