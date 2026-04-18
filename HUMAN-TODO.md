@@ -43,6 +43,15 @@ The following have wrong website/address/state data. I could run a DQ agent pass
 - [ ] **(3 min)** **Denomination-alias mapping** → ARBCA dissolved in 2022 (abuse fallout) and reconstituted as CBA at `cba1689.com`. No current records use the ARBCA tag, but if historical data imports touch it, should we alias `ARBCA` → `Confessional Baptist Association (CBA)` automatically? Yes/no decision.
 - [ ] **(2 min)** **Duplicate-detection strategy** → the merge script catches exact ID + slugified-name duplicates. Wave 3 agent missed 2 that slug-dedup caught later. Should the agent prompts also check slugified-names upfront, or is catch-at-merge acceptable?
 
+## Completed during 2026-04-18 morning session
+
+- [x] ~~CSS consolidation on moop-context.html~~ **DONE** (commit `887a31bfb`). 750 inline-style tags moved to class rules, file shrunk 22.8% (143KB → 111KB), saves ~8,163 tokens per full RAG retrieval. Visual output unchanged.
+- [x] ~~Preacher John (Desk A) added to context doc~~ **DONE** (commit `213cf9bf8`), drafted from his canonical SOUL.md + desk-A-bible.md. Section 8 now in Desk order with all 11 agents.
+- [x] ~~PIN gate on moop-context.html~~ **DONE** (PIN 5683, sessionStorage key `ctx-auth`, same pattern as timeline.html).
+- [x] ~~Quick Reference TL;DR block at top of context doc~~ **DONE**.
+- [x] ~~Stale RAG stats refreshed~~ **DONE** (146K → 476K+ chunks, 16 → 22 collections).
+- [x] **Training chain running right now**: preacher-john actively training (pid 80646), main + chaps auto-queued via `train-agent-chain-v2.sh` (pid 81022). Script handles Ollama stop/restart around each run. ~90 min total for the 3 agents.
+
 ## Things I intentionally did NOT do
 
 - No hard deletes. Everything unclear got a flag instead; data trail is preserved.
