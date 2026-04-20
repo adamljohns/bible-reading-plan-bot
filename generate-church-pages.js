@@ -19,7 +19,7 @@ function ico(name, size=16) {
 
 function colorLabel(score) {
   if (score === 'green') return `${ico('shield-chain-salvation-48.png')} Strong`;
-  if (score === 'red') return `${ico('shield-warning-48.png')} Concern`;
+  if (score === 'red') return `${ico('shield-warning-48.png')} WARNING!`;
   if (score === 'black') return `${ico('shield-warning-48.png')} Disqualifier`;
   return `${ico('shield-chain-faith-48.png')} Caution`;
 }
