@@ -290,6 +290,10 @@ const CSS = `
   .score-desc { font-size: 0.82rem; color: var(--gray-light); }
   .score-note { font-size: 0.82rem; color: #aaa; margin-top: 4px; font-style: italic; }
   .gender-detail { font-size: 0.8rem; color: #bbb; margin-top: 4px; padding: 6px 10px; background: rgba(212,175,55,0.06); border-left: 2px solid var(--gold); border-radius: 0 4px 4px 0; }
+  .gender-detail.rating-green { background: rgba(76,175,80,0.08); border-left-color: var(--green); }
+  .gender-detail.rating-yellow { background: rgba(255,193,7,0.06); border-left-color: var(--yellow); }
+  .gender-detail.rating-red { background: rgba(244,67,54,0.06); border-left-color: var(--red); }
+  .gender-detail.rating-black { background: rgba(50,50,50,0.4); border-left-color: #555; }
   .score-badge {
     display: inline-flex; align-items: center; gap: 5px;
     padding: 4px 12px; border-radius: 20px;
@@ -312,9 +316,13 @@ const CSS = `
   }
   .note-assessment {
     background: rgba(212,175,55,0.06);
-    border-color: var(--gold);
+    border-left: 3px solid var(--gold);
     color: var(--gray-light);
   }
+  .note-assessment.rating-green { background: rgba(76,175,80,0.08); border-left-color: var(--green); }
+  .note-assessment.rating-yellow { background: rgba(255,193,7,0.06); border-left-color: var(--yellow); }
+  .note-assessment.rating-red { background: rgba(244,67,54,0.06); border-left-color: var(--red); }
+  .note-assessment.rating-black { background: rgba(50,50,50,0.4); border-left-color: #555; }
   .note-tag-row {
     display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px;
   }
@@ -413,7 +421,7 @@ function buildPage(church) {
           <div class="score-label">${escapeHtml(rubric.label)}</div>
           <div class="score-desc">${escapeHtml(rubric.description)}</div>
           ${note ? `<div class="score-note">${escapeHtml(note)}</div>` : ''}
-          ${gd ? `<div class="gender-detail">${ico('shield-about-person-48.png', 14)} ${escapeHtml(gd)}</div>` : ''}
+          ${gd ? `<div class="gender-detail rating-${score}">${ico('shield-about-person-48.png', 14)} ${escapeHtml(gd)}</div>` : ''}
         </div>
         <div>
           <span class="score-badge ${colorClass(score)}">${colorLabel(score)}</span>
@@ -547,7 +555,7 @@ ${NAV}
   <!-- Assessment / Notes -->
   ${assessment ? `<div class="card">
     <div class="card-title">${ico('shield-blog-quill-48.png', 20)} Assessment</div>
-    <div class="note-block note-assessment">${escapeHtml(assessment)}</div>
+    <div class="note-block note-assessment rating-${church.overall_rating || 'yellow'}">${escapeHtml(assessment)}</div>
     ${tags.length > 0 ? `<div class="note-tag-row">${tags.map(t => `<span class="tag">#${escapeHtml(t)}</span>`).join('')}</div>` : ''}
   </div>` : ''}
 
