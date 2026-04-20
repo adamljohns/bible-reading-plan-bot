@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Self-Care &mdash; The MOOP Dictionary</title>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        :root { --bg:#000; --card:#111; --gold:#D4AF37; --gold-light:#F4D470; --white:#FFF; --gray:#888; --border:#333; }
+        body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--white); min-height:100vh; line-height:1.7; }
+        h1,h2,h3,h4 { font-family:'Playfair Display',serif; }
+        nav { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:4px 8px; padding:10px 16px;
+              border-bottom:1px solid var(--border); position:sticky; top:0;
+              background:rgba(0,0,0,0.95); backdrop-filter:blur(8px); z-index:100; }
+        nav a { color:var(--gray); text-decoration:none; font-size:0.8rem; display:inline-flex; align-items:center;
+                gap:3px; padding:3px 6px; border-radius:6px; transition:color 0.2s; }
+        nav a:hover, nav a.active { color:var(--gold); }
+        .site-icon { vertical-align:middle; margin-right:4px; }
+        .theme-toggle { background:none; border:1px solid var(--border); border-radius:50%; width:28px; height:28px;
+                        cursor:pointer; font-size:0.85rem; transition:all 0.3s; padding:0; color:var(--white);
+                        display:inline-flex; align-items:center; justify-content:center; }
+        .theme-toggle:hover { border-color:var(--gold); }
+        .container { max-width:820px; margin:0 auto; padding:28px 20px 60px; }
+        .word-header { text-align:center; padding:40px 0 30px; border-bottom:1px solid var(--border); margin-bottom:30px; }
+        .word-title { font-size:2.8rem; color:var(--gold-light); margin-bottom:6px; }
+        .pronunciation { color:var(--gray); font-size:1.1rem; font-style:italic; }
+        .pos { display:inline-block; background:var(--gold); color:#000; font-weight:700;
+               font-size:0.78rem; padding:3px 14px; border-radius:15px; margin:10px 0; }
+        .etymology { color:var(--gray); font-size:0.88rem; margin:12px auto; max-width:650px; }
+        .section { margin:18px 0; padding:18px 22px; background:var(--card); border:1px solid var(--border); border-radius:10px; }
+        .section > h3 { color:var(--gold); margin-bottom:12px; font-size:1.05rem; }
+        .section p { margin:7px 0; }
+        .biblical-def { border-left:3px solid var(--gold); padding-left:15px; }
+        .section-summary { color:var(--gray); font-size:0.92rem; font-style:italic; margin-bottom:4px; }
+        details { margin-top:8px; }
+        details summary { color:var(--gold); font-size:0.85rem; cursor:pointer; user-select:none; padding:4px 0; }
+        details summary:hover { color:var(--gold-light); }
+        details[open] summary { margin-bottom:8px; }
+        .corruption-inner { padding:12px 16px; background:rgba(204,0,0,0.06); border-left:2px solid #CC0000; border-radius:0 6px 6px 0; }
+        .roots-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .webster-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .verse-ref { color:var(--gold); text-decoration:none; font-weight:600; }
+        .verse-ref:hover { color:var(--gold-light); text-decoration:underline; }
+        .lexicon-link { color:var(--gold); font-family:monospace; text-decoration:none; }
+        .lexicon-link:hover { color:var(--gold-light); text-decoration:underline; }
+        .related { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+        .related a { background:var(--card); border:1px solid var(--border); padding:6px 14px;
+                     border-radius:20px; color:var(--white); text-decoration:none; font-size:0.85rem;
+                     transition:border-color 0.2s, color 0.2s; }
+        .related a:hover { border-color:var(--gold); color:var(--gold); }
+        footer { text-align:center; padding:28px 20px; border-top:1px solid var(--border);
+                 margin-top:40px; color:var(--gray); font-size:0.88rem; }
+        footer a { color:var(--gray); text-decoration:none; }
+        footer a:hover { color:var(--gold); }
+        body.light-mode { --bg:#F5F3EF; --card:#FFF; --white:#1a1a1a; --gray:#666; --border:#d4d0c8; background:#F5F3EF; color:#1a1a1a; }
+        body.light-mode nav { background:rgba(245,243,239,0.97); }
+        body.light-mode .section { background:#fff; border-color:#d4d0c8; }
+        body.light-mode .corruption-inner { background:rgba(204,0,0,0.03); }
+        body.light-mode .roots-inner, body.light-mode .webster-inner { background:rgba(212,175,55,0.04); }
+        body.light-mode footer { border-top-color:#d4d0c8; }
+        body.light-mode .related a { background:#f0ede7; border-color:#d4d0c8; color:#1a1a1a; }
+        a, a:link, a:visited { color: var(--gold, #D4AF37) !important; }
+        a:hover { color: var(--gold-light, #F4D470) !important; }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav>
+        <a href="../index.html"><img src="../assets/icons/shield-home-48.png" class="site-icon" alt="" width="16" height="16"> Home</a>
+        <a href="../watchman.html"><img src="../assets/icons/shield-bible.png" class="site-icon" alt="" width="16" height="16"> Watchman</a>
+        <a href="../bible.html"><img src="../assets/icons/shield-compass.png" class="site-icon" alt="" width="16" height="16"> BTE</a>
+        <a href="../lexicon.html"><img src="../assets/icons/shield-alpha-omega-48.png" class="site-icon" alt="" width="16" height="16"> Lexicon</a>
+        <a href="../cross-references.html"><img src="../assets/icons/shield-infinity-rope-48.png" class="site-icon" alt="" width="16" height="16"> Cross-Refs</a>
+        <a href="index.html" class="active"><img src="../assets/icons/shield-book-greek-48.png" class="site-icon" alt="" width="16" height="16"> Dictionary</a>
+        <a href="../blog.html"><img src="../assets/icons/shield-blog-quill-48.png" class="site-icon" alt="" width="16" height="16"> Blog</a>
+        <a href="../connect.html"><img src="../assets/icons/shield-handshake.png" class="site-icon" alt="" width="16" height="16"> Connect</a>
+        <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle" title="Toggle dark/light">&#127769;</button>
+    </nav>
+    <div class="container">
+        <div class="word-header">
+            <div class="word-title">Self-Care</div>
+            <div class="pronunciation">/sɛlf kɛər/</div>
+            <span class="pos">noun (cultural)</span>
+            <div class="etymology">A term originating in mid-20th-century medical practice (meaning the actions patients take to manage their own health) that has been appropriated by therapeutic culture to mean almost anything a person does that feels good. Now functions as a moralized justification for self-indulgence, conflict avoidance, and the prioritization of personal comfort.</div>
+        </div>
+
+        <div class="section">
+            <h3>&#128214; Biblical Definition</h3>
+            <div class="biblical-def">
+                <p>Self-care began as a useful clinical concept: patients managing chronic illness, veterans coping with trauma, caregivers preventing burnout. In its proper sense, it is simply stewardship &mdash; caring for the body and mind God has entrusted to you so you can serve others well. Paul himself told Timothy to take a little wine for his stomach (1 Timothy 5:23). But the modern appropriation of "self-care" has become something else entirely. In therapeutic culture, self-care now covers almost any activity a person enjoys and is used to justify almost any decision to withdraw, refuse, or quit. "I need to practice self-care" has become the secular absolution for abandoning hard commitments, avoiding uncomfortable conversations, and indulging appetites. What was once a medical term for stewardship has become a moralized excuse for selfishness. Scripture gives us a very different framework. The Christian is called not to self-care but to <em>self-denial</em>: "If anyone desires to come after Me, let him deny himself, and take up his cross, and follow Me" (Matthew 16:24). He is called to <em>self-sacrifice</em>: "Christ also loved the church and gave Himself for her" (Ephesians 5:25). He is told not to seek his own: "Let no one seek his own, but each one the other's well-being" (1 Corinthians 10:24). This does not mean the Christian never rests &mdash; Sabbath is commanded. It does not mean the Christian must burn himself out &mdash; even Jesus withdrew to quiet places to pray (Luke 5:16). Real rest, sleep, food, exercise, and silence are good and God-given. But they are received as gifts to equip service, not claimed as rights to excuse selfishness. The question is not whether to care for oneself but under what framework: self-care as stewardship for service is good; self-care as entitlement for comfort is sin dressed up in therapeutic language.</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>&#128214; Key Scripture</h3>
+            <p><a href="../bible.html?ref=Matthew+16:24" class="verse-ref">Matthew 16:24</a> &mdash; "If anyone desires to come after Me, let him deny himself, and take up his cross, and follow Me."</p>
+            <p><a href="../bible.html?ref=Philippians+2:3-4" class="verse-ref">Philippians 2:3-4</a> &mdash; "Let nothing be done through selfish ambition or conceit, but in lowliness of mind let each esteem others better than himself. Let each of you look out not only for his own interests, but also for the interests of others."</p>
+            <p><a href="../bible.html?ref=1+Corinthians+10:24" class="verse-ref">1 Corinthians 10:24</a> &mdash; "Let no one seek his own, but each one the other's well-being."</p>
+            <p><a href="../bible.html?ref=Ephesians+5:29" class="verse-ref">Ephesians 5:29</a> &mdash; "For no one ever hated his own flesh, but nourishes and cherishes it, just as the Lord does the church."</p>
+        </div>
+
+
+        <div class="section">
+            <h3>&#9888;&#65039; Modern Corruption</h3>
+            <p class="section-summary">Self-care in modern usage has been weaponized as a moralized excuse for selfishness and the avoidance of costly obedience.</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="corruption-inner">
+                    <p>Modern self-care has replaced biblical self-denial as the governing ethic of everyday life for many professing Christians. "I'm setting boundaries" has replaced "I'm forgiving as I have been forgiven." "I need to prioritize myself" has replaced "take up your cross." "Toxic relationships" has replaced "love your enemies." The language of therapy has provided a new vocabulary for old sin, letting us feel righteous about prioritizing our comfort above our covenantal obligations to family, church, and neighbor. Christian freedom from such rhetoric begins with recognizing that Christ called us not to a managed, optimized life but to a crucified one.</p>
+                </div>
+            </details>
+        </div>
+
+        <div class="section">
+            <h3>Related Words</h3>
+            <div class="related">
+                <a href="self-denial.html">Self-Denial</a>
+                <a href="selfishness.html">Selfishness</a>
+                <a href="sabbath.html">Sabbath</a>
+                <a href="therapy-culture.html">Therapy Culture</a>
+                <a href="stewardship.html">Stewardship</a>
+            </div>
+        </div>
+
+    </div>
+
+    <footer>
+        <p>&ldquo;Iron sharpens iron.&rdquo; &mdash; <a href="../bible.html?ref=Proverbs+27:17" style="color:var(--gold);text-decoration:underline;">Proverbs 27:17</a> &middot; Built for the brotherhood.</p>
+    </footer>
+</body>
+</html>
