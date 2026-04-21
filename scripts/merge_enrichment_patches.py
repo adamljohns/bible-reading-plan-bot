@@ -33,16 +33,25 @@ SCALAR_FIELDS_PATCHABLE = [
 
 
 def load_patches(paths):
+    """Accept multiple common schema shapes emitted by agents."""
     patches = []
+    # Keys that agents have used across rounds to wrap the patch array
+    LIST_KEYS = ("patches", "results", "churches", "enrichments", "entries", "items")
     for p in paths:
         with open(p) as f:
             data = json.load(f)
         if isinstance(data, list):
             patches.extend(data)
-        elif isinstance(data, dict) and "patches" in data:
-            patches.extend(data["patches"])
-        else:
-            print(f"WARN: {p} is not a list or {{patches:[...]}} object — skipping", file=sys.stderr)
+            continue
+        if isinstance(data, dict):
+            for k in LIST_KEYS:
+                if isinstance(data.get(k), list):
+                    patches.extend(data[k])
+                    break
+            else:
+                print(f"WARN: {p} dict has no recognized patch array key — skipping", file=sys.stderr)
+            continue
+        print(f"WARN: {p} is neither list nor dict — skipping", file=sys.stderr)
     return patches
 
 
