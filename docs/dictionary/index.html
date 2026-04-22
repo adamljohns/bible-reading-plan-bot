@@ -74,8 +74,14 @@
         .range-btn.open { border-color:var(--gold); background:rgba(212,175,55,0.12); color:var(--gold); }
         .range-btn .rarrow { display:inline-block; width:0; height:0; border-top:5px solid transparent; border-bottom:5px solid transparent; border-left:8px solid #D4AF37; transition:transform 0.25s; }
         .range-btn.open .rarrow { transform:rotate(90deg); }
-        .range-panel { overflow:hidden; max-height:0; transition:max-height 0.35s ease; }
-        .range-panel.open { max-height:30000px; }
+        .range-panel { overflow:visible; }
+        .range-caption { text-align:center; color:var(--gray); font-size:0.82rem; margin:-10px 0 22px; font-style:italic; }
+        .filter-header { background:var(--card); border:1px solid var(--gold); border-radius:10px; padding:14px 20px; margin-bottom:24px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; }
+        .filter-header .filter-title { font-family:'Playfair Display',serif; font-size:1.3rem; color:var(--gold); }
+        .filter-header .filter-sub { color:var(--gray); font-size:0.88rem; margin-top:2px; }
+        .filter-header .show-all-btn { background:var(--gold); border:none; color:#0a0a0a; padding:8px 18px; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.88rem; }
+        .filter-header .show-all-btn:hover { background:var(--gold-light); }
+        .category[data-hidden="true"] { display:none; }
         #searchResults { display:none; }
         #searchResults.visible { display:block; }
         /* Suggest a Word Form */
@@ -177,7 +183,7 @@
             <h1>The MOOP Dictionary</h1>
             <p class="subtitle">of the English Language</p>
             <p style="margin-top:20px;">Words have been stolen, redefined, and weaponized. This dictionary reclaims them &mdash; returning to the etymological roots, the biblical meaning, and the Webster 1828 definitions that shaped Western civilization, against which modern corruptions are measured.</p>
-            <p style="margin-top:10px;font-size:0.85rem;color:var(--gold);">2,170 entries &middot; Proto-language roots &middot; Collapsible deep-dive sections</p>
+            <p style="margin-top:10px;font-size:0.85rem;color:var(--gold);">2,171 entries &middot; Proto-language roots &middot; Collapsible deep-dive sections</p>
         </section>
 
         <!-- Word of the Day -->
@@ -201,17 +207,22 @@
         <!-- Range buttons (hidden during search) -->
         <div id="rangeSection">
             <div class="range-bar">
-                <button class="range-btn" id="btn-AD" onclick="toggleRange('range-AD','btn-AD')"><span class="rarrow"></span> A &ndash; D</button>
-                <button class="range-btn" id="btn-EI" onclick="toggleRange('range-EI','btn-EI')"><span class="rarrow"></span> E &ndash; I</button>
-                <button class="range-btn" id="btn-JN" onclick="toggleRange('range-JN','btn-JN')"><span class="rarrow"></span> J &ndash; N</button>
-                <button class="range-btn" id="btn-OS" onclick="toggleRange('range-OS','btn-OS')"><span class="rarrow"></span> O &ndash; S</button>
-                <button class="range-btn" id="btn-TZ" onclick="toggleRange('range-TZ','btn-TZ')"><span class="rarrow"></span> T &ndash; Z</button>
+                <button class="range-btn" onclick="filterByRange('AB','btn-AB')" id="btn-AB"><span class="rarrow"></span> A &ndash; B</button>
+                <button class="range-btn" onclick="filterByRange('CD','btn-CD')" id="btn-CD"><span class="rarrow"></span> C &ndash; D</button>
+                <button class="range-btn" onclick="filterByRange('EF','btn-EF')" id="btn-EF"><span class="rarrow"></span> E &ndash; F</button>
+                <button class="range-btn" onclick="filterByRange('GHI','btn-GHI')" id="btn-GHI"><span class="rarrow"></span> G &ndash; I</button>
+                <button class="range-btn" onclick="filterByRange('JKLM','btn-JKLM')" id="btn-JKLM"><span class="rarrow"></span> J &ndash; M</button>
+                <button class="range-btn" onclick="filterByRange('NOP','btn-NOP')" id="btn-NOP"><span class="rarrow"></span> N &ndash; P</button>
+                <button class="range-btn" onclick="filterByRange('QRS','btn-QRS')" id="btn-QRS"><span class="rarrow"></span> Q &ndash; S</button>
+                <button class="range-btn" onclick="filterByRange('TUVWXYZ','btn-TZ')" id="btn-TZ"><span class="rarrow"></span> T &ndash; Z</button>
             </div>
+            <div class="range-caption">Browse by broader range above, or tap a single letter below.</div>
 
             <!-- A-D -->
+            <div id="filterHeader" style="display:none;"></div>
             <div class="range-panel" id="range-AD">
-                <div class="category">
-                    <h2>A <span class="count-badge">156</span></h2>
+                <div class="category" data-letter="A">
+                    <h2 id="sec-A">A <span class="count-badge">156</span></h2>
                     <div class="word-grid">
                         <a href="aaron.html" class="word-card"><div class="word">Aaron</div><div class="pos">proper noun</div></a>
                         <a href="abba.html" class="word-card"><div class="word">Abba</div><div class="pos">noun (proper address)</div></a>
@@ -365,8 +376,8 @@
                         <a href="awe.html" class="word-card"><div class="word">Awe</div><div class="pos">noun</div></a>
                     </div>
                 </div>
-                <div class="category">
-                    <h2>B <span class="count-badge">93</span></h2>
+                <div class="category" data-letter="B">
+                    <h2 id="sec-B">B <span class="count-badge">93</span></h2>
                     <div class="word-grid">
                         <a href="babel.html" class="word-card"><div class="word">Babel</div><div class="pos">proper noun / noun</div></a>
                         <a href="babylon.html" class="word-card"><div class="word">Babylon</div><div class="pos">proper noun</div></a>
@@ -462,8 +473,8 @@
                         <a href="bonhoeffer.html" class="word-card"><div class="word">Dietrich Bonhoeffer</div><div class="pos">proper noun / pastor-martyr</div></a>
                     </div>
                 </div>
-                <div class="category">
-                    <h2>C <span class="count-badge">176</span></h2>
+                <div class="category" data-letter="C">
+                    <h2 id="sec-C">C <span class="count-badge">176</span></h2>
                     <div class="word-grid">
                         <a href="c-s-lewis.html" class="word-card"><div class="word">C. S. Lewis</div><div class="pos">proper noun / apologist</div></a>
                         <a href="caiaphas.html" class="word-card"><div class="word">Caiaphas</div><div class="pos">proper noun</div></a>
@@ -637,8 +648,8 @@
                         <a href="candlestick-menorah.html" class="word-card"><div class="word">Menorah (Candlestick)</div><div class="pos">sacred object</div></a>
                     </div>
                 </div>
-                <div class="category">
-                    <h2>D <span class="count-badge">121</span></h2>
+                <div class="category" data-letter="D">
+                    <h2 id="sec-D">D <span class="count-badge">121</span></h2>
                     <div class="word-grid">
                         <a href="dabar.html" class="word-card"><div class="word">Dabar</div><div class="pos">noun</div></a>
                         <a href="damascus.html" class="word-card"><div class="word">Damascus</div><div class="pos">proper noun (place)</div></a>
@@ -764,8 +775,8 @@
 
             <!-- E-I -->
             <div class="range-panel" id="range-EI">
-                <div class="category">
-                    <h2>E <span class="count-badge">149</span></h2>
+                <div class="category" data-letter="E">
+                    <h2 id="sec-E">E <span class="count-badge">149</span></h2>
                     <div class="word-grid">
                         <a href="early-church.html" class="word-card"><div class="word">Early Church</div><div class="pos">noun (historical)</div></a>
                         <a href="earnest.html" class="word-card"><div class="word">Earnest</div><div class="pos">noun / adjective</div></a>
@@ -915,8 +926,8 @@
                         <a href="edwards.html" class="word-card"><div class="word">Jonathan Edwards</div><div class="pos">proper noun / theologian</div></a>
                     </div>
                 </div>
-                <div class="category">
-                    <h2>F <span class="count-badge">106</span></h2>
+                <div class="category" data-letter="F">
+                    <h2 id="sec-F">F <span class="count-badge">106</span></h2>
                     <div class="word-grid">
                         <a href="faith.html" class="word-card"><div class="word">Faith</div><div class="pos">noun</div></a>
                         <a href="faith-alone.html" class="word-card"><div class="word">Faith Alone</div><div class="pos">doctrine / phrase</div></a>
@@ -1024,8 +1035,8 @@
                         <a href="futility.html" class="word-card"><div class="word">Futility</div><div class="pos">noun</div></a>
                     </div>
                 </div>
-                <div class="category">
-                    <h2>G <span class="count-badge">87</span></h2>
+                <div class="category" data-letter="G">
+                    <h2 id="sec-G">G <span class="count-badge">88</span></h2>
                     <div class="word-grid">
                         <a href="galatia.html" class="word-card"><div class="word">Galatia</div><div class="pos">proper noun</div></a>
                         <a href="galilee.html" class="word-card"><div class="word">Galilee</div><div class="pos">proper noun</div></a>
@@ -1047,6 +1058,7 @@
                         <a href="genocide-biblical.html" class="word-card"><div class="word">Genocide (Biblical)</div><div class="pos">noun</div></a>
                         <a href="gentile.html" class="word-card"><div class="word">Gentile</div><div class="pos">noun / adjective</div></a>
                         <a href="gentleness.html" class="word-card"><div class="word">Gentleness</div><div class="pos">noun</div></a>
+                        <a href="genuine.html" class="word-card"><div class="word">Genuine</div><div class="pos">adjective</div></a>
                         <a href="gethsemane.html" class="word-card"><div class="word">Gethsemane</div><div class="pos">proper noun</div></a>
                         <a href="gethsemane-prayer.html" class="word-card"><div class="word">Gethsemane Prayer</div><div class="pos">noun phrase</div></a>
                         <a href="gideon.html" class="word-card"><div class="word">Gideon</div><div class="pos">proper noun</div></a>
@@ -1114,8 +1126,8 @@
                         <a href="gymnasium.html" class="word-card"><div class="word">Gymnasium</div><div class="pos">noun</div></a>
                     </div>
                 </div>
-                <div class="category">
-                    <h2>H <span class="count-badge">112</span></h2>
+                <div class="category" data-letter="H">
+                    <h2 id="sec-H">H <span class="count-badge">112</span></h2>
                     <div class="word-grid">
                         <a href="habakkuk.html" class="word-card"><div class="word">Habakkuk</div><div class="pos">proper noun &middot; prophet</div></a>
                         <a href="habitual-sin.html" class="word-card"><div class="word">Habitual Sin</div><div class="pos">noun</div></a>
@@ -1228,8 +1240,8 @@
                         <a href="hypostatic-union.html" class="word-card"><div class="word">Hypostatic Union</div><div class="pos">noun (theological term)</div></a>
                     </div>
                 </div>
-                <div class="category">
-                    <h2>I <span class="count-badge">82</span></h2>
+                <div class="category" data-letter="I">
+                    <h2 id="sec-I">I <span class="count-badge">82</span></h2>
                     <div class="word-grid">
                         <a href="i-am-sayings.html" class="word-card"><div class="word">I AM Sayings</div><div class="pos">doctrinal category</div></a>
                         <a href="i-am-statements.html" class="word-card"><div class="word">I AM Statements</div><div class="pos">noun phrase</div></a>
@@ -1319,8 +1331,8 @@
 
             <!-- J-N -->
             <div class="range-panel" id="range-JN">
-                <div class="category">
-                    <h2>J <span class="count-badge">42</span></h2>
+                <div class="category" data-letter="J">
+                    <h2 id="sec-J">J <span class="count-badge">42</span></h2>
                     <div class="word-grid">
                         <a href="j-i-packer.html" class="word-card"><div class="word">J. I. Packer</div><div class="pos">proper noun / theologian</div></a>
                         <a href="jacob.html" class="word-card"><div class="word">Jacob</div><div class="pos">proper noun</div></a>
@@ -1366,8 +1378,8 @@
                         <a href="justification-by-faith.html" class="word-card"><div class="word">Justification by Faith</div><div class="pos">theological term</div></a>
                     </div>
                 </div>
-                <div class="category">
-                    <h2>K <span class="count-badge">28</span></h2>
+                <div class="category" data-letter="K">
+                    <h2 id="sec-K">K <span class="count-badge">28</span></h2>
                     <div class="word-grid">
                         <a href="knox.html" class="word-card"><div class="word">John Knox</div><div class="pos">proper noun / reformer</div></a>
                         <a href="kabod.html" class="word-card"><div class="word">Kabod</div><div class="pos">noun (Hebrew)</div></a>
@@ -1399,8 +1411,8 @@
                         <a href="kyrios.html" class="word-card"><div class="word">Kyrios</div><div class="pos">noun / title (Greek)</div></a>
                     </div>
                 </div>
-                <div class="category">
-                    <h2>L <span class="count-badge">68</span></h2>
+                <div class="category" data-letter="L">
+                    <h2 id="sec-L">L <span class="count-badge">68</span></h2>
                     <div class="word-grid">
                         <a href="london-baptist-confession.html" class="word-card"><div class="word">1689 London Baptist Confession</div><div class="pos">confessional document</div></a>
                         <a href="laity.html" class="word-card"><div class="word">Laity</div><div class="pos">noun</div></a>
@@ -1472,8 +1484,8 @@
                         <a href="lament-psalms.html" class="word-card"><div class="word">Psalms of Lament</div><div class="pos">Psalms category</div></a>
                     </div>
                 </div>
-                <div class="category">
-                    <h2>M <span class="count-badge">105</span></h2>
+                <div class="category" data-letter="M">
+                    <h2 id="sec-M">M <span class="count-badge">105</span></h2>
                     <div class="word-grid">
                         <a href="machen.html" class="word-card"><div class="word">J. Gresham Machen</div><div class="pos">proper noun / theologian</div></a>
                         <a href="magisterium.html" class="word-card"><div class="word">Magisterium</div><div class="pos">noun (ecclesiological)</div></a>
@@ -1581,8 +1593,8 @@
                         <a href="mourn-blessed.html" class="word-card"><div class="word">Those Who Mourn</div><div class="pos">beatitude</div></a>
                     </div>
                 </div>
-                <div class="category">
-                    <h2>N <span class="count-badge">39</span></h2>
+                <div class="category" data-letter="N">
+                    <h2 id="sec-N">N <span class="count-badge">39</span></h2>
                     <div class="word-grid">
                         <a href="nahum.html" class="word-card"><div class="word">Nahum</div><div class="pos">proper noun / prophet</div></a>
                         <a href="name.html" class="word-card"><div class="word">Name</div><div class="pos">noun</div></a>
@@ -1628,8 +1640,8 @@
 
             <!-- O-S -->
             <div class="range-panel" id="range-OS">
-                <div class="category">
-                    <h2>O <span class="count-badge">31</span></h2>
+                <div class="category" data-letter="O">
+                    <h2 id="sec-O">O <span class="count-badge">31</span></h2>
                     <div class="word-grid">
                         <a href="oath.html" class="word-card"><div class="word">Oath</div><div class="pos">noun</div></a>
                         <a href="obadiah.html" class="word-card"><div class="word">Obadiah</div><div class="pos">proper noun / prophet</div></a>
@@ -1664,8 +1676,8 @@
                         <a href="overseer-bishop.html" class="word-card"><div class="word">Overseer (Bishop)</div><div class="pos">noun (church office)</div></a>
                     </div>
                 </div>
-                <div class="category">
-                    <h2>P <span class="count-badge">144</span></h2>
+                <div class="category" data-letter="P">
+                    <h2 id="sec-P">P <span class="count-badge">144</span></h2>
                     <div class="word-grid">
                         <a href="pactum-salutis.html" class="word-card"><div class="word">Pactum Salutis</div><div class="pos">noun phrase (Latin)</div></a>
                         <a href="paedobaptism.html" class="word-card"><div class="word">Paedobaptism</div><div class="pos">noun</div></a>
@@ -1811,8 +1823,8 @@
                         <a href="putting-off-putting-on.html" class="word-card"><div class="word">Putting Off & Putting On</div><div class="pos">doctrinal concept</div></a>
                     </div>
                 </div>
-                <div class="category">
-                    <h2>Q <span class="count-badge">4</span></h2>
+                <div class="category" data-letter="Q">
+                    <h2 id="sec-Q">Q <span class="count-badge">4</span></h2>
                     <div class="word-grid">
                         <a href="quarrels.html" class="word-card"><div class="word">Quarrels</div><div class="pos">noun (plural) / verb</div></a>
                         <a href="quicken.html" class="word-card"><div class="word">Quicken</div><div class="pos">verb</div></a>
@@ -1820,8 +1832,8 @@
                         <a href="quietism.html" class="word-card"><div class="word">Quietism</div><div class="pos">noun</div></a>
                     </div>
                 </div>
-                <div class="category">
-                    <h2>R <span class="count-badge">69</span></h2>
+                <div class="category" data-letter="R">
+                    <h2 id="sec-R">R <span class="count-badge">69</span></h2>
                     <div class="word-grid">
                         <a href="rich-fool.html" class="word-card"><div class="word">Parable of the Rich Fool</div><div class="pos">noun phrase (parable)</div></a>
                         <a href="r-c-sproul.html" class="word-card"><div class="word">R. C. Sproul</div><div class="pos">proper noun / theologian</div></a>
@@ -1894,8 +1906,8 @@
                         <a href="ruth.html" class="word-card"><div class="word">Ruth</div><div class="pos">proper noun</div></a>
                     </div>
                 </div>
-                <div class="category">
-                    <h2>S <span class="count-badge">184</span></h2>
+                <div class="category" data-letter="S">
+                    <h2 id="sec-S">S <span class="count-badge">184</span></h2>
                     <div class="word-grid">
                         <a href="spurgeon.html" class="word-card"><div class="word">Charles Spurgeon</div><div class="pos">proper noun / preacher</div></a>
                         <a href="simplicity-divine.html" class="word-card"><div class="word">Divine Simplicity</div><div class="pos">noun (attribute)</div></a>
@@ -2083,8 +2095,8 @@
 
             <!-- T-Z -->
             <div class="range-panel" id="range-TZ">
-                <div class="category">
-                    <h2>T <span class="count-badge">86</span></h2>
+                <div class="category" data-letter="T">
+                    <h2 id="sec-T">T <span class="count-badge">86</span></h2>
                     <div class="word-grid">
                         <a href="ten-virgins.html" class="word-card"><div class="word">Parable of the Ten Virgins</div><div class="pos">noun phrase (parable)</div></a>
                         <a href="tabernacle.html" class="word-card"><div class="word">Tabernacle</div><div class="pos">noun</div></a>
@@ -2173,8 +2185,8 @@
                         <a href="tyndale.html" class="word-card"><div class="word">William Tyndale</div><div class="pos">proper noun / translator</div></a>
                     </div>
                 </div>
-                <div class="category">
-                    <h2>U <span class="count-badge">16</span></h2>
+                <div class="category" data-letter="U">
+                    <h2 id="sec-U">U <span class="count-badge">16</span></h2>
                     <div class="word-grid">
                         <a href="unjust-steward.html" class="word-card"><div class="word">Parable of the Unjust Steward</div><div class="pos">parable</div></a>
                         <a href="unbelief.html" class="word-card"><div class="word">Unbelief</div><div class="pos">noun</div></a>
@@ -2194,8 +2206,8 @@
                         <a href="utilitarianism.html" class="word-card"><div class="word">Utilitarianism</div><div class="pos">noun</div></a>
                     </div>
                 </div>
-                <div class="category">
-                    <h2>V <span class="count-badge">30</span></h2>
+                <div class="category" data-letter="V">
+                    <h2 id="sec-V">V <span class="count-badge">30</span></h2>
                     <div class="word-grid">
                         <a href="vacillation.html" class="word-card"><div class="word">Vacillation</div><div class="pos">noun (vice)</div></a>
                         <a href="vainglory.html" class="word-card"><div class="word">Vainglory</div><div class="pos">noun</div></a>
@@ -2229,8 +2241,8 @@
                         <a href="vow.html" class="word-card"><div class="word">Vow</div><div class="pos">noun / verb</div></a>
                     </div>
                 </div>
-                <div class="category">
-                    <h2>W <span class="count-badge">36</span></h2>
+                <div class="category" data-letter="W">
+                    <h2 id="sec-W">W <span class="count-badge">36</span></h2>
                     <div class="word-grid">
                         <a href="whitefield.html" class="word-card"><div class="word">George Whitefield</div><div class="pos">proper noun / evangelist</div></a>
                         <a href="wesley.html" class="word-card"><div class="word">John Wesley</div><div class="pos">proper noun / preacher</div></a>
@@ -2270,16 +2282,16 @@
                         <a href="wreckage.html" class="word-card"><div class="word">Wreckage</div><div class="pos">noun</div></a>
                     </div>
                 </div>
-                <div class="category">
-                    <h2>Y <span class="count-badge">3</span></h2>
+                <div class="category" data-letter="Y">
+                    <h2 id="sec-Y">Y <span class="count-badge">3</span></h2>
                     <div class="word-grid">
                         <a href="jubilee-year.html" class="word-card"><div class="word">Year of Jubilee</div><div class="pos">noun / Mosaic institution</div></a>
                         <a href="yoke.html" class="word-card"><div class="word">Yoke</div><div class="pos">noun / verb</div></a>
                         <a href="yom-kippur-feast.html" class="word-card"><div class="word">Yom Kippur (Day of Atonement)</div><div class="pos">feast</div></a>
                     </div>
                 </div>
-                <div class="category">
-                    <h2>Z <span class="count-badge">8</span></h2>
+                <div class="category" data-letter="Z">
+                    <h2 id="sec-Z">Z <span class="count-badge">8</span></h2>
                     <div class="word-grid">
                         <a href="zwingli.html" class="word-card"><div class="word">Huldrych Zwingli</div><div class="pos">proper noun / reformer</div></a>
                         <a href="zacchaeus.html" class="word-card"><div class="word">Zacchaeus</div><div class="pos">proper noun</div></a>
@@ -2376,17 +2388,65 @@
     <p style="margin-top:8px;font-size:0.78rem;color:#555;">&ldquo;Iron sharpens iron.&rdquo; &mdash; <a href="../bible.html?ref=Proverbs+27:17" style="color:var(--gold,#D4AF37);text-decoration:underline;">Proverbs 27:17</a> &middot; Built for the brotherhood.</p>
 </footer>
     <script>
-    function toggleRange(panelId, btnId) {
-        var panel = document.getElementById(panelId);
-        var btn = document.getElementById(btnId);
-        var isOpen = panel.classList.contains('open');
-        document.querySelectorAll('.range-panel').forEach(function(p) { p.classList.remove('open'); });
+    function clearFilterButtons() {
         document.querySelectorAll('.range-btn').forEach(function(b) { b.classList.remove('open'); });
-        if (!isOpen) {
-            panel.classList.add('open');
-            btn.classList.add('open');
+    }
+    function getLetterCounts() {
+        var counts = {};
+        document.querySelectorAll('.category[data-letter]').forEach(function(c) {
+            var l = c.getAttribute('data-letter');
+            var badge = c.querySelector('.count-badge');
+            counts[l] = badge ? parseInt(badge.textContent,10) : 0;
+        });
+        return counts;
+    }
+    function filterByLetters(letters, label, sublabel) {
+        var letterSet = {};
+        letters.split('').forEach(function(L){ letterSet[L] = true; });
+        var total = 0;
+        document.querySelectorAll('.category[data-letter]').forEach(function(c) {
+            var L = c.getAttribute('data-letter');
+            if (letterSet[L]) {
+                c.setAttribute('data-hidden','false');
+                var badge = c.querySelector('.count-badge');
+                if (badge) total += parseInt(badge.textContent,10) || 0;
+            } else {
+                c.setAttribute('data-hidden','true');
+            }
+        });
+        var fh = document.getElementById('filterHeader');
+        if (fh) {
+            fh.style.display = '';
+            fh.className = 'filter-header';
+            fh.innerHTML = '<div><div class="filter-title">' + label + '</div><div class="filter-sub">' + sublabel.replace('__TOTAL__', total.toLocaleString()) + '</div></div>' +
+                '<button class="show-all-btn" onclick="showAllLetters()">Show all letters</button>';
+            // Scroll filter header into view
+            setTimeout(function(){ fh.scrollIntoView({ behavior:'smooth', block:'start' }); }, 50);
         }
     }
+    function filterByRange(letters, btnId) {
+        clearFilterButtons();
+        var btn = document.getElementById(btnId);
+        if (btn) btn.classList.add('open');
+        var first = letters.charAt(0);
+        var last = letters.charAt(letters.length - 1);
+        var label = first + ' – ' + last;
+        filterByLetters(letters, label, '__TOTAL__ entries across these letters. Tap a single letter to narrow further.');
+    }
+    function filterByLetter(letter) {
+        clearFilterButtons();
+        filterByLetters(letter, letter, '__TOTAL__ entries starting with ' + letter + '.');
+    }
+    function showAllLetters() {
+        clearFilterButtons();
+        document.querySelectorAll('.category[data-letter]').forEach(function(c) {
+            c.setAttribute('data-hidden','false');
+        });
+        var fh = document.getElementById('filterHeader');
+        if (fh) { fh.style.display='none'; fh.innerHTML=''; }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    function toggleRange(panelId, btnId) { /* legacy no-op */ }
     function filterDict(q) {
         var sr = document.getElementById('searchResults');
         var rs = document.getElementById('rangeSection');
@@ -2460,37 +2520,19 @@
         }
     })();
 
-    // A-Z Jump Nav
+    // A-Z Jump Nav — each letter filters to just that letter
     (function(){
         var el = document.getElementById('azNav');
         if (!el) return;
         var letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
-        // Map letters to range panels
-        var letterMap = {A:'range-AD',B:'range-AD',C:'range-AD',D:'range-AD',E:'range-EI',F:'range-EI',G:'range-EI',H:'range-EI',I:'range-EI',J:'range-JN',K:'range-JN',L:'range-JN',M:'range-JN',N:'range-JN',O:'range-OS',P:'range-OS',Q:'range-OS',R:'range-OS',S:'range-OS',T:'range-TZ',U:'range-TZ',V:'range-TZ',W:'range-TZ',X:'range-TZ',Y:'range-TZ',Z:'range-TZ'};
-        var btnMap = {A:'btn-AD',B:'btn-AD',C:'btn-AD',D:'btn-AD',E:'btn-EI',F:'btn-EI',G:'btn-EI',H:'btn-EI',I:'btn-EI',J:'btn-JN',K:'btn-JN',L:'btn-JN',M:'btn-JN',N:'btn-JN',O:'btn-OS',P:'btn-OS',Q:'btn-OS',R:'btn-OS',S:'btn-OS',T:'btn-TZ',U:'btn-TZ',V:'btn-TZ',W:'btn-TZ',X:'btn-TZ',Y:'btn-TZ',Z:'btn-TZ'};
         var html = '';
         letters.forEach(function(L) {
-            html += '<a class="az-btn" href="#" onclick="event.preventDefault();jumpToLetter(\'' + L + '\',\'' + letterMap[L] + '\',\'' + btnMap[L] + '\')">' + L + '</a>';
+            html += '<a class="az-btn" href="#" onclick="event.preventDefault();filterByLetter(\'' + L + '\')">' + L + '</a>';
         });
         el.innerHTML = html;
     })();
 
-    function jumpToLetter(letter, panelId, btnId) {
-        // Open the range panel
-        toggleRange(panelId, btnId);
-        // Find the letter heading and scroll to it
-        setTimeout(function() {
-            var panel = document.getElementById(panelId);
-            if (!panel) return;
-            var headings = panel.querySelectorAll('h2');
-            for (var i = 0; i < headings.length; i++) {
-                if (headings[i].textContent.trim().charAt(0) === letter) {
-                    headings[i].scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    break;
-                }
-            }
-        }, 100);
-    }
+    function jumpToLetter(letter) { filterByLetter(letter); }
     </script>
 </body>
 </html>
