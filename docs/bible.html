@@ -375,6 +375,31 @@
         .all-trans-btn { background: transparent; border: 1px solid var(--border); color: var(--gray); padding: 5px 14px; border-radius: 16px; font-size: 0.78rem; cursor: pointer; transition: all 0.2s; margin-top: 4px; }
         .all-trans-btn:hover { border-color: var(--gold); color: var(--gold); }
         .all-trans-btn.active { background: rgba(212,175,55,0.15); border-color: var(--gold); color: var(--gold); }
+
+        /* BTE v5.4: Reader Mode toggle — hide per-verse action icons for clean reading */
+        .reader-toggle {
+            cursor: pointer; user-select: none;
+            color: var(--gold); font-weight: 600; font-size: 0.85em;
+            padding: 2px 10px; margin-right: 8px;
+            border: 1px solid rgba(212,175,55,0.35); border-radius: 14px;
+            background: rgba(212,175,55,0.06);
+            transition: background 0.2s, border-color 0.2s, color 0.2s;
+            white-space: nowrap;
+        }
+        .reader-toggle:hover { background: rgba(212,175,55,0.14); border-color: var(--gold); }
+        body.light-mode .reader-toggle { background: rgba(212,175,55,0.08); }
+        body.reader-mode .share-btn,
+        body.reader-mode .highlight-btn,
+        body.reader-mode .note-toggle,
+        body.reader-mode .copy-btn,
+        body.reader-mode .crossref-inline-toggle,
+        body.reader-mode .crossref-inline-body,
+        body.reader-mode .verse-tools-box > span:not(.reader-toggle) { display: none !important; }
+        body.reader-mode .verse-tools-box {
+            background: transparent !important; border-color: transparent !important;
+            padding: 4px 0 !important; justify-content: flex-start !important;
+        }
+
         .amplification {
             background: rgba(212,175,55,0.08); border-left: 3px solid var(--gold);
             padding: 10px 15px; margin: 8px 0; border-radius: 0 8px 8px 0;
@@ -2149,7 +2174,9 @@
             html += renderToggleButton();
             // OT books 1-39 use cord/rope icon, NT books 40-66 use handshake
             var shareIcon = (ref.bookId <= 39) ? 'assets/icons/shield-infinity-rope-48.png' : 'assets/icons/shield-handshake.png';
-            html += '<div style="display:flex;flex-wrap:wrap;gap:12px;justify-content:center;align-items:center;font-size:0.72em;color:#666;margin:-5px 0 10px;padding:8px 12px;background:rgba(212,175,55,0.03);border-radius:8px;border:1px solid #222;">';
+            html += '<div class="verse-tools-box" style="display:flex;flex-wrap:wrap;gap:12px;justify-content:center;align-items:center;font-size:0.72em;color:#666;margin:-5px 0 10px;padding:8px 12px;background:rgba(212,175,55,0.03);border-radius:8px;border:1px solid #222;">';
+            var _readerOn = document.body.classList.contains('reader-mode');
+            html += '<span class="reader-toggle" onclick="toggleReaderMode()" title="' + (_readerOn ? 'Show verse tools' : 'Hide tools for clean reading') + '">' + (_readerOn ? 'Show Tools' : 'Hide Tools') + '</span>';
             html += '<span style="color:var(--gold);font-weight:600;margin-right:4px;">Verse Tools:</span>';
             html += '<span><img src="' + shareIcon + '" alt="" width="16" height="16" style="vertical-align:middle;opacity:0.5;margin-right:2px;">Share Link</span>';
             html += '<span><img class="site-icon" src="assets/icons/shield-lock-48.png" alt="" width="16" height="16" style="vertical-align:middle;opacity:0.5;margin-right:2px;">Highlight</span>';
@@ -2592,6 +2619,26 @@
             html += '</div>';
             panel.innerHTML = html;
         }
+
+        // ── BTE v5.4: Reader Mode toggle ────────────────────────────────────
+        // Hides the 5 per-verse action icons (share, highlight, note, copy, xref)
+        // and collapses the Verse Tools explainer to just the toggle button.
+        // Preference persisted in localStorage.
+        function toggleReaderMode() {
+            var on = document.body.classList.toggle('reader-mode');
+            try { localStorage.setItem('moop_reader_mode', on ? '1' : '0'); } catch(e) {}
+            document.querySelectorAll('.reader-toggle').forEach(function(b) {
+                b.textContent = on ? 'Show Tools' : 'Hide Tools';
+                b.title = on ? 'Show verse tools' : 'Hide tools for clean reading';
+            });
+        }
+        (function restoreReaderMode() {
+            try {
+                if (localStorage.getItem('moop_reader_mode') === '1') {
+                    document.body.classList.add('reader-mode');
+                }
+            } catch(e) {}
+        })();
 
         // ── BTE v5.3: Watchman Daily Readings Widget ────────────────────────
         // Reads the authored chronological plan from window.PLAN_DATA
