@@ -684,8 +684,9 @@
 
         <div id="results"></div>
     </div>
-    
 
+
+    <script src="assets/plan-data.js"></script>
     <script>
         const API = 'https://bolls.life/get-verse';
         const CHAPTER_API = 'https://bolls.life/get-chapter';
@@ -2592,57 +2593,22 @@
             panel.innerHTML = html;
         }
 
-        // ── BTE v5.2 Phase 2: Watchman Daily Readings Widget ────────────────
-        // Simple 5-reading daily schedule based on day-of-year
-        // Each reading maps to a slot: Morning Wisdom, Husband's Post, Father's Charge, Citizen's Stand, Evening Peace
+        // ── BTE v5.3: Watchman Daily Readings Widget ────────────────────────
+        // Reads the authored chronological plan from window.PLAN_DATA
+        // (shared source of truth with chronological.html — loaded from assets/plan-data.js)
         function getWatchmanReadings() {
             var now = new Date();
-            var start = new Date(now.getFullYear(), 0, 0);
-            var dayOfYear = Math.floor((now - start) / 86400000);
-            // Curated reading pools — rotate through by day
-            var wisdom = [ // Proverbs + Psalms — Morning Wisdom
-                'Proverbs ' + ((dayOfYear % 31) + 1), // Proverbs 1-31 by day
-            ];
-            var husband = [ // Marriage & family — Husband's Post
-                'Ephesians 5', 'Colossians 3', '1 Peter 3', 'Proverbs 31',
-                'Song of Solomon 1', 'Song of Solomon 2', 'Song of Solomon 4',
-                'Genesis 2', '1 Corinthians 7', '1 Corinthians 13',
-                'Malachi 2', 'Hebrews 13', 'Titus 2', 'Proverbs 5',
-                'Proverbs 12', 'Proverbs 18', 'Proverbs 19', 'Ruth 1',
-                'Ruth 2', 'Ruth 3', 'Ruth 4', 'Genesis 24', 'Genesis 29',
-                'Hosea 1', 'Hosea 2', 'Hosea 3', 'Matthew 19', 'Mark 10',
-                'Ecclesiastes 4', 'Ecclesiastes 9', 'Proverbs 14'
-            ];
-            var father = [ // Fatherhood & teaching — Father's Charge
-                'Deuteronomy 6', 'Psalm 78', 'Proverbs 1', 'Proverbs 2',
-                'Proverbs 3', 'Proverbs 4', 'Proverbs 22', 'Proverbs 23',
-                'Ephesians 6', 'Colossians 3', 'Genesis 18', 'Joshua 24',
-                'Psalm 127', 'Psalm 128', 'Psalm 103', 'Isaiah 38',
-                '2 Timothy 1', '2 Timothy 2', '2 Timothy 3', '3 John 1',
-                'Malachi 4', 'Luke 15', 'Hebrews 12', 'Proverbs 13',
-                'Proverbs 19', 'Proverbs 20', 'Proverbs 29', '1 Samuel 1',
-                '1 Samuel 2', '1 Samuel 3', 'Genesis 22'
-            ];
-            var citizen = [ // Cultural engagement & mission — Citizen's Stand
-                'Romans 13', 'Daniel 1', 'Daniel 3', 'Daniel 6', 'Acts 4',
-                'Acts 5', 'Jeremiah 29', 'Matthew 5', 'Matthew 28',
-                'Isaiah 6', 'Ezekiel 22', 'Ezekiel 33', 'Nehemiah 1',
-                'Nehemiah 2', 'Nehemiah 4', '1 Peter 2', '1 Peter 3',
-                'Titus 3', 'Philippians 2', 'Philippians 3', 'Micah 6',
-                'Amos 5', 'Isaiah 1', 'Isaiah 58', 'Proverbs 21',
-                'Proverbs 24', 'Proverbs 28', 'Proverbs 29', 'Psalm 2',
-                'Psalm 33', 'Psalm 146'
-            ];
-            var evening = [ // Psalms & rest — Evening Peace
-                'Psalm ' + ((dayOfYear % 150) + 1), // Psalms 1-150 by day
-            ];
+            var key = now.getFullYear() + '-' +
+                      String(now.getMonth() + 1).padStart(2, '0') + '-' +
+                      String(now.getDate()).padStart(2, '0');
+            var d = (window.PLAN_DATA && window.PLAN_DATA[key]) || {};
             return [
-                { label: 'Morning Wisdom', ref: wisdom[dayOfYear % wisdom.length] },
-                { label: "Husband's Post", ref: husband[dayOfYear % husband.length] },
-                { label: "Father's Charge", ref: father[dayOfYear % father.length] },
-                { label: "Citizen's Stand", ref: citizen[dayOfYear % citizen.length] },
-                { label: 'Evening Peace', ref: evening[dayOfYear % evening.length] }
-            ];
+                { label: 'Morning Wisdom',  ref: d.wisdom || '' },
+                { label: "Husband's Post",  ref: d.first  || '' },
+                { label: "Father's Charge", ref: d.second || '' },
+                { label: "Citizen's Stand", ref: d.third  || '' },
+                { label: 'Evening Peace',   ref: d.peace  || '' }
+            ].filter(function(r) { return r.ref; });
         }
         function renderWatchmanWidget() {
             var panel = document.getElementById('watchmanWidget');
