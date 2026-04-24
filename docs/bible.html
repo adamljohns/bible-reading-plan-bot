@@ -400,6 +400,45 @@
             padding: 4px 0 !important; justify-content: flex-start !important;
         }
 
+        /* BTE v5.5: Top-right Share / Print action buttons above results */
+        .result-action-btn {
+            cursor: pointer;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--gold);
+            padding: 6px 14px;
+            border-radius: 16px;
+            font-size: 0.82rem;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s;
+            display: inline-flex; align-items: center; gap: 6px;
+        }
+        .result-action-btn:hover { border-color: var(--gold); background: rgba(212,175,55,0.08); }
+        body.light-mode .result-action-btn { color: #8a6d14; border-color: #d4d0c8; }
+        body.light-mode .result-action-btn:hover { background: rgba(212,175,55,0.1); border-color: #8a6d14; }
+
+        /* BTE v5.5: Print-friendly layout (11-12pt PDF) */
+        @media print {
+            body { background: #fff !important; color: #000 !important; font-size: 11pt; }
+            .hero, .search-box, .quick-links, nav, #home-panel, #home-panel-lower,
+            #back-to-home, #multi-passage-bar, #multi-passage-rows,
+            .verse-tools-box, .share-btn, .highlight-btn, .note-toggle, .copy-btn,
+            .crossref-inline-toggle, .crossref-inline-body, .nav-arrows, .goto-bar,
+            .word-search-bar, .scroll-top, .chapter-progress, .keyboard-hint,
+            .export-panel, .watchman-widget, .history-panel, .bookmarks-panel,
+            .streak-widget, .votd-widget, footer, .engine-info, .lexicon-footer,
+            .amplification, .strongs-section, .clarity-section, .verse-note-saved,
+            .note-input-area { display: none !important; }
+            .result-card { background: #fff !important; border: 0 !important; padding: 0 !important; margin: 0 0 18pt 0 !important; box-shadow: none !important; }
+            .result-header { font-size: 13pt; color: #000 !important; font-weight: 700; margin-bottom: 8pt; }
+            .verse-block { background: #fff !important; border: 0 !important; margin: 2pt 0 !important; padding: 0 !important; color: #000 !important; }
+            .verse-num { color: #666 !important; font-size: 8pt; vertical-align: super; }
+            .verse-text { color: #000 !important; font-size: 11pt; line-height: 1.45; }
+            a { color: #000 !important; text-decoration: none !important; }
+            img { display: none !important; }
+            body.paragraph-mode .verse-text { font-size: 12pt; line-height: 1.55; }
+        }
+
         /* BTE v5.5: Multi-passage stacked-input rows */
         .multi-row {
             display: flex; align-items: center; gap: 8px; margin-bottom: 8px;
@@ -726,8 +765,17 @@
         </div>
         <div id="multi-passage-rows" style="display:none;margin-bottom:14px;"></div>
 
-        <div id="back-to-home" style="display:none; text-align:left; margin-bottom:12px;">
+        <div id="back-to-home" style="display:none; margin-bottom:12px; align-items:center; gap:8px;">
             <button onclick="showHome()" style="background:none; border:none; color:#D4AF37; cursor:pointer; font-size:0.9rem; padding:0;">← New Search</button>
+            <!-- BTE v5.5: Share + Print buttons (top-right of results) -->
+            <span style="margin-left:auto; display:inline-flex; gap:8px;">
+                <button class="result-action-btn" onclick="shareCurrentQuery(this)" title="Copy a shareable link to this passage set">
+                    <img src="assets/icons/shield-infinity-rope-48.png" class="site-icon" alt="" width="16" height="16" style="vertical-align:middle;"> Share
+                </button>
+                <button class="result-action-btn" onclick="printResults()" title="Print these passages (11pt PDF-friendly)">
+                    <img src="assets/icons/shield-compass.png" class="site-icon" alt="" width="16" height="16" style="vertical-align:middle;"> Print
+                </button>
+            </span>
         </div>
 
         <div id="home-panel-lower">
@@ -2016,7 +2064,7 @@
         function showResults() {
             document.getElementById('home-panel').style.display = 'none';
             document.getElementById('home-panel-lower').style.display = 'none';
-            document.getElementById('back-to-home').style.display = 'block';
+            document.getElementById('back-to-home').style.display = 'flex';
         }
 
         function showHome() {
@@ -2444,6 +2492,52 @@
                 if (window.__bteMulti && window.__bteMulti.active) window.__bteMulti.first = false;
             }
             document.getElementById('searchBtn').disabled = false;
+        }
+
+        // ── BTE v5.5: Share & Print current results ───────────────────────
+        function shareCurrentQuery(btn) {
+            var q = (document.getElementById('refInput').value || '').trim();
+            if (!q) { showShareToast('Nothing to share yet — look up a passage first.'); return; }
+            // Prefer ?refs= for multi, fall back to ?ref= for single
+            var hasSemi = q.indexOf(';') !== -1;
+            var url = 'https://usmcmin.org/bible.html?' + (hasSemi ? 'refs=' : 'ref=') + encodeURIComponent(q);
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(url).then(function(){
+                    flashActionBtn(btn, 'Copied!');
+                    showShareToast('Shareable link copied — ' + (hasSemi ? 'all passages included' : q));
+                }, function(){
+                    window.prompt('Copy this link:', url);
+                });
+            } else {
+                window.prompt('Copy this link:', url);
+            }
+        }
+        function flashActionBtn(btn, msg) {
+            if (!btn) return;
+            var original = btn.innerHTML;
+            btn.innerHTML = msg;
+            btn.style.color = '#4ade80';
+            setTimeout(function(){ btn.innerHTML = original; btn.style.color = ''; }, 1800);
+        }
+        function showShareToast(msg) {
+            var toast = document.getElementById('shareToast');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.id = 'shareToast';
+                toast.className = 'share-toast';
+                document.body.appendChild(toast);
+            }
+            toast.textContent = msg;
+            toast.classList.add('show');
+            clearTimeout(toast._t);
+            toast._t = setTimeout(function(){ toast.classList.remove('show'); }, 2400);
+        }
+        function printResults() {
+            if (!document.querySelector('#results .result-card')) {
+                showShareToast('Nothing to print yet — look up a passage first.');
+                return;
+            }
+            window.print();
         }
 
         // ── BTE v5.5: Multi-passage stacked-input UI ───────────────────────
