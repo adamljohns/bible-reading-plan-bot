@@ -104,25 +104,32 @@ function engagementSection(church) {
 
 function sourcesSection(church) {
   const sources = (church.enrichment_sources || []).filter(s => typeof s === 'string' && s.trim());
+  const liveSources = (church.enrichment_sources_live || []).filter(s => typeof s === 'string' && s.trim());
   const enrichmentNotes = church.enrichment_notes;
-  const lastReviewed = (church.enrichment_notes && church.enrichment_notes.match(/R\d+/)) ? '' : ''; // placeholder
 
   if (sources.length === 0 && !enrichmentNotes) return '';
+
+  const hostnamePretty = (url) => {
+    try {
+      const u = new URL(url);
+      let d = u.hostname.replace(/^www\./, '') + (u.pathname.length > 1 ? u.pathname : '');
+      if (d.length > 60) d = d.slice(0, 57) + '…';
+      return d;
+    } catch (e) { return url; }
+  };
 
   // Detect already-archived URLs vs. live ones
   const sourceItems = sources.map((url, idx) => {
     const isWayback = url.includes('web.archive.org/');
     const label = isWayback ? 'Archived snapshot' : 'Live source';
     const labelColor = isWayback ? 'var(--green)' : 'var(--gray-light)';
-    let displayUrl = url;
-    try {
-      const u = new URL(url);
-      displayUrl = u.hostname.replace(/^www\./, '') + (u.pathname.length > 1 ? u.pathname : '');
-      if (displayUrl.length > 60) displayUrl = displayUrl.slice(0, 57) + '…';
-    } catch (e) { /* keep raw */ }
-    return `<li style="margin-bottom:8px;padding-left:4px;">
+    // If we have a matching live URL (same index when rewritten), show it as "Originally:"
+    const liveUrl = isWayback && liveSources[idx] ? liveSources[idx] : null;
+    const liveHint = liveUrl ? `<div style="color:var(--gray);font-size:0.72rem;margin-top:2px;padding-left:8px;">↳ Snapshot of <a href="${escapeHtml(liveUrl)}" target="_blank" rel="noopener nofollow" style="color:var(--gray-light);text-decoration:underline;">${escapeHtml(hostnamePretty(liveUrl))}</a> (live link)</div>` : '';
+    return `<li style="margin-bottom:10px;padding-left:4px;">
       <span style="color:${labelColor};font-size:0.72rem;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;margin-right:6px;">[${idx + 1}] ${label}</span>
-      <a href="${escapeHtml(url)}" target="_blank" rel="noopener nofollow" style="color:var(--gold-light);font-size:0.85rem;word-break:break-all;">${escapeHtml(displayUrl)}</a>
+      <a href="${escapeHtml(url)}" target="_blank" rel="noopener nofollow" style="color:var(--gold-light);font-size:0.85rem;word-break:break-all;">${escapeHtml(hostnamePretty(url))}</a>
+      ${liveHint}
     </li>`;
   }).join('');
 
