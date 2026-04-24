@@ -844,6 +844,18 @@
             '47_6_6': 'by purity, knowledge, longsuffering, kindness, the Holy Spirit, and genuine love;',
         };
 
+        // BTE v5.5: Editorial pericope map — section breaks for paragraph mode
+        window.PERICOPE_MAP = {};
+        fetch('assets/pericope-map.json?v=' + Date.now())
+            .then(r => r.ok ? r.json() : {})
+            .then(data => {
+                window.PERICOPE_MAP = data || {};
+                var bookCount = Object.keys(data).filter(function(k){return !k.startsWith('_');}).length;
+                console.log('BTE v5.5: pericope map loaded — ' + bookCount + ' book(s) with editorial section breaks');
+                if (document.body.classList.contains('paragraph-mode')) applyParagraphBreaks();
+            })
+            .catch(() => { console.log('BTE: no pericope map found, using every-4-verse heuristic'); });
+
         // BTE v5.1: MOOP Translation — blended primary rendering
         // Takes NKJV as base, weaves in clarifying words from ESV/NASB/NLT/etc.
         // Reads as one natural voice. Falls back to NKJV where not yet generated.
@@ -2949,9 +2961,27 @@
         function applyParagraphBreaks(rootEl) {
             // Walk each result-card independently so breaks don't cross cards.
             var cards = (rootEl || document).querySelectorAll('.result-card');
+            var map = window.PERICOPE_MAP || {};
             cards.forEach(function(card) {
                 var blocks = card.querySelectorAll('.verse-block');
-                blocks.forEach(function(b, i) { b.classList.toggle('paragraph-break', i % PARAGRAPH_BREAK_EVERY === 0); });
+                if (!blocks.length) return;
+                // Block ids look like "vb-<bookId>_<chapter>_<verse>"
+                var m = (blocks[0].id || '').match(/^vb-(\d+)_(\d+)_(\d+)/);
+                var sections = m && map[m[1]] && map[m[1]][m[2]];
+                if (sections && sections.length) {
+                    // Editorial pericope breaks: mark every verse that starts a section
+                    var starts = {};
+                    sections.forEach(function(s) { starts[s.start] = true; });
+                    blocks.forEach(function(b) {
+                        var bm = (b.id || '').match(/^vb-\d+_\d+_(\d+)/);
+                        b.classList.toggle('paragraph-break', !!(bm && starts[parseInt(bm[1], 10)]));
+                    });
+                    // Always ensure the first rendered block starts a paragraph (for partial-chapter views)
+                    blocks[0].classList.add('paragraph-break');
+                } else {
+                    // Fallback: every N verses
+                    blocks.forEach(function(b, i) { b.classList.toggle('paragraph-break', i % PARAGRAPH_BREAK_EVERY === 0); });
+                }
             });
         }
         (function restoreParagraphMode() {
