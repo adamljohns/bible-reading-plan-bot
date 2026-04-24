@@ -102,6 +102,52 @@ function engagementSection(church) {
   </div>`;
 }
 
+function sourcesSection(church) {
+  const sources = (church.enrichment_sources || []).filter(s => typeof s === 'string' && s.trim());
+  const enrichmentNotes = church.enrichment_notes;
+  const lastReviewed = (church.enrichment_notes && church.enrichment_notes.match(/R\d+/)) ? '' : ''; // placeholder
+
+  if (sources.length === 0 && !enrichmentNotes) return '';
+
+  // Detect already-archived URLs vs. live ones
+  const sourceItems = sources.map((url, idx) => {
+    const isWayback = url.includes('web.archive.org/');
+    const label = isWayback ? 'Archived snapshot' : 'Live source';
+    const labelColor = isWayback ? 'var(--green)' : 'var(--gray-light)';
+    let displayUrl = url;
+    try {
+      const u = new URL(url);
+      displayUrl = u.hostname.replace(/^www\./, '') + (u.pathname.length > 1 ? u.pathname : '');
+      if (displayUrl.length > 60) displayUrl = displayUrl.slice(0, 57) + '…';
+    } catch (e) { /* keep raw */ }
+    return `<li style="margin-bottom:8px;padding-left:4px;">
+      <span style="color:${labelColor};font-size:0.72rem;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;margin-right:6px;">[${idx + 1}] ${label}</span>
+      <a href="${escapeHtml(url)}" target="_blank" rel="noopener nofollow" style="color:var(--gold-light);font-size:0.85rem;word-break:break-all;">${escapeHtml(displayUrl)}</a>
+    </li>`;
+  }).join('');
+
+  const notesBlock = enrichmentNotes ? `
+    <div style="margin-bottom:14px;padding:12px;background:rgba(255,193,7,0.04);border-left:2px solid var(--yellow);border-radius:4px;">
+      <div style="color:var(--yellow);font-size:0.72rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;">Enrichment Notes</div>
+      <p style="color:var(--gray-light);font-size:0.85rem;line-height:1.55;">${escapeHtml(enrichmentNotes)}</p>
+    </div>` : '';
+
+  const sourcesBlock = sources.length > 0 ? `
+    <p style="color:var(--gray);font-size:0.82rem;margin-bottom:12px;">These are the URLs consulted to arrive at this church's scoring. Score-note claims are synthesized from homepage content, denominational directories, and public statements of faith at the time of review. Church websites change frequently; we're progressively adding Internet Archive snapshots to prevent link rot.</p>
+    <ol style="list-style:none;padding-left:0;margin:0;">
+      ${sourceItems}
+    </ol>` : '<p style="color:var(--gray);font-size:0.82rem;font-style:italic;">No URL sources recorded for this church. Rating based on denominational defaults and/or directory-level metadata.</p>';
+
+  return `<div class="card" style="margin-top:28px;">
+    <div class="card-title"><img class="site-icon" src="/assets/icons/shield-checklist-48.png" alt="" width="20" height="20"> Sources &amp; Evidence</div>
+    ${notesBlock}
+    ${sourcesBlock}
+    <p style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border);color:var(--gray);font-size:0.74rem;line-height:1.5;">
+      <strong style="color:var(--gray-light);">Transparency note:</strong> MOOP ratings are researcher judgments about publicly available theological and ecclesial evidence. They are not infallible. If a church's public posture has changed since our review, or if we've mis-read evidence, <a href="/connect.html" style="color:var(--gold);text-decoration:underline;">tell us</a> &mdash; we publish corrections.
+    </p>
+  </div>`;
+}
+
 function mapSrc(address) {
   return `https://maps.google.com/maps?q=${encodeURIComponent(address)}&output=embed`;
 }
@@ -571,6 +617,8 @@ ${NAV}
   ${pastorSocialHtml}
 
   ${engagementSection(church)}
+
+  ${sourcesSection(church)}
 
   <!-- Page metadata -->
   <div style="margin-top:28px;padding:16px;border-top:1px solid var(--border);display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;">
