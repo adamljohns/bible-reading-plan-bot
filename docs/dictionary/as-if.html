@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>As If! &mdash; Gen X Decoded | The MOOP Dictionary</title>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        :root { --bg:#000; --card:#111; --gold:#D4AF37; --gold-light:#F4D470; --white:#FFF; --gray:#888; --border:#333;
+                --gen:#84CC16; --gen-light:#BEF264; --gen-dim:rgba(132,204,22,0.08);
+                --vg:#10B981; --vy:#F59E0B; --vo:#F97316; --vr:#EF4444; }
+        body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--white); min-height:100vh; line-height:1.7; }
+        h1,h2,h3,h4 { font-family:'Playfair Display',serif; }
+        nav { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:4px 8px; padding:10px 16px;
+              border-bottom:1px solid var(--border); position:sticky; top:0;
+              background:rgba(0,0,0,0.95); backdrop-filter:blur(8px); z-index:100; }
+        nav a { color:var(--gray); text-decoration:none; font-size:0.8rem; display:inline-flex; align-items:center;
+                gap:3px; padding:3px 6px; border-radius:6px; transition:color 0.2s; }
+        nav a:hover, nav a.active { color:var(--gold); }
+        .site-icon { vertical-align:middle; opacity:0.8; }
+        .theme-toggle { background:none; border:1px solid var(--border); border-radius:50%; width:28px; height:28px;
+                        cursor:pointer; font-size:0.85rem; transition:all 0.3s; padding:0; color:var(--white);
+                        display:inline-flex; align-items:center; justify-content:center; }
+        .theme-toggle:hover { border-color:var(--gold); }
+        .container { max-width:820px; margin:0 auto; padding:28px 20px 60px; }
+        .word-header { text-align:center; padding:40px 0 30px; border-bottom:1px solid var(--border); margin-bottom:30px; }
+        .word-title { font-size:2.8rem; color:var(--gen-light); margin-bottom:6px; }
+        .pronunciation { color:var(--gray); font-size:1.1rem; font-style:italic; }
+        .pos { display:inline-block; background:var(--gen); color:#fff; font-weight:700;
+               font-size:0.78rem; padding:3px 14px; border-radius:15px; margin:10px 0; }
+        .gen-badge { display:inline-block; background:#000; border:1px solid var(--gen); color:var(--gen-light);
+                    font-weight:700; font-size:0.7rem; padding:2px 10px; border-radius:12px; margin-left:6px;
+                    letter-spacing:0.8px; vertical-align:middle; }
+        .era-tag { color:var(--gray); font-size:0.78rem; margin-top:8px; font-style:italic; }
+        .etymology { color:var(--gray); font-size:0.88rem; margin:12px auto; max-width:650px; }
+        .section { margin:18px 0; padding:18px 22px; background:var(--card); border:1px solid var(--border); border-radius:10px; }
+        .section > h3 { color:var(--gen-light); margin-bottom:12px; font-size:1.05rem; }
+        .section p { margin:7px 0; }
+        .gen-def { border-left:3px solid var(--gen); padding-left:15px; }
+        .section-summary { color:var(--gray); font-size:0.92rem; font-style:italic; margin-bottom:4px; }
+        details { margin-top:8px; }
+        details summary { color:var(--gen-light); font-size:0.85rem; cursor:pointer; user-select:none; padding:4px 0; }
+        details summary:hover { color:var(--gen); }
+        details[open] summary { margin-bottom:8px; }
+        .backdrop-inner { padding:12px 16px; background:var(--gen-dim); border-left:2px solid var(--gen); border-radius:0 6px 6px 0; }
+        .verdict-card { display:flex; align-items:center; gap:14px; padding:16px 22px; border-radius:10px; font-weight:700;
+                        font-size:1.05rem; border-width:2px; border-style:solid; }
+        .verdict-card .v-emoji { font-size:1.6rem; }
+        .verdict-card .v-label { text-transform:uppercase; letter-spacing:1.5px; font-size:0.88rem; }
+        .v-green { background:rgba(16,185,129,0.10); border-color:var(--vg); color:var(--vg); }
+        .v-yellow { background:rgba(245,158,11,0.10); border-color:var(--vy); color:var(--vy); }
+        .v-orange { background:rgba(249,115,22,0.10); border-color:var(--vo); color:var(--vo); }
+        .v-red { background:rgba(239,68,68,0.10); border-color:var(--vr); color:var(--vr); }
+        .verse-ref { color:var(--gold); text-decoration:none; font-weight:600; }
+        .verse-ref:hover { color:var(--gold-light); text-decoration:underline; }
+        .reframe-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:14px; }
+        @media (max-width:600px) { .reframe-grid { grid-template-columns:1fr; } }
+        .reframe-box { padding:14px 16px; border-radius:8px; border-left:3px solid; }
+        .reframe-gen { background:var(--gen-dim); border-color:var(--gen); }
+        .reframe-gen strong { color:var(--gen-light); }
+        .reframe-bible { background:rgba(212,175,55,0.08); border-color:var(--gold); }
+        .reframe-bible strong { color:var(--gold-light); }
+        .related { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+        .related a { background:var(--card); border:1px solid var(--border); padding:6px 14px;
+                     border-radius:20px; color:var(--white); text-decoration:none; font-size:0.85rem;
+                     transition:border-color 0.2s, color 0.2s; }
+        .related a:hover { border-color:var(--gen); color:var(--gen-light); }
+        footer { text-align:center; padding:28px 20px; border-top:1px solid var(--border);
+                 margin-top:40px; color:var(--gray); font-size:0.88rem; }
+        footer a { color:var(--gray); text-decoration:none; }
+        footer a:hover { color:var(--gold); }
+        .cross-divider { margin-bottom:10px; }
+        body.light-mode { --bg:#F5F3EF; --card:#FFF; --white:#1a1a1a; --gray:#666; --border:#d4d0c8;
+                          --gen-dim:rgba(132,204,22,0.05);
+                          background:#F5F3EF; color:#1a1a1a; }
+        body.light-mode nav { background:rgba(245,243,239,0.97); }
+        body.light-mode .section { background:#fff; border-color:#d4d0c8; }
+        body.light-mode footer { border-top-color:#d4d0c8; }
+        body.light-mode .related a { background:#f0ede7; border-color:#d4d0c8; color:#1a1a1a; }
+        a, a:link, a:visited { color: var(--gen-light) !important; }
+        a:hover { color: var(--gen) !important; }
+        .dict-back-nav { display:flex; align-items:center; justify-content:center; gap:14px; margin-bottom:22px; padding:10px 0;
+                         border-bottom:1px solid var(--border); }
+        .dict-back-nav a { color:var(--gen-light) !important; text-decoration:none; font-size:0.88rem; font-weight:500; }
+        .dict-back-nav a:hover { color:var(--gen) !important; }
+        .dict-back-nav .sep { color:var(--gray); font-size:0.85rem; }
+        .verse-ref, .verse-ref:link, .verse-ref:visited { color:var(--gold) !important; }
+        .verse-ref:hover { color:var(--gold-light) !important; }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav>
+        <a href="../index.html"><img src="../assets/icons/shield-home-48.png" class="site-icon" alt="" width="16" height="16"> Home</a>
+        <a href="../watchman.html"><img src="../assets/icons/shield-bible.png" class="site-icon" alt="" width="16" height="16"> Watchman</a>
+        <a href="../bible.html"><img src="../assets/icons/shield-compass.png" class="site-icon" alt="" width="16" height="16"> BTE</a>
+        <a href="../lexicon.html"><img src="../assets/icons/shield-alpha-omega-48.png" class="site-icon" alt="" width="16" height="16"> Lexicon</a>
+        <a href="../cross-references.html"><img src="../assets/icons/shield-infinity-rope-48.png" class="site-icon" alt="" width="16" height="16"> Cross-Refs</a>
+        <a href="index.html" class="active"><img src="../assets/icons/shield-book-greek-48.png" class="site-icon" alt="" width="16" height="16"> Dictionary</a>
+        <a href="../blog.html"><img src="../assets/icons/shield-blog-quill-48.png" class="site-icon" alt="" width="16" height="16"> Blog</a>
+        <a href="../connect.html"><img src="../assets/icons/shield-handshake.png" class="site-icon" alt="" width="16" height="16"> Connect</a>
+        <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle" title="Toggle dark/light">&#127769;</button>
+    </nav>
+    <div class="container">
+        <div class="dict-back-nav"><a href="index.html">&#8592; Back to Dictionary</a><span class="sep">&middot;</span><a href="index.html#genxSection">All Gen X Decoded Entries</a></div>
+        <div class="word-header">
+            <div class="word-title">As If!<span class="gen-badge">GEN-X</span></div>
+            <div class="pronunciation">/æz ɪf/</div>
+            <span class="pos">gen-x slang</span>
+            <div class="era-tag">Generation 1965-1980</div>
+            <div class="etymology">Gen-X dismissive rejection popularized by the 1995 film <em>Clueless</em> (Alicia Silverstone&#39;s Cher Horowitz). Essentially "as if that were true/likely/possible" trimmed to a two-syllable scoff. Archetypal 1990s teen-valley-girl vocabulary, carried by Gen X into their early adult years.</div>
+        </div>
+
+        <div class="section">
+            <h3>&#128269; Definition</h3>
+            <div class="gen-def">
+                <p>Sarcastic rejection of an idea or proposal as absurd. "You think I&#39;d date him? <em>As if!</em>" Expresses incredulity that the speaker would even consider what&#39;s been suggested. The shorter sibling of "whatever" &mdash; both dismiss, but "as if" dismisses with a laugh of disbelief.</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>&#9878;&#65039; Biblical Verdict</h3>
+            <div class="verdict-card v-yellow">
+                <div class="v-emoji">🟡</div>
+                <div>
+                    <div class="v-label">NEUTRAL</div>
+                    <div style="font-weight:500;font-size:0.92rem;margin-top:4px;">Neutral dismissive flourish &mdash; dated but harmless; its ironic successor lives on under new vocabulary.</div>
+                </div>
+            </div>
+            <p style="margin-top:16px;">"As if" is not really dangerous &mdash; just a generationally-marked sarcastic shrug. Like most Gen-X irony, it is a mild form of distancing that has no particular theological weight by itself. The caution: when dismissiveness becomes a reflex (you scoff at every earnest proposal), you have adopted a spiritual posture the Bible names as scorning. "Blessed is the man who walks not in the counsel of the wicked, nor stands in the way of sinners, nor sits in the seat of scoffers" (Ps 1:1). A single "as if" is fine; a habitual posture of mockery is the seat of the scoffer. Distinguish the vocabulary from the habit.</p>
+        </div>
+
+        <div class="section">
+            <h3>&#127758; Cultural Backdrop</h3>
+            <p class="section-summary">A dated Valley-girl flourish; Gen-X irony in crystallized form. Fun to remember, watch for the habit of default mockery underneath.</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="backdrop-inner">
+                    <p>Clueless codified a whole 1990s teen dialect &mdash; as if, whatever, totally, hellooo &mdash; that became Gen-X vocabulary and then aged into nostalgia. "As if" itself is harmless. But Gen-X sarcasm culture more broadly taught American young people that mockery is sophisticated and earnestness is gauche. A generation raised on <em>The Simpsons</em>, <em>Seinfeld</em>, and <em>Daria</em> learned to dismiss before engaging. That habit is spiritually corrosive: it cannot worship (worship requires earnest attention), cannot repent (repentance requires taking yourself seriously), and cannot love (love requires un-ironic commitment). The vocabulary is fine; the scoffer&#39;s seat is not.</p>
+                </div>
+            </details>
+        </div>
+
+        <div class="section">
+            <h3>&#128214; Key Scripture</h3>
+            <p><a href="../bible.html?ref=Psalm1:1" class="verse-ref">Psalm 1:1</a> &mdash; <em>"Blessed is the man who walks not in the counsel of the wicked, nor stands in the way of sinners, nor sits in the seat of scoffers."</em></p>
+                <p><a href="../bible.html?ref=Proverbs9:7-8" class="verse-ref">Proverbs 9:7-8</a> &mdash; <em>"Whoever corrects a scoffer gets himself abuse, and he who reproves a wicked man incurs injury. Do not reprove a scoffer, or he will hate you; reprove a wise man, and he will love you."</em></p>
+                <p><a href="../bible.html?ref=2Peter3:3" class="verse-ref">2 Peter 3:3</a> &mdash; <em>"Knowing this first of all, that scoffers will come in the last days with scoffing, following their own sinful desires."</em></p>
+        </div>
+
+        <div class="section">
+            <h3>&#9997;&#65039; MOOP&#39;s Reframe</h3>
+            <p>"As if" is fine once. The scoffer&#39;s seat is fine never. Distinguish the dated flourish from the spiritual posture &mdash; the posture is what Scripture warns against.</p>
+            <div class="reframe-grid">
+                <div class="reframe-box reframe-gen">
+                    <strong>GEN-X says:</strong>
+                    <p style="margin-top:6px;font-style:italic;">&ldquo;Ugh, you want me to go to the mall in <em>that</em>? As if!&rdquo;</p>
+                </div>
+                <div class="reframe-box reframe-bible">
+                    <strong>Scripture says:</strong>
+                    <p style="margin-top:6px;font-style:italic;">&ldquo;Blessed is the man who... sits not in the seat of scoffers.&rdquo;</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>Related Entries</h3>
+            <div class="related">
+                <a href="sarcasm.html">Sarcasm</a><a href="scoffer.html">Scoffer</a><a href="irony-culture.html">Irony Culture</a><a href="mockery.html">Mockery</a><a href="clueless.html">Clueless</a>
+            </div>
+        </div>
+
+    </div>
+
+    <footer>
+        <div class="cross-divider"><img src="../assets/icons/shield-cross-bible-48.png" alt="" width="36" height="36" style="opacity:0.6;margin-bottom:10px;"></div>
+        <p>
+            <a href="../index.html#uniting"><img src="../assets/icons/shield-hands-joining.png" class="site-icon" alt="" width="20" height="20"> Uniting</a> &middot;
+            <a href="../serving.html"><img src="../assets/icons/shield-serving.png" class="site-icon" alt="" width="20" height="20"> Serving</a> &middot;
+            <a href="../mentoring.html"><img src="../assets/icons/shield-mentoring.png" class="site-icon" alt="" width="20" height="20"> Mentoring</a> &middot;
+            <a href="../counseling.html"><img src="../assets/icons/shield-family.png" class="site-icon" alt="" width="20" height="20"> Counseling</a> &middot;
+            <a href="../about.html"><img src="../assets/icons/shield-about-person-24.png" class="site-icon" alt="" width="20" height="20"> About</a>
+        </p>
+        <p style="margin-top:8px;font-size:0.78rem;color:#555;">Powered by MOOPbot Pro &mdash; &ldquo;Iron sharpens iron.&rdquo; &mdash; <a href="../bible.html?ref=Proverbs+27:17" style="color:var(--gold);text-decoration:underline;">Proverbs 27:17</a></p>
+    </footer>
+    <script>
+    function toggleTheme(){
+        var b=document.body,t=document.getElementById('themeToggle');
+        if(b.classList.contains('light-mode')){b.classList.remove('light-mode');t.textContent='\u{1F319}';localStorage.setItem('bte-theme','dark');}
+        else{b.classList.add('light-mode');t.textContent='\u2600\uFE0F';localStorage.setItem('bte-theme','light');}
+    }
+    (function(){
+        if(localStorage.getItem('bte-theme')==='light'){
+            document.body.classList.add('light-mode');
+            var t=document.getElementById('themeToggle');if(t)t.textContent='\u2600\uFE0F';
+        }
+    })();
+    document.querySelectorAll('details').forEach(function(d){
+        d.addEventListener('toggle', function(){
+            var sum = d.previousElementSibling;
+            if(sum && sum.classList.contains('section-summary')){
+                sum.style.display = d.open ? 'none' : '';
+            }
+        });
+    });
+    </script>
+</body>
+</html>
