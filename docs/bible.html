@@ -400,6 +400,38 @@
             padding: 4px 0 !important; justify-content: flex-start !important;
         }
 
+        /* BTE v5.5: Multi-passage stacked-input rows */
+        .multi-row {
+            display: flex; align-items: center; gap: 8px; margin-bottom: 8px;
+        }
+        .multi-row input {
+            flex: 1; background: var(--bg-card); border: 1px solid var(--border);
+            color: var(--white); font-size: 1rem; padding: 10px 12px; border-radius: 8px;
+            outline: none; transition: border-color 0.2s;
+        }
+        .multi-row input:focus { border-color: var(--gold); }
+        .multi-row .row-label { color: var(--gold); font-weight: 600; font-size: 0.82rem; min-width: 18px; text-align: center; }
+        .multi-row .row-rm {
+            cursor: pointer; background: transparent; border: 1px solid var(--border);
+            color: #888; width: 28px; height: 28px; border-radius: 50%; font-size: 0.9rem;
+            transition: all 0.2s; user-select: none;
+        }
+        .multi-row .row-rm:hover { color: #ff6b6b; border-color: #ff6b6b; }
+        .multi-row-actions { display: flex; gap: 10px; margin-top: 6px; justify-content: flex-start; }
+        .multi-row-add {
+            cursor: pointer; background: transparent; border: 1px dashed rgba(212,175,55,0.4);
+            color: var(--gold); padding: 6px 14px; border-radius: 16px; font-size: 0.82rem;
+            transition: all 0.2s; font-family: 'Inter', sans-serif;
+        }
+        .multi-row-add:hover { background: rgba(212,175,55,0.08); border-style: solid; border-color: var(--gold); }
+        .multi-run-btn {
+            cursor: pointer; background: var(--gold); color: #000; border: none;
+            padding: 8px 20px; border-radius: 18px; font-weight: 600; font-size: 0.88rem;
+            transition: all 0.2s; margin-left: auto;
+        }
+        .multi-run-btn:hover { background: var(--gold-light); }
+        body.light-mode .multi-row input { background: #fafaf7; color: #222; }
+
         /* BTE v5.5: Paragraph Mode — hide verse numbers, flow verses as prose */
         body.paragraph-mode .verse-num { display: none !important; }
         body.paragraph-mode .verse-block {
@@ -688,6 +720,11 @@
                    autofocus autocomplete="off">
             <button class="search-btn" id="searchBtn" onclick="lookupMulti()">Look Up</button>
         </div>
+        <!-- BTE v5.5: Multi-passage stacked-input UI (collapsed by default) -->
+        <div id="multi-passage-bar" style="display:flex;justify-content:flex-end;align-items:center;gap:8px;margin:-8px 0 12px;">
+            <span id="multiToggleBtn" class="reader-toggle" onclick="toggleMultiInputMode()" title="Build a list of passages with separate input boxes">+ Multi-Passage Mode</span>
+        </div>
+        <div id="multi-passage-rows" style="display:none;margin-bottom:14px;"></div>
 
         <div id="back-to-home" style="display:none; text-align:left; margin-bottom:12px;">
             <button onclick="showHome()" style="background:none; border:none; color:#D4AF37; cursor:pointer; font-size:0.9rem; padding:0;">← New Search</button>
@@ -2407,6 +2444,67 @@
                 if (window.__bteMulti && window.__bteMulti.active) window.__bteMulti.first = false;
             }
             document.getElementById('searchBtn').disabled = false;
+        }
+
+        // ── BTE v5.5: Multi-passage stacked-input UI ───────────────────────
+        // Toggleable alternative to the ';'-separated single input. Reveals N
+        // input rows (min 2, grows with "+ Add another passage"), each removable.
+        // On "Look Up All", joins with ';' and runs through lookupMulti().
+        function toggleMultiInputMode() {
+            var rows = document.getElementById('multi-passage-rows');
+            var btn = document.getElementById('multiToggleBtn');
+            var on = rows.style.display === 'none' || !rows.style.display;
+            if (on) {
+                rows.style.display = 'block';
+                btn.textContent = '− Single Search';
+                btn.title = 'Collapse to the single search box';
+                // Seed with refInput contents if any, split on ';'
+                var seed = (document.getElementById('refInput').value || '').split(';').map(function(s){return s.trim();}).filter(Boolean);
+                if (seed.length < 2) seed = seed.concat(['', '']).slice(0, 2);
+                renderMultiRows(seed);
+            } else {
+                rows.style.display = 'none';
+                btn.textContent = '+ Multi-Passage Mode';
+                btn.title = 'Build a list of passages with separate input boxes';
+                rows.innerHTML = '';
+            }
+        }
+        function renderMultiRows(values) {
+            var rows = document.getElementById('multi-passage-rows');
+            var html = '';
+            values.forEach(function(v, i) {
+                var ph = i === 0 ? 'First passage (e.g., John 1:12-13)'
+                       : i === 1 ? 'Second passage (e.g., John 3:16-21)'
+                       : 'Passage ' + (i + 1);
+                html += '<div class="multi-row">' +
+                    '<span class="row-label">' + (i + 1) + '.</span>' +
+                    '<input type="text" class="mp-input" placeholder="' + ph + '" value="' + (v || '').replace(/"/g, '&quot;') + '" onkeydown="if(event.key===\'Enter\')runMultiRows()">' +
+                    (values.length > 1 ? '<button class="row-rm" onclick="removeMultiRow(this)" title="Remove this passage">×</button>' : '') +
+                    '</div>';
+            });
+            html += '<div class="multi-row-actions">' +
+                '<button class="multi-row-add" onclick="addMultiRow()">+ Add another passage</button>' +
+                '<button class="multi-run-btn" onclick="runMultiRows()">Look Up All</button>' +
+                '</div>';
+            rows.innerHTML = html;
+        }
+        function currentMultiValues() {
+            return Array.prototype.slice.call(document.querySelectorAll('.mp-input')).map(function(i){return i.value;});
+        }
+        function addMultiRow() { renderMultiRows(currentMultiValues().concat([''])); }
+        function removeMultiRow(btn) {
+            var row = btn.closest('.multi-row');
+            var idx = Array.prototype.indexOf.call(row.parentNode.querySelectorAll('.multi-row'), row);
+            var vals = currentMultiValues();
+            vals.splice(idx, 1);
+            if (vals.length < 1) vals = [''];
+            renderMultiRows(vals);
+        }
+        function runMultiRows() {
+            var refs = currentMultiValues().map(function(s){return s.trim();}).filter(Boolean);
+            if (!refs.length) return;
+            document.getElementById('refInput').value = refs.join('; ');
+            lookupMulti();
         }
 
         // ── BTE v5.5: Multi-passage orchestrator ──────────────────────────
