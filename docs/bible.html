@@ -3324,12 +3324,20 @@
             try { return JSON.parse(localStorage.getItem('bte-streak') || '{}'); }
             catch(e) { return {}; }
         }
+        function _streakDateStr(d) {
+            // BTE v5.5 fix: use the user's LOCAL date, not UTC. A late-evening
+            // visit in the Americas should count toward 'today', not roll over
+            // into tomorrow just because UTC has already passed midnight.
+            return d.getFullYear() + '-' +
+                   String(d.getMonth() + 1).padStart(2, '0') + '-' +
+                   String(d.getDate()).padStart(2, '0');
+        }
         function updateStreak() {
             var data = getStreakData();
-            var today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+            var today = _streakDateStr(new Date());
             if (data.lastRead === today) return; // Already counted today
 
-            var yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+            var yesterday = _streakDateStr(new Date(Date.now() - 86400000));
             if (data.lastRead === yesterday) {
                 // Consecutive day
                 data.streak = (data.streak || 0) + 1;
@@ -3611,6 +3619,10 @@
         // ── End Bible Navigator ────────────────────────────────────────────────
 
         // BTE v5.2: Render home screen panels
+        // BTE v5.5 fix: advance the streak on page load, not only on lookup —
+        // simply opening the BTE each day now counts as a day of reading, so
+        // a multi-day visit streak doesn't stall at 1 when searches are light.
+        updateStreak();
         renderVotdWidget();
         renderStreakWidget();
         renderWatchmanWidget();
