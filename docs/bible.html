@@ -684,9 +684,9 @@
         </div>
 
         <div class="search-box">
-            <input type="text" id="refInput" placeholder="e.g., Psalm 91, John 3:16, Romans 8:28-30"
+            <input type="text" id="refInput" placeholder="e.g., Psalm 91 &middot; John 3:16 &middot; John 1:12-13; 3:16-21; 1 John 3:1-3"
                    autofocus autocomplete="off">
-            <button class="search-btn" id="searchBtn" onclick="lookupVerse()">Look Up</button>
+            <button class="search-btn" id="searchBtn" onclick="lookupMulti()">Look Up</button>
         </div>
 
         <div id="back-to-home" style="display:none; text-align:left; margin-bottom:12px;">
@@ -2019,7 +2019,10 @@
             }
 
             document.getElementById('searchBtn').disabled = true;
-            document.getElementById('results').innerHTML = '<div class="loading"><img src="assets/icons/shield-bible.png" class="site-icon" alt="book" width="20" height="20"> Loading 12 translations...</div>';
+            // In multi-passage mode, keep the aggregate loading banner; otherwise show single-passage banner.
+            if (!(window.__bteMulti && window.__bteMulti.active)) {
+                document.getElementById('results').innerHTML = '<div class="loading"><img src="assets/icons/shield-bible.png" class="site-icon" alt="book" width="20" height="20"> Loading 12 translations...</div>';
+            }
 
             const allVerses = [];
             const allStrongs = [];
@@ -2303,11 +2306,22 @@
             html += '</div>';
             html += renderBottomNav(rangeStr);
 
-            document.getElementById('results').innerHTML = html;
+            if (window.__bteMulti && window.__bteMulti.active) {
+                if (window.__bteMulti.first) {
+                    document.getElementById('results').innerHTML = html;
+                    window.__bteMulti.first = false;
+                } else {
+                    document.getElementById('results').insertAdjacentHTML('beforeend', html);
+                }
+            } else {
+                document.getElementById('results').innerHTML = html;
+            }
             updateNavBoundaries();
             document.getElementById('searchBtn').disabled = false;
             if (document.body.classList.contains('paragraph-mode')) applyParagraphBreaks();
-            document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            if (!(window.__bteMulti && window.__bteMulti.active)) {
+                document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
 
             // BTE v5.2 Phase 2: Track reading history
             addToHistory(rangeStr);
@@ -2384,22 +2398,78 @@
         }
 
         function showError(msg) {
-            document.getElementById('results').innerHTML = '<div class="error">' + msg + '</div>';
+            if (window.__bteMulti && window.__bteMulti.active && !window.__bteMulti.first) {
+                // Append a per-passage error without wiping earlier cards
+                document.getElementById('results').insertAdjacentHTML('beforeend',
+                    '<div class="error" style="margin:12px 0;">' + msg + '</div>');
+            } else {
+                document.getElementById('results').innerHTML = '<div class="error">' + msg + '</div>';
+                if (window.__bteMulti && window.__bteMulti.active) window.__bteMulti.first = false;
+            }
             document.getElementById('searchBtn').disabled = false;
         }
 
+        // ── BTE v5.5: Multi-passage orchestrator ──────────────────────────
+        // Accepts ';'-separated refs and renders each as its own result card.
+        // Delegates to lookupVerse() for parsing, fetching, and rendering; uses
+        // a scoped flag so single-passage callers keep their current behavior.
+        async function lookupMulti() {
+            var inputEl = document.getElementById('refInput');
+            var raw = inputEl.value.trim();
+            if (!raw) return;
+            var parts = raw.split(';').map(function(s){return s.trim();}).filter(Boolean);
+            if (parts.length <= 1) return lookupVerse();
+
+            // v5.5: book-name inheritance — "John 1:12-13; 3:16-21" => second chunk gets "John "
+            var lastBook = '';
+            var normalized = parts.map(function(chunk) {
+                // Does this chunk START with a digit/colon (i.e., just chapter:verse)?
+                // Books like "1 John" or "2 Samuel" start with a digit+space+letter; don't treat those as bare refs.
+                var looksBare = /^\d+\s*:\s*\d/.test(chunk) || /^\d+(\s*-\s*\d+)?$/.test(chunk);
+                if (looksBare && lastBook) {
+                    return lastBook + ' ' + chunk;
+                }
+                // Capture leading book name (letters, optional leading digit like "1 John")
+                var m = chunk.match(/^((?:\d\s+)?[A-Za-z][A-Za-z\s\.]+?)\s+\d/);
+                if (m) lastBook = m[1].trim();
+                return chunk;
+            });
+
+            showResults();
+            document.getElementById('results').innerHTML =
+                '<div class="loading"><img src="assets/icons/shield-bible.png" class="site-icon" alt="book" width="20" height="20"> Loading ' +
+                normalized.length + ' passages…</div>';
+            window.__bteMulti = { active: true, first: true };
+            try {
+                for (var i = 0; i < normalized.length; i++) {
+                    inputEl.value = normalized[i];
+                    try { await lookupVerse(); } catch (e) { showError('Error loading "' + normalized[i] + '"'); }
+                }
+            } finally {
+                window.__bteMulti = { active: false, first: true };
+                inputEl.value = raw; // restore full query so share-link/print reflect it
+                if (document.body.classList.contains('paragraph-mode')) applyParagraphBreaks();
+                document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
         document.getElementById('refInput').addEventListener('keydown', e => {
-            if (e.key === 'Enter') lookupVerse();
+            if (e.key === 'Enter') lookupMulti();
         });
 
         // Auto-lookup from URL parameters
-        // Supports: ?ref=Psalm+23 | ?book=49&chapter=6&verse=4 | ?ref=ezek22_30
+        // Supports: ?ref=Psalm+23 | ?refs=John+3:16;1+John+3:1-3 | ?book=49&chapter=6&verse=4 | ?ref=ezek22_30
         (function() {
             const urlParams = new URLSearchParams(window.location.search);
+            const refsParam = urlParams.get('refs');   // BTE v5.5: multi-passage
             const refParam = urlParams.get('ref');
             const bookParam = urlParams.get('book');
 
-            if (bookParam) {
+            if (refsParam) {
+                // BTE v5.5: ';'-separated passages
+                document.getElementById('refInput').value = decodeURIComponent(refsParam);
+                lookupMulti();
+            } else if (bookParam) {
                 // BTE v5.2: Handle ?book=49&chapter=6&verse=4 numeric format
                 const bid = parseInt(bookParam);
                 const ch = parseInt(urlParams.get('chapter') || '1');
@@ -2409,11 +2479,11 @@
                     const display = bookName.replace(/\b\w/g,c=>c.toUpperCase());
                     const refStr = v ? (display + ' ' + ch + ':' + v) : (display + ' ' + ch);
                     document.getElementById('refInput').value = refStr;
-                    lookupVerse();
+                    lookupMulti();
                 }
             } else if (refParam) {
                 document.getElementById('refInput').value = decodeURIComponent(refParam);
-                lookupVerse();
+                lookupMulti();
             }
         })();
 
