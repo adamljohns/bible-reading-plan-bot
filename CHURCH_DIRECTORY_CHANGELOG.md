@@ -1,12 +1,47 @@
 # MOOP Church Directory — Changelog
 
-Theological due-diligence tool for American churches. Tracks orthodox confessional commitment, elder plurality, men's discipleship, cultural stance, denominational accountability, and 5 other dimensions across 4,179+ churches.
+Theological due-diligence tool for American churches. Tracks orthodox confessional commitment, elder plurality, men's discipleship, cultural stance, denominational accountability, and 5 other dimensions across 4,206+ churches.
 
 Rubric: 4-tier threat-zone system (green / yellow / red / black) × 10 scoring dimensions.
 
 Stewarded at **[usmcmin.org/churches.html](https://usmcmin.org/churches.html)**.
 
 ---
+
+## V4.9.4 — 2026-04-25 · VA confessional green-hunter (+27 new green records)
+
+Hunt for missing confessional Reformed/Presbyterian/Lutheran/Anglican congregations across Virginia produced 27 net-new green records (4,179 → 4,206).
+
+**Denominational breakdown:**
+- 12 PCA — Christ the King Roanoke, Westminster Roanoke (Kyle Ferguson), Providence Salem (Jake Hooker, Gospel Reformation Network featured), Boonsboro Lynchburg, Mercy Forest, Fellowship Bedford, Grace Covenant Blacksburg, Providence Christiansburg, Holy Cross Staunton, Drapers Valley, Christ Pres Harrisonburg, Eagle Heights Winchester
+- 10 OPC — Bethel Reformed Fxbg, West Creek Henrico, Bethel Leesburg (organized 1971), Grace Lynchburg (twice-Sunday worship), Acacia Reformed Manassas (JP Holloway WTS), Knox Reformed Mechanicsville, Garst Mill Roanoke, Staunton OPC (twice-Sunday), Peninsula Reformed Yorktown (Matt Walker WTS), Ketoctin Covenant Purcellville (Ben Franks PRTS-trained)
+- 2 ARP — Redeemer Blacksburg, Wellspring Daleville
+- 1 REC — All Saints Lynchburg
+- 1 ACNA — Good Shepherd Charlottesville
+- 1 LCMS — Our Savior Lynchburg
+
+**Strength signals:** twice-Sunday worship at multiple congregations (Westminster Roanoke, Grace OPC Lynchburg, Staunton OPC); pastor pedigrees concentrated at WTS Philadelphia, PRTS, GPTS, RTS; verified all-male elder/pastor rosters where listings exist.
+
+**Intentionally excluded (kept off green list):** Incarnation Anglican Williamsburg (public controversy over female ordination); Church of the Holy Spirit Roanoke (mid-2025 leadership transition Quigg Lawrence → Dave Sloop, revisit after track record); Bethlehem Lutheran Richmond (could not confirm current pastor in 2026).
+
+Script added: `scripts/append_new_churches.py` (validates required fields, checks ID collisions, ensures dict-shaped score_notes/scores).
+
+## V4.9.3 — 2026-04-25 · VA yellow batch v50 (10 flips + 5 phantom flags)
+
+Deep-dive on 25 thin-noted VA yellow records:
+
+**6 yellow → green:** First Baptist Clintwood (BFM2000, est 1894), Hillsville Baptist (BFM 1963 + 1998), Hopeful Baptist Mechanicsville (SBCV — uses hopefulbc.com not hopefulbaptist.com), Garden City Baptist Roanoke (BFM2000 + Charlie Lanier SEBTS — corrected from listed Brian Willard), Christ Community Church Chesterfield (C&MA), Harvest Bible Glen Allen (now Harvest Bible Church / Jon Walters)
+
+**4 yellow → red:** Buena Vista Baptist (CBF + husband-wife pastoral team Scott Covington / Danika Deva), Heights Church Richmond (ARC + husband-wife co-pastors Josh & Crystal Whitlow + sermon-stealing accusation), First Baptist Lebanon (BGAV-only post-Nov-2023), Bedford Road Baptist Bedford (BGAV-only)
+
+**5 phantom/review flags:**
+- FBC Lynchburg: historic 1100 Court St building sold October 2024 to ACNA's Church of the Good Shepherd; fbclva.com TLS failure
+- Providence Baptist Glen Allen: listed address (4175 Mountain Rd) is actually Glen Allen Baptist (Dr. Melissa Fallon, female); real Providence Baptist at 4956 Dominion Blvd per SBCV
+- Cornerstone Bible Sterling: cannot verify any congregation at 45145 Ridgetop Cir; site returns 403 — likely phantom
+- Fredericksburg Assembly of God Spotsylvania: domain freedomchurchag.com 301-redirects to mosaicfortworth.com (TX); congregation appears defunct
+- Short Pump Baptist: ECONNREFUSED on all paths; closest candidates at the address are Grace Community Baptist (SBC) and North Gayton Baptist (BGAV)
+
+**Other corrections:** Hatcher Memorial pastor name fix (Battalia → Battaglia); New River Baptist Fairlawn flagged as Independent KJV-only fundamentalist (kjvchurches.com directory) not SBC as listed; First Baptist Harrisonburg is historically Black Baptist (founded 1871, 2nd National Ketoctan); Providence Baptist Chesapeake is IFB / KJV-only specifically.
 
 ## V4.9.2 — 2026-04-25 · Strict denom-correction sweep + dedup
 
