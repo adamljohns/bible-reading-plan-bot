@@ -102,6 +102,50 @@ function engagementSection(church) {
   </div>`;
 }
 
+// Signatures & Affiliations — render structured signatories field
+const STATEMENT_META = {
+  warhurst_protest_2020: { label: 'Warhurst Protest (2020)', short: 'Warhurst', direction: 'red', source: 'warhornmedia.com', tooltip: 'PCA Hall of Infamy — pastors who protested discipline of a Revoice-friendly pastor. Soft-progressive marker.' },
+  amr_2026: { label: 'Alliance for Mission & Renewal', short: 'AMR', direction: 'red', source: 'a4mr.org', tooltip: 'Soft-progressive PCA advocacy group in the Keller / Redeemer-network mold.' },
+  letter_of_lament_2025: { label: 'PCA Letter of Lament (2025)', short: 'LoL', direction: 'red', source: 'pcaprayerandlament.com', tooltip: 'Dec 2025 open letter spearheaded by Irwyn Ince and Duke Kwon — left-leaning PCA signal.' },
+  revoice_2018_2026: { label: 'Revoice', short: 'Revoice', direction: 'red', source: 'revoice.us', tooltip: 'Side B / "gay Christian" celibate-LGBTQ-affirming-rhetoric movement. Sexual-ethics drift signal.' },
+  cbe_egalitarian_2026: { label: 'Christians for Biblical Equality', short: 'CBE', direction: 'red', source: 'cbeinternational.org', tooltip: 'Leading evangelical egalitarian advocacy organization. Egalitarian / female-pastor signal.' },
+  dallas_statement_2018: { label: 'Dallas Statement (Social Justice & Gospel)', short: 'Dallas', direction: 'green', source: 'statementonsocialjustice.com', tooltip: '2018 statement against CRT, woke evangelicalism, and feminized social justice. Conservative-Reformed marker.' },
+  nashville_statement_2017: { label: 'Nashville Statement', short: 'Nashville', direction: 'green', source: 'cbmw.org', tooltip: '2017 CBMW statement on biblical anthropology, marriage, and sexual ethics. Orthodox-evangelical marker.' },
+};
+
+function signaturesSection(church) {
+  const sigs = church.signatories || {};
+  const items = [];
+  for (const [key, names] of Object.entries(sigs)) {
+    if (!Array.isArray(names) || names.length === 0) continue;
+    const meta = STATEMENT_META[key];
+    if (!meta) continue;
+    const color = meta.direction === 'green' ? 'var(--green)' : 'var(--red)';
+    const bgColor = meta.direction === 'green' ? 'rgba(76,175,80,0.08)' : 'rgba(244,67,54,0.08)';
+    const dirIcon = meta.direction === 'green' ? 'shield-chain-salvation-48.png' : 'shield-warning-48.png';
+    const namesList = names.map(n => `<strong style="color:var(--gold-light);">${escapeHtml(n)}</strong>`).join(', ');
+    items.push(`<div style="display:flex;align-items:flex-start;gap:10px;padding:10px 12px;background:${bgColor};border-left:3px solid ${color};border-radius:6px;margin-bottom:8px;">
+      <img src="/assets/icons/${dirIcon}" alt="" width="18" height="18" style="vertical-align:middle;flex-shrink:0;margin-top:2px;">
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:0.82rem;font-weight:700;color:${color};margin-bottom:2px;">${escapeHtml(meta.label)}</div>
+        <div style="color:var(--white);font-size:0.85rem;line-height:1.5;">${namesList}</div>
+        <div style="color:var(--gray);font-size:0.72rem;margin-top:4px;" title="${escapeHtml(meta.tooltip)}">Source: ${escapeHtml(meta.source)} <span style="opacity:0.7;">— hover for details</span></div>
+      </div>
+    </div>`);
+  }
+  if (items.length === 0) return '';
+  const agg = church.signatures_aggregate || 'none';
+  const aggLabel = agg === 'green' ? 'Orthodox-aligned signatures' : agg === 'red' ? 'Soft-progressive signatures' : agg === 'mixed' ? 'Mixed signatures (review)' : '';
+  const aggColor = agg === 'green' ? 'var(--green)' : agg === 'red' ? 'var(--red)' : 'var(--yellow)';
+  return `<div class="card" style="margin-top:28px;">
+    <div class="card-title"><img class="site-icon" src="/assets/icons/shield-chain-faith-48.png" alt="" width="20" height="20"> Pastor Signatures &amp; Affiliations
+      ${aggLabel ? `<span style="margin-left:auto;color:${aggColor};font-size:0.8rem;font-weight:600;">[${escapeHtml(aggLabel)}]</span>` : ''}
+    </div>
+    <p style="color:var(--gray);font-size:0.82rem;margin-bottom:12px;">Public statement signatures and organizational affiliations of this church's named pastors. "People is policy" — these are evidence-weighted signals about doctrinal trajectory, not the sole determinant of any rating.</p>
+    ${items.join('')}
+  </div>`;
+}
+
 function sourcesSection(church) {
   const sources = (church.enrichment_sources || []).filter(s => typeof s === 'string' && s.trim());
   const liveSources = (church.enrichment_sources_live || []).filter(s => typeof s === 'string' && s.trim());
@@ -624,6 +668,8 @@ ${NAV}
   ${pastorSocialHtml}
 
   ${engagementSection(church)}
+
+  ${signaturesSection(church)}
 
   ${sourcesSection(church)}
 
