@@ -54,13 +54,14 @@ function threatBadge(church) {
   </div>`;
 }
 
-// Verification badge — shows how this church was verified
+// Verification badge — shows how this church was verified.
+// MOOP-Verified churches link to /moop-attended.html (the personal-attendance index).
 function verificationBadge(church) {
   const e = church.engagement || {};
   if (e.attended_personally || e.attended_services || e.know_members_personally || e.visited_facility) {
-    return `<div class="verification-badge moop-verified" title="Personally verified by MOOP">
+    return `<a href="/moop-attended.html" class="verification-badge moop-verified" title="Personally verified by MOOP — see all MOOP-attended churches" style="text-decoration:none;">
       <img src="/assets/icons/shield-chain-faith-48.png" alt="" width="14" height="14" style="vertical-align:middle;filter:brightness(1.5);"> MOOP Verified
-    </div>`;
+    </a>`;
   }
   if (e.researched_website || e.viewed_online_services || (church.website && String(church.website).startsWith('http'))) {
     return `<div class="verification-badge web-verified" title="Verified via website and public data">
@@ -205,6 +206,7 @@ function mapSrc(address) {
 
 const NAV = `<nav class="top-nav">
     <a href="/churches.html">← Church Directory</a>
+    <a href="/moop-attended.html">MOOP-Attended</a>
     <a href="/index.html">Home</a>
     <a href="/bible.html">Bible Translation Engine</a>
     <a href="/usmc-ministries.html">U.S.M.C. Ministries</a>
