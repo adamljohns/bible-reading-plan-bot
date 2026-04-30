@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-touch-icon.png">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="MOOP Church Directory progress overview — total churches evaluated, state coverage, denomination distribution, and roadmap toward 7,777.">
+    <meta property="og:title" content="MOOP Church Directory — Progress Overview | U.S.M.C. Ministries">
+    <meta property="og:description" content="Live snapshot of the MOOP Church Directory: how many churches we've evaluated, where they are, and where we're headed.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://usmcmin.org/directory-overview.html">
+    <title>Directory Progress Overview | MOOP Church Directory | USMC Ministries</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        :root { --bg:#000; --card:#111; --gold:#D4AF37; --gold-light:#F4D470; --white:#e8e8e8; --gray:#888; --border:#333; --green:#3ea14a; --yellow:#d4a437; --red:#c0392b; }
+        body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--white); min-height:100vh; line-height:1.7; }
+        h1,h2,h3 { font-family:'Playfair Display',serif; }
+        nav { display:flex; flex-wrap:wrap; gap:6px; justify-content:center; padding:14px 20px; border-bottom:1px solid var(--border); background:rgba(0,0,0,0.95); backdrop-filter:blur(8px); position:sticky; top:0; z-index:100; }
+        nav a { color:var(--gray); text-decoration:none; font-size:0.85rem; font-weight:500; padding:5px 12px; border-radius:20px; border:1px solid transparent; transition:all 0.2s; white-space:nowrap; display:inline-flex; align-items:center; gap:4px; }
+        nav a:hover { color:var(--gold); border-color:var(--border); }
+        nav a.active { color:var(--gold) !important; border-color:var(--gold); }
+        .site-icon { vertical-align:middle; opacity:0.8; }
+        .container { max-width:1100px; margin:0 auto; padding:40px 20px 60px; }
+        .hero { text-align:center; padding:40px 0 30px; border-bottom:1px solid var(--border); margin-bottom:40px; }
+        .hero .breadcrumb { color:var(--gray); font-size:0.85rem; margin-bottom:12px; letter-spacing:1px; }
+        .hero .breadcrumb a { color:var(--gold); text-decoration:none; }
+        .hero h1 { font-size:clamp(2rem, 5vw, 2.8rem); color:var(--gold-light); margin:8px 0 14px; letter-spacing:0.5px; }
+        .hero p { color:var(--gray); max-width:680px; margin:0 auto; font-size:0.98rem; }
+        .big-number { font-family:'Playfair Display',serif; font-size:clamp(3rem, 10vw, 5.5rem); color:var(--gold); margin:20px 0 4px; letter-spacing:1px; }
+        .big-number .denom { color:var(--gray); font-size:0.45em; font-weight:400; margin-left:8px; }
+        .big-number-label { color:var(--gray); font-size:0.95rem; letter-spacing:1px; text-transform:uppercase; }
+
+        /* progress bar */
+        .progress-wrap { max-width:680px; margin:30px auto 0; }
+        .progress-track { height:24px; background:#1a1a1a; border:1px solid var(--border); border-radius:14px; overflow:hidden; position:relative; }
+        .progress-fill { height:100%; background:linear-gradient(90deg, var(--gold) 0%, var(--gold-light) 100%); transition:width 1.2s ease-out; box-shadow:inset 0 0 10px rgba(0,0,0,0.3); }
+        .progress-meta { display:flex; justify-content:space-between; margin-top:8px; color:var(--gray); font-size:0.82rem; }
+        .progress-meta strong { color:var(--gold); }
+
+        /* stat row */
+        .stat-row { display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:16px; margin:40px 0; }
+        .stat-card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:22px 18px; text-align:center; }
+        .stat-card .stat-num { color:var(--gold); font-size:1.8rem; font-weight:700; font-family:'Playfair Display',serif; }
+        .stat-card .stat-lbl { color:var(--gray); font-size:0.78rem; text-transform:uppercase; letter-spacing:1.2px; margin-top:6px; }
+
+        /* sections */
+        .section { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:30px; margin:30px 0; }
+        .section h2 { color:var(--gold); font-size:1.4rem; margin-bottom:6px; letter-spacing:0.3px; }
+        .section .section-sub { color:var(--gray); font-size:0.88rem; margin-bottom:24px; }
+
+        /* state grid */
+        .state-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(72px, 1fr)); gap:6px; }
+        .state-cell { background:#0c0c0c; border:1px solid #1f1f1f; border-radius:8px; padding:10px 6px; text-align:center; transition:all 0.2s; cursor:default; }
+        .state-cell .st-code { font-weight:700; color:var(--white); font-size:0.85rem; letter-spacing:0.5px; }
+        .state-cell .st-count { color:var(--gray); font-size:0.7rem; margin-top:3px; }
+        .state-cell.tier-0 { background:#0c0c0c; border-color:#1f1f1f; }
+        .state-cell.tier-0 .st-code { color:#444; }
+        .state-cell.tier-1 { background:rgba(212,175,55,0.06); border-color:rgba(212,175,55,0.18); }
+        .state-cell.tier-2 { background:rgba(212,175,55,0.12); border-color:rgba(212,175,55,0.3); }
+        .state-cell.tier-3 { background:rgba(212,175,55,0.22); border-color:rgba(212,175,55,0.45); }
+        .state-cell.tier-4 { background:rgba(212,175,55,0.35); border-color:rgba(212,175,55,0.6); }
+        .state-cell.tier-5 { background:rgba(212,175,55,0.5); border-color:var(--gold); }
+        .state-cell.tier-5 .st-code, .state-cell.tier-4 .st-code { color:#000; }
+        .state-cell.tier-5 .st-count, .state-cell.tier-4 .st-count { color:#1a1a1a; }
+        .legend { display:flex; gap:14px; margin-top:18px; flex-wrap:wrap; font-size:0.78rem; color:var(--gray); align-items:center; }
+        .legend-swatch { display:inline-block; width:14px; height:14px; border-radius:3px; vertical-align:middle; margin-right:5px; border:1px solid #333; }
+
+        /* denom bars */
+        .bar-list { display:flex; flex-direction:column; gap:8px; }
+        .bar-row { display:grid; grid-template-columns:170px 1fr 60px; gap:12px; align-items:center; font-size:0.86rem; }
+        .bar-row .bar-label { color:var(--white); }
+        .bar-row .bar-track { background:#0c0c0c; border:1px solid #1f1f1f; border-radius:6px; height:18px; overflow:hidden; position:relative; }
+        .bar-row .bar-fill { height:100%; background:linear-gradient(90deg, rgba(212,175,55,0.8), rgba(244,212,112,0.8)); transition:width 1.2s ease-out; }
+        .bar-row .bar-count { color:var(--gold); text-align:right; font-weight:600; font-variant-numeric:tabular-nums; }
+        @media (max-width:600px) {
+            .bar-row { grid-template-columns:130px 1fr 50px; gap:8px; font-size:0.78rem; }
+        }
+
+        /* engagement */
+        .eng-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px; }
+        .eng-card { background:#0c0c0c; border:1px solid #1f1f1f; border-radius:10px; padding:16px 18px; }
+        .eng-card .eng-num { color:var(--gold); font-size:1.5rem; font-weight:700; font-family:'Playfair Display',serif; }
+        .eng-card .eng-pct { color:var(--gray); font-size:0.78rem; margin-left:8px; }
+        .eng-card .eng-lbl { color:var(--white); font-size:0.86rem; margin-top:4px; }
+
+        /* rating */
+        .rating-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:10px; }
+        .rating-pill { padding:14px 16px; border-radius:10px; text-align:center; }
+        .rating-pill .rt-num { font-size:1.8rem; font-weight:800; font-family:'Playfair Display',serif; }
+        .rating-pill .rt-lbl { font-size:0.78rem; text-transform:uppercase; letter-spacing:1.2px; margin-top:4px; }
+        .rt-green { background:rgba(62,161,74,0.12); border:1px solid rgba(62,161,74,0.4); color:#7dcf86; }
+        .rt-yellow { background:rgba(212,164,55,0.12); border:1px solid rgba(212,164,55,0.4); color:#e8c977; }
+        .rt-red { background:rgba(192,57,43,0.12); border:1px solid rgba(192,57,43,0.4); color:#e57c6f; }
+        .rt-black { background:rgba(40,40,40,0.6); border:1px solid #555; color:#999; }
+        .rt-dead { background:rgba(80,80,80,0.2); border:1px solid #444; color:#777; }
+
+        /* roadmap */
+        .roadmap { padding-left:0; list-style:none; }
+        .roadmap li { padding:14px 18px; border-left:3px solid var(--border); margin-left:8px; position:relative; color:var(--gray); }
+        .roadmap li::before { content:""; position:absolute; left:-9px; top:18px; width:14px; height:14px; border-radius:50%; background:var(--bg); border:2px solid var(--border); }
+        .roadmap li.done { border-left-color:var(--gold); color:var(--white); }
+        .roadmap li.done::before { background:var(--gold); border-color:var(--gold); }
+        .roadmap li.current { border-left-color:var(--gold-light); color:var(--white); }
+        .roadmap li.current::before { background:var(--bg); border-color:var(--gold-light); box-shadow:0 0 0 4px rgba(244,212,112,0.15); }
+        .roadmap li strong { color:var(--gold-light); }
+
+        /* light mode */
+        body.light-mode { --bg:#F5F3EF; --card:#FFF; --white:#1a1a1a; --gray:#666; --border:#d4d0c8; background:#F5F3EF; color:#1a1a1a; }
+        body.light-mode nav { background:rgba(245,243,239,0.97); }
+        body.light-mode .stat-card, body.light-mode .section { background:#fff; border-color:#d4d0c8; }
+        body.light-mode .state-cell, body.light-mode .bar-track, body.light-mode .eng-card { background:#fafaf6; border-color:#dcd6c8; }
+        body.light-mode .progress-track { background:#eee; border-color:#d4d0c8; }
+
+        footer { text-align:center; padding:32px 20px; border-top:1px solid var(--border); margin-top:40px; color:var(--gray); font-size:0.88rem; }
+        footer a { color:var(--gold); text-decoration:none; }
+        footer a:hover { color:var(--gold-light); }
+        a, a:link, a:visited { color:var(--gold); }
+
+        .map-placeholder { background:#0c0c0c; border:1px dashed #2a2a2a; border-radius:12px; padding:50px 20px; text-align:center; color:var(--gray); font-size:0.92rem; }
+        .map-placeholder strong { color:var(--gold-light); }
+        body.light-mode .map-placeholder { background:#fafaf6; border-color:#c8c2b0; }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html"><img src="assets/icons/shield-home-48.png" class="site-icon" alt="" width="16" height="16"> Home</a>
+        <a href="bible.html"><img src="assets/icons/shield-compass.png" class="site-icon" alt="" width="16" height="16"> Bible Tools</a>
+        <a href="churches.html" class="active"><img src="assets/icons/shield-church-48.png" class="site-icon" alt="" width="16" height="16"> Churches</a>
+        <a href="blog.html"><img src="assets/icons/shield-blog-quill-48.png" class="site-icon" alt="" width="16" height="16"> Blog</a>
+        <a href="connect.html"><img src="assets/icons/shield-handshake.png" class="site-icon" alt="" width="16" height="16"> Connect</a>
+    </nav>
+
+    <div class="container">
+        <div class="hero">
+            <div class="breadcrumb"><a href="churches.html">Church Directory</a> &middot; Progress Overview</div>
+            <h1>Directory Progress</h1>
+            <p>A live snapshot of how the MOOP Church Directory is growing — total churches under theological evaluation, geographic coverage, denomination distribution, and the roadmap toward 7,777.</p>
+            <div class="big-number"><span id="totalCount">—</span><span class="denom">/ 7,777</span></div>
+            <div class="big-number-label">Churches Evaluated</div>
+
+            <div class="progress-wrap">
+                <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+                <div class="progress-meta"><span id="progressPct">—</span><span><strong id="progressRemaining">—</strong> remaining</span></div>
+            </div>
+        </div>
+
+        <!-- Headline stats -->
+        <div class="stat-row">
+            <div class="stat-card">
+                <div class="stat-num" id="statStates">—</div>
+                <div class="stat-lbl">States &amp; Provinces</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-num" id="statDenoms">—</div>
+                <div class="stat-lbl">Distinct Denominations</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-num" id="statResearched">—</div>
+                <div class="stat-lbl">Websites Researched</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-num" id="statAttended">—</div>
+                <div class="stat-lbl">Personally Attended</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-num" id="statUpdated">—</div>
+                <div class="stat-lbl">Last Updated</div>
+            </div>
+        </div>
+
+        <!-- Geographic coverage -->
+        <div class="section">
+            <h2>Geographic Coverage</h2>
+            <div class="section-sub">Each cell shows the count of churches evaluated in that state or province. Brighter = more coverage. A future revision will replace this grid with a true choropleth map.</div>
+            <div class="state-grid" id="stateGrid"></div>
+            <div class="legend">
+                <span><span class="legend-swatch" style="background:#0c0c0c;"></span>0 churches</span>
+                <span><span class="legend-swatch" style="background:rgba(212,175,55,0.06);"></span>1–5</span>
+                <span><span class="legend-swatch" style="background:rgba(212,175,55,0.12);"></span>6–25</span>
+                <span><span class="legend-swatch" style="background:rgba(212,175,55,0.22);"></span>26–75</span>
+                <span><span class="legend-swatch" style="background:rgba(212,175,55,0.35);"></span>76–200</span>
+                <span><span class="legend-swatch" style="background:rgba(212,175,55,0.5);"></span>200+</span>
+            </div>
+            <div class="map-placeholder" style="margin-top:28px;">
+                <p><strong>Choropleth map placeholder</strong></p>
+                <p style="margin-top:8px;font-size:0.85rem;">Future revision: an SVG of the United States colored by per-state evaluation density, with hover tooltips for top denominations and recent additions.</p>
+            </div>
+        </div>
+
+        <!-- Denomination breakdown -->
+        <div class="section">
+            <h2>Top Denominations</h2>
+            <div class="section-sub">The 25 most-represented denominations in the directory. SBC, PCA, OPC, EFCA, ARP, and Reformed Baptist receive the deepest theological evaluation. Tradition-thin denominations are progressively backfilled.</div>
+            <div class="bar-list" id="denomBars"></div>
+        </div>
+
+        <!-- Rating breakdown -->
+        <div class="section">
+            <h2>Theological Rating Breakdown</h2>
+            <div class="section-sub">Overall rating across the directory. <strong style="color:#7dcf86;">Green</strong> = recommended; <strong style="color:#e8c977;">Yellow</strong> = caution / verify; <strong style="color:#e57c6f;">Red</strong> = serious concerns; <strong style="color:#999;">Black</strong> = avoid (significant cultural/doctrinal drift); <em>Dead</em> = defunct or website lost.</div>
+            <div class="rating-grid" id="ratingGrid"></div>
+        </div>
+
+        <!-- Engagement -->
+        <div class="section">
+            <h2>Personal Engagement</h2>
+            <div class="section-sub">How deep the editor's first-hand engagement with each church goes. Most records are at the website-research level; targeted Fredericksburg, DC-metro, and Hampton Roads churches receive in-person visits, online service review, and leadership interaction.</div>
+            <div class="eng-grid" id="engGrid"></div>
+        </div>
+
+        <!-- Roadmap -->
+        <div class="section">
+            <h2>Roadmap to 7,777</h2>
+            <div class="section-sub">7,777 was chosen as a deliberately ambitious goal — large enough to compel comprehensive coverage of confessionally orthodox congregations across all 50 states, small enough to keep evaluation depth credible. Progress milestones:</div>
+            <ul class="roadmap" id="roadmap">
+                <li class="done"><strong>1,000</strong> — Foundation: Fredericksburg + immediate VA / DC-metro launch (early 2026)</li>
+                <li class="done"><strong>2,000</strong> — Hampton Roads + Virginia statewide</li>
+                <li class="done"><strong>3,000</strong> — Southeast SBC + ACNA/LCMS infill</li>
+                <li class="done"><strong>4,000</strong> — Reformed traditions: PCA, OPC, EPC, ARP, RB foundations</li>
+                <li class="current"><strong>4,500 → 5,000</strong> — National Reformed expansion + Continental Reformed (URCNA, RCUS, HRC, FRCNA, PRC)</li>
+                <li><strong>5,000 → 6,000</strong> — SBC megachurch coverage + denominational drift documentation (Saddleback / Bayside precedents)</li>
+                <li><strong>6,000 → 7,000</strong> — Anabaptist (Mennonite, Brethren), Wesleyan/Holiness orthodox, Pentecostal/Charismatic conservative wings</li>
+                <li><strong>7,000 → 7,777</strong> — Final fill: thin-state cleanup, signature attribution complete, sermon-archive backfill, choropleth map</li>
+            </ul>
+        </div>
+
+        <!-- Methodology -->
+        <div class="section">
+            <h2>Methodology Note</h2>
+            <div class="section-sub">Each church record carries a 10-dimension theological score (Christology, Scripture, Gender, Leadership, Soteriology, Cultural, Preaching, Mission, Men's Discipleship, Denominational), seven public-statement signatory cross-references (Warhurst Protest 2020, AMR 2026, Letter of Lament 2025, Revoice, Dallas Statement 2018, Nashville Statement 2017, CBE Egalitarian 2026), pastor and pulpit-transition tracking, and a personal-engagement record. Records are progressively enriched. Scoring is conservative-orthodox; cultural drift, female-senior-pastor SBC churches, and Revoice-adjacent congregations are flagged transparently with documented reasons.</div>
+            <p style="color:var(--gray); font-size:0.86rem; margin-top:12px;">Sources include denominational find-a-church locators (sbc.net, pcanet.org, opc.org, epc.org, arpchurch.org, urcna.org, etc.), individual church websites for pastor and theological-statement verification, and seven hand-curated public-statement signatory lists maintained alongside the directory. Where verification is incomplete, records are flagged <code>needs_review</code> rather than guessed.</p>
+        </div>
+
+        <p style="text-align:center; color:var(--gray); font-size:0.78rem; margin-top:20px; letter-spacing:1px;">
+            MOOP Church Directory · Live snapshot rendered client-side from <a href="data/churches.json" style="color:var(--gold);">churches.json</a> ·
+            <span id="versionTag">Loading…</span>
+        </p>
+    </div>
+
+    <footer>
+        <p><a href="index.html">Home</a> &middot; <a href="churches.html">Directory</a> &middot; <a href="churches-fxbg.html">Fredericksburg</a> &middot; <a href="churches-virginia.html">Virginia</a> &middot; <a href="churches-dc.html">DC Metro</a></p>
+        <p style="margin-top:10px;">"For my eyes are on all their ways. They are not hidden from me, nor is their iniquity concealed from my eyes." — Jeremiah 16:17</p>
+    </footer>
+
+    <script>
+        // US states + Canadian provinces (alphabetic)
+        const STATES = [
+            'AL','AK','AZ','AR','CA','CO','CT','DE','DC','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA','ME','MD','MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT','VT','VA','WA','WV','WI','WY',
+            'AB','BC','MB','NB','NL','NS','ON','PE','QC','SK'
+        ];
+
+        function tier(count) {
+            if (count === 0) return 0;
+            if (count <= 5) return 1;
+            if (count <= 25) return 2;
+            if (count <= 75) return 3;
+            if (count <= 200) return 4;
+            return 5;
+        }
+
+        function fmt(n) { return n.toLocaleString(); }
+
+        function extractState(addr) {
+            if (!addr) return null;
+            // Match ", ST" or ", ST 12345"
+            const m = addr.match(/,\s*([A-Z]{2})\b/);
+            return m ? m[1] : null;
+        }
+
+        async function load() {
+            try {
+                const r = await fetch('data/churches.json');
+                const d = await r.json();
+                const churches = d.churches || d;
+                const total = churches.length;
+                const goal = 7777;
+                const pct = (total / goal * 100);
+
+                document.getElementById('totalCount').textContent = fmt(total);
+                document.getElementById('progressFill').style.width = Math.min(pct, 100).toFixed(1) + '%';
+                document.getElementById('progressPct').textContent = pct.toFixed(1) + '% complete';
+                document.getElementById('progressRemaining').textContent = fmt(Math.max(goal - total, 0));
+
+                // Version tag
+                const ver = d.directory_version || '—';
+                const upd = d.directory_updated || '—';
+                document.getElementById('versionTag').textContent = `Version ${ver} · Updated ${upd}`;
+                document.getElementById('statUpdated').textContent = upd;
+
+                // Aggregate by state
+                const stateCount = {};
+                STATES.forEach(s => stateCount[s] = 0);
+                const denomCount = {};
+                let researched = 0, attended = 0;
+                let visited = 0, viewedOnline = 0, knowMembers = 0, interactedLeaders = 0;
+                const ratingCount = { green: 0, yellow: 0, red: 0, black: 0, dead: 0 };
+
+                churches.forEach(c => {
+                    const st = extractState(c.address);
+                    if (st && stateCount.hasOwnProperty(st)) stateCount[st]++;
+                    const denom = c.denomination || '?';
+                    denomCount[denom] = (denomCount[denom] || 0) + 1;
+                    const eng = c.engagement || {};
+                    if (eng.researched_website) researched++;
+                    if (eng.attended_personally) attended++;
+                    if (eng.visited_facility) visited++;
+                    if (eng.viewed_online_services) viewedOnline++;
+                    if (eng.know_members_personally) knowMembers++;
+                    if (eng.interacted_with_leadership) interactedLeaders++;
+                    const rt = (c.overall_rating || 'yellow').toLowerCase();
+                    if (rt === 'green') ratingCount.green++;
+                    else if (rt === 'red') ratingCount.red++;
+                    else if (rt === 'black') ratingCount.black++;
+                    else if (rt === 'dead' || rt === 'defunct') ratingCount.dead++;
+                    else ratingCount.yellow++;
+                });
+
+                // States with at least 1 church
+                const statesWithCoverage = Object.values(stateCount).filter(v => v > 0).length;
+                document.getElementById('statStates').textContent = statesWithCoverage;
+                document.getElementById('statDenoms').textContent = fmt(Object.keys(denomCount).length);
+                document.getElementById('statResearched').textContent = fmt(researched);
+                document.getElementById('statAttended').textContent = fmt(attended);
+
+                // Render state grid
+                const gridEl = document.getElementById('stateGrid');
+                gridEl.innerHTML = '';
+                STATES.forEach(s => {
+                    const n = stateCount[s] || 0;
+                    const t = tier(n);
+                    const cell = document.createElement('div');
+                    cell.className = `state-cell tier-${t}`;
+                    cell.title = `${s}: ${fmt(n)} church${n === 1 ? '' : 'es'}`;
+                    cell.innerHTML = `<div class="st-code">${s}</div><div class="st-count">${fmt(n)}</div>`;
+                    gridEl.appendChild(cell);
+                });
+
+                // Render denomination bars (top 25)
+                const sortedDenoms = Object.entries(denomCount).sort((a, b) => b[1] - a[1]).slice(0, 25);
+                const maxDenom = sortedDenoms.length ? sortedDenoms[0][1] : 1;
+                const barsEl = document.getElementById('denomBars');
+                barsEl.innerHTML = '';
+                sortedDenoms.forEach(([name, count]) => {
+                    const w = (count / maxDenom * 100).toFixed(1);
+                    const display = name.length > 32 ? name.substring(0, 30) + '…' : name;
+                    const row = document.createElement('div');
+                    row.className = 'bar-row';
+                    row.innerHTML = `<div class="bar-label" title="${name.replace(/"/g,'&quot;')}">${display}</div><div class="bar-track"><div class="bar-fill" style="width:${w}%"></div></div><div class="bar-count">${fmt(count)}</div>`;
+                    barsEl.appendChild(row);
+                });
+
+                // Rating grid
+                const rgEl = document.getElementById('ratingGrid');
+                rgEl.innerHTML = '';
+                const rtData = [
+                    { key: 'green', label: 'Green', cls: 'rt-green' },
+                    { key: 'yellow', label: 'Yellow', cls: 'rt-yellow' },
+                    { key: 'red', label: 'Red', cls: 'rt-red' },
+                    { key: 'black', label: 'Black', cls: 'rt-black' },
+                    { key: 'dead', label: 'Dead / Defunct', cls: 'rt-dead' }
+                ];
+                rtData.forEach(rt => {
+                    const n = ratingCount[rt.key];
+                    const p = (n / total * 100).toFixed(1);
+                    const div = document.createElement('div');
+                    div.className = `rating-pill ${rt.cls}`;
+                    div.innerHTML = `<div class="rt-num">${fmt(n)}</div><div class="rt-lbl">${rt.label} · ${p}%</div>`;
+                    rgEl.appendChild(div);
+                });
+
+                // Engagement grid
+                const engEl = document.getElementById('engGrid');
+                engEl.innerHTML = '';
+                const engData = [
+                    { n: researched, lbl: 'Website researched' },
+                    { n: viewedOnline, lbl: 'Watched online service' },
+                    { n: visited, lbl: 'Visited facility in person' },
+                    { n: attended, lbl: 'Attended a service personally' },
+                    { n: knowMembers, lbl: 'Know members personally' },
+                    { n: interactedLeaders, lbl: 'Interacted with leadership' },
+                ];
+                engData.forEach(e => {
+                    const p = (e.n / total * 100).toFixed(1);
+                    const card = document.createElement('div');
+                    card.className = 'eng-card';
+                    card.innerHTML = `<div><span class="eng-num">${fmt(e.n)}</span><span class="eng-pct">${p}%</span></div><div class="eng-lbl">${e.lbl}</div>`;
+                    engEl.appendChild(card);
+                });
+
+            } catch (err) {
+                console.error('directory-overview load failed', err);
+                document.getElementById('totalCount').textContent = '?';
+            }
+        }
+        load();
+
+        // Theme toggle (lightweight; matches site convention)
+        try {
+            const saved = localStorage.getItem('bte-theme');
+            if (saved === 'light') document.body.classList.add('light-mode');
+        } catch (e) {}
+    </script>
+</body>
+</html>
