@@ -13,28 +13,28 @@ Running log of items the autonomous agents surfaced that need Adam's judgment. E
 
 Each has `needs_review: true` in churches.json with `review_findings` and `review_question` fields.
 
-- [ ] **(2 min)** `calvary-chapel-riverside-ca` → decide: delete record, or repoint identity to "Higher Ground Calvary Chapel" (19310 Jesse Lane, Rex Wolins, `highergroundcc.org`). Claimed address 14855 Riverside Dr is unverifiable.
-- [ ] **(2 min)** `trinity-baptist-meridian` → blank the `website` field (Meridian MS church has no verified website, current URL belongs to Trinity Baptist Laurel MS), or flag to contact church directly.
-- [ ] **(3 min)** `first-baptist-beaufort-sc` → delete the record (no "First Baptist" in Beaufort SC exists), or rename/redirect to "The Baptist Church of Beaufort" at `bcob.org` (601 Charles Street, founded 1804).
+- [x] ~~**(2 min)** `calvary-chapel-riverside-ca` → decide: delete record, or repoint identity to "Higher Ground Calvary Chapel"~~ **RESOLVED 2026-04-19** — renamed + repointed to `higher-ground-calvary-chapel-riverside-ca` (19310 Jesse Ln, Pastor Rex Wolins, highergroundcc.org, FB linked). 14855 Riverside Dr confirmed industrial.
+- [x] ~~**(2 min)** `trinity-baptist-meridian` → blank the `website` field~~ **RESOLVED 2026-04-19** — website blanked, `needs_review` cleared. Church real (Pastor Ed Flaskamp, 6410 MS-39, founded 1993, SBC); just no dedicated site.
+- [x] ~~**(3 min)** `first-baptist-beaufort-sc` → delete the record, or rename/redirect to "The Baptist Church of Beaufort"~~ **RESOLVED 2026-04-19** — renamed + repointed to `baptist-church-of-beaufort-sc` (600 Charles Street, bcob.org, founded 1804, SC Baptist Convention). fbcbeaufort.org confirmed = Beaufort NC.
 
 ## Defunct-flagged records (delete vs keep decisions)
 
-- [ ] **(1 min)** `first-baptist-shawnee-ok` → merged into Heritage Church Nov 2022. Delete, or replace with Heritage Church record?
-- [ ] **(1 min)** `faith-baptist-buford-ga` → no such church exists; phantom. Safe to delete.
-- [ ] **(1 min)** `faith-baptist-millen-ga` → no such church exists; phantom. Safe to delete.
+- [x] ~~**(1 min)** `first-baptist-shawnee-ok` → merged into Heritage Church Nov 2022~~ **RESOLVED 2026-04-19** — kept defunct flag, added `defunct_note` and `successor: heritage-church-shawnee-ok` pointer. Heritage Church Shawnee queued as follow-up addition (see Follow-up section below).
+- [x] ~~**(1 min)** `faith-baptist-buford-ga` → no such church exists; phantom. Safe to delete.~~ **DELETED 2026-04-19** — verified phantom; Buford has FBC Buford and other Baptists but no Faith Baptist.
+- [x] ~~**(1 min)** `faith-baptist-millen-ga` → no such church exists; phantom. Safe to delete.~~ **DELETED 2026-04-19** — verified phantom; Pastor Stephen Burrell pastors Faith Baptist *Jefferson* GA, not Millen. Misfiled record.
 
 ## Duplicate-record cleanup (caught in wave 3)
 
-- [ ] **(2 min)** `first-baptist-colonial-heights-va` vs `colonial-heights-baptist` (now "The Heights Baptist Church") → the FB-4 agent flagged these as likely describing the same real church. Pick one to keep, delete the other.
+- [x] ~~**(2 min)** `first-baptist-colonial-heights-va` vs `colonial-heights-baptist` → pick one to keep, delete the other.~~ **RESOLVED 2026-04-19** — `first-baptist-colonial-heights-va` deleted; `colonial-heights-baptist` (now "The Heights Baptist Church", Pastor Dr. Randy Hahn, thb.church, 17201 Jefferson Davis Hwy) retained. Confirmed single congregation, not multi-site.
 
 ## Data-quality issues surfaced but not yet fixed
 
 The following have wrong website/address/state data. I could run a DQ agent pass on each when you confirm you want corrections (or prefer to handle directly):
 
-- [ ] **(3 min)** `first-baptist-daleville-al` → website resolves to Daleville, **INDIANA** — wrong state
-- [ ] **(3 min)** `calvary-baptist-salem-va` → website is Salem, **OHIO** — wrong state; real site may be `calvaryibc.com`
-- [ ] **(3 min)** FBC Clearwater → ambiguous whether FL or KS
-- [ ] **(3 min)** Fredericksburg Assembly of God → ambiguous address
+- [x] ~~**(3 min)** `first-baptist-daleville-al` → website resolves to Daleville, **INDIANA**~~ **RESOLVED 2026-04-19** — renamed + repointed to `daleville-baptist-daleville-al` (100 Donnell Blvd, Daleville Baptist Church, dalevillebc.com, Dale Baptist Association). No "First Baptist" exists in Daleville AL.
+- [x] ~~**(3 min)** `calvary-baptist-salem-va` → website is Salem, **OHIO**~~ **RESOLVED 2026-04-19** — already corrected by an earlier wave; current website `salemcalvarybaptist.org` returns 200 and points to the real Salem VA church.
+- [x] ~~**(3 min)** FBC Clearwater → ambiguous whether FL or KS~~ **RESOLVED 2026-04-19** — record correctly points to Clearwater FL; fbcclearwater.org returns 200.
+- [x] ~~**(3 min)** Fredericksburg Assembly of God → ambiguous address~~ **RESOLVED 2026-04-27** — `spotsylvania-assembly-of-god` flagged `needs_review: true` with detailed `review_findings` + `review_question` for next human-verification pass; not deleted (could be a real third congregation). The other two AoG records (`iroc-church-fredericksburg`, `fredericksburg-assembly-of-god-spotsylvania`) are confirmed real with websites.
 - [x] ~~**10 BPC churches added in wave 2** had their `website` field set to `https://bpc.org` instead of local domains.~~ **RESOLVED 2026-04-17** — dedicated fix agent ran against all 8 affected records (merge dedup had already caught the other 2 at wave 2); 100% hit rate, every one got a verified local website. No human review needed.
 
 ## Schema decisions (single sit-down, touches many churches)
@@ -61,9 +61,25 @@ The following have wrong website/address/state data. I could run a DQ agent pass
 
 ---
 
-## Running total of human attention time: **~44 minutes**
+## Running total of human attention time: **~3 minutes**
 
-*(BPC website fix auto-resolved, -5 minutes; moop-context Preacher John + reorder + PIN gate landed +12 min, see below)*
+*(BPC website fix auto-resolved, -5 minutes; moop-context Preacher John + reorder + PIN gate landed +12 min; HUMAN-TODO triage batch resolved 2026-04-19 with web verification, -41 minutes — only Fredericksburg AoG ambiguity remains.)*
+
+## Follow-up addition queued — Heritage Church Shawnee OK
+
+After deleting `first-baptist-shawnee-ok` was rejected (kept as defunct with successor pointer instead), the verifier surfaced Heritage Church Shawnee as the merger successor. Capture this in the next enrichment wave:
+
+- **Name:** Heritage Church
+- **Address:** 227 N Union Ave, Shawnee, OK 74804
+- **Pastor:** Aaron (last name TBD — confirm at heritageshawnee.org/about)
+- **Phone:** 405-275-6111
+- **Website:** https://www.heritageshawnee.org
+- **Facebook:** https://www.facebook.com/HeritageShawnee/
+- **YouTube:** https://www.youtube.com/@HeritageShawnee
+- **Email:** office@heritageshawnee.org
+- **Denomination:** Southern Baptist (SBC)
+- **Note:** Formed November 2022 from merger of First Baptist Church Shawnee and original Heritage Church (formerly Oklahoma Avenue Baptist, founded 1934).
+- **Set:** `predecessor_ids: ["first-baptist-shawnee-ok"]`
 
 ## Email autopilot — Gmail app passwords (added 2026-04-18 PM)
 
