@@ -33,8 +33,19 @@
         .biblical-def { border-left:3px solid var(--gold); padding-left:15px; }
         .section-summary { color:var(--gray); font-size:0.92rem; font-style:italic; margin-bottom:4px; }
         details { margin-top:8px; }
-        details summary { color:var(--gold); font-size:0.85rem; cursor:pointer; user-select:none; padding:4px 0; }
+        details summary { color:var(--gold); font-size:0.85rem; cursor:pointer; user-select:none; padding:4px 0;
+                          list-style:none; display:inline-flex; align-items:center; gap:8px; }
+        details summary::-webkit-details-marker { display:none; }
+        details summary::before {
+            content:""; display:inline-block; width:0; height:0;
+            border-left:5px solid transparent; border-right:5px solid transparent;
+            border-top:7px solid var(--gold);
+            transition:transform 0.18s ease;
+            transform:rotate(-90deg);
+        }
+        details[open] summary::before { transform:rotate(0deg); }
         details summary:hover { color:var(--gold-light); }
+        details summary:hover::before { border-top-color:var(--gold-light); }
         details[open] summary { margin-bottom:8px; }
         .corruption { border-left:3px solid #CC0000; padding-left:15px; }
         .corruption-inner { padding:12px 16px; background:rgba(204,0,0,0.06); border-left:2px solid #CC0000; border-radius:0 6px 6px 0; }
@@ -220,12 +231,13 @@ Greek:
 
     // Hide section-summary when details expands
     document.querySelectorAll('details').forEach(function(d){
-        d.addEventListener('toggle', function(){
-            var sum = d.previousElementSibling;
-            if(sum && sum.classList.contains('section-summary')){
-                sum.style.display = d.open ? 'none' : '';
-            }
-        });
+        var label = d.querySelector('summary em');
+        if(!label) return;
+        var update = function(){
+            label.textContent = d.open ? 'show less' : 'expand to see more';
+        };
+        update();
+        d.addEventListener('toggle', update);
     });
     </script>
 </body>

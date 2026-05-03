@@ -1,5 +1,85 @@
 # MOOP Dictionary Changelog
 
+## V5.3 — 2026-05-03 · Disclosure UX + BTE-John Pilot
+
+### What changed
+
+Three improvements after Adam noticed UX issues with the corruption section's expand/collapse pattern:
+
+#### 1. Disclosure UX fixed across all 3,777 entries
+
+**Old (buggy) behavior:**
+- Click "expand to see more" → the helpful italic blurb above disappears
+- The label still says "expand to see more" even when expanded
+- Disclosure triangle is browser-default grey
+
+**New behavior:**
+- Italic blurb stays visible always (it provides context for the expanded text)
+- Label toggles "expand to see more" ↔ "show less"
+- Custom yellow CSS triangle that rotates -90° (collapsed) ↔ 0° (open)
+- Cross-browser consistent (no `::-webkit-details-marker` reliance)
+
+Tooling:
+- `bin/fix_details_ux.py` — one-time sweep that handles three template variants
+  (new generator output, older one-line CSS, and stub entries with `<details>`
+  but no toggle JS at all). Modified 3,382 + 339 entries in two passes.
+- Generator template (`bin/generate_dict_entries.py`) updated so new batches
+  get the correct CSS + JS automatically.
+
+#### 2. BTE-John Dictionary Integration (pilot)
+
+Adam's vision: clicking dictionary-defined words inside Bible verses should
+surface the dictionary entry. First experiment scoped to the Gospel of John
+(bookId 43) to feel out the UX before expanding.
+
+**How it works:**
+- `bin/build_dict_manifest.py` builds `/dictionary/manifest.json` —
+  a 97 KB lookup with 1,905 single-word tokens + 1,299 multi-word phrases
+  mapping lowercased headwords to their slug.
+- `docs/bible.html` (BTE viewer) gained:
+  - CSS for `.dict-link` (subtle gold dotted underline; gold-on-hover)
+  - `loadDictManifest()` lazy-fetch (caches after first request)
+  - `enrichDictionaryLinks(bookId)` post-render hook that walks each
+    `.verse-text` span via TreeWalker on text-nodes (preserves existing
+    inline HTML like translator-italics), wraps matched words in
+    `<a class="dict-link">` to `/dictionary/<slug>.html`
+  - John-only gate via `DICT_ENABLED_BOOKS = new Set([43])` so other books
+    render unchanged during the pilot
+  - One-time toast: "Dictionary lit up — tap dotted words to explore (John pilot)"
+
+**Smoke-test on John 1-3 sample verses:** 12 dictionary links across 7 verses.
+Words like `Word`, `Light`, `Darkness`, `begotten`, `everlasting`, `Jesus`,
+`truth`, `Father` light up. Words that didn't match (`life`, `beginning`,
+`world`, `believeth`) are dictionary content gaps — entries to add later.
+
+**v2 candidates:**
+- Multi-word phrase matching (`son of god`, `lamb of god`, `born again`,
+  `kingdom of god`) — manifest already includes the phrases array,
+  highlighter just needs a phrase-pass
+- KJV verb-form normalization (`loveth` → `love`, `believeth` → `believe`)
+- Hover preview popovers (fetch entry's biblical_def into a tooltip without
+  navigating away)
+- Expand from John to other books once UX is confirmed
+
+#### 3. Generator docstring documents the editorial rule
+
+`bin/generate_dict_entries.py` docstring now carries the Modern Corruption
+editorial principle (postmodern redefinition, NOT orthodox teaching restated)
+with examples — so future batches don't regress.
+
+### Files changed
+
+- `bin/audit_corruption_sections.py` (new — V5.2)
+- `bin/fix_corruption_sections.py` (new — V5.2)
+- `bin/fix_details_ux.py` (new)
+- `bin/build_dict_manifest.py` (new)
+- `bin/generate_dict_entries.py` (template + docstring updated)
+- `docs/bible.html` (BTE viewer; CSS + dict-integration JS)
+- `docs/dictionary/manifest.json` (new — 97 KB lookup table)
+- 3,777 dictionary entries (corruption-section fixes + disclosure-UX fixes)
+
+---
+
 ## V5.1 — 2026-05-03 · The 3,777 Push
 
 ### What changed

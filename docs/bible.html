@@ -143,6 +143,28 @@
         .verse-block { margin: 15px 0; position: relative; }
         .verse-num { color: var(--gold); font-weight: 700; font-size: 0.9rem; }
         .verse-text { font-size: 1.1rem; line-height: 1.8; }
+        /* BTE v5.6: Dictionary-link highlighter (John pilot) */
+        .verse-text .dict-link {
+            color: inherit !important;
+            text-decoration: none;
+            border-bottom: 1px dotted var(--gold);
+            padding-bottom: 0;
+            transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+        }
+        .verse-text .dict-link:hover {
+            color: var(--gold) !important;
+            border-bottom-color: var(--gold-light);
+            background: rgba(212,175,55,0.08);
+            border-radius: 2px;
+        }
+        .dict-toast {
+            position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+            background: rgba(212,175,55,0.95); color: #000; font-size: 0.85rem;
+            padding: 8px 16px; border-radius: 20px; z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4); pointer-events: none;
+            opacity: 0; transition: opacity 0.3s ease;
+        }
+        .dict-toast.show { opacity: 1; }
         .share-btn { cursor: pointer; opacity: 0.7; font-size: 0.85rem; transition: opacity 0.2s; user-select: none; }
         .share-btn:hover { opacity: 1; }
         .share-btn.copied { opacity: 1; }
@@ -1062,6 +1084,79 @@
         Object.entries(BOOKS).forEach(([n,id]) => {
             if (!BOOK_NAMES[id] || n.length > BOOK_NAMES[id].length) BOOK_NAMES[id] = n;
         });
+
+        // ═══════════════════════════════════════════════════════════════════
+        // BTE v5.6: Dictionary integration (John pilot — bookId 43)
+        // ═══════════════════════════════════════════════════════════════════
+        // Loads /dictionary/manifest.json once, then walks every .verse-text
+        // span after render and wraps single-word matches in <a class="dict-link">.
+        // Skips links inside existing <a>, skips short stop-words, preserves
+        // existing inline HTML in the verse text via TreeWalker on text nodes.
+        const DICT_ENABLED_BOOKS = new Set([43]); // John only for v1
+        let __dictManifest = null;
+        let __dictManifestPromise = null;
+
+        function loadDictManifest() {
+            if (__dictManifest) return Promise.resolve(__dictManifest);
+            if (__dictManifestPromise) return __dictManifestPromise;
+            __dictManifestPromise = fetch('dictionary/manifest.json')
+                .then(r => r.ok ? r.json() : null)
+                .then(m => { __dictManifest = m; return m; })
+                .catch(() => null);
+            return __dictManifestPromise;
+        }
+
+        function showDictToast(msg) {
+            let toast = document.querySelector('.dict-toast');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.className = 'dict-toast';
+                document.body.appendChild(toast);
+            }
+            toast.textContent = msg;
+            toast.classList.add('show');
+            clearTimeout(toast.__timer);
+            toast.__timer = setTimeout(() => toast.classList.remove('show'), 2400);
+        }
+
+        function enrichDictionaryLinks(bookId) {
+            if (!DICT_ENABLED_BOOKS.has(bookId)) return;
+            loadDictManifest().then(manifest => {
+                if (!manifest || !manifest.tokens) return;
+                const tokens = manifest.tokens;
+                const verseSpans = document.querySelectorAll('.verse-text:not([data-dict-enriched])');
+                let totalLinks = 0;
+                verseSpans.forEach(span => {
+                    span.setAttribute('data-dict-enriched', '1');
+                    // Walk only TEXT nodes (preserve any inline HTML like <em>).
+                    const walker = document.createTreeWalker(span, NodeFilter.SHOW_TEXT, null);
+                    const textNodes = [];
+                    let node;
+                    while ((node = walker.nextNode())) textNodes.push(node);
+                    textNodes.forEach(textNode => {
+                        // Skip text already inside a link.
+                        if (textNode.parentElement && textNode.parentElement.closest('a')) return;
+                        const text = textNode.nodeValue;
+                        // Match standalone words >=4 chars, allow apostrophe-hyphen inside.
+                        const newHtml = text.replace(/\b([A-Za-z][A-Za-z'’-]{3,})\b/g, function(match, word){
+                            const key = word.toLowerCase().replace(/[’']/g, '').replace(/[^a-z]/g, '');
+                            const slug = tokens[key];
+                            if (!slug) return word;
+                            totalLinks++;
+                            return '<a class="dict-link" href="dictionary/' + slug + '.html" title="' + word + ' — dictionary entry">' + word + '</a>';
+                        });
+                        if (newHtml !== text) {
+                            const wrapper = document.createElement('span');
+                            wrapper.innerHTML = newHtml;
+                            textNode.replaceWith(...wrapper.childNodes);
+                        }
+                    });
+                });
+                if (totalLinks > 0 && verseSpans.length > 0) {
+                    showDictToast('Dictionary lit up — tap dotted words to explore (John pilot)');
+                }
+            });
+        }
 
         // BTE v3.3: Complete NKJV Bible Index (verse counts per chapter, 66 books)
         const BIBLE_INDEX = {
@@ -2413,6 +2508,8 @@
             } else {
                 document.getElementById('results').innerHTML = html;
             }
+            // BTE v5.6: Dictionary highlighter (John pilot)
+            try { enrichDictionaryLinks(ref.bookId); } catch(e){}
             updateNavBoundaries();
             document.getElementById('searchBtn').disabled = false;
             if (document.body.classList.contains('paragraph-mode')) applyParagraphBreaks();
