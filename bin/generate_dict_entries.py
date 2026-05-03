@@ -15,6 +15,34 @@ Each record (one per dictionary entry) must include these keys:
 
 Strings may contain HTML; the generator does NOT escape them.
 After running, run rebuild-dictionary.py to update the index.
+
+═══════════════════════════════════════════════════════════════════════
+MODERN CORRUPTION SECTION — EDITORIAL RULE
+═══════════════════════════════════════════════════════════════════════
+
+The Modern Corruption section is for postmodern REDEFINITION / DILUTION
+/ INVERSION / SENTIMENTALIZATION / WEAPONIZATION of the word.
+
+It is NOT for restating the orthodox teaching dressed up as if it were
+the corruption.
+
+✗ BAD:  "Mockery is its own sin. Both wine and the wicked heart act as
+        mockers..." (this is teaching, not corruption)
+
+✓ OK:   "The age glamorizes the mocker. Comedy culture, takedown columns,
+        ironic detachment, and cancel-mob dynamics all reward skilled
+        mockery as wit..." (this describes the actual corruption)
+
+If a word has NO significant postmodern corruption (e.g., place names,
+person names, technical theological terms whose force has only faded),
+write an honest caveat instead — italic <em>...</em> wrapping a brief
+"no major postmodern redefinition" note. See bin/fix_corruption_sections.py
+for the standard caveat templates (CAVEAT_PERSON, CAVEAT_PLACE, CAVEAT_BOOK,
+CAVEAT_LITURGY, CAVEAT_GENERIC).
+
+When in doubt: would a reader who clicks 'expand to see more' find
+themselves more confused? If yes, the section is failing its job.
+═══════════════════════════════════════════════════════════════════════
 """
 from __future__ import annotations
 
