@@ -172,8 +172,8 @@
     <p>All information submitted here is <strong style="color: var(--white);">strictly confidential</strong>. It is read only by the facilitator and is never shared. <a href="/freedom/confidentiality.html" style="color: var(--gold);">Read the full confidentiality commitment.</a></p>
 
     <!-- INTAKE FORM -->
-    <!-- When Formspree or Netlify Forms is ready, replace action="#" with the endpoint -->
-    <form action="mailto:adam@usmcmin.org" method="POST" enctype="text/plain" style="margin-top: 36px;">
+    <!-- Submits via FormSubmit AJAX to adam.l.johns@gmail.com (matches other intake forms). -->
+    <form id="freedomIntakeForm" style="margin-top: 36px;" onsubmit="return submitFreedomIntake(event);">
 
         <div class="form-section-title">About You</div>
 
@@ -284,10 +284,34 @@
 
     </form>
 
+    <div id="freedomThanks" style="display:none; margin-top: 28px; padding: 20px; background: rgba(212,175,55,0.08); border: 1px solid var(--gold); border-radius: 8px; text-align: center;">
+        <h3 style="color: var(--gold); margin-bottom: 8px;">Thank you.</h3>
+        <p style="color: var(--gray);">Your intake has been received in confidence. The facilitator will reach out within a few days.</p>
+    </div>
+
     <p style="margin-top: 28px; font-size: 0.85rem; color: var(--gray); text-align: center;">
         Prefer to reach out directly? <a href="/freedom/contact.html" style="color: var(--gold);">Contact the facilitator.</a>
     </p>
 </div>
+
+<script>
+function submitFreedomIntake(ev){
+    ev.preventDefault();
+    var form = document.getElementById('freedomIntakeForm');
+    var fd = new FormData(form);
+    var payload = { _subject: 'USMC Ministries — Freedom Intake', _template: 'table', _captcha: 'false' };
+    fd.forEach(function(v,k){ payload[k] = v; });
+    fetch('https://formsubmit.co/ajax/adam.l.johns@gmail.com', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(payload)
+    }).catch(function(){});
+    form.style.display = 'none';
+    document.getElementById('freedomThanks').style.display = 'block';
+    window.scrollTo(0, 0);
+    return false;
+}
+</script>
 
 
 
