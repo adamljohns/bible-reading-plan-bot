@@ -109,6 +109,12 @@ HTML_TEMPLATE = Template(r"""<!DOCTYPE html>
         .corruption-inner { padding:12px 16px; background:rgba(204,0,0,0.06); border-left:2px solid #CC0000; border-radius:0 6px 6px 0; }
         .roots-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
         .webster-inner { padding:12px 16px; background:rgba(212,175,55,0.06); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+        .kjv-continual { border-left:3px solid #2d8a6e; padding-left:15px; }
+        .kjv-continual h3 { color:#5fc4a4 !important; }
+        .kjv-continual-inner { padding:12px 16px; background:rgba(45,138,110,0.07); border-left:2px solid #2d8a6e; border-radius:0 6px 6px 0; }
+        .kjv-continual-inner strong { color:#5fc4a4; }
+        .kjv-continual details summary::before { border-top-color:#5fc4a4; }
+        .kjv-continual details summary:hover::before { border-top-color:#7fd9bb; }
         .verse-ref { color:var(--gold); text-decoration:none; font-weight:600; }
         .verse-ref:hover { color:var(--gold-light); text-decoration:underline; }
         .lexicon-link { color:var(--gold); font-family:monospace; text-decoration:none; }
@@ -129,6 +135,9 @@ HTML_TEMPLATE = Template(r"""<!DOCTYPE html>
         body.light-mode details summary { color:var(--gold); }
         body.light-mode .corruption-inner { background:rgba(204,0,0,0.03); }
         body.light-mode .roots-inner, body.light-mode .webster-inner { background:rgba(212,175,55,0.04); }
+        body.light-mode .kjv-continual-inner { background:rgba(45,138,110,0.04); }
+        body.light-mode .kjv-continual h3 { color:#1d5d4a !important; }
+        body.light-mode .kjv-continual-inner strong { color:#1d5d4a; }
         body.light-mode footer { border-top-color:#d4d0c8; }
         body.light-mode .related a { background:#f0ede7; border-color:#d4d0c8; color:#1a1a1a; }
         a, a:link, a:visited { color: var(--gold, #D4AF37) !important; }
@@ -166,7 +175,7 @@ HTML_TEMPLATE = Template(r"""<!DOCTYPE html>
                 <p>${BIBLICAL_DEF}</p>
             </div>
         </div>
-
+${KJV_CONTINUAL_SECTION}
         <div class="section">
             <h3>&#128220; Webster 1828 Definition</h3>
             <p class="section-summary">${WEBSTER_SUMMARY}</p>
@@ -284,6 +293,32 @@ def render_related(related):
     return ''.join(f'<a href="{slug}.html">{label}</a>' for slug, label in related)
 
 
+def render_kjv_continual(kjv):
+    """Render the optional KJV Continual Tense section.
+
+    kjv may be None (returns empty string) or a dict with keys:
+      kjv_form        e.g. "loveth"
+      tense_label     e.g. "Greek present indicative active"
+      summary         one-line for collapsed state
+      paragraphs      list of paragraph strings for expanded state
+    """
+    if not kjv:
+        return ''
+    paragraphs = '\n                    '.join(f'<p>{p}</p>' for p in kjv['paragraphs'])
+    return f'''
+        <div class="section kjv-continual">
+            <h3>&#128220; KJV Continual Tense</h3>
+            <p class="section-summary">{kjv['summary']}</p>
+            <details>
+                <summary><em style="color:var(--gray)">expand to see more</em></summary>
+                <div class="kjv-continual-inner">
+                    {paragraphs}
+                </div>
+            </details>
+        </div>
+'''
+
+
 def render(record):
     return HTML_TEMPLATE.substitute(
         WORD=record['word'],
@@ -291,6 +326,7 @@ def render(record):
         POS=record['pos'],
         ETYMOLOGY=record['etymology'],
         BIBLICAL_DEF=record['biblical_def'],
+        KJV_CONTINUAL_SECTION=render_kjv_continual(record.get('kjv_continual')),
         WEBSTER_SUMMARY=record['webster_summary'],
         WEBSTER_FULL=render_paragraph_block(record['webster_full']),
         SCRIPTURES=render_scriptures(record['scriptures']),

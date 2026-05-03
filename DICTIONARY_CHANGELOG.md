@@ -1,5 +1,104 @@
 # MOOP Dictionary Changelog
 
+## V5.4 — 2026-05-03 · KJV Continual Tense Annotations (John Pilot)
+
+### What Pastor Matt Stokes pointed out
+
+The KJV `-eth` ending (3rd person singular: loveth, believeth, abideth) and
+`-est` ending (2nd person singular: thou lovest) preserves the *aspectual*
+force of the underlying Greek **present indicative active** — ongoing,
+habitual, continuous action. Modern English flattens this:
+
+- "He loves me" — could be punctiliar OR continuous; ambiguous
+- "He **loveth** me" — explicitly continuous: keeps on loving
+
+This carries **doctrinal weight**. John 3:16's "whosoever **believeth** in him"
+is not "whoever once mentally assented" but "whoever keeps on believing."
+The grammar is sermon.
+
+### What was added
+
+A new `KJV Continual Tense` section between Biblical Definition and Webster
+1828 in 21 John-relevant verb entries:
+
+| Slug | KJV form | Section summary |
+|---|---|---|
+| love | loveth | not "loved once" but "keeps on loving" |
+| abide | abideth | not "remains for a moment" but "keeps on dwelling" |
+| hear | heareth | not "heard once" but "keeps on hearing" |
+| judge | judgeth | God's ongoing, faithful discrimination |
+| witness | witnesseth / beareth witness | ongoing testimony |
+| sanctify | sanctifieth | the ongoing setting-apart |
+| glorify | glorifieth | ongoing, mutual giving of glory |
+| dwell | dwelleth | ongoing residence, the indwelling Spirit |
+| behold | beholdeth | sustained, attentive looking |
+| overcome | overcometh | the perpetual conquest |
+| comfort | comforteth | the Spirit's ongoing parakletos-work |
+| rest | resteth | God's sustained presence settling on His people |
+| worship | worshippeth | not "worshipped once" but "is a worshipper" |
+| fear | feareth | the abiding posture of reverence |
+| rejoice | rejoiceth | sustained, not seasonal joy |
+| bless | blesseth | God's continuous bestowal of favor |
+| meditate | meditateth | the continuous chewing-over of God's word |
+| praise | praiseth | sustained, eternal-shaped praise |
+| repent | repenteth | the ongoing turning, not one moment's decision |
+| trust | trusteth | sustained leaning, not one-time decision |
+| hope | hopeth | the abiding hope, not bursts of optimism |
+
+Each annotation includes 2-3 paragraphs with KJV verse references showing the
+continuous force in context (mostly from John, the Psalms, and the General
+Epistles).
+
+### Visual treatment
+
+A distinct teal accent (`#2d8a6e` — distinct from the gold of Webster, the
+red of Modern Corruption, and the gold-brown of Roots). The section uses the
+standard expand/collapse with the V5.3 fixes applied (summary blurb stays,
+label toggles "expand to see more" ↔ "show less").
+
+### BTE highlighter — KJV form normalization
+
+The dictionary integration in `docs/bible.html` (John pilot) gained
+KJV-continuous-aspect normalization so words like `loveth`, `abideth`,
+`judgeth`, `dwelleth`, `overcometh`, `comforteth`, `glorifieth`,
+`worshippeth` all route to their base entries (love, abide, judge, dwell,
+overcome, comfort, glorify, worship).
+
+Normalization rules:
+- `-ieth` → drop, append `y` (glorif**ieth** → glorif**y**)
+- `-iest` → drop, append `y` (sanctif**iest** → sanctif**y**)
+- `-eth`/`-est` → strip 3 chars (trust**eth** → trust)
+- `-eth`/`-est` → strip 2 chars (lov**eth** → love)
+- doubled-consonant + `-eth` → strip 4 chars (worshipp**eth** → worship)
+
+Smoke-test on 10 KJV John verses: **24 dictionary links** light up,
+including all the major continuous-aspect verbs.
+
+### Tools added
+
+- `bin/add_kjv_continual.py` — applies the annotations to existing entries
+  (idempotent; handles both full-template and stub entries)
+- Generator template extended with a `kjv_continual` optional JSON field
+  for future entries
+
+### Files changed
+
+- `bin/add_kjv_continual.py` (new)
+- `bin/generate_dict_entries.py` (CSS for `.kjv-continual`, template hook,
+  `render_kjv_continual()` function)
+- `docs/bible.html` (KJV-form normalization in `enrichDictionaryLinks`)
+- 21 dictionary entries (annotation sections inserted)
+
+### V2 candidates (Wednesday)
+
+- Expand annotations to more verbs as discovered in 1, 2, 3 John + Revelation
+- Add `-ed` past tense and `-ing` present participle normalization to the
+  BTE highlighter
+- Multi-word phrase matching (`son of god`, `lamb of god`, `kingdom of god`)
+- Hover preview popovers on dict-links
+
+---
+
 ## V5.3 — 2026-05-03 · Disclosure UX + BTE-John Pilot
 
 ### What changed

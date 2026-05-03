@@ -1140,7 +1140,32 @@
                         // Match standalone words >=4 chars, allow apostrophe-hyphen inside.
                         const newHtml = text.replace(/\b([A-Za-z][A-Za-z'’-]{3,})\b/g, function(match, word){
                             const key = word.toLowerCase().replace(/[’']/g, '').replace(/[^a-z]/g, '');
-                            const slug = tokens[key];
+                            // Direct match
+                            let slug = tokens[key];
+                            // KJV continuous-aspect normalization (-eth / -est / -ieth)
+                            // so that "loveth", "abideth", "knoweth", "lovest", etc.
+                            // route to their base entries (love, abide, know).
+                            if (!slug && key.length >= 5) {
+                                const candidates = [];
+                                if (key.endsWith('ieth')) {
+                                    candidates.push(key.slice(0, -4) + 'y');   // glorifieth → glorify
+                                }
+                                if (key.endsWith('iest')) {
+                                    candidates.push(key.slice(0, -4) + 'y');   // sanctifiest → sanctify
+                                }
+                                if (key.endsWith('eth') || key.endsWith('est')) {
+                                    candidates.push(key.slice(0, -3));         // trusteth → trust
+                                    candidates.push(key.slice(0, -2));         // loveth → love
+                                    // doubled-consonant: worshippeth → worship
+                                    if (key.length >= 5 &&
+                                        key.charAt(key.length - 4) === key.charAt(key.length - 5)) {
+                                        candidates.push(key.slice(0, -4));
+                                    }
+                                }
+                                for (const c of candidates) {
+                                    if (c && c.length >= 4 && tokens[c]) { slug = tokens[c]; break; }
+                                }
+                            }
                             if (!slug) return word;
                             totalLinks++;
                             return '<a class="dict-link" href="dictionary/' + slug + '.html" title="' + word + ' — dictionary entry">' + word + '</a>';
