@@ -1,0 +1,370 @@
+/* LBCF Renderer v1.0 — usmcmin.org
+ *
+ * Loads /assets/lbcf/index.json (chapter metadata) for the index page,
+ * and /assets/lbcf/chapter-NN.json for individual chapter pages.
+ *
+ * Auto-links:
+ *   1. Scripture refs ("Hebrews 4:12", "1 Cor 13:1") → bible.html?ref=...
+ *   2. Theological terms (covenant, trinity, etc.) → dictionary/<slug>.html
+ *   3. Cross-refs to other LBCF chapters ("Chapter 7" mentioned in body) → lbcf/chapter-NN.html
+ *
+ * Public API (window.LBCF):
+ *   - renderIndex(targetEl)        — renders the chapter grid on lbcf.html
+ *   - renderChapter(chNum, targetEl) — renders a single chapter page
+ *   - linkScripture(text)          — string → string with anchor tags
+ *   - linkDictionary(text)         — same, for theological terms
+ */
+
+(function () {
+  'use strict';
+
+  // ---- 66-book name → numeric ID (matches BTE schema) -----------------
+  const BOOK_IDS = {
+    'genesis': 1, 'gen': 1,
+    'exodus': 2, 'exo': 2, 'ex': 2,
+    'leviticus': 3, 'lev': 3,
+    'numbers': 4, 'num': 4,
+    'deuteronomy': 5, 'deut': 5, 'dt': 5,
+    'joshua': 6, 'josh': 6,
+    'judges': 7, 'judg': 7,
+    'ruth': 8,
+    '1 samuel': 9, '1 sam': 9, '1sam': 9,
+    '2 samuel': 10, '2 sam': 10, '2sam': 10,
+    '1 kings': 11, '1 kgs': 11, '1kgs': 11,
+    '2 kings': 12, '2 kgs': 12, '2kgs': 12,
+    '1 chronicles': 13, '1 chron': 13, '1 chr': 13,
+    '2 chronicles': 14, '2 chron': 14, '2 chr': 14,
+    'ezra': 15,
+    'nehemiah': 16, 'neh': 16,
+    'esther': 17, 'est': 17,
+    'job': 18,
+    'psalms': 19, 'psalm': 19, 'ps': 19,
+    'proverbs': 20, 'prov': 20, 'pr': 20,
+    'ecclesiastes': 21, 'eccl': 21, 'ecc': 21,
+    'song of solomon': 22, 'song of songs': 22, 'song': 22, 'sos': 22,
+    'isaiah': 23, 'isa': 23, 'is': 23,
+    'jeremiah': 24, 'jer': 24,
+    'lamentations': 25, 'lam': 25,
+    'ezekiel': 26, 'ezek': 26, 'eze': 26,
+    'daniel': 27, 'dan': 27,
+    'hosea': 28, 'hos': 28,
+    'joel': 29,
+    'amos': 30,
+    'obadiah': 31, 'obad': 31,
+    'jonah': 32, 'jon': 32,
+    'micah': 33, 'mic': 33,
+    'nahum': 34, 'nah': 34,
+    'habakkuk': 35, 'hab': 35,
+    'zephaniah': 36, 'zeph': 36,
+    'haggai': 37, 'hag': 37,
+    'zechariah': 38, 'zech': 38,
+    'malachi': 39, 'mal': 39,
+    'matthew': 40, 'matt': 40, 'mt': 40,
+    'mark': 41, 'mk': 41,
+    'luke': 42, 'lk': 42,
+    'john': 43, 'jn': 43,
+    'acts': 44,
+    'romans': 45, 'rom': 45,
+    '1 corinthians': 46, '1 cor': 46, '1cor': 46,
+    '2 corinthians': 47, '2 cor': 47, '2cor': 47,
+    'galatians': 48, 'gal': 48,
+    'ephesians': 49, 'eph': 49,
+    'philippians': 50, 'phil': 50, 'php': 50,
+    'colossians': 51, 'col': 51,
+    '1 thessalonians': 52, '1 thess': 52, '1 th': 52,
+    '2 thessalonians': 53, '2 thess': 53, '2 th': 53,
+    '1 timothy': 54, '1 tim': 54, '1ti': 54,
+    '2 timothy': 55, '2 tim': 55, '2ti': 55,
+    'titus': 56, 'tit': 56,
+    'philemon': 57, 'philem': 57, 'phlm': 57,
+    'hebrews': 58, 'heb': 58,
+    'james': 59, 'jas': 59,
+    '1 peter': 60, '1 pet': 60, '1pet': 60,
+    '2 peter': 61, '2 pet': 61, '2pet': 61,
+    '1 john': 62, '1 jn': 62, '1jn': 62,
+    '2 john': 63, '2 jn': 63, '2jn': 63,
+    '3 john': 64, '3 jn': 64, '3jn': 64,
+    'jude': 65,
+    'revelation': 66, 'rev': 66,
+  };
+
+  // ---- LBCF-relevant dictionary auto-link whitelist -----------------------
+  // Each entry: regex pattern (lowercase) → dictionary slug (no extension).
+  // The regex MUST match WHOLE words. Order matters — longer phrases first.
+  const DICT_TERMS = [
+    // Multi-word phrases (longest first)
+    ['abrahamic covenant', 'abrahamic-covenant'],
+    ['covenant of works', 'covenant-of-works'],
+    ['covenant of grace', 'covenant-of-grace'],
+    ['covenant of redemption', 'covenant-of-redemption'],
+    ['day of atonement', 'atonement-day'],
+    ['effectual calling', 'effectual-calling'],
+    ['effectual call', 'effectual-calling'],
+    ['general assembly', 'general-assembly'],
+    ['holy spirit', 'holy-spirit'],
+    ['holy ghost', 'holy-spirit'],
+    ['lord’s supper', 'lords-supper'],
+    ["lord's supper", 'lords-supper'],
+    ['original sin', 'original-sin'],
+    ['perseverance of the saints', 'perseverance-saints'],
+    ['total depravity', 'total-depravity'],
+    ['ten commandments', 'ten-commandments'],
+    ['the lord jesus christ', 'jesus-christ'],
+    ['jesus christ', 'jesus-christ'],
+    ['son of god', 'son-of-god'],
+    ['mediator', 'mediator'],
+    // Single-word (common LBCF terms with definite dictionary entries)
+    ['adoption', 'adoption'],
+    ['assurance', 'assurance'],
+    ['atonement', 'atonement'],
+    ['baptism', 'baptism-doctrine'],
+    ['baptize', 'baptism-doctrine'],
+    ['baptized', 'baptism-doctrine'],
+    ['canon', 'canon'],
+    ['christ', 'christ'],
+    ['church', 'church'],
+    ['communion', 'communion'],
+    ['conversion', 'conversion'],
+    ['covenant', 'covenant'],
+    ['covenants', 'covenant'],
+    ['creed', 'creed'],
+    ['decree', 'decrees-of-god'],
+    ['decrees', 'decrees-of-god'],
+    ['depravity', 'depravity'],
+    ['election', 'election'],
+    ['eternity', 'eternity'],
+    ['faith', 'faith'],
+    ['glorification', 'glorification'],
+    ['glory', 'glory'],
+    ['gospel', 'gospel'],
+    ['grace', 'grace'],
+    ['holiness', 'holiness'],
+    ['imputation', 'imputation'],
+    ['imputed', 'imputation'],
+    ['justification', 'justification'],
+    ['justified', 'justification'],
+    ['kingdom', 'kingdom'],
+    ['liberty', 'christian-liberty'],
+    ['mercy', 'mercy'],
+    ['ordinance', 'ordinance'],
+    ['ordinances', 'ordinance'],
+    ['predestination', 'predestination'],
+    ['propitiation', 'propitiation'],
+    ['providence', 'providence'],
+    ['redemption', 'redemption'],
+    ['regeneration', 'regeneration'],
+    ['repent', 'repentance'],
+    ['repentance', 'repentance'],
+    ['reprobation', 'reprobation'],
+    ['righteousness', 'righteousness'],
+    ['sabbath', 'sabbath'],
+    ['sacrament', 'sacrament'],
+    ['salvation', 'salvation'],
+    ['sanctification', 'sanctification'],
+    ['sanctified', 'sanctification'],
+    ['scripture', 'scripture'],
+    ['scriptures', 'scripture'],
+    ['sin', 'sin'],
+    ['sins', 'sin'],
+    ['sovereignty', 'sovereignty'],
+    ['trinity', 'trinity'],
+    ['truth', 'truth'],
+    ['worship', 'worship'],
+  ];
+
+  // Build a single regex of the union for matching. Word boundaries; case-insensitive.
+  const _escapeRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const DICT_RE = new RegExp(
+    '\\b(' + DICT_TERMS.map(([t]) => _escapeRe(t)).join('|') + ')\\b',
+    'gi'
+  );
+  // Build slug lookup
+  const _DICT_LOOKUP = Object.fromEntries(DICT_TERMS.map(([t, s]) => [t.toLowerCase(), s]));
+
+  // ---- Scripture-ref auto-link ----------------------------------------------
+  // Match patterns like: "John 3:16", "1 Cor 13:1-3", "Hebrews 4:12-13", "Genesis 1"
+  const SCRIPTURE_RE = new RegExp(
+    '\\b((?:[1-3]\\s)?(?:Genesis|Gen|Exodus|Exo|Ex|Leviticus|Lev|Numbers|Num|Deuteronomy|Deut|Dt|Joshua|Josh|Judges|Judg|Ruth|Samuel|Sam|Kings|Kgs|Chronicles|Chron|Chr|Ezra|Nehemiah|Neh|Esther|Est|Job|Psalms?|Ps|Proverbs|Prov|Pr|Ecclesiastes|Eccl|Ecc|Song of Solomon|Song of Songs|Song|SoS|Isaiah|Isa|Is|Jeremiah|Jer|Lamentations|Lam|Ezekiel|Ezek|Eze|Daniel|Dan|Hosea|Hos|Joel|Amos|Obadiah|Obad|Jonah|Jon|Micah|Mic|Nahum|Nah|Habakkuk|Hab|Zephaniah|Zeph|Haggai|Hag|Zechariah|Zech|Malachi|Mal|Matthew|Matt|Mt|Mark|Mk|Luke|Lk|John|Jn|Acts|Romans|Rom|Corinthians|Cor|Galatians|Gal|Ephesians|Eph|Philippians|Phil|Php|Colossians|Col|Thessalonians|Thess|Th|Timothy|Tim|Ti|Titus|Tit|Philemon|Philem|Phlm|Hebrews|Heb|James|Jas|Peter|Pet|John|Jn|Jude|Revelation|Rev))\\s(\\d+)(?::(\\d+(?:[–—-]\\d+)?(?:,\\s*\\d+(?:[–—-]\\d+)?)*))?\\b',
+    'g'
+  );
+
+  function refToUrl(book, chapter, verses) {
+    let ref = (book + ' ' + chapter + (verses ? ':' + verses : '')).trim();
+    return 'bible.html?ref=' + encodeURIComponent(ref);
+  }
+
+  function linkScripture(html) {
+    return html.replace(SCRIPTURE_RE, (m, book, ch, vs) => {
+      // Skip if already inside an <a> tag (basic guard — the renderer also segments to avoid double-wrap)
+      return '<a class="lbcf-scrip" href="' + refToUrl(book, ch, vs) + '" title="Open in BTE">' + m + '</a>';
+    });
+  }
+
+  function linkDictionary(html) {
+    return html.replace(DICT_RE, (m) => {
+      const slug = _DICT_LOOKUP[m.toLowerCase()];
+      if (!slug) return m;
+      return '<a class="lbcf-dict" href="dictionary/' + slug + '.html" title="Definition">' + m + '</a>';
+    });
+  }
+
+  // Cross-link "Chapter N" mentions to other LBCF chapters
+  function linkChapterRefs(html, currentCh) {
+    return html.replace(/\bchapter\s+(\d{1,2})\b/gi, (m, n) => {
+      const num = parseInt(n, 10);
+      if (num < 1 || num > 32 || num === currentCh) return m;
+      const padded = String(num).padStart(2, '0');
+      return '<a class="lbcf-xref" href="chapter-' + padded + '.html">' + m + '</a>';
+    });
+  }
+
+  // Apply auto-linkers in safe order: scripture first (won't match dictionary terms), then dictionary, then chapter xrefs.
+  function autoLink(text, currentCh) {
+    let s = text;
+    s = linkScripture(s);
+    // Apply dictionary linking ONLY outside existing anchor tags
+    s = s.replace(/(<a [^>]*>.*?<\/a>)|([^<]+)/g, (m, anchor, plain) =>
+      anchor ? anchor : linkDictionary(plain)
+    );
+    s = linkChapterRefs(s, currentCh || 0);
+    return s;
+  }
+
+  // ---- Loaders ---------------------------------------------------------------
+  async function loadJson(path) {
+    const r = await fetch(path);
+    if (!r.ok) throw new Error('Failed to load ' + path + ': ' + r.status);
+    return r.json();
+  }
+
+  // ---- Render: index page (chapter grid) -----------------------------------
+  async function renderIndex(targetEl) {
+    const meta = await loadJson('assets/lbcf/index.json');
+    const grid = document.createElement('div');
+    grid.className = 'lbcf-grid';
+    meta.chapters.forEach((c) => {
+      const padded = String(c.number).padStart(2, '0');
+      const card = document.createElement('a');
+      card.className = 'lbcf-card';
+      card.href = 'lbcf/chapter-' + padded + '.html';
+      const status = c.status === 'draft'
+        ? '<span class="lbcf-card-status">Draft</span>'
+        : c.status === 'placeholder'
+          ? '<span class="lbcf-card-status placeholder">Coming soon</span>'
+          : '';
+      card.innerHTML =
+        '<div class="lbcf-card-num">Chapter ' + c.number + '</div>' +
+        '<h3>' + c.title + '</h3>' +
+        '<p>' + (c.summary || '') + '</p>' +
+        status;
+      grid.appendChild(card);
+    });
+    targetEl.appendChild(grid);
+
+    // Wire intro stats
+    const totalEl = document.getElementById('lbcf-total-chapters');
+    if (totalEl) totalEl.textContent = String(meta.chapters.length);
+    const draftedCount = meta.chapters.filter(c => c.status === 'draft').length;
+    const draftedEl = document.getElementById('lbcf-drafted-count');
+    if (draftedEl) draftedEl.textContent = String(draftedCount);
+  }
+
+  // ---- Render: single chapter page -----------------------------------------
+  async function renderChapter(chNum, targetEl) {
+    const padded = String(chNum).padStart(2, '0');
+    let chapter, meta;
+    try {
+      [chapter, meta] = await Promise.all([
+        loadJson('../assets/lbcf/chapter-' + padded + '.json'),
+        loadJson('../assets/lbcf/index.json'),
+      ]);
+    } catch (e) {
+      targetEl.innerHTML = '<div class="lbcf-empty"><h2>This chapter is not yet drafted.</h2>' +
+        '<p>It is part of the scaffolding pass. Body text and proof-texts are coming.</p>' +
+        '<p><a href="../lbcf.html">← Back to confession index</a></p></div>';
+      return;
+    }
+
+    // Header
+    const head = document.createElement('div');
+    head.className = 'lbcf-chap-head';
+    head.innerHTML =
+      '<div class="lbcf-chap-num">Chapter ' + chapter.number + '</div>' +
+      '<h1>' + chapter.title + '</h1>' +
+      (chapter.subtitle ? '<p class="lbcf-chap-sub">' + chapter.subtitle + '</p>' : '');
+    targetEl.appendChild(head);
+
+    // Paragraphs
+    const body = document.createElement('div');
+    body.className = 'lbcf-body';
+    chapter.paragraphs.forEach((para, idx) => {
+      const num = idx + 1;
+      const anchorId = 'p' + num;
+      const wrap = document.createElement('section');
+      wrap.className = 'lbcf-para';
+      wrap.id = anchorId;
+      const linkedText = autoLink(para.text, chapter.number);
+      let proofTextHtml = '';
+      if (para.prooftexts && para.prooftexts.length) {
+        const refs = para.prooftexts.map((r) => linkScripture(r)).join(' &middot; ');
+        proofTextHtml = '<details class="lbcf-proofs"><summary>Proof-texts</summary><div>' + refs + '</div></details>';
+      }
+      wrap.innerHTML =
+        '<div class="lbcf-para-num">' + num +
+        '<button class="lbcf-permalink" title="Copy link to this paragraph" aria-label="Copy permalink">¶</button></div>' +
+        '<div class="lbcf-para-body"><p>' + linkedText + '</p>' + proofTextHtml + '</div>';
+      body.appendChild(wrap);
+    });
+    targetEl.appendChild(body);
+
+    // Prev / Next nav
+    const nav = document.createElement('div');
+    nav.className = 'lbcf-chap-nav';
+    const prev = chapter.number > 1
+      ? '<a class="lbcf-prev" href="chapter-' + String(chapter.number - 1).padStart(2,'0') + '.html">← Chapter ' + (chapter.number - 1) + '</a>'
+      : '<span></span>';
+    const idx = '<a class="lbcf-idx" href="../lbcf.html">All Chapters</a>';
+    const next = chapter.number < 32
+      ? '<a class="lbcf-next" href="chapter-' + String(chapter.number + 1).padStart(2,'0') + '.html">Chapter ' + (chapter.number + 1) + ' →</a>'
+      : '<span></span>';
+    nav.innerHTML = prev + idx + next;
+    targetEl.appendChild(nav);
+
+    // Page title
+    document.title = 'LBCF Ch. ' + chapter.number + ': ' + chapter.title + ' — U.S.M.C. Ministries';
+
+    // Permalink button click handlers
+    targetEl.querySelectorAll('.lbcf-permalink').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const para = btn.closest('.lbcf-para');
+        const url = window.location.origin + window.location.pathname + '#' + para.id;
+        navigator.clipboard.writeText(url).then(() => {
+          btn.classList.add('copied');
+          btn.textContent = '✓';
+          setTimeout(() => { btn.classList.remove('copied'); btn.textContent = '¶'; }, 1300);
+        });
+      });
+    });
+
+    // Keyboard arrows for prev/next
+    document.addEventListener('keydown', (e) => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+      if (e.key === 'ArrowLeft' && chapter.number > 1) {
+        window.location.href = 'chapter-' + String(chapter.number - 1).padStart(2,'0') + '.html';
+      }
+      if (e.key === 'ArrowRight' && chapter.number < 32) {
+        window.location.href = 'chapter-' + String(chapter.number + 1).padStart(2,'0') + '.html';
+      }
+    });
+  }
+
+  // ---- Public API ------------------------------------------------------------
+  window.LBCF = {
+    renderIndex,
+    renderChapter,
+    linkScripture,
+    linkDictionary,
+    autoLink,
+  };
+})();
