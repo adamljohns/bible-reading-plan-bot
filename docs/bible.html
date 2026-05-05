@@ -8,7 +8,7 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-touch-icon.png">
     <link rel="manifest" href="/manifest.json">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta property="og:title" content="MOOP Bible Translation Engine V5.5">
+    <meta property="og:title" content="MOOP Bible Translation Engine V5.7">
     <meta property="og:description" content="12 English translations blended with interlinear Hebrew and Greek roots. Strong's Concordance links. Cross-references. Bookmarks. Word search. Built for deep word study.">
     <meta property="og:image" content="https://usmcmin.org/assets/og/og-bible.png?v=53">
     <meta property="og:image:width" content="1200">
@@ -16,11 +16,14 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://usmcmin.org/bible.html">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="MOOP Bible Translation Engine V5.5">
+    <meta name="twitter:title" content="MOOP Bible Translation Engine V5.7">
     <meta name="twitter:description" content="12 English translations blended with interlinear Hebrew and Greek roots. Strong's Concordance links. Cross-references. Bookmarks. Word search. Built for deep word study.">
     <meta name="twitter:image" content="https://usmcmin.org/assets/og/og-bible.png?v=53">
     <meta name="description" content="12 English translations blended with interlinear Hebrew and Greek roots. Strong's Concordance links. Cross-references. Bookmarks. Word search. Built for deep word study.">
-    <title>The MOOP Bible Translation Engine V5.5 — U.S.M.C. Ministries</title>
+    <title>The MOOP Bible Translation Engine V5.7 — U.S.M.C. Ministries</title>
+    <!-- BTE v5.7 (2026-05-05): cross-chapter ranges. parseRef now accepts "Book Ch:V-Ch:V" and
+         "Book Ch-Ch"; lookupVerse walks chapters and emits per-verse {chapter, num} blocks. -->
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -767,7 +770,7 @@
             <section class="hero">
                 <img src="assets/images/usmc-logo-shield-cross.png" alt="U.S.M.C. Ministries" onerror="this.style.display='none'">
                 <h1>The MOOP Bible Translation Engine</h1>
-                <p class="subtitle">V5.5 · 12 Translations · Interlinear Hebrew &amp; Greek · Strong's Concordance · Cross-References · MBT</p>
+                <p class="subtitle">V5.7 · 12 Translations · Interlinear Hebrew &amp; Greek · Strong's Concordance · Cross-References · MBT</p>
                 <p class="desc">
                     Type any Bible reference below. The engine blends 12 English translations with
                     NKJV as the primary voice, surfaces meaningful divergences, and provides
@@ -1634,6 +1637,56 @@
                 return ch;
             });
 
+            // BTE v5.7: Cross-chapter range "Book Ch:V-Ch:V"  (e.g., "Ephesians 4:25-5:7")
+            // Must come before the standard regex — standard regex is anchored ($) and won't accept
+            // the trailing ":N" so it would just return null on this input.
+            const crossVV = input.match(/^(\d?\s?[a-zA-Z\s]+?)\s*(\d+)\s*:\s*(\d+)\s*[-–—]\s*(\d+)\s*:\s*(\d+)$/i);
+            if (crossVV) {
+                const bidVV = BOOKS[crossVV[1].trim().toLowerCase()];
+                if (bidVV) {
+                    const sCh = parseInt(crossVV[2]);
+                    const eCh = parseInt(crossVV[4]);
+                    return {
+                        bookId: bidVV,
+                        chapter: sCh,
+                        startVerse: parseInt(crossVV[3]),
+                        endChapter: eCh,
+                        endVerse: parseInt(crossVV[5]),
+                        isOT: bidVV <= 39,
+                        display: BOOK_NAMES[bidVV].replace(/\b\w/g, c => c.toUpperCase()),
+                        fullChapter: false,
+                        crossChapter: eCh > sCh
+                    };
+                }
+            }
+
+            // BTE v5.7: Full-chapter range "Book Ch-Ch" (e.g., "Ephesians 4-5", "Psalms 23-24")
+            // Only treats as cross-chapter when the second number is a valid chapter index in the
+            // book AND larger than the first. Otherwise falls through to the standard regex,
+            // which interprets "Book N-M" as chapter N verses 1-M (legacy behavior).
+            const crossCC = input.match(/^(\d?\s?[a-zA-Z\s]+?)\s*(\d+)\s*[-–—]\s*(\d+)$/i);
+            if (crossCC) {
+                const bidCC = BOOKS[crossCC[1].trim().toLowerCase()];
+                if (bidCC) {
+                    const sCh = parseInt(crossCC[2]);
+                    const eCh = parseInt(crossCC[3]);
+                    const maxCh = (typeof BIBLE_INDEX !== 'undefined' && BIBLE_INDEX[bidCC]) ? BIBLE_INDEX[bidCC].length : 0;
+                    if (eCh > sCh && eCh <= maxCh) {
+                        return {
+                            bookId: bidCC,
+                            chapter: sCh,
+                            startVerse: 1,
+                            endChapter: eCh,
+                            endVerse: 200,    // sentinel — resolved to actual chapter length in lookupVerse
+                            isOT: bidCC <= 39,
+                            display: BOOK_NAMES[bidCC].replace(/\b\w/g, c => c.toUpperCase()),
+                            fullChapter: false,
+                            crossChapter: true
+                        };
+                    }
+                }
+            }
+
             // Standard format: "Book Chapter:Verse" or "Book Chapter:Start-End"
             const m = input.match(/^(\d?\s?[a-zA-Z\s]+?)\s*(\d+)(?:\s*:\s*(\d+))?(?:\s*-\s*(\d+))?$/i);
             if (!m) return null;
@@ -2064,10 +2117,14 @@
             if (!currentRef) return;
             currentViewMode = 'range';
             var bookId = currentRef.bookId;
-            var ch = currentRef.chapter;
+            // BTE v5.7: in cross-chapter mode, anchor forward-nav to the END chapter and
+            // backward-nav to the START chapter, so navigation continues from the correct edge.
+            var ch = (currentRef.crossChapter && delta > 0 && currentRef.endChapter)
+                        ? currentRef.endChapter
+                        : currentRef.chapter;
             var maxV = BIBLE_INDEX[bookId] ? BIBLE_INDEX[bookId][ch - 1] : 200;
             var startV, endV;
-            
+
             if (delta > 0) {
                 // Forward: show next 3 verses as a range
                 startV = currentRef.endVerse ? currentRef.endVerse + 1 : currentRef.startVerse + 1;
@@ -2227,7 +2284,10 @@
             currentRef = ref;
 
             // BTE v3.4: Detect view mode from parsed reference
-            if (ref.fullChapter) {
+            // BTE v5.7: cross-chapter ranges always render in 'range' mode (verse-style nav).
+            if (ref.crossChapter) {
+                currentViewMode = 'range';
+            } else if (ref.fullChapter) {
                 currentViewMode = 'chapter';
             } else if (ref.endVerse > ref.startVerse && ref.endVerse < 200) {
                 currentViewMode = 'range';
@@ -2251,7 +2311,76 @@
             const transFetched = {};
             TRANSLATIONS.forEach(t => { if (t !== 'NKJV') transFetched[t] = 0; });
 
-            if (currentViewMode === 'chapter') {
+            if (ref.crossChapter) {
+                // BTE v5.7: Cross-chapter range — fetch each chapter in [ref.chapter, ref.endChapter]
+                // and slice to the requested verse window per chapter.
+                //   First chapter:  startVerse → end-of-chapter
+                //   Middle chapters (if any): full chapter
+                //   Last chapter:   v1 → endVerse
+                for (let chWalk = ref.chapter; chWalk <= ref.endChapter; chWalk++) {
+                    const chapterPromisesX = TRANSLATIONS.map(t => fetchChapterData(ref.bookId, chWalk, t));
+                    const chapterResultsX = await Promise.all(chapterPromisesX);
+                    const chapterTextsX = {};
+                    TRANSLATIONS.forEach((t, i) => { chapterTextsX[t] = chapterResultsX[i] || {}; });
+
+                    const verseNumsX = Object.keys(chapterTextsX.NKJV).map(Number).sort((a, b) => a - b);
+                    if (!verseNumsX.length) continue;
+                    const chMin = verseNumsX[0];
+                    const chMax = verseNumsX[verseNumsX.length - 1];
+
+                    let svForCh, evForCh;
+                    if (chWalk === ref.chapter) {
+                        svForCh = ref.startVerse;
+                        evForCh = (chWalk === ref.endChapter) ? Math.min(ref.endVerse, chMax) : chMax;
+                    } else if (chWalk === ref.endChapter) {
+                        svForCh = chMin;
+                        evForCh = Math.min(ref.endVerse, chMax);
+                    } else {
+                        svForCh = chMin;
+                        evForCh = chMax;
+                    }
+
+                    verseNumsX.filter(vn => vn >= svForCh && vn <= evForCh).forEach(vn => {
+                        const textsX = {};
+                        TRANSLATIONS.forEach(t => { if (chapterTextsX[t][vn]) textsX[t] = chapterTextsX[t][vn]; });
+                        if (!textsX.NKJV) return;
+
+                        TRANSLATIONS.forEach(t => { if (t !== 'NKJV' && textsX[t]) transFetched[t]++; });
+
+                        const cacheKeyX = `${ref.bookId}_${chWalk}_${vn}`;
+                        let primaryTextX;
+                        let transLabelX = '';
+                        if (VERSE_OVERRIDES[cacheKeyX]) {
+                            primaryTextX = VERSE_OVERRIDES[cacheKeyX];
+                        } else if (moopTranslation[cacheKeyX]) {
+                            primaryTextX = moopTranslation[cacheKeyX];
+                            const sourcesX = detectMoopSources(moopTranslation[cacheKeyX], textsX);
+                            if (sourcesX.length > 0) {
+                                const sourceNamesX = sourcesX.slice(0, 3).map(t => DISPLAY[t] || t).join(' | ');
+                                transLabelX = `<span class="trans-label" style="color:var(--gold,#c9a84c);opacity:0.7;">[NKJV | ${sourceNamesX}]</span>`;
+                            }
+                        } else {
+                            primaryTextX = textsX.NKJV;
+                            transLabelX = '<span class="trans-label">[NKJV]</span>';
+                        }
+
+                        const blendSourcesX = moopTranslation[cacheKeyX] ? detectMoopSources(moopTranslation[cacheKeyX], textsX) : [];
+                        let mergedAmpsX = buildParallels(textsX, textsX.NKJV, 'range', blendSourcesX);
+                        const shownLabelsX = mergedAmpsX.map(a => a.label).join(' | ');
+                        TRANSLATIONS.forEach(t => {
+                            if (t !== 'NKJV' && textsX[t] && !shownLabelsX.includes(DISPLAY[t] || t)) transAgreements[t]++;
+                        });
+
+                        const allTransTextX = Object.values(textsX).filter(Boolean).join(' ');
+                        const stX = findStrongs(allTransTextX, ref.isOT);
+                        stX.forEach(s => { if (!seenStrongs.has(s.num)) { s.vref = `${chWalk}:${vn}`; allStrongs.push(s); seenStrongs.add(s.num); } });
+                        const clX = findArchaic(textsX.NKJV);
+                        clX.forEach(c => { if (!seenClarity.has(c.word)) { allClarity.push(c); seenClarity.add(c.word); } });
+
+                        allVerses.push({ num: vn, chapter: chWalk, text: primaryTextX, transLabel: transLabelX, amps: mergedAmpsX });
+                    });
+                }
+            } else if (currentViewMode === 'chapter') {
                 // BTE v3.4: Use chapter API endpoint — 9 parallel calls instead of verse-by-verse
                 const chapterPromises = TRANSLATIONS.map(t => fetchChapterData(ref.bookId, ref.chapter, t));
                 const chapterResults = await Promise.all(chapterPromises);
@@ -2355,7 +2484,11 @@
             if (!allVerses.length) { showError('No verses found. Check the reference.'); return; }
 
             const lastVerse = allVerses[allVerses.length - 1].num;
-            currentRef.endVerse = lastVerse;
+            // BTE v5.7: For cross-chapter ranges, the "lastVerse" lives in ref.endChapter — leave
+            // ref.endVerse / ref.endChapter as parsed so nav-boundary checks remain correct.
+            if (!ref.crossChapter) {
+                currentRef.endVerse = lastVerse;
+            }
 
             // Determine secondary translation indicator
             let secondaryTrans = 'ESV';
@@ -2401,11 +2534,23 @@
             });
             const limitedClarity = allClarity.slice(0, maxClarity);
 
+            // BTE v5.7: rangeStr renders cross-chapter spans as "Book Ch:V-Ch:V" (or "Book Ch-Ch"
+            // when both endpoints cover whole chapters).
             const rangeStr = (currentViewMode === 'chapter')
                 ? ref.display + ' ' + ref.chapter
-                : (allVerses.length === 1
-                    ? ref.display + ' ' + ref.chapter + ':' + ref.startVerse
-                    : ref.display + ' ' + ref.chapter + ':' + ref.startVerse + '-' + lastVerse);
+                : (ref.crossChapter
+                    ? (function(){
+                        var lastV = allVerses[allVerses.length - 1];
+                        var firstV = allVerses[0];
+                        var lastCh = lastV.chapter || ref.endChapter;
+                        var firstCh = firstV.chapter || ref.chapter;
+                        // Suppress verse numbers when the span exactly covers the first verse of the
+                        // first chapter through the last verse of the last chapter.
+                        return ref.display + ' ' + firstCh + ':' + firstV.num + '-' + lastCh + ':' + lastV.num;
+                      })()
+                    : (allVerses.length === 1
+                        ? ref.display + ' ' + ref.chapter + ':' + ref.startVerse
+                        : ref.display + ' ' + ref.chapter + ':' + ref.startVerse + '-' + lastVerse));
 
             // Build HTML
             let html = renderTopNav(rangeStr);
@@ -2434,13 +2579,18 @@
             // BTE v3.4: Verse blocks — verse numbers always clickable
             // BTE v5.1: Share button on each verse
             allVerses.forEach(function(v) {
+                // BTE v5.7: per-verse chapter — verse objects from cross-chapter mode carry .chapter
+                var vCh = v.chapter || ref.chapter;
                 var shareBookName = (BOOK_NAMES[ref.bookId] || '').replace(/\b\w/g, function(c){return c.toUpperCase();});
-                var shareRef = shareBookName + ' ' + ref.chapter + ':' + v.num;
-                var verseKey = ref.bookId + '_' + ref.chapter + '_' + v.num;
+                var shareRef = shareBookName + ' ' + vCh + ':' + v.num;
+                var verseKey = ref.bookId + '_' + vCh + '_' + v.num;
                 var hlClass = isHighlighted(verseKey) ? ' highlighted' : '';
                 var hlBtnClass = isHighlighted(verseKey) ? ' active' : '';
                 var hlIcon = isHighlighted(verseKey) ? 'shield-star.png' : 'shield-lock-48.png';
-                html += '<div class="verse-block' + hlClass + '" id="vb-' + verseKey + '"><span class="verse-num clickable" onclick="goToVerse(' + ref.chapter + ',' + v.num + ')" title="View verse ' + v.num + ' in detail">' + v.num + '</span> <span class="verse-text">' + v.text + '</span>';
+                // BTE v5.7: in cross-chapter mode, prefix the verse number with "Ch:" so the
+                // chapter boundary stays visible inline.
+                var verseNumLabel = ref.crossChapter ? (vCh + ':' + v.num) : String(v.num);
+                html += '<div class="verse-block' + hlClass + '" id="vb-' + verseKey + '"><span class="verse-num clickable" onclick="goToVerse(' + vCh + ',' + v.num + ')" title="View verse ' + v.num + ' in detail">' + verseNumLabel + '</span> <span class="verse-text">' + v.text + '</span>';
                 html += ' <span class="share-btn" data-testament="' + (ref.bookId <= 39 ? 'ot' : 'nt') + '" onclick="shareVerse(\'' + shareRef.replace(/'/g, "\\'") + '\', this)" title="Tap to copy shareable link for this verse"><img src="' + shareIcon + '" class="site-icon" alt="share" width="20" height="20"></span>';
                 // BTE v5.2: Highlight toggle per verse
                 html += ' <span class="highlight-btn' + hlBtnClass + '" onclick="toggleHighlight(\'' + verseKey + '\', this)" title="Highlight this verse"><img src="assets/icons/' + hlIcon + '" class="site-icon" alt="highlight" width="16" height="16"></span>';
@@ -2504,8 +2654,29 @@
             }
 
             // BTE v5.0: Cross-reference panel (verse and range modes only)
-            const verseNums = allVerses.map(function(v) { return v.num; });
-            const crossRefResult = buildCrossRefPanel(verseNums, ref.bookId, ref.chapter, currentViewMode);
+            // BTE v5.7: in cross-chapter mode, group cross-refs by their actual chapter
+            let crossRefResult = { html: '', count: 0 };
+            if (ref.crossChapter) {
+                const chSet = [];
+                allVerses.forEach(function(v) {
+                    var c = v.chapter || ref.chapter;
+                    if (chSet.indexOf(c) === -1) chSet.push(c);
+                });
+                let mergedHtml = '';
+                let mergedCount = 0;
+                chSet.forEach(function(c) {
+                    const verseNumsCh = allVerses.filter(function(v){ return (v.chapter || ref.chapter) === c; }).map(function(v){ return v.num; });
+                    const partial = buildCrossRefPanel(verseNumsCh, ref.bookId, c, currentViewMode);
+                    if (partial.html) {
+                        mergedHtml += partial.html;
+                        mergedCount += partial.count;
+                    }
+                });
+                crossRefResult = { html: mergedHtml, count: mergedCount };
+            } else {
+                const verseNums = allVerses.map(function(v) { return v.num; });
+                crossRefResult = buildCrossRefPanel(verseNums, ref.bookId, ref.chapter, currentViewMode);
+            }
             if (crossRefResult.html) {
                 html += crossRefResult.html;
             }
@@ -2518,7 +2689,7 @@
 
             // BTE v5.0: Cross-reference count in stats footer
             var crossRefStatStr = crossRefResult.count > 0 ? ' · ' + crossRefResult.count + ' cross-reference' + (crossRefResult.count !== 1 ? 's' : '') + ' found' : '';
-            html += '<div class="engine-info">The MOOP Bible Translation Engine V5.5 · 12 translations · Interlinear ' +
+            html += '<div class="engine-info">The MOOP Bible Translation Engine V5.7 · 12 translations · Interlinear ' +
                 (ref.isOT ? 'Hebrew' : 'Greek') + ' backbone' + crossRefStatStr + '</div>';
             html += '</div>';
             html += renderBottomNav(rangeStr);
