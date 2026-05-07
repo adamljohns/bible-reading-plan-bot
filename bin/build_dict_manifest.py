@@ -65,6 +65,45 @@ def extract_word(html):
     return None
 
 
+# Biblical-def summary extractor — first paragraph of biblical_def.
+BIBLICAL_DEF_PAT = re.compile(
+    r'<div class="biblical-def">\s*<p>(.*?)</p>',
+    re.DOTALL
+)
+
+TAG_STRIP = re.compile(r'<[^>]+>')
+ENTITY_DECODE = {
+    '&mdash;': '—', '&ndash;': '–', '&amp;': '&',
+    '&#39;': "'", '&apos;': "'", '&quot;': '"', '&nbsp;': ' ',
+    '&lt;': '<', '&gt;': '>',
+}
+
+def extract_summary(html, max_chars=180):
+    """Extract a short biblical-def summary (first ~180 chars, sentence-clean)."""
+    m = BIBLICAL_DEF_PAT.search(html)
+    if not m:
+        return None
+    text = m.group(1)
+    # Strip HTML tags
+    text = TAG_STRIP.sub('', text)
+    # Decode common entities
+    for ent, ch in ENTITY_DECODE.items():
+        text = text.replace(ent, ch)
+    # Collapse whitespace
+    text = re.sub(r'\s+', ' ', text).strip()
+    # Trim to first sentence-end within max_chars window if possible
+    if len(text) > max_chars:
+        # Try to break on sentence boundary near max_chars
+        cutoff = max_chars
+        # Find last period/semicolon/em-dash before cutoff
+        match = re.search(r'^.{1,' + str(max_chars) + r'}[.;—]', text)
+        if match:
+            text = match.group(0)
+        else:
+            text = text[:max_chars].rsplit(' ', 1)[0] + '…'
+    return text.strip()
+
+
 def normalize(s):
     """Lowercase, decode common entities, collapse whitespace."""
     s = s.replace('&mdash;', '—').replace('&ndash;', '–').replace('&amp;', '&')
@@ -78,6 +117,7 @@ def normalize(s):
 def main():
     tokens = {}
     phrases = []
+    summaries = {}
     skipped_no_word = 0
     total = 0
     for fn in sorted(os.listdir(DICT_DIR)):
@@ -93,6 +133,10 @@ def main():
             continue
         norm = normalize(word)
         total += 1
+        # Capture summary regardless of whether the word goes into tokens
+        summary = extract_summary(html)
+        if summary:
+            summaries[slug] = summary
         if not norm or norm in SKIP_WORDS:
             continue
         # Single-token vs multi-token
@@ -108,10 +152,11 @@ def main():
                 tokens[norm] = slug
 
     manifest = {
-        'version': 1,
+        'version': 2,
         'generated_at_count': total,
         'tokens': tokens,
         'phrases': sorted(phrases, key=lambda p: (-len(p[0]), p[0])),
+        'summaries': summaries,
     }
     with open(OUTPUT, 'w', encoding='utf-8') as f:
         json.dump(manifest, f, indent=0, separators=(',', ':'))
@@ -120,6 +165,7 @@ def main():
     print(f"  Entries with extractable headword: {total}")
     print(f"  Single-word matches (tokens):     {len(tokens)}")
     print(f"  Multi-word matches (phrases):     {len(phrases)}")
+    print(f"  Hover summaries captured:         {len(summaries)}")
     print(f"  Skipped (no headword found):      {skipped_no_word}")
     size_kb = os.path.getsize(OUTPUT) / 1024
     print(f"  File size:                         {size_kb:.1f} KB")
