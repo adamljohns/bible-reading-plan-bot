@@ -1125,7 +1125,14 @@
         // span after render and wraps single-word matches in <a class="dict-link">.
         // Skips links inside existing <a>, skips short stop-words, preserves
         // existing inline HTML in the verse text via TreeWalker on text nodes.
-        const DICT_ENABLED_BOOKS = new Set([43]); // John only for v1
+        // BTE v5.9: Dictionary integration extended to entire New Testament (books 40-66).
+        const DICT_ENABLED_BOOKS = new Set([
+            40, 41, 42, 43, 44,           // Matthew, Mark, Luke, John, Acts
+            45, 46, 47, 48, 49, 50, 51,   // Romans, 1-2 Cor, Gal, Eph, Phil, Col
+            52, 53, 54, 55, 56, 57,       // 1-2 Thess, 1-2 Tim, Titus, Philemon
+            58, 59, 60, 61,               // Hebrews, James, 1-2 Peter
+            62, 63, 64, 65, 66            // 1-2-3 John, Jude, Revelation
+        ]);
         let __dictManifest = null;
         let __dictManifestPromise = null;
 
@@ -1295,9 +1302,12 @@
                         }
                     });
                 });
-                if (totalLinks > 0 && verseSpans.length > 0) {
+                if (totalLinks > 0 && verseSpans.length > 0 &&
+                    !sessionStorage.getItem('bte-dict-toast-shown')) {
                     const phraseNote = phraseLinks > 0 ? ` (${phraseLinks} phrases too)` : '';
                     showDictToast('Dictionary lit up — hover or tap dotted words' + phraseNote);
+                    // Avoid re-showing the toast on every chapter nav within the same NT session
+                    sessionStorage.setItem('bte-dict-toast-shown', '1');
                 }
             });
         }
