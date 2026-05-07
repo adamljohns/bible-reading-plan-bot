@@ -1296,10 +1296,109 @@
                     });
                 });
                 if (totalLinks > 0 && verseSpans.length > 0) {
-                    showDictToast('Dictionary lit up — tap dotted words to explore (John pilot)');
+                    const phraseNote = phraseLinks > 0 ? ` (${phraseLinks} phrases too)` : '';
+                    showDictToast('Dictionary lit up — hover or tap dotted words' + phraseNote);
                 }
             });
         }
+
+        // ─────────────────────────────────────────────────────────────
+        // Hover preview popover for dict-links
+        // Touch devices: tap-and-hold shows popover; tap navigates.
+        // ─────────────────────────────────────────────────────────────
+        let __dictPopover = null;
+        let __dictPopoverHideTimer = null;
+
+        function ensureDictPopover() {
+            if (__dictPopover) return __dictPopover;
+            __dictPopover = document.createElement('div');
+            __dictPopover.className = 'dict-popover';
+            __dictPopover.setAttribute('role', 'tooltip');
+            document.body.appendChild(__dictPopover);
+            // Keep popover open when cursor enters it
+            __dictPopover.addEventListener('mouseenter', () => {
+                if (__dictPopoverHideTimer) {
+                    clearTimeout(__dictPopoverHideTimer);
+                    __dictPopoverHideTimer = null;
+                }
+            });
+            __dictPopover.addEventListener('mouseleave', hideDictPopover);
+            return __dictPopover;
+        }
+
+        function showDictPopoverFor(linkEl) {
+            const summary = linkEl.getAttribute('data-summary');
+            if (!summary) return;
+            const headword = linkEl.textContent;
+            const pop = ensureDictPopover();
+            pop.innerHTML =
+                '<div class="dict-pop-headword">' +
+                headword.replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c])) +
+                '</div>' +
+                '<div class="dict-pop-body">' + summary + '</div>' +
+                '<span class="dict-pop-tap-hint">click to open full entry</span>';
+            // Position above the link, centered horizontally
+            const rect = linkEl.getBoundingClientRect();
+            const vw = window.innerWidth;
+            const vh = window.innerHeight;
+            // Show first to measure
+            pop.style.left = '0px';
+            pop.style.top = '0px';
+            pop.classList.add('show');
+            const popRect = pop.getBoundingClientRect();
+            // Center horizontally on the link, clamp to viewport
+            let left = rect.left + (rect.width / 2) - (popRect.width / 2);
+            left = Math.max(8, Math.min(left, vw - popRect.width - 8));
+            // Above by default; below if too close to top
+            let top = rect.top - popRect.height - 8;
+            if (top < 8) top = rect.bottom + 8;
+            pop.style.left = left + 'px';
+            pop.style.top = top + 'px';
+        }
+
+        function hideDictPopover() {
+            if (__dictPopoverHideTimer) clearTimeout(__dictPopoverHideTimer);
+            __dictPopoverHideTimer = setTimeout(() => {
+                if (__dictPopover) __dictPopover.classList.remove('show');
+                __dictPopoverHideTimer = null;
+            }, 120);
+        }
+
+        // Delegate hover/focus/touch events for dict-links
+        document.addEventListener('mouseover', function(e) {
+            const link = e.target.closest && e.target.closest('a.dict-link');
+            if (!link) return;
+            if (__dictPopoverHideTimer) {
+                clearTimeout(__dictPopoverHideTimer);
+                __dictPopoverHideTimer = null;
+            }
+            showDictPopoverFor(link);
+        });
+        document.addEventListener('mouseout', function(e) {
+            const link = e.target.closest && e.target.closest('a.dict-link');
+            if (!link) return;
+            // Only hide if leaving toward something that's not the popover
+            const to = e.relatedTarget;
+            if (to && __dictPopover && __dictPopover.contains(to)) return;
+            hideDictPopover();
+        });
+        // Long-press support for touch devices
+        let __dictTouchTimer = null;
+        document.addEventListener('touchstart', function(e) {
+            const link = e.target.closest && e.target.closest('a.dict-link');
+            if (!link) return;
+            __dictTouchTimer = setTimeout(() => {
+                showDictPopoverFor(link);
+                __dictTouchTimer = null;
+            }, 350);
+        }, { passive: true });
+        document.addEventListener('touchend', function(e) {
+            if (__dictTouchTimer) {
+                clearTimeout(__dictTouchTimer);
+                __dictTouchTimer = null;
+            }
+        });
+        document.addEventListener('scroll', hideDictPopover, true);
 
         // BTE v3.3: Complete NKJV Bible Index (verse counts per chapter, 66 books)
         const BIBLE_INDEX = {
