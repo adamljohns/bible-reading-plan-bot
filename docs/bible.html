@@ -168,6 +168,36 @@
             opacity: 0; transition: opacity 0.3s ease;
         }
         .dict-toast.show { opacity: 1; }
+        /* BTE v5.7: phrase matches get a slightly stronger dotted underline */
+        .verse-text .dict-link.dict-phrase {
+            border-bottom: 1px dashed var(--gold-light);
+        }
+        /* Hover preview popover */
+        .dict-popover {
+            position: fixed; max-width: 380px;
+            background: rgba(15,15,15,0.97); color: var(--white);
+            border: 1px solid rgba(212,175,55,0.6); border-radius: 8px;
+            padding: 12px 14px; font-size: 0.88rem; line-height: 1.55;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+            opacity: 0; transform: translateY(4px); pointer-events: none;
+            transition: opacity 0.18s ease, transform 0.18s ease;
+            z-index: 1001;
+        }
+        .dict-popover.show { opacity: 1; transform: translateY(0); }
+        .dict-popover .dict-pop-headword {
+            color: var(--gold-light); font-weight: 600;
+            font-size: 0.95rem; margin-bottom: 4px;
+            border-bottom: 1px solid rgba(212,175,55,0.25); padding-bottom: 4px;
+        }
+        .dict-popover .dict-pop-tap-hint {
+            display: block; margin-top: 8px; font-size: 0.72rem;
+            color: var(--gray); font-style: italic;
+        }
+        body.light-mode .dict-popover {
+            background: rgba(255,255,255,0.97); color: #1a1a1a;
+            border-color: rgba(180,140,40,0.6);
+        }
+        body.light-mode .dict-popover .dict-pop-headword { color: #8a6a1f; }
         .share-btn { cursor: pointer; opacity: 0.7; font-size: 0.85rem; transition: opacity 0.2s; user-select: none; }
         .share-btn:hover { opacity: 1; }
         .share-btn.copied { opacity: 1; }
@@ -1122,13 +1152,95 @@
             toast.__timer = setTimeout(() => toast.classList.remove('show'), 2400);
         }
 
+        // Find a slug for a single word, with KJV/-ed/-ing/-s normalization.
+        function findDictSlug(word, tokens) {
+            const key = word.toLowerCase().replace(/[’']/g, '').replace(/[^a-z]/g, '');
+            if (key.length < 4) return null;
+            // 1. Direct match
+            if (tokens[key]) return tokens[key];
+            // 2. KJV continuous-aspect (-ieth / -iest / -eth / -est)
+            const cands = [];
+            if (key.endsWith('ieth') || key.endsWith('iest')) {
+                cands.push(key.slice(0, -4) + 'y');     // glorifieth → glorify
+            }
+            if (key.endsWith('eth') || key.endsWith('est')) {
+                cands.push(key.slice(0, -3));            // trusteth → trust
+                cands.push(key.slice(0, -2));            // loveth → love
+                if (key.length >= 5 &&
+                    key.charAt(key.length - 4) === key.charAt(key.length - 5)) {
+                    cands.push(key.slice(0, -4));        // worshippeth → worship
+                }
+            }
+            // 3. -ed past tense: loved → love; believed → believe; judged → judge
+            if (key.endsWith('ed') && key.length >= 5) {
+                cands.push(key.slice(0, -2));            // loved → lov (rare)
+                cands.push(key.slice(0, -1));            // loved → love
+                // doubled consonant: stopped → stop
+                if (key.length >= 5 &&
+                    key.charAt(key.length - 3) === key.charAt(key.length - 4)) {
+                    cands.push(key.slice(0, -3));
+                }
+                // -ied → -y: glorified → glorify
+                if (key.endsWith('ied')) {
+                    cands.push(key.slice(0, -3) + 'y');
+                }
+            }
+            // 4. -ing present participle: loving → love; abiding → abide
+            if (key.endsWith('ing') && key.length >= 6) {
+                cands.push(key.slice(0, -3));            // walking → walk
+                cands.push(key.slice(0, -3) + 'e');      // loving → love
+                if (key.length >= 6 &&
+                    key.charAt(key.length - 4) === key.charAt(key.length - 5)) {
+                    cands.push(key.slice(0, -4));        // running → run
+                }
+            }
+            // 5. -s plural / 3rd person sing: lambs → lamb, shepherds → shepherd
+            if (key.endsWith('s') && key.length >= 5 && !key.endsWith('ss')) {
+                cands.push(key.slice(0, -1));            // lambs → lamb
+                if (key.endsWith('ies')) {
+                    cands.push(key.slice(0, -3) + 'y');  // mercies → mercy
+                }
+                if (key.endsWith('es')) {
+                    cands.push(key.slice(0, -2));        // judges → judge (also redundant with -1)
+                }
+            }
+            for (const c of cands) {
+                if (c && c.length >= 4 && tokens[c]) return tokens[c];
+            }
+            return null;
+        }
+
+        // Build a phrase-match regex from the manifest's phrase list.
+        // Phrases are pre-sorted longest-first so first match wins.
+        function buildPhraseRegex(phrases) {
+            if (!phrases || !phrases.length) return null;
+            // Escape regex specials, then OR them together
+            const parts = phrases.map(p =>
+                p[0].replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+                    .replace(/\s+/g, '\\s+')           // tolerate any whitespace
+            );
+            return new RegExp('\\b(' + parts.join('|') + ')\\b', 'gi');
+        }
+
+        function escapeAttr(s) {
+            return s.replace(/&/g, '&amp;').replace(/"/g, '&quot;')
+                    .replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
         function enrichDictionaryLinks(bookId) {
             if (!DICT_ENABLED_BOOKS.has(bookId)) return;
             loadDictManifest().then(manifest => {
                 if (!manifest || !manifest.tokens) return;
                 const tokens = manifest.tokens;
+                const phrases = manifest.phrases || [];
+                const summaries = manifest.summaries || {};
+                // Build a phrase→slug lookup (lowercased phrase string → slug)
+                const phraseMap = {};
+                phrases.forEach(p => { phraseMap[p[0]] = p[1]; });
+                const phraseRe = buildPhraseRegex(phrases);
                 const verseSpans = document.querySelectorAll('.verse-text:not([data-dict-enriched])');
                 let totalLinks = 0;
+                let phraseLinks = 0;
                 verseSpans.forEach(span => {
                     span.setAttribute('data-dict-enriched', '1');
                     // Walk only TEXT nodes (preserve any inline HTML like <em>).
@@ -1139,39 +1251,42 @@
                     textNodes.forEach(textNode => {
                         // Skip text already inside a link.
                         if (textNode.parentElement && textNode.parentElement.closest('a')) return;
-                        const text = textNode.nodeValue;
-                        // Match standalone words >=4 chars, allow apostrophe-hyphen inside.
-                        const newHtml = text.replace(/\b([A-Za-z][A-Za-z'’-]{3,})\b/g, function(match, word){
-                            const key = word.toLowerCase().replace(/[’']/g, '').replace(/[^a-z]/g, '');
-                            // Direct match
-                            let slug = tokens[key];
-                            // KJV continuous-aspect normalization (-eth / -est / -ieth)
-                            // so that "loveth", "abideth", "knoweth", "lovest", etc.
-                            // route to their base entries (love, abide, know).
-                            if (!slug && key.length >= 5) {
-                                const candidates = [];
-                                if (key.endsWith('ieth')) {
-                                    candidates.push(key.slice(0, -4) + 'y');   // glorifieth → glorify
-                                }
-                                if (key.endsWith('iest')) {
-                                    candidates.push(key.slice(0, -4) + 'y');   // sanctifiest → sanctify
-                                }
-                                if (key.endsWith('eth') || key.endsWith('est')) {
-                                    candidates.push(key.slice(0, -3));         // trusteth → trust
-                                    candidates.push(key.slice(0, -2));         // loveth → love
-                                    // doubled-consonant: worshippeth → worship
-                                    if (key.length >= 5 &&
-                                        key.charAt(key.length - 4) === key.charAt(key.length - 5)) {
-                                        candidates.push(key.slice(0, -4));
-                                    }
-                                }
-                                for (const c of candidates) {
-                                    if (c && c.length >= 4 && tokens[c]) { slug = tokens[c]; break; }
-                                }
-                            }
+                        let text = textNode.nodeValue;
+                        // PHASE A: phrase replacement first (longer matches win).
+                        // We replace phrases with placeholder tokens that single-word
+                        // matching won't disturb, then swap them back at the end.
+                        const placeholders = [];
+                        if (phraseRe) {
+                            text = text.replace(phraseRe, function(m) {
+                                const norm = m.toLowerCase().replace(/\s+/g, ' ');
+                                const slug = phraseMap[norm];
+                                if (!slug) return m;
+                                const summary = summaries[slug] || '';
+                                const placeholder = '\u0001' + placeholders.length + '\u0002';
+                                placeholders.push(
+                                    '<a class="dict-link dict-phrase" href="dictionary/' + slug +
+                                    '.html" data-summary="' + escapeAttr(summary) +
+                                    '" title="' + escapeAttr(m + ' — dictionary entry') + '">' +
+                                    m + '</a>'
+                                );
+                                phraseLinks++;
+                                return placeholder;
+                            });
+                        }
+                        // PHASE B: single-word matching on the remaining text
+                        let newHtml = text.replace(/\b([A-Za-z][A-Za-z'’-]{3,})\b/g, function(match, word){
+                            const slug = findDictSlug(word, tokens);
                             if (!slug) return word;
                             totalLinks++;
-                            return '<a class="dict-link" href="dictionary/' + slug + '.html" title="' + word + ' — dictionary entry">' + word + '</a>';
+                            const summary = summaries[slug] || '';
+                            return '<a class="dict-link" href="dictionary/' + slug +
+                                   '.html" data-summary="' + escapeAttr(summary) +
+                                   '" title="' + escapeAttr(word + ' — dictionary entry') + '">' +
+                                   word + '</a>';
+                        });
+                        // PHASE C: swap placeholders back to phrase links
+                        newHtml = newHtml.replace(/(\d+)/g, function(m, idx) {
+                            return placeholders[parseInt(idx, 10)];
                         });
                         if (newHtml !== text) {
                             const wrapper = document.createElement('span');
