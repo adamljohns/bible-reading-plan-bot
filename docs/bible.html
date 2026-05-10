@@ -8,7 +8,7 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-touch-icon.png">
     <link rel="manifest" href="/manifest.json">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta property="og:title" content="MOOP Bible Translation Engine V5.7">
+    <meta property="og:title" content="MOOP Bible Translation Engine V6.1">
     <meta property="og:description" content="12 English translations blended with interlinear Hebrew and Greek roots. Strong's Concordance links. Cross-references. Bookmarks. Word search. Built for deep word study.">
     <meta property="og:image" content="https://usmcmin.org/assets/og/og-bible.png?v=53">
     <meta property="og:image:width" content="1200">
@@ -16,11 +16,13 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://usmcmin.org/bible.html">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="MOOP Bible Translation Engine V5.7">
+    <meta name="twitter:title" content="MOOP Bible Translation Engine V6.1">
     <meta name="twitter:description" content="12 English translations blended with interlinear Hebrew and Greek roots. Strong's Concordance links. Cross-references. Bookmarks. Word search. Built for deep word study.">
     <meta name="twitter:image" content="https://usmcmin.org/assets/og/og-bible.png?v=53">
     <meta name="description" content="12 English translations blended with interlinear Hebrew and Greek roots. Strong's Concordance links. Cross-references. Bookmarks. Word search. Built for deep word study.">
-    <title>The MOOP Bible Translation Engine V5.7 — U.S.M.C. Ministries</title>
+    <title>The MOOP Bible Translation Engine V6.1 — U.S.M.C. Ministries</title>
+    <!-- BTE v6.1 (2026-05-10): version label sync — captures v5.7 cross-chapter ranges
+         and v6.0 whole-Bible dictionary integration into a single visible label. -->
     <!-- BTE v5.7 (2026-05-05): cross-chapter ranges. parseRef now accepts "Book Ch:V-Ch:V" and
          "Book Ch-Ch"; lookupVerse walks chapters and emits per-verse {chapter, num} blocks. -->
 
@@ -800,7 +802,7 @@
             <section class="hero">
                 <img src="assets/images/usmc-logo-shield-cross.png" alt="U.S.M.C. Ministries" onerror="this.style.display='none'">
                 <h1>The MOOP Bible Translation Engine</h1>
-                <p class="subtitle">V5.7 · 12 Translations · Interlinear Hebrew &amp; Greek · Strong's Concordance · Cross-References · MBT</p>
+                <p class="subtitle">V6.1 · 12 Translations · Interlinear Hebrew &amp; Greek · Strong's Concordance · Cross-References · MBT · Whole-Bible Dictionary</p>
                 <p class="desc">
                     Type any Bible reference below. The engine blends 12 English translations with
                     NKJV as the primary voice, surfaces meaningful divergences, and provides
@@ -2921,7 +2923,7 @@
 
             // BTE v5.0: Cross-reference count in stats footer
             var crossRefStatStr = crossRefResult.count > 0 ? ' · ' + crossRefResult.count + ' cross-reference' + (crossRefResult.count !== 1 ? 's' : '') + ' found' : '';
-            html += '<div class="engine-info">The MOOP Bible Translation Engine V5.7 · 12 translations · Interlinear ' +
+            html += '<div class="engine-info">The MOOP Bible Translation Engine V6.1 · 12 translations · Interlinear ' +
                 (ref.isOT ? 'Hebrew' : 'Greek') + ' backbone' + crossRefStatStr + '</div>';
             html += '</div>';
             html += renderBottomNav(rangeStr);
@@ -3146,7 +3148,12 @@
             var inputEl = document.getElementById('refInput');
             var raw = inputEl.value.trim();
             if (!raw) return;
-            var parts = raw.split(';').map(function(s){return s.trim();}).filter(Boolean);
+            // BTE v6.1: split on ';' (canonical), but also ' & ' and ' + ' so compound refs
+            // from the chronological plan ("Colossians 1:15-23 & Romans 5:1-12") work as a
+            // single passage entry. The lookahead avoids splitting "1 & 2 Kings" type strings.
+            var parts = raw.split(/\s*[;&+]\s*(?=[A-Z1-9])/)
+                           .map(function(s){return s.trim();})
+                           .filter(Boolean);
             if (parts.length <= 1) return lookupVerse();
 
             // v5.5: book-name inheritance — "John 1:12-13; 3:16-21" => second chunk gets "John "
@@ -3538,12 +3545,23 @@
             var panel = document.getElementById('watchmanWidget');
             if (!panel) return;
             var readings = getWatchmanReadings();
+            if (!readings.length) { panel.innerHTML = ''; return; }
             var html = '<div class="watchman-widget"><h4><img src="assets/icons/shield-bible.png" class="site-icon" alt="" width="22" height="22"> Today\'s Watchman Readings</h4>';
             html += '<div class="watchman-readings">';
             readings.forEach(function(r) {
                 html += '<a class="watchman-reading" href="bible.html?ref=' + encodeURIComponent(r.ref) + '"><span class="wr-label">' + r.label + '</span><span class="wr-ref">' + r.ref + '</span></a>';
             });
-            html += '</div></div>';
+            html += '</div>';
+            // BTE v6.1: "Read All 5 Together" — opens BTE in multi-passage mode with all
+            // five watches stacked. Compound refs (e.g. "Colossians 1:15-23 & Romans 5:1-12")
+            // are kept intact and split into multi entries by lookupMulti's separator-aware parser.
+            if (readings.length >= 2) {
+                var combined = readings.map(function(r){ return r.ref; }).join(';');
+                html += '<a class="watchman-readall" href="bible.html?refs=' + encodeURIComponent(combined) + '" style="display:block;margin-top:10px;text-align:center;padding:10px;background:rgba(212,175,55,0.08);border:1px solid var(--gold,#D4AF37);border-radius:6px;color:var(--gold,#D4AF37);text-decoration:none;font-weight:600;font-size:0.92rem;letter-spacing:0.3px;">' +
+                    '<img src="assets/icons/shield-cross.png" class="site-icon" alt="" width="18" height="18" style="vertical-align:middle;margin-right:4px;"> Read All ' + readings.length + ' Watches Together' +
+                    '</a>';
+            }
+            html += '</div>';
             panel.innerHTML = html;
         }
 
