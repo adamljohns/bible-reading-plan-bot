@@ -413,11 +413,14 @@ def build_index(words, by_letter, total):
                 <a href="inclusion.html" class="corrupted-card"><div class="cword">Inclusion</div><div class="ctag">Hijacked</div></a>
                 <a href="pride.html" class="corrupted-card"><div class="cword">Pride</div><div class="ctag">Inverted</div></a>
                 <a href="empathy.html" class="corrupted-card"><div class="cword">Empathy</div><div class="ctag">Weaponized</div></a>
+                <a href="truth.html" class="corrupted-card"><div class="cword">Truth</div><div class="ctag">Relativized</div></a>
+                <a href="marriage.html" class="corrupted-card"><div class="cword">Marriage</div><div class="ctag">Redefined</div></a>
+                <a href="grace.html" class="corrupted-card"><div class="cword">Grace</div><div class="ctag">Cheapened</div></a>
+                <a href="identity.html" class="corrupted-card"><div class="cword">Identity</div><div class="ctag">Detached</div></a>
             </div>
             <details>
                 <summary><em>expand to see more</em></summary>
                 <div class="corrupted-grid more-grid">
-                    <a href="truth.html" class="corrupted-card"><div class="cword">Truth</div><div class="ctag">Relativized</div></a>
                     <a href="privilege.html" class="corrupted-card"><div class="cword">Privilege</div><div class="ctag">Weaponized</div></a>
                     <a href="toxic.html" class="corrupted-card"><div class="cword">Toxic</div><div class="ctag">Weaponized</div></a>
                     <a href="authenticity.html" class="corrupted-card"><div class="cword">Authenticity</div><div class="ctag">Corrupted</div></a>
@@ -428,10 +431,7 @@ def build_index(words, by_letter, total):
                     <a href="gender.html" class="corrupted-card"><div class="cword">Gender</div><div class="ctag">Stolen</div></a>
                     <a href="woke.html" class="corrupted-card"><div class="cword">Woke</div><div class="ctag">Hijacked</div></a>
                     <a href="deconstruction.html" class="corrupted-card"><div class="cword">Deconstruction</div><div class="ctag">Repurposed</div></a>
-                    <a href="grace.html" class="corrupted-card"><div class="cword">Grace</div><div class="ctag">Cheapened</div></a>
-                    <a href="marriage.html" class="corrupted-card"><div class="cword">Marriage</div><div class="ctag">Redefined</div></a>
                     <a href="masculinity.html" class="corrupted-card"><div class="cword">Masculinity</div><div class="ctag">Vilified</div></a>
-                    <a href="identity.html" class="corrupted-card"><div class="cword">Identity</div><div class="ctag">Detached</div></a>
                     <a href="judgment.html" class="corrupted-card"><div class="cword">Judgment</div><div class="ctag">Forbidden</div></a>
                 </div>
             </details>
@@ -450,22 +450,22 @@ def build_index(words, by_letter, total):
                 <a href="delulu.html" class="genz-card"><div class="gzword">Delulu</div><div class="gzverdict gzv-red">Reject</div></a>
                 <a href="rizz.html" class="genz-card"><div class="gzword">Rizz</div><div class="gzverdict gzv-orange">Examine</div></a>
                 <a href="touch-grass.html" class="genz-card"><div class="gzword">Touch Grass</div><div class="gzverdict gzv-red">Reject</div></a>
+                <a href="goat-genz.html" class="genz-card"><div class="gzword">GOAT</div><div class="gzverdict gzv-green">Redeemable</div></a>
+                <a href="no-cap.html" class="genz-card"><div class="gzword">No Cap</div><div class="gzverdict gzv-green">Redeemable</div></a>
+                <a href="vibe.html" class="genz-card"><div class="gzword">Vibe</div><div class="gzverdict gzv-orange">Examine</div></a>
+                <a href="mid.html" class="genz-card"><div class="gzword">Mid</div><div class="gzverdict gzv-orange">Examine</div></a>
             </div>
             <details>
                 <summary><em>expand to see more</em></summary>
                 <div class="genz-grid more-grid">
                     <a href="fr-for-real.html" class="genz-card"><div class="gzword">Fr (For Real)</div><div class="gzverdict gzv-green">Redeemable</div></a>
-                    <a href="goat-genz.html" class="genz-card"><div class="gzword">GOAT</div><div class="gzverdict gzv-green">Redeemable</div></a>
                     <a href="gyat.html" class="genz-card"><div class="gzword">Gyat</div><div class="gzverdict gzv-red">Reject</div></a>
                     <a href="hit-different.html" class="genz-card"><div class="gzword">Hit Different</div><div class="gzverdict gzv-yellow">Neutral</div></a>
                     <a href="lock-in.html" class="genz-card"><div class="gzword">Lock In</div><div class="gzverdict gzv-green">Redeemable</div></a>
                     <a href="lowkey.html" class="genz-card"><div class="gzword">Lowkey</div><div class="gzverdict gzv-yellow">Neutral</div></a>
                     <a href="main-character.html" class="genz-card"><div class="gzword">Main Character</div><div class="gzverdict gzv-orange">Examine</div></a>
-                    <a href="mid.html" class="genz-card"><div class="gzword">Mid</div><div class="gzverdict gzv-orange">Examine</div></a>
-                    <a href="no-cap.html" class="genz-card"><div class="gzword">No Cap</div><div class="gzverdict gzv-green">Redeemable</div></a>
                     <a href="sheesh.html" class="genz-card"><div class="gzword">Sheesh</div><div class="gzverdict gzv-yellow">Neutral</div></a>
                     <a href="slay.html" class="genz-card"><div class="gzword">Slay</div><div class="gzverdict gzv-orange">Examine</div></a>
-                    <a href="vibe.html" class="genz-card"><div class="gzword">Vibe</div><div class="gzverdict gzv-orange">Examine</div></a>
                     <a href="w-win.html" class="genz-card"><div class="gzword">W (Win)</div><div class="gzverdict gzv-green">Redeemable</div></a>
                 </div>
             </details>
