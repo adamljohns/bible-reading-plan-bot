@@ -11,6 +11,8 @@ then regenerates docs/dictionary/index.html from scratch.
 
 import os
 import re
+import subprocess
+import sys
 from collections import defaultdict
 
 DICT_DIR = os.path.join(os.path.dirname(__file__), 'docs', 'dictionary')
@@ -185,6 +187,9 @@ def build_index(words, by_letter, total):
         body.light-mode .suggest-section input[type="text"],
         body.light-mode .suggest-section textarea {{ background: #f5f3ef; border-color: #d4d0c8; color: #1a1a1a; }}
         @media (min-width: 1025px) {{ .container {{ max-width: 1100px; }} }}
+        .names-callout {{ text-align:center; margin:0 auto 24px; }}
+        .names-callout a {{ display:inline-flex; align-items:center; gap:8px; padding:10px 22px; background:rgba(212,175,55,0.08); border:1px solid var(--gold); border-radius:30px; font-size:0.95rem; font-weight:500; color:var(--gold) !important; text-decoration:none; transition:all 0.2s; }}
+        .names-callout a:hover {{ background:rgba(212,175,55,0.18); color:var(--gold-light) !important; }}
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
 </head>
@@ -215,6 +220,11 @@ def build_index(words, by_letter, total):
             <p style="margin-top:20px;">Words have been stolen, redefined, and weaponized. This dictionary reclaims them &mdash; returning to the etymological roots, the biblical meaning, and the Webster 1828 definitions that shaped Western civilization, against which modern corruptions are measured.</p>
             <p style="margin-top:10px;font-size:0.85rem;color:var(--gold);">{total} entries &middot; Proto-language roots &middot; Collapsible deep-dive sections</p>
         </section>
+
+        <!-- Names sub-page callout -->
+        <div class="names-callout">
+            <a href="names.html">📖 Biblical Names &mdash; focused word-study index &rarr;</a>
+        </div>
 
         <!-- Search -->
         <div class="search-wrap">
@@ -376,6 +386,12 @@ def main():
     with open(INDEX_FILE, 'w', encoding='utf-8') as f:
         f.write(html)
     print(f'\nWrote {INDEX_FILE}')
+
+    # Rebuild the names sub-page too so it stays in sync.
+    names_script = os.path.join(os.path.dirname(__file__), 'bin', 'build_names_index.py')
+    if os.path.exists(names_script):
+        print('\n--- Rebuilding names sub-page ---')
+        subprocess.run([sys.executable, names_script], check=True)
 
 
 if __name__ == '__main__':
