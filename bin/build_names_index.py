@@ -23,19 +23,24 @@ NAMES_FILE = os.path.join(DICT_DIR, 'names.html')
 
 SKIP = {'index.html', 'template.html', 'names.html'}
 
-# Category id, label, emoji-prefixed label, intro line
+# Branded icon helper — produces an <img> tag inline with the section label.
+def _icon(name):
+    return (f'<img src="../assets/icons/{name}" alt="" width="22" height="22" '
+            f'style="vertical-align:middle;margin-right:8px;opacity:0.95;">')
+
+# Category id, label, icon-prefixed label (HTML), intro line
 CATEGORIES = [
-    ('people',  'People',             '🧍 People',
+    ('people',  'People',             f'{_icon("shield-about-person-48.png")}People',
         'Patriarchs, prophets, kings, apostles, women of faith, and named figures throughout Scripture.'),
-    ('places',  'Places',             '🗺️ Places',
+    ('places',  'Places',             f'{_icon("shield-globe.png")}Places',
         'Cities, towns, mountains, regions, islands, and bodies of water named in the Bible.'),
-    ('books',   'Books of the Bible', '📖 Books of the Bible',
+    ('books',   'Books of the Bible', f'{_icon("shield-bible.png")}Books of the Bible',
         'The 66 canonical books plus named sections (Pentateuch, Gospels, etc.).'),
-    ('tribes',  'Tribes & Nations',   '⚔️ Tribes & Nations',
+    ('tribes',  'Tribes & Nations',   f'{_icon("shield-crown.png")}Tribes &amp; Nations',
         'Tribes of Israel, surrounding nations, and named people-groups.'),
-    ('divine',  'Divine Names & Christ Titles', '✝️ Divine Names & Christ Titles',
+    ('divine',  'Divine Names & Christ Titles', f'{_icon("shield-alpha-omega-48.png")}Divine Names &amp; Christ Titles',
         'Names of God revealed in Scripture — YHWH-compounds, El-titles, and Messianic / Christ-titles.'),
-    ('other',   'Other Proper Nouns', '✨ Other',
+    ('other',   'Other Proper Nouns', f'{_icon("shield-star.png")}Other Proper Nouns',
         'Proper nouns that don’t fall into the categories above — feasts, armor, events, miscellaneous.'),
 ]
 

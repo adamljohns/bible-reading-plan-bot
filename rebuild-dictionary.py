@@ -190,6 +190,86 @@ def build_index(words, by_letter, total):
         .names-callout {{ text-align:center; margin:0 auto 24px; }}
         .names-callout a {{ display:inline-flex; align-items:center; gap:8px; padding:10px 22px; background:rgba(212,175,55,0.08); border:1px solid var(--gold); border-radius:30px; font-size:0.95rem; font-weight:500; color:var(--gold) !important; text-decoration:none; transition:all 0.2s; }}
         .names-callout a:hover {{ background:rgba(212,175,55,0.18); color:var(--gold-light) !important; }}
+        .names-callout img {{ width:20px; height:20px; opacity:0.9; }}
+        /* Word of the Day */
+        .wotd-widget {{ background:linear-gradient(135deg,rgba(212,175,55,0.08) 0%,rgba(212,175,55,0.02) 100%); border:1px solid rgba(212,175,55,0.2); border-radius:12px; padding:20px 24px; margin:20px 0; text-align:center; }}
+        .wotd-widget h4 {{ color:var(--gold); font-family:'Playfair Display',serif; font-size:1rem; margin-bottom:10px; display:inline-flex; align-items:center; gap:8px; }}
+        .wotd-word {{ font-family:'Playfair Display',serif; font-size:1.8rem; color:var(--white); margin-bottom:4px; }}
+        .wotd-word a {{ color:var(--white); text-decoration:none; }}
+        .wotd-word a:hover {{ color:var(--gold); }}
+        .wotd-pos {{ color:var(--gray); font-size:0.82rem; font-style:italic; margin-bottom:8px; }}
+        .wotd-def {{ color:var(--gray); font-size:0.92rem; line-height:1.6; max-width:600px; margin:0 auto; }}
+        body.light-mode .wotd-widget {{ background:linear-gradient(135deg,rgba(212,175,55,0.06) 0%,rgba(212,175,55,0.02) 100%); }}
+        /* Most Corrupted Words */
+        .corrupted-section {{ background:rgba(244,67,54,0.04); border:1px solid rgba(244,67,54,0.15); border-radius:12px; padding:20px 24px; margin:30px 0; }}
+        .corrupted-section h3 {{ color:#f44336; font-family:'Playfair Display',serif; font-size:1.1rem; margin-bottom:6px; display:inline-flex; align-items:center; gap:8px; }}
+        .corrupted-section .subtitle {{ color:var(--gray); font-size:0.82rem; margin-bottom:16px; font-style:italic; }}
+        .corrupted-grid {{ display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:8px; }}
+        .corrupted-card {{ background:rgba(244,67,54,0.06); border:1px solid rgba(244,67,54,0.12); border-radius:8px; padding:10px 14px; text-decoration:none; transition:all 0.2s; text-align:center; }}
+        .corrupted-card:hover {{ border-color:#f44336; background:rgba(244,67,54,0.12); }}
+        .corrupted-card .cword {{ color:var(--white); font-weight:600; font-size:0.9rem; }}
+        .corrupted-card .ctag {{ color:#f44336; font-size:0.65rem; text-transform:uppercase; letter-spacing:0.5px; }}
+        body.light-mode .corrupted-section {{ background:rgba(244,67,54,0.03); }}
+        body.light-mode .corrupted-card .cword {{ color:#1a1a1a; }}
+        /* Gen-Z Decoded section (pink) */
+        .genz-section {{ background:rgba(236,72,153,0.04); border:1px solid rgba(236,72,153,0.18); border-radius:12px; padding:20px 24px; margin:30px 0; }}
+        .genz-section h3 {{ color:#EC4899; font-family:'Playfair Display',serif; font-size:1.1rem; margin-bottom:6px; display:inline-flex; align-items:center; gap:8px; }}
+        .genz-section .subtitle {{ color:var(--gray); font-size:0.82rem; margin-bottom:16px; font-style:italic; }}
+        .genz-grid {{ display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:8px; }}
+        .genz-card {{ background:rgba(236,72,153,0.06); border:1px solid rgba(236,72,153,0.15); border-radius:8px; padding:10px 14px; text-decoration:none; transition:all 0.2s; text-align:center; display:block; }}
+        .genz-card:hover {{ border-color:#EC4899; background:rgba(236,72,153,0.13); }}
+        .genz-card .gzword {{ color:var(--white); font-weight:600; font-size:0.9rem; }}
+        .genz-card .gzverdict {{ font-size:0.62rem; text-transform:uppercase; letter-spacing:0.6px; margin-top:3px; font-weight:700; }}
+        .gzv-green {{ color:#10B981; }}
+        .gzv-yellow {{ color:#F59E0B; }}
+        .gzv-orange {{ color:#F97316; }}
+        .gzv-red {{ color:#EF4444; }}
+        body.light-mode .genz-section {{ background:rgba(236,72,153,0.03); }}
+        body.light-mode .genz-card .gzword {{ color:#1a1a1a; }}
+        /* Millennial Decoded section (teal) */
+        .mill-section {{ background:rgba(20,184,166,0.04); border:1px solid rgba(20,184,166,0.18); border-radius:12px; padding:20px 24px; margin:30px 0; }}
+        .mill-section h3 {{ color:#14B8A6; font-family:'Playfair Display',serif; font-size:1.1rem; margin-bottom:6px; display:inline-flex; align-items:center; gap:8px; }}
+        .mill-section .subtitle {{ color:var(--gray); font-size:0.82rem; margin-bottom:16px; font-style:italic; }}
+        .mill-grid {{ display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:8px; }}
+        .mill-card {{ background:rgba(20,184,166,0.06); border:1px solid rgba(20,184,166,0.15); border-radius:8px; padding:10px 14px; text-decoration:none; transition:all 0.2s; text-align:center; display:block; }}
+        .mill-card:hover {{ border-color:#14B8A6; background:rgba(20,184,166,0.13); }}
+        .mill-card .mword {{ color:var(--white); font-weight:600; font-size:0.9rem; }}
+        .mill-card .mverdict {{ font-size:0.62rem; text-transform:uppercase; letter-spacing:0.6px; margin-top:3px; font-weight:700; }}
+        body.light-mode .mill-section {{ background:rgba(20,184,166,0.03); }}
+        body.light-mode .mill-card .mword {{ color:#1a1a1a; }}
+        /* Gen X Decoded section (lime) */
+        .genx-section {{ background:rgba(132,204,22,0.04); border:1px solid rgba(132,204,22,0.20); border-radius:12px; padding:20px 24px; margin:30px 0; }}
+        .genx-section h3 {{ color:#84CC16; font-family:'Playfair Display',serif; font-size:1.1rem; margin-bottom:6px; display:inline-flex; align-items:center; gap:8px; }}
+        .genx-section .subtitle {{ color:var(--gray); font-size:0.82rem; margin-bottom:16px; font-style:italic; }}
+        .genx-grid {{ display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:8px; }}
+        .genx-card {{ background:rgba(132,204,22,0.06); border:1px solid rgba(132,204,22,0.18); border-radius:8px; padding:10px 14px; text-decoration:none; transition:all 0.2s; text-align:center; display:block; }}
+        .genx-card:hover {{ border-color:#84CC16; background:rgba(132,204,22,0.13); }}
+        .genx-card .xword {{ color:var(--white); font-weight:600; font-size:0.9rem; }}
+        .genx-card .xverdict {{ font-size:0.62rem; text-transform:uppercase; letter-spacing:0.6px; margin-top:3px; font-weight:700; }}
+        body.light-mode .genx-section {{ background:rgba(132,204,22,0.03); }}
+        body.light-mode .genx-card .xword {{ color:#1a1a1a; }}
+        /* Boomer Decoded section (amber) */
+        .boomer-section {{ background:rgba(217,119,6,0.04); border:1px solid rgba(217,119,6,0.20); border-radius:12px; padding:20px 24px; margin:30px 0; }}
+        .boomer-section h3 {{ color:#D97706; font-family:'Playfair Display',serif; font-size:1.1rem; margin-bottom:6px; display:inline-flex; align-items:center; gap:8px; }}
+        .boomer-section .subtitle {{ color:var(--gray); font-size:0.82rem; margin-bottom:16px; font-style:italic; }}
+        .boomer-grid {{ display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:8px; }}
+        .boomer-card {{ background:rgba(217,119,6,0.06); border:1px solid rgba(217,119,6,0.18); border-radius:8px; padding:10px 14px; text-decoration:none; transition:all 0.2s; text-align:center; display:block; }}
+        .boomer-card:hover {{ border-color:#D97706; background:rgba(217,119,6,0.13); }}
+        .boomer-card .bword {{ color:var(--white); font-weight:600; font-size:0.9rem; }}
+        .boomer-card .bverdict {{ font-size:0.62rem; text-transform:uppercase; letter-spacing:0.6px; margin-top:3px; font-weight:700; }}
+        body.light-mode .boomer-section {{ background:rgba(217,119,6,0.03); }}
+        body.light-mode .boomer-card .bword {{ color:#1a1a1a; }}
+        /* Featured Entries (Doctrinal Anchors) */
+        .featured-section {{ background:rgba(212,175,55,0.04); border:1px solid rgba(212,175,55,0.15); border-radius:12px; padding:20px 24px; margin:20px 0 30px; }}
+        .featured-section h3 {{ color:var(--gold); font-family:'Playfair Display',serif; font-size:1.1rem; margin-bottom:6px; display:inline-flex; align-items:center; gap:8px; }}
+        .featured-section .subtitle {{ color:var(--gray); font-size:0.82rem; margin-bottom:16px; font-style:italic; }}
+        .featured-grid {{ display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:8px; }}
+        .featured-card {{ background:rgba(212,175,55,0.06); border:1px solid rgba(212,175,55,0.12); border-radius:8px; padding:10px 14px; text-decoration:none; transition:all 0.2s; text-align:center; }}
+        .featured-card:hover {{ border-color:var(--gold); background:rgba(212,175,55,0.12); }}
+        .featured-card .fword {{ color:var(--white); font-weight:600; font-size:0.9rem; }}
+        .featured-card .ftag {{ color:var(--gold); font-size:0.65rem; text-transform:uppercase; letter-spacing:0.5px; }}
+        body.light-mode .featured-section {{ background:rgba(212,175,55,0.03); }}
+        body.light-mode .featured-card .fword {{ color:#1a1a1a; }}
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
 </head>
@@ -221,9 +301,12 @@ def build_index(words, by_letter, total):
             <p style="margin-top:10px;font-size:0.85rem;color:var(--gold);">{total} entries &middot; Proto-language roots &middot; Collapsible deep-dive sections</p>
         </section>
 
+        <!-- Word of the Day -->
+        <div class="wotd-widget" id="wotdWidget"></div>
+
         <!-- Names sub-page callout -->
         <div class="names-callout">
-            <a href="names.html">📖 Biblical Names &mdash; focused word-study index &rarr;</a>
+            <a href="names.html"><img src="../assets/icons/shield-book-greek-48.png" alt=""> Biblical Names &mdash; focused word-study index &rarr;</a>
         </div>
 
         <!-- Search -->
@@ -273,6 +356,144 @@ def build_index(words, by_letter, total):
 {TZ}
             </div>
         </div><!-- /#rangeSection -->
+
+        <!-- Most Corrupted Words -->
+        <div class="corrupted-section" id="corruptedSection">
+            <h3><img src="../assets/icons/shield-chain-fire-48.png" alt="" width="20" height="20"> Most Corrupted Words</h3>
+            <p class="subtitle">Words that modern culture has stolen, redefined, or weaponized beyond recognition. Click any word to see what it actually means.</p>
+            <div class="corrupted-grid">
+                <a href="love.html" class="corrupted-card"><div class="cword">Love</div><div class="ctag">Redefined</div></a>
+                <a href="tolerance.html" class="corrupted-card"><div class="cword">Tolerance</div><div class="ctag">Weaponized</div></a>
+                <a href="equity.html" class="corrupted-card"><div class="cword">Equity</div><div class="ctag">Hijacked</div></a>
+                <a href="justice.html" class="corrupted-card"><div class="cword">Justice</div><div class="ctag">Distorted</div></a>
+                <a href="diversity.html" class="corrupted-card"><div class="cword">Diversity</div><div class="ctag">Weaponized</div></a>
+                <a href="inclusion.html" class="corrupted-card"><div class="cword">Inclusion</div><div class="ctag">Hijacked</div></a>
+                <a href="pride.html" class="corrupted-card"><div class="cword">Pride</div><div class="ctag">Inverted</div></a>
+                <a href="empathy.html" class="corrupted-card"><div class="cword">Empathy</div><div class="ctag">Weaponized</div></a>
+                <a href="truth.html" class="corrupted-card"><div class="cword">Truth</div><div class="ctag">Relativized</div></a>
+                <a href="privilege.html" class="corrupted-card"><div class="cword">Privilege</div><div class="ctag">Weaponized</div></a>
+                <a href="toxic.html" class="corrupted-card"><div class="cword">Toxic</div><div class="ctag">Weaponized</div></a>
+                <a href="authenticity.html" class="corrupted-card"><div class="cword">Authenticity</div><div class="ctag">Corrupted</div></a>
+                <a href="safe-space.html" class="corrupted-card"><div class="cword">Safe Space</div><div class="ctag">Weaponized</div></a>
+                <a href="trauma.html" class="corrupted-card"><div class="cword">Trauma</div><div class="ctag">Inflated</div></a>
+                <a href="problematic.html" class="corrupted-card"><div class="cword">Problematic</div><div class="ctag">Weaponized</div></a>
+                <a href="trigger-warning.html" class="corrupted-card"><div class="cword">Trigger Warning</div><div class="ctag">Invented</div></a>
+                <a href="gender.html" class="corrupted-card"><div class="cword">Gender</div><div class="ctag">Stolen</div></a>
+                <a href="woke.html" class="corrupted-card"><div class="cword">Woke</div><div class="ctag">Hijacked</div></a>
+                <a href="deconstruction.html" class="corrupted-card"><div class="cword">Deconstruction</div><div class="ctag">Repurposed</div></a>
+                <a href="grace.html" class="corrupted-card"><div class="cword">Grace</div><div class="ctag">Cheapened</div></a>
+                <a href="marriage.html" class="corrupted-card"><div class="cword">Marriage</div><div class="ctag">Redefined</div></a>
+                <a href="masculinity.html" class="corrupted-card"><div class="cword">Masculinity</div><div class="ctag">Vilified</div></a>
+                <a href="identity.html" class="corrupted-card"><div class="cword">Identity</div><div class="ctag">Detached</div></a>
+                <a href="judgment.html" class="corrupted-card"><div class="cword">Judgment</div><div class="ctag">Forbidden</div></a>
+            </div>
+        </div>
+
+        <!-- Gen-Z Decoded -->
+        <div class="genz-section" id="genzSection">
+            <h3><img src="../assets/icons/shield-blog-quill-48.png" alt="" width="20" height="20"> Gen-Z Decoded</h3>
+            <p class="subtitle">Every generation speaks a new dialect. Every dialect reveals a heart. Here is what the words mean and what Scripture says about them.</p>
+            <div class="genz-grid">
+                <a href="based.html" class="genz-card"><div class="gzword">Based</div><div class="gzverdict gzv-green">Redeemable</div></a>
+                <a href="bet-genz.html" class="genz-card"><div class="gzword">Bet</div><div class="gzverdict gzv-green">Redeemable</div></a>
+                <a href="bussin.html" class="genz-card"><div class="gzword">Bussin</div><div class="gzverdict gzv-yellow">Neutral</div></a>
+                <a href="clutch.html" class="genz-card"><div class="gzword">Clutch</div><div class="gzverdict gzv-green">Redeemable</div></a>
+                <a href="cringe-genz.html" class="genz-card"><div class="gzword">Cringe</div><div class="gzverdict gzv-orange">Examine</div></a>
+                <a href="delulu.html" class="genz-card"><div class="gzword">Delulu</div><div class="gzverdict gzv-red">Reject</div></a>
+                <a href="fr-for-real.html" class="genz-card"><div class="gzword">Fr (For Real)</div><div class="gzverdict gzv-green">Redeemable</div></a>
+                <a href="goat-genz.html" class="genz-card"><div class="gzword">GOAT</div><div class="gzverdict gzv-green">Redeemable</div></a>
+                <a href="gyat.html" class="genz-card"><div class="gzword">Gyat</div><div class="gzverdict gzv-red">Reject</div></a>
+                <a href="hit-different.html" class="genz-card"><div class="gzword">Hit Different</div><div class="gzverdict gzv-yellow">Neutral</div></a>
+                <a href="lock-in.html" class="genz-card"><div class="gzword">Lock In</div><div class="gzverdict gzv-green">Redeemable</div></a>
+                <a href="lowkey.html" class="genz-card"><div class="gzword">Lowkey</div><div class="gzverdict gzv-yellow">Neutral</div></a>
+                <a href="main-character.html" class="genz-card"><div class="gzword">Main Character</div><div class="gzverdict gzv-orange">Examine</div></a>
+                <a href="mid.html" class="genz-card"><div class="gzword">Mid</div><div class="gzverdict gzv-orange">Examine</div></a>
+                <a href="no-cap.html" class="genz-card"><div class="gzword">No Cap</div><div class="gzverdict gzv-green">Redeemable</div></a>
+                <a href="rizz.html" class="genz-card"><div class="gzword">Rizz</div><div class="gzverdict gzv-orange">Examine</div></a>
+                <a href="sheesh.html" class="genz-card"><div class="gzword">Sheesh</div><div class="gzverdict gzv-yellow">Neutral</div></a>
+                <a href="slay.html" class="genz-card"><div class="gzword">Slay</div><div class="gzverdict gzv-orange">Examine</div></a>
+                <a href="touch-grass.html" class="genz-card"><div class="gzword">Touch Grass</div><div class="gzverdict gzv-red">Reject</div></a>
+                <a href="vibe.html" class="genz-card"><div class="gzword">Vibe</div><div class="gzverdict gzv-orange">Examine</div></a>
+                <a href="w-win.html" class="genz-card"><div class="gzword">W (Win)</div><div class="gzverdict gzv-green">Redeemable</div></a>
+            </div>
+        </div>
+
+        <!-- Millennial Decoded -->
+        <div class="mill-section" id="millSection">
+            <h3><img src="../assets/icons/shield-blog-quill-48.png" alt="" width="20" height="20"> Millennial Decoded</h3>
+            <p class="subtitle">Generation 1981&ndash;1996. They delayed adulthood, invented #squadgoals friendship, and turned YOLO into a life-philosophy. Here is what the words mean and what Scripture says.</p>
+            <div class="mill-grid">
+                <a href="adulting.html" class="mill-card"><div class="mword">Adulting</div><div class="mverdict gzv-orange">Examine</div></a>
+                <a href="basic.html" class="mill-card"><div class="mword">Basic</div><div class="mverdict gzv-orange">Examine</div></a>
+                <a href="fomo.html" class="mill-card"><div class="mword">FOMO</div><div class="mverdict gzv-orange">Examine</div></a>
+                <a href="ghosting.html" class="mill-card"><div class="mword">Ghosting</div><div class="mverdict gzv-red">Reject</div></a>
+                <a href="humblebrag.html" class="mill-card"><div class="mword">Humblebrag</div><div class="mverdict gzv-orange">Examine</div></a>
+                <a href="on-fleek.html" class="mill-card"><div class="mword">On Fleek</div><div class="mverdict gzv-yellow">Neutral</div></a>
+                <a href="salty.html" class="mill-card"><div class="mword">Salty</div><div class="mverdict gzv-yellow">Neutral</div></a>
+                <a href="selfie.html" class="mill-card"><div class="mword">Selfie</div><div class="mverdict gzv-orange">Examine</div></a>
+                <a href="squad-goals.html" class="mill-card"><div class="mword">Squad Goals</div><div class="mverdict gzv-orange">Examine</div></a>
+                <a href="throw-shade.html" class="mill-card"><div class="mword">Throw Shade</div><div class="mverdict gzv-orange">Examine</div></a>
+                <a href="yolo.html" class="mill-card"><div class="mword">YOLO</div><div class="mverdict gzv-orange">Examine</div></a>
+            </div>
+        </div>
+
+        <!-- Gen X Decoded -->
+        <div class="genx-section" id="genxSection">
+            <h3><img src="../assets/icons/shield-blog-quill-48.png" alt="" width="20" height="20"> Gen X Decoded</h3>
+            <p class="subtitle">Generation 1965&ndash;1980. Ironic, skeptical, and allergic to earnestness. They taught America the dismissive shrug. Here is what the vocabulary reveals and what Scripture corrects.</p>
+            <div class="genx-grid">
+                <a href="all-that-and-bag-of-chips.html" class="genx-card"><div class="xword">All That &amp; Bag of Chips</div><div class="xverdict gzv-yellow">Neutral</div></a>
+                <a href="as-if.html" class="genx-card"><div class="xword">As If!</div><div class="xverdict gzv-yellow">Neutral</div></a>
+                <a href="crib.html" class="genx-card"><div class="xword">Crib</div><div class="xverdict gzv-yellow">Neutral</div></a>
+                <a href="gnarly.html" class="genx-card"><div class="xword">Gnarly</div><div class="xverdict gzv-yellow">Neutral</div></a>
+                <a href="my-bad.html" class="genx-card"><div class="xword">My Bad</div><div class="xverdict gzv-green">Redeemable</div></a>
+                <a href="peace-out.html" class="genx-card"><div class="xword">Peace Out</div><div class="xverdict gzv-yellow">Neutral</div></a>
+                <a href="psyche.html" class="genx-card"><div class="xword">Psyche!</div><div class="xverdict gzv-yellow">Neutral</div></a>
+                <a href="slacker.html" class="genx-card"><div class="xword">Slacker</div><div class="xverdict gzv-orange">Examine</div></a>
+                <a href="the-bomb.html" class="genx-card"><div class="xword">The Bomb</div><div class="xverdict gzv-yellow">Neutral</div></a>
+                <a href="whatever.html" class="genx-card"><div class="xword">Whatever</div><div class="xverdict gzv-orange">Examine</div></a>
+                <a href="word-agreement.html" class="genx-card"><div class="xword">Word</div><div class="xverdict gzv-green">Redeemable</div></a>
+            </div>
+        </div>
+
+        <!-- Boomer Decoded -->
+        <div class="boomer-section" id="boomerSection">
+            <h3><img src="../assets/icons/shield-blog-quill-48.png" alt="" width="20" height="20"> Boomer Decoded</h3>
+            <p class="subtitle">Generation 1946&ndash;1964. The counterculture vocabulary that built modern America&rsquo;s permissive moral imagination, plus some harmless retro-flavor. Here is what held up and what did not.</p>
+            <div class="boomer-grid">
+                <a href="bread-money.html" class="boomer-card"><div class="bword">Bread</div><div class="bverdict gzv-yellow">Neutral</div></a>
+                <a href="cool-cat.html" class="boomer-card"><div class="bword">Cool Cat</div><div class="bverdict gzv-yellow">Neutral</div></a>
+                <a href="dig-it.html" class="boomer-card"><div class="bword">Dig It</div><div class="bverdict gzv-yellow">Neutral</div></a>
+                <a href="far-out.html" class="boomer-card"><div class="bword">Far Out</div><div class="bverdict gzv-yellow">Neutral</div></a>
+                <a href="groovy.html" class="boomer-card"><div class="bword">Groovy</div><div class="bverdict gzv-yellow">Neutral</div></a>
+                <a href="hang-loose.html" class="boomer-card"><div class="bword">Hang Loose</div><div class="bverdict gzv-orange">Examine</div></a>
+                <a href="heavy.html" class="boomer-card"><div class="bword">Heavy</div><div class="bverdict gzv-yellow">Neutral</div></a>
+                <a href="outta-sight.html" class="boomer-card"><div class="bword">Outta Sight</div><div class="bverdict gzv-yellow">Neutral</div></a>
+                <a href="right-on.html" class="boomer-card"><div class="bword">Right On</div><div class="bverdict gzv-green">Redeemable</div></a>
+                <a href="solid.html" class="boomer-card"><div class="bword">Solid</div><div class="bverdict gzv-green">Redeemable</div></a>
+                <a href="stoked.html" class="boomer-card"><div class="bword">Stoked</div><div class="bverdict gzv-yellow">Neutral</div></a>
+            </div>
+        </div>
+
+        <!-- Featured Entries — Doctrinal Anchors -->
+        <div class="featured-section">
+            <h3><img src="../assets/icons/shield-chain-salvation-48.png" alt="" width="20" height="20"> Doctrinal Anchors</h3>
+            <p class="subtitle">Words that hold the line. Foundational entries every man should know cold.</p>
+            <div class="featured-grid">
+                <a href="sovereignty.html" class="featured-card"><div class="fword">Sovereignty</div><div class="ftag">Authority</div></a>
+                <a href="atonement.html" class="featured-card"><div class="fword">Atonement</div><div class="ftag">The Cross</div></a>
+                <a href="justification.html" class="featured-card"><div class="fword">Justification</div><div class="ftag">Verdict</div></a>
+                <a href="sanctification.html" class="featured-card"><div class="fword">Sanctification</div><div class="ftag">Process</div></a>
+                <a href="propitiation.html" class="featured-card"><div class="fword">Propitiation</div><div class="ftag">Satisfaction</div></a>
+                <a href="longsuffering.html" class="featured-card"><div class="fword">Longsuffering</div><div class="ftag">Endurance</div></a>
+                <a href="repentance.html" class="featured-card"><div class="fword">Repentance</div><div class="ftag">Turning</div></a>
+                <a href="covenant.html" class="featured-card"><div class="fword">Covenant</div><div class="ftag">Binding</div></a>
+                <a href="redemption.html" class="featured-card"><div class="fword">Redemption</div><div class="ftag">Ransom</div></a>
+                <a href="reconciliation.html" class="featured-card"><div class="fword">Reconciliation</div><div class="ftag">Peace</div></a>
+                <a href="adoption.html" class="featured-card"><div class="fword">Adoption</div><div class="ftag">Sonship</div></a>
+                <a href="regeneration.html" class="featured-card"><div class="fword">Regeneration</div><div class="ftag">New Birth</div></a>
+            </div>
+        </div>
 
     </div><!-- /.container -->
 
@@ -346,6 +567,52 @@ def build_index(words, by_letter, total):
     }}
     function bteToggleTheme(){{document.body.classList.toggle('light-mode');localStorage.setItem('bte-theme',document.body.classList.contains('light-mode')?'light':'dark');}}
     (function(){{if(localStorage.getItem('bte-theme')==='light')document.body.classList.add('light-mode');}})();
+
+    // Word of the Day — curated entries rotating by day of year
+    (function(){{
+        var WOTD = [
+            {{word:'Repentance',slug:'repentance',pos:'noun',def:'A complete turning — not just feeling sorry, but a full reversal of direction. The Greek metanoia means a change of mind that changes everything.'}},
+            {{word:'Covenant',slug:'covenant',pos:'noun',def:'A binding, unbreakable agreement initiated by the stronger party. God does not negotiate — He commits.'}},
+            {{word:'Sanctification',slug:'sanctification',pos:'noun',def:'The lifelong process of being set apart. You are holy; now be holy. Positional truth becoming practical reality.'}},
+            {{word:'Sovereignty',slug:'sovereignty',pos:'noun',def:'God\\u2019s absolute authority over all things. Nothing surprises Him. Nothing thwarts Him. Nothing escapes His governance.'}},
+            {{word:'Justification',slug:'justification',pos:'noun',def:'God declares the sinner righteous — not because of what you did, but because of what Christ did. A courtroom verdict, not a gradual process.'}},
+            {{word:'Atonement',slug:'atonement',pos:'noun',def:'The covering of sin. Yom Kippur — the Day of Covering. Christ\\u2019s once-for-all sacrifice that satisfied the justice of God.'}},
+            {{word:'Redemption',slug:'redemption',pos:'noun',def:'Buying back a slave. Christ paid the ransom price to free us from sin\\u2019s bondage. You were purchased — act like it.'}},
+            {{word:'Longsuffering',slug:'longsuffering',pos:'noun',def:'Patience under provocation — endurance without retaliation. The capacity to absorb offense and keep loving. God\\u2019s posture toward sinners.'}},
+            {{word:'Abide',slug:'abide',pos:'verb',def:'To remain, to dwell, to stay connected. Jesus said remain in Me. Not visit — abide. Make your home there.'}},
+            {{word:'Watchman',slug:'watchman',pos:'noun',def:'One who stands on the wall and sounds the alarm. Not a spectator — a guardian. Called to see what others miss and speak what others won\\u2019t.'}},
+            {{word:'Patriarch',slug:'patriarch',pos:'noun',def:'The founding father of a family or nation. Abraham, Isaac, Jacob — men who carried the covenant forward by faith and obedience.'}},
+            {{word:'Fortress',slug:'fortress',pos:'noun',def:'A place of absolute safety built on unshakable ground. God Himself is the fortress — not the walls, but the Presence behind them.'}},
+            {{word:'Disciple',slug:'disciple',pos:'noun',def:'A learner who follows, imitates, and obeys. Not a fan — a student under authority. The cost is everything; the reward is Christ.'}},
+            {{word:'Integrity',slug:'integrity',pos:'noun',def:'Wholeness. The state of being undivided. When your public life and private life are the same man. No cracks, no compartments.'}},
+            {{word:'Prudence',slug:'prudence',pos:'noun',def:'Wisdom applied to action. Seeing the consequences before they arrive and adjusting course. The opposite of recklessness.'}},
+            {{word:'Valor',slug:'valor',pos:'noun',def:'Strength of mind in the face of danger. Not the absence of fear — the mastery of it. Moral courage under fire.'}},
+            {{word:'Meekness',slug:'meekness',pos:'noun',def:'Strength under control. Not weakness — a warhorse reined in. Power submitted to purpose. Jesus was meek and He flipped tables.'}},
+            {{word:'Obedience',slug:'obedience',pos:'noun',def:'The willful submission to rightful authority. Not blind compliance — joyful alignment with God\\u2019s revealed will.'}},
+            {{word:'Steadfast',slug:'steadfast',pos:'adjective',def:'Immovably faithful. The refusal to be moved by circumstances, feelings, or opposition. Anchored to the Rock.'}},
+            {{word:'Kindness',slug:'kindness',pos:'noun',def:'Goodness in action toward another — not softness, but deliberate generosity of spirit. God\\u2019s kindness leads to repentance.'}},
+            {{word:'Mercy',slug:'mercy',pos:'noun',def:'Not getting what you deserve. Active compassion that moves you to help — not just feeling sorry but doing something about it.'}},
+            {{word:'Grace',slug:'grace',pos:'noun',def:'Getting what you don\\u2019t deserve. God\\u2019s unmerited favor that costs us nothing and cost Him everything. The engine of salvation.'}},
+            {{word:'Calling',slug:'calling',pos:'noun',def:'Not a career — a summons. God doesn\\u2019t suggest; He calls. Your life has a purpose that preceded your birth.'}},
+            {{word:'Armor',slug:'armor-of-god',pos:'noun',def:'The full equipment of God for spiritual warfare. Belt of truth, breastplate of righteousness, shield of faith — every piece is Christ Himself.'}},
+            {{word:'Perseverance',slug:'perseverance-of-saints',pos:'noun',def:'The grit to keep going when everything says stop. Not talent — endurance. The saints who overcome are the ones who simply refused to quit.'}},
+            {{word:'Humility',slug:'humility',pos:'noun',def:'Accurate self-assessment before God. Not thinking less of yourself — thinking of yourself less. The prerequisite for every other virtue.'}},
+            {{word:'Sacrifice',slug:'sacrifice',pos:'noun',def:'To make sacred by giving up. Real sacrifice costs something you value. If it doesn\\u2019t hurt, it\\u2019s not a sacrifice — it\\u2019s a donation.'}},
+            {{word:'Dominion',slug:'dominion',pos:'noun',def:'Rightful rule and stewardship. God gave man dominion over creation — not exploitation, but responsible governance under His authority.'}},
+            {{word:'Faithfulness',slug:'faithfulness',pos:'noun',def:'The quality of keeping your word when it costs you. Showing up when no one\\u2019s watching. God is faithful — and He calls us to mirror it.'}},
+            {{word:'Reverence',slug:'reverence',pos:'noun',def:'Deep respect born of awe. The fear of the LORD is the beginning of wisdom — not terror, but the breathtaking awareness of who He is.'}}
+        ];
+        var now = new Date();
+        var dayOfYear = Math.floor((now - new Date(now.getFullYear(),0,0)) / 86400000);
+        var entry = WOTD[dayOfYear % WOTD.length];
+        var el = document.getElementById('wotdWidget');
+        if (el) {{
+            el.innerHTML = '<h4><img src="../assets/icons/shield-star.png" alt="" width="20" height="20"> Word of the Day</h4>' +
+                '<div class="wotd-word"><a href="' + entry.slug + '.html">' + entry.word + '</a></div>' +
+                '<div class="wotd-pos">' + entry.pos + '</div>' +
+                '<div class="wotd-def">' + entry.def + '</div>';
+        }}
+    }})();
     </script>
 </body>
 </html>'''
