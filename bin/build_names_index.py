@@ -33,9 +33,91 @@ CATEGORIES = [
         'The 66 canonical books plus named sections (Pentateuch, Gospels, etc.).'),
     ('tribes',  'Tribes & Nations',   '⚔️ Tribes & Nations',
         'Tribes of Israel, surrounding nations, and named people-groups.'),
+    ('divine',  'Divine Names & Christ Titles', '✝️ Divine Names & Christ Titles',
+        'Names of God revealed in Scripture — YHWH-compounds, El-titles, and Messianic / Christ-titles.'),
     ('other',   'Other Proper Nouns', '✨ Other',
-        'Proper nouns that don’t fall into the categories above — feasts, divine names, armor, titles, miscellaneous.'),
+        'Proper nouns that don’t fall into the categories above — feasts, armor, events, miscellaneous.'),
 ]
+
+# Curated list of bare-"proper noun" entries that are actually places.
+# These are biblical place-names that don't carry a -city / -region / -mount
+# suffix in their slug, so they would default to "people" without this list.
+KNOWN_PLACE_SLUGS = {
+    # Cities
+    'antioch', 'athens', 'babylon', 'beersheba', 'bethany', 'bethel',
+    'bethlehem', 'capernaum', 'colosse', 'corinth', 'damascus', 'ephesus',
+    'galilee', 'gilgal', 'gomorrah', 'hebron', 'jericho', 'jerusalem',
+    'joppa', 'judea', 'mizpah', 'nazareth', 'nineveh', 'nob', 'philippi',
+    'rome', 'samaria', 'shechem', 'shiloh', 'shunem', 'sodom', 'tarsus',
+    'thessalonica', 'troas', 'tyre', 'sidon', 'thyatira', 'sardis',
+    'pergamum', 'pergamos', 'smyrna', 'laodicea', 'colosse', 'iconium',
+    'lystra', 'derbe', 'cana', 'caesarea', 'gath', 'gaza', 'kadesh',
+    'jezreel', 'megiddo', 'penuel', 'peniel', 'ramah', 'ziklag', 'aijalon',
+    # Mountains / hills (not -mount-prefixed)
+    'carmel', 'gerizim', 'horeb', 'olivet', 'sinai', 'tabor', 'zion',
+    'moriah', 'ebal', 'gilboa', 'pisgah', 'nebo',
+    # Regions / lands
+    'arabia', 'asia', 'assyria', 'babylonia', 'canaan', 'cilicia',
+    'egypt', 'galatia', 'goshen', 'greece', 'idumea', 'iran', 'israel',
+    'macedonia', 'mesopotamia', 'moabite', 'palestine', 'paphos',
+    'persia', 'phoenicia', 'sheba', 'syria', 'transjordan',
+    # Bodies of water / rivers
+    'jordan', 'jordan-river', 'euphrates', 'nile', 'tigris',
+    'galilee-sea', 'mediterranean', 'red-sea', 'salt-sea', 'dead-sea',
+    # Islands / waystations
+    'cyprus', 'crete', 'malta', 'melita', 'patmos', 'rhodes',
+    # Wilderness / specific places
+    'eden', 'gethsemane', 'golgotha', 'gehenna', 'sheol', 'hades',
+    'paradise', 'arabah', 'jezreel-valley',
+}
+
+# Slug-based hints used when the POS field is bare "proper noun"
+PLACE_SLUG_SUFFIXES = (
+    '-city', '-place', '-region', '-land', '-mount', '-mountain',
+    '-river', '-sea', '-valley', '-island', '-plain', '-wilderness',
+    '-town', '-spring', '-well', '-pool', '-brook',
+)
+PEOPLE_SLUG_SUFFIXES = (
+    '-figure', '-prophet', '-king', '-judge', '-priest', '-apostle',
+    '-evangelist', '-deacon', '-elder', '-disciple', '-martyr',
+    '-first', '-younger', '-elder',
+)
+OTHER_SLUG_SUFFIXES = (
+    '-exile', '-period', '-age', '-era', '-captivity', '-cycle',
+    '-incident', '-rebellion', '-event', '-discourse',
+)
+
+# Known divine-name slugs (matches if exact or prefix)
+DIVINE_NAME_SLUGS = {
+    'yhwh', 'yahweh', 'jehovah', 'adonai', 'elohim', 'eloah',
+    'el', 'el-elyon', 'el-shaddai', 'el-olam', 'el-roi', 'el-bethel',
+    'el-elohe-israel', 'el-berith', 'jehovah-jireh', 'jehovah-nissi',
+    'jehovah-rapha', 'jehovah-rohi', 'jehovah-roi', 'jehovah-shalom',
+    'jehovah-shammah', 'jehovah-tsidkenu', 'jehovah-mekaddishkem',
+    'jehovah-tsabaoth', 'yhwh-jireh', 'yhwh-nissi', 'yhwh-rapha',
+    'yhwh-roi', 'yhwh-shalom', 'yhwh-shammah', 'yhwh-tsidkenu',
+    'yhwh-mekaddishkem', 'yhwh-tsabaoth', 'yhwh-tsabaoth',
+    'i-am', 'immanuel', 'messiah', 'son-of-god', 'son-of-man',
+    'lamb-of-god', 'word-of-god', 'word', 'logos', 'christ', 'jesus',
+    'lord-of-lords', 'king-of-kings', 'alpha-omega', 'alpha-and-omega',
+    'mighty-god', 'prince-peace', 'prince-of-peace', 'wonderful-counselor',
+    'counselor-wonderful', 'everlasting-father', 'ancient-of-days',
+    'good-shepherd', 'great-shepherd', 'chief-shepherd', 'great-i-am',
+    'angel-of-the-lord', 'angel-of-lord',
+    # Seven I-AMs
+    'i-am-bread', 'i-am-light', 'i-am-door', 'i-am-shepherd',
+    'i-am-resurrection', 'i-am-way', 'i-am-vine', 'seven-i-am',
+    # Christ titles also rendered as I AM
+    'bread-of-life', 'light-of-world', 'way-truth-life', 'true-vine',
+    'lion-of-judah', 'root-of-david', 'branch', 'branch-of-david',
+    'righteous-branch', 'rod-of-jesse',
+    'faithful-true-witness', 'amen-faithful-witness',
+    'lamb-slain', 'firstborn-from-dead', 'only-begotten',
+}
+
+# Slug suffixes / words that mark divine-name compounds
+DIVINE_PREFIXES = ('el-', 'jehovah-', 'yhwh-', 'yah-')
+DIVINE_CONTAINS = ('-of-god', '-of-the-lord')
 
 
 def extract_word_info(filepath):
@@ -52,38 +134,66 @@ def extract_word_info(filepath):
     return word, pos
 
 
-def classify(pos):
-    """Return one of: people, places, books, tribes, other, or None to exclude."""
+def classify(pos, slug=''):
+    """Return one of: people, places, books, tribes, divine, other, or None.
+
+    Uses both POS hints AND slug-based heuristics — many bare "proper noun"
+    entries have categorical signals in their slug (e.g., -city, -figure,
+    el-/jehovah- prefixes).
+    """
     p = pos.lower()
-    # Normalize em-dash / slash to a common separator for substring checks
     p_norm = p.replace('&mdash;', '/').replace('—', '/').replace('  ', ' ')
 
     is_proper = 'proper noun' in p_norm or p_norm == 'bible book'
     if not is_proper:
         return None
 
-    # Books (check first — most distinctive)
+    # 1. BOOKS — most distinctive
     if 'bible book' in p_norm or '/ book' in p_norm or 'book of bible' in p_norm or 'bible section' in p_norm:
         return 'books'
 
-    # Tribes & Nations
+    # 2. DIVINE NAMES & CHRIST TITLES — explicit POS hints
+    if 'divine name' in p_norm or 'christ-title' in p_norm or 'christ title' in p_norm:
+        return 'divine'
+    # Slug-based divine-name detection
+    if slug in DIVINE_NAME_SLUGS:
+        return 'divine'
+    if any(slug.startswith(prefix) for prefix in DIVINE_PREFIXES):
+        return 'divine'
+
+    # 3. TRIBES & NATIONS
     if 'tribe' in p_norm or 'nation' in p_norm or '(sect)' in p_norm or '(group)' in p_norm:
         return 'tribes'
 
-    # Places
+    # 4. PLACES — POS hints
     place_markers = ('city', 'town', 'place', 'mountain', 'island',
-                     'body of water', 'region')
+                     'body of water', 'region', 'river', 'valley')
     if any(m in p_norm for m in place_markers):
         return 'places'
 
-    # People
-    people_markers = ('figure', 'person', 'king', 'judge', 'divine name',
-                      'christ-title', 'hebrew')
+    # 5. PEOPLE — POS hints
+    people_markers = ('figure', 'person', 'king', 'judge', 'priest',
+                      'apostle', 'prophet', 'address')
     if any(m in p_norm for m in people_markers):
         return 'people'
 
-    # Bare "proper noun", "proper nouns", "title / proper noun", etc. -> Other
-    return 'other'
+    # 6. Bare "proper noun" — use slug suffix heuristics
+    if slug in KNOWN_PLACE_SLUGS:
+        return 'places'
+    if slug.endswith(PLACE_SLUG_SUFFIXES):
+        return 'places'
+    if slug.endswith(PEOPLE_SLUG_SUFFIXES):
+        return 'people'
+    if slug.endswith(OTHER_SLUG_SUFFIXES):
+        return 'other'
+
+    # 7. Special compound names (slug-based divine)
+    if any(suffix in slug for suffix in DIVINE_CONTAINS):
+        return 'divine'
+
+    # 8. Bare-proper-noun default: people (sample shows most bare entries
+    # are biblical persons — Aaron, Abel, Abraham, etc.)
+    return 'people'
 
 
 def letter_of(word):
@@ -351,7 +461,8 @@ def main():
         except Exception as e:
             print(f'  SKIP {fname}: {e}')
             continue
-        cat = classify(pos)
+        slug = fname[:-5]  # strip .html
+        cat = classify(pos, slug)
         if cat is None:
             continue
         buckets[cat].append({'file': fname, 'word': word, 'pos': pos})
