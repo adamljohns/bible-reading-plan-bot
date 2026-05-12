@@ -400,6 +400,35 @@ def build_index(words, by_letter, total):
             </div>
         </div><!-- /#rangeSection -->
 
+        <!-- Featured Entries — Doctrinal Anchors -->
+        <div class="featured-section">
+            <h3><img src="../assets/icons/shield-chain-salvation-48.png" alt="" width="20" height="20"> Doctrinal Anchors</h3>
+            <p class="subtitle">Words that hold the line. Foundational entries every man should know cold.</p>
+            <div class="featured-grid">
+                <a href="trinity.html" class="featured-card"><div class="fword">Trinity</div><div class="ftag">Triune God</div></a>
+                <a href="sovereignty.html" class="featured-card"><div class="fword">Sovereignty</div><div class="ftag">Authority</div></a>
+                <a href="atonement.html" class="featured-card"><div class="fword">Atonement</div><div class="ftag">The Cross</div></a>
+                <a href="resurrection.html" class="featured-card"><div class="fword">Resurrection</div><div class="ftag">Risen Lord</div></a>
+                <a href="justification.html" class="featured-card"><div class="fword">Justification</div><div class="ftag">Verdict</div></a>
+                <a href="sanctification.html" class="featured-card"><div class="fword">Sanctification</div><div class="ftag">Process</div></a>
+                <a href="repentance.html" class="featured-card"><div class="fword">Repentance</div><div class="ftag">Turning</div></a>
+                <a href="propitiation.html" class="featured-card"><div class="fword">Propitiation</div><div class="ftag">Satisfaction</div></a>
+            </div>
+            <details>
+                <summary><em>expand to see more</em></summary>
+                <div class="featured-grid more-grid">
+                    <a href="election.html" class="featured-card"><div class="fword">Election</div><div class="ftag">Chosen</div></a>
+                    <a href="incarnation.html" class="featured-card"><div class="fword">Incarnation</div><div class="ftag">God in Flesh</div></a>
+                    <a href="redemption.html" class="featured-card"><div class="fword">Redemption</div><div class="ftag">Ransom</div></a>
+                    <a href="reconciliation.html" class="featured-card"><div class="fword">Reconciliation</div><div class="ftag">Peace</div></a>
+                    <a href="regeneration.html" class="featured-card"><div class="fword">Regeneration</div><div class="ftag">New Birth</div></a>
+                    <a href="adoption.html" class="featured-card"><div class="fword">Adoption</div><div class="ftag">Sonship</div></a>
+                    <a href="covenant.html" class="featured-card"><div class="fword">Covenant</div><div class="ftag">Binding</div></a>
+                    <a href="longsuffering.html" class="featured-card"><div class="fword">Longsuffering</div><div class="ftag">Endurance</div></a>
+                </div>
+            </details>
+        </div>
+
         <!-- Most Corrupted Words -->
         <div class="corrupted-section" id="corruptedSection">
             <h3><img src="../assets/icons/shield-chain-fire-48.png" alt="" width="20" height="20"> Most Corrupted Words</h3>
@@ -539,31 +568,6 @@ def build_index(words, by_letter, total):
                     <a href="dig-it.html" class="boomer-card"><div class="bword">Dig It</div><div class="bverdict gzv-yellow">Neutral</div></a>
                     <a href="heavy.html" class="boomer-card"><div class="bword">Heavy</div><div class="bverdict gzv-yellow">Neutral</div></a>
                     <a href="outta-sight.html" class="boomer-card"><div class="bword">Outta Sight</div><div class="bverdict gzv-yellow">Neutral</div></a>
-                </div>
-            </details>
-        </div>
-
-        <!-- Featured Entries — Doctrinal Anchors -->
-        <div class="featured-section">
-            <h3><img src="../assets/icons/shield-chain-salvation-48.png" alt="" width="20" height="20"> Doctrinal Anchors</h3>
-            <p class="subtitle">Words that hold the line. Foundational entries every man should know cold.</p>
-            <div class="featured-grid">
-                <a href="sovereignty.html" class="featured-card"><div class="fword">Sovereignty</div><div class="ftag">Authority</div></a>
-                <a href="atonement.html" class="featured-card"><div class="fword">Atonement</div><div class="ftag">The Cross</div></a>
-                <a href="justification.html" class="featured-card"><div class="fword">Justification</div><div class="ftag">Verdict</div></a>
-                <a href="sanctification.html" class="featured-card"><div class="fword">Sanctification</div><div class="ftag">Process</div></a>
-                <a href="propitiation.html" class="featured-card"><div class="fword">Propitiation</div><div class="ftag">Satisfaction</div></a>
-                <a href="repentance.html" class="featured-card"><div class="fword">Repentance</div><div class="ftag">Turning</div></a>
-            </div>
-            <details>
-                <summary><em>expand to see more</em></summary>
-                <div class="featured-grid more-grid">
-                    <a href="longsuffering.html" class="featured-card"><div class="fword">Longsuffering</div><div class="ftag">Endurance</div></a>
-                    <a href="covenant.html" class="featured-card"><div class="fword">Covenant</div><div class="ftag">Binding</div></a>
-                    <a href="redemption.html" class="featured-card"><div class="fword">Redemption</div><div class="ftag">Ransom</div></a>
-                    <a href="reconciliation.html" class="featured-card"><div class="fword">Reconciliation</div><div class="ftag">Peace</div></a>
-                    <a href="adoption.html" class="featured-card"><div class="fword">Adoption</div><div class="ftag">Sonship</div></a>
-                    <a href="regeneration.html" class="featured-card"><div class="fword">Regeneration</div><div class="ftag">New Birth</div></a>
                 </div>
             </details>
         </div>
