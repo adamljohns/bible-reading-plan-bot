@@ -519,14 +519,22 @@ def build_index(words, by_letter, total):
             <details>
                 <summary><em>expand to see more</em></summary>
                 <div class="genz-grid more-grid">
+                    <a href="ate.html" class="genz-card"><div class="gzword">Ate</div><div class="gzverdict gzv-yellow">Neutral</div></a>
+                    <a href="bestie.html" class="genz-card"><div class="gzword">Bestie</div><div class="gzverdict gzv-yellow">Neutral</div></a>
+                    <a href="cooked.html" class="genz-card"><div class="gzword">Cooked</div><div class="gzverdict gzv-yellow">Neutral</div></a>
+                    <a href="fire.html" class="genz-card"><div class="gzword">Fire</div><div class="gzverdict gzv-yellow">Neutral</div></a>
                     <a href="fr-for-real.html" class="genz-card"><div class="gzword">Fr (For Real)</div><div class="gzverdict gzv-green">Redeemable</div></a>
                     <a href="gyat.html" class="genz-card"><div class="gzword">Gyat</div><div class="gzverdict gzv-red">Reject</div></a>
                     <a href="hit-different.html" class="genz-card"><div class="gzword">Hit Different</div><div class="gzverdict gzv-yellow">Neutral</div></a>
                     <a href="lock-in.html" class="genz-card"><div class="gzword">Lock In</div><div class="gzverdict gzv-green">Redeemable</div></a>
                     <a href="lowkey.html" class="genz-card"><div class="gzword">Lowkey</div><div class="gzverdict gzv-yellow">Neutral</div></a>
                     <a href="main-character.html" class="genz-card"><div class="gzword">Main Character</div><div class="gzverdict gzv-orange">Examine</div></a>
+                    <a href="rent-free.html" class="genz-card"><div class="gzword">Rent Free</div><div class="gzverdict gzv-orange">Examine</div></a>
                     <a href="sheesh.html" class="genz-card"><div class="gzword">Sheesh</div><div class="gzverdict gzv-yellow">Neutral</div></a>
+                    <a href="sigma.html" class="genz-card"><div class="gzword">Sigma</div><div class="gzverdict gzv-orange">Examine</div></a>
                     <a href="slay.html" class="genz-card"><div class="gzword">Slay</div><div class="gzverdict gzv-orange">Examine</div></a>
+                    <a href="soft-launch.html" class="genz-card"><div class="gzword">Soft Launch</div><div class="gzverdict gzv-orange">Examine</div></a>
+                    <a href="the-ick.html" class="genz-card"><div class="gzword">The Ick</div><div class="gzverdict gzv-orange">Examine</div></a>
                     <a href="w-win.html" class="genz-card"><div class="gzword">W (Win)</div><div class="gzverdict gzv-green">Redeemable</div></a>
                 </div>
             </details>
@@ -548,10 +556,16 @@ def build_index(words, by_letter, total):
                 <summary><em>expand to see more</em></summary>
                 <div class="mill-grid more-grid">
                     <a href="basic.html" class="mill-card"><div class="mword">Basic</div><div class="mverdict gzv-orange">Examine</div></a>
+                    <a href="canceled.html" class="mill-card"><div class="mword">Canceled</div><div class="mverdict gzv-red">Reject</div></a>
+                    <a href="cope.html" class="mill-card"><div class="mword">Cope</div><div class="mverdict gzv-red">Reject</div></a>
+                    <a href="girlboss.html" class="mill-card"><div class="mword">Girlboss</div><div class="mverdict gzv-orange">Examine</div></a>
+                    <a href="narcissism.html" class="mill-card"><div class="mword">Narcissism</div><div class="mverdict gzv-orange">Examine</div></a>
                     <a href="on-fleek.html" class="mill-card"><div class="mword">On Fleek</div><div class="mverdict gzv-yellow">Neutral</div></a>
                     <a href="salty.html" class="mill-card"><div class="mword">Salty</div><div class="mverdict gzv-yellow">Neutral</div></a>
                     <a href="squad-goals.html" class="mill-card"><div class="mword">Squad Goals</div><div class="mverdict gzv-orange">Examine</div></a>
                     <a href="throw-shade.html" class="mill-card"><div class="mword">Throw Shade</div><div class="mverdict gzv-orange">Examine</div></a>
+                    <a href="triggered.html" class="mill-card"><div class="mword">Triggered</div><div class="mverdict gzv-orange">Examine</div></a>
+                    <a href="unhinged.html" class="mill-card"><div class="mword">Unhinged</div><div class="mverdict gzv-yellow">Neutral</div></a>
                 </div>
             </details>
         </div>
