@@ -174,6 +174,19 @@
         .verse-text .dict-link.dict-phrase {
             border-bottom: 1px dashed var(--gold-light);
         }
+        /* BTE v6.2: Hide Tools also hides dictionary underlines + hover treatment.
+         * Links remain clickable — only the visual affordance is suppressed.
+         * Restoring "Show Tools" removes body.reader-mode and underlines come back. */
+        body.reader-mode .verse-text .dict-link,
+        body.reader-mode .verse-text .dict-link.dict-phrase {
+            border-bottom: none !important;
+        }
+        body.reader-mode .verse-text .dict-link:hover,
+        body.reader-mode .verse-text .dict-link.dict-phrase:hover {
+            color: inherit !important;
+            background: transparent !important;
+            border-radius: 0 !important;
+        }
         /* Hover preview popover */
         .dict-popover {
             position: fixed; max-width: 380px;
@@ -1256,10 +1269,47 @@
                 phrases.forEach(p => { phraseMap[p[0]] = p[1]; });
                 const phraseRe = buildPhraseRegex(phrases);
                 const verseSpans = document.querySelectorAll('.verse-text:not([data-dict-enriched])');
+
+                // BTE v6.2: 5-verse sliding-window per-lemma dedup.
+                // Same slug (canonical lemma id — already case/plural/possessive normalized by
+                // findDictSlug) can only be highlighted once every 5 verses. So if "faith"
+                // highlights at v.3, the next eligible "faith" highlight is at v.8, not v.6.
+                // The map resets per chapter so cross-chapter ranges (Eph 4:25 → 5:7) don't
+                // suppress legitimate highlights in the second chapter.
+                // Click/popover behavior is unaffected — this only controls whether a given
+                // occurrence is wrapped in <a class="dict-link">.
+                const DEDUP_WINDOW = 5;
+                const lastSeenByChapter = Object.create(null);  // chapterNum → Map(slug → lastVerse)
                 let totalLinks = 0;
                 let phraseLinks = 0;
+                let suppressed = 0;
+
                 verseSpans.forEach(span => {
                     span.setAttribute('data-dict-enriched', '1');
+                    // BTE v6.2: pull verse coords from the parent .verse-block id (rendered as
+                    // "vb-<bookId>_<chapter>_<verseNum>"). Falls back to chapter 0 if the id
+                    // doesn't match (defensive — shouldn't happen in practice).
+                    const vb = span.closest && span.closest('.verse-block');
+                    const idMatch = vb && vb.id && vb.id.match(/^vb-\d+_(\d+)_(\d+)$/);
+                    const curCh = idMatch ? parseInt(idMatch[1], 10) : 0;
+                    const curV  = idMatch ? parseInt(idMatch[2], 10) : 0;
+                    if (!lastSeenByChapter[curCh]) lastSeenByChapter[curCh] = new Map();
+                    const lastSeen = lastSeenByChapter[curCh];
+
+                    // Returns true if this slug is eligible to highlight at curV (and records
+                    // the highlight). Returns false if it was highlighted within DEDUP_WINDOW
+                    // verses prior.
+                    function allowSlug(slug) {
+                        if (!slug) return false;
+                        const last = lastSeen.get(slug);
+                        if (last === undefined || (curV - last) >= DEDUP_WINDOW) {
+                            lastSeen.set(slug, curV);
+                            return true;
+                        }
+                        suppressed++;
+                        return false;
+                    }
+
                     // Walk only TEXT nodes (preserve any inline HTML like <em>).
                     const walker = document.createTreeWalker(span, NodeFilter.SHOW_TEXT, null);
                     const textNodes = [];
@@ -1278,6 +1328,7 @@
                                 const norm = m.toLowerCase().replace(/\s+/g, ' ');
                                 const slug = phraseMap[norm];
                                 if (!slug) return m;
+                                if (!allowSlug(slug)) return m;  // v6.2 dedup
                                 const summary = summaries[slug] || '';
                                 const placeholder = '\u0001' + placeholders.length + '\u0002';
                                 placeholders.push(
@@ -1294,6 +1345,7 @@
                         let newHtml = text.replace(/\b([A-Za-z][A-Za-z'’-]{3,})\b/g, function(match, word){
                             const slug = findDictSlug(word, tokens);
                             if (!slug) return word;
+                            if (!allowSlug(slug)) return word;  // v6.2 dedup
                             totalLinks++;
                             const summary = summaries[slug] || '';
                             return '<a class="dict-link" href="dictionary/' + slug +
@@ -1318,6 +1370,12 @@
                     showDictToast('Dictionary lit up — hover or tap dotted words' + phraseNote);
                     // Avoid re-showing the toast on every chapter nav within the same NT session
                     sessionStorage.setItem('bte-dict-toast-shown', '1');
+                }
+                // v6.2 dedup telemetry — non-intrusive console log for tuning the window size
+                if (window && window.console && (totalLinks + phraseLinks + suppressed) > 0) {
+                    console.log('[BTE v6.2 dict] highlighted=' + (totalLinks + phraseLinks) +
+                                ' (singles=' + totalLinks + ', phrases=' + phraseLinks + ')' +
+                                ' suppressed=' + suppressed + ' (5-verse window dedup)');
                 }
             });
         }
