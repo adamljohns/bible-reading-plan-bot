@@ -213,6 +213,18 @@ def build_index(words, by_letter, total):
         .wotd-pos {{ color:var(--gray); font-size:0.82rem; font-style:italic; margin-bottom:8px; }}
         .wotd-def {{ color:var(--gray); font-size:0.92rem; line-height:1.6; max-width:600px; margin:0 auto; }}
         body.light-mode .wotd-widget {{ background:linear-gradient(135deg,rgba(212,175,55,0.06) 0%,rgba(212,175,55,0.02) 100%); }}
+        /* Expressly Prohibited (deep crimson) — Lev 18-20, Deut 18, Gal 5, Rev 21 prohibitions */
+        .forbidden-section {{ background:rgba(139,21,21,0.06); border:1px solid rgba(139,21,21,0.22); border-radius:12px; padding:20px 24px; margin:30px 0; }}
+        .forbidden-section h3 {{ color:#8b1515; font-family:'Playfair Display',serif; font-size:1.1rem; margin-bottom:6px; display:inline-flex; align-items:center; gap:8px; }}
+        .forbidden-section .subtitle {{ color:var(--gray); font-size:0.82rem; margin-bottom:16px; font-style:italic; }}
+        .forbidden-grid {{ display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:8px; }}
+        .forbidden-card {{ background:rgba(139,21,21,0.08); border:1px solid rgba(139,21,21,0.18); border-radius:8px; padding:10px 14px; text-decoration:none; transition:all 0.2s; text-align:center; }}
+        .forbidden-card:hover {{ border-color:#8b1515; background:rgba(139,21,21,0.16); }}
+        .forbidden-card .pword {{ color:var(--white); font-weight:600; font-size:0.9rem; }}
+        .forbidden-card .ptag {{ color:#8b1515; font-size:0.65rem; text-transform:uppercase; letter-spacing:0.5px; }}
+        body.light-mode .forbidden-section {{ background:rgba(139,21,21,0.04); }}
+        body.light-mode .forbidden-card .pword {{ color:#1a1a1a; }}
+
         /* Biblical Order (scarlet) — patriarchy / headship / NXR vocabulary */
         .order-section {{ background:rgba(184,80,66,0.05); border:1px solid rgba(184,80,66,0.20); border-radius:12px; padding:20px 24px; margin:30px 0; }}
         .order-section h3 {{ color:#b85042; font-family:'Playfair Display',serif; font-size:1.1rem; margin-bottom:6px; display:inline-flex; align-items:center; gap:8px; }}
@@ -296,10 +308,10 @@ def build_index(words, by_letter, total):
         body.light-mode .featured-section {{ background:rgba(212,175,55,0.03); }}
         body.light-mode .featured-card .fword {{ color:#1a1a1a; }}
         /* Featured-section expand/collapse */
-        .featured-section details, .order-section details, .corrupted-section details,
+        .featured-section details, .order-section details, .forbidden-section details, .corrupted-section details,
         .genz-section details, .mill-section details,
         .genx-section details, .boomer-section details {{ margin-top:12px; }}
-        .featured-section details summary, .order-section details summary, .corrupted-section details summary,
+        .featured-section details summary, .order-section details summary, .forbidden-section details summary, .corrupted-section details summary,
         .genz-section details summary, .mill-section details summary,
         .genx-section details summary, .boomer-section details summary {{
             color:var(--gold); font-size:0.82rem; cursor:pointer; user-select:none;
@@ -308,12 +320,13 @@ def build_index(words, by_letter, total):
         }}
         .featured-section details summary::-webkit-details-marker,
         .order-section details summary::-webkit-details-marker,
+        .forbidden-section details summary::-webkit-details-marker,
         .corrupted-section details summary::-webkit-details-marker,
         .genz-section details summary::-webkit-details-marker,
         .mill-section details summary::-webkit-details-marker,
         .genx-section details summary::-webkit-details-marker,
         .boomer-section details summary::-webkit-details-marker {{ display:none; }}
-        .featured-section details summary::before, .order-section details summary::before, .corrupted-section details summary::before,
+        .featured-section details summary::before, .order-section details summary::before, .forbidden-section details summary::before, .corrupted-section details summary::before,
         .genz-section details summary::before, .mill-section details summary::before,
         .genx-section details summary::before, .boomer-section details summary::before {{
             content:""; display:inline-block; width:0; height:0;
@@ -322,14 +335,16 @@ def build_index(words, by_letter, total):
             transition:transform 0.18s ease;
             transform:rotate(-90deg);
         }}
-        .featured-section details[open] summary::before, .order-section details[open] summary::before, .corrupted-section details[open] summary::before,
+        .featured-section details[open] summary::before, .order-section details[open] summary::before, .forbidden-section details[open] summary::before, .corrupted-section details[open] summary::before,
         .genz-section details[open] summary::before, .mill-section details[open] summary::before,
         .genx-section details[open] summary::before, .boomer-section details[open] summary::before {{ transform:rotate(0deg); }}
-        .featured-section details summary:hover, .order-section details summary:hover, .corrupted-section details summary:hover,
+        .featured-section details summary:hover, .order-section details summary:hover, .forbidden-section details summary:hover, .corrupted-section details summary:hover,
         .genz-section details summary:hover, .mill-section details summary:hover,
         .genx-section details summary:hover, .boomer-section details summary:hover {{ color:var(--gold-light); }}
         .order-section details summary::before {{ border-top-color:#b85042; }}
         .order-section details summary {{ color:#b85042; }}
+        .forbidden-section details summary::before {{ border-top-color:#8b1515; }}
+        .forbidden-section details summary {{ color:#8b1515; }}
         .corrupted-section details summary::before {{ border-top-color:#f44336; }}
         .corrupted-section details summary {{ color:#f44336; }}
         .genz-section details summary::before {{ border-top-color:#EC4899; }}
@@ -519,6 +534,47 @@ def build_index(words, by_letter, total):
                     <a href="partiality.html" class="order-card"><div class="oword">Partiality</div><div class="otag">Lev 19:15</div></a>
                     <a href="quietness.html" class="order-card"><div class="oword">Quietness</div><div class="otag">1 Pet 3:4</div></a>
                     <a href="chivalry.html" class="order-card"><div class="oword">Chivalry</div><div class="otag">Ordered Courage</div></a>
+                </div>
+            </details>
+        </div>
+
+        <!-- Expressly Prohibited — Lev 18-20, Deut 18, Gal 5, Rev 21 prohibitions -->
+        <div class="forbidden-section" id="forbiddenSection">
+            <h3><img src="../assets/icons/shield-chain-fire-48.png" alt="" width="20" height="20"> Expressly Prohibited</h3>
+            <p class="subtitle">Practices Scripture names directly &mdash; in Leviticus, Deuteronomy, the Gospels, the Epistles, or the Revelation &mdash; as forbidden, abomination, or grounds for exclusion from the kingdom. The modern church has retired many of these; the MOOP Dictionary holds them.</p>
+            <div class="forbidden-grid">
+                <a href="tattoo.html" class="forbidden-card"><div class="pword">Tattoo</div><div class="ptag">Lev 19:28</div></a>
+                <a href="cross-dressing.html" class="forbidden-card"><div class="pword">Cross-Dressing</div><div class="ptag">Deut 22:5</div></a>
+                <a href="witchcraft.html" class="forbidden-card"><div class="pword">Witchcraft</div><div class="ptag">Ex 22:18</div></a>
+                <a href="sorcery.html" class="forbidden-card"><div class="pword">Sorcery</div><div class="ptag">Pharmakeia</div></a>
+                <a href="divination.html" class="forbidden-card"><div class="pword">Divination</div><div class="ptag">Deut 18:10</div></a>
+                <a href="astrology.html" class="forbidden-card"><div class="pword">Astrology</div><div class="ptag">Isa 47:13</div></a>
+                <a href="occult.html" class="forbidden-card"><div class="pword">Occult</div><div class="ptag">Hidden Arts</div></a>
+                <a href="sodomy.html" class="forbidden-card"><div class="pword">Sodomy</div><div class="ptag">Lev 18:22</div></a>
+                <a href="homosexuality.html" class="forbidden-card"><div class="pword">Homosexuality</div><div class="ptag">Rom 1:26-27</div></a>
+                <a href="effeminate.html" class="forbidden-card"><div class="pword">Effeminate</div><div class="ptag">1 Cor 6:9</div></a>
+                <a href="molech.html" class="forbidden-card"><div class="pword">Molech</div><div class="ptag">Child Sacrifice</div></a>
+                <a href="yoking-unbelievers.html" class="forbidden-card"><div class="pword">Yoking w/ Unbelievers</div><div class="ptag">2 Cor 6:14</div></a>
+            </div>
+            <details>
+                <summary><em>expand to see more</em></summary>
+                <div class="forbidden-grid more-grid">
+                    <a href="transvestism.html" class="forbidden-card"><div class="pword">Transvestism</div><div class="ptag">Deut 22:5</div></a>
+                    <a href="necromancy.html" class="forbidden-card"><div class="pword">Necromancy</div><div class="ptag">Deut 18:11</div></a>
+                    <a href="bestiality.html" class="forbidden-card"><div class="pword">Bestiality</div><div class="ptag">Lev 18:23</div></a>
+                    <a href="incest.html" class="forbidden-card"><div class="pword">Incest</div><div class="ptag">Lev 18:6-18</div></a>
+                    <a href="cutting.html" class="forbidden-card"><div class="pword">Cutting / Self-Harm</div><div class="ptag">Lev 19:28</div></a>
+                    <a href="cursing-parents.html" class="forbidden-card"><div class="pword">Cursing Parents</div><div class="ptag">Ex 21:17</div></a>
+                    <a href="adultery.html" class="forbidden-card"><div class="pword">Adultery</div><div class="ptag">Ex 20:14</div></a>
+                    <a href="fornication.html" class="forbidden-card"><div class="pword">Fornication</div><div class="ptag">1 Cor 6:18</div></a>
+                    <a href="child-sacrifice.html" class="forbidden-card"><div class="pword">Child Sacrifice</div><div class="ptag">Lev 18:21</div></a>
+                    <a href="drunkenness.html" class="forbidden-card"><div class="pword">Drunkenness</div><div class="ptag">Eph 5:18</div></a>
+                    <a href="gluttony.html" class="forbidden-card"><div class="pword">Gluttony</div><div class="ptag">Prov 23:21</div></a>
+                    <a href="idolatry.html" class="forbidden-card"><div class="pword">Idolatry</div><div class="ptag">Ex 20:3-5</div></a>
+                    <a href="murder.html" class="forbidden-card"><div class="pword">Murder</div><div class="ptag">Ex 20:13</div></a>
+                    <a href="slander.html" class="forbidden-card"><div class="pword">Slander</div><div class="ptag">Eph 4:31</div></a>
+                    <a href="gossip.html" class="forbidden-card"><div class="pword">Gossip</div><div class="ptag">Prov 16:28</div></a>
+                    <a href="covetousness.html" class="forbidden-card"><div class="pword">Covetousness</div><div class="ptag">Ex 20:17</div></a>
                 </div>
             </details>
         </div>
@@ -805,7 +861,7 @@ def build_index(words, by_letter, total):
     (function(){{if(localStorage.getItem('bte-theme')==='light')document.body.classList.add('light-mode');}})();
 
     // Featured-section details toggle — swap "expand to see more" ↔ "show less"
-    document.querySelectorAll('.corrupted-section details, .order-section details, .genz-section details, .mill-section details, .genx-section details, .boomer-section details, .featured-section details').forEach(function(d){{
+    document.querySelectorAll('.corrupted-section details, .order-section details, .forbidden-section details, .genz-section details, .mill-section details, .genx-section details, .boomer-section details, .featured-section details').forEach(function(d){{
         var label = d.querySelector('summary em');
         if(!label) return;
         var update = function(){{ label.textContent = d.open ? 'show less' : 'expand to see more'; }};
