@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Most Corrupted Words &mdash; MOOP Dictionary</title>
+    <meta name="description" content="Most Corrupted Words: full page browse for the Most Corrupted Words featured section of the MOOP Dictionary.">
+    <meta property="og:title" content="Most Corrupted Words &mdash; MOOP Dictionary">
+    <meta property="og:description" content="Full-page browse of every entry in the Most Corrupted Words featured section.">
+    <link rel="icon" type="image/svg+xml" href="../assets/icons/favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        :root {
+            --bg:#000; --card:#111; --gold:#D4AF37; --gold-light:#F4D470;
+            --white:#FFF; --gray:#888; --border:#333;
+            --accent:#f44336; --accent-dim:rgba(244,67,54,0.10);
+        }
+        body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--white); min-height:100vh; line-height:1.7; }
+        h1,h2,h3 { font-family:'Playfair Display',serif; }
+        nav { display:flex; flex-wrap:wrap; gap:6px; justify-content:center; padding:14px 20px; border-bottom:1px solid var(--border); background:rgba(0,0,0,0.95); backdrop-filter:blur(8px); position:sticky; top:0; z-index:100; }
+        nav a { color:var(--gray); text-decoration:none; font-size:0.85rem; font-weight:500; padding:5px 12px; border-radius:20px; border:1px solid transparent; transition:all 0.2s; white-space:nowrap; display:inline-flex; align-items:center; gap:4px; }
+        nav a:hover { color:var(--gold); border-color:var(--border); }
+        nav a.active { color:var(--gold) !important; border-color:var(--gold); }
+        .site-icon { vertical-align:middle; opacity:0.8; }
+
+        .container { max-width:1200px; margin:0 auto; padding:24px 20px 60px; }
+
+        section.hero {
+            text-align:center; padding:50px 20px 30px;
+            background:linear-gradient(160deg,var(--accent-dim),transparent 60%);
+            border-bottom:1px solid var(--border);
+        }
+        section.hero img.hero-icon { width:80px; height:80px; margin-bottom:14px; opacity:0.95; }
+        section.hero h1 {
+            color:var(--accent); font-size:clamp(2rem,5vw,3rem);
+            margin-bottom:10px; letter-spacing:0.5px;
+        }
+        section.hero .subtitle { color:var(--gray); font-size:1rem; max-width:740px; margin:0 auto 16px; line-height:1.6; }
+        section.hero .count-line { font-size:0.85rem; color:var(--accent); letter-spacing:0.8px; }
+        section.hero .back-link {
+            display:inline-block; margin-top:18px; padding:8px 18px;
+            color:var(--gray); border:1px solid var(--border); border-radius:20px;
+            font-size:0.85rem; text-decoration:none; transition:all 0.2s;
+        }
+        section.hero .back-link:hover { color:var(--accent); border-color:var(--accent); }
+
+        .search-wrap { position:relative; max-width:520px; margin:24px auto 18px; }
+        .search-wrap input {
+            width:100%; padding:10px 16px 10px 38px; background:var(--card);
+            border:1px solid var(--border); border-radius:24px; color:var(--white);
+            font-size:0.92rem; font-family:'Inter',sans-serif; outline:none;
+            transition:border-color 0.2s;
+        }
+        .search-wrap input::placeholder { color:var(--gray); }
+        .search-wrap input:focus { border-color:var(--accent); }
+        .search-wrap .search-icon {
+            position:absolute; left:14px; top:50%; transform:translateY(-50%);
+            color:var(--gray); font-size:0.9rem; pointer-events:none;
+        }
+
+        .full-grid {
+            display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
+            gap:10px; margin-top:14px;
+        }
+        .full-card {
+            background:var(--accent-dim); border:1px solid var(--accent);
+            border-radius:8px; padding:12px 14px; text-decoration:none;
+            transition:all 0.2s; text-align:center; opacity:0.94;
+        }
+        .full-card:hover { background:var(--accent); opacity:1; transform:translateY(-1px); }
+        .full-card .word { color:var(--white); font-weight:600; font-size:0.95rem; line-height:1.25; }
+        .full-card:hover .word { color:#000; }
+        .full-card .tag { color:var(--accent); font-size:0.7rem; text-transform:uppercase; letter-spacing:0.6px; margin-top:4px; }
+        .full-card:hover .tag { color:#000; opacity:0.8; }
+
+        .empty-state { color:var(--gray); text-align:center; padding:24px; font-style:italic; }
+
+        body.light-mode { background:#f0eee9; color:#1a1a1a; }
+        body.light-mode nav { background:rgba(240,238,233,0.95); border-bottom-color:#ccc; }
+        body.light-mode nav a { color:#666; }
+        body.light-mode nav a:hover { color:var(--accent); }
+        body.light-mode .full-card { background:#fff; border-color:var(--accent); }
+        body.light-mode .full-card .word { color:#1a1a1a; }
+        body.light-mode .full-card:hover { background:var(--accent); }
+        body.light-mode .full-card:hover .word { color:#fff; }
+        body.light-mode .search-wrap input { background:#fff; border-color:#ccc; color:#1a1a1a; }
+
+        footer { text-align:center; padding:32px 20px; border-top:1px solid var(--border); color:var(--gray); font-size:0.85rem; margin-top:60px; }
+        footer a { color:var(--accent); text-decoration:none; }
+    </style>
+</head>
+<body>
+    <nav aria-label="Site navigation">
+        <a href="../index.html"><img src="../assets/icons/shield-home-property-48.png" class="site-icon" alt="" width="16" height="16"> Home</a>
+        <a href="../bible.html"><img src="../assets/icons/shield-bible.png" class="site-icon" alt="" width="16" height="16"> Bible</a>
+        <a href="../lexicon.html"><img src="../assets/icons/shield-book-greek-48.png" class="site-icon" alt="" width="16" height="16"> Lexicon</a>
+        <a href="index.html" class="active"><img src="../assets/icons/shield-book.png" class="site-icon" alt="" width="16" height="16"> Dictionary</a>
+        <a href="../blog.html"><img src="../assets/icons/shield-blog-quill-48.png" class="site-icon" alt="" width="16" height="16"> Blog</a>
+    </nav>
+
+    <div class="container">
+
+        <section class="hero">
+            <img src="../assets/icons/shield-chain-fire-48.png" alt="" class="hero-icon">
+            <h1>Most Corrupted Words</h1>
+            <p class="subtitle">Words that modern culture has stolen, redefined, or weaponized beyond recognition. Click any word to see what it actually means &mdash; before the linguistic laundering.</p>
+            <p class="count-line">24 entries &middot; alphabetized</p>
+            <a href="index.html" class="back-link">&larr; Back to Main Dictionary</a>
+        </section>
+
+        <div class="search-wrap">
+            <span class="search-icon">&#128269;</span>
+            <input type="text" id="sectionSearch" placeholder="Search this section&hellip;" autocomplete="off" oninput="filterCards(this.value)">
+        </div>
+
+        <div class="full-grid" id="cardGrid">
+            <a href="authenticity.html" class="full-card"><div class="word">Authenticity</div><div class="tag">Corrupted</div></a>
+            <a href="deconstruction.html" class="full-card"><div class="word">Deconstruction</div><div class="tag">Repurposed</div></a>
+            <a href="diversity.html" class="full-card"><div class="word">Diversity</div><div class="tag">Weaponized</div></a>
+            <a href="empathy.html" class="full-card"><div class="word">Empathy</div><div class="tag">Weaponized</div></a>
+            <a href="equity.html" class="full-card"><div class="word">Equity</div><div class="tag">Hijacked</div></a>
+            <a href="gender.html" class="full-card"><div class="word">Gender</div><div class="tag">Stolen</div></a>
+            <a href="grace.html" class="full-card"><div class="word">Grace</div><div class="tag">Cheapened</div></a>
+            <a href="identity.html" class="full-card"><div class="word">Identity</div><div class="tag">Detached</div></a>
+            <a href="inclusion.html" class="full-card"><div class="word">Inclusion</div><div class="tag">Hijacked</div></a>
+            <a href="judgment.html" class="full-card"><div class="word">Judgment</div><div class="tag">Forbidden</div></a>
+            <a href="justice.html" class="full-card"><div class="word">Justice</div><div class="tag">Distorted</div></a>
+            <a href="love.html" class="full-card"><div class="word">Love</div><div class="tag">Redefined</div></a>
+            <a href="marriage.html" class="full-card"><div class="word">Marriage</div><div class="tag">Redefined</div></a>
+            <a href="masculinity.html" class="full-card"><div class="word">Masculinity</div><div class="tag">Vilified</div></a>
+            <a href="pride.html" class="full-card"><div class="word">Pride</div><div class="tag">Inverted</div></a>
+            <a href="privilege.html" class="full-card"><div class="word">Privilege</div><div class="tag">Weaponized</div></a>
+            <a href="problematic.html" class="full-card"><div class="word">Problematic</div><div class="tag">Weaponized</div></a>
+            <a href="safe-space.html" class="full-card"><div class="word">Safe Space</div><div class="tag">Weaponized</div></a>
+            <a href="tolerance.html" class="full-card"><div class="word">Tolerance</div><div class="tag">Weaponized</div></a>
+            <a href="toxic.html" class="full-card"><div class="word">Toxic</div><div class="tag">Weaponized</div></a>
+            <a href="trauma.html" class="full-card"><div class="word">Trauma</div><div class="tag">Inflated</div></a>
+            <a href="trigger-warning.html" class="full-card"><div class="word">Trigger Warning</div><div class="tag">Invented</div></a>
+            <a href="truth.html" class="full-card"><div class="word">Truth</div><div class="tag">Relativized</div></a>
+            <a href="woke.html" class="full-card"><div class="word">Woke</div><div class="tag">Hijacked</div></a>
+        </div>
+        <p class="empty-state" id="emptyState" style="display:none;">No entries match your search.</p>
+
+    </div>
+
+    <footer>
+        <p>MOOP Dictionary &mdash; <strong style="color:var(--accent);">V5.25</strong> &middot; <a href="index.html">Full Dictionary Index</a> &middot; <a href="../index.html">Home</a></p>
+    </footer>
+
+    <script>
+    function filterCards(query) {
+        query = query.trim().toLowerCase();
+        var cards = document.querySelectorAll('#cardGrid .full-card');
+        var shown = 0;
+        cards.forEach(function(c) {
+            var word = (c.querySelector('.word')||{}).textContent || '';
+            var tag = (c.querySelector('.tag')||{}).textContent || '';
+            var hit = (word + ' ' + tag).toLowerCase().indexOf(query) !== -1;
+            c.style.display = hit ? '' : 'none';
+            if (hit) shown++;
+        });
+        document.getElementById('emptyState').style.display = shown ? 'none' : 'block';
+    }
+
+    // Theme persistence
+    (function() {
+        if (localStorage.getItem('bte-theme') === 'light') {
+            document.body.classList.add('light-mode');
+        }
+    })();
+    </script>
+</body>
+</html>

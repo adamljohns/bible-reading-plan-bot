@@ -296,6 +296,17 @@ def build_index(words, by_letter, total):
         .boomer-card .bverdict {{ font-size:0.62rem; text-transform:uppercase; letter-spacing:0.6px; margin-top:3px; font-weight:700; }}
         body.light-mode .boomer-section {{ background:rgba(217,119,6,0.03); }}
         body.light-mode .boomer-card .bword {{ color:#1a1a1a; }}
+        /* Clickable section titles — V5.25 upgrade: each section h3 links to its dedicated full-page browser */
+        .section-title-link {{ color:inherit; text-decoration:none; display:inline-flex; align-items:center; gap:8px; transition:opacity 0.2s; }}
+        .section-title-link:hover {{ opacity:0.85; }}
+        .section-title-link:hover .see-all {{ opacity:1; transform:translateX(3px); }}
+        .see-all {{
+            margin-left:10px; font-family:'Inter',sans-serif; font-size:0.62rem;
+            font-weight:600; letter-spacing:1.5px; text-transform:uppercase;
+            opacity:0.55; transition:all 0.2s ease;
+            border:1px solid currentColor; padding:3px 9px; border-radius:12px;
+        }}
+
         /* Featured Entries (Doctrinal Anchors) */
         .featured-section {{ background:rgba(212,175,55,0.04); border:1px solid rgba(212,175,55,0.15); border-radius:12px; padding:20px 24px; margin:20px 0 30px; }}
         .featured-section h3 {{ color:var(--gold); font-family:'Playfair Display',serif; font-size:1.1rem; margin-bottom:6px; display:inline-flex; align-items:center; gap:8px; }}
@@ -385,6 +396,7 @@ def build_index(words, by_letter, total):
             <p class="subtitle">of the English Language</p>
             <p style="margin-top:20px;">Words have been stolen, redefined, and weaponized. This dictionary reclaims them &mdash; returning to the etymological roots, the biblical meaning, and the Webster 1828 definitions that shaped Western civilization, against which modern corruptions are measured.</p>
             <p style="margin-top:10px;font-size:0.85rem;color:var(--gold);">{total} entries &middot; Proto-language roots &middot; Collapsible deep-dive sections</p>
+            <p style="margin-top:8px;font-size:0.78rem;color:var(--gray);"><strong style="color:var(--gold);">V5.25</strong> &middot; <em>Pastoral Lexicon Edition</em> &middot; section titles now open full-page browsers</p>
         </section>
 
         <!-- Word of the Day -->
@@ -445,7 +457,7 @@ def build_index(words, by_letter, total):
 
         <!-- Featured Entries — Doctrinal Anchors -->
         <div class="featured-section">
-            <h3><img src="../assets/icons/shield-chain-salvation-48.png" alt="" width="20" height="20"> Doctrinal Anchors</h3>
+            <h3><a href="doctrinal-anchors.html" class="section-title-link"><img src="../assets/icons/shield-chain-salvation-48.png" alt="" width="20" height="20"> Doctrinal Anchors <span class="see-all">browse all &rarr;</span></a></h3>
             <p class="subtitle">Words that hold the line. Foundational entries every man should know cold.</p>
             <div class="featured-grid">
                 <a href="trinity.html" class="featured-card"><div class="fword">Trinity</div><div class="ftag">Triune God</div></a>
@@ -506,7 +518,7 @@ def build_index(words, by_letter, total):
 
         <!-- Biblical Order — patriarchy, headship, the Long House, NXR vocabulary -->
         <div class="order-section" id="orderSection">
-            <h3><img src="../assets/icons/shield-crown.png" alt="" width="20" height="20"> Biblical Order</h3>
+            <h3><a href="biblical-order.html" class="section-title-link"><img src="../assets/icons/shield-crown.png" alt="" width="20" height="20"> Biblical Order <span class="see-all">browse all &rarr;</span></a></h3>
             <p class="subtitle">Patriarchy, headship, helpmeet, and the recovered vocabulary the modern church has tried to retire &mdash; including the New Christian Right / Kings Hall diagnosis of the Long House, the reviling wife, and the white-knight pattern.</p>
             <div class="order-grid">
                 <a href="patriarchy.html" class="order-card"><div class="oword">Patriarchy</div><div class="otag">Father-Rule</div></a>
@@ -540,7 +552,7 @@ def build_index(words, by_letter, total):
 
         <!-- Expressly Prohibited — Lev 18-20, Deut 18, Gal 5, Rev 21 prohibitions -->
         <div class="forbidden-section" id="forbiddenSection">
-            <h3><img src="../assets/icons/shield-chain-fire-48.png" alt="" width="20" height="20"> Expressly Prohibited</h3>
+            <h3><a href="expressly-prohibited.html" class="section-title-link"><img src="../assets/icons/shield-chain-fire-48.png" alt="" width="20" height="20"> Expressly Prohibited <span class="see-all">browse all &rarr;</span></a></h3>
             <p class="subtitle">Practices Scripture names directly &mdash; in Leviticus, Deuteronomy, the Gospels, the Epistles, or the Revelation &mdash; as forbidden, abomination, or grounds for exclusion from the kingdom. The modern church has retired many of these; the MOOP Dictionary holds them.</p>
             <div class="forbidden-grid">
                 <a href="tattoo.html" class="forbidden-card"><div class="pword">Tattoo</div><div class="ptag">Lev 19:28</div></a>
@@ -581,7 +593,7 @@ def build_index(words, by_letter, total):
 
         <!-- Most Corrupted Words -->
         <div class="corrupted-section" id="corruptedSection">
-            <h3><img src="../assets/icons/shield-chain-fire-48.png" alt="" width="20" height="20"> Most Corrupted Words</h3>
+            <h3><a href="most-corrupted.html" class="section-title-link"><img src="../assets/icons/shield-chain-fire-48.png" alt="" width="20" height="20"> Most Corrupted Words <span class="see-all">browse all &rarr;</span></a></h3>
             <p class="subtitle">Words that modern culture has stolen, redefined, or weaponized beyond recognition. Click any word to see what it actually means.</p>
             <div class="corrupted-grid">
                 <a href="love.html" class="corrupted-card"><div class="cword">Love</div><div class="ctag">Redefined</div></a>
@@ -618,7 +630,7 @@ def build_index(words, by_letter, total):
 
         <!-- Gen-Z Decoded -->
         <div class="genz-section" id="genzSection">
-            <h3><img src="../assets/icons/shield-blog-quill-48.png" alt="" width="20" height="20"> Gen-Z Decoded</h3>
+            <h3><a href="gen-z-decoded.html" class="section-title-link"><img src="../assets/icons/shield-blog-quill-48.png" alt="" width="20" height="20"> Gen-Z Decoded <span class="see-all">browse all &rarr;</span></a></h3>
             <p class="subtitle">Every generation speaks a new dialect. Every dialect reveals a heart. Here is what the words mean and what Scripture says about them.</p>
             <div class="genz-grid">
                 <a href="based.html" class="genz-card"><div class="gzword">Based</div><div class="gzverdict gzv-green">Redeemable</div></a>
@@ -678,7 +690,7 @@ def build_index(words, by_letter, total):
 
         <!-- Millennial Decoded -->
         <div class="mill-section" id="millSection">
-            <h3><img src="../assets/icons/shield-blog-quill-48.png" alt="" width="20" height="20"> Millennial Decoded</h3>
+            <h3><a href="millennial-decoded.html" class="section-title-link"><img src="../assets/icons/shield-blog-quill-48.png" alt="" width="20" height="20"> Millennial Decoded <span class="see-all">browse all &rarr;</span></a></h3>
             <p class="subtitle">Generation 1981&ndash;1996. They delayed adulthood, invented #squadgoals friendship, and turned YOLO into a life-philosophy. Here is what the words mean and what Scripture says.</p>
             <div class="mill-grid">
                 <a href="adulting.html" class="mill-card"><div class="mword">Adulting</div><div class="mverdict gzv-orange">Examine</div></a>
@@ -727,7 +739,7 @@ def build_index(words, by_letter, total):
 
         <!-- Gen X Decoded -->
         <div class="genx-section" id="genxSection">
-            <h3><img src="../assets/icons/shield-blog-quill-48.png" alt="" width="20" height="20"> Gen X Decoded</h3>
+            <h3><a href="gen-x-decoded.html" class="section-title-link"><img src="../assets/icons/shield-blog-quill-48.png" alt="" width="20" height="20"> Gen X Decoded <span class="see-all">browse all &rarr;</span></a></h3>
             <p class="subtitle">Generation 1965&ndash;1980. Ironic, skeptical, and allergic to earnestness. They taught America the dismissive shrug. Here is what the vocabulary reveals and what Scripture corrects.</p>
             <div class="genx-grid">
                 <a href="as-if.html" class="genx-card"><div class="xword">As If!</div><div class="xverdict gzv-yellow">Neutral</div></a>
@@ -770,7 +782,7 @@ def build_index(words, by_letter, total):
 
         <!-- Boomer Decoded -->
         <div class="boomer-section" id="boomerSection">
-            <h3><img src="../assets/icons/shield-blog-quill-48.png" alt="" width="20" height="20"> Boomer Decoded</h3>
+            <h3><a href="boomer-decoded.html" class="section-title-link"><img src="../assets/icons/shield-blog-quill-48.png" alt="" width="20" height="20"> Boomer Decoded <span class="see-all">browse all &rarr;</span></a></h3>
             <p class="subtitle">Generation 1946&ndash;1964. The counterculture vocabulary that built modern America&rsquo;s permissive moral imagination, plus some harmless retro-flavor. Here is what held up and what did not.</p>
             <div class="boomer-grid">
                 <a href="far-out.html" class="boomer-card"><div class="bword">Far Out</div><div class="bverdict gzv-yellow">Neutral</div></a>
