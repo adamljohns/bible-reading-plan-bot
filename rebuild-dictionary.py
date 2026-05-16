@@ -213,6 +213,18 @@ def build_index(words, by_letter, total):
         .wotd-pos {{ color:var(--gray); font-size:0.82rem; font-style:italic; margin-bottom:8px; }}
         .wotd-def {{ color:var(--gray); font-size:0.92rem; line-height:1.6; max-width:600px; margin:0 auto; }}
         body.light-mode .wotd-widget {{ background:linear-gradient(135deg,rgba(212,175,55,0.06) 0%,rgba(212,175,55,0.02) 100%); }}
+        /* Biblical Order (scarlet) — patriarchy / headship / NXR vocabulary */
+        .order-section {{ background:rgba(184,80,66,0.05); border:1px solid rgba(184,80,66,0.20); border-radius:12px; padding:20px 24px; margin:30px 0; }}
+        .order-section h3 {{ color:#b85042; font-family:'Playfair Display',serif; font-size:1.1rem; margin-bottom:6px; display:inline-flex; align-items:center; gap:8px; }}
+        .order-section .subtitle {{ color:var(--gray); font-size:0.82rem; margin-bottom:16px; font-style:italic; }}
+        .order-grid {{ display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:8px; }}
+        .order-card {{ background:rgba(184,80,66,0.07); border:1px solid rgba(184,80,66,0.15); border-radius:8px; padding:10px 14px; text-decoration:none; transition:all 0.2s; text-align:center; }}
+        .order-card:hover {{ border-color:#b85042; background:rgba(184,80,66,0.14); }}
+        .order-card .oword {{ color:var(--white); font-weight:600; font-size:0.9rem; }}
+        .order-card .otag {{ color:#b85042; font-size:0.65rem; text-transform:uppercase; letter-spacing:0.5px; }}
+        body.light-mode .order-section {{ background:rgba(184,80,66,0.04); }}
+        body.light-mode .order-card .oword {{ color:#1a1a1a; }}
+
         /* Most Corrupted Words */
         .corrupted-section {{ background:rgba(244,67,54,0.04); border:1px solid rgba(244,67,54,0.15); border-radius:12px; padding:20px 24px; margin:30px 0; }}
         .corrupted-section h3 {{ color:#f44336; font-family:'Playfair Display',serif; font-size:1.1rem; margin-bottom:6px; display:inline-flex; align-items:center; gap:8px; }}
@@ -284,10 +296,10 @@ def build_index(words, by_letter, total):
         body.light-mode .featured-section {{ background:rgba(212,175,55,0.03); }}
         body.light-mode .featured-card .fword {{ color:#1a1a1a; }}
         /* Featured-section expand/collapse */
-        .featured-section details, .corrupted-section details,
+        .featured-section details, .order-section details, .corrupted-section details,
         .genz-section details, .mill-section details,
         .genx-section details, .boomer-section details {{ margin-top:12px; }}
-        .featured-section details summary, .corrupted-section details summary,
+        .featured-section details summary, .order-section details summary, .corrupted-section details summary,
         .genz-section details summary, .mill-section details summary,
         .genx-section details summary, .boomer-section details summary {{
             color:var(--gold); font-size:0.82rem; cursor:pointer; user-select:none;
@@ -295,12 +307,13 @@ def build_index(words, by_letter, total):
             gap:8px;
         }}
         .featured-section details summary::-webkit-details-marker,
+        .order-section details summary::-webkit-details-marker,
         .corrupted-section details summary::-webkit-details-marker,
         .genz-section details summary::-webkit-details-marker,
         .mill-section details summary::-webkit-details-marker,
         .genx-section details summary::-webkit-details-marker,
         .boomer-section details summary::-webkit-details-marker {{ display:none; }}
-        .featured-section details summary::before, .corrupted-section details summary::before,
+        .featured-section details summary::before, .order-section details summary::before, .corrupted-section details summary::before,
         .genz-section details summary::before, .mill-section details summary::before,
         .genx-section details summary::before, .boomer-section details summary::before {{
             content:""; display:inline-block; width:0; height:0;
@@ -309,12 +322,14 @@ def build_index(words, by_letter, total):
             transition:transform 0.18s ease;
             transform:rotate(-90deg);
         }}
-        .featured-section details[open] summary::before, .corrupted-section details[open] summary::before,
+        .featured-section details[open] summary::before, .order-section details[open] summary::before, .corrupted-section details[open] summary::before,
         .genz-section details[open] summary::before, .mill-section details[open] summary::before,
         .genx-section details[open] summary::before, .boomer-section details[open] summary::before {{ transform:rotate(0deg); }}
-        .featured-section details summary:hover, .corrupted-section details summary:hover,
+        .featured-section details summary:hover, .order-section details summary:hover, .corrupted-section details summary:hover,
         .genz-section details summary:hover, .mill-section details summary:hover,
         .genx-section details summary:hover, .boomer-section details summary:hover {{ color:var(--gold-light); }}
+        .order-section details summary::before {{ border-top-color:#b85042; }}
+        .order-section details summary {{ color:#b85042; }}
         .corrupted-section details summary::before {{ border-top-color:#f44336; }}
         .corrupted-section details summary {{ color:#f44336; }}
         .genz-section details summary::before {{ border-top-color:#EC4899; }}
@@ -470,6 +485,40 @@ def build_index(words, by_letter, total):
                     <a href="inspiration.html" class="featured-card"><div class="fword">Inspiration</div><div class="ftag">Breathed Out</div></a>
                     <a href="longsuffering.html" class="featured-card"><div class="fword">Longsuffering</div><div class="ftag">Patient</div></a>
                     <a href="effectual-call.html" class="featured-card"><div class="fword">Effectual Call</div><div class="ftag">Drawn by God</div></a>
+                </div>
+            </details>
+        </div>
+
+        <!-- Biblical Order — patriarchy, headship, the Long House, NXR vocabulary -->
+        <div class="order-section" id="orderSection">
+            <h3><img src="../assets/icons/shield-crown.png" alt="" width="20" height="20"> Biblical Order</h3>
+            <p class="subtitle">Patriarchy, headship, helpmeet, and the recovered vocabulary the modern church has tried to retire &mdash; including the New Christian Right / Kings Hall diagnosis of the Long House, the reviling wife, and the white-knight pattern.</p>
+            <div class="order-grid">
+                <a href="patriarchy.html" class="order-card"><div class="oword">Patriarchy</div><div class="otag">Father-Rule</div></a>
+                <a href="headship.html" class="order-card"><div class="oword">Headship</div><div class="otag">Eph 5:23</div></a>
+                <a href="submission.html" class="order-card"><div class="oword">Submission</div><div class="otag">1 Pet 3</div></a>
+                <a href="helpmeet.html" class="order-card"><div class="oword">Helpmeet</div><div class="otag">Ezer Kenegdo</div></a>
+                <a href="complementarianism.html" class="order-card"><div class="oword">Complementarianism</div><div class="otag">Halfway House</div></a>
+                <a href="egalitarianism.html" class="order-card"><div class="oword">Egalitarianism</div><div class="otag">Dressed-up Feminism</div></a>
+                <a href="feminism.html" class="order-card"><div class="oword">Feminism</div><div class="otag">Inversion</div></a>
+                <a href="long-house.html" class="order-card"><div class="oword">The Long House</div><div class="otag">Soft Matriarchy</div></a>
+                <a href="white-knight.html" class="order-card"><div class="oword">White Knight</div><div class="otag">Class Loyalty</div></a>
+                <a href="reviling-wife.html" class="order-card"><div class="oword">Reviling Wife</div><div class="otag">Prov 21:9</div></a>
+                <a href="contentious-wife.html" class="order-card"><div class="oword">Contentious Wife</div><div class="otag">Prov 27:15</div></a>
+                <a href="hypergamy.html" class="order-card"><div class="oword">Hypergamy</div><div class="otag">Observed Pattern</div></a>
+            </div>
+            <details>
+                <summary><em>expand to see more</em></summary>
+                <div class="order-grid more-grid">
+                    <a href="manosphere.html" class="order-card"><div class="oword">Manosphere</div><div class="otag">Digital Subculture</div></a>
+                    <a href="new-christian-right.html" class="order-card"><div class="oword">New Christian Right</div><div class="otag">NXR</div></a>
+                    <a href="christian-nationalism.html" class="order-card"><div class="oword">Christian Nationalism</div><div class="otag">Ps 2:10</div></a>
+                    <a href="kings-hall.html" class="order-card"><div class="oword">Kings Hall</div><div class="otag">Podcast</div></a>
+                    <a href="white-knighting.html" class="order-card"><div class="oword">White Knighting</div><div class="otag">Man-Pleasing</div></a>
+                    <a href="man-pleasing.html" class="order-card"><div class="oword">Man-Pleasing</div><div class="otag">Gal 1:10</div></a>
+                    <a href="partiality.html" class="order-card"><div class="oword">Partiality</div><div class="otag">Lev 19:15</div></a>
+                    <a href="quietness.html" class="order-card"><div class="oword">Quietness</div><div class="otag">1 Pet 3:4</div></a>
+                    <a href="chivalry.html" class="order-card"><div class="oword">Chivalry</div><div class="otag">Ordered Courage</div></a>
                 </div>
             </details>
         </div>
@@ -732,7 +781,7 @@ def build_index(words, by_letter, total):
     (function(){{if(localStorage.getItem('bte-theme')==='light')document.body.classList.add('light-mode');}})();
 
     // Featured-section details toggle — swap "expand to see more" ↔ "show less"
-    document.querySelectorAll('.corrupted-section details, .genz-section details, .mill-section details, .genx-section details, .boomer-section details, .featured-section details').forEach(function(d){{
+    document.querySelectorAll('.corrupted-section details, .order-section details, .genz-section details, .mill-section details, .genx-section details, .boomer-section details, .featured-section details').forEach(function(d){{
         var label = d.querySelector('summary em');
         if(!label) return;
         var update = function(){{ label.textContent = d.open ? 'show less' : 'expand to see more'; }};
