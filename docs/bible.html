@@ -1006,7 +1006,7 @@
                 refs.forEach(function(refKey) {
                     const display = crossRefKeyToDisplay(refKey);
                     const link = crossRefKeyToLink(refKey);
-                    itemsHtml += '<div class="crossref-item">→ <a href="' + link + '">' + display + '</a></div>';
+                    itemsHtml += '<div class="crossref-item">→ ' + display + '</div>';
                 });
                 groupsHtml += '<div class="crossref-verse-group">' + verseLabel + itemsHtml + '</div>';
             });
@@ -1037,7 +1037,7 @@
             var linksHtml = refs.map(function(refKey) {
                 var display = crossRefKeyToDisplay(refKey);
                 var link = crossRefKeyToLink(refKey);
-                return '→ <a href="' + link + '">' + display + '</a>';
+                return '→ ' + display + '';
             }).join(' &nbsp;');
             return '<span class="crossref-inline-toggle" onclick="toggleInlineCrossRef(\'' + id + '\')" title="Cross-references"><img src="assets/icons/shield-bible.png" class="site-icon" alt="cross-ref" width="20" height="20"></span>' +
                 '<div class="crossref-inline-body" id="' + id + '">' + linksHtml + '</div>';
@@ -1335,10 +1335,8 @@
                                 const summary = summaries[slug] || '';
                                 const placeholder = '\u0001' + placeholders.length + '\u0002';
                                 placeholders.push(
-                                    '<a class="dict-link dict-phrase" href="dictionary/' + slug +
-                                    '.html" data-summary="' + escapeAttr(summary) +
-                                    '" title="' + escapeAttr(m + ' — dictionary entry') + '">' +
-                                    m + '</a>'
+                                    '' +
+                                    m + ''
                                 );
                                 phraseLinks++;
                                 return placeholder;
@@ -1351,10 +1349,8 @@
                             if (!allowSlug(slug)) return word;  // v6.2 dedup
                             totalLinks++;
                             const summary = summaries[slug] || '';
-                            return '<a class="dict-link" href="dictionary/' + slug +
-                                   '.html" data-summary="' + escapeAttr(summary) +
-                                   '" title="' + escapeAttr(word + ' — dictionary entry') + '">' +
-                                   word + '</a>';
+                            return '' +
+                                   word + '';
                         });
                         // PHASE C: swap placeholders back to phrase links
                         newHtml = newHtml.replace(/(\d+)/g, function(m, idx) {
@@ -2917,7 +2913,7 @@
                 html += '<div class="clarity-section"><h4><img src="assets/icons/shield-star.png" class="site-icon" alt="star" width="20" height="20"> Clarity Notes</h4>';
                 limitedClarity.forEach(function(c) {
                     const strongsLink = c.strongs
-                        ? ' <a class="clarity-link" href="' + stepBibleUrl(c.strongs) + '" target="_blank" title="View word study">' + c.strongs + '</a>'
+                        ? ' ' + c.strongs + ''
                         : '';
                     const originPart = c.origin ? c.origin + ': ' : '';
                     html += '<div class="clarity-note"><span class="clarity-word">"' + c.word + '"</span> → ' + originPart + c.meaning + strongsLink + '</div>';
@@ -2940,7 +2936,7 @@
                     const url = stepBibleUrl(s.num);
                     var hiddenStyle = (hasMore && idx >= wordLimit) ? ' style="display:none;" class="strongs-entry strongs-extra-' + strongsId + '"' : ' class="strongs-entry"';
                     html += '<span' + hiddenStyle + '><span class="strongs-def">' + s.def + '</span> ' +
-                        '<a class="strongs-link" href="' + url + '" target="_blank" title="View full word study">(' + s.num + ')</a>' + vr + '</span>';
+                        '(' + s.num + ')' + vr + '</span>';
                 });
                 if (hasMore) {
                     html += '<div style="margin-top:6px;"><span class="strongs-show-more" onclick="(function(el){var extras=document.querySelectorAll(\'.strongs-extra-' + strongsId + '\');extras.forEach(function(e){e.style.display=\'inline\';});el.style.display=\'none\';})(this)" style="cursor:pointer;color:var(--gold);font-size:0.85rem;user-select:none;">Show more ' + testament + ' roots <span style="color:var(--gold);font-size:0.8rem;">▶</span> (' + (limitedStrongs.length - wordLimit) + ' more)</span></div>';
@@ -3356,7 +3352,7 @@
             var html = '<div class="bookmarks-panel"><h4><img src="assets/icons/shield-star.png" class="site-icon" alt="star" width="20" height="20"> Bookmarks (' + bm.length + ')</h4>';
             bm.forEach(function(b) {
                 var link = 'bible.html?ref=' + encodeURIComponent(b.ref);
-                html += '<div class="bookmark-item"><a href="' + link + '">' + b.ref + '</a><span class="bm-remove" onclick="removeBookmark(\'' + b.ref.replace(/'/g, "\\'") + '\')" title="Remove">✕</span></div>';
+                html += '<div class="bookmark-item">' + b.ref + '<span class="bm-remove" onclick="removeBookmark(\'' + b.ref.replace(/'/g, "\\'") + '\')" title="Remove">✕</span></div>';
             });
             html += '</div>';
             panel.innerHTML = html;

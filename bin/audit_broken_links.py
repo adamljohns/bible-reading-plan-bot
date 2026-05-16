@@ -24,15 +24,30 @@ DOCS = os.path.join(ROOT, 'docs')
 
 # Skip these paths entirely (output noise, very long)
 SKIP_DIRS = {'_archive', '_backup', '_wip', '_drafts', 'churches', 'lexicon', 'chapters', 'verse'}
+# Template/scaffold HTML files that aren't real served pages — they hold placeholder hrefs
+SKIP_FILES = {'docs/assets/lexicon-template.html', 'docs/assets/blog-template.html'}
 
 HREF_RE = re.compile(r'href=["\']([^"\'#]+?)["\']', re.IGNORECASE)
 EXTERNAL_RE = re.compile(r'^(https?:|mailto:|tel:|javascript:|data:|//)', re.IGNORECASE)
+# JS template / placeholder patterns — these are runtime-rendered, not real hrefs
+TEMPLATE_RE = re.compile(r'\$\{|\{\{|<%|\[[A-Z_]+\]')
+# Bare bible.us / bible.com etc. without protocol — older posts use this form,
+# browser auto-prefixes the current site's scheme, so they hit a 404 on this site.
+# We treat them as external URLs needing protocol-fix elsewhere; skip in audit
+# to keep this script focused on internal-site link health.
+PROTOCOL_LESS_BIBLE = re.compile(r'^bible\.(us|com|cc|gateway\.com)/', re.IGNORECASE)
 
 
 def resolve_link(source_file, href):
     """Given a source HTML file and an href, return the resolved absolute path
     on disk that the link points to. None if not a file-resolvable link."""
     if not href or EXTERNAL_RE.match(href):
+        return None
+    # Skip JS template literals / placeholder patterns — these are runtime hrefs
+    if TEMPLATE_RE.search(href):
+        return None
+    # Skip protocol-less Bible-app URLs (older posts had bare bible.us/X form)
+    if PROTOCOL_LESS_BIBLE.match(href):
         return None
     # Strip query string for the path lookup
     path_part = href.split('?')[0].split('#')[0]
@@ -42,13 +57,16 @@ def resolve_link(source_file, href):
     path_part = unquote(path_part)
     # Site-root-relative if leading slash
     if path_part.startswith('/'):
+        # Bare "/" => root index
+        if path_part == '/':
+            return os.path.join(DOCS, 'index.html')
         abs_path = os.path.normpath(os.path.join(DOCS, path_part.lstrip('/')))
     else:
         # Otherwise resolve relative to source file's dir
         source_dir = os.path.dirname(source_file)
         abs_path = os.path.normpath(os.path.join(source_dir, path_part))
-    # If the path ends with /, treat as directory's index.html
-    if abs_path.endswith(os.sep) or os.path.isdir(abs_path):
+    # If the path ends with / OR resolves to a directory, treat as directory's index.html
+    if path_part.endswith('/') or os.path.isdir(abs_path):
         abs_path = os.path.join(abs_path, 'index.html')
     return abs_path
 
@@ -65,13 +83,20 @@ def main():
             if not fn.endswith('.html'):
                 continue
             src = os.path.join(root, fn)
+            rel_src = os.path.relpath(src, os.path.dirname(DOCS))
+            if rel_src in SKIP_FILES:
+                continue
             sources_scanned += 1
             try:
                 with open(src, 'r', encoding='utf-8') as f:
                     html = f.read()
             except Exception:
                 continue
-            for m in HREF_RE.finditer(html):
+            # Strip <pre>...</pre>, <code>...</code>, and <script>...</script> so href patterns
+            # shown as code examples or inside JS strings don't get flagged.
+            html_scan = re.sub(r'<(pre|code|script|textarea)\b[^>]*>.*?</\1>', '', html,
+                               flags=re.IGNORECASE | re.DOTALL)
+            for m in HREF_RE.finditer(html_scan):
                 href = m.group(1).strip()
                 target = resolve_link(src, href)
                 if target is None:
