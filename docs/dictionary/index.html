@@ -319,7 +319,7 @@
             <h1>The MOOP Dictionary</h1>
             <p class="subtitle">of the English Language</p>
             <p style="margin-top:20px;">Words have been stolen, redefined, and weaponized. This dictionary reclaims them &mdash; returning to the etymological roots, the biblical meaning, and the Webster 1828 definitions that shaped Western civilization, against which modern corruptions are measured.</p>
-            <p style="margin-top:10px;font-size:0.85rem;color:var(--gold);">4175 entries &middot; Proto-language roots &middot; Collapsible deep-dive sections</p>
+            <p style="margin-top:10px;font-size:0.85rem;color:var(--gold);">4,180 entries &middot; Proto-language roots &middot; Cross-linked Strong&rsquo;s graph &middot; Definition search</p>
             <p style="margin-top:8px;font-size:0.78rem;color:var(--gray);"><strong style="color:var(--gold);">V5.25</strong> &middot; <em>Pastoral Lexicon Edition</em> &middot; section titles now open full-page browsers</p>
         </section>
 
@@ -334,7 +334,7 @@
         <!-- Search -->
         <div class="search-wrap">
             <span class="search-icon">🔍</span>
-            <input type="text" id="dictSearch" placeholder="Search entries&hellip;" autocomplete="off" oninput="filterDict(this.value)">
+            <input type="text" id="dictSearch" placeholder="Search 4,180 entries by word, definition, or Strong&rsquo;s (e.g. H2617)&hellip;" autocomplete="off" oninput="filterDict(this.value)">
         </div>
 
         <!-- Search results (shown when searching) -->
@@ -5069,29 +5069,127 @@
             btn.classList.add('open');
         }
     }
+    // ----- V5.x search: JSON-index-backed, definition-searchable, keyboard-navigable -----
+    var SEARCH_INDEX = null;           // populated lazily on first keystroke
+    var SEARCH_LOAD_PROMISE = null;
+    var SEARCH_FOCUS = -1;             // keyboard cursor in current result list
+    var SEARCH_LAST_HITS = [];
+
+    function loadSearchIndex() {
+        if (SEARCH_INDEX) return Promise.resolve(SEARCH_INDEX);
+        if (SEARCH_LOAD_PROMISE) return SEARCH_LOAD_PROMISE;
+        SEARCH_LOAD_PROMISE = fetch('search-index.json', {cache: 'force-cache'})
+            .then(function(r){ return r.json(); })
+            .then(function(j){ SEARCH_INDEX = j.entries; return SEARCH_INDEX; })
+            .catch(function(){ SEARCH_INDEX = []; return SEARCH_INDEX; });
+        return SEARCH_LOAD_PROMISE;
+    }
+    // Pre-warm the index 400ms after page load so first keystroke feels instant
+    setTimeout(loadSearchIndex, 400);
+
+    function escapeHtml(s){return s.replace(/[&<>"']/g, function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+    function highlight(text, q) {
+        if (!q) return escapeHtml(text);
+        var i = text.toLowerCase().indexOf(q.toLowerCase());
+        if (i < 0) return escapeHtml(text);
+        return escapeHtml(text.slice(0, i)) +
+               '<mark style="background:rgba(212,175,55,0.35);color:inherit;padding:0 2px;border-radius:2px;">' +
+               escapeHtml(text.slice(i, i + q.length)) + '</mark>' +
+               escapeHtml(text.slice(i + q.length));
+    }
+
+    function scoreEntry(e, q) {
+        var t = e.t.toLowerCase();
+        var d = (e.d || '').toLowerCase();
+        // Title exact > title startsWith > title contains > Strong's match > definition contains
+        if (t === q) return 1000;
+        if (t.indexOf(q) === 0) return 900 - t.length;
+        if (t.indexOf(q) >= 0) return 700 - t.indexOf(q);
+        if (/^[HG]\d+$/i.test(q)) {
+            if ((e.r || []).indexOf(q.toUpperCase()) >= 0) return 600;
+        }
+        var di = d.indexOf(q);
+        if (di >= 0) return 400 - Math.min(di, 200);
+        return 0;
+    }
+
+    function renderResults(hits, q) {
+        var sg = document.getElementById('searchGrid');
+        var se = document.getElementById('searchEmpty');
+        if (!hits.length) {
+            sg.innerHTML = '';
+            se.style.display = 'block';
+            return;
+        }
+        se.style.display = 'none';
+        var html = hits.map(function(h, idx){
+            var snippet = h.d ? h.d.slice(0, 160) + (h.d.length > 160 ? '…' : '') : '';
+            return '<a class="word-card search-hit" data-idx="' + idx + '" href="' + h.s + '.html" ' +
+                   'style="text-decoration:none;display:block;">' +
+                   '<div class="word" style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;">' +
+                   '<span>' + highlight(h.t, q) + '</span>' +
+                   (h.p ? '<span style="font-size:0.72rem;color:var(--gray);font-style:italic;">' + escapeHtml(h.p) + '</span>' : '') +
+                   '</div>' +
+                   (snippet ? '<div class="word-meta" style="font-size:0.82rem;color:var(--gray);margin-top:4px;line-height:1.4;">' + highlight(snippet, q) + '</div>' : '') +
+                   '</a>';
+        }).join('');
+        sg.innerHTML = html;
+        SEARCH_LAST_HITS = hits;
+        SEARCH_FOCUS = -1;
+    }
+
     function filterDict(q) {
         var sr = document.getElementById('searchResults');
         var rs = document.getElementById('rangeSection');
         var sg = document.getElementById('searchGrid');
         var se = document.getElementById('searchEmpty');
-        q = q.trim().toLowerCase();
+        q = q.trim();
         if (!q) {
             sr.classList.remove('visible');
             rs.style.display = '';
+            sg.innerHTML = '';
+            SEARCH_LAST_HITS = [];
+            SEARCH_FOCUS = -1;
             return;
         }
         rs.style.display = 'none';
         sr.classList.add('visible');
-        var cards = document.querySelectorAll('#rangeSection .word-card');
-        var hits = [];
-        cards.forEach(function(c) {
-            var w = c.querySelector('.word');
-            if (w && w.textContent.toLowerCase().indexOf(q) !== -1) hits.push(c.cloneNode(true));
+        loadSearchIndex().then(function(entries){
+            var qLower = q.toLowerCase();
+            var scored = [];
+            for (var i = 0; i < entries.length; i++) {
+                var s = scoreEntry(entries[i], qLower);
+                if (s > 0) scored.push({e: entries[i], s: s});
+            }
+            scored.sort(function(a,b){ return b.s - a.s; });
+            renderResults(scored.slice(0, 100).map(function(x){return x.e;}), q);
         });
-        sg.innerHTML = '';
-        hits.forEach(function(c) { sg.appendChild(c); });
-        se.style.display = hits.length ? 'none' : 'block';
     }
+
+    // Keyboard navigation: ↓/↑ to move, Enter to open
+    document.addEventListener('keydown', function(ev){
+        var input = document.getElementById('dictSearch');
+        if (document.activeElement !== input) return;
+        if (!SEARCH_LAST_HITS.length) return;
+        if (ev.key === 'ArrowDown' || ev.key === 'ArrowUp' || ev.key === 'Enter') {
+            ev.preventDefault();
+            var cards = document.querySelectorAll('#searchGrid .search-hit');
+            if (!cards.length) return;
+            if (ev.key === 'Enter') {
+                var idx = SEARCH_FOCUS >= 0 ? SEARCH_FOCUS : 0;
+                if (cards[idx]) window.location.href = cards[idx].href;
+                return;
+            }
+            cards.forEach(function(c){ c.style.outline = ''; c.style.background = ''; });
+            SEARCH_FOCUS += (ev.key === 'ArrowDown' ? 1 : -1);
+            if (SEARCH_FOCUS < 0) SEARCH_FOCUS = cards.length - 1;
+            if (SEARCH_FOCUS >= cards.length) SEARCH_FOCUS = 0;
+            var c = cards[SEARCH_FOCUS];
+            c.style.outline = '2px solid var(--gold)';
+            c.style.background = 'rgba(212,175,55,0.08)';
+            c.scrollIntoView({block: 'nearest'});
+        }
+    });
     function bteToggleTheme(){document.body.classList.toggle('light-mode');localStorage.setItem('bte-theme',document.body.classList.contains('light-mode')?'light':'dark');}
     (function(){if(localStorage.getItem('bte-theme')==='light')document.body.classList.add('light-mode');})();
 
