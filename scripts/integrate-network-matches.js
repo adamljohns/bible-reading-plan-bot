@@ -108,6 +108,14 @@ const NETWORK_CONFIGS = {
 const CANONICAL_SIG_KEYS = ['warhurst_protest_2020','amr_2026','letter_of_lament_2025','revoice_2018_2026','dallas_statement_2018','nashville_statement_2017','cbe_egalitarian_2026'];
 const SCORE_DIMS = ['christology','scripture','gender','leadership','soteriology','cultural','preaching','mission','mens_discipleship','denominational'];
 
+// Denominations that should NEVER be cross-listed in Reformed/Baptist networks (sanity guard)
+// Used to filter out name-collision false positives like "Stafford Church of God" matching a Reformed entry's normalized name.
+const INCOMPATIBLE_DENOM_PATTERN = /(?:pentecostal|charismatic|word of faith|^church of god$|church of god \(|^cog$|assemblies of god|catholic|^orthodox$|eastern orthodox|mormon|^lds$|latter.day saints|jehov|seventh.day adventist|^sda$|^unity$|unitarian|universalist|new thought|metaphysical|church of christ.scientist|christian science)/i;
+function isDenomCompatible(existingChurch) {
+  const d = String(existingChurch.denomination || '');
+  return !INCOMPATIBLE_DENOM_PATTERN.test(d);
+}
+
 // -------------------------------------------------------------------
 // Args
 // -------------------------------------------------------------------
@@ -276,6 +284,15 @@ function main() {
         const candidates = moopByNameState.get(key);
         if (candidates.length === 1) match = candidates[0];
       }
+    }
+
+    // Reject false-positive matches where the candidate's denomination is
+    // fundamentally incompatible with Reformed-evangelical networks (e.g.
+    // a Pentecostal "Church of God" that name-normalizes to the same key as
+    // a Reformed church). Website-domain matches are NOT filtered — those
+    // are reliable. Name+state matches ARE filtered.
+    if (match && !(fDom && moopByDomain.has(fDom)) && !isDenomCompatible(match)) {
+      match = null;
     }
 
     if (match) {

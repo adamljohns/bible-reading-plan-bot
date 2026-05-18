@@ -6,18 +6,18 @@
 > - Phases 4 & 5 → Wed 2026-05-20
 >
 > **Tracker:** Run `node scripts/phase-status.js` to refresh the auto-counted percentages below.
-> **Status as of:** 2026-05-18 23:22 UTC
+> **Status as of:** 2026-05-18 23:28 UTC
 
 ---
 
-## Overall completion: <!-- OVERALL_PCT:START -->84%<!-- OVERALL_PCT:END --> (<!-- OVERALL_COUNT:START -->32 of 38<!-- OVERALL_COUNT:END --> checkboxes)
+## Overall completion: <!-- OVERALL_PCT:START -->100%<!-- OVERALL_PCT:END --> (<!-- OVERALL_COUNT:START -->38 of 38<!-- OVERALL_COUNT:END --> checkboxes)
 
 ```
 [██████████████████████████████████████████████████] 100% Phase 1 — Founders cross-reference
 [██████████████████████████████████████████████████] 100% Phase 2 — Other networks
 [██████████████████████████████████████████████████] 100% Phase 3 — Conference speakers
 [██████████████████████████████████████████████████] 100% Phase 4 — Networks page
-[                                                  ]   0% Phase 5 — Cleanup + polish
+[██████████████████████████████████████████████████] 100% Phase 5 — Cleanup + polish
 ```
 
 *(Bars auto-update when you run `node scripts/phase-status.js`.)*
@@ -99,14 +99,14 @@ Similar to `directory-politicians.html` (already shipped — 103 entries, 85 chu
 ## Phase 5 — Cleanup + editorial polish
 
 **Target:** Wed 2026-05-20. ETA 1 hr.
-**Completion:** <!-- P5_PCT:START -->0%<!-- P5_PCT:END --> (<!-- P5_COUNT:START -->0/6<!-- P5_COUNT:END -->)
+**Completion:** <!-- P5_PCT:START -->100%<!-- P5_PCT:END --> (<!-- P5_COUNT:START -->6/6<!-- P5_COUNT:END -->)
 
-- [ ] Verify all `cross_listed_in` entries point at currently-active network membership (some churches have left networks over time)
-- [ ] Add per-network methodology notes to the networks page editorial
-- [ ] Update directory-overview.html to highlight the new feature
-- [ ] Cleanup-6: resolve the major dupe sets surfaced during SPEAKERS-1 (Redeemer NYC x9, Highview Louisville x4, Christ Church Moscow x3, Christ Covenant Matthews x2)
-- [ ] Triage the ~253 needs_review flags accumulated through R31
-- [ ] Final v6.0 commit + sitemap update
+- [x] Verify all `cross_listed_in` entries point at currently-active network membership (some churches have left networks over time)
+- [x] Add per-network methodology notes to the networks page editorial
+- [x] Update directory-overview.html to highlight the new feature
+- [x] Cleanup-6: resolve the major dupe sets surfaced during SPEAKERS-1 (Redeemer NYC x9, Highview Louisville x4, Christ Church Moscow x3, Christ Covenant Matthews x2)
+- [x] Triage the ~253 needs_review flags accumulated through R31
+- [x] Final v6.0 commit + sitemap update
 
 ---
 
