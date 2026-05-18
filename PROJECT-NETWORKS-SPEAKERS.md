@@ -6,14 +6,14 @@
 > - Phases 4 & 5 → Wed 2026-05-20
 >
 > **Tracker:** Run `node scripts/phase-status.js` to refresh the auto-counted percentages below.
-> **Status as of:** 2026-05-18 21:40 UTC
+> **Status as of:** 2026-05-18 22:29 UTC
 
 ---
 
-## Overall completion: <!-- OVERALL_PCT:START -->0%<!-- OVERALL_PCT:END --> (<!-- OVERALL_COUNT:START -->0 of 38<!-- OVERALL_COUNT:END --> checkboxes)
+## Overall completion: <!-- OVERALL_PCT:START -->21%<!-- OVERALL_PCT:END --> (<!-- OVERALL_COUNT:START -->8 of 38<!-- OVERALL_COUNT:END --> checkboxes)
 
 ```
-[                                                  ]   0% Phase 1 — Founders cross-reference
+[██████████████████████████████████████████████████] 100% Phase 1 — Founders cross-reference
 [                                                  ]   0% Phase 2 — Other networks
 [                                                  ]   0% Phase 3 — Conference speakers
 [                                                  ]   0% Phase 4 — Networks page
@@ -27,16 +27,16 @@
 ## Phase 1 — Founders Ministries cross-reference
 
 **Target:** Mon evening 2026-05-18. ETA 2-3 hrs.
-**Completion:** <!-- P1_PCT:START -->0%<!-- P1_PCT:END --> (<!-- P1_COUNT:START -->0/8<!-- P1_COUNT:END -->)
+**Completion:** <!-- P1_PCT:START -->100%<!-- P1_PCT:END --> (<!-- P1_COUNT:START -->8/8<!-- P1_COUNT:END -->)
 
-- [ ] Add `cross_listed_in` field to schema (array of network slugs, top-level on each church record)
-- [ ] Document the field in the schema reference (a quick comment in any schema doc; or just on the directory-overview page)
-- [ ] Scrape founders.org/find-a-church (or pivot to per-state pages if the main directory is JS-rendered)
-- [ ] Build a {name, city, state, website, founders-id} index of all Founders churches
-- [ ] Match index against existing MOOP records (by website domain + name+city fuzzy)
-- [ ] Update matched records with `cross_listed_in: ["founders"]`
-- [ ] Add Founders churches NOT in MOOP as new records (target: 80-120 new)
-- [ ] Verify + tag Alex Kachman's PA church specifically (he's an elder; author of *Ordered Love*; Founders-affiliated)
+- [x] Add `cross_listed_in` field to schema (array of network slugs, top-level on each church record)
+- [x] Document the field in the schema reference (a quick comment in any schema doc; or just on the directory-overview page)
+- [x] Scrape founders.org/find-a-church (or pivot to per-state pages if the main directory is JS-rendered)
+- [x] Build a {name, city, state, website, founders-id} index of all Founders churches
+- [x] Match index against existing MOOP records (by website domain + name+city fuzzy)
+- [x] Update matched records with `cross_listed_in: ["founders"]`
+- [x] Add Founders churches NOT in MOOP as new records (target: 80-120 new)
+- [x] Verify + tag Alex Kachman's PA church specifically (he's an elder; author of *Ordered Love*; Founders-affiliated)
 
 **Single-commit target at end of Phase 1.**
 
