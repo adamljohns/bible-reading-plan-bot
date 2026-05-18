@@ -567,8 +567,11 @@ function buildPage(church) {
   if (church.pastor_linkedin) pastorSocial.push(`<a href="${escapeHtml(church.pastor_linkedin)}" target="_blank" rel="noopener" class="social-link" style="color:#0A66C2;" title="Pastor LinkedIn">${ico('shield-about-person-48.png', 18)} Pastor LinkedIn</a>`);
   const pastorSocialHtml = pastorSocial.length ? `<div class="social-links" style="margin-top:8px;"><div style="font-size:0.8rem;text-transform:uppercase;letter-spacing:1px;color:var(--gray);margin-bottom:6px;font-weight:600;">Pastor Social Media</div>${pastorSocial.join('')}</div>` : '';
 
-  // Defunct marker
-  const isDefunct = church.services && church.services.toLowerCase().includes('no longer');
+  // Defunct marker — services may be string OR object {sunday_morning, ...}
+  const servicesStr = typeof church.services === 'string'
+    ? church.services
+    : (church.services && typeof church.services === 'object' ? Object.values(church.services).filter(v => typeof v === 'string').join(' ') : '');
+  const isDefunct = servicesStr && servicesStr.toLowerCase().includes('no longer');
   const isNotFound = church.overall_label && (church.overall_label.toLowerCase().includes('not found') || church.overall_label.toLowerCase().includes('defunct') || church.overall_label.toLowerCase().includes('search result'));
 
   return `<!DOCTYPE html>
@@ -624,7 +627,7 @@ ${NAV}
       </div>
       <div class="fact-item">
         <span class="fact-label">Service Times</span>
-        <span class="fact-value">${escapeHtml(church.services || 'See website')}</span>
+        <span class="fact-value">${escapeHtml(servicesStr || 'See website')}</span>
       </div>
       <div class="fact-item">
         <span class="fact-label">Men's Ministry</span>

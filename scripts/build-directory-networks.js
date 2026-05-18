@@ -117,7 +117,7 @@ function renderEntry(c) {
   const dataNetworks = networks.join(' ');
   const stateMatch = String(c.address || '').match(/,\s*([A-Z]{2})\b/);
   const state = stateMatch ? stateMatch[1] : '';
-  const detailHref = `church.html?id=${encodeURIComponent(c.id)}`;
+  const detailHref = `/churches/${encodeURIComponent(c.id)}.html`;
   const pastor = c.pastor && c.pastor !== 'Verify on church website' ? c.pastor : '';
   const addressShort = String(c.address || '').replace(/\s+/g, ' ').trim();
 
