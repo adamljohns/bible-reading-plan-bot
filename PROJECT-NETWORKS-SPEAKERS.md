@@ -6,16 +6,16 @@
 > - Phases 4 & 5 → Wed 2026-05-20
 >
 > **Tracker:** Run `node scripts/phase-status.js` to refresh the auto-counted percentages below.
-> **Status as of:** 2026-05-18 23:07 UTC
+> **Status as of:** 2026-05-18 23:17 UTC
 
 ---
 
-## Overall completion: <!-- OVERALL_PCT:START -->42%<!-- OVERALL_PCT:END --> (<!-- OVERALL_COUNT:START -->16 of 38<!-- OVERALL_COUNT:END --> checkboxes)
+## Overall completion: <!-- OVERALL_PCT:START -->63%<!-- OVERALL_PCT:END --> (<!-- OVERALL_COUNT:START -->24 of 38<!-- OVERALL_COUNT:END --> checkboxes)
 
 ```
 [██████████████████████████████████████████████████] 100% Phase 1 — Founders cross-reference
 [██████████████████████████████████████████████████] 100% Phase 2 — Other networks
-[                                                  ]   0% Phase 3 — Conference speakers
+[██████████████████████████████████████████████████] 100% Phase 3 — Conference speakers
 [                                                  ]   0% Phase 4 — Networks page
 [                                                  ]   0% Phase 5 — Cleanup + polish
 ```
@@ -63,18 +63,18 @@ Each network → one parallel agent. Each adds `cross_listed_in` tag + adds miss
 ## Phase 3 — Conference speakers research
 
 **Target:** Tue 2026-05-19. ETA 2-3 hrs.
-**Completion:** <!-- P3_PCT:START -->0%<!-- P3_PCT:END --> (<!-- P3_COUNT:START -->0/8<!-- P3_COUNT:END -->)
+**Completion:** <!-- P3_PCT:START -->100%<!-- P3_PCT:END --> (<!-- P3_COUNT:START -->8/8<!-- P3_COUNT:END -->)
 
 For each conference: pull speaker list → map each speaker to their home church → if church is in MOOP, add `notable_attendees` entry with `branch: "religious"` and `association: "home_church"`; include "conference speaker at <Conference>" in `title`.
 
-- [ ] **250th Anniversary event** (National Mall, kicked off 2026-05-16) — research speakers list (Adam caught the tail end)
-- [ ] **G3 Conference** (annual; Josh Buice)
-- [ ] **Together for the Gospel (T4G)** — Dever, Mohler, Mahaney, Duncan; check if still active or paused
-- [ ] **The Gospel Coalition National** (TGC25/27 etc.)
-- [ ] **Sing! Conference** (Getty Music, Nashville)
-- [ ] **Cross Conference** (missions; Piper)
-- [ ] **Shepherds' Conference** (MacArthur / Master's Seminary)
-- [ ] **CBMW National Conference** (complementarianism)
+- [x] **250th Anniversary event** (National Mall, kicked off 2026-05-16) — research speakers list (Adam caught the tail end)
+- [x] **G3 Conference** (annual; Josh Buice)
+- [x] **Together for the Gospel (T4G)** — Dever, Mohler, Mahaney, Duncan; check if still active or paused
+- [x] **The Gospel Coalition National** (TGC25/27 etc.)
+- [x] **Sing! Conference** (Getty Music, Nashville)
+- [x] **Cross Conference** (missions; Piper)
+- [x] **Shepherds' Conference** (MacArthur / Master's Seminary)
+- [x] **CBMW National Conference** (complementarianism)
 
 ---
 
