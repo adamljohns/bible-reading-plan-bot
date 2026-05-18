@@ -997,6 +997,19 @@ def main():
         print('\n--- Rebuilding names sub-page ---')
         subprocess.run([sys.executable, names_script], check=True)
 
+    # Rebuild the eight featured-section browser pages (V5.25 upgrade).
+    section_script = os.path.join(os.path.dirname(__file__), 'bin', 'build_section_pages.py')
+    if os.path.exists(section_script):
+        print('\n--- Rebuilding 8 featured-section pages ---')
+        subprocess.run([sys.executable, section_script], check=True)
+
+    # Rebuild the BTE dictionary manifest so newly-added entries are reachable
+    # from Bible verse-text auto-linking on the next page load.
+    manifest_script = os.path.join(os.path.dirname(__file__), 'bin', 'build_dict_manifest.py')
+    if os.path.exists(manifest_script):
+        print('\n--- Rebuilding BTE dictionary manifest ---')
+        subprocess.run([sys.executable, manifest_script], check=True)
+
 
 if __name__ == '__main__':
     main()

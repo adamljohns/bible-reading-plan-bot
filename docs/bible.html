@@ -1273,44 +1273,33 @@
                 const phraseRe = buildPhraseRegex(phrases);
                 const verseSpans = document.querySelectorAll('.verse-text:not([data-dict-enriched])');
 
-                // BTE v6.2: 5-verse sliding-window per-lemma dedup.
-                // Same slug (canonical lemma id — already case/plural/possessive normalized by
-                // findDictSlug) can only be highlighted once every 5 verses. So if "faith"
-                // highlights at v.3, the next eligible "faith" highlight is at v.8, not v.6.
-                // The map resets per chapter so cross-chapter ranges (Eph 4:25 → 5:7) don't
-                // suppress legitimate highlights in the second chapter.
+                // BTE v6.3: First-occurrence-per-page dedup.
+                // Each canonical slug (already normalized by findDictSlug for case / plural /
+                // possessive / KJV verb endings) is highlighted at most ONCE per render-pass,
+                // anywhere on the screen. The first time "faith" appears it gets the link;
+                // every subsequent "faith" on the page stays plain text. This matches the
+                // user standing rule "once is enough" and the convention of serious reference
+                // works (Wikipedia, Britannica, theological dictionaries). Replaces the
+                // earlier 5-verse sliding-window per-chapter dedup (v6.2).
                 // Click/popover behavior is unaffected — this only controls whether a given
                 // occurrence is wrapped in <a class="dict-link">.
-                const DEDUP_WINDOW = 5;
-                const lastSeenByChapter = Object.create(null);  // chapterNum → Map(slug → lastVerse)
+                const seenSlugs = new Set();
                 let totalLinks = 0;
                 let phraseLinks = 0;
                 let suppressed = 0;
 
                 verseSpans.forEach(span => {
                     span.setAttribute('data-dict-enriched', '1');
-                    // BTE v6.2: pull verse coords from the parent .verse-block id (rendered as
-                    // "vb-<bookId>_<chapter>_<verseNum>"). Falls back to chapter 0 if the id
-                    // doesn't match (defensive — shouldn't happen in practice).
-                    const vb = span.closest && span.closest('.verse-block');
-                    const idMatch = vb && vb.id && vb.id.match(/^vb-\d+_(\d+)_(\d+)$/);
-                    const curCh = idMatch ? parseInt(idMatch[1], 10) : 0;
-                    const curV  = idMatch ? parseInt(idMatch[2], 10) : 0;
-                    if (!lastSeenByChapter[curCh]) lastSeenByChapter[curCh] = new Map();
-                    const lastSeen = lastSeenByChapter[curCh];
 
-                    // Returns true if this slug is eligible to highlight at curV (and records
-                    // the highlight). Returns false if it was highlighted within DEDUP_WINDOW
-                    // verses prior.
+                    // Returns true if this slug has not yet been linked anywhere on this page.
                     function allowSlug(slug) {
                         if (!slug) return false;
-                        const last = lastSeen.get(slug);
-                        if (last === undefined || (curV - last) >= DEDUP_WINDOW) {
-                            lastSeen.set(slug, curV);
-                            return true;
+                        if (seenSlugs.has(slug)) {
+                            suppressed++;
+                            return false;
                         }
-                        suppressed++;
-                        return false;
+                        seenSlugs.add(slug);
+                        return true;
                     }
 
                     // Walk only TEXT nodes (preserve any inline HTML like <em>).
