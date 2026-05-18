@@ -6,17 +6,17 @@
 > - Phases 4 & 5 → Wed 2026-05-20
 >
 > **Tracker:** Run `node scripts/phase-status.js` to refresh the auto-counted percentages below.
-> **Status as of:** 2026-05-18 23:17 UTC
+> **Status as of:** 2026-05-18 23:22 UTC
 
 ---
 
-## Overall completion: <!-- OVERALL_PCT:START -->63%<!-- OVERALL_PCT:END --> (<!-- OVERALL_COUNT:START -->24 of 38<!-- OVERALL_COUNT:END --> checkboxes)
+## Overall completion: <!-- OVERALL_PCT:START -->84%<!-- OVERALL_PCT:END --> (<!-- OVERALL_COUNT:START -->32 of 38<!-- OVERALL_COUNT:END --> checkboxes)
 
 ```
 [██████████████████████████████████████████████████] 100% Phase 1 — Founders cross-reference
 [██████████████████████████████████████████████████] 100% Phase 2 — Other networks
 [██████████████████████████████████████████████████] 100% Phase 3 — Conference speakers
-[                                                  ]   0% Phase 4 — Networks page
+[██████████████████████████████████████████████████] 100% Phase 4 — Networks page
 [                                                  ]   0% Phase 5 — Cleanup + polish
 ```
 
@@ -81,18 +81,18 @@ For each conference: pull speaker list → map each speaker to their home church
 ## Phase 4 — Build /docs/directory-networks.html
 
 **Target:** Wed 2026-05-20. ETA 1.5 hrs.
-**Completion:** <!-- P4_PCT:START -->0%<!-- P4_PCT:END --> (<!-- P4_COUNT:START -->0/8<!-- P4_COUNT:END -->)
+**Completion:** <!-- P4_PCT:START -->100%<!-- P4_PCT:END --> (<!-- P4_COUNT:START -->8/8<!-- P4_COUNT:END -->)
 
 Similar to `directory-politicians.html` (already shipped — 103 entries, 85 churches, 6 filter buckets). Networks page would:
 
-- [ ] Build generator script `scripts/build-directory-networks.js` (reads churches.json, extracts cross_listed_in)
-- [ ] Stats hero: # networks tracked, # churches with ≥1 network membership, # cross-listed
-- [ ] Filter UI: chips for each network (Founders / 9Marks / TGC-CN / G3 / Acts 29 / SGC / Pillar)
-- [ ] Sort options: by network, by state, by rating
-- [ ] Link each church to its detail page
-- [ ] Editorial: per-network methodology notes (what each affiliation means doctrinally)
-- [ ] Add nav entry to existing pages (Home / Directory / Overview / Politicians / **Networks** / Roadmap / About)
-- [ ] Final commit + push as "v6.0 networks + speakers"
+- [x] Build generator script `scripts/build-directory-networks.js` (reads churches.json, extracts cross_listed_in)
+- [x] Stats hero: # networks tracked, # churches with ≥1 network membership, # cross-listed
+- [x] Filter UI: chips for each network (Founders / 9Marks / TGC-CN / G3 / Acts 29 / SGC / Pillar)
+- [x] Sort options: by network, by state, by rating
+- [x] Link each church to its detail page
+- [x] Editorial: per-network methodology notes (what each affiliation means doctrinally)
+- [x] Add nav entry to existing pages (Home / Directory / Overview / Politicians / **Networks** / Roadmap / About)
+- [x] Final commit + push as "v6.0 networks + speakers"
 
 ---
 
