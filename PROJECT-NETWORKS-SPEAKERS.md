@@ -6,15 +6,15 @@
 > - Phases 4 & 5 → Wed 2026-05-20
 >
 > **Tracker:** Run `node scripts/phase-status.js` to refresh the auto-counted percentages below.
-> **Status as of:** 2026-05-18 22:29 UTC
+> **Status as of:** 2026-05-18 23:07 UTC
 
 ---
 
-## Overall completion: <!-- OVERALL_PCT:START -->21%<!-- OVERALL_PCT:END --> (<!-- OVERALL_COUNT:START -->8 of 38<!-- OVERALL_COUNT:END --> checkboxes)
+## Overall completion: <!-- OVERALL_PCT:START -->42%<!-- OVERALL_PCT:END --> (<!-- OVERALL_COUNT:START -->16 of 38<!-- OVERALL_COUNT:END --> checkboxes)
 
 ```
 [██████████████████████████████████████████████████] 100% Phase 1 — Founders cross-reference
-[                                                  ]   0% Phase 2 — Other networks
+[██████████████████████████████████████████████████] 100% Phase 2 — Other networks
 [                                                  ]   0% Phase 3 — Conference speakers
 [                                                  ]   0% Phase 4 — Networks page
 [                                                  ]   0% Phase 5 — Cleanup + polish
@@ -45,18 +45,18 @@
 ## Phase 2 — Other network cross-references
 
 **Target:** Tue 2026-05-19 (alongside Phase 3). ETA 2-3 hrs.
-**Completion:** <!-- P2_PCT:START -->0%<!-- P2_PCT:END --> (<!-- P2_COUNT:START -->0/8<!-- P2_COUNT:END -->)
+**Completion:** <!-- P2_PCT:START -->100%<!-- P2_PCT:END --> (<!-- P2_COUNT:START -->8/8<!-- P2_COUNT:END -->)
 
 Each network → one parallel agent. Each adds `cross_listed_in` tag + adds missing churches.
 
-- [ ] **9Marks** — `9marks.org` church finder (Mark Dever's network; complementarian + congregationalist polity)
-- [ ] **TGC Church Network** — `thegospelcoalition.org/about/cn` (broader Reformed-evangelical)
-- [ ] **G3 Ministries** — `g3min.org/network` (Josh Buice; conservative confessional)
-- [ ] **Acts 29** — `acts29.com/find-a-church` (already have many; mark existing + add missing)
-- [ ] **Sovereign Grace Churches** — `sovereigngrace.com/churches` (already have many; mark + add missing)
-- [ ] **Reformation Charlotte / Reformation 21 network** — if a formal church-list exists
-- [ ] **The Trinity Foundation** Reformed Baptist Network — if exists
-- [ ] **Pillar Church Network** (Adam visited Pillar Stafford; this is the Pillar church-planting movement)
+- [x] **9Marks** — `9marks.org` church finder (Mark Dever's network; complementarian + congregationalist polity)
+- [x] **TGC Church Network** — `thegospelcoalition.org/about/cn` (broader Reformed-evangelical)
+- [x] **G3 Ministries** — `g3min.org/network` (Josh Buice; conservative confessional)
+- [x] **Acts 29** — `acts29.com/find-a-church` (already have many; mark existing + add missing)
+- [x] **Sovereign Grace Churches** — `sovereigngrace.com/churches` (already have many; mark + add missing)
+- [x] **Reformation Charlotte / Reformation 21 network** — if a formal church-list exists
+- [x] **The Trinity Foundation** Reformed Baptist Network — if exists
+- [x] **Pillar Church Network** (Adam visited Pillar Stafford; this is the Pillar church-planting movement)
 
 ---
 
