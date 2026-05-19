@@ -1,0 +1,119 @@
+#!/usr/bin/env python3
+"""Batch 37 — expand 25 more entries from the 50-60 word bucket.
+
+Targets: parables, slang reframes, body parts in biblical typology,
+NT geography, Beatitudes, doctrines, and Lord's Prayer petitions.
+"""
+import os, re
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DICT_DIR = os.path.join(ROOT, 'docs', 'dictionary')
+
+EXPANSIONS = {
+    'talents': (
+        '<p>"Talents" is Christ’s parable of the master who, before going on a long journey, distributes <em>talents</em> (large units of money — a talent was about twenty years’ wages for a laborer) to three servants: <em>"unto one he gave five talents, to another two, and to another one; to every man according to his several ability"</em> (<em>Matthew 25:15</em>). Two servants double their portion in the master’s absence; the third buries his and is condemned at the reckoning: <em>"Thou wicked and slothful servant... cast ye the unprofitable servant into outer darkness"</em> (<em>vv. 26, 30</em>). The kingdom is entrusted to its servants in different measures; faithfulness is required of all, regardless of size. The buried talent damns; the invested talent reproduces.</p>'
+    ),
+    'the-ick': (
+        '<p>"The Ick" is dating-culture slang for the sudden, disqualifying revulsion at a romantic partner over some trivial detail — their sneeze, their gait, a particular slang they use — after which the relationship is felt to be over. The slang treats the feeling as authoritative and the relationship as expendable. Biblical reframe: covenant love is not at the mercy of momentary aesthetic recoil. Scripture’s <em>agapē</em> is a willed, sworn commitment that can outlast the ick a thousand times because it was never first about being attracted. <em>"Many waters cannot quench love, neither can the floods drown it"</em> (<em>Song 8:7</em>). Marriage commits the man and woman to seeing each other through far worse than minor irritations.</p>'
+    ),
+    'vision-biblical': (
+        '<p>A vision in Scripture is a divinely given seeing — an unveiling of what is otherwise hidden, granted by God to His prophet, apostle, or appointed seer. Distinct from imagination, dreams, or hallucination, biblical visions come from God, often interpret themselves, and always serve His larger purposes. Daniel received the four-beast vision and the seventy-weeks revelation (<em>Daniel 7-9</em>); Ezekiel saw the throne-chariot (<em>Ezekiel 1</em>) and the valley of dry bones (<em>37</em>); John received the Apocalypse on Patmos (<em>Revelation 1:9-11</em>); Peter saw the great sheet (<em>Acts 10:9-16</em>); Paul was caught up to the third heaven (<em>2 Corinthians 12:1-4</em>). <em>"Where there is no vision, the people perish"</em> (<em>Proverbs 29:18</em>) — but the vision must be from God.</p>'
+    ),
+    'watchword': (
+        '<p>A watchword is the password a sentry uses to distinguish friend from foe in the dark. Scripture has its own watchwords — short, weighty confessions by which the covenant people recognize one another and confess what their household believes. <em>"Hear, O Israel: The LORD our God is one LORD"</em> (<em>Deuteronomy 6:4</em>) — the <em>Shema</em>, the foundational Old Testament watchword. <em>"Jesus is Lord"</em> (<em>1 Corinthians 12:3</em>; <em>Romans 10:9</em>) — the foundational New Testament watchword, given by the Holy Spirit and uttered only by believers. <em>"Maranatha"</em> — "Our Lord, come!" (<em>1 Corinthians 16:22</em>). The early church recognized each other by such words. Modern Christian men should know their watchwords and use them deliberately.</p>'
+    ),
+    'words': (
+        '<p>Words, in Scripture, are not neutral sounds but accountable utterances. They are weighed by God and stored in the books of judgment. Jesus warns directly: <em>"But I say unto you, That every idle word that men shall speak, they shall give account thereof in the day of judgment. For by thy words thou shalt be justified, and by thy words thou shalt be condemned"</em> (<em>Matthew 12:36-37</em>). The word is the overflow of the heart: <em>"Out of the abundance of the heart the mouth speaketh"</em> (<em>v. 34</em>). Speech is therefore a moral and eschatological matter — not personal expression alone. <em>"Death and life are in the power of the tongue"</em> (<em>Proverbs 18:21</em>). Christian men should weigh every word as if standing at the judgment.</p>'
+    ),
+    'workmanship-biblical': (
+        '<p>Workmanship is the visible quality of work done by a workman — what the work itself shows about the worker. Paul writes: <em>"For we are his workmanship, created in Christ Jesus unto good works, which God hath before ordained that we should walk in them"</em> (<em>Ephesians 2:10</em>). The Greek <em>poiēma</em> ("workmanship, that which is made") is the root of the English <em>poem</em>. The saint is therefore God’s composition. Two senses run together: the saint <em>is</em> the work (regenerated by God, the new creation), and the saint <em>does</em> the work (produces good works walking in them). God’s workmanship produces more workmanship — the recreated craftsman now apprenticed to good works.</p>'
+    ),
+    'anointed-head': (
+        '<p>The anointed head is the body’s loaded site of consecration in Scripture: prophet, priest, king, and beloved guest each received oil poured upon the head. Aaron was consecrated by oil on the head (<em>Leviticus 8:12</em>); kings were anointed — Saul, David, Solomon, Jehu (<em>1 Samuel 10:1; 16:13</em>); prophets were anointed (<em>1 Kings 19:16</em>). The ordinary banquet courtesy was to anoint the guest’s head with oil. <em>Psalm 23:5</em> promises it as the table-blessing of God’s sheep: <em>"thou anointest my head with oil; my cup runneth over."</em> Luke 7:36-50 records Simon’s failure to give Christ this courtesy and the sinful woman’s extravagant making good of it with her tears and ointment. Christ Himself is the Anointed One — Messiah, <em>Christos</em>.</p>'
+    ),
+    'beatitude-2': (
+        '<p>The second Beatitude of Christ’s Sermon on the Mount: <em>"Blessed are they that mourn: for they shall be comforted"</em> (<em>Matthew 5:4</em>). The Greek <em>pentheō</em> denotes deep grief, especially over loss or sin — far more than melancholy temperament. Christian mourning includes godly sorrow over personal sin (<em>2 Corinthians 7:10</em>: <em>"godly sorrow worketh repentance to salvation"</em>); grief over the world’s evil; and lament over the sufferings of God’s people, the wounds of the church, and the prospering of the wicked. The promised comfort is both present-tense (the Comforter, the Holy Spirit, <em>John 14:16</em>) and future-tense (<em>"God shall wipe away all tears from their eyes"</em>, <em>Revelation 21:4</em>). Christians mourn truly and are comforted decisively.</p>'
+    ),
+    'bethany': (
+        '<p>Bethany was the Judean village about two miles east of Jerusalem on the eastern slope of the Mount of Olives — the home of Mary, Martha, and Lazarus, the friends Christ loved (<em>John 11:5</em>). It was the place where He raised Lazarus from the tomb on the fourth day (<em>John 11:38-44</em>) — the climactic seventh sign of John’s Gospel before the cross. Christ stayed there during Holy Week, riding into Jerusalem from there for the Triumphal Entry (<em>Matthew 21:1, 17</em>; <em>Mark 11:1, 11</em>) and being anointed there by Mary with the spikenard ointment (<em>John 12:1-8</em>). And from Bethany’s vicinity He ascended into heaven (<em>Luke 24:50-51</em>). Bethany is the gospel’s small-town haven of friendship.</p>'
+    ),
+    'bling': (
+        '<p>"Bling" is hip-hop-era slang for flashy jewelry — diamond chains, gold watches, grills, oversized rings — worn to display wealth and status. The slang celebrates the display as proof of having arrived. Scripture has a complicated relationship to ornament: the priestly garments were beautiful, the Bride is adorned, and gifts of gold are received. But Scripture has a settled relationship to <em>ostentation</em>: <em>"all that is in the world, the lust of the flesh, and the lust of the eyes, and the pride of life, is not of the Father, but is of the world"</em> (<em>1 John 2:16</em>); <em>"Whose adorning let it not be that outward adorning of plaiting the hair, and of wearing of gold, or of putting on of apparel"</em> (<em>1 Peter 3:3</em>). The Christian man wears modesty.</p>'
+    ),
+    'daily-bread-work': (
+        '<p>"Daily bread," in the Lord’s Prayer, names the day’s sufficient provision — not hoarded, not scarce, but given each day as needed (<em>Matthew 6:11</em>: <em>"Give us this day our daily bread"</em>). The Greek <em>epiousios</em> is rare and exact: bread for today, asked for today. The petition assumes the saint’s daily work as the ordinary means of provision (<em>"if any would not work, neither should he eat"</em>, <em>2 Thessalonians 3:10</em>) and confesses the daily portion as God’s gift even so. <em>"Every good gift and every perfect gift is from above, and cometh down from the Father of lights"</em> (<em>James 1:17</em>). Christian men work hard for their bread <em>and</em> ask the Father for it daily.</p>'
+    ),
+    'daily-bread': (
+        '<p>"Give us this day our daily bread" is the fourth petition of the Lord’s Prayer (<em>Matthew 6:11</em>; <em>Luke 11:3</em>) — the central <em>physical</em> petition between the prayer for God’s name, kingdom, and will, and the prayers for forgiveness, deliverance, and protection from evil. The Greek adjective <em>epiousios</em> appears almost only here in all Greek literature; it is variously translated <em>"daily,"</em> <em>"sufficient,"</em> or <em>"for the coming day."</em> The petition is countercultural: it asks for <em>daily</em> provision, not stored security; not anxious accumulation but trusting daily dependence on the Father. The manna pattern of the wilderness still applies: enough for today; gather it again tomorrow; do not hoard against the LORD’s daily supply.</p>'
+    ),
+    'diss': (
+        '<p>"Diss" is short slang for disrespecting or insulting another person, especially publicly — a deliberate, often performative cutdown. The slang names a real category — contempt is corrosive, and Scripture takes it seriously — but treats it as <em>cool</em> when the contempt-target is deemed to deserve it. The biblical instinct is the opposite. Even the enemy is image-of-God: <em>"Rejoice not when thine enemy falleth, and let not thine heart be glad when he stumbleth"</em> (<em>Proverbs 24:17</em>); <em>"Bless them which persecute you: bless, and curse not"</em> (<em>Romans 12:14</em>). Contempt is dangerous to the one carrying it: <em>"whosoever shall say, Thou fool, shall be in danger of hell fire"</em> (<em>Matthew 5:22</em>). Refuse to <em>diss</em>.</p>'
+    ),
+    'door': (
+        '<p>In <em>John 10:9</em>, Christ identifies Himself as the door: <em>"I am the door: by me if any man enter in, he shall be saved, and shall go in and out, and find pasture."</em> The article is exclusive. Christ does not call Himself <em>a</em> door (one possible point of entry among others); He calls Himself <em>the</em> door — the only legitimate entry into the sheepfold of God’s people and the only legitimate exit from it into pasture. <em>"He that entereth not by the door into the sheepfold, but climbeth up some other way, the same is a thief and a robber"</em> (<em>v. 1</em>). Every religion that does not enter by Christ enters by climbing — and the climber is unmasked as a thief by the door’s own claim.</p>'
+    ),
+    'eternal-state': (
+        '<p>The Eternal State is the permanent, irreversible condition of the universe and of every soul after the final judgment. <em>Revelation 21-22</em> describes it: <em>"I saw a new heaven and a new earth: for the first heaven and the first earth were passed away"</em> (<em>21:1</em>); <em>"Behold, the tabernacle of God is with men, and he will dwell with them, and they shall be his people, and God himself shall be with them, and be their God"</em> (<em>21:3</em>); <em>"And God shall wipe away all tears from their eyes; and there shall be no more death, neither sorrow, nor crying"</em> (<em>21:4</em>). The wicked are consigned to the lake of fire (<em>20:14-15; 21:8</em>). The Eternal State is fixed — no purgatory, no reincarnation, no second chance.</p>'
+    ),
+    'everlasting-fire': (
+        '<p>"Everlasting fire" is Christ’s phrase for the eschatological fire originally prepared for the devil and his angels — and which, by <em>Matthew 25:41</em>, becomes the final destination of the goats at the great judgment: <em>"Depart from me, ye cursed, into everlasting fire, prepared for the devil and his angels."</em> It is distinct in emphasis (though referring to the same reality) from the <em>"lake of fire"</em> (Revelation’s eschatological term — <em>20:14-15</em>) and from Christ’s frequent term <em>Gehenna</em>. <em>"And these shall go away into everlasting punishment: but the righteous into life eternal"</em> (<em>Matthew 25:46</em>). Christ Himself preached more on hell than anyone in Scripture; modern soft-pedaling departs from His tone, not toward His mercy but toward His silenced warnings.</p>'
+    ),
+    'evil': (
+        '<p>Evil, biblically, is moral corruption, malice, harm, or active opposition to God. Augustinian theology (with deep biblical warrant) understands evil <em>privatively</em>: not an independent substance God created, but the privation and perversion of the good He made. The serpent is evil. The heart of fallen man is evil: <em>"every imagination of the thoughts of his heart was only evil continually"</em> (<em>Genesis 6:5</em>; cf. <em>Mark 7:21-23</em>). The Day of the LORD destroys evil. And the kingdom of God advances by overcoming evil with good: <em>"Be not overcome of evil, but overcome evil with good"</em> (<em>Romans 12:21</em>). Christ on the cross took the full force of evil and turned it back upon itself. The accuser was disarmed at his own moment of triumph.</p>'
+    ),
+    'eye': (
+        '<p>The eye, in Scripture, is the organ of physical sight and the most-used metaphor for the inward seeing of perception, desire, judgment, and faith. The single eye fills the body with light (<em>Matthew 6:22</em>); the evil eye plunges it into darkness (<em>v. 23</em>); <em>"the eyes of the LORD are upon the righteous, and his ears are open unto their cry"</em> (<em>Psalm 34:15</em>); <em>"the eyes of the LORD run to and fro throughout the whole earth"</em> (<em>2 Chronicles 16:9</em>); <em>"his eyes were as a flame of fire"</em> at His return (<em>Revelation 1:14; 2:18; 19:12</em>). The Christian disciplines the eye because what enters there fills the soul. Job made a covenant with his eyes (<em>Job 31:1</em>). Make the same one.</p>'
+    ),
+    'face-to-the-ground': (
+        '<p>"Face to the ground" is full prostration — the entire body lowered, face pressed to the earth, the worshiper as low as the body can go. Scripture records it repeatedly. Abraham fell on his face when God spoke (<em>Genesis 17:3, 17</em>). Moses and Aaron fell on their faces at Korah’s rebellion (<em>Numbers 16:4, 22, 45</em>) and again at the spies’ rebellion (<em>14:5</em>). Joshua fell at Jericho before the Captain of the Host (<em>Joshua 5:14</em>). Christ Himself, in Gethsemane, <em>"fell on his face, and prayed"</em> (<em>Matthew 26:39</em>). The twenty-four elders fall on their faces before the throne (<em>Revelation 4:10</em>). Modern Western Christianity has lost the gesture entirely; the recovery costs little and reorients much.</p>'
+    ),
+    'gentleness-biblical': (
+        '<p>Biblical gentleness is the strong man’s deliberate softness toward those weaker than himself — not weakness, not effeminacy, but bridled strength rightly directed. Paul lists it as fruit of the Spirit: <em>"But the fruit of the Spirit is love, joy, peace, longsuffering, gentleness, goodness, faith"</em> (<em>Galatians 5:22</em>; the Greek <em>chrēstotēs</em>). Paul commands the Philippians: <em>"Let your moderation [<em>epieikes</em>, gentleness] be known unto all men. The Lord is at hand"</em> (<em>Philippians 4:5</em>). Christ commends Himself to the laboring crowd in the same key: <em>"Take my yoke upon you, and learn of me; for I am meek and lowly in heart"</em> (<em>Matthew 11:29</em>). The Christian husband, father, pastor must be gentle with the weak — and only the truly strong can be.</p>'
+    ),
+    'goodness-biblical': (
+        '<p>Biblical goodness is the active beneficence and moral wholeness God displays toward His creatures — and produces in His saints by the indwelling Spirit. Paul lists it as fruit of the Spirit: <em>"But the fruit of the Spirit is love, joy, peace, longsuffering, gentleness, goodness, faith"</em> (<em>Galatians 5:22</em>) and again names <em>"the fruit of the Spirit is in all goodness and righteousness and truth"</em> (<em>Ephesians 5:9</em>). David longs for it: <em>"Surely goodness and mercy shall follow me all the days of my life"</em> (<em>Psalm 23:6</em>). Goodness in Scripture is never passive — it is not the absence of harm but the presence of help. The Christian man is good in the strong, masculine sense: actively doing good to neighbor and stranger alike.</p>'
+    ),
+    'hand': (
+        '<p>The hand is the instrument of human action and divine power — and Scripture loads it metaphorically more than any other body part. The Lord’s hand creates (<em>Psalm 8:6</em>), judges (<em>Exodus 7:4</em>), delivers (<em>Deuteronomy 7:8</em>), blesses (<em>Genesis 48:14</em>), holds (<em>John 10:29</em>), and writes (<em>Daniel 5:5; Exodus 31:18</em>). Christ healed with His hand, broke bread with His hands, was nailed through His hands at the cross, blessed His disciples with uplifted hands at the Ascension (<em>Luke 24:50</em>), and now reigns at the <em>right hand</em> of the Father (<em>Acts 7:55; Hebrews 1:3</em>). The Father’s hand is open in mercy and clenched in judgment; the saint flees from one to the other.</p>'
+    ),
+    'house-lord': (
+        '<p>The House of the LORD is the dwelling of YHWH’s manifest presence among His people — the tabernacle in the wilderness, the temple in Jerusalem, and eschatologically the New Jerusalem itself. <em>"And I heard a great voice out of heaven saying, Behold, the tabernacle of God is with men, and he will dwell with them"</em> (<em>Revelation 21:3</em>). <em>Psalm 23:6</em> anticipates the eschatological consummation: <em>"and I will dwell in the house of the LORD for ever."</em> <em>Psalm 27:4</em> names it the saint’s chief desire: <em>"One thing have I desired of the LORD, that will I seek after; that I may dwell in the house of the LORD all the days of my life, to behold the beauty of the LORD."</em> Long to be there. Forever.</p>'
+    ),
+    'lamenting-prophet': (
+        '<p>The lamenting prophet is the prophet whose office included sustained, public grief over the sins and sufferings of God’s people. Jeremiah is the archetype — nicknamed <em>"the weeping prophet"</em>, author of the book of Lamentations, the man whose ministry was tears across decades. <em>"Oh that my head were waters, and mine eyes a fountain of tears, that I might weep day and night for the slain of the daughter of my people!"</em> (<em>Jeremiah 9:1</em>). Ezekiel, Isaiah, and the Twelve all weep at points. Christ Himself wept over Jerusalem (<em>Luke 19:41-44</em>), refusing the modern preference for unsentimental ministry. The pastor who cannot lament has not yet learned to feel his people. Recover tears.</p>'
+    ),
+    'leaving-cleaving': (
+        '<p>Leaving and cleaving is the marriage motion of <em>Genesis 2:24</em>: <em>"Therefore shall a man leave his father and his mother, and shall cleave unto his wife: and they shall be one flesh."</em> Two verbs, one motion. The <em>leaving</em> establishes the new household — the son ceases to live under his father’s roof and authority and forms his own household before God. The <em>cleaving</em> commits to its permanent integrity — the husband binds himself to his wife in covenant union. Both Old and New Testament cite the verse repeatedly (<em>Matthew 19:5; Mark 10:7; Ephesians 5:31</em>). Without leaving, there is no new household; without cleaving, there is no permanence. Christian marriages fail at either end fail at both.</p>'
+    ),
+}
+
+BD_RE = re.compile(r'(<div class="biblical-def">)(.*?)(</div>)', re.DOTALL)
+
+def patch(slug, new_inner):
+    fp = os.path.join(DICT_DIR, f'{slug}.html')
+    if not os.path.exists(fp):
+        return False, 'file missing'
+    with open(fp, encoding='utf-8') as f:
+        html = f.read()
+    new_html, n = BD_RE.subn(
+        rf'\g<1>\n                {new_inner}\n            \g<3>',
+        html, count=1)
+    if n == 0:
+        return False, 'pattern not matched'
+    with open(fp, 'w', encoding='utf-8') as f:
+        f.write(new_html)
+    return True, 'ok'
+
+def main():
+    ok, fail = 0, 0
+    for slug, new in EXPANSIONS.items():
+        success, reason = patch(slug, new)
+        if success:
+            ok += 1
+        else:
+            fail += 1
+            print(f'  FAIL {slug}: {reason}')
+    print(f'Expanded {ok}/{ok+fail} entries')
+
+if __name__ == '__main__':
+    main()
