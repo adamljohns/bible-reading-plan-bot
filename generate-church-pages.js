@@ -163,13 +163,51 @@ function sourcesSection(church) {
     } catch (e) { return url; }
   };
 
+  // Extract the original URL from a Wayback Machine archive URL.
+  // Wayback format: https://web.archive.org/web/<timestamp>/<original-url>
+  // The timestamp is 14 digits (YYYYMMDDHHMMSS), sometimes with id_/cs_/if_ suffix.
+  const extractOriginalFromWayback = (url) => {
+    if (!url || typeof url !== 'string') return null;
+    // Match the standard form first
+    const m = url.match(/\/web\/\d{14}[a-z_]{0,4}\/(https?:\/\/.+)$/i);
+    if (m) return m[1];
+    // Looser fallback: anything after /web/<timestamp>/
+    const m2 = url.match(/\/web\/\d{4,14}[a-z_]{0,4}\/(.+)$/i);
+    if (m2) {
+      const tail = m2[1];
+      // If it already has a protocol, return as-is; otherwise prefix https://
+      return tail.startsWith('http') ? tail : 'https://' + tail;
+    }
+    return null;
+  };
+
+  // Build a lookup: for each live URL, find any wayback URL that snapshots it.
+  // This lets us pair archived snapshots with their originals regardless of
+  // array order or length mismatch between enrichment_sources and enrichment_sources_live.
+  const archivedOf = new Map(); // live URL -> wayback URL
+  for (const src of sources) {
+    if (typeof src !== 'string' || !src.includes('web.archive.org/')) continue;
+    const orig = extractOriginalFromWayback(src);
+    if (orig) archivedOf.set(orig, src);
+  }
+
   // Detect already-archived URLs vs. live ones
   const sourceItems = sources.map((url, idx) => {
     const isWayback = url.includes('web.archive.org/');
     const label = isWayback ? 'Archived snapshot' : 'Live source';
     const labelColor = isWayback ? 'var(--green)' : 'var(--gray-light)';
-    // If we have a matching live URL (same index when rewritten), show it as "Originally:"
-    const liveUrl = isWayback && liveSources[idx] ? liveSources[idx] : null;
+    // For wayback URLs, the original URL is encoded INSIDE the wayback URL itself.
+    // Parse it out — this is far more reliable than the legacy index-pairing
+    // with enrichment_sources_live (which had length-mismatch and pairing bugs
+    // affecting 102 + 57 records as of the 2026-05-18 audit).
+    let liveUrl = null;
+    if (isWayback) {
+      liveUrl = extractOriginalFromWayback(url);
+      // Fall back to old index-based pairing only if extraction failed
+      if (!liveUrl && liveSources[idx] && !liveSources[idx].includes('web.archive.org')) {
+        liveUrl = liveSources[idx];
+      }
+    }
     const liveHint = liveUrl ? `<div style="color:var(--gray);font-size:0.72rem;margin-top:2px;padding-left:8px;">↳ Snapshot of <a href="${escapeHtml(liveUrl)}" target="_blank" rel="noopener nofollow" style="color:var(--gray-light);text-decoration:underline;">${escapeHtml(hostnamePretty(liveUrl))}</a> (live link)</div>` : '';
     return `<li style="margin-bottom:10px;padding-left:4px;">
       <span style="color:${labelColor};font-size:0.72rem;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;margin-right:6px;">[${idx + 1}] ${label}</span>
