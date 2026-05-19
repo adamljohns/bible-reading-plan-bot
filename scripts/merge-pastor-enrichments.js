@@ -57,18 +57,13 @@ for (const c of d.churches) {
   const e = enrichments.get(c.id);
   if (!e) continue;
 
-  // Track website status downgrades
+  // Track website status — broken websites are NOT a doctrinal red flag
+  // (small churches often use Facebook or other social instead of a website).
+  // Note the issue + keep needs_review for follow-up social-channel research,
+  // but DO NOT downgrade the overall rating.
   if (e.website_status && /404|timeout|ssl_error|redirect_loop|not_a_church/.test(e.website_status)) {
-    // Downgrade rating; keep needs_review
-    if (c.overall_rating !== 'red' && c.overall_rating !== 'black') {
-      c.overall_rating = 'red';
-      c.overall_label = `${c.overall_label || 'unrated'} (website ${e.website_status} on ${TODAY})`;
-    }
-    if (!c.scores) c.scores = {};
-    // Reduce denominational score on broken-site finding
-    c.scores.denominational = 'red';
     brokenSites++;
-    const noteAppend = `[${TODAY}] Phase 6f live-fetch verdict: ${e.website_status}. Site does not resolve to a working church homepage.`;
+    const noteAppend = `[${TODAY}] Phase 6f live-fetch verdict: ${e.website_status}. Site may be defunct or church may use Facebook/social instead of website. NOT a doctrinal flag — research social channel before publishing.`;
     c.enrichment_notes = c.enrichment_notes ? c.enrichment_notes + '\n' + noteAppend : noteAppend;
     c.needs_review = true;
     continue;
