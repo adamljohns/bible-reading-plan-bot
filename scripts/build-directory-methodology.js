@@ -159,6 +159,7 @@ const html = `<!DOCTYPE html>
     <a href="/directory-politicians.html">Politicians</a>
     <a href="/directory-networks.html">Networks</a>
     <a href="/directory-methodology.html" class="active">Methodology</a>
+    <a href="/directory-drift.html">Drift</a>
     <a href="/directory-roadmap.html">Roadmap</a>
     <a href="/about.html">About</a>
   </nav>
@@ -241,6 +242,8 @@ const html = `<!DOCTYPE html>
       <a href="/directory-networks.html">Network cross-reference</a>
       <span class="sep">·</span>
       <a href="/directory-politicians.html">Where leaders worship</a>
+      <span class="sep">·</span>
+      <a href="/directory-drift.html">Drift watchlist</a>
       <span class="sep">·</span>
       <a href="/directory-roadmap.html">Roadmap</a>
     </div>
