@@ -151,6 +151,7 @@ redefinition, use the caveat template in `corruption_summary`.
 | 2026-05-22 | 73–83 | Systematic-theology sweep (soteriology → worship) | +219 | **4,777** ✅ baseline |
 | | | *— Phase A begins —* | | |
 | 2026-05-23 | 84 | Phase A wk1 b1 — biblical action verbs (beseech, chasten, hearken, mortify, discern, entreat, forgive, prevail, prophesy, purge, purify, submit, testify, tremble, wait, watch, wrestle, yield, adjure, circumcise) | +20 | **4,797** |
+| 2026-05-23 | 85 | Targeted: new `radical-two-kingdoms` (R2K) entry + sharpened `two-kingdoms-theology` corruption section to draw the classical-2K vs R2K line a reader had collapsed | +1 (1 new, 1 revised) | **4,798** |
 
 > **Next up:** Phase A wk1 batch 2 — more biblical action verbs (candidates: meditate-related, intercede-related,
 > hush, harm, harden, humble, haste, hire, heed, hide, hush, hunger; +states/qualities words like affliction,
