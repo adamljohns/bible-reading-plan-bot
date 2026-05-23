@@ -16,7 +16,7 @@
 - Strong's-tagged KJV (`shepherd<S>7462</S>`) already exists for the 441 existing chapters (`docs/assets/chapters/*.json`); we fetch the tagged KJV for the remaining ~748 chapters from `bolls.life` (the same API `gen_blended_parallels.py` already uses).
 
 **The reading order is solved.**
-- `docs/assets/plan-data.js` (`window.PLAN_DATA`) is the single source of truth: 365 date-keyed days (2026-01-01 → 12-31), each with 5 ordered watches `{wisdom, first, second, third, peace}` + notes. Genuinely thematic/chronological ("The Maiden Voyage"), whole-Bible across the year. This is what we sequence the MBT against.
+- `docs/assets/plan-data.js` (`window.PLAN_DATA`) is the single source of truth: 365 date-keyed days (2026-01-01 → 12-31), each with 5 ordered watches `{wisdom, first, second, third, peace}` + notes. Genuinely thematic/chronological ("The Watchman's Chronological Plan for the Year of our Lord 2026"), whole-Bible across the year. This is what we sequence the MBT against.
 
 **The house style already exists in your own work.**
 - Your January daily readings (e.g. Psalm 1: *"he chews on His instruction day and night"* for `hagah`; John 1:1: *"the Word already was"* for the durative imperfect ἦν) are the style north star: poetic sense-lines, modern reverent English, divine name **LORD**, modern pronouns, light **inline** amplification surfacing the precise Hebrew/Greek sense. The MBT text should read like January — but be provably rebuilt from public-domain sources.

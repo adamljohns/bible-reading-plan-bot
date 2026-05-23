@@ -381,5 +381,5 @@ window.PLAN_DATA = {
 "2026-12-28":{"wisdom":"Proverbs 3","first":"Joshua 1","second":"Joshua 3","third":"Joshua 24","peace":"Psalm 112","notes":""},
 "2026-12-29":{"wisdom":"Proverbs 4","first":"Isaiah 55","second":"Isaiah 56","third":"Isaiah 58","peace":"Psalm 113","notes":""},
 "2026-12-30":{"wisdom":"Proverbs 8","first":"Psalm 103","second":"Psalm 145","third":"Romans 12","peace":"Psalm 114","notes":""},
-"2026-12-31":{"wisdom":"Psalm 150","first":"Psalm 1","second":"Psalm 90","third":"Psalm 121","peace":"Psalm 117","notes":"Final Day of the Maiden Voyage — Year of Our Lord 2026"}
+"2026-12-31":{"wisdom":"Psalm 150","first":"Psalm 1","second":"Psalm 90","third":"Psalm 121","peace":"Psalm 117","notes":"Final Day of The Watchman's Chronological Plan — Year of our Lord 2026"}
 };
