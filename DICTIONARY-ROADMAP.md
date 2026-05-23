@@ -150,7 +150,8 @@ redefinition, use the caveat template in `corruption_summary`.
 |---|---|---|---|---|
 | 2026-05-22 | 73–83 | Systematic-theology sweep (soteriology → worship) | +219 | **4,777** ✅ baseline |
 | | | *— Phase A begins —* | | |
-| | | | | |
+| 2026-05-23 | 84 | Phase A wk1 b1 — biblical action verbs (beseech, chasten, hearken, mortify, discern, entreat, forgive, prevail, prophesy, purge, purify, submit, testify, tremble, wait, watch, wrestle, yield, adjure, circumcise) | +20 | **4,797** |
 
-> **Next up:** Phase A — biblical action verbs + states/qualities (Week 1). Target ~5,000 first
-> milestone.
+> **Next up:** Phase A wk1 batch 2 — more biblical action verbs (candidates: meditate-related, intercede-related,
+> hush, harm, harden, humble, haste, hire, heed, hide, hush, hunger; +states/qualities words like affliction,
+> contrition, lovingkindness, meekness, remnant, tribulation, zeal). Target ~5,000 first milestone.
