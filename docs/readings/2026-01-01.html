@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg">
+<title>Thursday, January 1, 2026 — Daily Reading | U.S.M.C. Ministries</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+    --bg-dark: #000000; --bg-card: #111111; --bg-card2: #161616;
+    --gold: #D4AF37; --gold-light: #F4D470;
+    --white: #FFFFFF; --gray: #888888; --border: #333333;
+}
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--white);
+    min-height: 100vh;
+    line-height: 1.7;
+}
+h1, h2, h3 { font-family: 'Playfair Display', serif; font-weight: 700; }
+.container { max-width: 820px; margin: 0 auto; padding: 24px 20px 60px; }
+a { color: var(--gold); text-decoration: none; }
+a:hover { color: var(--gold-light); text-decoration: underline; }
+
+.nav-back { margin-bottom: 14px; font-size: 0.95rem; }
+
+.hero { text-align: center; padding: 16px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 18px; }
+.hero h1 { font-size: clamp(1.5rem, 4vw, 2.2rem); color: var(--white); margin-bottom: 6px; }
+.hero .subtitle { color: var(--gold); font-size: 0.95rem; font-style: italic; }
+.hero .doc-line { color: var(--gray); font-size: 0.82rem; margin-top: 6px; }
+
+.watch-tabs {
+    position: sticky; top: 0; z-index: 30;
+    background: var(--bg-dark);
+    border-bottom: 1px solid var(--border);
+    display: flex; flex-wrap: wrap; gap: 6px;
+    padding: 12px 0 14px;
+    margin-bottom: 18px;
+}
+.watch-tab {
+    flex: 1 1 90px;
+    text-align: center;
+    padding: 8px 6px;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    background: var(--bg-card);
+    color: var(--gray);
+    font-size: 0.85rem; font-weight: 500;
+    transition: all 0.15s ease;
+    text-decoration: none !important;
+    white-space: nowrap;
+}
+.watch-tab:hover { color: var(--white); border-color: var(--gold); text-decoration: none !important; }
+.watch-tab.active { background: var(--gold); color: #000; border-color: var(--gold); font-weight: 600; }
+.watch-tab .tab-time { display: block; font-size: 0.7rem; opacity: 0.7; font-family: monospace; }
+.watch-tab.active .tab-time { opacity: 1; }
+
+/* "NOW" badge — shown on the watch tab whose time window contains current local time */
+.watch-tab.is-now { position: relative; box-shadow: 0 0 0 1px var(--gold-light) inset; }
+.watch-tab.is-now::after {
+  content: "NOW";
+  position: absolute; top: -7px; right: -4px;
+  background: var(--gold-light); color: #000;
+  font-size: 0.55rem; font-weight: 700;
+  padding: 1px 5px; border-radius: 100px;
+  letter-spacing: 0.08em;
+}
+
+.watch {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px 22px;
+    margin-bottom: 22px;
+    scroll-margin-top: 80px;
+}
+.watch-header { display: flex; align-items: baseline; gap: 14px; margin-bottom: 10px; flex-wrap: wrap; }
+.watch-time {
+    background: var(--bg-card2); color: var(--gold);
+    padding: 4px 12px; border-radius: 100px;
+    font-family: 'Inter', monospace; font-size: 0.85rem; font-weight: 600;
+    letter-spacing: 0.05em;
+}
+.watch-header h2 { font-size: 1.35rem; color: var(--white); }
+
+.intro { color: var(--gray); font-style: italic; margin-bottom: 14px; }
+
+.audio-slot {
+    margin: 14px 0 18px;
+    padding: 12px 14px;
+    background: var(--bg-card2);
+    border-radius: 8px;
+    border: 1px dashed var(--border);
+}
+.audio-slot.audio-pending { opacity: 0.55; }
+.audio-cap { font-size: 0.8rem; color: var(--gray); margin-top: 4px; }
+
+.scripture {
+    background: var(--bg-card2);
+    border-left: 3px solid var(--gold);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin: 16px 0 22px;
+}
+.scripture-ref { font-weight: 600; color: var(--gold); margin-bottom: 12px; font-size: 0.95rem; }
+.scripture-text p { margin-bottom: 8px; }
+.scripture-text p.stanza { margin-bottom: 14px; }
+
+.section-label {
+    font-family: 'Playfair Display', serif;
+    color: var(--gold); font-weight: 700; font-size: 1.05rem;
+    margin: 22px 0 10px; padding-top: 10px; border-top: 1px solid var(--border);
+}
+.section p, .context p, .reflection p, .history p, .application-block p { margin-bottom: 12px; }
+
+ul.application { padding-left: 22px; margin: 8px 0 14px; }
+ul.application li { margin-bottom: 8px; }
+.application-prose { font-style: italic; color: var(--gold-light); margin-top: 12px; }
+
+.history ul { padding-left: 22px; margin: 8px 0; }
+.history li { margin-bottom: 6px; }
+
+.prayer {
+    background: var(--bg-card2);
+    border-left: 3px solid var(--gold-light);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin: 22px 0;
+}
+.prayer-title { color: var(--gold-light); font-weight: 600; margin-bottom: 10px; font-size: 0.95rem; }
+.prayer p { line-height: 1.85; margin-bottom: 8px; }
+
+.helm {
+    background: var(--bg-card2);
+    border-radius: 6px;
+    padding: 12px 18px;
+    margin-top: 14px;
+    font-size: 0.95rem;
+}
+.helm-icon { color: var(--gold); font-size: 1.1rem; }
+.helm-label { color: var(--gold); font-weight: 600; }
+
+footer {
+    text-align: center;
+    color: var(--gray);
+    font-size: 0.82rem;
+    margin-top: 32px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+}
+footer .draft-tag {
+    display: inline-block;
+    background: #2a2410;
+    color: var(--gold);
+    padding: 4px 12px;
+    border-radius: 100px;
+    font-size: 0.78rem;
+    margin-bottom: 8px;
+    letter-spacing: 0.05em;
+}
+
+@media (max-width: 540px) {
+    .watch-tab { flex: 1 1 64px; font-size: 0.78rem; padding: 6px 4px; }
+    .watch-tab .tab-time { font-size: 0.65rem; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="nav-back">← <a href="/chronological.html">The Watchman's Chronological Plan</a></div>
+
+<div class="hero">
+<h1>Thursday, January 1, 2026</h1>
+<div class="subtitle">Daily Reading — Day 1 of 365</div>
+<div class="doc-line">MOOP&#x27;s 2026 Daily Bible Readings — Document 1 of 12; for the month of January</div>
+</div>
+
+<nav class="watch-tabs" role="tablist">
+<a href="#all" class="watch-tab active" data-tab="all" role="tab"><span class="tab-label">All Watches</span></a>
+<a href="#wisdom" class="watch-tab" data-tab="wisdom" role="tab"><span class="tab-time">0600</span> <span class="tab-label">Morning Wisdom</span></a>
+<a href="#husband" class="watch-tab" data-tab="husband" role="tab"><span class="tab-time">0700</span> <span class="tab-label">Husband</span></a>
+<a href="#father" class="watch-tab" data-tab="father" role="tab"><span class="tab-time">1100</span> <span class="tab-label">Father</span></a>
+<a href="#citizen" class="watch-tab" data-tab="citizen" role="tab"><span class="tab-time">1500</span> <span class="tab-label">Citizen</span></a>
+<a href="#peace" class="watch-tab" data-tab="peace" role="tab"><span class="tab-time">2100</span> <span class="tab-label">Evening Peace</span></a>
+</nav>
+
+<section class="watch watch-wisdom" id="watch-wisdom" data-watch="wisdom">
+<div class="watch-header"><span class="watch-time">0600</span> <h2>Morning Wisdom</h2></div>
+<p class="intro">We begin the year in John’s Gospel, staring straight at the glory of Christ.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 John 1:1–18</div>
+<div class="scripture-text">
+<p class="stanza">In the beginning, the Word already was.<br>The Word was with God, and the Word was God.<br>He was with God in the beginning.<br>Through Him all things came into being;<br>apart from Him, not even one thing that exists came into<br>existence.<br>In Him was life,<br>and that life was the light of men.<br>The light shines in the darkness,<br>and the darkness has not overcome it.<br>There was a man sent from God, whose name was John.<br>He came as a witness, to bear witness about the light,<br>so that through him all might believe.<br>He was not the light,<br>but came to testify about the light.<br>The true light, who gives light to everyone,<br>was coming into the world.<br>He was in the world,<br>and though the world was made through Him,<br>the world did not recognize Him.<br>He came to His own,<br>and His own people did not receive Him.</p>
+<p class="stanza">But to all who did receive Him,<br>who believed in His name,<br>He gave the right to become children of God—<br>children born not of blood,<br>nor of human desire or decision,<br>but born of God.<br>And the Word became flesh<br>and lived among us,<br>and we have seen His glory—<br>the glory as of the only-begotten from the Father,<br>full of grace and truth.<br>John testifies about Him and cries out,<br>“This was the One I said would come after me<br>who has surpassed me,<br>because He existed before me.”<br>From His fullness we have all received,<br>grace upon grace.<br>For the law was given through Moses;<br>grace and truth came through Jesus Christ.<br>No one has ever seen God;<br>the one and only Son,<br>who is Himself God<br>and is at the Father’s side,<br>He has made Him known.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🧭 Context Summary</div>
+<p>John doesn’t warm up. He rips the curtain back and shows you Christ before time, creating all things, stepping<br>down into His own world as light in the darkness. Most reject Him. Some receive Him. Those who receive Him<br>are reborn as sons of God. This is not sentimental religion; this is the invasion of God Himself into human history<br>in the flesh of Jesus Christ.</p>
+</div>
+<div class="section reflection">
+<div class="section-label">🛡️ Reflection for a REAL MAN — Reject Passivity</div>
+<p>A REAL MAN who Rejects Passivity doesn’t treat Jesus as background noise. The Word who made the universe<br>has spoken, stepped into the world, and drawn a clear line: those who receive Him and those who ignore Him. A<br>passive man drifts—lets the darkness set the tone in his home, lets entertainment disciple his kids, lets his own<br>thoughts wander without ever bringing them under Christ’s rule. A man who rejects passivity answers the light.<br>He decides, today, that his mind, his schedule, and his household will not be neutral ground. If the eternal Word<br>took on flesh and walked into the fight, you have no business sitting on the sidelines.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Open the Word before you open a screen; let His voice be first.</li>
+<li>Say Christ’s name out loud in your home—pray over your wife and kids instead of assuming they “know” you believe.</li>
+<li>Identify one area of tolerated darkness (secret sin, lazy habit, cowardly silence) and drag it into the light before God—confess it, repent of it, and take one concrete step of obedience.</li>
+</ul>
+<p class='application-prose'>As a REAL MAN today, rejecting passivity means:<br>You’re not waiting to “feel more spiritual.” You’re answering the Light who has already come.</p>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer</div>
+<p>Father, God of light and glory,<br>by the power of Your Holy Spirit,<br>bring every passive, drifting part of my heart to<br>attention.<br>In the name of Jesus Christ, the eternal Word made<br>flesh,<br>teach me to reject passivity—<br>to come to Your Son in faith,</p>
+<p>to walk in His light,<br>and to lead my home with courage instead of excuses.<br>Let Your Word rule my thoughts, my words, and my<br>decisions today.<br>Make me a man who moves when You speak.<br>Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Helm Command:</span> All ahead one-third toward the Light—no drifting, no delay. Answer the Word who has already stepped into your darkness.</div>
+</section>
+
+<section class="watch watch-husband" id="watch-husband" data-watch="husband">
+<div class="watch-header"><span class="watch-time">0700</span> <h2>First Watch — The Husband&#x27;s Post</h2></div>
+<p class="intro">We begin the year at the very beginning of Scripture, watching God speak creation into existence.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Genesis 1:1–23</div>
+<div class="scripture-text">
+<p class="stanza">In the beginning, God created the heavens and the earth.<br>The earth was formless and empty, darkness covered the<br>surface of the deep, and the Spirit of God was hovering<br>over the waters.</p>
+<p class="stanza">so. The earth produced vegetation—plants yielding seed<br>according to their kinds, and trees bearing fruit with seed in<br>it according to their kinds. And God saw that it was good.<br>Evening came, and morning followed—the third day.</p>
+<p class="stanza">Then God said, “Let there be light,” and there was light.<br>God saw that the light was good, and He separated the light<br>from the darkness. He called the light Day, and the<br>darkness He called Night. Evening came, and then morning<br>—the first day.</p>
+<p class="stanza">Then God said there should be lights in the expanse of the<br>heavens to separate the day from the night, and to serve as<br>signs for seasons, days, and years, and to give light on the<br>earth. And it was so. God made two great lights—the<br>greater light to rule the day and the lesser light to rule the<br>night—and He also made the stars. God set them in the<br>expanse of the heavens to give light on the earth, to rule<br>over the day and over the night, and to separate the light<br>from the darkness. And God saw that it was good. Evening<br>came, and morning followed—the fourth day.</p>
+<p class="stanza">Then God said that there should be an expanse between the<br>waters, separating water from water. So God made the<br>expanse and separated the waters under the expanse from<br>the waters above it, and it was so. God called the expanse<br>Heaven. Evening came, and morning followed—the second<br>day.<br>Then God said that the waters under the heavens should be<br>gathered into one place and the dry land should appear, and<br>it was so. God called the dry land Earth, and He called the<br>gathered waters Seas. And God saw that it was good.<br>Then God said that the earth should sprout vegetation:<br>plants yielding seed, and fruit trees bearing fruit with seed<br>in it, each according to its kind, upon the earth. And it was</p>
+<p class="stanza">Then God said that the waters should swarm with living<br>creatures, and that birds should fly above the earth across<br>the expanse of the heavens. So God created the great sea<br>creatures and every living thing that moves, which the<br>waters swarmed with, according to their kinds, and every<br>winged bird according to its kind. And God saw that it was<br>good. God blessed them and said, “Be fruitful and multiply,<br>and fill the waters in the seas, and let the birds multiply on<br>the earth.” Evening came, and morning followed—the fifth<br>day.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🗺️ Briefing Summary</div>
+<p>The year opens with a Commander who is not confused, rushed, or improvising. He speaks, and matter obeys. He<br>separates light from darkness, sky from sea, land from water, and order from chaos. Before there is any human<br>effort, there is divine initiative: God prepares a good, structured, life-giving environment for the people He will<br>place in it. Creation is not random; it is deliberate, layered, and declared “good” by the One who has absolute<br>authority to define good.</p>
+</div>
+<div class="section reflection">
+<div class="section-label">❤️ Reflection for Your Wife — H.A.P.P.Y. Husband</div>
+<p>As a HAPPY husband (Honest), this first chapter reminds you that your wife needs a man whose words match<br>reality the way God’s words shape creation. When you say you’ll do something, she should be able to trust that<br>promise the way the sea trusts its boundary. Honesty here is more than “not lying”; it’s living in the open—no<br>secret worlds, no hidden chaos, no private darkness you pretend isn’t there. Let her see that you are willing to<br>name things truthfully in your home—where things are good, where things are broken, and where you intend to<br>bring order with God’s help.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<p class='application-prose'>As a HAPPY husband, being Honest today means you refuse to smooth over disorder with nice words. Take one<br>area of family life—finances, bedtime routine, screen habits, or schedules—and face it truthfully instead of<br>vaguely. Speak clearly with Maria about what is working and what is not, and own your part without<br>defensiveness. Your goal is not to control everything, but to walk in the light so that your leadership has the same<br>steady reliability as “evening and morning” under God’s design.</p>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Stateroom</div>
+<p>Father, Maker of heaven and earth, thank You that You spoke order and beauty into a formless world.<br>By the power of Your Holy Spirit, bring that same ordering power into my heart and into our home.<br>Teach me to be an honest man—truthful in speech, transparent in life, and steady in follow-through—<br>so my wife can rest under my leadership without fear.<br>I pray this to You, Father, in the name of Jesus Christ, my Lord and Commander,<br>by the power of the Holy Spirit—Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Helm Command:</span> Bring your heart to the light before you try to lead; set today’s course with honest words and follow it with honest action.</div>
+</section>
+
+<section class="watch watch-father" id="watch-father" data-watch="father">
+<div class="watch-header"><span class="watch-time">1100</span> <h2>Second Watch — The Father&#x27;s Charge</h2></div>
+<p class="intro">We remain in Genesis today, watching the sixth day of creation unfold.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Genesis 1:24–31</div>
+<div class="scripture-text">
+<p class="stanza">And God said that the earth should bring out living<br>creatures according to their kinds—livestock, creatures that<br>crawl on the ground, and wild animals of every sort. And it<br>came to be just as He said.<br>God made the beasts of the earth according to their kinds,<br>the livestock according to their kinds, and every creeping<br>thing that moves on the ground according to its kind. And<br>God saw that it was good.<br>Then God said, “Let Us make man in Our image, according<br>to Our likeness. Let them rule over the fish of the sea, the</p>
+<p class="stanza">birds of the heavens, the livestock, all the earth, and over<br>every creeping thing that moves on the earth.”<br>So God created man in His own image; in the image of<br>God He created him; male and female He created them.<br>God blessed them and said to them, “Be fruitful and<br>multiply; fill the earth and subdue it. Rule over the fish of<br>the sea, the birds of the heavens, and every living thing that<br>moves on the earth.”</p>
+<p class="stanza">And God said, “Behold, I have given you every seedbearing plant on the face of all the earth, and every tree<br>with seed in its fruit; they shall be food for you. And to<br>every beast of the earth, every bird of the heavens, and<br>everything that creeps on the earth that has the breath of</p>
+<p class="stanza">life in it, I have given every green plant for food.” And it<br>was so.<br>God saw everything that He had made, and behold, it was<br>very good. And there was evening and there was morning,<br>the sixth day.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🗺️ Field Notes</div>
+<p>On the sixth day, God moves from filling the earth with animals to placing His image-bearers in charge.<br>This is the first commissioning of a family: “be fruitful, multiply, fill, subdue, rule.” Fatherhood doesn’t<br>start in the suburbs; it starts in Eden with a man and woman entrusted with real authority and<br>responsibility. Creation is declared “very good” after man and woman are given their mission together.</p>
+</div>
+<div class="section reflection">
+<div class="section-label">👨‍👦 Reflection for Your Children — F.U.L.F.I.L.L.E.D. Father</div>
+<p>As a FULFILLED Father — Faithful today, you’re called to receive this same creation mandate in<br>Christ, not as a museum piece but as a living assignment. God has trusted you with children made in His<br>image and a small patch of His world to cultivate. Faithful fatherhood looks like teaching them that life<br>is not random; it is ordered, blessed, and directed by a good King who speaks, blesses, and evaluates.<br>• Gideon – Pray that Gideon discovers his purpose inside this creation mandate—not just “what job<br>will I have?” but “how will I rule and serve under King Jesus?” Invite him to see school, chores,<br>and decisions as part of learning to steward what God has made.<br>• Boaz – Ask the Lord to shape humility in Boaz, so he never uses authority to dominate but to<br>serve. Teach him that ruling like Christ means laying down privilege to protect and provide for<br>others, not chasing status.<br>• Shiloh – Pray that Shiloh grows up with a sense of peaceful presence in God’s world—that the<br>garden is bigger than the screen. Help her notice birds, animals, trees, and people as gifts entrusted<br>to her care, not just background scenery.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<p class='application-prose'>As a FULFILLED Father — Faithful today means showing up consistently in the small things: opening the Word<br>with your kids, praying aloud over them, giving clear but kind direction, and owning your own failures quickly.<br>Let them see that their dad believes God’s world is “very good” because it comes from a very good God—and<br>that you intend to steward your little corner of it with steady, faithful hands.</p>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer</div>
+<p>Father, Maker of heaven and earth,<br>thank You for creating this world good, and for placing families inside it with purpose.<br>By the power of Your Holy Spirit, teach me to be a faithful father today—<br>to rule my small sphere with humility, courage, and care,<br>to lead my children toward You instead of toward comfort or distraction,<br>and to see every task at home as part of Your original commission to fill and steward the earth.<br>I pray these things to You, Father, in the name of Jesus Christ,<br>Your Son and my Lord and Commander,<br>trusting that You hear me and will equip me for this work. Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Helm Command:</span> Lead your children through this creation story today, and let them hear from your own mouth that God’s world—and their place in it—is very good.</div>
+</section>
+
+<section class="watch watch-citizen" id="watch-citizen" data-watch="citizen">
+<div class="watch-header"><span class="watch-time">1500</span> <h2>Third Watch — The Citizen&#x27;s Stand</h2></div>
+<p class="intro">Today’s third watch comes from the completion of creation and the planting of Eden.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Genesis 2:1–25</div>
+<div class="scripture-text">
+<p class="stanza">Thus the heavens and the earth were finished, with all their<br>vast array. On the seventh day God brought His work of<br>creation to its completion, and He rested from all the work<br>He had done. God blessed the seventh day and set it apart<br>as holy, because on it He ceased from all His work which<br>He had created and made.<br>These are the generations of the heavens and the earth<br>when they were created, in the day that the LORD God<br>made earth and heaven.<br>Now the LORD God formed the man from the dust of the<br>ground and breathed into his nostrils the breath of life, and<br>the man became a living being. The LORD God planted a<br>garden in Eden, in the east, and there He put the man whom<br>He had formed. Out of the ground the LORD God caused<br>every tree that is pleasant to the sight and good for food to<br>spring up, and in the midst of the garden He placed the tree<br>of life and the tree of the knowledge of good and evil.<br>A river flowed out of Eden to water the garden, and from<br>there it divided and became four rivers. The name of the<br>first is Pishon; it flows around the whole land of Havilah,<br>where there is gold. The gold of that land is good; aromatic<br>resin and onyx stone are there. The name of the second<br>river is Gihon; it flows around the whole land of Cush. The<br>name of the third river is Tigris; it runs along the east of<br>Assyria. And the fourth river is the Euphrates.<br>The LORD God took the man and settled him in the garden<br>of Eden to work it and to keep it. And the LORD God</p>
+<p class="stanza">commanded the man, saying, “You may surely eat from<br>every tree of the garden, but from the tree of the knowledge<br>of good and evil you shall not eat, for in the day that you<br>eat from it you will surely die.”<br>Then the LORD God said, “It is not good that the man<br>should be alone; I will make a helper suitable for him.”<br>Now out of the ground the LORD God had formed every<br>beast of the field and every bird of the sky and brought<br>them to the man to see what he would call them; and<br>whatever the man called each living creature, that became<br>its name. The man gave names to all livestock, to the birds<br>of the sky, and to every beast of the field, but for the man<br>there was not found a helper corresponding to him.<br>So the LORD God caused a deep sleep to fall upon the<br>man, and while he slept He took one of his ribs and closed<br>up the place with flesh. And the LORD God built the rib<br>that He had taken from the man into a woman and brought<br>her to the man. And the man said,<br>“This at last is bone of my bones<br>and flesh of my flesh;<br>she shall be called Woman,<br>because she was taken out of Man.”<br>Therefore a man shall leave his father and his mother and<br>be joined to his wife, and they shall become one flesh. And<br>the man and his wife were both naked and were not<br>ashamed.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🛰️ Situation Report</div>
+<p>Creation is complete and blessed. God establishes a rhythm of work and rest, then assigns the first man a<br>post: tend and guard the garden under God’s command. The first law is clear and simple; obedience will<br>mean life, disobedience death. In the middle of this, God declares something “not good” for the first<br>time—man alone—and answers it by forming the woman and establishing marriage as a one-flesh<br>covenant. This is the original order: God over man, man and woman together, both entrusted with a<br>place to steward.</p>
+</div>
+<div class="section reflection resolute">
+<div class="section-label">🛡️ Reflection for a R.E.S.O.L.U.T.E. Citizen — Responsible</div>
+<p>Fredericksburg (local)<br>As a RESOLUTE citizen in Fredericksburg, being Responsible starts small: you treat your home, street,<br>and church like God’s garden—given to you to work and to keep, not just to use. Genesis 2 reminds you<br>that place is not random. You were planted where you are on purpose. Responsibility looks like showing<br>up on time, paying attention to the condition of your city, and obeying God’s clear commands even<br>when no one is watching.</p>
+<p>Virginia (state)<br>Across Virginia, a Responsible man refuses the drift into spiritual passivity. Adam’s failure will show up<br>in the next chapter, but here his assignment is crystal clear. In a state full of history and institutions, you<br>can be the man who remembers that laws, schools, and economies all rest on whether men will honor<br>God’s design for work, rest, truth, and marriage. Responsibility for you means voting, serving, and<br>speaking as a man under orders—not just a consumer of what the state offers.<br>United States (nation)<br>For America, Genesis 2 is a corrective: freedom without responsibility collapses. A RESOLUTE citizen<br>is Responsible enough to say that the Creator gets to define reality—what marriage is, what work is for,<br>what rest is, what obedience costs. In a culture that treats rules as suggestions and covenant as optional,<br>you stand as one who receives God’s commands as good, not oppressive. Your public life—online, at<br>work, and in your community—either signals that you accept this assignment or that you are handing the<br>garden back to the snake.</p>
+</div>
+<div class="section history">
+<div class="section-label">🦅 This Day in American History — January 1</div>
+<p>• 1863 — The Emancipation Proclamation takes effect, declaring freedom for enslaved people in<br>Confederate-held territory.<br>• 1892 — Ellis Island opens as a U.S. immigration station, receiving millions of newcomers seeking<br>a new life.<br>Both moments shout responsibility: leaders must be responsible before God to correct sinful partiality,<br>citizens must be responsible to build a nation where human beings are treated as being created in God’s<br>image, and newcomers must be responsible to plant and steward a new “garden” in a strange land while<br>conforming to that nation’s laws and customs.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<p class='application-prose'>assignments as sacred, not incidental. Guard what God has placed in your hands—your marriage, kids,<br>work, neighborhood, and church—with the seriousness of a man posted at the edge of Eden. Resist the<br>urge to blame others, the government, or “the times” for what you are called to tend. Take one concrete<br>step today that says, “This is my post, and by God’s grace I will keep it.”</p>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Bridge</div>
+<p>Father, Maker of heaven and earth,<br>thank You for finishing Your work and giving me a place to tend.<br>By the power of Your Holy Spirit, train me to be a Responsible man— to receive Your commands as<br>good, to guard what You’ve entrusted, and to lead in my home, church, and city with humble courage.<br>I ask this in the name of Jesus Christ, my Lord and Commander, Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Rudder Steer:</span> Hold your assigned post today—no drifting, no blaming—just faithful stewardship under your King’s command.</div>
+</section>
+
+<section class="watch watch-peace" id="watch-peace" data-watch="peace">
+<div class="watch-header"><span class="watch-time">2100</span> <h2>Evening Peace</h2></div>
+<p class="intro">Tonight’s reading comes from the Psalms.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Psalm 1</div>
+<div class="scripture-text">
+<p class="stanza">Blessed is the man who does not take his cues from the<br>counsel of the wicked,<br>who does not linger in the path where sinners walk,<br>and does not settle into the seat of those who mock.<br>Instead, his delight is in the law of the LORD;<br>he chews on His instruction day and night.<br>He is like a tree planted beside streams of water,<br>sending roots down deep,<br>bearing its fruit in season;<br>its leaf does not wither,</p>
+<p class="stanza">and in all he does under God’s hand, he proves steady and<br>fruitful.<br>Not so the wicked.<br>They are like chaff that the wind blows away.<br>Therefore the wicked will not stand when judgment comes,<br>nor sinners in the assembly of the righteous.<br>For the LORD knows and guards the way of the righteous,<br>but the way of the wicked will crumble and vanish.</p>
+</div>
+</div>
+<div class="section reflection">
+<div class="section-label">🌾 Reflection for a Man at Home and in Community</div>
+<p>As a HAPPY husband, Honest means you stop pretending your influences don’t shape you. The man of Psalm 1 is<br>honest about where he walks, stands, and sits. At home, that means being truthful about the voices you and Maria<br>allow into your marriage—shows, feeds, friends, and habits. An honest husband doesn’t quietly soak in cynical or<br>lustful counsel and then act surprised when his heart drifts. He chooses to “sit” near the Word and near wise<br>people so his wife has a man whose roots go deep, not a husband blown around by every mood and headline.<br>As a FULFILLED father, Faithful means you keep showing your kids what it looks like to delight in God’s Word<br>even when life is busy and noisy. Your sons don’t need a perfect theologian; they need a father who repeatedly<br>returns to Scripture like a tree returning to water. Read with them, pray with them, let them catch you with an<br>open Bible. Shiloh needs to grow up seeing that joy and direction for the day come from God’s voice, not from a<br>screen. A faithful father keeps standing in the “congregation of the righteous,” even when the culture is sprinting<br>the other way.<br>As a RESOLUTE citizen, Responsible means you understand that the public square is full of scoffers—and you<br>refuse to become one. In Fredericksburg, in Virginia, and in this nation, you’re called to be a rooted man, not<br>scattering chaff. A responsible citizen does not marinate in rage-click media or join in the mocker’s chorus. He<br>carries himself as a planted tree: steady, fruitful, and anchored in God’s law. Your neighborhood, your church, and<br>your city need men whose lives whisper, “There is a better way than cynicism and corruption.”</p>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Wardroom</div>
+<p>Father in heaven, thank You for watching over the path of the righteous and for inviting me to live like a tree<br>planted by Your streams. By the power of Your Holy Spirit, pull me away from the counsel of the wicked, the path<br>of careless sin, and the seat of those who mock what is holy. Teach me to delight in Your Word, to lead Maria with<br>HONEST strength, to guide my children with FAITHFUL footsteps, and to stand in this nation as a<br>RESPONSIBLE man whose roots are in You.<br>I pray these things to You, Father, in the name of Jesus Christ, my Lord and Commander,<br>depending on the Spirit’s help for every step. Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Rudder Steer:</span> Ease back tonight and set your heading toward the streams—turn from the noise, open the Word, and let your roots drink deep before you rack out.</div>
+</section>
+
+<footer>
+<div class="draft-tag">PROTOTYPE — sign-off pending</div>
+<div>U.S.M.C. Ministries · The Watchman's Chronological Plan for the Year of our Lord 2026</div>
+<div style="margin-top:6px;font-size:0.78rem;">Adam Johns &middot; rich interpretive blend &middot; divine name LORD</div>
+</footer>
+
+</div>
+<script>
+(function(){
+  const SLUGS = ['all','wisdom','husband','father','citizen','peace'];
+
+  // Watch windows in local hours (each watch is "live" from its start time
+  // until the NEXT watch begins). Evening peace owns 21:00 → 04:59.
+  function currentWatchSlug() {
+    const h = new Date().getHours();
+    if (h >= 5  && h < 7)  return 'wisdom';
+    if (h >= 7  && h < 11) return 'husband';
+    if (h >= 11 && h < 15) return 'father';
+    if (h >= 15 && h < 21) return 'citizen';
+    return 'peace';                       // 21:00 – 04:59
+  }
+  const NOW_SLUG = currentWatchSlug();
+
+  function markNowBadge(){
+    document.querySelectorAll('.watch-tab').forEach(t => {
+      t.classList.toggle('is-now', t.dataset.tab === NOW_SLUG);
+    });
+  }
+  function showOnly(slug){
+    const isAll = slug === 'all' || !SLUGS.includes(slug);
+    document.querySelectorAll('section.watch').forEach(s => {
+      s.style.display = (isAll || s.dataset.watch === slug) ? '' : 'none';
+    });
+    document.querySelectorAll('.watch-tab').forEach(t => {
+      t.classList.toggle('active', t.dataset.tab === (isAll ? 'all' : slug));
+    });
+  }
+  document.querySelectorAll('.watch-tab').forEach(t => {
+    t.addEventListener('click', function(e){
+      e.preventDefault();
+      const slug = this.dataset.tab;
+      history.replaceState(null, '', '#' + slug);
+      showOnly(slug);
+      window.scrollTo({top: 0, behavior:'smooth'});
+    });
+  });
+
+  // Initial selection priority:
+  //   1. URL hash if present  (#all / #wisdom / #husband / #father / #citizen / #peace)
+  //   2. Auto-select the watch that is "live right now"
+  let initial;
+  if (location.hash) {
+    initial = location.hash.slice(1);
+  } else {
+    initial = NOW_SLUG;
+  }
+  markNowBadge();
+  showOnly(initial);
+})();
+</script>
+</body>
+</html>

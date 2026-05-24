@@ -118,6 +118,31 @@
         .action-btn:hover { border-color: var(--gold); background: #1a1a1a; }
         .action-btn.active { background: var(--gold); color: #000; border-color: var(--gold); }
 
+        /* FULL READING CTA — appears when /readings/<date>.html exists */
+        .full-reading-link {
+            display: block;
+            background: linear-gradient(135deg, var(--gold) 0%, #B89028 100%);
+            color: #000;
+            font-weight: 600;
+            text-align: center;
+            padding: 14px 18px;
+            margin-bottom: 18px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-size: 1rem;
+            letter-spacing: 0.02em;
+            box-shadow: 0 2px 12px rgba(212, 175, 55, 0.18);
+            transition: transform 0.12s ease, box-shadow 0.18s ease;
+        }
+        .full-reading-link:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 18px rgba(212, 175, 55, 0.32);
+            text-decoration: none;
+            color: #000;
+        }
+        .full-reading-arrow { display: inline-block; margin-left: 6px; transition: transform 0.15s ease; }
+        .full-reading-link:hover .full-reading-arrow { transform: translateX(3px); }
+
         /* WATCH CARDS */
         .watches { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
         .watch-card {
@@ -358,6 +383,11 @@
         <div class="month-grid" id="monthGrid"></div>
     </div>
 
+    <!-- FULL READING LINK (shown only when /readings/<date>.html exists) -->
+    <a id="fullReadingLink" class="full-reading-link" href="#" style="display:none;">
+        📖 Open Full Reading <span class="full-reading-arrow">→</span>
+    </a>
+
     <!-- WATCHES -->
     <div class="watches" id="watches">
         <div style="text-align:center;color:var(--gray);padding:40px 0;">Loading today's readings…</div>
@@ -374,6 +404,31 @@
 //  PLAN DATA — loaded from assets/plan-data.js (shared with BTE)
 // ============================================================
 const PLAN_DATA = window.PLAN_DATA;
+
+// ============================================================
+//  RENDERED READINGS INVENTORY — gates the "Open Full Reading" CTA
+// ============================================================
+let READINGS_AVAILABLE = new Set();
+fetch('assets/readings-available.json', { cache: 'no-store' })
+    .then(r => r.ok ? r.json() : { dates: [] })
+    .then(j => {
+        READINGS_AVAILABLE = new Set(j.dates || []);
+        // Re-run the link toggle once the inventory lands
+        if (typeof updateFullReadingLink === 'function') updateFullReadingLink();
+    })
+    .catch(() => { /* gracefully no-op if file missing */ });
+
+function updateFullReadingLink() {
+    const link = document.getElementById('fullReadingLink');
+    if (!link) return;
+    const key = dateToKey(currentDate);
+    if (READINGS_AVAILABLE.has(key)) {
+        link.href = 'readings/' + key + '.html';
+        link.style.display = '';
+    } else {
+        link.style.display = 'none';
+    }
+}
 
 // ============================================================
 //  WATCH CONFIG
@@ -498,6 +553,9 @@ function render() {
 
     // Update mark-complete button state
     updateMarkBtn();
+
+    // Show "Open Full Reading" CTA if the rendered .html exists for this date
+    updateFullReadingLink();
 }
 
 // ============================================================
