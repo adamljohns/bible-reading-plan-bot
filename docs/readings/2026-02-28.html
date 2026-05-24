@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg">
+<title>Saturday, February 28, 2026 — Daily Reading | U.S.M.C. Ministries</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+    --bg-dark: #000000; --bg-card: #111111; --bg-card2: #161616;
+    --gold: #D4AF37; --gold-light: #F4D470;
+    --white: #FFFFFF; --gray: #888888; --border: #333333;
+}
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--white);
+    min-height: 100vh;
+    line-height: 1.7;
+}
+h1, h2, h3 { font-family: 'Playfair Display', serif; font-weight: 700; }
+.container { max-width: 820px; margin: 0 auto; padding: 24px 20px 60px; }
+a { color: var(--gold); text-decoration: none; }
+a:hover { color: var(--gold-light); text-decoration: underline; }
+
+.nav-back { margin-bottom: 14px; font-size: 0.95rem; }
+
+.hero { text-align: center; padding: 16px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 18px; }
+.hero h1 { font-size: clamp(1.5rem, 4vw, 2.2rem); color: var(--white); margin-bottom: 6px; }
+.hero .subtitle { color: var(--gold); font-size: 0.95rem; font-style: italic; }
+.hero .doc-line { color: var(--gray); font-size: 0.82rem; margin-top: 6px; }
+
+.watch-tabs {
+    position: sticky; top: 0; z-index: 30;
+    background: var(--bg-dark);
+    border-bottom: 1px solid var(--border);
+    display: flex; flex-wrap: wrap; gap: 6px;
+    padding: 12px 0 14px;
+    margin-bottom: 18px;
+}
+.watch-tab {
+    flex: 1 1 90px;
+    text-align: center;
+    padding: 8px 6px;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    background: var(--bg-card);
+    color: var(--gray);
+    font-size: 0.85rem; font-weight: 500;
+    transition: all 0.15s ease;
+    text-decoration: none !important;
+    white-space: nowrap;
+}
+.watch-tab:hover { color: var(--white); border-color: var(--gold); text-decoration: none !important; }
+.watch-tab.active { background: var(--gold); color: #000; border-color: var(--gold); font-weight: 600; }
+.watch-tab .tab-time { display: block; font-size: 0.7rem; opacity: 0.7; font-family: monospace; }
+.watch-tab.active .tab-time { opacity: 1; }
+
+/* "NOW" badge — shown on the watch tab whose time window contains current local time */
+.watch-tab.is-now { position: relative; box-shadow: 0 0 0 1px var(--gold-light) inset; }
+.watch-tab.is-now::after {
+  content: "NOW";
+  position: absolute; top: -7px; right: -4px;
+  background: var(--gold-light); color: #000;
+  font-size: 0.55rem; font-weight: 700;
+  padding: 1px 5px; border-radius: 100px;
+  letter-spacing: 0.08em;
+}
+
+.watch {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px 22px;
+    margin-bottom: 22px;
+    scroll-margin-top: 80px;
+}
+.watch-header { display: flex; align-items: baseline; gap: 14px; margin-bottom: 10px; flex-wrap: wrap; }
+.watch-time {
+    background: var(--bg-card2); color: var(--gold);
+    padding: 4px 12px; border-radius: 100px;
+    font-family: 'Inter', monospace; font-size: 0.85rem; font-weight: 600;
+    letter-spacing: 0.05em;
+}
+.watch-header h2 { font-size: 1.35rem; color: var(--white); }
+
+.intro { color: var(--gray); font-style: italic; margin-bottom: 14px; }
+
+.audio-slot {
+    margin: 14px 0 18px;
+    padding: 12px 14px;
+    background: var(--bg-card2);
+    border-radius: 8px;
+    border: 1px dashed var(--border);
+}
+.audio-slot.audio-pending { opacity: 0.55; }
+.audio-cap { font-size: 0.8rem; color: var(--gray); margin-top: 4px; }
+
+.scripture {
+    background: var(--bg-card2);
+    border-left: 3px solid var(--gold);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin: 16px 0 22px;
+}
+.scripture-ref { font-weight: 600; color: var(--gold); margin-bottom: 12px; font-size: 0.95rem; }
+.scripture-text p { margin-bottom: 8px; }
+.scripture-text p.stanza { margin-bottom: 14px; }
+
+.section-label {
+    font-family: 'Playfair Display', serif;
+    color: var(--gold); font-weight: 700; font-size: 1.05rem;
+    margin: 22px 0 10px; padding-top: 10px; border-top: 1px solid var(--border);
+}
+.section p, .context p, .reflection p, .history p, .application-block p { margin-bottom: 12px; }
+
+ul.application { padding-left: 22px; margin: 8px 0 14px; }
+ul.application li { margin-bottom: 8px; }
+.application-prose { font-style: italic; color: var(--gold-light); margin-top: 12px; }
+
+.history ul { padding-left: 22px; margin: 8px 0; }
+.history li { margin-bottom: 6px; }
+
+.prayer {
+    background: var(--bg-card2);
+    border-left: 3px solid var(--gold-light);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin: 22px 0;
+}
+.prayer-title { color: var(--gold-light); font-weight: 600; margin-bottom: 10px; font-size: 0.95rem; }
+.prayer p { line-height: 1.85; margin-bottom: 8px; }
+
+.helm {
+    background: var(--bg-card2);
+    border-radius: 6px;
+    padding: 12px 18px;
+    margin-top: 14px;
+    font-size: 0.95rem;
+}
+.helm-icon { color: var(--gold); font-size: 1.1rem; }
+.helm-label { color: var(--gold); font-weight: 600; }
+
+footer {
+    text-align: center;
+    color: var(--gray);
+    font-size: 0.82rem;
+    margin-top: 32px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+}
+footer .draft-tag {
+    display: inline-block;
+    background: #2a2410;
+    color: var(--gold);
+    padding: 4px 12px;
+    border-radius: 100px;
+    font-size: 0.78rem;
+    margin-bottom: 8px;
+    letter-spacing: 0.05em;
+}
+
+@media (max-width: 540px) {
+    .watch-tab { flex: 1 1 64px; font-size: 0.78rem; padding: 6px 4px; }
+    .watch-tab .tab-time { font-size: 0.65rem; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="nav-back">← <a href="/chronological.html">The Watchman's Chronological Plan</a></div>
+
+<div class="hero">
+<h1>Saturday, February 28, 2026</h1>
+<div class="subtitle">Daily Reading — Day 59 of 365</div>
+<div class="doc-line">MOOP&#x27;s 2026 Daily Bible Readings — Document 2 of 12; for the month of February</div>
+</div>
+
+<nav class="watch-tabs" role="tablist">
+<a href="#all" class="watch-tab active" data-tab="all" role="tab"><span class="tab-label">All Watches</span></a>
+<a href="#wisdom" class="watch-tab" data-tab="wisdom" role="tab"><span class="tab-time">0600</span> <span class="tab-label">Morning Wisdom</span></a>
+<a href="#husband" class="watch-tab" data-tab="husband" role="tab"><span class="tab-time">0700</span> <span class="tab-label">Husband</span></a>
+<a href="#father" class="watch-tab" data-tab="father" role="tab"><span class="tab-time">1100</span> <span class="tab-label">Father</span></a>
+<a href="#citizen" class="watch-tab" data-tab="citizen" role="tab"><span class="tab-time">1500</span> <span class="tab-label">Citizen</span></a>
+<a href="#peace" class="watch-tab" data-tab="peace" role="tab"><span class="tab-time">2100</span> <span class="tab-label">Evening Peace</span></a>
+</nav>
+
+<section class="watch watch-wisdom" id="watch-wisdom" data-watch="wisdom">
+<div class="watch-header"><span class="watch-time">0600</span> <h2>Morning Wisdom</h2></div>
+<p class="intro">Solomon walks us straight up to the only door wide enough to let a man out from under his own sin — confession, and the forsaking that follows it.</p>
+<div class="audio-slot">
+  <audio controls preload="metadata" style="width:100%;max-width:560px;">
+    <source src="../assets/audio/readings/2026-02-28-wisdom.mp3" type="audio/mpeg">
+    Your browser does not support audio.
+  </audio>
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — Morning Wisdom</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Proverbs 28:1-14</div>
+<div class="scripture-text">
+<p class="stanza">The wicked flee when no one is chasing them,<br>but the righteous are bold as a lion.</p>
+<p class="stanza">When a land is in rebellion, it has many rulers;<br>but with a man of understanding and knowledge,<br>order is maintained.</p>
+<p class="stanza">A needy man who oppresses the poor<br>is like a driving rain that leaves no harvest behind.</p>
+<p class="stanza">Those who forsake the law praise the wicked,<br>but those who keep the law contend with them.</p>
+<p class="stanza">Evil men do not understand justice,<br>but those who seek the LORD understand it fully.</p>
+<p class="stanza">Better is the poor man who walks in his integrity<br>than the rich man perverse in his ways.</p>
+<p class="stanza">The one who keeps the law is a wise son,<br>but the companion of gluttons shames his father.</p>
+<p class="stanza">He who multiplies his wealth by interest and unjust gain<br>gathers it for the one who will be generous to the poor.</p>
+<p class="stanza">He who turns his ear from hearing the law —<br>even his prayer is detestable.</p>
+<p class="stanza">Whoever leads the upright astray into an evil way<br>will fall into his own pit,<br>but the blameless will inherit good.</p>
+<p class="stanza">The rich man is wise in his own eyes,<br>but the poor man with understanding sees right through him.</p>
+<p class="stanza">When the righteous triumph, there is great celebration;<br>but when the wicked rise to power, men go into hiding.</p>
+<p class="stanza">He who conceals his sins will not prosper,<br>but the one who confesses and forsakes them<br>will find mercy.</p>
+<p class="stanza">Blessed is the man who is always reverent,<br>but the one who hardens his heart<br>will fall into trouble.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🧭 Context Summary</div>
+<p>Solomon stacks fourteen proverbs like sandbags around a man&#x27;s life — and verse 13 is the gate in the wall. Every other line in the chapter is a contrast: the bold righteous versus the fleeing wicked, the man of understanding versus the rebel, the integrity of the poor versus the polish of the corrupt rich. But verse 13 alone is direct command: conceal your sin and you will not prosper; confess and forsake it and you will find mercy. The whole chapter is built around that hinge. A man is either hiding what God has already seen, or walking it into the light and turning from it. There is no third option Solomon recognizes.</p>
+</div>
+<div class="section reflection">
+<div class="section-label">🛡️ Reflection for a REAL MAN — Accepts Responsibility</div>
+<p>A REAL MAN who accepts responsibility takes Proverbs 28:13 at face value. He doesn&#x27;t wait for the consequences to surface his sin for him. He doesn&#x27;t outsource the discovery to his wife, his pastor, his boss, or the audit. He doesn&#x27;t draft long defenses in his head before God or rehearse the version of the story that makes him look least guilty. He confesses, and he forsakes — and Solomon binds the two together because the man who confesses without forsaking is still hiding, only with better vocabulary.</p>
+<p>Look at the contrast Solomon paints in verse 1. The wicked man flees when no one is chasing him, because somewhere inside him he knows the chase is coming and his soul has already started running. The righteous man is bold as a lion — not because his conscience is small, but because his sin has been carried into the light and the lion&#x27;s mane is no longer matted with hidden things. Boldness is a downstream effect of confession. A man who carries unconfessed sin will always glance over his shoulder, will always startle, will always read criticism as accusation. A man who has confessed and forsaken can take a hard meeting without flinching, because the worst thing about him is already on the table before God and he is still standing.</p>
+<p>Brother, the things you have been managing privately are managing you. The corner of the wallet you have not shown your wife. The recurring thought you have refused to name. The conversation you keep rehearsing with the man you have wronged but have not yet called. Solomon is not asking you to manage them better. He is telling you that prosperity — the durable kind, the kind that holds up under audit — runs through verse 13, not around it. Confess. Forsake. Receive mercy. Walk out of the chamber the lion of God.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Name one sin you have been concealing and bring it out loud before God before you do anything else today. Don&#x27;t generalize. Use the specific word for the specific thing.</li>
+<li>Identify the forsaking step. Confession that isn&#x27;t paired with a concrete turning is still concealment with new packaging. What gets cut today?</li>
+<li>If the sin has another human attached to it, send the message or place the call before noon — short, specific, no excuses, no defense.</li>
+<li>Receive the mercy. Don&#x27;t keep paying for what God has already covered. The lion&#x27;s boldness comes from believing verse 13&#x27;s second half, not just the first.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer</div>
+<p>Father of mercy and of every clean light,<br>You have searched me and known me,<br>and there is nothing concealed from You that You have not already seen.</p>
+<p>By the power of Your Holy Spirit,<br>loosen my grip on the sins I have been managing in private —<br>the one I have rehearsed an excuse for, the one I have called a weakness instead of by its proper name.<br>Teach me confession that walks straight into the forsaking,<br>and teach me to receive Your mercy as the strong word that it is,<br>not as a permission slip to revisit the same ground tomorrow.</p>
+<p>In the name of Jesus Christ, my Lord and Commander,<br>whose blood already paid for what I am about to bring into the light —<br>make me a man bold as a lion, because nothing of me is hidden from You.<br>Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Helm Command:</span> Bring the concealed sin to the surface today — confess it, forsake it, receive His mercy, and walk into the rest of this day with the bold posture of a son who has nothing hidden.</div>
+</section>
+
+<section class="watch watch-husband" id="watch-husband" data-watch="husband">
+<div class="watch-header"><span class="watch-time">0700</span> <h2>First Watch — The Husband&#x27;s Post</h2></div>
+<p class="intro">The first watch closes out the Levite census — every clan numbered, every man assigned, every burden distributed by the LORD&#x27;s exact word. This is what yielding looks like in the camp of God.</p>
+<div class="audio-slot">
+  <audio controls preload="metadata" style="width:100%;max-width:560px;">
+    <source src="../assets/audio/readings/2026-02-28-husband.mp3" type="audio/mpeg">
+    Your browser does not support audio.
+  </audio>
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — First Watch — The Husband's Post</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Numbers 4:34-49</div>
+<div class="scripture-text">
+<p>Moses and Aaron and the leaders of the congregation numbered the sons of the Kohathites by their families and by their fathers&#x27; houses, from thirty years old up to fifty years old — every man who entered the service for work in the Tent of Meeting. Those who were numbered, by their families, were two thousand seven hundred and fifty. These are the ones numbered of the families of the Kohathites — every man who served in the Tent of Meeting — whom Moses and Aaron numbered according to the commandment of the LORD by the hand of Moses.</p>
+<p>The ones numbered of the sons of Gershon, by their families and by their fathers&#x27; houses, from thirty years old up to fifty years old — every man who entered the service for work in the Tent of Meeting — those who were numbered by their families, by their fathers&#x27; houses, were two thousand six hundred and thirty. These are the ones numbered of the families of the sons of Gershon, every man who served in the Tent of Meeting, whom Moses and Aaron numbered according to the commandment of the LORD.</p>
+<p>The ones numbered of the families of the sons of Merari, by their families and by their fathers&#x27; houses, from thirty years old up to fifty years old — every man who entered the service for work in the Tent of Meeting — those who were numbered by their families were three thousand two hundred. These are the ones numbered of the families of the sons of Merari, whom Moses and Aaron numbered according to the commandment of the LORD by the hand of Moses.</p>
+<p>All those numbered of the Levites whom Moses and Aaron and the leaders of Israel numbered, by their families and by their fathers&#x27; houses, from thirty years old up to fifty years old — every man who entered in to do the work of service and the work of bearing burdens in the Tent of Meeting — those who were numbered were eight thousand five hundred and eighty. According to the commandment of the LORD they were numbered by the hand of Moses, every man according to his service and his burden. Thus were they numbered by him, as the LORD commanded Moses.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🗺️ Briefing Summary</div>
+<p>Three Levite clans — Kohath, Gershon, Merari — and three different burdens. Kohath carried the holy things on his shoulders. Gershon hauled the tent curtains, the screen, the hangings. Merari carried the boards, bars, pillars, and sockets — the structural frame. None of them got to pick. The LORD assigned the burden by clan and by family, and every man between thirty and fifty stepped into the load that bore his name. Eight thousand five hundred and eighty men, every one of them numbered &quot;according to the commandment of the LORD by the hand of Moses.&quot; This is yielding written out as a census.</p>
+</div>
+<div class="section reflection">
+<div class="section-label">❤️ Reflection for Your Wife — H.A.P.P.Y. Husband — Yielding</div>
+<p>A HAPPY husband who yields starts where the Levites started — by accepting that the assignment is the LORD&#x27;s, not his preference. Kohath did not lobby to be a Merarite because the boards were sturdier than the holy things. Gershon did not file a grievance because the curtains were heavier than he expected. Each clan got its burden, each man stepped under his load, and the tabernacle moved through the wilderness because thousands of men yielded to the post the LORD had cut for them.</p>
+<p>Brother, your marriage has a similar census. The LORD has assigned you to Maria — not to a wife you imagined, not to the version of her you assumed you were marrying, but to the actual woman in your actual house. And the burden He has given you to carry inside this marriage is not the burden He gave the man down the street. Your burden may look like a wife whose Saturdays are slower than yours wish they were, or a wife whose words come faster than you can absorb them, or a wife whose grief from years ago still rises some weeks without warning. Yielding does not mean you stop caring about those things; it means you stop arguing with the assignment. You step under the load with both shoulders and you keep walking.</p>
+<p>The Levites also yielded to the schedule. Thirty to fifty — that was the active service window. A Kohathite at twenty-nine had to wait. A Kohathite at fifty-one stepped back and let a younger man carry. Yielding to the season is part of yielding to the assignment. There are seasons in your marriage when Maria carries more and you carry less, and seasons when you carry more and she carries less, and a husband who yields well doesn&#x27;t keep score. He looks at the load on her shoulders today and adjusts his own.</p>
+<p>Notice the refrain Moses keeps repeating: &quot;according to the commandment of the LORD.&quot; That phrase shows up four times in this short census. The Levites&#x27; obedience was not heroic; it was steady. They did the next thing the LORD said and then they did the next thing and then they did the next thing, and the tabernacle stayed standing. Marriage is built the same way. Not by one grand yielding moment, but by ten thousand small ones, each one taken according to the commandment of the LORD by the hand of His Spirit.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Name today&#x27;s actual assignment in your marriage — not the version you wish you had, the one you actually have. Speak it back to the LORD without complaint.</li>
+<li>Identify one load Maria is carrying right now that you have been letting her carry alone. Step under it with her today, even if it is not your &quot;side&quot; of the labor split.</li>
+<li>Where you have been arguing with the schedule the LORD has given you — slower season, harder season, quieter season — yield. Stop pulling against the season and pull with it.</li>
+<li>Say out loud over your house, before you leave it today: &quot;We do this according to the commandment of the LORD.&quot; Then live the next eight hours like you meant it.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Stateroom</div>
+<p>Father, who numbered every Levite and assigned every burden,<br>thank You that You do not parcel out the tabernacle&#x27;s loads by preference.<br>You give Kohath the holy things, Gershon the curtains, and Merari the boards,<br>and the whole tent moves through the wilderness because every man yields to the post You cut for him.</p>
+<p>By the power of Your Holy Spirit,<br>make me a husband who yields without sulking and carries without complaining.<br>Where I have been arguing with the marriage You actually gave me,<br>silence that argument and turn me toward Maria with both shoulders.<br>Where Maria is carrying a load alone today, give me eyes to see it and feet to step under it.</p>
+<p>In the name of Jesus Christ, my Lord and Commander,<br>the One who yielded all the way to the cross according to the Father&#x27;s command —<br>make me a husband whose yielding builds the house, not breaks it.<br>Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Helm Command:</span> Step under your wife&#x27;s load today by name — yield to the marriage you actually have, on the schedule the LORD actually set, according to His commandment, not your preference.</div>
+</section>
+
+<section class="watch watch-father" id="watch-father" data-watch="father">
+<div class="watch-header"><span class="watch-time">1100</span> <h2>Second Watch — The Father&#x27;s Charge</h2></div>
+<p class="intro">The second watch sits inside Numbers 5 — a chapter that looks like three unrelated laws until you see them lined up as one curriculum: clean the camp, confess and restore the wrong, and let God Himself be the One who searches the most intimate corners of a marriage. A father teaching this passage to his sons is teaching them how covenant works.</p>
+<div class="audio-slot">
+  <audio controls preload="metadata" style="width:100%;max-width:560px;">
+    <source src="../assets/audio/readings/2026-02-28-father.mp3" type="audio/mpeg">
+    Your browser does not support audio.
+  </audio>
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — Second Watch — The Father's Charge</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Numbers 5</div>
+<div class="scripture-text">
+<p>The LORD spoke to Moses, saying: &quot;Command the children of Israel to send out of the camp every leper, everyone who has a discharge, and everyone who is unclean by contact with the dead. You shall send out both male and female, putting them outside the camp, so that they do not defile their camp, in the middle of which I dwell.&quot; And the children of Israel did so and put them outside the camp; as the LORD had spoken to Moses, so the children of Israel did.</p>
+<p>Then the LORD spoke to Moses, saying: &quot;Speak to the children of Israel: When a man or a woman commits any sin that people commit by breaking faith with the LORD, and that person realizes his guilt, then he shall confess his sin that he has done and shall make restitution for his guilt in full, adding a fifth to it, and giving it to the one he has wronged. But if the wronged man has no kinsman to whom restitution may be made, the restitution for the guilt shall go to the LORD for the priest, in addition to the ram of atonement by which atonement is made for him. Every contribution, all the holy gifts of the children of Israel that they bring to the priest, shall be his. Each one&#x27;s holy gifts shall be his own. Whatever any man gives to the priest shall be his.&quot;</p>
+<p>Then the LORD spoke to Moses, saying: &quot;Speak to the children of Israel and tell them: If any man&#x27;s wife goes astray and breaks faith with him, and another man lies with her and it is hidden from the eyes of her husband and undetected — and there is no witness against her and she was not caught in the act — and if the spirit of jealousy comes over the husband, whether his suspicion is true or not — then the man shall bring his wife to the priest and shall bring her offering for her: a tenth of an ephah of barley meal. He shall pour no oil on it and put no frankincense on it, for it is a grain offering of jealousy, a grain offering of remembrance, bringing iniquity to remembrance.</p>
+<p>&quot;The priest shall bring her near and set her before the LORD. The priest shall take holy water in an earthen vessel, and take some of the dust from the floor of the tabernacle, and put it into the water. Then the priest shall set the woman before the LORD, unbind her hair, and place in her hands the grain offering of remembrance, the grain offering of jealousy. The priest shall hold in his hand the water of bitterness that brings the curse.</p>
+<p>&quot;The priest shall make her take an oath, saying to the woman: &#x27;If no man has lain with you and you have not gone astray in uncleanness while under your husband, then be free from this water of bitterness that brings the curse. But if you have gone astray under your husband and have defiled yourself, and another man has lain with you besides your husband&#x27; — then the priest shall make the woman take the oath of cursing, and shall say to her: &#x27;May the LORD make you a curse and an oath among your people, when the LORD makes your thigh fall away and your body swell. May this water that brings the curse pass into your bowels and make your body swell and your thigh fall away.&#x27; And the woman shall say, &#x27;Amen, Amen.&#x27;</p>
+<p>&quot;Then the priest shall write these curses in a scroll and wash them off into the water of bitterness. And he shall make the woman drink the water of bitterness that brings the curse, and the water that brings the curse shall enter her and cause bitterness. The priest shall take the grain offering of jealousy from her hand and wave the grain offering before the LORD and bring it to the altar. The priest shall take a handful of the grain offering as its memorial, and burn it on the altar, and afterward shall make the woman drink the water. When he has made her drink the water, if she has defiled herself and broken faith with her husband, then the water that brings the curse shall enter her and cause bitterness, and her body shall swell and her thigh shall fall away, and the woman shall be a curse among her people. But if the woman has not defiled herself and is clean, then she shall be unharmed and shall be able to conceive children.</p>
+<p>&quot;This is the law of jealousy: when a wife, while under her husband, goes astray and defiles herself, or when the spirit of jealousy comes over a man and he is jealous of his wife, then he shall set the woman before the LORD, and the priest shall carry out for her all this law. The man shall be free from iniquity, but the woman shall bear her iniquity.&quot;</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🗺️ Field Notes</div>
+<p>Three rulings, one curriculum. First, the LORD orders the unclean outside the camp — not as cruelty, but as honesty about the camp&#x27;s center: He Himself dwells there. Second, when a person sins against another person, confession is paired with restitution plus a fifth — the wronged party gets back what was taken and then some, because covenant repair costs more than the original wrong. Third, when suspicion falls on a wife and there is no witness either way, the husband cannot decide the case himself. He brings her to the priest, and the LORD Himself adjudicates. The law of jealousy protects a wife from a husband&#x27;s suspicion as much as it deals with hidden sin — without it, an angry man could destroy a woman on rumor alone. Under this law, only God speaks the final word.</p>
+</div>
+<div class="section reflection">
+<div class="section-label">👨‍👦 Reflection for Your Children — F.U.L.F.I.L.L.E.D. Father — Instructing</div>
+<p>A FULFILLED father who instructs reads Numbers 5 with his sons and daughters in mind, and he does not skip the hard parts. The chapter is teaching three lessons that every child of his needs to carry into the world: that the camp where God dwells must be kept clean, that wrong done to another human being is paid back in full and then some, and that the most intimate suspicions of a marriage are not to be settled by the angriest party in the room.</p>
+<p>Start with the camp. The LORD tells Moses to put outside the camp anyone unclean — and the reason given is not contempt for the sick but reverence for the One who dwells in the middle of the tents. Instructing fatherhood teaches the same logic at home. The camp of your house is set apart for the LORD. What you let in matters not because you are squeamish but because He is holy. Gideon, Boaz, and Shiloh need a father who can say plainly: &quot;We don&#x27;t let that voice into this house — not because we are afraid, but because the One who dwells with us is worthy of a cleaner camp.&quot;</p>
+<p>Then look at restitution. When a man wrongs his neighbor, the LORD does not say &quot;apologize and move on.&quot; He says confess, restore in full, and add a fifth. Real repair costs more than the wrong did. A father who instructs his children in this stops the cheap apology at his own dinner table. When one of your kids has wronged another, the apology is the start, not the finish. Teach them the fifth. Lend Boaz the toy you broke and add an hour of your time helping him with what he needs. Send Shiloh a real &quot;I&#x27;m sorry&quot; letter and follow it with a kind act tomorrow. Gideon at nineteen should be old enough to make restitution to someone he has hurt this month — and a father who instructs him in it gives him a tool he will use for the next sixty years.</p>
+<p>Then look at the law of jealousy. This chapter is not God&#x27;s blueprint for marriage. It is His emergency protocol for the moment when a husband&#x27;s suspicion has run ahead of any evidence. Instructing fatherhood teaches sons and daughters two things from it. First, suspicion alone does not condemn. A man who feels jealousy must take his suspicion to the LORD&#x27;s presence and let God settle the question; he is not the judge of his own wife&#x27;s heart. Second, hidden sin will not stay hidden. The water of bitterness reaches what no human eye saw. Either way, the verdict belongs to God. Sons need to know they cannot tyrannize a wife with unverified suspicion, and daughters need to know that no man&#x27;s accusation is final — God&#x27;s verdict is. Both lessons come straight out of this chapter, if a father is willing to teach it.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Read Numbers 5 out loud with your older two this week — slowly, all the way through — and walk them through what each ruling is actually teaching. Do not flinch from verses 12-31; help them see the protection inside the law, not just the strangeness of the ritual.</li>
+<li>At your dinner table tonight, kill the cheap apology. When restitution is owed, name the &quot;fifth&quot; out loud and pay it on the spot. Let the kids see that fathers do this too.</li>
+<li>Identify one voice or input that has been &quot;inside the camp&quot; of your home that does not belong there. Send it out, not in a sermon, but with one quiet decision today.</li>
+<li>Talk to Gideon, alone, about the law of jealousy as a man learning to lead someday — that a wife&#x27;s heart is not his to interrogate, and the LORD is the only one who reads it clean.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Wardroom</div>
+<p>Father, who dwells in the middle of the camp and orders it clean for Your own glory,<br>who refuses cheap apologies and presses a wronged neighbor&#x27;s restitution to be paid in full,<br>and who Himself adjudicates the suspicions that no human eye can settle —</p>
+<p>By the power of Your Holy Spirit,<br>make me an instructing father whose home is a camp worthy of Your presence.<br>Teach my children to confess specifically and to restore generously.<br>Teach my sons that no wife is theirs to interrogate;<br>teach my daughters that no man&#x27;s accusation will outweigh Your verdict on a clean heart.</p>
+<p>In the name of Jesus Christ, my Lord and Commander,<br>the perfect Witness and the perfect High Priest,<br>who carried our iniquity so that we could walk through Your camp in the open —<br>let my children grow up under this kind of instruction.<br>Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Rudder Steer:</span> Teach the hard chapter, not just the easy one — walk your kids through Numbers 5 today and let them see that holiness, restitution, and the LORD&#x27;s verdict are all the same kind of love.</div>
+</section>
+
+<section class="watch watch-citizen" id="watch-citizen" data-watch="citizen">
+<div class="watch-header"><span class="watch-time">1500</span> <h2>Third Watch — The Citizen&#x27;s Stand</h2></div>
+<p class="intro">The third watch carries us into Numbers 6 — the Nazirite vow. Not a citizen drafted into service, but a man or woman who steps forward voluntarily and binds himself to a higher standard than the law requires. This is steadfastness as a free act.</p>
+<div class="audio-slot">
+  <audio controls preload="metadata" style="width:100%;max-width:560px;">
+    <source src="../assets/audio/readings/2026-02-28-citizen.mp3" type="audio/mpeg">
+    Your browser does not support audio.
+  </audio>
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — Third Watch — The Citizen's Stand</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Numbers 6:1-21</div>
+<div class="scripture-text">
+<p>The LORD spoke to Moses, saying: &quot;Speak to the children of Israel and tell them: When either a man or a woman makes a special vow — the vow of a Nazirite, to separate himself to the LORD — he shall separate himself from wine and strong drink. He shall drink no vinegar of wine or vinegar of strong drink, nor shall he drink any juice of grapes or eat fresh grapes or dried. All the days of his separation he shall eat nothing produced by the grapevine, from the seeds even to the skins.</p>
+<p>&quot;All the days of his vow of separation no razor shall come on his head. Until the days are fulfilled for which he separates himself to the LORD, he shall be holy. He shall let the locks of the hair of his head grow long. All the days that he separates himself to the LORD he shall not go near a dead body. He shall not make himself unclean even for his father or for his mother, for his brother or for his sister, when they die — because his separation to God is on his head. All the days of his separation he is holy to the LORD.</p>
+<p>&quot;If anyone dies very suddenly beside him and he defiles his consecrated head, then he shall shave his head on the day of his cleansing — on the seventh day he shall shave it. On the eighth day he shall bring two turtledoves or two young pigeons to the priest at the door of the Tent of Meeting. The priest shall offer one for a sin offering and the other for a burnt offering, and make atonement for him because he sinned by reason of the dead, and shall consecrate his head that same day. He shall separate to the LORD the days of his separation again, and shall bring a male lamb a year old as a guilt offering — but the former days shall be void, because his separation was defiled.</p>
+<p>&quot;This is the law of the Nazirite: when the days of his separation are fulfilled, he shall be brought to the door of the Tent of Meeting, and he shall offer his offering to the LORD — one male lamb a year old without defect for a burnt offering, one ewe lamb a year old without defect for a sin offering, one ram without defect for a peace offering, a basket of unleavened bread, cakes of fine flour mixed with oil, unleavened wafers anointed with oil, with their grain offering and their drink offerings.</p>
+<p>&quot;The priest shall present them before the LORD and shall offer his sin offering and his burnt offering. He shall offer the ram as a sacrifice of peace offerings to the LORD, with the basket of unleavened bread. The priest shall offer also the grain offering and the drink offering. Then the Nazirite shall shave the head of his separation at the door of the Tent of Meeting and shall take the hair of his consecrated head and put it on the fire that is under the sacrifice of peace offerings. And the priest shall take the boiled shoulder of the ram, and one unleavened cake from the basket, and one unleavened wafer, and shall put them on the hands of the Nazirite after he has shaved the head of his separation. The priest shall wave them as a wave offering before the LORD. They are holy for the priest, together with the breast that is waved and the thigh that is offered. After that the Nazirite may drink wine.</p>
+<p>&quot;This is the law of the Nazirite who makes a vow, and of his offering to the LORD for his separation, in addition to whatever else his hand can afford. According to the vow that he makes, so he shall do, after the law of his separation.&quot;</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🛰️ Situation Report</div>
+<p>Numbers 6 is the only chapter in the law where an ordinary Israelite — man or woman — can voluntarily step up to priest-like consecration for a season. The Nazirite vow has three signs: no fruit of the vine, no razor on the head, no contact with the dead. None of this is required of the average Israelite, and none of it is permanent for the Nazirite. He vows it, he keeps it, and at the end of the time he closes the vow at the tabernacle with sacrifices, shaves his head, and rejoins ordinary life. It is steadfastness as a free act — a man saying to the LORD, for this season, I am binding myself to more than the law asks, because I want to.</p>
+</div>
+<div class="section reflection resolute">
+<div class="section-label">🛡️ Reflection for a R.E.S.O.L.U.T.E. Citizen — Steadfast</div>
+<p>Fredericksburg (local)<br>As a RESOLUTE citizen called to be steadfast, the Nazirite gives you a category that almost no one in modern Fredericksburg uses anymore: the voluntary higher standard. Most citizens think only in terms of what is required — the speed limit, the tax bill, the HOA rule, the legal minimum. The Nazirite thinks in terms of what is freely chosen above the floor. Steadfastness in your city looks like a man who fasts when nobody is asking him to fast, who keeps the Lord&#x27;s Day in a way his neighbors don&#x27;t, who has decided certain media will not cross his threshold even though no law forbids them. The Nazirite vow does not impose itself on the camp; it simply stands inside the camp as a quiet witness. Be that kind of citizen on your street.</p>
+<p>Virginia (state)<br>Across Virginia, steadfastness has historic resonance. This state remembers the Nazirite category in its bones — the long line of Virginians who voluntarily bound themselves to more than the law required: militia service when no draft was running, religious oaths when none were demanded, simple living when wealth was within reach. A steadfast Virginia citizen does not measure his civic life by what the General Assembly mandates. He measures it by what he has voluntarily bound himself to in the LORD&#x27;s presence. Vote in the off-year election no one is watching. Serve on the board no one wants. Tell the truth at the public hearing when silence would be cheaper. These are Nazirite acts — freely chosen, season-bound, undertaken because you have a vow before God that the state does not see.</p>
+<p>United States (nation)<br>For America, the Nazirite category is desperately needed. The whole national imagination has collapsed into &quot;rights&quot; — what I am allowed to do, what cannot be taken from me, what the floor of my liberty looks like. The Nazirite vow is the opposite imagination: a citizen freely choosing a ceiling rather than negotiating a floor. A nation rebuilds when enough of its citizens voluntarily bind themselves to a higher standard than the law asks. Steadfastness at the national level means a man who tithes when no church mandates it, a man who keeps his word to the contractor when the contract has a loophole, a man who refuses the legal-but-corrosive shortcut because his vow before God is not for sale. America will not be saved by laws alone. It will be steadied by Nazirites — men and women who quietly carry a higher rule on their head and walk through the camp at peace.</p>
+</div>
+<div class="section history">
+<div class="section-label">🦅 This Day in American History — February 28</div>
+<p>• 1827 — The Baltimore and Ohio Railroad is chartered, the first U.S. railroad chartered for commercial passenger and freight service. A steadfast citizen reading this remembers that durable national infrastructure was built by men who bound themselves to long-term work no one was forcing on them — the freely chosen ceiling that holds when the floor wobbles.<br>• 1844 — The USS Princeton&#x27;s &quot;Peacemaker&quot; gun explodes during a Potomac River demonstration, killing Secretary of State Abel Upshur, Secretary of the Navy Thomas Gilmer, and six others; President Tyler is below deck and survives. A reminder that even the strongest engines of state can fail catastrophically when men trust the metal more than the LORD — and that a steadfast citizen treats every public office, every public moment, as held in lent hands.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Identify one Nazirite-style commitment you have been considering but have not yet made — a season of fasting, a media boundary, a tithe upgrade, a daily prayer time. Make the vow today out loud, before the LORD, with an end date.</li>
+<li>Choose one civic obligation no one is requiring of you and step into it this week — a meeting, a board, a precinct call, a neighborhood need. Volunteer the higher standard.</li>
+<li>Where you have been measuring your obedience by what is legally required, recalibrate to what is freely chosen before God. Write down the new ceiling and let your wife see it.</li>
+<li>If a Nazirite-style vow you previously made has been broken, do not pretend it didn&#x27;t happen. Bring it to the LORD plainly, accept the reset, and start the count fresh.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Bridge</div>
+<p>Father, Sovereign over the camp and the nation,<br>You created a category in Your law for the man or woman who would freely bind himself to more than You required —<br>the Nazirite who steps forward, vows, and walks for a season in a higher consecration.</p>
+<p>By the power of Your Holy Spirit,<br>make me a citizen of that category in Fredericksburg, in Virginia, and in the United States.<br>Pull me out of the citizenship that measures itself by the floor of the law,<br>and stand me up under a ceiling I have chosen freely in Your presence.<br>Where my vow has been broken, give me the courage to reset it cleanly.<br>Where it has held, keep it on my head as a quiet witness to my neighbors.</p>
+<p>In the name of Jesus Christ, my Lord and Commander,<br>the True Nazirite who consecrated Himself for the joy set before Him —<br>let my citizenship hold steady because it is bound to You, not to the times.<br>Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Rudder Steer:</span> Take the higher vow today — not the legal minimum, but the freely chosen consecration; bind yourself before the LORD to one specific thing your city, your state, and your nation are not asking of you.</div>
+</section>
+
+<section class="watch watch-peace" id="watch-peace" data-watch="peace">
+<div class="watch-header"><span class="watch-time">2100</span> <h2>Evening Peace</h2></div>
+<p class="intro">Tonight&#x27;s reading sits in the middle of a betrayal that cuts deeper than any external enemy — and lands on the one line that has steadied tired believers for three thousand years.</p>
+<div class="audio-slot">
+  <audio controls preload="metadata" style="width:100%;max-width:560px;">
+    <source src="../assets/audio/readings/2026-02-28-peace.mp3" type="audio/mpeg">
+    Your browser does not support audio.
+  </audio>
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — Evening Peace</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Psalm 55</div>
+<div class="scripture-text">
+<p class="stanza">Give ear to my prayer, O God,<br>and do not hide Yourself from my plea for mercy.<br>Attend to me, and answer me.<br>I am restless in my complaint and I moan,<br>because of the voice of the enemy,<br>because of the pressure of the wicked.<br>They drop trouble on me,<br>and in anger they hold a grudge against me.</p>
+<p class="stanza">My heart is in anguish within me;<br>the terrors of death have fallen on me.<br>Fear and trembling come over me,<br>and horror has overwhelmed me.<br>And I said,<br>&quot;Oh, that I had wings like a dove!<br>I would fly away and be at rest.<br>Look — I would wander far off;<br>I would lodge out in the wilderness.<br>I would hurry to my shelter<br>from the raging wind and tempest.&quot;</p>
+<p class="stanza">Confuse them, O Lord, divide their tongues,<br>for I see violence and strife in the city.<br>Day and night they prowl around her walls;<br>trouble and wickedness are within her;<br>ruin is in her midst;<br>oppression and fraud do not depart from her streets.</p>
+<p class="stanza">For it is not an enemy who taunts me —<br>then I could bear it;<br>it is not an adversary who deals insolently with me —<br>then I could hide from him.<br>But it is you, a man my equal,<br>my companion, my familiar friend.<br>We used to take sweet counsel together;<br>we walked together in the house of God.</p>
+<p class="stanza">Let death come upon them;<br>let them go down to Sheol alive,<br>for evil is in their hearts and in their homes.</p>
+<p class="stanza">But I — I call to God,<br>and the LORD will save me.<br>Evening and morning and at noon,<br>I utter my complaint and moan,<br>and He hears my voice.<br>He has redeemed my soul in safety<br>from the battle that was against me,<br>for many were arrayed against me.<br>God will give ear and humble them —<br>the One enthroned from of old —<br>because they do not change<br>and do not fear God.</p>
+<p class="stanza">He raised his hand against his friends;<br>he violated his covenant.<br>His speech was smoother than butter,<br>yet war was in his heart;<br>his words were softer than oil,<br>yet they were drawn swords.</p>
+<p class="stanza">Cast your burden on the LORD,<br>and He will sustain you.<br>He will never permit the righteous to be shaken.</p>
+<p class="stanza">But You, O God, will cast them down<br>into the pit of destruction.<br>Men of blood and treachery<br>shall not live out half their days,<br>but I will trust in You.</p>
+</div>
+</div>
+<div class="section reflection">
+<div class="section-label">🌾 Reflection for a Man at Home and in Community</div>
+<p>Psalm 55 is the psalm of betrayal. David is not crying out under the attack of a public enemy he could see coming. He is crying out because the voice tearing him down is the voice of a man he used to walk with into the house of God. The pain is internal, the wound is intimate, and the temptation is to fly. David admits the temptation — &quot;Oh that I had wings like a dove&quot; — and then he refuses it. He stays in the city, stays at his post, stays under God&#x27;s command, and he writes verse 22 for every man who comes after him: &quot;Cast your burden on the LORD, and He will sustain you.&quot;</p>
+<p>As a HAPPY husband, this psalm meets you in the part of your week where the wound came from inside the camp — a friend who let you down, a partner who broke trust, a brother who used softer-than-oil words to cover drawn swords. David&#x27;s pattern teaches your marriage how to take that kind of hurt home without poisoning the house. He does not bring his betrayal back to his tent and dump it on his wife. He brings it to the LORD — evening, morning, and noon — and only the steadied man comes back through the front door. Tonight, before you tell Maria a single word about the day&#x27;s wound, hand it to God first. Cast the burden on Him. Then walk in present to your wife, not present to your grievance.</p>
+<p>As a FULFILLED father, Psalm 55 is the model your sons need for how to handle the friend who turns on them. Gideon at nineteen will be betrayed by someone he trusted, if he has not been already. Boaz at fourteen is just starting to feel the sting of the friend whose words change behind his back. Shiloh at five will face it soon enough on her own playground scale. Teach them David&#x27;s pattern. Name the wound. Do not pretend the friend&#x27;s smooth speech was not in fact a sword. But then — cast the burden. Pray the imprecation honestly into God&#x27;s hand and leave the verdict with Him. Do not let your kids learn to carry betrayal as bitterness. Teach them to carry it to the One who sustains.</p>
+<p>As a RESOLUTE citizen, Psalm 55 is the political psalm you don&#x27;t want and the political psalm you need. The city David grieves is full of violence and strife, with day-and-night prowlers on the walls and fraud in the streets — and the man hurting him most is not the foreign enemy but the trusted insider. America in 2026 is recognizable in that frame. Resolute citizenship in that environment refuses to fly to the wilderness and refuses to set up camp on social media to broadcast the betrayal. It does the harder, quieter thing: evening, morning, and noon, cast the burden on the LORD; trust His verdict on the men of blood and treachery; and keep walking your post. A citizen who lives by verse 22 cannot be moved.</p>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Wardroom</div>
+<p>Father, who hears David at the moment of betrayal<br>and who hears every son after him at the same moment,<br>thank You that the deepest wound — the one that came from inside the camp —<br>is exactly the wound You receive when we cast it on You.</p>
+<p>By the power of Your Holy Spirit,<br>take tonight&#x27;s burden — the broken trust, the smoother-than-butter words that turned out to be swords,<br>the friend whose covenant lies underfoot — and carry it for me.<br>I do not need to fly to the wilderness;<br>I need to stand at my post and let You sustain me.</p>
+<p>Hand verse 22 to my wife through me tonight,<br>to my children through my prayers over them,<br>to my city through the steadiness of my walk tomorrow.</p>
+<p>In the name of Jesus Christ, my Lord and Commander,<br>who Himself was betrayed by the friend who took bread with Him<br>and who walked all the way to the cross under the Father&#x27;s sustaining hand —<br>let me sleep tonight as a man whose burden is no longer mine.<br>Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Rudder Steer:</span> Cast tonight&#x27;s burden on the LORD before you cast it on your wife — let Him sustain you through the night, and walk back into the camp tomorrow with the steady gait of a man who has handed His verdict to the LORD.</div>
+</section>
+
+<footer>
+<div class="draft-tag">PROTOTYPE — sign-off pending</div>
+<div>U.S.M.C. Ministries · The Watchman's Chronological Plan for the Year of our Lord 2026</div>
+<div style="margin-top:6px;font-size:0.78rem;">Adam Johns &middot; rich interpretive blend &middot; divine name LORD</div>
+</footer>
+
+</div>
+<script>
+(function(){
+  const SLUGS = ['all','wisdom','husband','father','citizen','peace'];
+
+  // Watch windows in local hours (each watch is "live" from its start time
+  // until the NEXT watch begins). Evening peace owns 21:00 → 04:59.
+  function currentWatchSlug() {
+    const h = new Date().getHours();
+    if (h >= 5  && h < 7)  return 'wisdom';
+    if (h >= 7  && h < 11) return 'husband';
+    if (h >= 11 && h < 15) return 'father';
+    if (h >= 15 && h < 21) return 'citizen';
+    return 'peace';                       // 21:00 – 04:59
+  }
+  const NOW_SLUG = currentWatchSlug();
+
+  function markNowBadge(){
+    document.querySelectorAll('.watch-tab').forEach(t => {
+      t.classList.toggle('is-now', t.dataset.tab === NOW_SLUG);
+    });
+  }
+  function showOnly(slug){
+    const isAll = slug === 'all' || !SLUGS.includes(slug);
+    document.querySelectorAll('section.watch').forEach(s => {
+      s.style.display = (isAll || s.dataset.watch === slug) ? '' : 'none';
+    });
+    document.querySelectorAll('.watch-tab').forEach(t => {
+      t.classList.toggle('active', t.dataset.tab === (isAll ? 'all' : slug));
+    });
+  }
+  document.querySelectorAll('.watch-tab').forEach(t => {
+    t.addEventListener('click', function(e){
+      e.preventDefault();
+      const slug = this.dataset.tab;
+      history.replaceState(null, '', '#' + slug);
+      showOnly(slug);
+      window.scrollTo({top: 0, behavior:'smooth'});
+    });
+  });
+
+  // Initial selection priority:
+  //   1. URL hash if present  (#all / #wisdom / #husband / #father / #citizen / #peace)
+  //   2. Auto-select the watch that is "live right now"
+  let initial;
+  if (location.hash) {
+    initial = location.hash.slice(1);
+  } else {
+    initial = NOW_SLUG;
+  }
+  markNowBadge();
+  showOnly(initial);
+})();
+</script>
+</body>
+</html>
