@@ -118,6 +118,21 @@
         .action-btn:hover { border-color: var(--gold); background: #1a1a1a; }
         .action-btn.active { background: var(--gold); color: #000; border-color: var(--gold); }
 
+        /* MONTH-VIEW BADGE for days with full meditation page */
+        .month-day.has-full-reading {
+            border-color: rgba(212, 175, 55, 0.55);
+            background: linear-gradient(180deg, var(--bg-card) 0%, rgba(212, 175, 55, 0.05) 100%);
+        }
+        .month-day.has-full-reading:hover {
+            border-color: var(--gold);
+        }
+        .full-reading-badge {
+            margin-left: auto;
+            font-size: 0.95rem;
+            color: var(--gold);
+            line-height: 1;
+        }
+
         /* FULL READING CTA — appears when /readings/<date>.html exists */
         .full-reading-link {
             display: block;
@@ -622,11 +637,13 @@ function renderMonthView() {
         const dow = date.toLocaleDateString('en-US', { weekday: 'short' });
         const dayLabel = `${dow}, ${MONTH_NAMES[m]} ${d}`;
 
-        html += `<div class="month-day ${isToday ? 'current-day' : ''}"
+        const hasFullReading = READINGS_AVAILABLE.has(key);
+        html += `<div class="month-day ${isToday ? 'current-day' : ''} ${hasFullReading ? 'has-full-reading' : ''}"
                       onclick="goToDate('${key}'); toggleMonthView();">
             <div class="month-day-header">
                 <span class="month-day-num">${d}</span>
                 <span class="month-day-label">${dow}</span>
+                ${hasFullReading ? '<span class="full-reading-badge" title="Full meditation + audio available">📖</span>' : ''}
             </div>
             <div class="month-day-readings">
                 ☀ ${entry.wisdom} &nbsp;·&nbsp;
