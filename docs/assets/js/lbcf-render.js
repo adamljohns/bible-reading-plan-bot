@@ -258,11 +258,14 @@
       const card = document.createElement('a');
       card.className = 'lbcf-card';
       card.href = 'lbcf/chapter-' + padded + '.html';
-      const status = c.status === 'draft'
-        ? '<span class="lbcf-card-status">Draft</span>'
-        : c.status === 'placeholder'
-          ? '<span class="lbcf-card-status placeholder">Coming soon</span>'
-          : '';
+      // Status chip: placeholder → "Coming soon"; version present → "v<num>"; else fallback to "Draft"
+      const status = c.status === 'placeholder'
+        ? '<span class="lbcf-card-status placeholder">Coming soon</span>'
+        : c.version
+          ? '<span class="lbcf-card-status">v' + c.version + '</span>'
+          : c.status === 'draft'
+            ? '<span class="lbcf-card-status">Draft</span>'
+            : '';
       card.innerHTML =
         '<div class="lbcf-card-num">Chapter ' + c.number + '</div>' +
         '<h3>' + c.title + '</h3>' +
@@ -413,6 +416,10 @@
     const copyLinkSvg = '<svg class="lbcf-action-icon" viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg>';
     const printSvg = '<svg class="lbcf-action-icon" viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z"/></svg>';
 
+    const versionLine = chapter.version
+      ? '<p class="lbcf-chap-version">Chapter version ' + chapter.version + ' &middot; LBCF on usmcmin.org</p>'
+      : '';
+
     footer.innerHTML =
       '<div class="lbcf-chap-actions">' +
         '<button type="button" class="lbcf-action-btn" data-action="copy-text" title="Copy the full chapter text to your clipboard">' +
@@ -429,7 +436,8 @@
         'Modernized in reverent contemporary English from the ' +
         '<a href="https://www.ccel.org/ccel/anonymous/bcf.html" target="_blank" rel="noopener">1677/1689 archaic original</a>' +
         ' — a public-domain text hosted by CCEL. Free to copy, quote, and share.' +
-      '</p>';
+      '</p>' +
+      versionLine;
 
     // Wire up handlers
     const copyTextBtn = footer.querySelector('[data-action="copy-text"]');
