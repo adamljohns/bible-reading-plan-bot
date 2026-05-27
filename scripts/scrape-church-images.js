@@ -202,6 +202,18 @@ async function main() {
         console.log(`no-image`);
       }
     } catch (e) {
+      // Network error / DNS / timeout / cert / redirect-loop / etc.
+      // Mark the record as attempted-and-failed so the autopilot doesn't
+      // retry the same broken websites tick after tick.
+      c.image_fetched_at = new Date().toISOString();
+      c.image_source = 'fetch-failed:' + (e.message || 'unknown').slice(0, 60);
+      if (args.refetch) {
+        delete c.image_url;
+        delete c.image_thumb;
+      } else {
+        c.image_url = c.image_url || null;
+        c.image_thumb = c.image_thumb || null;
+      }
       fail++;
       console.log(`FAIL ${e.message}`);
     }
