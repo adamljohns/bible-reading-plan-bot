@@ -33,12 +33,15 @@ const SAVE_EVERY = 25;
 const FETCH_TIMEOUT_MS = 20_000;
 
 function parseArgs() {
-  const out = { state: 'VA', count: null, refetch: false };
+  const out = { state: 'VA', count: null, refetch: false, jsonl: null };
   const a = process.argv.slice(2);
   for (let i = 0; i < a.length; i++) {
     if (a[i] === '--state') out.state = a[++i].toUpperCase();
     else if (a[i] === '--count') out.count = parseInt(a[++i], 10);
     else if (a[i] === '--refetch') out.refetch = true;
+    // --jsonl <path> : RACE-FREE MODE. Results append to JSONL; churches.json
+    // is read-only (only to build the queue). Use with merge-image-scrapes.js.
+    else if (a[i] === '--jsonl') out.jsonl = a[++i];
   }
   return out;
 }
@@ -142,14 +145,36 @@ function extractMeta(html, finalUrl) {
 
 async function main() {
   const args = parseArgs();
+  const jsonlMode = !!args.jsonl;
   console.log(`Loading ${CHURCHES} ...`);
   const data = JSON.parse(fs.readFileSync(CHURCHES, 'utf8'));
+
+  // In JSONL mode, build a Set of already-processed church IDs so we resume
+  // cleanly across autopilot ticks without re-fetching the same churches.
+  const alreadyDone = new Set();
+  if (jsonlMode && fs.existsSync(args.jsonl)) {
+    const lines = fs.readFileSync(args.jsonl, 'utf8').split('\n').filter(Boolean);
+    for (const l of lines) {
+      try { const r = JSON.parse(l); if (r.id) alreadyDone.add(r.id); } catch (e) {}
+    }
+    console.log(`JSONL mode: ${alreadyDone.size} church IDs already in ${args.jsonl}`);
+  }
 
   const stateFilter = args.state === 'ALL' ? null : args.state;
   const todo = [];
   for (const c of data.churches) {
     if (stateFilter && !new RegExp(`,\\s*${stateFilter}\\b`).test(c.address || '')) continue;
-    if (!args.refetch && (c.image_url || c.image_thumb)) continue;
+    const cid = c.id || c.slug;
+    if (jsonlMode) {
+      // JSONL mode: skip records already in our JSONL output (resume-safe).
+      if (alreadyDone.has(cid)) continue;
+      // Also skip records that ALREADY have an image (legacy churches.json data
+      // from the pre-refactor scrape — no point re-fetching).
+      if (!args.refetch && (c.image_url || c.image_thumb || c.image_fetched_at)) continue;
+    } else {
+      // Legacy mode (churches.json direct-write): skip records that have an image.
+      if (!args.refetch && (c.image_url || c.image_thumb)) continue;
+    }
     if (!c.website || !/^https?:/i.test(c.website)) continue;
     todo.push(c);
   }
@@ -157,10 +182,26 @@ async function main() {
   console.log(`State filter: ${stateFilter || 'ALL'}`);
   console.log(`Records to fetch: ${todo.length}`);
   console.log(`Polite delay: ${DELAY_MS}ms — est ${(todo.length * (DELAY_MS+1000) / 60000).toFixed(1)} min`);
+  if (jsonlMode) console.log(`JSONL output: ${args.jsonl} (churches.json will NOT be modified — use merge-image-scrapes.js)`);
   if (!todo.length) { console.log('Nothing to do.'); return; }
 
   let ok = 0, fail = 0, foundOg = 0, foundTwitter = 0, foundTouch = 0;
   const start = Date.now();
+
+  // In JSONL mode, write a result line per outcome and DO NOT mutate the
+  // in-memory church record. In legacy mode, mutate c directly + periodic save.
+  function emit(c, result) {
+    if (jsonlMode) {
+      fs.appendFileSync(args.jsonl, JSON.stringify({ id: c.id || c.slug, ...result }) + '\n');
+      return;
+    }
+    Object.assign(c, result);
+    // On refetch, explicitly clear stale fields if the new result didn't supply them
+    if (args.refetch) {
+      if (!('image_url'   in result)) delete c.image_url;
+      if (!('image_thumb' in result)) delete c.image_thumb;
+    }
+  }
 
   for (let i = 0; i < todo.length; i++) {
     const c = todo[i];
@@ -171,60 +212,54 @@ async function main() {
       const m = extractMeta(html, finalUrl);
       const heroUrl = m.og || m.twitter || null;
       const source = m.og ? 'website-og' : m.twitter ? 'website-twitter' : null;
-      // On refetch, always replace — never keep stale values when the page no longer offers them
+      const result = { image_fetched_at: new Date().toISOString() };
       if (heroUrl) {
-        c.image_url = heroUrl;
-        c.image_source = source;
+        result.image_url = heroUrl;
+        result.image_source = source;
         if (m.og) foundOg++;
         else if (m.twitter) foundTwitter++;
-      } else if (args.refetch) {
-        delete c.image_url;
-        delete c.image_source;
       }
       if (m.touchIcon) {
-        c.image_thumb = m.touchIcon;
+        result.image_thumb = m.touchIcon;
         foundTouch++;
-      } else if (args.refetch) {
-        delete c.image_thumb;
       }
       if (heroUrl || m.touchIcon) {
-        c.image_fetched_at = new Date().toISOString();
+        emit(c, result);
         ok++;
         const got = [heroUrl ? (m.og?'og':'tw') : null, m.touchIcon ? 'tch' : null].filter(Boolean).join('+');
         console.log(`OK [${got}]`);
       } else {
-        // Page was reachable but had no usable image at all — note that
-        c.image_fetched_at = new Date().toISOString();
-        c.image_url = null;
-        c.image_thumb = null;
-        c.image_source = 'website-no-image';
+        // Page was reachable but had no usable image at all
+        result.image_url = null;
+        result.image_thumb = null;
+        result.image_source = 'website-no-image';
+        emit(c, result);
         fail++;
         console.log(`no-image`);
       }
     } catch (e) {
       // Network error / DNS / timeout / cert / redirect-loop / etc.
-      // Mark the record as attempted-and-failed so the autopilot doesn't
-      // retry the same broken websites tick after tick.
-      c.image_fetched_at = new Date().toISOString();
-      c.image_source = 'fetch-failed:' + (e.message || 'unknown').slice(0, 60);
-      if (args.refetch) {
-        delete c.image_url;
-        delete c.image_thumb;
-      } else {
-        c.image_url = c.image_url || null;
-        c.image_thumb = c.image_thumb || null;
-      }
+      // Mark attempted-and-failed so autopilot doesn't infinite-retry.
+      emit(c, {
+        image_fetched_at: new Date().toISOString(),
+        image_source: 'fetch-failed:' + (e.message || 'unknown').slice(0, 60),
+        image_url: null,
+        image_thumb: null,
+      });
       fail++;
       console.log(`FAIL ${e.message}`);
     }
-    if ((i+1) % SAVE_EVERY === 0) {
+    if (!jsonlMode && (i+1) % SAVE_EVERY === 0) {
       fs.writeFileSync(CHURCHES, JSON.stringify(data, null, 2));
       const elapsedMin = ((Date.now() - start) / 60000).toFixed(1);
       console.log(`  -- checkpoint saved (${i+1} done, ${ok} ok, ${fail} fail, ${elapsedMin}m elapsed) --`);
     }
   }
-  fs.writeFileSync(CHURCHES, JSON.stringify(data, null, 2));
+  if (!jsonlMode) {
+    fs.writeFileSync(CHURCHES, JSON.stringify(data, null, 2));
+  }
   console.log(`\nDone. ${ok} ok / ${fail} fail. ${foundOg} og + ${foundTwitter} twitter + ${foundTouch} touch-icon.`);
+  if (jsonlMode) console.log(`Run merge-image-scrapes.js to apply ${ok+fail} results from ${args.jsonl} to churches.json.`);
 }
 
 main().catch(e => { console.error(e); process.exit(1); });
