@@ -161,6 +161,7 @@ redefinition, use the caveat template in `corruption_summary`.
 | 2026-05-23 | 92 | Phase A wk2 b3 — original-language anchor entries (gnosis, splagchnon, makrothumia, tapeinophrosune, paraklesis, plerophoria, kurios, theos, berith, tselem) | +10 | **4,878** |
 | 2026-05-23 | 93 | Phase A wk2 b4 — more original-language anchors (bara, yare, martus, aionios, hagiasmos, apokalupsis, diakonia, presbuteros, charisma, proskuneo) | +10 | **4,888** |
 | 2026-05-23 | 94 | **Phase B opener** — biblical realia (shekel, talent, cubit, mite, laver, shewbread, spikenard, coney, onyx, psaltery) | +10 | **4,898** |
+| 2026-05-23 | 95 | Phase B b2 — tabernacle furnishings (ark-of-the-covenant, mercy-seat-doctrine, candlestick, veil-of-the-temple, mitre, girdle, urim-and-thummim, breastplate-of-judgment, ephod-doctrine, red-heifer) | +10 | **4,908** |
 
 > **Next up:** Phase A wk1 batch 2 — more biblical action verbs (candidates: meditate-related, intercede-related,
 > hush, harm, harden, humble, haste, hire, heed, hide, hush, hunger; +states/qualities words like affliction,
