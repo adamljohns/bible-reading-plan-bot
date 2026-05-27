@@ -163,6 +163,7 @@ redefinition, use the caveat template in `corruption_summary`.
 | 2026-05-23 | 94 | **Phase B opener** — biblical realia (shekel, talent, cubit, mite, laver, shewbread, spikenard, coney, onyx, psaltery) | +10 | **4,898** |
 | 2026-05-23 | 95 | Phase B b2 — tabernacle furnishings (ark-of-the-covenant, mercy-seat-doctrine, candlestick, veil-of-the-temple, mitre, girdle, urim-and-thummim, breastplate-of-judgment, ephod-doctrine, red-heifer) | +10 | **4,908** |
 | 2026-05-23 | 96 | Phase B b3 — Israel's sacred calendar (passover-doctrine, pentecost-doctrine, firstfruits-feast, feast-of-trumpets, new-moon, sabbath-day-doctrine, weekly-sabbath, year-of-release, meat-offering, high-sabbath) | +10 | **4,918** |
+| 2026-05-23 | 97 | Phase B b4 — weights, measures, coins (mina, farthing, pence, stater, bekah, gerah, cab, homer, span, furlong) | +10 | **4,928** |
 
 > **Next up:** Phase A wk1 batch 2 — more biblical action verbs (candidates: meditate-related, intercede-related,
 > hush, harm, harden, humble, haste, hire, heed, hide, hush, hunger; +states/qualities words like affliction,
