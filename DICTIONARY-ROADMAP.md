@@ -165,6 +165,7 @@ redefinition, use the caveat template in `corruption_summary`.
 | 2026-05-23 | 96 | Phase B b3 — Israel's sacred calendar (passover-doctrine, pentecost-doctrine, firstfruits-feast, feast-of-trumpets, new-moon, sabbath-day-doctrine, weekly-sabbath, year-of-release, meat-offering, high-sabbath) | +10 | **4,918** |
 | 2026-05-23 | 97 | Phase B b4 — weights, measures, coins (mina, farthing, pence, stater, bekah, gerah, cab, homer, span, furlong) | +10 | **4,928** |
 | 2026-05-23 | 98 | Phase B b5 — biblical flora & fauna (vine-doctrine, shepherd-and-sheep, lamb-doctrine, lion-doctrine, dove-doctrine, balm-of-gilead, serpent-doctrine, raven-doctrine, sparrow-doctrine, almond-tree) | +10 | **4,938** |
+| 2026-05-23 | 99 | Phase B b6 — biblical tools, warfare, music (sword-of-the-spirit, helmet-of-salvation, breastplate-of-righteousness, buckler, bow-and-arrow, goad, yoke-doctrine, potter-and-clay, threshingfloor, trumpet-doctrine) | +10 | **4,948** |
 
 > **Next up:** Phase A wk1 batch 2 — more biblical action verbs (candidates: meditate-related, intercede-related,
 > hush, harm, harden, humble, haste, hire, heed, hide, hush, hunger; +states/qualities words like affliction,
