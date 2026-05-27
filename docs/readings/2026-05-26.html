@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg">
+<title>Tuesday, May 26, 2026 — Daily Reading | U.S.M.C. Ministries</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+    --bg-dark: #000000; --bg-card: #111111; --bg-card2: #161616;
+    --gold: #D4AF37; --gold-light: #F4D470;
+    --white: #FFFFFF; --gray: #888888; --border: #333333;
+}
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--white);
+    min-height: 100vh;
+    line-height: 1.7;
+}
+h1, h2, h3 { font-family: 'Playfair Display', serif; font-weight: 700; }
+.container { max-width: 820px; margin: 0 auto; padding: 24px 20px 60px; }
+a { color: var(--gold); text-decoration: none; }
+a:hover { color: var(--gold-light); text-decoration: underline; }
+
+.nav-back { margin-bottom: 14px; font-size: 0.95rem; }
+
+.hero { text-align: center; padding: 16px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 18px; }
+.hero h1 { font-size: clamp(1.5rem, 4vw, 2.2rem); color: var(--white); margin-bottom: 6px; }
+.hero .subtitle { color: var(--gold); font-size: 0.95rem; font-style: italic; }
+.hero .doc-line { color: var(--gray); font-size: 0.82rem; margin-top: 6px; }
+
+.watch-tabs {
+    position: sticky; top: 0; z-index: 30;
+    background: var(--bg-dark);
+    border-bottom: 1px solid var(--border);
+    display: flex; flex-wrap: wrap; gap: 6px;
+    padding: 12px 0 14px;
+    margin-bottom: 18px;
+}
+.watch-tab {
+    flex: 1 1 90px;
+    text-align: center;
+    padding: 8px 6px;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    background: var(--bg-card);
+    color: var(--gray);
+    font-size: 0.85rem; font-weight: 500;
+    transition: all 0.15s ease;
+    text-decoration: none !important;
+    white-space: nowrap;
+}
+.watch-tab:hover { color: var(--white); border-color: var(--gold); text-decoration: none !important; }
+.watch-tab.active { background: var(--gold); color: #000; border-color: var(--gold); font-weight: 600; }
+.watch-tab .tab-time { display: block; font-size: 0.7rem; opacity: 0.7; font-family: monospace; }
+.watch-tab.active .tab-time { opacity: 1; }
+
+/* "NOW" badge — shown on the watch tab whose time window contains current local time */
+.watch-tab.is-now { position: relative; box-shadow: 0 0 0 1px var(--gold-light) inset; }
+.watch-tab.is-now::after {
+  content: "NOW";
+  position: absolute; top: -7px; right: -4px;
+  background: var(--gold-light); color: #000;
+  font-size: 0.55rem; font-weight: 700;
+  padding: 1px 5px; border-radius: 100px;
+  letter-spacing: 0.08em;
+}
+
+.watch {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px 22px;
+    margin-bottom: 22px;
+    scroll-margin-top: 80px;
+}
+.watch-header { display: flex; align-items: baseline; gap: 14px; margin-bottom: 10px; flex-wrap: wrap; }
+.watch-time {
+    background: var(--bg-card2); color: var(--gold);
+    padding: 4px 12px; border-radius: 100px;
+    font-family: 'Inter', monospace; font-size: 0.85rem; font-weight: 600;
+    letter-spacing: 0.05em;
+}
+.watch-header h2 { font-size: 1.35rem; color: var(--white); }
+
+.intro { color: var(--gray); font-style: italic; margin-bottom: 14px; }
+
+.audio-slot {
+    margin: 14px 0 18px;
+    padding: 12px 14px;
+    background: var(--bg-card2);
+    border-radius: 8px;
+    border: 1px dashed var(--border);
+}
+.audio-slot.audio-pending { opacity: 0.55; }
+.audio-cap { font-size: 0.8rem; color: var(--gray); margin-top: 4px; }
+
+.scripture {
+    background: var(--bg-card2);
+    border-left: 3px solid var(--gold);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin: 16px 0 22px;
+}
+.scripture-ref { font-weight: 600; color: var(--gold); margin-bottom: 12px; font-size: 0.95rem; }
+.scripture-text p { margin-bottom: 8px; }
+.scripture-text p.stanza { margin-bottom: 14px; }
+
+.section-label {
+    font-family: 'Playfair Display', serif;
+    color: var(--gold); font-weight: 700; font-size: 1.05rem;
+    margin: 22px 0 10px; padding-top: 10px; border-top: 1px solid var(--border);
+}
+.section p, .context p, .reflection p, .history p, .application-block p { margin-bottom: 12px; }
+
+ul.application { padding-left: 22px; margin: 8px 0 14px; }
+ul.application li { margin-bottom: 8px; }
+.application-prose { font-style: italic; color: var(--gold-light); margin-top: 12px; }
+
+.history ul { padding-left: 22px; margin: 8px 0; }
+.history li { margin-bottom: 6px; }
+
+.prayer {
+    background: var(--bg-card2);
+    border-left: 3px solid var(--gold-light);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin: 22px 0;
+}
+.prayer-title { color: var(--gold-light); font-weight: 600; margin-bottom: 10px; font-size: 0.95rem; }
+.prayer p { line-height: 1.85; margin-bottom: 8px; }
+
+.helm {
+    background: var(--bg-card2);
+    border-radius: 6px;
+    padding: 12px 18px;
+    margin-top: 14px;
+    font-size: 0.95rem;
+}
+.helm-icon { color: var(--gold); font-size: 1.1rem; }
+.helm-label { color: var(--gold); font-weight: 600; }
+
+footer {
+    text-align: center;
+    color: var(--gray);
+    font-size: 0.82rem;
+    margin-top: 32px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+}
+footer .draft-tag {
+    display: inline-block;
+    background: #2a2410;
+    color: var(--gold);
+    padding: 4px 12px;
+    border-radius: 100px;
+    font-size: 0.78rem;
+    margin-bottom: 8px;
+    letter-spacing: 0.05em;
+}
+
+@media (max-width: 540px) {
+    .watch-tab { flex: 1 1 64px; font-size: 0.78rem; padding: 6px 4px; }
+    .watch-tab .tab-time { font-size: 0.65rem; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="nav-back">← <a href="/chronological.html">The Watchman's Chronological Plan</a></div>
+
+<div class="hero">
+<h1>Tuesday, May 26, 2026</h1>
+<div class="subtitle">Daily Reading — Day 146 of 365</div>
+<div class="doc-line">MOOP&#x27;s 2026 Daily Bible Readings — Document 5 of 12; for the month of May</div>
+</div>
+
+<nav class="watch-tabs" role="tablist">
+<a href="#all" class="watch-tab active" data-tab="all" role="tab"><span class="tab-label">All Watches</span></a>
+<a href="#wisdom" class="watch-tab" data-tab="wisdom" role="tab"><span class="tab-time">0600</span> <span class="tab-label">Morning Wisdom</span></a>
+<a href="#husband" class="watch-tab" data-tab="husband" role="tab"><span class="tab-time">0700</span> <span class="tab-label">Husband</span></a>
+<a href="#father" class="watch-tab" data-tab="father" role="tab"><span class="tab-time">1100</span> <span class="tab-label">Father</span></a>
+<a href="#citizen" class="watch-tab" data-tab="citizen" role="tab"><span class="tab-time">1500</span> <span class="tab-label">Citizen</span></a>
+<a href="#peace" class="watch-tab" data-tab="peace" role="tab"><span class="tab-time">2100</span> <span class="tab-label">Evening Peace</span></a>
+</nav>
+
+<section class="watch watch-wisdom" id="watch-wisdom" data-watch="wisdom">
+<div class="watch-header"><span class="watch-time">0600</span> <h2>Morning Wisdom</h2></div>
+<p class="intro">Solomon turns from the wise man&#x27;s vineyard to the fool&#x27;s house, and the contrast is brutal. Today he charges us not to dignify foolishness, not to feed strife with our own breath, and not to deal underhandedly with a neighbor we look in the eye.</p>
+<div class="audio-slot">
+  <audio controls preload="metadata" style="width:100%;max-width:560px;">
+    <source src="../assets/audio/readings/2026-05-26-wisdom.mp3" type="audio/mpeg">
+    Your browser does not support audio.
+  </audio>
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — Morning Wisdom</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Proverbs 26</div>
+<div class="scripture-text">
+<p class="stanza">Like snow in summer or rain in harvest,<br>so honor is not fitting for a fool.</p>
+<p class="stanza">Like a sparrow that flits or a swallow that flies,<br>so a curse without cause does not land.</p>
+<p class="stanza">A whip for the horse,<br>a bridle for the donkey,<br>and a rod for the back of fools.</p>
+<p class="stanza">Do not answer a fool according to his folly,<br>or you will be like him yourself.<br>Answer a fool according to his folly,<br>or he will be wise in his own eyes.</p>
+<p class="stanza">Whoever sends a message by the hand of a fool<br>cuts off his own feet and drinks down violence.</p>
+<p class="stanza">A proverb in the mouth of fools<br>hangs limp, like the legs of the lame.</p>
+<p class="stanza">Like one who binds a stone in a sling,<br>so is the man who gives honor to a fool.</p>
+<p class="stanza">Like a thorn that goes up in a drunkard&#x27;s hand,<br>so is a proverb in the mouth of fools.</p>
+<p class="stanza">The great God who formed everything<br>gives the fool his wages, and the passer-by his.</p>
+<p class="stanza">Like a dog that returns to its vomit,<br>so is a fool who repeats his folly.</p>
+<p class="stanza">Do you see a man wise in his own eyes?<br>There is more hope for a fool than for him.</p>
+<p class="stanza">The sluggard says, &quot;There is a lion in the road,<br>a lion in the streets.&quot;<br>As a door turns on its hinges,<br>so the sluggard turns on his bed.<br>The sluggard buries his hand in the dish;<br>he is too tired to bring it back to his mouth.<br>The sluggard is wiser in his own eyes<br>than seven men who can answer with sense.</p>
+<p class="stanza">Like one who grabs a passing dog by the ears,<br>so is the passer-by who meddles in a quarrel not his own.</p>
+<p class="stanza">Like a madman who shoots<br>firebrands, arrows, and death,<br>so is a man who deceives his neighbor and says,<br>&quot;I was only joking.&quot;</p>
+<p class="stanza">Without wood a fire goes out;<br>where there is no whisperer, contention quiets down.</p>
+<p class="stanza">As charcoal is to hot embers and wood to fire,<br>so a quarrelsome man is to kindling strife.</p>
+<p class="stanza">The words of a whisperer are like delicious morsels;<br>they go down into the inner parts of a man.</p>
+<p class="stanza">Like a clay pot covered with silver dross<br>are smooth lips with an evil heart.</p>
+<p class="stanza">He who hates disguises himself with his lips,<br>but he stores up deceit within him.<br>When he speaks graciously, do not believe him,<br>for there are seven abominations in his heart.<br>Though his hatred is covered with deceit,<br>his evil will be exposed in the assembly.</p>
+<p class="stanza">Whoever digs a pit will fall into it,<br>and a stone will come back on the one who rolls it.</p>
+<p class="stanza">A lying tongue hates those it crushes;<br>a flattering mouth works ruin.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🧭 Context Summary</div>
+<p>Solomon walks us through a gallery of men who pretend their words don&#x27;t have weight. The fool, the sluggard, the meddler, the joking deceiver, the whisperer, the smooth-lipped neighbor with seven abominations in his heart — these are not absurd cartoons; they are the men who sit at every dinner table and every group chat. The integrity of a man&#x27;s tongue is the integrity of his whole life. The man who digs a pit falls into it, and the stone he rolls comes back down the hill.</p>
+</div>
+<div class="section reflection">
+<div class="section-label">🛡️ Reflection for a REAL MAN — Acts with Integrity</div>
+<p>A REAL MAN who acts with integrity is, before anything else, a man whose words match his life. Solomon does not start the chapter with adultery, with murder, with theft. He starts with honor that doesn&#x27;t fit, with curses that don&#x27;t land, with proverbs that hang limp in a fool&#x27;s mouth, with a man who sends his message by an unreliable courier. Integrity collapses at the level of speech long before it shows up in scandal.</p>
+<p>Watch how Solomon paints the disguised man, brother. &quot;He who hates disguises himself with his lips, but he stores up deceit within him.&quot; A man whose lips are smooth, whose voice is gracious, whose tone is convivial — and whose heart holds seven abominations. Solomon is not telling us to be naïve, and he is not telling us to be cynical. He is telling us to be men whose insides match our outsides. When we speak graciously, our gracious words come from a gracious heart. When we joke, we do not joke like the madman shooting firebrands. When we meddle, we remember that grabbing a passing dog by the ears costs us our hand.</p>
+<p>Now look at the line in the middle: &quot;Without wood a fire goes out; where there is no whisperer, contention quiets down.&quot; Integrity for the man of God means refusing to be the wood. The whisperer in the office, the whisperer at church, the whisperer in the marriage who knows just enough about the cousin to keep the family fight burning — he is not &quot;telling the truth in love.&quot; He is a load of dry kindling under a fire God Himself would put out. A man who acts with integrity walks past the whispering huddle. He does not need the influence.</p>
+<p>Notice that Solomon ends with the boomerang: &quot;Whoever digs a pit will fall into it, and a stone will come back on the one who rolls it.&quot; Integrity is not just righteousness; it is realism. The unprincipled man is short-sighted because he forgets his pit has gravity. The man of integrity understands that every word he speaks goes around the world and comes back to him. Speak today, brother, as if every sentence will return to your front porch by sundown.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Examine one ongoing conversation — group chat, work Slack, family thread — where you have been &quot;wood.&quot; Stop adding to the fire today.</li>
+<li>Audit one place where your gracious tone has been a polite cover. Repent of the gap between lip and heart.</li>
+<li>Refuse to be the joking deceiver. If a &quot;just kidding&quot; needs to land today, don&#x27;t shoot the firebrand at all.</li>
+<li>Walk past the next whisperer who tries to draw you in. Their morsel may be delicious; the stomach pays for it later.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer</div>
+<p>Father of truth,<br>You see every word before it leaves my lips<br>and You weigh every motive that hides behind a smile.</p>
+<p>By the power of Your Holy Spirit,<br>make me a man whose lips and heart agree —<br>no morsels passed under the table,<br>no proverbs hanging limp in a fool&#x27;s mouth,<br>no kindling carried to a fire You would extinguish.</p>
+<p>In the name of Jesus Christ, my Lord and Commander,<br>the Word made flesh in whom no deceit was ever found —<br>let my words today be wood that warms a house, not wood that burns it down.<br>Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Helm Command:</span> Lips and heart in step — refuse to be wood for any fire God would put out.</div>
+</section>
+
+<section class="watch watch-husband" id="watch-husband" data-watch="husband">
+<div class="watch-header"><span class="watch-time">0700</span> <h2>First Watch — The Husband&#x27;s Post</h2></div>
+<p class="intro">The first watch carries us back into a campaign — Joram, Jehoshaphat, and the king of Edom marching against Moab through the wilderness of Edom, running out of water, and discovering that the LORD still has a prophet in their camp.</p>
+<div class="audio-slot">
+  <audio controls preload="metadata" style="width:100%;max-width:560px;">
+    <source src="../assets/audio/readings/2026-05-26-husband.mp3" type="audio/mpeg">
+    Your browser does not support audio.
+  </audio>
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — First Watch — The Husband's Post</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 2 Kings 3</div>
+<div class="scripture-text">
+<p>Joram son of Ahab began to reign over Israel in Samaria in the eighteenth year of Jehoshaphat king of Judah, and he reigned twelve years. He did what was evil in the eyes of the LORD, though not like his father and mother — he removed the standing stone of Baal that his father had made. Nevertheless, he clung to the sins of Jeroboam son of Nebat, which had made Israel sin; he did not turn from them.</p>
+<p>Mesha king of Moab was a sheep breeder. He used to pay the king of Israel a hundred thousand lambs and the wool of a hundred thousand rams. But when Ahab died, the king of Moab rebelled against the king of Israel.</p>
+<p>So King Joram set out from Samaria on that day and mustered all Israel. He sent word to Jehoshaphat king of Judah: &quot;The king of Moab has rebelled against me. Will you go with me to fight against Moab?&quot;</p>
+<p>Jehoshaphat said: &quot;I will go up. I am as you are, my people as your people, my horses as your horses. Which way shall we go up?&quot;</p>
+<p>Joram said: &quot;The way of the wilderness of Edom.&quot; So the king of Israel, the king of Judah, and the king of Edom marched seven days on a circuitous route, and there was no water for the army or the animals that followed them.</p>
+<p>Joram said: &quot;What now? The LORD has called us, three kings together, to deliver us into the hand of Moab.&quot;</p>
+<p>But Jehoshaphat said: &quot;Is there not here a prophet of the LORD, that we may inquire of the LORD through him?&quot;</p>
+<p>One of the king of Israel&#x27;s servants answered: &quot;Elisha son of Shaphat is here, who used to pour water on the hands of Elijah.&quot;</p>
+<p>Jehoshaphat said: &quot;The word of the LORD is with him.&quot; So the king of Israel, Jehoshaphat, and the king of Edom went down to him.</p>
+<p>Elisha said to the king of Israel: &quot;What have I to do with you? Go to the prophets of your father and the prophets of your mother.&quot;</p>
+<p>The king of Israel said to him: &quot;No — for the LORD has called these three kings together to deliver them into the hand of Moab.&quot;</p>
+<p>Elisha said: &quot;As the LORD of armies lives, before whom I stand, were it not that I have respect for Jehoshaphat king of Judah, I would not so much as look at you or notice you. But now bring me a musician.&quot;</p>
+<p>When the musician played, the hand of the LORD came on Elisha, and he said:</p>
+<p>&quot;Thus says the LORD: make this valley full of trenches. For thus says the LORD — you will not see wind, you will not see rain, but this valley will be filled with water, and you will drink — you and your cattle and your livestock. This is a light thing in the eyes of the LORD; He will also hand Moab over to you. You will strike every fortified city and every choice city; you will fell every good tree, stop up every spring of water, and ruin every good plot of ground with stones.&quot;</p>
+<p>In the morning, at the time of the offering, water came from the direction of Edom; the country was filled with water.</p>
+<p>When all the Moabites heard that the kings had come up to fight against them, they were called out, every man able to put on armor and older. They stood at the border. Rising up early in the morning, the sun shone on the water, and the Moabites looked at the water in front of them as red as blood. They said: &quot;This is blood. The kings have surely fought together and struck one another. Now to the spoil, Moab!&quot;</p>
+<p>But when they came to the camp of Israel, the Israelites rose up and struck the Moabites, who fled before them. They went forward, striking Moab, overthrowing the cities, throwing stones on every good plot of ground until they covered it, stopping up every spring of water, felling every good tree — until at Kir-hareseth only its stones were left. The slingers surrounded it and attacked it.</p>
+<p>When the king of Moab saw that the battle was going against him, he took with him seven hundred swordsmen to break through to the king of Edom, but they could not. Then he took his oldest son, who was to reign in his place, and offered him as a burnt offering on the wall. Great wrath came against Israel, and they withdrew from him and returned to their own land.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🗺️ Briefing Summary</div>
+<p>Three kings march out — Joram, Jehoshaphat, the king of Edom — and seven days in, the army is thirsty and the strategy is in pieces. Joram blames the LORD; Jehoshaphat asks for a prophet. Elisha says plainly to Joram, &quot;Were it not for Jehoshaphat I would not even look at you&quot; — and then dictates a strange instruction: dig the valley full of trenches, the LORD will fill them without wind or rain. By morning the trenches are running with water and the rising sun turns the surface red. Moab takes the bait, marches in, and is crushed. A husband paying attention sees the gospel quietly woven in: the LORD provides for the abiding man through the prophet&#x27;s word, not through the king&#x27;s strategy.</p>
+</div>
+<div class="section reflection">
+<div class="section-label">❤️ Reflection for Your Wife — H.A.P.P.Y. Husband — Abiding</div>
+<p>As a HAPPY husband called to abide, this campaign is a parable of two postures. Joram abides in his anger and his self-pity: &quot;The LORD has called us, three kings together, to deliver us into the hand of Moab.&quot; Jehoshaphat abides in a different rhythm: &quot;Is there not here a prophet of the LORD?&quot; Same drought, same march, same dry valley — but one king abides under his frustration, and the other abides under the word of the LORD.</p>
+<p>Brother, your house keeps track of which posture you abide in. Maria can tell you from across the room. The husband who abides in irritation when the day goes sideways teaches his wife to brace for the sigh that always comes after the long silence. The husband who abides in the word of the LORD teaches her to wait with him until the LORD answers — even when the answer is a strange order like &quot;dig the valley full of trenches.&quot;</p>
+<p>Notice the instruction: dig trenches before you see rain. Elisha does not say, &quot;You will hear rain, and then dig.&quot; He says, &quot;You will not see wind or rain — and yet the trenches will fill.&quot; Abiding under the word of the LORD always asks a husband to do something costly before there is any visible reason to. Open the Bible at the kitchen table tonight even though no one feels devotional. Tithe even though the budget is tight. Forgive even though the apology has not yet come. The husband who abides digs his trench before the rain.</p>
+<p>And note how the music goes ahead of the word. Elisha calls for a musician before he prophesies, and &quot;when the musician played, the hand of the LORD came on Elisha.&quot; A husband who abides knows that worship goes ahead of wisdom in his house. The trench gets dug after the song is sung. A home with no song has no rhythm for digging.</p>
+<p>The sunlight catches the water at dawn, and the Moabites think they see blood. The same water that revives the abiding kings deceives the kingdom that does not abide. The LORD is generous to those who wait under His word — and that same generosity becomes a trap for those who only show up at the surface. Your wife is watching: are you a Jehoshaphat at the morning offering, or a Joram cursing the march?</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Dig a trench today before any rain. Pick one act of obedience your circumstances don&#x27;t yet justify — and do it.</li>
+<li>Put the music on before the conversation. In tense moments at home, abide under a song or a Psalm before you abide under the words.</li>
+<li>If you have been Joram lately — blaming the LORD for the dry march — repent of it out loud, in front of your wife.</li>
+<li>Find your &quot;Jehoshaphat&quot; — a friend or pastor who keeps asking the prophet&#x27;s question — and lean on him this week.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Stateroom</div>
+<p>Father, God of the dry valley and the morning offering,<br>You filled the trenches without wind or rain<br>and turned the rising sun into a snare for the proud.</p>
+<p>By the power of Your Holy Spirit,<br>make me a husband who abides under Your word<br>even when the march has been long and the army is thirsty.<br>Teach me to call for the musician before I call for the messenger,<br>and to dig trenches that only Your hand will fill.</p>
+<p>In the name of Jesus Christ, my Lord and Commander,<br>the true Prophet who stands before the LORD of armies on my behalf —<br>let my wife see in me the abiding patience of a man under Your word.<br>Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Helm Command:</span> Dig your trench before the rain — abide under His word, and let the LORD fill the valley at dawn.</div>
+</section>
+
+<section class="watch watch-father" id="watch-father" data-watch="father">
+<div class="watch-header"><span class="watch-time">1100</span> <h2>Second Watch — The Father&#x27;s Charge</h2></div>
+<p class="intro">The second watch shows us Elisha in two faithful rooms — a widow&#x27;s empty kitchen and a Shunammite&#x27;s prepared upper room. In both, the prophet meets people who are paying attention to whether the man of God will be welcomed.</p>
+<div class="audio-slot">
+  <audio controls preload="metadata" style="width:100%;max-width:560px;">
+    <source src="../assets/audio/readings/2026-05-26-father.mp3" type="audio/mpeg">
+    Your browser does not support audio.
+  </audio>
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — Second Watch — The Father's Charge</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 2 Kings 4:1–23</div>
+<div class="scripture-text">
+<p>A certain woman of the wives of the sons of the prophets cried out to Elisha: &quot;Your servant my husband is dead, and you know that your servant feared the LORD. Now the creditor has come to take my two children to be his slaves.&quot;</p>
+<p>Elisha said to her: &quot;What shall I do for you? Tell me, what do you have in the house?&quot;</p>
+<p>She said: &quot;Your servant has nothing in the house except a jar of oil.&quot;</p>
+<p>He said: &quot;Go, borrow vessels from outside, from all your neighbors — empty vessels, and not a few. Then go in, shut the door behind you and your sons, and pour out into all the vessels, setting aside each one as it is filled.&quot;</p>
+<p>She left him and shut the door behind herself and her sons. They brought her the vessels, and she kept pouring. When the vessels were full, she said to her son: &quot;Bring me another vessel.&quot;</p>
+<p>He said: &quot;There are no more vessels.&quot; Then the oil stopped.</p>
+<p>She came and told the man of God, and he said: &quot;Go, sell the oil and pay your debts; you and your sons can live on the rest.&quot;</p>
+<p>⸻</p>
+<p>One day Elisha went on to Shunem, where there was a notable woman, and she urged him to eat a meal. So whenever he passed by, he would turn in there to eat. She said to her husband: &quot;Look — I know that this is a holy man of God who passes by us regularly. Let us make a small upper room on the wall, and let us set there for him a bed, a table, a chair, and a lampstand, so that whenever he comes to us he can turn in there.&quot;</p>
+<p>One day he came there, turned into the upper room, and rested. He said to Gehazi his servant: &quot;Call this Shunammite woman.&quot; When he had called her, she stood before him.</p>
+<p>He said to Gehazi: &quot;Tell her, &#x27;You have shown all this care for us — what is to be done for you? Is there something to be said for you to the king, or to the captain of the army?&#x27;&quot;</p>
+<p>She answered: &quot;I live among my own people.&quot;</p>
+<p>Elisha said: &quot;What then is to be done for her?&quot;</p>
+<p>Gehazi answered: &quot;There is one thing — she has no son, and her husband is old.&quot;</p>
+<p>He said: &quot;Call her.&quot; When he called her, she stood in the doorway.</p>
+<p>He said: &quot;At this season, in the cycle of life, you shall embrace a son.&quot;</p>
+<p>She said: &quot;No, my lord, man of God, do not lie to your servant.&quot;</p>
+<p>But the woman conceived and bore a son at that season the next year, just as Elisha had said.</p>
+<p>The child grew up. One day he went out to his father, among the reapers. He said to his father: &quot;My head, my head.&quot; The father said to a young man: &quot;Carry him to his mother.&quot; When he had carried him in and brought him to his mother, the boy sat on her lap until noon — and died.</p>
+<p>She went up and laid him on the bed of the man of God; she closed the door on him and went out. Then she called to her husband: &quot;Send me one of the young men and one of the donkeys, so I may run to the man of God and come back.&quot;</p>
+<p>He said: &quot;Why are you going to him today? It is neither new moon nor sabbath.&quot;</p>
+<p>She said: &quot;Shalom — peace.&quot; Then she saddled the donkey and said to her young man: &quot;Drive forward; do not slacken the pace for me unless I tell you.&quot;</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🗺️ Field Notes</div>
+<p>Two faithful homes, two desperate kitchens. The widow has a jar of oil and two sons about to be sold. Elisha tells her to gather empty vessels and pour — the supply outlasts the borrowed bowls, and the LORD pays the debt through her hands. Then the Shunammite woman builds a small room on her wall — bed, table, chair, lampstand — for the prophet to rest in. The LORD answers her hospitality with a son, and when the boy dies in her arms she does not weep at the table; she lays him on the prophet&#x27;s bed, closes the door, and rides for help with one word on her lips: &quot;Shalom.&quot; A father paying attention sees how faithful living quietly arranges a house so that, when crisis arrives, there is already a door to shut and a prophet to ride for.</p>
+</div>
+<div class="section reflection">
+<div class="section-label">👨‍👦 Reflection for Your Children — F.U.L.F.I.L.L.E.D. Father — Faithful</div>
+<p>As a FULFILLED father called to be faithful, you have two homes in front of you tonight. One is hollowed out by debt and death; one is so quietly faithful that it has already built a room on the wall before the test arrives. Both rooms are the LORD&#x27;s training ground for a household, and both are speaking to you about Gideon, Boaz, and Shiloh.</p>
+<p>Look at the widow first. Her husband is dead, the creditor is at the door, the cupboards are empty — and her assets total one jar of oil. Yet she still hears, &quot;Go and borrow vessels.&quot; Faithful fatherhood, brother, means raising children who can do the next obedient thing even when the house is in collapse. Gideon at nineteen needs to see a father who, when stripped of every advantage, still believes the LORD can fill an empty room from a jar of oil. Boaz at fourteen needs to learn the discipline of going next door for one more bowl when his own life feels empty. Shiloh at five needs the lesson the widow&#x27;s sons probably learned that morning — Daddy obeys the word of the LORD even when it doesn&#x27;t make sense from inside the locked door.</p>
+<p>And notice that closed door. Elisha says, &quot;Shut the door behind you and your sons.&quot; Faithful fathering happens behind closed doors. The boys helped pour. They watched their mother work. They saw the miracle without anyone outside seeing it. The most important catechesis in your house will never be witnessed by the neighbors. Family worship at the kitchen table, your hand on Shiloh&#x27;s head as she falls asleep, the long talk with Gideon on the back porch, Boaz beside you under the hood of the truck — these are the closed-room moments where the oil keeps coming.</p>
+<p>Then walk into the Shunammite&#x27;s house. Notice the order: she sees the prophet pass by, she names him correctly — &quot;a holy man of God&quot; — and she calmly arranges her home around the realities she has named. A bed, a table, a chair, a lampstand. Bare necessities, but faithful necessities. A faithful father builds the wall room before the crisis. He sets the rhythms of family worship and ordered meals and present fatherhood while everything is fine, so that when the boy comes in clutching his head, the mother already knows which door to shut.</p>
+<p>And don&#x27;t miss her one-word answer to her husband: &quot;Shalom.&quot; Brother, your wife and children should know that you are the kind of father whose first word in crisis is peace. Not panic. Not narration. Not the long-suffering sigh. Faithfulness is a household so trained that the worst day still begins, &quot;Shalom,&quot; and rides hard to the man of God.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Pour out what you have today, even if it is just a jar of oil. One faithful prayer, one verse memorized, one apology — do not despise the small obedience.</li>
+<li>Build the wall room. Put one structural rhythm into your home this week — a Sabbath meal, a fixed devotional time, a Saturday-morning errand routine with one child — before any crisis demands it.</li>
+<li>Shut the door for one closed-room catechesis with each child this week. The miracle does not need a witness from the street.</li>
+<li>Train your &quot;Shalom&quot; answer. Practice it on the small frustrations so it is on your lips when the big one comes.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Wardroom</div>
+<p>Father, God of the empty kitchen and the upper room,<br>You meet a widow&#x27;s last jar with vessels that do not stop pouring,<br>and You answer a faithful woman&#x27;s hospitality with a son.</p>
+<p>By the power of Your Holy Spirit,<br>make me a faithful father —<br>quick to pour the last of what I have under Your word,<br>quick to build the wall room before the boy clutches his head,<br>quick to answer my wife and children with shalom even when my legs are shaking.</p>
+<p>In the name of Jesus Christ, my Lord and Commander,<br>the Bread that does not run out and the Door that does not close —<br>let my children remember a father whose faithfulness filled the borrowed vessels.<br>Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Rudder Steer:</span> Pour the oil, shut the door, build the wall room — and answer the worst day with &quot;Shalom&quot; before you ride.</div>
+</section>
+
+<section class="watch watch-citizen" id="watch-citizen" data-watch="citizen">
+<div class="watch-header"><span class="watch-time">1500</span> <h2>Third Watch — The Citizen&#x27;s Stand</h2></div>
+<p class="intro">The third watch follows the Shunammite woman the rest of the way to the prophet, and then sits down at two more tables — one of poisoned pottage made safe with meal, and one where a small basket of bread feeds a hundred men. Elisha keeps showing up wherever the community is sick or starving.</p>
+<div class="audio-slot">
+  <audio controls preload="metadata" style="width:100%;max-width:560px;">
+    <source src="../assets/audio/readings/2026-05-26-citizen.mp3" type="audio/mpeg">
+    Your browser does not support audio.
+  </audio>
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — Third Watch — The Citizen's Stand</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 2 Kings 4:24–44</div>
+<div class="scripture-text">
+<p>She rode and came to the man of God at Mount Carmel.</p>
+<p>When the man of God saw her in the distance, he said to Gehazi his servant: &quot;Look — there is the Shunammite. Run to meet her and ask her, &#x27;Is it well with you? Is it well with your husband? Is it well with the child?&#x27;&quot;</p>
+<p>She answered Gehazi: &quot;It is well.&quot;</p>
+<p>But when she came to the man of God at the mountain, she caught hold of his feet. Gehazi came near to push her away, but the man of God said: &quot;Let her alone — her soul is bitter in her, and the LORD has hidden it from me and has not told me.&quot;</p>
+<p>She said: &quot;Did I ask a son from my lord? Did I not say, &#x27;Do not deceive me&#x27;?&quot;</p>
+<p>He said to Gehazi: &quot;Gird up your loins and take my staff in your hand. Go on your way. If you meet any man, do not greet him; if any man greets you, do not answer him. Lay my staff on the face of the boy.&quot;</p>
+<p>The mother of the boy said: &quot;As the LORD lives and as your soul lives, I will not leave you.&quot; So he got up and followed her.</p>
+<p>Gehazi went ahead of them and laid the staff on the face of the boy, but there was no sound and no responding. He returned to meet Elisha and told him: &quot;The boy has not awakened.&quot;</p>
+<p>Elisha came into the house — and there was the boy, dead, laid on his bed. He went in, shut the door behind the two of them, and prayed to the LORD. Then he went up and lay on the boy, putting his mouth on his mouth, his eyes on his eyes, his hands on his hands; he stretched himself out on him, and the flesh of the boy grew warm. He got up and walked back and forth in the house once, and went up and stretched himself out on him again. The boy sneezed seven times, and the boy opened his eyes.</p>
+<p>Elisha called Gehazi: &quot;Call this Shunammite.&quot; So he called her, and when she came in to him, he said: &quot;Pick up your son.&quot; She came in, fell at his feet, bowed to the ground, and picked up her son and went out.</p>
+<p>⸻</p>
+<p>Elisha came again to Gilgal during a famine in the land. As the sons of the prophets were sitting before him, he said to his servant: &quot;Set the large pot on the fire and boil pottage for the sons of the prophets.&quot;</p>
+<p>One of them went out into the field to gather herbs, and he found a wild vine and gathered from it wild gourds — his cloak full — and came in and cut them into the pot of pottage, although they did not know what they were. So they served them out for the men to eat. But as they were eating the pottage, they cried out: &quot;O man of God, there is death in the pot!&quot; And they could not eat it.</p>
+<p>He said: &quot;Then bring flour.&quot; He threw it into the pot and said: &quot;Pour out for the people, that they may eat.&quot; There was no harm in the pot.</p>
+<p>⸻</p>
+<p>A man came from Baal-shalishah and brought the man of God bread of the firstfruits — twenty loaves of barley and fresh ears of grain in his sack. He said: &quot;Give it to the people, so that they may eat.&quot;</p>
+<p>His servant said: &quot;How can I set this before a hundred men?&quot;</p>
+<p>But he said: &quot;Give it to the people, that they may eat — for thus says the LORD: they shall eat and have some left over.&quot; So he set it before them, and they ate, and they had some left, just as the word of the LORD had said.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🛰️ Situation Report</div>
+<p>Three crises, one prophet. The Shunammite&#x27;s son is dead — Elisha shuts the door, stretches himself out on the boy twice, and the boy sneezes seven times. The sons of the prophets pour wild gourds into the pot and call out &quot;death in the pot!&quot; — Elisha pours in meal, and the food is safe. A famine-time gift of twenty barley loaves shows up in the camp — and a hundred men eat with leftovers. A citizen looking at his own community in 2026 sees the pattern: the man of God does not wait for the well-staged crisis. He is engaged with the upper room, the kitchen pot, and the public table. Engagement is steady, not heroic.</p>
+</div>
+<div class="section reflection resolute">
+<div class="section-label">🛡️ Reflection for a R.E.S.O.L.U.T.E. Citizen — Engaged</div>
+<p>Fredericksburg (local)<br>As a RESOLUTE citizen called to be engaged, Elisha is the local pattern. He does not commute to a famous mountain to receive prophecies; he runs back and forth between Mount Carmel, the Shunammite&#x27;s upper room, the sons of the prophets at Gilgal, and a stranger from Baal-shalishah who showed up with twenty loaves. In Fredericksburg, that looks like the man who shows up to the youth night and the elder meeting and the food bank distribution and the Saturday work-day in the same month. The engaged citizen is not the one with the most followers; he is the one who keeps appearing wherever a door needs to be shut around a dying boy or a meal needs to be salvaged.</p>
+<p>Virginia (state)<br>Across Virginia, engagement looks like the Shunammite woman&#x27;s prepared room. She did not lobby Samaria. She did not run for office. She watched the man of God passing by week after week and built a small upper room with bed, table, chair, and lampstand on her own wall. Engaged citizenship at the state level is mostly that kind of quiet provision — the deacon fund someone keeps fed, the homeschool co-op that has been meeting in someone&#x27;s basement for nine years, the recovery group that keeps the coffee on, the family that has a guest room ready for whoever the LORD sends down the road. We do not need more men with louder opinions in Richmond. We need more upper rooms on more walls.</p>
+<p>United States (nation)<br>At the national level, the engaged citizen is the man who refuses to be the servant who pushed the Shunammite away. Elisha sees her coming, and Gehazi reaches to push her off — and Elisha rebukes Gehazi: &quot;Let her alone; her soul is bitter, and the LORD has hidden it from me.&quot; America has become a country full of Gehazis, brother — gatekeepers ready to push the bitter-souled woman, the inconvenient son, the dying boy in the upper room, the famine refugee at the door. An engaged citizen of this republic is the man who lets her come, who hears her bitter soul, who shuts the door, who lies down on the dead child, who calls out for flour when the pot is poisoned, who hands out twenty loaves to a hundred men and is unsurprised when the LORD has it left over. Engagement is not partisanship; it is presence — at the upper room door, at the kitchen pot, at the famine table.</p>
+</div>
+<div class="section history">
+<div class="section-label">🦅 This Day in American History — May 26</div>
+<p>• 1865 — General Edmund Kirby Smith surrenders the Confederate Department of the Trans-Mississippi at Galveston, effectively ending the Civil War in the West. An engaged citizen does not turn his back the day the war ends; he stays on his post for the long, harder labor of reconciliation, where soldiers from both sides go back to building roads, churches, and families inside the same wounded republic.<br>• 1868 — The U.S. Senate fails to convict President Andrew Johnson by a single vote — that of Senator Edmund Ross of Kansas, who later wrote that he &quot;looked down into his open grave&quot; before he voted. Whatever one thinks of Johnson, Ross showed what engagement costs: a citizen with a vote sometimes has to stand against his own party because the constitutional architecture asks it of him. Engagement is not always loud; sometimes it is one man&#x27;s quiet conscience holding a hinge while the country forgets why the door even has one.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Be a Shunammite: build one upper-room rhythm into your house this week so the LORD has an obvious place to send the next traveler.</li>
+<li>Refuse to be a Gehazi. When someone bitter-souled comes near, do not push them off. Let them come, hear their grief, ride with them to the man of God.</li>
+<li>Show up where you actually live. Pick one local table, deacon fund, school board, or neighborhood thing — and commit to a full year of presence, not a quarter.</li>
+<li>Pour the meal. When the pot in your circle has wild gourds in it — gossip, suspicion, fear — pour in the LORD&#x27;s word, not your opinion. Let the harm come out.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Bridge</div>
+<p>Father, present in every upper room and every kitchen pot,<br>You raise dead boys and You feed a hundred men with twenty loaves;<br>You stand by Your prophet wherever he runs in obedience.</p>
+<p>By the power of Your Holy Spirit,<br>make me an engaged citizen — in this city, in this state, in this nation —<br>willing to shut the door behind the bitter-souled woman,<br>willing to pour meal into the poisoned pot,<br>willing to hand out the small basket of bread and trust You for leftovers.</p>
+<p>In the name of Jesus Christ, my Lord and Commander,<br>the Bread of life who feeds the multitudes and raises the dead son —<br>keep me from the gatekeeper&#x27;s reflex; let me be present where You are running.<br>Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Rudder Steer:</span> Stay engaged where you actually live — let the bitter-souled come, pour the meal, pass the bread.</div>
+</section>
+
+<section class="watch watch-peace" id="watch-peace" data-watch="peace">
+<div class="watch-header"><span class="watch-time">2100</span> <h2>Evening Peace</h2></div>
+<p class="intro">Tonight&#x27;s psalm is the deepest cry of any soul that has known the LORD — from the bottom of the sea-floor of his own sin, the Psalmist calls up to the only One who can pull him out, and the answer is forgiveness, not innocence.</p>
+<div class="audio-slot">
+  <audio controls preload="metadata" style="width:100%;max-width:560px;">
+    <source src="../assets/audio/readings/2026-05-26-peace.mp3" type="audio/mpeg">
+    Your browser does not support audio.
+  </audio>
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — Evening Peace</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Psalm 130</div>
+<div class="scripture-text">
+<p>A Song of Ascents.</p>
+<p class="stanza">Out of the depths I cry to You, O LORD —<br>O Lord, hear my voice;<br>let Your ears be attentive<br>to the voice of my pleas for mercy.</p>
+<p class="stanza">If You, O LORD, kept a record of iniquities,<br>O Lord, who could stand?<br>But with You there is forgiveness,<br>that You may be feared.</p>
+<p class="stanza">I wait for the LORD; my soul waits,<br>and in His word I hope.<br>My soul waits for the Lord<br>more than watchmen wait for the morning —<br>more than watchmen wait for the morning.</p>
+<p class="stanza">O Israel, hope in the LORD —<br>for with the LORD there is steadfast love,<br>and with Him is plentiful redemption.<br>He will redeem Israel<br>from all his iniquities.</p>
+</div>
+</div>
+<div class="section reflection">
+<div class="section-label">🌾 Reflection for a Man at Home and in Community</div>
+<p>Tonight is the deep-water psalm — the one a man comes back to every time the LORD lets him see how far down he had been when he was rescued. The Psalmist does not pretend to climb. He cries. He waits. He hopes. And then he gives his community the same prescription: &quot;O Israel, hope in the LORD.&quot; This is the right rhythm for a tired soul under the lamp at the end of a long Tuesday.</p>
+<p>As a HAPPY husband, Abiding tonight means you stop pretending you do not also cry from the depths. Maria is not asking you to be a tireless captain; she is asking you to be a husband honest enough to wait under the same mercy she waits under. Tell her tonight, plainly, that the LORD is your hope — not your own track record. Marriages that abide are marriages where two sinners wait for the morning together.</p>
+<p>As a FULFILLED father, Faithful tonight means you let Gideon, Boaz, and Shiloh hear you say it: &quot;If You, O LORD, kept a record of iniquities, O Lord, who could stand?&quot; Faithfulness in a father is not the performance of righteousness; it is the public confession that he, too, is one of the redeemed. Your children should know your name is on the list with theirs at the foot of the cross. That is what makes your faithfulness bearable.</p>
+<p>As a RESOLUTE citizen, Engaged tonight means you remember that the city does not need a redeemer with your name on him. The LORD has plentiful redemption — He has not run out, and He has not delegated. Hand the day&#x27;s burdens back to Him before you sleep. Fredericksburg, Virginia, the United States — they all watch their own morning more than the watchman does. He will redeem Israel from all his iniquities. Sleep, brother. Hope, and wait, and rise tomorrow.</p>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Stateroom</div>
+<p>Father of mercy in the deep,<br>You hear voices from the bottom of the sea-floor<br>and You forgive in such a way that we fear You rightly.</p>
+<p>By the power of Your Holy Spirit,<br>let me wait for You tonight more than the watchman waits for the morning.<br>Hold Maria under Your mercy,<br>hold my children under Your covering,<br>hold my city under Your plentiful redemption.</p>
+<p>In the name of Jesus Christ, my Lord and Commander,<br>the Redeemer in whom there is steadfast love and full redemption —<br>let me sleep as one already forgiven,<br>and wake as one still in His hand.<br>Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Rudder Steer:</span> Cry, wait, hope — sleep under the mercy of the LORD with watchmen on the wall.</div>
+</section>
+
+<footer>
+<div class="draft-tag">PROTOTYPE — sign-off pending</div>
+<div>U.S.M.C. Ministries · The Watchman's Chronological Plan for the Year of our Lord 2026</div>
+<div style="margin-top:6px;font-size:0.78rem;">Adam Johns &middot; rich interpretive blend &middot; divine name LORD</div>
+</footer>
+
+</div>
+<script>
+(function(){
+  const SLUGS = ['all','wisdom','husband','father','citizen','peace'];
+
+  // Watch windows in local hours (each watch is "live" from its start time
+  // until the NEXT watch begins). Evening peace owns 21:00 → 04:59.
+  function currentWatchSlug() {
+    const h = new Date().getHours();
+    if (h >= 5  && h < 7)  return 'wisdom';
+    if (h >= 7  && h < 11) return 'husband';
+    if (h >= 11 && h < 15) return 'father';
+    if (h >= 15 && h < 21) return 'citizen';
+    return 'peace';                       // 21:00 – 04:59
+  }
+  const NOW_SLUG = currentWatchSlug();
+
+  function markNowBadge(){
+    document.querySelectorAll('.watch-tab').forEach(t => {
+      t.classList.toggle('is-now', t.dataset.tab === NOW_SLUG);
+    });
+  }
+  function showOnly(slug){
+    const isAll = slug === 'all' || !SLUGS.includes(slug);
+    document.querySelectorAll('section.watch').forEach(s => {
+      s.style.display = (isAll || s.dataset.watch === slug) ? '' : 'none';
+    });
+    document.querySelectorAll('.watch-tab').forEach(t => {
+      t.classList.toggle('active', t.dataset.tab === (isAll ? 'all' : slug));
+    });
+  }
+  document.querySelectorAll('.watch-tab').forEach(t => {
+    t.addEventListener('click', function(e){
+      e.preventDefault();
+      const slug = this.dataset.tab;
+      history.replaceState(null, '', '#' + slug);
+      showOnly(slug);
+      window.scrollTo({top: 0, behavior:'smooth'});
+    });
+  });
+
+  // Initial selection priority:
+  //   1. URL hash if present  (#all / #wisdom / #husband / #father / #citizen / #peace)
+  //   2. Auto-select the watch that is "live right now"
+  let initial;
+  if (location.hash) {
+    initial = location.hash.slice(1);
+  } else {
+    initial = NOW_SLUG;
+  }
+  markNowBadge();
+  showOnly(initial);
+})();
+</script>
+</body>
+</html>
