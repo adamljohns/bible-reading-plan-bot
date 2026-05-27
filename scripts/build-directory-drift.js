@@ -286,6 +286,7 @@ const html = `<!DOCTYPE html>
     <a href="/directory-overview.html">Overview</a>
     <a href="/directory-politicians.html">Politicians</a>
     <a href="/directory-networks.html">Networks</a>
+    <a href="/directory-map.html">Map</a>
     <a href="/directory-methodology.html">Methodology</a>
     <a href="/directory-drift.html" class="active">Drift</a>
     <a href="/directory-roadmap.html">Roadmap</a>

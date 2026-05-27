@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-touch-icon.png">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Interactive geographic map of the MOOP Church Directory — every doctrinally-vetted US church plotted by location, color-coded by rubric rating. Phase 1 covers Virginia (533 geocoded churches); the rest of the country follows.">
+  <meta property="og:title" content="Church Map | MOOP Church Directory | USMC Ministries">
+  <meta property="og:description" content="See every vetted church in your area at a glance — color-coded by rubric rating, with one-click access to each church's profile page.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://usmcmin.org/directory-map.html">
+  <meta property="og:image" content="https://usmcmin.org/assets/icons/icon-512.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Church Map | MOOP Church Directory">
+  <meta name="twitter:image" content="https://usmcmin.org/assets/icons/icon-512.png">
+  <title>Church Map | MOOP Church Directory | USMC Ministries</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    :root { --bg:#000; --card:#111; --card2:#1a1a1a; --gold:#D4AF37; --gold-light:#F4D470; --white:#e8e8e8; --gray:#888; --border:#333; --green:#3ea14a; --yellow:#d4a437; --red:#c0392b; --black:#444; --dead:#666; }
+    body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--white); min-height:100vh; line-height:1.6; }
+    h1,h2,h3 { font-family:'Playfair Display',serif; }
+    nav { display:flex; flex-wrap:wrap; gap:6px; justify-content:center; padding:14px 20px; border-bottom:1px solid var(--border); background:rgba(0,0,0,0.95); backdrop-filter:blur(8px); position:sticky; top:0; z-index:1000; }
+    nav a { color:var(--gray); text-decoration:none; font-size:0.85rem; font-weight:500; padding:5px 12px; border-radius:20px; border:1px solid transparent; transition:all 0.2s; white-space:nowrap; }
+    nav a:hover { color:var(--gold); border-color:var(--border); }
+    nav a.active { color:var(--gold) !important; border-color:var(--gold); }
+
+    .hero { max-width:1100px; margin:0 auto; padding:32px 22px 18px; text-align:center; }
+    .hero .breadcrumb { color:var(--gray); font-size:0.85rem; margin-bottom:10px; letter-spacing:1px; }
+    .hero .breadcrumb a { color:var(--gold); text-decoration:none; }
+    .hero h1 { font-size:clamp(1.8rem, 4.5vw, 2.4rem); color:var(--gold-light); margin:6px 0 10px; letter-spacing:0.5px; }
+    .hero .subtitle { color:var(--gray); max-width:780px; margin:0 auto; font-size:0.98rem; font-style:italic; }
+
+    .controls { max-width:1100px; margin:18px auto 12px; padding:0 22px; display:flex; gap:12px; flex-wrap:wrap; align-items:center; justify-content:center; }
+    .controls .pill { display:flex; align-items:center; gap:6px; background:var(--card); border:1px solid var(--border); border-radius:20px; padding:6px 14px; font-size:0.82rem; cursor:pointer; user-select:none; transition:all 0.15s; }
+    .controls .pill input { accent-color:var(--gold); margin:0; }
+    .controls .pill:hover { border-color:var(--gold); }
+    .controls .pill.green-pill { border-color:rgba(62,161,74,0.4); }
+    .controls .pill.yellow-pill { border-color:rgba(212,164,55,0.4); }
+    .controls .pill.red-pill { border-color:rgba(192,57,43,0.4); }
+    .controls .pill.black-pill { border-color:rgba(80,80,80,0.6); color:#aaa; }
+    .controls .count { color:var(--gold); font-variant-numeric:tabular-nums; font-weight:600; }
+    .controls select { background:var(--card); border:1px solid var(--border); color:var(--white); padding:6px 14px; border-radius:20px; font-size:0.82rem; font-family:inherit; cursor:pointer; }
+    .controls select:focus { outline:none; border-color:var(--gold); }
+    .controls .visible-count { color:var(--gold-light); font-size:0.85rem; font-style:italic; margin-left:8px; }
+
+    #map { width:100%; height:calc(100vh - 230px); min-height:520px; background:#0b0b0b; border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
+
+    .leaflet-popup-content-wrapper { background:#111; color:var(--white); border-radius:6px; border:1px solid var(--gold); }
+    .leaflet-popup-tip { background:#111; border:1px solid var(--gold); }
+    .leaflet-popup-content { margin:14px 16px; font-family:'Inter',sans-serif; font-size:0.88rem; line-height:1.55; max-width:280px; }
+    .leaflet-popup-content h4 { font-family:'Playfair Display',serif; font-size:1.05rem; color:var(--gold-light); margin-bottom:6px; line-height:1.3; }
+    .leaflet-popup-content .denom { color:var(--gray); font-size:0.78rem; margin-bottom:4px; }
+    .leaflet-popup-content .pastor { color:#c9d1d9; font-size:0.82rem; margin-bottom:4px; }
+    .leaflet-popup-content .addr { color:var(--gray); font-size:0.78rem; margin-bottom:8px; }
+    .leaflet-popup-content .rating { display:inline-block; padding:2px 8px; border-radius:10px; font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; border:1px solid; margin-right:6px; }
+    .leaflet-popup-content .rating.green { color:var(--green); border-color:var(--green); background:rgba(62,161,74,0.1); }
+    .leaflet-popup-content .rating.yellow { color:var(--yellow); border-color:var(--yellow); background:rgba(212,164,55,0.1); }
+    .leaflet-popup-content .rating.red { color:#f85149; border-color:var(--red); background:rgba(192,57,43,0.1); }
+    .leaflet-popup-content .rating.black { color:#aaa; border-color:#666; background:#222; }
+    .leaflet-popup-content .rating.dead { color:#666; border-color:#444; background:transparent; }
+    .leaflet-popup-content .rating.unrated { color:var(--gray); border-color:var(--border); background:transparent; }
+    .leaflet-popup-content a.profile-link { display:inline-block; margin-top:8px; color:var(--gold); font-weight:600; text-decoration:none; border-bottom:1px dotted var(--gold); }
+    .leaflet-popup-content a.profile-link:hover { color:var(--gold-light); border-bottom-color:var(--gold-light); }
+
+    .footer-strip { max-width:1100px; margin:18px auto; padding:0 22px; color:var(--gray); font-size:0.82rem; text-align:center; line-height:1.85; }
+    .footer-strip a { color:var(--gold); text-decoration:none; }
+
+    footer { padding:24px 20px; text-align:center; color:var(--gray); font-size:0.78rem; border-top:1px solid var(--border); margin-top:30px; }
+    footer a { color:var(--gold); text-decoration:none; }
+
+    /* Leaflet attribution dark mode */
+    .leaflet-control-attribution { background:rgba(0,0,0,0.7) !important; color:#888 !important; font-size:0.7rem !important; }
+    .leaflet-control-attribution a { color:var(--gold) !important; }
+
+    @media (max-width:600px) {
+      .hero { padding:24px 16px 12px; }
+      .controls { gap:8px; }
+      .controls .pill { padding:5px 11px; font-size:0.78rem; }
+      #map { height:calc(100vh - 280px); min-height:380px; }
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="/">Home</a>
+    <a href="/churches.html">Directory</a>
+    <a href="/directory-overview.html">Overview</a>
+    <a href="/directory-map.html" class="active">Map</a>
+    <a href="/directory-politicians.html">Politicians</a>
+    <a href="/directory-networks.html">Networks</a>
+    <a href="/directory-methodology.html">Methodology</a>
+    <a href="/directory-drift.html">Drift</a>
+    <a href="/directory-roadmap.html">Roadmap</a>
+  </nav>
+
+  <div class="hero">
+    <div class="breadcrumb"><a href="/">USMC Ministries</a> &middot; <a href="/churches.html">Church Directory</a> &middot; Map</div>
+    <h1>Church Map</h1>
+    <p class="subtitle">Every doctrinally-vetted church in the directory, plotted by location and color-coded by our editorial rubric. Phase 1 covers <strong style="color:var(--gold-light);">VA</strong> (533 of 0 geocoded so far). National coverage rolls out state-by-state.</p>
+  </div>
+
+  <div class="controls">
+    <label class="pill green-pill"><input type="checkbox" data-rating="green" checked> Green <span class="count">221</span></label>
+    <label class="pill yellow-pill"><input type="checkbox" data-rating="yellow" checked> Yellow <span class="count">148</span></label>
+    <label class="pill red-pill"><input type="checkbox" data-rating="red" checked> Red <span class="count">122</span></label>
+    <label class="pill black-pill"><input type="checkbox" data-rating="black" checked> Black <span class="count">34</span></label>
+    <select id="denomFilter"><option value="">All denominations</option></select>
+    <span class="visible-count" id="visibleCount">— showing —</span>
+  </div>
+
+  <div id="map"></div>
+
+  <div class="footer-strip">
+    Tiles via <a href="https://carto.com/attributions" rel="noopener">CartoDB</a> on <a href="https://www.openstreetmap.org/copyright" rel="noopener">OpenStreetMap</a> data. Geocoding via the free <a href="https://geocoding.geo.census.gov" rel="noopener">US Census Geocoder</a>. 533 churches plotted across 1 state. Generated 2026-05-27.
+    <br>
+    <a href="/directory-methodology.html">How the rubric works</a> &middot; <a href="/directory-drift.html">Drift watchlist</a> &middot; <a href="/churches.html">Browse all 28,584 churches</a>
+  </div>
+
+  <footer>
+    USMC Ministries &middot; MOOP Church Directory &middot;
+    page regenerated from live data by <code>scripts/build-directory-map.js</code> &middot;
+    <a href="/">Home</a>
+  </footer>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script>
+  (async function() {
+    const map = L.map('map', { preferCanvas: true, zoomControl: true });
+    L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap, © CARTO',
+      subdomains: 'abcd',
+      maxZoom: 19,
+    }).addTo(map);
+
+    // Default view: VA centroid
+    map.setView([37.7, -78.6], 7);
+
+    const resp = await fetch('/data/directory-map-points.json');
+    const points = await resp.json();
+
+    const colors = {
+      green:  '#3ea14a',
+      yellow: '#d4a437',
+      red:    '#c0392b',
+      black:  '#444',
+      dead:   '#666',
+      unrated:'#888',
+    };
+
+    const allMarkers = [];
+    const denomSet = new Set();
+
+    for (const p of points) {
+      const color = colors[p.r] || colors.unrated;
+      const stroke = p.r === 'black' ? '#888' : '#fff';
+      const marker = L.circleMarker([p.lat, p.lng], {
+        radius: 6,
+        fillColor: color,
+        color: stroke,
+        weight: 1,
+        opacity: 0.9,
+        fillOpacity: 0.78,
+      });
+      const html = '<h4>' + escapeHtml(p.n) + '</h4>'
+        + (p.d ? '<div class="denom">' + escapeHtml(p.d) + '</div>' : '')
+        + (p.p ? '<div class="pastor">Pastor: ' + escapeHtml(p.p) + '</div>' : '')
+        + (p.a ? '<div class="addr">' + escapeHtml(p.a) + '</div>' : '')
+        + '<span class="rating ' + p.r + '">' + p.r.toUpperCase() + '</span>'
+        + '<a class="profile-link" href="/churches/' + encodeURIComponent(p.s) + '.html">View profile →</a>';
+      marker.bindPopup(html);
+      marker._data = p;
+      allMarkers.push(marker);
+      if (p.d) denomSet.add(p.d);
+    }
+
+    // Build denom filter dropdown
+    const denomSel = document.getElementById('denomFilter');
+    [...denomSet].sort().forEach(d => {
+      const opt = document.createElement('option');
+      opt.value = d;
+      opt.textContent = d;
+      denomSel.appendChild(opt);
+    });
+
+    const layer = L.layerGroup(allMarkers).addTo(map);
+    const visibleCountEl = document.getElementById('visibleCount');
+
+    function applyFilters() {
+      const activeRatings = new Set();
+      document.querySelectorAll('.controls input[type="checkbox"]').forEach(cb => {
+        if (cb.checked) activeRatings.add(cb.dataset.rating);
+      });
+      // Also keep dead/unrated visible if green is on (they tend to indicate edge cases worth seeing)
+      const denom = denomSel.value;
+      let shown = 0;
+      allMarkers.forEach(m => {
+        const p = m._data;
+        const okRating = activeRatings.has(p.r) || (activeRatings.has('green') && (p.r === 'dead' || p.r === 'unrated'));
+        const okDenom = !denom || p.d === denom;
+        if (okRating && okDenom) {
+          if (!map.hasLayer(m)) layer.addLayer(m);
+          shown++;
+        } else {
+          if (map.hasLayer(m)) layer.removeLayer(m);
+        }
+      });
+      visibleCountEl.textContent = '— showing ' + shown.toLocaleString() + ' of ' + allMarkers.length.toLocaleString() + ' —';
+    }
+    document.querySelectorAll('.controls input[type="checkbox"]').forEach(cb => cb.addEventListener('change', applyFilters));
+    denomSel.addEventListener('change', applyFilters);
+    applyFilters();
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+    }
+  })();
+  </script>
+</body>
+</html>

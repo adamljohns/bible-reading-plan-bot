@@ -258,6 +258,7 @@ function renderHtml({ records, summary, total_churches }) {
     <a href="/churches.html">Directory</a>
     <a href="/directory-overview.html">Overview</a>
     <a href="/directory-politicians.html">Politicians</a>
+    <a href="/directory-map.html">Map</a>
     <a href="/directory-networks.html" class="active">Networks</a>
     <a href="/directory-methodology.html">Methodology</a>
     <a href="/directory-drift.html">Drift</a>

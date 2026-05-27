@@ -157,6 +157,7 @@ const html = `<!DOCTYPE html>
     <a href="/churches.html">Directory</a>
     <a href="/directory-overview.html">Overview</a>
     <a href="/directory-politicians.html">Politicians</a>
+    <a href="/directory-map.html">Map</a>
     <a href="/directory-networks.html">Networks</a>
     <a href="/directory-methodology.html" class="active">Methodology</a>
     <a href="/directory-drift.html">Drift</a>
