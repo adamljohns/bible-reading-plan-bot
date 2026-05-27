@@ -158,6 +158,7 @@ redefinition, use the caveat template in `corruption_summary`.
 | 2026-05-23 | 89 | Phase A wk1 b5 — finish states & qualities (godly-sorrow, sober-mindedness, heaviness, stillness, joy-unspeakable, brotherly-love, holy-boldness, fervor, zeal-of-god, steadiness) | +10 | **4,848** |
 | 2026-05-23 | 90 | Phase A wk2 b1 — relational/covenant terms (household, generations, lineage, bond-of-peace, fellow-citizen, brotherhood, bridegroom, firstborn, espousal, handmaid) | +10 | **4,858** |
 | 2026-05-23 | 91 | Phase A wk2 b2 — archaic KJV vocabulary (gainsay, holpen, lucre, peradventure, wax, wist, wont, fain, succor, twain) | +10 | **4,868** |
+| 2026-05-23 | 92 | Phase A wk2 b3 — original-language anchor entries (gnosis, splagchnon, makrothumia, tapeinophrosune, paraklesis, plerophoria, kurios, theos, berith, tselem) | +10 | **4,878** |
 
 > **Next up:** Phase A wk1 batch 2 — more biblical action verbs (candidates: meditate-related, intercede-related,
 > hush, harm, harden, humble, haste, hire, heed, hide, hush, hunger; +states/qualities words like affliction,
