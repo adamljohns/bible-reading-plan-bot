@@ -193,17 +193,27 @@
     return 'bible.html?ref=' + encodeURIComponent(ref);
   }
 
-  function linkScripture(html) {
+  function linkScripture(html, seen) {
     return html.replace(SCRIPTURE_RE, (m, book, ch, vs) => {
       // Skip if already inside an <a> tag (basic guard — the renderer also segments to avoid double-wrap)
+      if (seen) {
+        const key = 'scrip:' + (book + ' ' + ch + (vs ? ':' + vs : '')).toLowerCase();
+        if (seen.has(key)) return m;
+        seen.add(key);
+      }
       return '<a class="lbcf-scrip" href="' + refToUrl(book, ch, vs) + '" title="Open in BTE">' + m + '</a>';
     });
   }
 
-  function linkDictionary(html) {
+  function linkDictionary(html, seen) {
     return html.replace(DICT_RE, (m) => {
       const slug = _DICT_LOOKUP[m.toLowerCase()];
       if (!slug) return m;
+      if (seen) {
+        const key = 'dict:' + slug;
+        if (seen.has(key)) return m;
+        seen.add(key);
+      }
       return '<a class="lbcf-dict" href="dictionary/' + slug + '.html" title="Definition">' + m + '</a>';
     });
   }
@@ -219,12 +229,13 @@
   }
 
   // Apply auto-linkers in safe order: scripture first (won't match dictionary terms), then dictionary, then chapter xrefs.
-  function autoLink(text, currentCh) {
+  // `seen` is an optional Set used to dedupe links — first occurrence of each term/ref linked, subsequent ones plain.
+  function autoLink(text, currentCh, seen) {
     let s = text;
-    s = linkScripture(s);
+    s = linkScripture(s, seen);
     // Apply dictionary linking ONLY outside existing anchor tags
     s = s.replace(/(<a [^>]*>.*?<\/a>)|([^<]+)/g, (m, anchor, plain) =>
-      anchor ? anchor : linkDictionary(plain)
+      anchor ? anchor : linkDictionary(plain, seen)
     );
     s = linkChapterRefs(s, currentCh || 0);
     return s;
@@ -303,7 +314,9 @@
       const wrap = document.createElement('section');
       wrap.className = 'lbcf-para';
       wrap.id = anchorId;
-      const linkedText = autoLink(para.text, chapter.number);
+      // Fresh dedupe Set per paragraph — first occurrence of each scripture ref / dictionary term gets linked, the rest stay plain text.
+      const seenInParagraph = new Set();
+      const linkedText = autoLink(para.text, chapter.number, seenInParagraph);
       let proofTextHtml = '';
       if (para.prooftexts && para.prooftexts.length) {
         const refs = para.prooftexts.map((r) => linkScripture(r)).join(' &middot; ');
