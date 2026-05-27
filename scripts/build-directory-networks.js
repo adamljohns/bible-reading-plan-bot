@@ -18,6 +18,7 @@ const NETWORK_META = {
     label: 'Founders Ministries',
     shortLabel: 'Founders',
     color: '#8B5E3C',
+    directoryUrl: 'https://founders.org/our-network/',
     description: 'Reformed-Baptist confessional network ("Founders Friendly") affirming the 1689 LBC and complementarian polity.',
     methodology: 'Founders Ministries publishes a vetted "Founders Friendly" directory at <a href="https://founders.org" target="_blank" rel="noopener">founders.org</a>. Each listed church voluntarily affirms the 1689 London Baptist Confession + complementarian polity. <strong>Vetting strength: HIGH.</strong>',
   },
@@ -25,6 +26,7 @@ const NETWORK_META = {
     label: '9Marks Church-Search',
     shortLabel: '9Marks',
     color: '#3F6F8F',
+    directoryUrl: 'https://www.9marks.org/church-search/',
     description: '9Marks self-listing directory (Mark Dever) — churches self-identifying with the 9 Marks of a Healthy Church.',
     methodology: '9Marks publishes a Google-Maps backed church-finder at <a href="https://www.9marks.org/church-search/" target="_blank" rel="noopener">9marks.org/church-search</a>. <strong>Listings are user-submitted; 9Marks editorial staff does NOT individually vet entries.</strong> Treat inclusion as a self-attested signal of alignment with the 9 Marks (expositional preaching, congregational polity, complementarianism, biblical church discipline, meaningful membership, etc.) — <strong>not</strong> a 9Marks certification.',
   },
@@ -32,6 +34,7 @@ const NETWORK_META = {
     label: 'TGC Church Directory',
     shortLabel: 'TGC',
     color: '#4A7A4A',
+    directoryUrl: 'https://www.thegospelcoalition.org/churches/',
     description: 'The Gospel Coalition\'s open Church Directory (sponsored by Midwestern Seminary) — broader Reformed-evangelical tent.',
     methodology: 'The Gospel Coalition publishes an open self-listing Church Directory at <a href="https://www.thegospelcoalition.org/churches/" target="_blank" rel="noopener">thegospelcoalition.org/churches</a>. <strong>~52% of listings carry no formal network affiliation</strong>; the rest declare Acts 29, SEND Network, Harbor Network, Converge, or Redeemer City to City. Directory presence does NOT imply TGC Foundation Documents vetting; verify complementarianism + inerrancy independently.',
   },
@@ -39,6 +42,7 @@ const NETWORK_META = {
     label: 'Acts 29',
     shortLabel: 'Acts 29',
     color: '#9F4A4A',
+    directoryUrl: 'https://www.acts29.com/find-a-church/',
     description: 'Acts 29 church-planting network — Reformed-leaning evangelical, complementarian, missional. Globally distributed.',
     methodology: 'Acts 29 vets each church-planter through a residency before granting network membership. Distinctives: gospel-centered, Reformed soteriology, complementarian, missional church-planting, Spirit-empowered. Mark Driscoll was expelled in 2014; current leadership emphasizes accountability + elder plurality. <strong>Vetting strength: HIGH.</strong>',
   },
@@ -46,6 +50,7 @@ const NETWORK_META = {
     label: 'Sovereign Grace Churches',
     shortLabel: 'SGC',
     color: '#6A4A8A',
+    directoryUrl: 'https://www.sovereigngrace.com/our-churches',
     description: 'Sovereign Grace Churches (C.J. Mahaney heritage) — Reformed-Baptist-flavored, continuationist-friendly, complementarian.',
     methodology: 'Sovereign Grace Churches requires confessional alignment with SGC\'s Statement of Faith and Polity for membership; tracked via the SGC office. Distinctives: doctrines of grace, continuationist (open to charismatic gifts within an orderly worship frame), complementarian, gospel-centered church-planting. <strong>Vetting strength: HIGH.</strong>',
   },
@@ -53,6 +58,7 @@ const NETWORK_META = {
     label: 'Pillar Network',
     shortLabel: 'Pillar',
     color: '#5A7A9A',
+    directoryUrl: 'https://thepillarnetwork.com/find-a-church/',
     description: 'Pillar Network — church-planting + revitalization, SBC-cooperating, Reformed-leaning, complementarian.',
     methodology: 'Pillar Network (<a href="https://thepillarnetwork.com" target="_blank" rel="noopener">thepillarnetwork.com</a>) is a church-planting and church-revitalization network headquartered in Wake Forest, NC. Members affirm shared doctrine and commit to plant or revitalize churches; partners with NAMB on certain plants. <strong>Vetting strength: HIGH.</strong>',
   },
@@ -60,6 +66,7 @@ const NETWORK_META = {
     label: 'Trinity Foundation Registry',
     shortLabel: 'Trinity',
     color: '#7A5A3A',
+    directoryUrl: 'https://trinityfoundation.org/churchapproved.php',
     description: 'Trinity Foundation Church Registry & Clearinghouse (Gordon Clark / John Robbins tradition) — vetted confessional Reformed clearinghouse.',
     methodology: 'The Trinity Foundation publishes a screened Church Registry & Clearinghouse at <a href="https://trinityfoundation.org/churchapproved.php" target="_blank" rel="noopener">trinityfoundation.org/churchapproved.php</a>. Explicit disclaimer: "We are not establishing a new denomination." Each entry is vetted against confessional Reformed standards (1689 LBCF, Westminster Confession of Faith 1729, or Three Forms of Unity). Smaller in scope but highly confessional. <strong>Vetting strength: HIGH.</strong>',
   },
@@ -112,7 +119,10 @@ function renderEntry(c) {
   const networks = c.cross_listed_in.filter(n => NETWORK_META[n]);
   const chips = networks.map(n => {
     const meta = NETWORK_META[n];
-    return `<span class="net-chip" style="--net-color:${meta.color};" data-net="${n}">${escapeHtml(meta.shortLabel)}</span>`;
+    // Clickable badge — opens the network's directory in a new tab so the user
+    // can find this specific church within it. Title attribute gives a hover hint.
+    const href = meta.directoryUrl || '#';
+    return `<a class="net-chip" href="${escapeHtml(href)}" target="_blank" rel="noopener" style="--net-color:${meta.color};" data-net="${n}" title="Open ${escapeHtml(meta.label)} directory in a new tab">${escapeHtml(meta.shortLabel)}</a>`;
   }).join('');
   const dataNetworks = networks.join(' ');
   const stateMatch = String(c.address || '').match(/,\s*([A-Z]{2})\b/);
@@ -228,7 +238,9 @@ function renderHtml({ records, summary, total_churches }) {
     .entry .addr { color:var(--gray); font-size:0.8rem; line-height:1.4; margin:4px 0; }
     .entry .pastor { color:var(--gray); font-size:0.78rem; margin:4px 0 8px; }
     .entry .nets { display:flex; flex-wrap:wrap; gap:5px; margin-top:8px; padding-top:8px; border-top:1px dashed var(--border); }
-    .net-chip { font-size:0.66rem; padding:2px 7px; border-radius:8px; border:1px solid var(--net-color, var(--border)); color:var(--net-color, var(--gray)); background:rgba(255,255,255,0.02); letter-spacing:0.4px; font-weight:500; }
+    .net-chip { font-size:0.66rem; padding:2px 7px; border-radius:8px; border:1px solid var(--net-color, var(--border)); color:var(--net-color, var(--gray)); background:rgba(255,255,255,0.02); letter-spacing:0.4px; font-weight:500; text-decoration:none; cursor:pointer; transition:background 0.15s, color 0.15s; display:inline-block; }
+    .net-chip:hover { background:var(--net-color, var(--gold)); color:#000; }
+    .net-chip:focus { outline:1px solid var(--net-color, var(--gold)); outline-offset:2px; }
 
     .methodology { margin-top:50px; }
     .methodology h2 { color:var(--gold-light); font-size:1.4rem; margin-bottom:16px; }
