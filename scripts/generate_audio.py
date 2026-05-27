@@ -39,6 +39,9 @@ import re
 import sys
 import json
 import time
+import shutil
+import subprocess
+import tempfile
 import urllib.request
 import urllib.error
 from datetime import datetime, timedelta
@@ -176,6 +179,67 @@ def watch_text_for_tts(body):
     return text
 
 
+def concat_mp3_with_ffmpeg(parts, out_path):
+    """Use ffmpeg's concat demuxer to merge MP3 byte-strings into one clean MP3.
+    The demuxer is MP3-aware: it re-aligns frame boundaries and strips
+    embedded ID3 tags from chunks 2+ that would confuse Apple's AVFoundation
+    (afinfo/afconvert/iOS Safari/iOS Telegram all use the same framework).
+
+    Falls back to raw byte concat (with ID3 strip) if ffmpeg isn't available —
+    that still plays in ffmpeg-based players but may glitch on Apple ones.
+    """
+    if not shutil.which("ffmpeg"):
+        print("      [warn] ffmpeg not on PATH — falling back to raw byte concat")
+        out_path.write_bytes(b"".join(
+            p if i == 0 else strip_leading_id3v2(p)
+            for i, p in enumerate(parts)
+        ))
+        return
+
+    with tempfile.TemporaryDirectory() as tmp:
+        tmp = Path(tmp)
+        listing = tmp / "concat.txt"
+        chunk_paths = []
+        for idx, part in enumerate(parts):
+            p = tmp / f"chunk_{idx:02d}.mp3"
+            p.write_bytes(part)
+            chunk_paths.append(p)
+        listing.write_text("\n".join(f"file '{p}'" for p in chunk_paths) + "\n")
+
+        cmd = [
+            "ffmpeg", "-hide_banner", "-loglevel", "error", "-y",
+            "-f", "concat", "-safe", "0",
+            "-i", str(listing),
+            "-c:a", "copy",   # MP3-aware copy — no re-encode, no quality loss
+            str(out_path),
+        ]
+        result = subprocess.run(cmd, capture_output=True)
+        if result.returncode != 0:
+            raise RuntimeError(
+                f"ffmpeg concat failed: {result.stderr.decode('utf-8', errors='replace')[:500]}"
+            )
+
+
+def strip_leading_id3v2(mp3_bytes):
+    """Remove a leading ID3v2 tag from an MP3 byte string, if present.
+    Returns the byte string starting at the first MP3 frame.
+
+    ID3v2 header layout:
+      bytes 0-2: "ID3"
+      byte 3:    major version
+      byte 4:    revision
+      byte 5:    flags (bit 4 = footer present, adds 10 bytes after the tag body)
+      bytes 6-9: synchsafe 28-bit size of the tag body (MSB of each byte = 0)
+    """
+    if len(mp3_bytes) < 10 or mp3_bytes[:3] != b"ID3":
+        return mp3_bytes
+    flags = mp3_bytes[5]
+    b6, b7, b8, b9 = mp3_bytes[6], mp3_bytes[7], mp3_bytes[8], mp3_bytes[9]
+    size = (b6 << 21) | (b7 << 14) | (b8 << 7) | b9
+    total = 10 + size + (10 if flags & 0x10 else 0)
+    return mp3_bytes[total:]
+
+
 def chunk_text(text, max_chars=MAX_TTS_CHARS):
     """Split text into ≤max_chars chunks at paragraph boundaries.
     Falls back to sentence boundaries if a paragraph alone exceeds max_chars."""
@@ -261,7 +325,7 @@ def generate_watch(date_str, slug, body, api_key, voice_id, model, force=False, 
         if len(chunks) > 1:
             print(f"      chunk {idx}/{len(chunks)} ({len(chunk):,} chars)")
         try:
-            mp3_parts.append(call_elevenlabs(chunk, voice_id, api_key, model=model))
+            part = call_elevenlabs(chunk, voice_id, api_key, model=model)
         except urllib.error.HTTPError as e:
             body_err = e.read().decode("utf-8", errors="replace")[:500]
             print(f"      HTTP {e.code}: {body_err}")
@@ -269,11 +333,18 @@ def generate_watch(date_str, slug, body, api_key, voice_id, model, force=False, 
         except urllib.error.URLError as e:
             print(f"      Network error: {e}")
             return False
+        mp3_parts.append(part)
 
-    mp3 = b"".join(mp3_parts)
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_bytes(mp3)
-    print(f"      ✓ wrote {len(mp3)/1024:.0f} KB")
+    if len(mp3_parts) == 1:
+        out.write_bytes(mp3_parts[0])
+    else:
+        try:
+            concat_mp3_with_ffmpeg(mp3_parts, out)
+        except RuntimeError as e:
+            print(f"      {e}")
+            return False
+    print(f"      ✓ wrote {out.stat().st_size/1024:.0f} KB")
     return True
 
 
