@@ -8,12 +8,11 @@ that work for both, biblical figures whose names cross gender lines).
 Each name shows:
   * Headword (linked to the full dictionary entry)
   * One-line meaning / origin
-  * Source category
+  * Common nicknames and variants (English, Hebrew, Greek, Spanish, etc.)
 
 The curated mapping below is hand-maintained — biblical baby-naming is
 high-touch and benefits from editorial curation more than automated
-inference. To add a name: append to the appropriate list with
-(slug, short_meaning).
+inference. Each entry is a tuple of (slug, short_meaning, variants_list).
 """
 import os
 import re
@@ -41,232 +40,391 @@ def get_headword(slug):
             t = TAG_STRIP.sub('', m.group(1))
             t = t.replace('&mdash;', '—').replace('&amp;', '&').replace('&#39;', "'")
             t = re.sub(r'\s+', ' ', t).strip()
-            # Strip "(Doctrinal)" / "(Figure)" / "(Mother of John)" parenthetical
             t = re.sub(r'\s*\([^)]*\)\s*$', '', t)
             return t
     return None
 
 
-# Hand-curated mapping: (slug, short_meaning)
-# Order: patriarchs, tribal patriarchs, judges, kings, prophets, NT figures, then etc.
+# Hand-curated mapping: (slug, short_meaning, variants_list)
+# Variants include nicknames, language variants (Hebrew/Greek/Spanish/Italian),
+# and modern spelling variations. They DO count toward total-displayed-names.
+
 MALE = [
     # Patriarchs
-    ('adam',            'man, earth; the first human'),
-    ('abel',            'breath, vapor; the first martyr (Gen 4)'),
-    ('seth-son',        'appointed; son of Adam after Abel'),
-    ('enoch',           'dedicated; walked with God, was not (Gen 5:24)'),
-    ('noah',            'rest; the ark-builder'),
-    ('abraham',         'father of many nations; the friend of God'),
-    ('isaac',           'laughter; son of promise to Abraham'),
-    ('jacob',           'supplanter; renamed Israel; the patriarch'),
+    ('adam',            'man, earth; the first human',
+                        ['Adamo', 'Adan', 'Adi']),
+    ('abel',            'breath, vapor; the first martyr (Gen 4)',
+                        ['Abe']),
+    ('seth-son',        'appointed; son of Adam after Abel',
+                        ['Sett']),
+    ('enoch',           'dedicated; walked with God, was not (Gen 5:24)',
+                        ['Hanoch', 'Enok']),
+    ('noah',            'rest; the ark-builder',
+                        ['Noé', 'Noach', 'No-ah']),
+    ('abraham',         'father of many nations; the friend of God',
+                        ['Abe', 'Avi', 'Avram', 'Bram', 'Ibrahim']),
+    ('isaac',           'laughter; son of promise to Abraham',
+                        ['Ike', 'Izaak', 'Yitzhak', 'Isak', 'Itzhak']),
+    ('jacob',           'supplanter; renamed Israel; the patriarch',
+                        ['Jake', 'Jakob', 'Yakov', 'Iago', 'Diego', 'Jago']),
     # Twelve tribe sons of Jacob
-    ('reuben',          'see, a son! (Gen 29:32); Jacob\'s firstborn'),
-    ('simeon',          'hearing (Gen 29:33); Jacob\'s second son'),
-    ('levi-son',        'joined (Gen 29:34); ancestor of the priestly tribe'),
-    ('judah',           'praised; the tribe through which Messiah came'),
-    ('dan-tribe',       'judge (Gen 30:6); son of Jacob and Bilhah'),
-    ('naphtali',        'my wrestling (Gen 30:8); tribe of Galilee'),
-    ('gad',             'fortune / a troop cometh (Gen 30:11); warrior tribe'),
-    ('asher',           'happy / blessed (Gen 30:13); coastal tribe'),
-    ('issachar',        'there is reward (Gen 30:18); the tribe of understanding the times'),
-    ('zebulun',         'dwelling / honor (Gen 30:20); maritime-trade Galilean tribe'),
-    ('joseph-figure',   'he will add; the dreamer-savior of Egypt'),
-    ('benjamin',        'son of the right hand (Gen 35:18); youngest of Jacob; tribe of Saul and Paul'),
-    ('ephraim',         'fruitful (Gen 41:52); Joseph\'s younger son who received the double-portion'),
+    ('reuben',          'see, a son! (Gen 29:32); Jacob\'s firstborn',
+                        ['Reuven', 'Rueben', 'Reub', 'Ruben']),
+    ('simeon',          'hearing (Gen 29:33); Jacob\'s second son',
+                        ['Simon', 'Shimon', 'Sim']),
+    ('levi-son',        'joined (Gen 29:34); ancestor of the priestly tribe',
+                        ['Lev', 'Levy', 'Levi']),
+    ('judah',           'praised; the tribe through which Messiah came',
+                        ['Jude', 'Judas', 'Yehuda']),
+    ('dan-tribe',       'judge (Gen 30:6); son of Jacob and Bilhah',
+                        ['Dann']),
+    ('naphtali',        'my wrestling (Gen 30:8); tribe of Galilee',
+                        ['Naftali']),
+    ('gad',             'fortune / a troop cometh (Gen 30:11); warrior tribe',
+                        []),
+    ('asher',           'happy / blessed (Gen 30:13); coastal tribe',
+                        ['Ash', 'Asherel']),
+    ('issachar',        'there is reward (Gen 30:18); the tribe of understanding the times',
+                        ['Issa', 'Issachar']),
+    ('zebulun',         'dwelling / honor (Gen 30:20); maritime-trade Galilean tribe',
+                        ['Zebulon', 'Zeb']),
+    ('joseph-figure',   'he will add; the dreamer-savior of Egypt',
+                        ['Joe', 'Joey', 'Yosef', 'Yousef', 'Yusuf', 'Pepe', 'Giuseppe', 'José']),
+    ('benjamin',        'son of the right hand (Gen 35:18); youngest of Jacob; tribe of Saul and Paul',
+                        ['Ben', 'Benny', 'Benji', 'Bennett']),
+    ('ephraim',         'fruitful (Gen 41:52); Joseph\'s younger son who received the double-portion',
+                        ['Efraim', 'Efrem', 'Efren']),
     # Other OT figures
-    ('moses',           'drawn out; the lawgiver and deliverer'),
-    ('aaron',           'mountain of strength; the first high priest'),
-    ('caleb-doctrine',  'whole-hearted; one of two faithful spies'),
-    ('joshua-figure',   'Yahweh is salvation; led Israel into the land'),
-    ('gideon',          'mighty warrior; judge of three hundred'),
-    ('samson',          'sun, brightness; the long-haired Nazirite judge'),
-    ('boaz-doctrine',   'swift, strong; kinsman-redeemer of Ruth'),
-    ('samuel',          'heard by God; the last judge, the first prophet of kings'),
-    ('saul',            'asked of God; the first king of Israel'),
-    ('david',           'beloved; king after God\'s own heart'),
-    ('solomon',         'peace; David\'s wise son; temple-builder'),
-    ('elijah',          'my God is Yahweh; great prophet of Mount Carmel'),
-    ('elisha',          'God is salvation; successor of Elijah'),
-    ('hezekiah',        'Yahweh strengthens; reforming king of Judah'),
-    ('josiah',          'the LORD heals; the boy-king of reform'),
-    ('asa-king',        'physician / healer; reforming king of Judah'),
-    ('uzziah-king',     'my strength is Yahweh; king of Judah'),
-    ('rehoboam',        'enlarger of the people; Solomon\'s son'),
-    ('manasseh-king',   'making to forget; the wicked-then-repentant king of Judah'),
-    ('phinehas',        'mouth of brass; Aaron\'s zealous grandson (Num 25)'),
+    ('moses',           'drawn out; the lawgiver and deliverer',
+                        ['Moshe', 'Mose', 'Musa']),
+    ('aaron',           'mountain of strength; the first high priest',
+                        ['Aron', 'Ari', 'Aharon']),
+    ('caleb-doctrine',  'whole-hearted; one of two faithful spies',
+                        ['Cale', 'Kaleb', 'Kayleb']),
+    ('joshua-figure',   'Yahweh is salvation; led Israel into the land',
+                        ['Josh', 'Yeshua', 'Jeshua', 'Hoshea', 'Joshuah']),
+    ('gideon',          'mighty warrior; judge of three hundred',
+                        ['Gid', 'Gidi', 'Gideeon']),
+    ('samson',          'sun, brightness; the long-haired Nazirite judge',
+                        ['Sam', 'Shimshon', 'Samsone']),
+    ('boaz-doctrine',   'swift, strong; kinsman-redeemer of Ruth',
+                        ['Boz']),
+    ('samuel',          'heard by God; the last judge, the first prophet of kings',
+                        ['Sam', 'Sammy', 'Shmuel', 'Samuele']),
+    ('saul',            'asked of God; the first king of Israel',
+                        ['Shaul', 'Sol']),
+    ('david',           'beloved; king after God\'s own heart',
+                        ['Dave', 'Davy', 'Davis', 'Davide', 'Dawid', 'Dovid']),
+    ('solomon',         'peace; David\'s wise son; temple-builder',
+                        ['Sol', 'Solly', 'Salomon', 'Salman', 'Shlomo', 'Suleyman']),
+    ('elijah',          'my God is Yahweh; great prophet of Mount Carmel',
+                        ['Eli', 'Elias', 'Elia', 'Ilya', 'Elie']),
+    ('elisha',          'God is salvation; successor of Elijah',
+                        ['Elish', 'Elisée']),
+    ('hezekiah',        'Yahweh strengthens; reforming king of Judah',
+                        ['Hez', 'Heskiah', 'Chizkiyahu']),
+    ('josiah',          'the LORD heals; the boy-king of reform',
+                        ['Josias', 'Josi']),
+    ('asa-king',        'physician / healer; reforming king of Judah',
+                        []),
+    ('uzziah-king',     'my strength is Yahweh; king of Judah',
+                        ['Azariah']),
+    ('rehoboam',        'enlarger of the people; Solomon\'s son',
+                        ['Roboam']),
+    ('manasseh-king',   'making to forget; the wicked-then-repentant king of Judah',
+                        ['Menasseh', 'Manasses']),
+    ('phinehas',        'mouth of brass; Aaron\'s zealous grandson (Num 25)',
+                        ['Pinchas', 'Phineas']),
     # Prophets (writing)
-    ('isaiah',          'the LORD is salvation; the messianic prophet'),
-    ('jeremiah',        'the LORD exalts; the weeping prophet'),
-    ('ezekiel',         'God will strengthen; the prophet of the exile'),
-    ('daniel',          'God is my judge; the prophet in exile'),
-    ('hosea',           'salvation; prophet of God\'s covenant love'),
-    ('joel-prophet',    'Yahweh is God; prophet of the day of the LORD'),
-    ('amos-prophet',    'burden-bearer; prophet of justice'),
-    ('obadiah',         'servant of Yahweh; shortest OT book'),
-    ('jonah',           'dove; the reluctant prophet'),
-    ('micah',           'who is like God; the prophet of Bethlehem'),
-    ('nahum',           'comforter; prophet of Nineveh\'s fall'),
-    ('habakkuk',        'embrace; prophet of \'the just shall live by faith\''),
-    ('zephaniah',       'Yahweh hides; prophet of the coming day'),
-    ('haggai',          'festal; prophet of the second-temple build'),
-    ('zechariah',       'Yahweh remembers; prophet of post-exile vision'),
-    ('malachi',         'my messenger; last prophet of the OT'),
-    ('ezra',            'help; the priest-scribe of the return'),
-    ('nehemiah',        'the LORD comforts; wall-builder of Jerusalem'),
-    ('mordecai',        'devoted to Marduk; Esther\'s cousin and guardian'),
+    ('isaiah',          'the LORD is salvation; the messianic prophet',
+                        ['Isiah', 'Izzy', 'Yeshayahu', 'Esaias', 'Isaias']),
+    ('jeremiah',        'the LORD exalts; the weeping prophet',
+                        ['Jerry', 'Jem', 'Yirmeyahu', 'Jeremias']),
+    ('ezekiel',         'God will strengthen; the prophet of the exile',
+                        ['Zeke', 'Ezekial', 'Yechezkel']),
+    ('daniel',          'God is my judge; the prophet in exile',
+                        ['Dan', 'Danny', 'Dani', 'Daniyyel']),
+    ('hosea',           'salvation; prophet of God\'s covenant love',
+                        ['Hoshea', 'Oshea', 'Osee']),
+    ('joel-prophet',    'Yahweh is God; prophet of the day of the LORD',
+                        ['Yoel']),
+    ('amos-prophet',    'burden-bearer; prophet of justice',
+                        []),
+    ('obadiah',         'servant of Yahweh; shortest OT book',
+                        ['Obadias']),
+    ('jonah',           'dove; the reluctant prophet',
+                        ['Jonas', 'Yonah', 'Yunus']),
+    ('micah',           'who is like God; the prophet of Bethlehem',
+                        ['Micaiah', 'Mica', 'Mika']),
+    ('nahum',           'comforter; prophet of Nineveh\'s fall',
+                        ['Naum']),
+    ('habakkuk',        'embrace; prophet of \'the just shall live by faith\'',
+                        ['Habacuc']),
+    ('zephaniah',       'Yahweh hides; prophet of the coming day',
+                        ['Tzefania']),
+    ('haggai',          'festal; prophet of the second-temple build',
+                        ['Haggi', 'Aggeus']),
+    ('zechariah',       'Yahweh remembers; prophet of post-exile vision',
+                        ['Zach', 'Zac', 'Zacharias']),
+    ('malachi',         'my messenger; last prophet of the OT',
+                        ['Mal', 'Malakai']),
+    ('ezra',            'help; the priest-scribe of the return',
+                        ['Esdras', 'Ezri']),
+    ('nehemiah',        'the LORD comforts; wall-builder of Jerusalem',
+                        ['Neh', 'Nechemiah']),
+    ('mordecai',        'devoted to Marduk; Esther\'s cousin and guardian',
+                        ['Mort', 'Modi']),
     # NT figures
-    ('zacharias-prophet', 'Yahweh remembers; father of John the Baptist'),
-    ('john-the-baptist', 'Yahweh is gracious; the forerunner of Christ'),
-    ('andrew',          'manly, courageous; brought Peter to Jesus'),
-    ('peter',           'rock; chief apostle, fisherman'),
-    ('james-apostle',   'supplanter (Greek for Jacob); apostle and brother of John'),
-    ('philip',          'lover of horses; apostle and evangelist'),
-    ('nathanael',       'gift of God; \'in whom is no guile\' (John 1:47)'),
-    ('matthew-apostle', 'gift of God; tax collector turned apostle'),
-    ('thomas',          'twin; the doubting-then-believing apostle'),
-    ('mark-book',       'warrior (Latin); the second evangelist'),
-    ('luke',            'light; physician and evangelist'),
-    ('paul',            'small; apostle to the Gentiles'),
-    ('barnabas-doctrine', 'son of encouragement; companion of Paul'),
-    ('silas',           'woods, forest; Paul\'s missionary companion'),
-    ('timothy',         'honored by God; Paul\'s son in the faith'),
-    ('titus-doctrine',  'honored; Paul\'s Gentile companion'),
-    ('apollos',         'destroyer; eloquent Alexandrian Christian (Acts 18-19)'),
-    ('jude',            'praise (same root as Judah); brother of James and of the Lord; author of Jude'),
-    ('philemon',        'affectionate; addressee of Paul\'s letter; runaway-slave-restorer'),
-    ('onesimus',        'profitable; the runaway slave restored by Paul\'s letter'),
-    ('epaphras',        'lovely; servant of the Colossian church (Col 1:7)'),
-    ('epaphroditus',    'lovely / charming; the Philippian church\'s messenger to Paul (Phil 2:25)'),
-    ('tychicus',        'fortunate; Paul\'s trusted letter-carrier'),
-    ('aristarchus',     'best ruler; companion of Paul in Macedonia and Rome'),
-    ('crispus',         'curly-haired; synagogue ruler at Corinth converted by Paul'),
-    ('trophimus',       'nourishing; Ephesian companion of Paul'),
-    ('sosthenes',       'safe in strength; ruler of synagogue at Corinth'),
-    ('tertius',         'third (Latin); scribe of Romans (Rom 16:22)'),
-    ('agabus',          'locust; prophet who foretold famine (Acts 11) and Paul\'s arrest (Acts 21)'),
-    ('stephen',         'crown; the first Christian martyr'),
-    ('cornelius-the-centurion', 'horn (Latin); first Gentile baptized into the church (Acts 10)'),
-    ('gabriel',         'man of God; the announcing angel'),
+    ('zacharias-prophet', 'Yahweh remembers; father of John the Baptist',
+                        ['Zach', 'Zachary', 'Zac', 'Zak', 'Zachariah']),
+    ('john-the-baptist', 'Yahweh is gracious; the forerunner of Christ',
+                        ['Jack', 'Johnny', 'Sean', 'Ian', 'Evan', 'Juan', 'Hans', 'Ivan', 'Giovanni', 'Jonas', 'João', 'Yohanan']),
+    ('andrew',          'manly, courageous; brought Peter to Jesus',
+                        ['Andy', 'Drew', 'Andre', 'Anders', 'Andreas', 'Anderson']),
+    ('peter',           'rock; chief apostle, fisherman',
+                        ['Pete', 'Petros', 'Pedro', 'Pierre', 'Pyotr', 'Cephas', 'Piotr']),
+    ('james-apostle',   'supplanter (Greek for Jacob); apostle and brother of John',
+                        ['Jim', 'Jimmy', 'Jamie', 'Jaime', 'Iago', 'Diego', 'Santiago']),
+    ('philip',          'lover of horses; apostle and evangelist',
+                        ['Phil', 'Felipe', 'Filippo', 'Philippos', 'Phillip']),
+    ('nathanael',       'gift of God; \'in whom is no guile\' (John 1:47)',
+                        ['Nat', 'Natty', 'Nathaniel', 'Nathan']),
+    ('matthew-apostle', 'gift of God; tax collector turned apostle',
+                        ['Matt', 'Matty', 'Mateo', 'Matias', 'Mathieu', 'Matthias']),
+    ('thomas',          'twin; the doubting-then-believing apostle',
+                        ['Tom', 'Tommy', 'Thom', 'Tomás', 'Tomasso', 'Toma']),
+    ('mark-book',       'warrior (Latin); the second evangelist',
+                        ['Marc', 'Marcus', 'Markos', 'Marko', 'Marcos']),
+    ('luke',            'light; physician and evangelist',
+                        ['Lucas', 'Lukas', 'Loukas', 'Luca', 'Luc']),
+    ('paul',            'small; apostle to the Gentiles',
+                        ['Paolo', 'Pablo', 'Pasha', 'Pavel', 'Paulo']),
+    ('barnabas-doctrine', 'son of encouragement; companion of Paul',
+                        ['Barney', 'Barnaby']),
+    ('silas',           'woods, forest; Paul\'s missionary companion',
+                        ['Silvanus', 'Cy']),
+    ('timothy',         'honored by God; Paul\'s son in the faith',
+                        ['Tim', 'Timmy', 'Timotheus', 'Timoteo']),
+    ('titus-doctrine',  'honored; Paul\'s Gentile companion',
+                        ['Tito', 'Tit']),
+    ('apollos',         'destroyer; eloquent Alexandrian Christian (Acts 18-19)',
+                        []),
+    ('jude',            'praise (same root as Judah); brother of James and of the Lord; author of Jude',
+                        ['Judah', 'Judas', 'Yehuda']),
+    ('philemon',        'affectionate; addressee of Paul\'s letter; runaway-slave-restorer',
+                        []),
+    ('onesimus',        'profitable; the runaway slave restored by Paul\'s letter',
+                        []),
+    ('epaphras',        'lovely; servant of the Colossian church (Col 1:7)',
+                        []),
+    ('epaphroditus',    'lovely / charming; the Philippian church\'s messenger to Paul (Phil 2:25)',
+                        ['Aphro']),
+    ('tychicus',        'fortunate; Paul\'s trusted letter-carrier',
+                        []),
+    ('aristarchus',     'best ruler; companion of Paul in Macedonia and Rome',
+                        []),
+    ('crispus',         'curly-haired; synagogue ruler at Corinth converted by Paul',
+                        []),
+    ('trophimus',       'nourishing; Ephesian companion of Paul',
+                        []),
+    ('sosthenes',       'safe in strength; ruler of synagogue at Corinth',
+                        []),
+    ('tertius',         'third (Latin); scribe of Romans (Rom 16:22)',
+                        []),
+    ('agabus',          'locust; prophet who foretold famine (Acts 11) and Paul\'s arrest (Acts 21)',
+                        []),
+    ('stephen',         'crown; the first Christian martyr',
+                        ['Steve', 'Stefan', 'Stephan', 'Esteban', 'Etienne', 'Stefano', 'Stevie']),
+    ('cornelius-the-centurion', 'horn (Latin); first Gentile baptized into the church (Acts 10)',
+                        ['Corny', 'Cornel', 'Corneliu']),
+    ('gabriel',         'man of God; the announcing angel',
+                        ['Gabe', 'Gabby', 'Gavriel', 'Gabriele']),
     # Editor's family
-    ('malachi-andrew',  'memorial — Adam & Maria\'s first child (2017)'),
+    ('malachi-andrew',  'memorial — Adam & Maria\'s first child (2017)',
+                        []),
 ]
 
 FEMALE = [
     # OT matriarchs
-    ('sarah',           'princess; Abraham\'s wife; mother of nations'),
-    ('hagar',           'flight, stranger; Egyptian handmaid; mother of Ishmael'),
-    ('rebekah',         'to bind; Isaac\'s wife; mother of Jacob and Esau'),
-    ('leah',            'weary; Jacob\'s first wife; mother of Judah'),
-    ('rachel',          'ewe; Jacob\'s beloved wife; mother of Joseph and Benjamin'),
-    ('miriam',          'bitter; prophetess, sister of Moses and Aaron'),
-    ('asenath',         'gift of the sun-god (Egyptian); wife of Joseph; mother of Manasseh and Ephraim'),
+    ('sarah',           'princess; Abraham\'s wife; mother of nations',
+                        ['Sara', 'Sally', 'Sarai', 'Zara', 'Sariah']),
+    ('hagar',           'flight, stranger; Egyptian handmaid; mother of Ishmael',
+                        ['Hajar']),
+    ('rebekah',         'to bind; Isaac\'s wife; mother of Jacob and Esau',
+                        ['Rebecca', 'Becky', 'Becca', 'Reba', 'Beck']),
+    ('leah',            'weary; Jacob\'s first wife; mother of Judah',
+                        ['Lea', 'Lia', 'Lee', 'Léa']),
+    ('rachel',          'ewe; Jacob\'s beloved wife; mother of Joseph and Benjamin',
+                        ['Rae', 'Raquel', 'Rachelle', 'Rakel', 'Rahel']),
+    ('miriam',          'bitter; prophetess, sister of Moses and Aaron',
+                        ['Mariam', 'Mira', 'Miri']),
+    ('asenath',         'gift of the sun-god (Egyptian); wife of Joseph; mother of Manasseh and Ephraim',
+                        ['Aseneth']),
     # Other OT figures
-    ('rahab',           'broad / wide; the Jericho harlot who hid the spies; in Christ\'s line'),
-    ('deborah',         'bee; prophetess and judge'),
-    ('jael',            'mountain goat; the tent-peg woman of Judges 4'),
-    ('naomi',           'pleasant; Ruth\'s mother-in-law'),
-    ('ruth',            'companion, friend; the Moabite great-grandmother of David'),
-    ('hannah',          'grace; the long-barren mother of Samuel'),
-    ('abigail',         'father is joy; David\'s wife of wisdom'),
-    ('bathsheba',       'daughter of the oath; mother of Solomon'),
-    ('tamar',           'palm tree; mother in the line of Christ (Matt 1:3)'),
-    ('huldah-prophetess', 'weasel; prophetess of Josiah\'s reform (2 Kings 22)'),
-    ('vashti',          'beautiful; the queen Ahasuerus deposed before Esther (Esth 1)'),
-    ('esther',          'star; queen who saved her people'),
+    ('rahab',           'broad / wide; the Jericho harlot who hid the spies; in Christ\'s line',
+                        ['Rachab']),
+    ('deborah',         'bee; prophetess and judge',
+                        ['Deb', 'Debbie', 'Debby', 'Devorah', 'Deborra']),
+    ('jael',            'mountain goat; the tent-peg woman of Judges 4',
+                        ['Yael', 'Jaella']),
+    ('naomi',           'pleasant; Ruth\'s mother-in-law',
+                        ['Nomi', 'Noemi', 'Noémie']),
+    ('ruth',            'companion, friend; the Moabite great-grandmother of David',
+                        ['Ruthie', 'Rut']),
+    ('hannah',          'grace; the long-barren mother of Samuel',
+                        ['Hanna', 'Hana', 'Anna', 'Anne', 'Ann', 'Annie', 'Hanne', 'Hannele']),
+    ('abigail',         'father is joy; David\'s wife of wisdom',
+                        ['Abby', 'Abbie', 'Gail', 'Abi', 'Avigail']),
+    ('bathsheba',       'daughter of the oath; mother of Solomon',
+                        ['Sheba']),
+    ('tamar',           'palm tree; mother in the line of Christ (Matt 1:3)',
+                        ['Tamara', 'Tammy', 'Tamir']),
+    ('huldah-prophetess', 'weasel; prophetess of Josiah\'s reform (2 Kings 22)',
+                        ['Hulda']),
+    ('vashti',          'beautiful; the queen Ahasuerus deposed before Esther (Esth 1)',
+                        ['Vasht']),
+    ('esther',          'star; queen who saved her people',
+                        ['Hadassah', 'Essie', 'Hettie', 'Estee', 'Ester']),
     # NT figures
-    ('elisabeth-mother-of-john', 'God is my oath; mother of John the Baptist'),
-    ('mary',            'bitter, beloved; mother of Christ'),
-    ('anna-the-prophetess', 'grace; the temple-prophetess at Christ\'s presentation'),
-    ('martha',          'lady, mistress; sister of Mary and Lazarus'),
-    ('mary-magdalene',  'of Magdala; first witness of the resurrection'),
-    ('salome',          'peace; mother of James and John; at the resurrection'),
-    ('joanna',          'Yahweh is gracious; faithful woman at the resurrection'),
-    ('tabitha',         'gazelle (Hebrew); raised by Peter (Acts 9:36-42)'),
-    ('dorcas',          'gazelle (Greek for Tabitha); the same disciple raised by Peter'),
-    ('lydia',           'woman from Lydia; first European convert (Acts 16)'),
-    ('phoebe',          'radiant; deacon of Cenchrea (Rom 16:1)'),
-    ('priscilla',       'ancient; co-worker with Paul (with husband Aquila)'),
-    ('rhoda',           'rose; the maid who knew Peter\'s voice (Acts 12:13-15)'),
-    ('lois',            'unfeigned-faith grandmother of Timothy (2 Tim 1:5)'),
-    ('eunice',          'good victory; believing Jewish mother of Timothy (2 Tim 1:5)'),
-    ('chloe',           'green sprout; the Christian woman whose household reported Corinthian divisions to Paul (1 Cor 1:11)'),
-    ('damaris',         'gentle (uncertain); convert at Athens through Paul\'s Mars\' Hill sermon (Acts 17:34)'),
-    ('susanna',         'lily; supporter of Christ\'s Galilean ministry (Luke 8:3)'),
-    ('claudia',         'noble Roman gens; Christian woman in Rome named in Paul\'s final epistle (2 Tim 4:21)'),
-    ('julia',           'noble Roman gens; Christian woman in Rome greeted by Paul (Rom 16:15)'),
-    ('eve',             'life-giver; the first woman, mother of all living (Gen 3:20)'),
-    ('bethany',         'house of figs; the village of Lazarus, Mary, Martha'),
+    ('elisabeth-mother-of-john', 'God is my oath; mother of John the Baptist',
+                        ['Liz', 'Beth', 'Betsy', 'Eliza', 'Lisbeth', 'Elsa', 'Elise', 'Lisa', 'Bess', 'Lizzie', 'Elspeth']),
+    ('mary',            'bitter, beloved; mother of Christ',
+                        ['Maria', 'Marie', 'Maryam', 'Molly', 'Polly', 'Mae', 'May', 'Mariah']),
+    ('anna-the-prophetess', 'grace; the temple-prophetess at Christ\'s presentation',
+                        ['Anne', 'Ann', 'Annie', 'Anya', 'Anita']),
+    ('martha',          'lady, mistress; sister of Mary and Lazarus',
+                        ['Marta', 'Marty', 'Mattie', 'Marthe']),
+    ('mary-magdalene',  'of Magdala; first witness of the resurrection',
+                        ['Maggie', 'Madeline', 'Madeleine', 'Magda', 'Magdalena']),
+    ('salome',          'peace; mother of James and John; at the resurrection',
+                        ['Sal', 'Salma']),
+    ('joanna',          'Yahweh is gracious; faithful woman at the resurrection',
+                        ['Jo', 'Joan', 'Joanne', 'Johanna', 'Jana']),
+    ('tabitha',         'gazelle (Hebrew); raised by Peter (Acts 9:36-42)',
+                        ['Tabby', 'Dorcas']),
+    ('dorcas',          'gazelle (Greek for Tabitha); the same disciple raised by Peter',
+                        ['Tabitha']),
+    ('lydia',           'woman from Lydia; first European convert (Acts 16)',
+                        ['Liddy', 'Lyddie', 'Lydie']),
+    ('phoebe',          'radiant; deacon of Cenchrea (Rom 16:1)',
+                        ['Phebe', 'Phoebee']),
+    ('priscilla',       'ancient; co-worker with Paul (with husband Aquila)',
+                        ['Prisca', 'Cilla', 'Priscille']),
+    ('rhoda',           'rose; the maid who knew Peter\'s voice (Acts 12:13-15)',
+                        ['Rhody']),
+    ('lois',            'unfeigned-faith grandmother of Timothy (2 Tim 1:5)',
+                        ['Lo']),
+    ('eunice',          'good victory; believing Jewish mother of Timothy (2 Tim 1:5)',
+                        ['Uni']),
+    ('chloe',           'green sprout; the Christian woman whose household reported Corinthian divisions to Paul (1 Cor 1:11)',
+                        ['Clo', 'Khloe', 'Cloe']),
+    ('damaris',         'gentle (uncertain); convert at Athens through Paul\'s Mars\' Hill sermon (Acts 17:34)',
+                        ['Mara']),
+    ('susanna',         'lily; supporter of Christ\'s Galilean ministry (Luke 8:3)',
+                        ['Susan', 'Sue', 'Susie', 'Suzy', 'Suzanne', 'Shoshana', 'Zuzanna', 'Susannah']),
+    ('claudia',         'noble Roman gens; Christian woman in Rome named in Paul\'s final epistle (2 Tim 4:21)',
+                        ['Claudette', 'Claudine', 'Claudine']),
+    ('julia',           'noble Roman gens; Christian woman in Rome greeted by Paul (Rom 16:15)',
+                        ['Julie', 'Juliet', 'Juliana', 'Yulia', 'Giulia']),
+    ('eve',             'life-giver; the first woman, mother of all living (Gen 3:20)',
+                        ['Eva', 'Evie', 'Eveline', 'Eveline', 'Chava']),
+    ('bethany',         'house of figs; the village of Lazarus, Mary, Martha',
+                        ['Beth', 'Bethy']),
     # Editor's family
-    ('maria',           'the Latin form of Mary; the editor\'s wife — bitter made sweet'),
-    ('hope-twin',       'memorial — Adam & Maria\'s twin daughter (2018)'),
-    ('mercy-twin',      'memorial — Adam & Maria\'s twin daughter (2018)'),
+    ('maria',           'the Latin form of Mary; the editor\'s wife — bitter made sweet',
+                        ['Mary', 'Marie', 'Mariana', 'Marietta']),
+    ('hope-twin',       'memorial — Adam & Maria\'s twin daughter (2018)',
+                        []),
+    ('mercy-twin',      'memorial — Adam & Maria\'s twin daughter (2018)',
+                        []),
 ]
 
 UNISEX = [
-    ('shiloh-doctrine', 'he whose right it is (Gen 49:10); Messianic title + place-name; modern unisex use'),
-    ('jordan-river',    'descend, flow down; the river of baptism; modern unisex'),
-    ('eden',            'delight, pleasure; the garden of original creation; modern unisex'),
-    ('carmel',          'vineyard, garden; the mountain where Elijah called down fire; unisex'),
-    ('zion',            'fortification, parched place; God\'s holy hill; modern unisex'),
-    ('tamar',           'palm tree; primarily female but used as both in modern use'),
-    ('hannah',          'grace; primarily female but rare male use in some traditions'),
+    ('shiloh-doctrine', 'he whose right it is (Gen 49:10); Messianic title + place-name; modern unisex use',
+                        []),
+    ('jordan-river',    'descend, flow down; the river of baptism; modern unisex',
+                        ['Jordy', 'Jordana']),
+    ('eden',            'delight, pleasure; the garden of original creation; modern unisex',
+                        ['Edie', 'Edyn']),
+    ('carmel',          'vineyard, garden; the mountain where Elijah called down fire; unisex',
+                        ['Carmela', 'Carmen']),
+    ('zion',            'fortification, parched place; God\'s holy hill; modern unisex',
+                        ['Zionie']),
+    ('tamar',           'palm tree; primarily female but used as both in modern use',
+                        ['Tamara']),
+    ('hannah',          'grace; primarily female but rare male use in some traditions',
+                        ['Hanna']),
 ]
 
 
-def render_card(slug, meaning, headword):
+def render_card(slug, meaning, variants, headword):
     safe_h = html_mod.escape(headword or slug)
     safe_m = html_mod.escape(meaning)
+    variants_html = ''
+    if variants:
+        v_safe = [html_mod.escape(v) for v in variants]
+        variants_html = (
+            f'<div class="name-variants"><span class="vk">Also:</span> '
+            f'{", ".join(v_safe)}</div>'
+        )
     return (
         f'<a class="name-card" href="{slug}.html">'
         f'<div class="name-word">{safe_h}</div>'
         f'<div class="name-meaning">{safe_m}</div>'
+        f'{variants_html}'
         f'</a>'
     )
 
 
 def render_section(title, anchor, intro, names):
     cards = []
-    skipped = 0
-    for slug, meaning in names:
+    primaries = 0
+    variant_count = 0
+    for slug, meaning, variants in names:
         hw = get_headword(slug)
         if hw is None:
             print(f'  WARN: no headword for {slug} (skipping)')
-            skipped += 1
             continue
-        cards.append(render_card(slug, meaning, hw))
+        cards.append(render_card(slug, meaning, variants, hw))
+        primaries += 1
+        variant_count += len(variants)
     if not cards:
-        return ''
+        return ('', 0, 0)
     cards_html = '\n        '.join(cards)
-    return f'''
+    total = primaries + variant_count
+    sec = f'''
     <section class="names-section" id="{anchor}">
-        <h2>{title} <span class="count-badge-lg">{len(cards)}</span></h2>
+        <h2>{title} <span class="count-badge-lg">{primaries} <span style="opacity:0.7;font-weight:400;">primary · {total} total w/ variants</span></span></h2>
         <p class="sec-intro">{intro}</p>
         <div class="names-grid">
         {cards_html}
         </div>
     </section>
     '''
+    return (sec, primaries, variant_count)
 
 
 def main():
-    print('Building baby-names.html…')
-    male_html = render_section(
+    print('Building baby-names.html (with variants)…')
+    male_html, male_p, male_v = render_section(
         'Boy Names', 'boys',
-        'Biblical names suited for boys — drawn from the patriarchs, prophets, judges, kings, and apostles. Click any name for the full dictionary entry.',
+        'Biblical names suited for boys — drawn from patriarchs, prophets, judges, kings, and apostles. Each card shows the canonical headword, a one-line meaning, and common nicknames/variants. Click any name for the full dictionary entry.',
         MALE,
     )
-    female_html = render_section(
+    female_html, female_p, female_v = render_section(
         'Girl Names', 'girls',
-        'Biblical names suited for girls — drawn from matriarchs, prophetesses, queens, and disciples. Click any name for the full dictionary entry.',
+        'Biblical names suited for girls — drawn from matriarchs, prophetesses, queens, and disciples. Each card shows the canonical headword, a one-line meaning, and common nicknames/variants.',
         FEMALE,
     )
-    unisex_html = render_section(
+    unisex_html, unisex_p, unisex_v = render_section(
         'Unisex Names', 'unisex',
         'Biblical place-names and concept-names that have crossed into modern use for both boys and girls — like Shiloh, Eden, Jordan, and Zion.',
         UNISEX,
     )
 
-    total = len(MALE) + len(FEMALE) + len(UNISEX)
+    total_p = male_p + female_p + unisex_p
+    total_v = male_v + female_v + unisex_v
+    grand = total_p + total_v
 
     html_out = f'''<!DOCTYPE html>
 <html lang="en">
@@ -277,9 +435,9 @@ def main():
     <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-touch-icon.png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Baby Names from the Bible &mdash; The MOOP Dictionary</title>
-    <meta name="description" content="Biblical baby names with Hebrew and Greek meaning — boys, girls, and unisex names from Scripture. Curated from The MOOP Dictionary.">
+    <meta name="description" content="Biblical baby names with Hebrew and Greek meaning, plus common nicknames and language variants — boys, girls, and unisex names from Scripture.">
     <meta property="og:title" content="Biblical Baby Names &mdash; The MOOP Dictionary">
-    <meta property="og:description" content="Boy, girl, and unisex names from the Bible with original-language meaning — for expecting parents and curious readers.">
+    <meta property="og:description" content="Boy, girl, and unisex names from the Bible — with original-language meaning and common nicknames/variants.">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
     <style>
         * {{ margin:0; padding:0; box-sizing:border-box; }}
@@ -292,8 +450,9 @@ def main():
         .container {{ max-width:1100px; margin:0 auto; padding:30px 20px 60px; }}
         .hero {{ text-align:center; padding:40px 0 30px; border-bottom:1px solid var(--border); margin-bottom:30px; }}
         .hero h1 {{ font-size:2.6rem; color:var(--gold-light); margin-bottom:12px; }}
-        .hero .lead {{ color:var(--gray); max-width:640px; margin:10px auto; font-size:1rem; }}
-        .hero .total {{ display:inline-block; background:var(--gold); color:#000; font-weight:700; padding:4px 14px; border-radius:14px; font-size:0.85rem; margin-top:14px; }}
+        .hero .lead {{ color:var(--gray); max-width:680px; margin:10px auto; font-size:1rem; }}
+        .hero .totals {{ display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-top:14px; }}
+        .hero .totals > span {{ display:inline-block; background:var(--gold); color:#000; font-weight:700; padding:4px 14px; border-radius:14px; font-size:0.82rem; }}
         .quick-nav {{ display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin:28px 0 10px; }}
         .quick-nav a {{ background:var(--card); border:1px solid var(--border); color:var(--white) !important; text-decoration:none; padding:8px 18px; border-radius:20px; font-size:0.9rem; }}
         .quick-nav a:hover {{ border-color:var(--gold); color:var(--gold) !important; }}
@@ -301,13 +460,15 @@ def main():
         .editor-note h3 {{ color:var(--gold); font-size:1rem; margin-bottom:6px; font-family:'Inter',sans-serif; font-weight:600; }}
         .names-section {{ margin:48px 0; scroll-margin-top:80px; }}
         .names-section h2 {{ color:var(--gold-light); font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:10px; margin-bottom:8px; }}
-        .sec-intro {{ color:var(--gray); font-size:0.92rem; margin-bottom:20px; max-width:720px; }}
+        .sec-intro {{ color:var(--gray); font-size:0.92rem; margin-bottom:20px; max-width:760px; }}
         .count-badge-lg {{ display:inline-block; background:var(--gold); color:#000; font-size:0.75rem; font-weight:700; padding:3px 10px; border-radius:10px; margin-left:8px; vertical-align:middle; }}
-        .names-grid {{ display:grid; grid-template-columns:repeat(auto-fill, minmax(240px, 1fr)); gap:12px; }}
+        .names-grid {{ display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:12px; }}
         .name-card {{ display:block; background:var(--card); border:1px solid var(--border); border-radius:10px; padding:14px 18px; text-decoration:none; color:var(--white) !important; transition:border-color 0.2s, transform 0.15s; }}
         .name-card:hover {{ border-color:var(--gold); transform:translateY(-1px); }}
         .name-word {{ font-family:'Playfair Display',serif; font-size:1.18rem; color:var(--gold-light); margin-bottom:5px; }}
         .name-meaning {{ font-size:0.83rem; color:var(--gray); line-height:1.5; }}
+        .name-variants {{ font-size:0.78rem; color:var(--gold); margin-top:7px; padding-top:6px; border-top:1px dashed rgba(212,175,55,0.25); font-style:italic; }}
+        .name-variants .vk {{ font-style:normal; opacity:0.7; font-size:0.72rem; letter-spacing:0.04em; }}
         footer {{ text-align:center; padding:32px 20px; border-top:1px solid var(--border); margin-top:50px; color:var(--gray); font-size:0.88rem; }}
         footer a {{ color:var(--gray); text-decoration:none; }}
         footer a:hover {{ color:var(--gold); }}
@@ -333,8 +494,12 @@ def main():
     <div class="container">
         <div class="hero">
             <h1>Biblical Baby Names</h1>
-            <p class="lead">Boy, girl, and unisex names drawn from Scripture &mdash; with Hebrew, Greek, and original-language meaning. Each name links to the full dictionary entry.</p>
-            <span class="total">{total} curated names</span>
+            <p class="lead">Boy, girl, and unisex names drawn from Scripture &mdash; with Hebrew, Greek, and original-language meaning. Each card lists common nicknames and language variants (English, Hebrew, Greek, Spanish, Italian, etc.) and links to the full dictionary entry.</p>
+            <div class="totals">
+                <span>{total_p} primary names</span>
+                <span>{total_v} variants</span>
+                <span>{grand} total displayed</span>
+            </div>
             <div class="quick-nav">
                 <a href="#boys">Boys &#9662;</a>
                 <a href="#girls">Girls &#9662;</a>
@@ -343,7 +508,7 @@ def main():
             </div>
             <div class="editor-note">
                 <h3>&#128153; A Note from the Editor</h3>
-                <p>This baby-name directory is split off from the larger biblical-names index to serve expecting parents and curious readers. The page is curated by Adam Johns, editor of the MOOP Dictionary, and includes a small number of personal-family entries (Maria, Malachi Andrew, Hope, Mercy) representing his wife and three children lost too soon. Each name links to its full entry with original-language etymology.</p>
+                <p>This baby-name directory is split off from the larger biblical-names index to serve expecting parents and curious readers. The page is curated by Adam Johns, editor of the MOOP Dictionary, and includes a small number of personal-family entries (Maria, Malachi Andrew, Hope, Mercy) representing his wife and three children lost too soon. Each name links to its full entry with original-language etymology, and lists common nicknames and language variants for the same name.</p>
             </div>
         </div>
 
@@ -367,10 +532,11 @@ def main():
         f.write(html_out)
 
     print(f'Wrote {OUT}')
-    print(f'  Boys: {len(MALE)}')
-    print(f'  Girls: {len(FEMALE)}')
-    print(f'  Unisex: {len(UNISEX)}')
-    print(f'  Total: {total}')
+    print(f'  Primary names: {total_p}')
+    print(f'    Boys: {male_p}, Girls: {female_p}, Unisex: {unisex_p}')
+    print(f'  Variants: {total_v}')
+    print(f'    Boys: {male_v}, Girls: {female_v}, Unisex: {unisex_v}')
+    print(f'  GRAND TOTAL (primary + variants): {grand}')
 
 
 if __name__ == '__main__':
