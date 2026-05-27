@@ -1855,7 +1855,19 @@
         };
 
         // Lexicon entries we have locally (Phase 1: 50 foundational words)
-        const LEXICON_PAGES = new Set(["H430","H3068","H1285","H2617","H6662","H539","H3045","H7965","H8451","H6918","H571","H3444","H2580","H157","H3519","H5315","H3820","H1697","H4941","H7200","H8085","H5545","H7725","H982","H1984","G26","G4102","G5485","G1515","G1343","G2316","G2962","G4151","G3056","G225","G40","G4991","G3341","G1680","G1391","G5590","G2588","G2842","G1242","G4678","G1849","G1411","G266","G3551","G932"]);
+        // BTE v6.4 (2026-05-24): Expanded lexicon coverage from 50 hardcoded foundational entries
+        // to ALL 7,777 local lexicon pages (4,444 Hebrew + 3,333 Greek). Manifest loaded dynamically
+        // from assets/lexicon-pages.json so every Strong's-tagged word links to our own lexicon,
+        // not an external site. To extend: drop new pages into docs/lexicon/ then regenerate the
+        // manifest (scripts/build_lexicon_pages_manifest.py).
+        let LEXICON_PAGES = new Set();
+        fetch('assets/lexicon-pages.json?v=' + Date.now())
+            .then(r => r.ok ? r.json() : { pages: [] })
+            .then(data => {
+                LEXICON_PAGES = new Set(data.pages || []);
+                console.log(`BTE v6.4: ${LEXICON_PAGES.size.toLocaleString()} local lexicon pages available`);
+            })
+            .catch(() => { console.log('BTE v6.4: lexicon-pages.json not found, falling back to external lexicon sites'); });
 
         function stepBibleUrl(num) {
             // Link to our own lexicon page if available
