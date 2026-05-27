@@ -71,8 +71,10 @@ while [ "$(date +%s)" -lt "$END_TS" ]; do
     break
   fi
 
-  # 1) Pull-rebase to absorb concurrent dictionary loop commits
-  git pull --rebase origin main > /dev/null 2>&1 || echo "[$(ts)] pull-rebase had issues (continuing)"
+  # 1) Pull-rebase to absorb concurrent dictionary loop commits.
+  #    --autostash safely shelves any other automation's uncommitted changes
+  #    (simplefin, dictionary builder, etc.) for the duration of the rebase.
+  git pull --rebase --autostash origin main > /dev/null 2>&1 || echo "[$(ts)] pull-rebase had issues (continuing)"
 
   # 2) Scrape one tick's worth of images
   echo "[$(ts)] scraping up to $PER_TICK images ..."
@@ -86,7 +88,7 @@ while [ "$(date +%s)" -lt "$END_TS" ]; do
     git commit -m "Image enrichment tick $TICK: +images via OG scrape (state=$STATE) [$(ts)]" > /dev/null 2>&1
     if ! git push origin main > /dev/null 2>&1; then
       echo "[$(ts)] push rejected — pull-rebasing and retrying ..."
-      git pull --rebase origin main > /dev/null 2>&1
+      git pull --rebase --autostash origin main > /dev/null 2>&1
       git push origin main > /dev/null 2>&1
     fi
     echo "[$(ts)] committed + pushed tick $TICK"
