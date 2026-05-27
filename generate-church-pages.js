@@ -549,7 +549,7 @@ function buildPage(church) {
 
   // Build scorecard rows
   const scorecardRows = data.rubric.map(rubric => {
-    const score = church.scores[rubric.id] || 'yellow';
+    const score = (church.scores && church.scores[rubric.id]) || 'yellow';
     const note = church.score_notes && church.score_notes[rubric.id] ? church.score_notes[rubric.id] : '';
     const gd = (rubric.id === 'gender' && church.gender_detail) ? church.gender_detail : '';
     return `
