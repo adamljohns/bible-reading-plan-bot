@@ -172,6 +172,8 @@ redefinition, use the caveat template in `corruption_summary`.
 | 2026-05-27 | 102 | Phase B b8 — final 2 NJ stones (jacinth, amethyst) + OT breastplate gems (carbuncle, ligure, agate, diamond, ruby) + organic pearl + cornerstone-doctrine + gold-bible — completes the precious-stones thread with kingdom-cost (pearl), Christology (cornerstone), and the metal of God's presence (gold) | +10 | **4,978** |
 | 2026-05-27 | 103 | Phase B b9 — biblical metals (silver-bible, brass-bible, iron-bible, copper, tin, lead-metal) + cosmology (abyss-doctrine, deep-bible, heavens-bible, mountains-bible) — completes the metal-by-metal theology (silver=redemption price, brass=judgment, iron=Messianic rod, copper=craftsmanship, tin/lead=dross) and opens the three-heavens cosmology | +10 | **4,988** |
 | 2026-05-27 | 104 | Phase C b2 — gospel figures (joseph-of-arimathea-doctrine, nicodemus-doctrine, zacharias-prophet, elisabeth-mother-of-john, simeon-the-righteous, centurion-at-cross, malchus, jairus-the-ruler, zacchaeus-doctrine, pilate-doctrine) — supporting characters of the gospel narrative, each anchored in canonical typology | +10 | **4,998** |
+| 2026-05-27 | 105 | 🎉 **5,000 MILESTONE BATCH** — Names of God and Christological titles (i-am-that-i-am, the-almighty, most-high, holy-one-of-israel, lord-of-lords, light-of-the-world, resurrection-and-life, door-of-the-sheep, branch-of-the-lord, servant-of-the-lord) — names of the One the whole dictionary is about. From the burning bush self-revelation to the I AM sayings of John to the Servant of Isaiah 53. | +10 | **5,008** 🎉 **MILESTONE CROSSED** |
 
-> **Next up:** Batch 105 — **5,000 MILESTONE BATCH.** Topical: Names of God (or Christological titles) for the
-> milestone marker — names of the One the whole dictionary is about.
+> **Next up:** Continue toward 7,777 (2,769 entries to go). Possible next batches: more Names/Titles, more
+> covenant figures, more biblical realia (musical instruments, agriculture, household), more Hebrew/Greek
+> word-study entries.
