@@ -118,12 +118,21 @@ function summarize(records) {
 
 function renderEntry(c) {
   const networks = c.cross_listed_in.filter(n => NETWORK_META[n]);
+  // cross_listed_urls (when populated) holds per-church deep links:
+  //   { acts29: "https://www.acts29.com/church/grace-edmonton/", founders: "..." }
+  const perChurchUrls = (c.cross_listed_urls && typeof c.cross_listed_urls === 'object') ? c.cross_listed_urls : {};
   const chips = networks.map(n => {
     const meta = NETWORK_META[n];
-    // Clickable badge — opens the network's directory in a new tab so the user
-    // can find this specific church within it. Title attribute gives a hover hint.
-    const href = meta.directoryUrl || '#';
-    return `<a class="net-chip" href="${escapeHtml(href)}" target="_blank" rel="noopener" style="--net-color:${meta.color};" data-net="${n}" title="Open ${escapeHtml(meta.label)} directory in a new tab">${escapeHtml(meta.shortLabel)}</a>`;
+    // Prefer the per-church deep link when we've matched one; otherwise fall
+    // back to the network's directory home and let the user search there.
+    const deepLink = perChurchUrls[n];
+    const href = deepLink || meta.directoryUrl || '#';
+    const isDeep = !!deepLink;
+    const title = isDeep
+      ? `Open this church's listing on ${meta.label}`
+      : `Open ${meta.label} directory (search for this church there)`;
+    const dataAttr = isDeep ? ' data-deep="1"' : '';
+    return `<a class="net-chip" href="${escapeHtml(href)}" target="_blank" rel="noopener" style="--net-color:${meta.color};" data-net="${n}"${dataAttr} title="${escapeHtml(title)}">${escapeHtml(meta.shortLabel)}${isDeep ? ' →' : ''}</a>`;
   }).join('');
   const dataNetworks = networks.join(' ');
   const stateMatch = String(c.address || '').match(/,\s*([A-Z]{2})\b/);
@@ -242,6 +251,9 @@ function renderHtml({ records, summary, total_churches }) {
     .net-chip { font-size:0.66rem; padding:2px 7px; border-radius:8px; border:1px solid var(--net-color, var(--border)); color:var(--net-color, var(--gray)); background:rgba(255,255,255,0.02); letter-spacing:0.4px; font-weight:500; text-decoration:none; cursor:pointer; transition:background 0.15s, color 0.15s; display:inline-block; }
     .net-chip:hover { background:var(--net-color, var(--gold)); color:#000; }
     .net-chip:focus { outline:1px solid var(--net-color, var(--gold)); outline-offset:2px; }
+    /* Deep-link badges (we have the church's actual URL) get a filled background so the user knows it's a precise link, not a fallback search */
+    .net-chip[data-deep="1"] { background:var(--net-color, var(--gold)); color:#000; font-weight:600; }
+    .net-chip[data-deep="1"]:hover { filter:brightness(1.15); }
 
     .methodology { margin-top:50px; }
     .methodology h2 { color:var(--gold-light); font-size:1.4rem; margin-bottom:16px; }
