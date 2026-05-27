@@ -169,7 +169,7 @@ redefinition, use the caveat template in `corruption_summary`.
 | 2026-05-23 | 100 | **Phase C opener** — biblical persons (melchizedek-doctrine, caleb-doctrine, boaz-doctrine, anna-the-prophetess, priscilla-and-aquila, barnabas-doctrine, cornelius-the-centurion, philemon-and-onesimus, tabitha, titus-doctrine) | +10 | **4,958** ***milestone batch 100*** |
 | 2026-05-27 | — | **CROSS-LINKAGE SPRINT** — bin/build_dict_manifest.py regex fix (294 missing entries recovered) + bin/autolink_chapters.py (+33,291 dict-links across 1,181 chapters) + bin/autolink_lexicon_from_dict.py (+5,015 backlinks via Strong's numbers across 1,659 lexicon pages) + bin/autolink_blog.py (+4,122 dict-links across 153 blog posts). Total: **42,428 new cross-links across 2,993 site pages.** | linkage | 4,958 |
 | 2026-05-27 | 101 | **Phase B b7 (gems)** — Rev 21:19-20 New Jerusalem foundation stones #1-10 (jasper, sapphire, chalcedony, emerald, sardonyx, sardius, chrysolite, beryl, topaz, chrysoprasus) — themed coherent batch with high-priest breastplate / Eden / theophany typology | +10 | **4,968** |
+| 2026-05-27 | 102 | Phase B b8 — final 2 NJ stones (jacinth, amethyst) + OT breastplate gems (carbuncle, ligure, agate, diamond, ruby) + organic pearl + cornerstone-doctrine + gold-bible — completes the precious-stones thread with kingdom-cost (pearl), Christology (cornerstone), and the metal of God's presence (gold) | +10 | **4,978** |
 
-> **Next up:** Batch 102 — Rev 21:20 stones #11-12 (jacinth, amethyst) + complete the Exodus 28 high priest's
-> breastplate stones missing from the canon (carbuncle, ligure, agate, diamond, ruby). Then continue toward
-> 5,000 milestone (~32 entries away after batch 102).
+> **Next up:** Batch 103 — biblical metals continuing (silver-bible, brass-bible, iron-bible, lead, tin, copper)
+> + cosmology terms (firmament, heavens, abyss-doctrine). 22 entries to 5,000 milestone.
