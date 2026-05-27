@@ -167,7 +167,9 @@ redefinition, use the caveat template in `corruption_summary`.
 | 2026-05-23 | 98 | Phase B b5 — biblical flora & fauna (vine-doctrine, shepherd-and-sheep, lamb-doctrine, lion-doctrine, dove-doctrine, balm-of-gilead, serpent-doctrine, raven-doctrine, sparrow-doctrine, almond-tree) | +10 | **4,938** |
 | 2026-05-23 | 99 | Phase B b6 — biblical tools, warfare, music (sword-of-the-spirit, helmet-of-salvation, breastplate-of-righteousness, buckler, bow-and-arrow, goad, yoke-doctrine, potter-and-clay, threshingfloor, trumpet-doctrine) | +10 | **4,948** |
 | 2026-05-23 | 100 | **Phase C opener** — biblical persons (melchizedek-doctrine, caleb-doctrine, boaz-doctrine, anna-the-prophetess, priscilla-and-aquila, barnabas-doctrine, cornelius-the-centurion, philemon-and-onesimus, tabitha, titus-doctrine) | +10 | **4,958** ***milestone batch 100*** |
+| 2026-05-27 | — | **CROSS-LINKAGE SPRINT** — bin/build_dict_manifest.py regex fix (294 missing entries recovered) + bin/autolink_chapters.py (+33,291 dict-links across 1,181 chapters) + bin/autolink_lexicon_from_dict.py (+5,015 backlinks via Strong's numbers across 1,659 lexicon pages) + bin/autolink_blog.py (+4,122 dict-links across 153 blog posts). Total: **42,428 new cross-links across 2,993 site pages.** | linkage | 4,958 |
+| 2026-05-27 | 101 | **Phase B b7 (gems)** — Rev 21:19-20 New Jerusalem foundation stones #1-10 (jasper, sapphire, chalcedony, emerald, sardonyx, sardius, chrysolite, beryl, topaz, chrysoprasus) — themed coherent batch with high-priest breastplate / Eden / theophany typology | +10 | **4,968** |
 
-> **Next up:** Phase A wk1 batch 2 — more biblical action verbs (candidates: meditate-related, intercede-related,
-> hush, harm, harden, humble, haste, hire, heed, hide, hush, hunger; +states/qualities words like affliction,
-> contrition, lovingkindness, meekness, remnant, tribulation, zeal). Target ~5,000 first milestone.
+> **Next up:** Batch 102 — Rev 21:20 stones #11-12 (jacinth, amethyst) + complete the Exodus 28 high priest's
+> breastplate stones missing from the canon (carbuncle, ligure, agate, diamond, ruby). Then continue toward
+> 5,000 milestone (~32 entries away after batch 102).
