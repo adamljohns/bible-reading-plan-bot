@@ -142,7 +142,13 @@ def process_blog_post(filepath, token_pats, phrase_pats, dry_run=False):
         return f'\x01ZONE{len(masks)-1}\x01'
     work = NAV_FOOTER_PAT.sub(_store_region, html)
 
-    used_slugs = set()
+    # PRE-LOAD used_slugs from any dict-link anchor ALREADY in the document, so
+    # repeated runs of this script never accumulate a second (or third) link for
+    # the same dictionary slug. Without this, popular words like "salvation" or
+    # "scripture" pick up one extra link on every re-run as the script masks the
+    # prior anchor and finds the next plain occurrence. (Adam caught this when
+    # one post had 3 links to /dictionary/salvation.html.)
+    used_slugs = set(re.findall(r'class="dict-link"\s+href="\.\./dictionary/([^"]+)\.html"', work))
     new_links = 0
 
     def _process_block(m):
