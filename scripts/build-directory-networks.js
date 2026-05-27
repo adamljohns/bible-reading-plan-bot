@@ -9,6 +9,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const { editorialRailHtml, editorialRailCss } = require('./editorial-rail');
 
 const CHURCHES = path.join(__dirname, '..', 'docs', 'data', 'churches.json');
 const OUT = path.join(__dirname, '..', 'docs', 'directory-networks.html');
@@ -262,6 +263,7 @@ function renderHtml({ records, summary, total_churches }) {
       .sort-bar { flex-direction:column; align-items:stretch; }
       .sort-bar input[type="search"] { min-width:0; }
     }
+    ${editorialRailCss}
   </style>
 </head>
 <body>
@@ -277,6 +279,8 @@ function renderHtml({ records, summary, total_churches }) {
     <a href="/directory-roadmap.html">Roadmap</a>
     <a href="/about.html">About</a>
   </nav>
+
+  ${editorialRailHtml()}
 
   <div class="container">
     <div class="hero">

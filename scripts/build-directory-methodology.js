@@ -8,6 +8,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const { editorialRailHtml, editorialRailCss } = require('./editorial-rail');
 
 const CHURCHES = path.join(__dirname, '..', 'docs', 'data', 'churches.json');
 const MANIFEST = path.join(__dirname, '..', 'docs', 'data', 'statement-lists-manifest.json');
@@ -149,6 +150,7 @@ const html = `<!DOCTYPE html>
       .stat-row { grid-template-columns:repeat(2, 1fr); }
       .section li { font-size:0.88rem; padding:10px 12px; }
     }
+    ${editorialRailCss}
   </style>
 </head>
 <body>
@@ -164,6 +166,8 @@ const html = `<!DOCTYPE html>
     <a href="/directory-roadmap.html">Roadmap</a>
     <a href="/about.html">About</a>
   </nav>
+
+  ${editorialRailHtml({ activeSlug: 'methodology' })}
 
   <div class="container">
     <div class="hero">
