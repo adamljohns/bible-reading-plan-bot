@@ -44,24 +44,53 @@ SKIP_WORDS = {
     'now', 'also',
 }
 
-# Headword extractor — works with the new template (.word-title)
+# Headword extractor — works with three template variants:
+#   1. new template:  <div class="word-title">Word</div>
+#   2. new template w/ badge: <div class="word-title">Word<span class="gen-badge">MILL</span></div>
+#   3. old template:  <h1>Word</h1>  (no class)
+# Patterns are permissive (.*? + DOTALL) and we strip any inner tags afterward.
 WORD_TITLE_PAT = re.compile(
-    r'<div class="word-title">([^<]+)</div>',
+    r'<div class="word-title">(.*?)</div>',
     re.DOTALL
 )
 # Older/alt: <h1 class="word-title">
 H1_TITLE_PAT = re.compile(
-    r'<h1[^>]*class="[^"]*word-title[^"]*"[^>]*>([^<]+)</h1>',
+    r'<h1[^>]*class="[^"]*word-title[^"]*"[^>]*>(.*?)</h1>',
     re.DOTALL
 )
+# Oldest template: bare <h1> with the headword. We anchor to the FIRST <h1>
+# that appears AFTER the <body> opener so we don't accidentally catch h1s
+# inside <style>/<head> documentation.
+BARE_H1_PAT = re.compile(
+    r'<body[^>]*>.*?<h1[^>]*>(.*?)</h1>',
+    re.DOTALL
+)
+INNER_TAG_STRIP = re.compile(r'<[^>]+>')
+
+def _clean(text):
+    """Strip inner HTML tags, decode common entities, collapse whitespace."""
+    text = INNER_TAG_STRIP.sub('', text)
+    text = text.replace('&mdash;', '—').replace('&ndash;', '–').replace('&amp;', '&')
+    text = text.replace('&#39;', "'").replace('&apos;', "'").replace('&quot;', '"').replace('&nbsp;', ' ')
+    text = re.sub(r'\s+', ' ', text).strip()
+    return text
 
 def extract_word(html):
     m = WORD_TITLE_PAT.search(html)
     if m:
-        return m.group(1).strip()
+        out = _clean(m.group(1))
+        if out:
+            return out
     m = H1_TITLE_PAT.search(html)
     if m:
-        return m.group(1).strip()
+        out = _clean(m.group(1))
+        if out:
+            return out
+    m = BARE_H1_PAT.search(html)
+    if m:
+        out = _clean(m.group(1))
+        if out:
+            return out
     return None
 
 

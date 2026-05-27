@@ -124,6 +124,15 @@
         }
         .verse-num.clickable { cursor: pointer; transition: all 0.3s; padding: 2px 6px; border-radius: 4px; }
         .verse-num.clickable:hover { background: rgba(212,175,55,0.2); color: var(--gold-light); }
+        /* BTE v6.5: verse numbers are anchors to Bible Hub interlinear — keep them styled
+           like the old gold verse-num spans (no underline, no anchor-blue, inherit color). */
+        a.verse-num-link { text-decoration: none; color: var(--gold); display: inline-block; }
+        a.verse-num-link:hover { text-decoration: none; }
+        a.verse-num-link:visited { color: var(--gold); }
+        /* BTE v6.5: per-verse "open detail view in BTE" button — preserved goToVerse affordance. */
+        .verse-detail-btn { cursor: pointer; opacity: 0.4; transition: opacity 0.2s;
+            user-select: none; vertical-align: middle; margin-left: 2px; }
+        .verse-detail-btn:hover { opacity: 1; }
         .trans-indicator {
             color: var(--gray); font-size: 0.85rem; font-family: 'Inter', sans-serif;
             font-weight: 400; margin-left: 8px;
@@ -472,6 +481,7 @@
         body.reader-mode .highlight-btn,
         body.reader-mode .note-toggle,
         body.reader-mode .copy-btn,
+        body.reader-mode .verse-detail-btn,
         body.reader-mode .crossref-inline-toggle,
         body.reader-mode .crossref-inline-body,
         body.reader-mode .verse-tools-box > span:not(.reader-toggle) { display: none !important; }
@@ -502,7 +512,7 @@
             body { background: #fff !important; color: #000 !important; font-size: 11pt; }
             .hero, .search-box, .quick-links, nav, #home-panel, #home-panel-lower,
             #back-to-home, #multi-passage-bar, #multi-passage-rows,
-            .verse-tools-box, .share-btn, .highlight-btn, .note-toggle, .copy-btn,
+            .verse-tools-box, .share-btn, .highlight-btn, .note-toggle, .copy-btn, .verse-detail-btn,
             .crossref-inline-toggle, .crossref-inline-body, .nav-arrows, .goto-bar,
             .word-search-bar, .scroll-top, .chapter-progress, .keyboard-hint,
             .export-panel, .watchman-widget, .history-panel, .bookmarks-panel,
@@ -1881,6 +1891,33 @@
             }
         }
 
+        // BTE v6.5 (2026-05-27): Bible Hub interlinear slug map (bookId → URL path segment).
+        // Used to turn verse numbers into external links pointing to the original-language interlinear.
+        // Bible Hub uses lowercase, underscore-prefixed names; Song of Solomon collapses to "songs".
+        const BIBLEHUB_SLUGS = {
+            1:'genesis',2:'exodus',3:'leviticus',4:'numbers',5:'deuteronomy',
+            6:'joshua',7:'judges',8:'ruth',9:'1_samuel',10:'2_samuel',
+            11:'1_kings',12:'2_kings',13:'1_chronicles',14:'2_chronicles',
+            15:'ezra',16:'nehemiah',17:'esther',18:'job',19:'psalms',
+            20:'proverbs',21:'ecclesiastes',22:'songs',23:'isaiah',
+            24:'jeremiah',25:'lamentations',26:'ezekiel',27:'daniel',
+            28:'hosea',29:'joel',30:'amos',31:'obadiah',32:'jonah',
+            33:'micah',34:'nahum',35:'habakkuk',36:'zephaniah',37:'haggai',
+            38:'zechariah',39:'malachi',40:'matthew',41:'mark',42:'luke',
+            43:'john',44:'acts',45:'romans',46:'1_corinthians',
+            47:'2_corinthians',48:'galatians',49:'ephesians',50:'philippians',
+            51:'colossians',52:'1_thessalonians',53:'2_thessalonians',
+            54:'1_timothy',55:'2_timothy',56:'titus',57:'philemon',
+            58:'hebrews',59:'james',60:'1_peter',61:'2_peter',
+            62:'1_john',63:'2_john',64:'3_john',65:'jude',66:'revelation'
+        };
+
+        function buildInterlinearUrl(bookId, chapter, verse) {
+            const slug = BIBLEHUB_SLUGS[bookId];
+            if (!slug) return null;
+            return 'https://biblehub.com/interlinear/' + slug + '/' + chapter + '-' + verse + '.htm';
+        }
+
         function parseRef(ref) {
             let input = ref.trim();
 
@@ -2894,7 +2931,13 @@
                 // BTE v5.7: in cross-chapter mode, prefix the verse number with "Ch:" so the
                 // chapter boundary stays visible inline.
                 var verseNumLabel = ref.crossChapter ? (vCh + ':' + v.num) : String(v.num);
-                html += '<div class="verse-block' + hlClass + '" id="vb-' + verseKey + '"><span class="verse-num clickable" onclick="goToVerse(' + vCh + ',' + v.num + ')" title="View verse ' + v.num + ' in detail">' + verseNumLabel + '</span> <span class="verse-text">' + v.text + '</span>';
+                // BTE v6.5 (2026-05-27): verse number is now an external link to the Bible Hub
+                // interlinear for that exact verse — opens in a new tab. The in-app "verse detail"
+                // navigation (goToVerse) is still available via the adjacent zoom icon in the
+                // action row at the end of the verse line.
+                var interlinearHref = buildInterlinearUrl(ref.bookId, vCh, v.num) || '#';
+                html += '<div class="verse-block' + hlClass + '" id="vb-' + verseKey + '"><a class="verse-num clickable verse-num-link" href="' + interlinearHref + '" target="_blank" rel="noopener noreferrer" title="Open verse ' + v.num + ' interlinear (Bible Hub) in new tab">' + verseNumLabel + '</a> <span class="verse-text">' + v.text + '</span>';
+                html += ' <span class="verse-detail-btn" onclick="goToVerse(' + vCh + ',' + v.num + ')" title="View verse ' + v.num + ' in detail in BTE"><img src="assets/icons/shield-book.png" class="site-icon" alt="detail" width="16" height="16"></span>';
                 html += ' <span class="share-btn" data-testament="' + (ref.bookId <= 39 ? 'ot' : 'nt') + '" onclick="shareVerse(\'' + shareRef.replace(/'/g, "\\'") + '\', this)" title="Tap to copy shareable link for this verse"><img src="' + shareIcon + '" class="site-icon" alt="share" width="20" height="20"></span>';
                 // BTE v5.2: Highlight toggle per verse
                 html += ' <span class="highlight-btn' + hlBtnClass + '" onclick="toggleHighlight(\'' + verseKey + '\', this)" title="Highlight this verse"><img src="assets/icons/' + hlIcon + '" class="site-icon" alt="highlight" width="16" height="16"></span>';
