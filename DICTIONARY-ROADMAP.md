@@ -171,6 +171,7 @@ redefinition, use the caveat template in `corruption_summary`.
 | 2026-05-27 | 101 | **Phase B b7 (gems)** — Rev 21:19-20 New Jerusalem foundation stones #1-10 (jasper, sapphire, chalcedony, emerald, sardonyx, sardius, chrysolite, beryl, topaz, chrysoprasus) — themed coherent batch with high-priest breastplate / Eden / theophany typology | +10 | **4,968** |
 | 2026-05-27 | 102 | Phase B b8 — final 2 NJ stones (jacinth, amethyst) + OT breastplate gems (carbuncle, ligure, agate, diamond, ruby) + organic pearl + cornerstone-doctrine + gold-bible — completes the precious-stones thread with kingdom-cost (pearl), Christology (cornerstone), and the metal of God's presence (gold) | +10 | **4,978** |
 | 2026-05-27 | 103 | Phase B b9 — biblical metals (silver-bible, brass-bible, iron-bible, copper, tin, lead-metal) + cosmology (abyss-doctrine, deep-bible, heavens-bible, mountains-bible) — completes the metal-by-metal theology (silver=redemption price, brass=judgment, iron=Messianic rod, copper=craftsmanship, tin/lead=dross) and opens the three-heavens cosmology | +10 | **4,988** |
+| 2026-05-27 | 104 | Phase C b2 — gospel figures (joseph-of-arimathea-doctrine, nicodemus-doctrine, zacharias-prophet, elisabeth-mother-of-john, simeon-the-righteous, centurion-at-cross, malchus, jairus-the-ruler, zacchaeus-doctrine, pilate-doctrine) — supporting characters of the gospel narrative, each anchored in canonical typology | +10 | **4,998** |
 
-> **Next up:** Batch 104 — **5,000 MILESTONE BATCH.** Likely Phase C major persons (cross of Christ figures
-> like simon-of-cyrene, mary-mother-of-james, joseph-of-arimathea-doctrine, etc.) or a high-density Christ-centered batch.
+> **Next up:** Batch 105 — **5,000 MILESTONE BATCH.** Topical: Names of God (or Christological titles) for the
+> milestone marker — names of the One the whole dictionary is about.
