@@ -155,6 +155,7 @@ redefinition, use the caveat template in `corruption_summary`.
 | 2026-05-23 | 86 | Phase A wk1 b2 — more biblical action verbs (harden, humble, hunger, thirst, cast, lift, cling, exhort, expound, fast, forbear, fulfill, gather, strive, grow, guard, swear, hate, kindle, labor) | +20 | **4,818** |
 | 2026-05-23 | 87 | Phase A wk1 b3 — biblical states & qualities, set 1 (lowliness, tenderness, blessedness, uprightness, weight, rejoicing, fulness, poverty, riches, triumph) | +10 | **4,828** |
 | 2026-05-23 | 88 | Phase A wk1 b4 — biblical states & qualities, set 2 (blamelessness, sweetness, weariness, distress, terror, indignation, shamefacedness, emptiness, treasure, reward) | +10 | **4,838** |
+| 2026-05-23 | 89 | Phase A wk1 b5 — finish states & qualities (godly-sorrow, sober-mindedness, heaviness, stillness, joy-unspeakable, brotherly-love, holy-boldness, fervor, zeal-of-god, steadiness) | +10 | **4,848** |
 
 > **Next up:** Phase A wk1 batch 2 — more biblical action verbs (candidates: meditate-related, intercede-related,
 > hush, harm, harden, humble, haste, hire, heed, hide, hush, hunger; +states/qualities words like affliction,
