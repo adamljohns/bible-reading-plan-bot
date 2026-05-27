@@ -44,8 +44,10 @@ function main() {
     const c = byId.get(r.id);
     if (!c) { missing++; continue; }
     if (r.sbc_detail_error) { errored++; }
-    // Apply website only if missing (don't overwrite curated)
-    if (r.website && (!c.website || args.force)) {
+    // Apply website only if missing AND the URL actually has a host (the scraper
+    // also guards this; defense in depth here in case an older JSONL still has
+    // scheme-only artifacts).
+    if (r.website && /^https?:\/\/[^\/\s]/i.test(r.website) && (!c.website || args.force)) {
       c.website = r.website;
       addedWebsite++;
     }

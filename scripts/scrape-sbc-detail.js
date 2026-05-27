@@ -53,9 +53,16 @@ function fetchText(url) {
 
 function parseDetail(html) {
   const out = {};
-  // Website link
+  // Website link — only accept URLs with an actual host. SBC.net shows the
+  // <a href="..."> placeholder element even for churches with NO website
+  // registered, with href="" or href="https://"; we MUST reject those or we
+  // pollute the directory with link-to-nowhere websites.
   const webM = html.match(/<p[^>]+class="heading__website"[^>]*>\s*<a[^>]+href="([^"]+)"/i);
-  if (webM) out.website = webM[1];
+  if (webM) {
+    const w = webM[1].trim();
+    // Require: scheme + at least one non-slash character (a host) after //
+    if (/^https?:\/\/[^\/\s]/i.test(w)) out.website = w;
+  }
   // Lat/lng
   const latM = html.match(/<div[^>]+class="[^"]*marker[^"]*"[^>]+data-lat="([\-0-9.]+)"[^>]+data-lng="([\-0-9.]+)"/i);
   if (latM) { out.latitude = parseFloat(latM[1]); out.longitude = parseFloat(latM[2]); }

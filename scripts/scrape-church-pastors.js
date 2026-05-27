@@ -92,8 +92,11 @@ function scoreCandidate(name, html, idx) {
   const words = name.trim().split(/\s+/);
   if (words.length < 2 || words.length > 4) return -1;
   if (name.length < 5 || name.length > 50) return -1;
-  // Reject obvious noise
-  if (/\b(?:the|and|our|your|us|home|church|ministry|bible|study|sunday|service|prayer|worship|music)\b/i.test(name)) return -1;
+  // Reject obvious noise — common false positives caught in the wild:
+  //   "Black Hawk Down" (military movie reference in a sermon)
+  //   "Our Lord Jesus"  (theology phrase, not a pastor)
+  //   "Pastor Search Committee" etc.
+  if (/\b(?:the|and|our|your|us|home|church|ministry|bible|study|sunday|service|prayer|worship|music|jesus|christ|god|lord|spirit|gospel|sermon|story|message|search|committee|hawk|down|movie|video|book|enjoy|read|watch|listen|love|life|faith|hope|grace|truth|word|kingdom|salvation|baptism)\b/i.test(name)) return -1;
   if (/[0-9]/.test(name)) return -1;
   score += 10;
   // Boost if "Senior" or "Lead" nearby in HTML (within 50 chars of the match)
@@ -107,18 +110,34 @@ function scoreCandidate(name, html, idx) {
   return score;
 }
 
+// Clean a candidate name: strip honorific prefix, role suffix, and anything
+// after a period/comma/dash so "Pastor Kerry O'Neill" → "Kerry O'Neill",
+// "Emily Harper Lead Pastor" → "Emily Harper", "Brian Harell. Enjoy" → "Brian Harell".
+function cleanName(raw) {
+  let n = String(raw || '').trim();
+  // Cut at first period, comma, dash, or pipe (separators between name and bio)
+  n = n.split(/[.,|—–]/)[0].trim();
+  // Strip leading honorific
+  n = n.replace(/^(?:Rev\.?|Reverend|Pastor|Dr\.?|Mr\.?|Mrs\.?|Ms\.?|Sr\.?\s*Pastor|Senior\s+Pastor|Lead\s+Pastor|Teaching\s+Pastor|Associate\s+Pastor)\s+/i, '').trim();
+  // Strip trailing role descriptor ("Emily Harper Lead Pastor" → "Emily Harper")
+  n = n.replace(/\s+(?:Sr\.?\s*Pastor|Senior\s+Pastor|Lead\s+Pastor|Teaching\s+Pastor|Associate\s+Pastor|Pastor|Reverend|Rev\.?)\s*$/i, '').trim();
+  return n;
+}
+
 function extractPastor(html) {
   const candidates = new Map(); // name → best score
   let m;
   NAME_RX.lastIndex = 0;
   while ((m = NAME_RX.exec(html))) {
-    const name = m[1].trim();
+    const name = cleanName(m[1]);
+    if (!name) continue;
     const s = scoreCandidate(name, html, m.index);
     if (s > 0 && (!candidates.has(name) || candidates.get(name) < s)) candidates.set(name, s);
   }
   ROLE_RX.lastIndex = 0;
   while ((m = ROLE_RX.exec(html))) {
-    const name = m[1].trim();
+    const name = cleanName(m[1]);
+    if (!name) continue;
     const s = scoreCandidate(name, html, m.index) + 5; // bonus for role-after pattern
     if (s > 0 && (!candidates.has(name) || candidates.get(name) < s)) candidates.set(name, s);
   }
