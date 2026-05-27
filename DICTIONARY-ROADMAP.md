@@ -173,7 +173,9 @@ redefinition, use the caveat template in `corruption_summary`.
 | 2026-05-27 | 103 | Phase B b9 — biblical metals (silver-bible, brass-bible, iron-bible, copper, tin, lead-metal) + cosmology (abyss-doctrine, deep-bible, heavens-bible, mountains-bible) — completes the metal-by-metal theology (silver=redemption price, brass=judgment, iron=Messianic rod, copper=craftsmanship, tin/lead=dross) and opens the three-heavens cosmology | +10 | **4,988** |
 | 2026-05-27 | 104 | Phase C b2 — gospel figures (joseph-of-arimathea-doctrine, nicodemus-doctrine, zacharias-prophet, elisabeth-mother-of-john, simeon-the-righteous, centurion-at-cross, malchus, jairus-the-ruler, zacchaeus-doctrine, pilate-doctrine) — supporting characters of the gospel narrative, each anchored in canonical typology | +10 | **4,998** |
 | 2026-05-27 | 105 | 🎉 **5,000 MILESTONE BATCH** — Names of God and Christological titles (i-am-that-i-am, the-almighty, most-high, holy-one-of-israel, lord-of-lords, light-of-the-world, resurrection-and-life, door-of-the-sheep, branch-of-the-lord, servant-of-the-lord) — names of the One the whole dictionary is about. From the burning bush self-revelation to the I AM sayings of John to the Servant of Isaiah 53. | +10 | **5,008** 🎉 **MILESTONE CROSSED** |
+| 2026-05-27 | — | Re-link sweep — chapter/blog/lexicon linkers re-run after batches 101-105 (+13,519 additional cross-links; cumulative session total ~55,947) | linkage | 5,008 |
+| 2026-05-27 | 106 | Phase C/D — more Christological titles (ancient-of-days-doctrine, sun-of-righteousness, desire-of-nations, shiloh-doctrine, great-shepherd, chief-shepherd, word-made-flesh, logos-doctrine, only-begotten-doctrine, captain-of-our-salvation) — Daniel 7 throne-room, Malachi's last paragraph, Hag 2:7's second-temple promise, Gen 49:10's Shiloh, three Shepherd titles, Logos doctrine, monogenes, archēgos | +10 | **5,018** |
 
-> **Next up:** Continue toward 7,777 (2,769 entries to go). Possible next batches: more Names/Titles, more
-> covenant figures, more biblical realia (musical instruments, agriculture, household), more Hebrew/Greek
-> word-study entries.
+> **Next up:** Continue toward 7,777 (2,759 entries to go). Possible next batches: more covenant doctrine,
+> Hebrews-typology entries, biblical institutions (cities of refuge, jubilee, year-of-release, etc.), more
+> minor prophets / minor characters.
