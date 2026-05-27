@@ -343,6 +343,9 @@
     nav.innerHTML = prev + idx + next;
     targetEl.appendChild(nav);
 
+    // Chapter footer — copy/share actions + modernization disclaimer + PD source link
+    targetEl.appendChild(renderChapterFooter(chapter));
+
     // Page title
     document.title = 'LBCF Ch. ' + chapter.number + ': ' + chapter.title + ' — U.S.M.C. Ministries';
 
@@ -372,10 +375,89 @@
     });
   }
 
+  // ---- Chapter footer: copy/share actions + disclaimer + PD source link ------
+  // Build a plain-text representation of the chapter suitable for clipboard.
+  function buildChapterPlainText(chapter) {
+    let out = 'Second London Baptist Confession of Faith (1689)\n';
+    out += 'Chapter ' + chapter.number + '. ' + chapter.title + '\n';
+    if (chapter.subtitle) out += chapter.subtitle + '\n';
+    out += '\n';
+    chapter.paragraphs.forEach((p, i) => {
+      out += (i + 1) + '. ' + p.text + '\n';
+      if (p.prooftexts && p.prooftexts.length) {
+        out += '   Proof-texts: ' + p.prooftexts.join('; ') + '\n';
+      }
+      out += '\n';
+    });
+    out += '— Modernized from the 1677/1689 archaic public-domain original.\n';
+    out += 'Source: ' + window.location.href + '\n';
+    return out;
+  }
+
+  function _flashCopied(btn, originalLabel) {
+    const labelEl = btn.querySelector('.lbcf-action-label');
+    btn.classList.add('copied');
+    if (labelEl) labelEl.textContent = 'Copied!';
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      if (labelEl) labelEl.textContent = originalLabel;
+    }, 1500);
+  }
+
+  function renderChapterFooter(chapter) {
+    const footer = document.createElement('footer');
+    footer.className = 'lbcf-chap-footer';
+
+    // SVG icons (24x24 viewBox, scaled down via attrs)
+    const copyTextSvg = '<svg class="lbcf-action-icon" viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>';
+    const copyLinkSvg = '<svg class="lbcf-action-icon" viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg>';
+    const printSvg = '<svg class="lbcf-action-icon" viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z"/></svg>';
+
+    footer.innerHTML =
+      '<div class="lbcf-chap-actions">' +
+        '<button type="button" class="lbcf-action-btn" data-action="copy-text" title="Copy the full chapter text to your clipboard">' +
+          copyTextSvg + '<span class="lbcf-action-label">Copy text</span>' +
+        '</button>' +
+        '<button type="button" class="lbcf-action-btn" data-action="copy-link" title="Copy a link to this chapter">' +
+          copyLinkSvg + '<span class="lbcf-action-label">Copy link</span>' +
+        '</button>' +
+        '<button type="button" class="lbcf-action-btn" data-action="print" title="Print this chapter">' +
+          printSvg + '<span class="lbcf-action-label">Print</span>' +
+        '</button>' +
+      '</div>' +
+      '<p class="lbcf-chap-disclaimer">' +
+        'Modernized in reverent contemporary English from the ' +
+        '<a href="https://www.ccel.org/ccel/anonymous/bcf.html" target="_blank" rel="noopener">1677/1689 archaic original</a>' +
+        ' — a public-domain text hosted by CCEL. Free to copy, quote, and share.' +
+      '</p>';
+
+    // Wire up handlers
+    const copyTextBtn = footer.querySelector('[data-action="copy-text"]');
+    copyTextBtn.addEventListener('click', () => {
+      const text = buildChapterPlainText(chapter);
+      navigator.clipboard.writeText(text).then(() => _flashCopied(copyTextBtn, 'Copy text'))
+        .catch(() => alert('Copy failed — your browser may not support clipboard access. Try selecting text manually.'));
+    });
+
+    const copyLinkBtn = footer.querySelector('[data-action="copy-link"]');
+    copyLinkBtn.addEventListener('click', () => {
+      const url = window.location.origin + window.location.pathname;
+      navigator.clipboard.writeText(url).then(() => _flashCopied(copyLinkBtn, 'Copy link'))
+        .catch(() => alert('Copy failed.'));
+    });
+
+    const printBtn = footer.querySelector('[data-action="print"]');
+    printBtn.addEventListener('click', () => window.print());
+
+    return footer;
+  }
+
   // ---- Public API ------------------------------------------------------------
   window.LBCF = {
     renderIndex,
     renderChapter,
+    renderChapterFooter,
+    buildChapterPlainText,
     linkScripture,
     linkDictionary,
     autoLink,
