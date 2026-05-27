@@ -616,6 +616,7 @@ function buildPage(church) {
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <link rel="canonical" href="https://usmcmin.org/churches/${church.slug || church.id}.html">
   <link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg">
   <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16.png">
@@ -633,7 +634,7 @@ function buildPage(church) {
 <body>
 ${NAV}
 
-<div class="hero">
+${church.image_url ? `<div style="width:100%;max-height:280px;overflow:hidden;background:#0a0a0a;border-bottom:1px solid var(--border);"><img src="${escapeHtml(church.image_url)}" alt="${escapeHtml(church.name)}" style="width:100%;height:auto;max-height:280px;object-fit:cover;object-position:center 35%;display:block;" onerror="this.parentElement.style.display='none'"></div>\n` : ''}<div class="hero">
   ${verificationBadge(church)}
   <div class="denom-tag">${escapeHtml(church.type || church.denomination || 'Church')}</div>
   <h1>${escapeHtml(church.name)}</h1>

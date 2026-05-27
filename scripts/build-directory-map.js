@@ -37,6 +37,8 @@ for (const c of d.churches) {
   const m = (c.address || '').match(/,\s*([A-Z]{2})\b/);
   const state = m ? m[1] : '';
   if (state) stateCount[state] = (stateCount[state] || 0) + 1;
+  // Prefer image_thumb (apple-touch-icon, square) for popup; fall back to image_url (rectangular OG)
+  const popupImg = c.image_thumb || c.image_url || '';
   points.push({
     id: c.id || c.slug,
     n: c.name,                              // shortened keys to keep JSON small
@@ -47,6 +49,7 @@ for (const c of d.churches) {
     lat: c.latitude,
     lng: c.longitude,
     p: c.pastor && !/verify|see\s+website|tbd|unknown/i.test(c.pastor) ? c.pastor : '',
+    img: popupImg || undefined,             // omit when no image, keep JSON small
   });
 }
 
@@ -246,7 +249,9 @@ const html = `<!DOCTYPE html>
         opacity: 0.9,
         fillOpacity: 0.78,
       });
-      const html = '<h4>' + escapeHtml(p.n) + '</h4>'
+      const thumb = p.img ? '<img src="' + p.img + '" alt="" style="width:48px;height:48px;object-fit:cover;border-radius:6px;float:right;margin:0 0 6px 8px;border:1px solid #333;" onerror="this.style.display=\'none\'">' : '';
+      const html = thumb
+        + '<h4>' + escapeHtml(p.n) + '</h4>'
         + (p.d ? '<div class="denom">' + escapeHtml(p.d) + '</div>' : '')
         + (p.p ? '<div class="pastor">Pastor: ' + escapeHtml(p.p) + '</div>' : '')
         + (p.a ? '<div class="addr">' + escapeHtml(p.a) + '</div>' : '')
