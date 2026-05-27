@@ -50,6 +50,7 @@ AUDIO_DIR = REPO / "docs" / "assets" / "audio" / "readings"
 
 ELEVENLABS_URL = "https://api.elevenlabs.io/v1/text-to-speech/{voice_id}"
 DEFAULT_MODEL = "eleven_multilingual_v2"
+MAX_TTS_CHARS = 9500   # ElevenLabs hard cap is 10,000; leave a little headroom
 
 # Watch boundaries — must match the renderer
 WATCH_BOUNDARY_C = re.compile(r"^\s*📅[^—\-]*[—\-]\s*(0600|0700|1100|1500|2100)\b")
@@ -175,6 +176,39 @@ def watch_text_for_tts(body):
     return text
 
 
+def chunk_text(text, max_chars=MAX_TTS_CHARS):
+    """Split text into ≤max_chars chunks at paragraph boundaries.
+    Falls back to sentence boundaries if a paragraph alone exceeds max_chars."""
+    if len(text) <= max_chars:
+        return [text]
+    paragraphs = text.split("\n\n")
+    chunks, current = [], ""
+    for p in paragraphs:
+        candidate = (current + "\n\n" + p) if current else p
+        if len(candidate) <= max_chars:
+            current = candidate
+            continue
+        if current:
+            chunks.append(current)
+            current = ""
+        if len(p) <= max_chars:
+            current = p
+        else:
+            # Paragraph alone too long — split on sentence end
+            sentences = re.split(r"(?<=[.!?])\s+", p)
+            for s in sentences:
+                cand = (current + " " + s) if current else s
+                if len(cand) <= max_chars:
+                    current = cand
+                else:
+                    if current:
+                        chunks.append(current)
+                    current = s
+    if current:
+        chunks.append(current)
+    return chunks
+
+
 def call_elevenlabs(text, voice_id, api_key, model=DEFAULT_MODEL):
     """POST to ElevenLabs; return MP3 bytes or raise."""
     url = ELEVENLABS_URL.format(voice_id=voice_id)
@@ -214,22 +248,29 @@ def generate_watch(date_str, slug, body, api_key, voice_id, model, force=False, 
         return False
 
     char_count = len(text)
-    print(f"    [{slug}] {char_count:,} chars → {out.name}")
+    chunks = chunk_text(text)
+    chunk_note = f" in {len(chunks)} chunks" if len(chunks) > 1 else ""
+    print(f"    [{slug}] {char_count:,} chars → {out.name}{chunk_note}")
     if dry_run:
         print(f"      DRY-RUN PREVIEW (first 300 chars):")
         print("      " + text[:300].replace("\n", " ⏎ "))
         return False
 
-    try:
-        mp3 = call_elevenlabs(text, voice_id, api_key, model=model)
-    except urllib.error.HTTPError as e:
-        body_err = e.read().decode("utf-8", errors="replace")[:500]
-        print(f"      HTTP {e.code}: {body_err}")
-        return False
-    except urllib.error.URLError as e:
-        print(f"      Network error: {e}")
-        return False
+    mp3_parts = []
+    for idx, chunk in enumerate(chunks, 1):
+        if len(chunks) > 1:
+            print(f"      chunk {idx}/{len(chunks)} ({len(chunk):,} chars)")
+        try:
+            mp3_parts.append(call_elevenlabs(chunk, voice_id, api_key, model=model))
+        except urllib.error.HTTPError as e:
+            body_err = e.read().decode("utf-8", errors="replace")[:500]
+            print(f"      HTTP {e.code}: {body_err}")
+            return False
+        except urllib.error.URLError as e:
+            print(f"      Network error: {e}")
+            return False
 
+    mp3 = b"".join(mp3_parts)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_bytes(mp3)
     print(f"      ✓ wrote {len(mp3)/1024:.0f} KB")
@@ -267,7 +308,38 @@ def main():
     ap.add_argument("--watch", choices=WATCH_ORDER, help="only this watch")
     ap.add_argument("--force", action="store_true", help="overwrite existing MP3s")
     ap.add_argument("--dry-run", action="store_true", help="preview text + char-count, no API call")
+    ap.add_argument("--quota", action="store_true", help="print subscription tier + remaining chars, then exit")
     args = ap.parse_args()
+
+    if args.quota:
+        api_key = os.environ.get("ELEVENLABS_API_KEY", "")
+        if not api_key:
+            sys.exit("ERROR: ELEVENLABS_API_KEY not set")
+        import datetime
+        req = urllib.request.Request(
+            "https://api.elevenlabs.io/v1/user/subscription",
+            headers={"xi-api-key": api_key, "Accept": "application/json"},
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=30) as r:
+                d = json.loads(r.read())
+        except urllib.error.HTTPError as e:
+            sys.exit(f"HTTP {e.code}: {e.read().decode('utf-8', errors='replace')[:400]}")
+        reset = d.get("next_character_count_reset_unix")
+        reset_str = datetime.datetime.fromtimestamp(reset).strftime("%Y-%m-%d %H:%M") if reset else "?"
+        used = d.get("character_count", 0)
+        limit = d.get("character_limit", 0)
+        remaining = limit - used
+        pct = (used / limit * 100) if limit else 0
+        print(f"Tier:        {d.get('tier')} ({d.get('status')})")
+        print(f"Used:        {used:,} / {limit:,} chars  ({pct:.1f} %)")
+        print(f"Remaining:   {remaining:,} chars")
+        print(f"Resets:      {reset_str}")
+        # Rough day-coverage estimate (~30k chars per full day)
+        if remaining > 0:
+            days = remaining / 30000.0
+            print(f"Approx days: ~{days:.1f} full days at 30k chars/day (5 watches)")
+        sys.exit(0)
 
     api_key  = os.environ.get("ELEVENLABS_API_KEY", "")
     voice_id = os.environ.get("ELEVENLABS_VOICE_ID", "")
