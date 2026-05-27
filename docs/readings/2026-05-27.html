@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg">
+<title>Wednesday, May 27, 2026 — Daily Reading | U.S.M.C. Ministries</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+    --bg-dark: #000000; --bg-card: #111111; --bg-card2: #161616;
+    --gold: #D4AF37; --gold-light: #F4D470;
+    --white: #FFFFFF; --gray: #888888; --border: #333333;
+}
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--white);
+    min-height: 100vh;
+    line-height: 1.7;
+}
+h1, h2, h3 { font-family: 'Playfair Display', serif; font-weight: 700; }
+.container { max-width: 820px; margin: 0 auto; padding: 24px 20px 60px; }
+a { color: var(--gold); text-decoration: none; }
+a:hover { color: var(--gold-light); text-decoration: underline; }
+
+.nav-back { margin-bottom: 14px; font-size: 0.95rem; }
+
+.hero { text-align: center; padding: 16px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 18px; }
+.hero h1 { font-size: clamp(1.5rem, 4vw, 2.2rem); color: var(--white); margin-bottom: 6px; }
+.hero .subtitle { color: var(--gold); font-size: 0.95rem; font-style: italic; }
+.hero .doc-line { color: var(--gray); font-size: 0.82rem; margin-top: 6px; }
+
+.watch-tabs {
+    position: sticky; top: 0; z-index: 30;
+    background: var(--bg-dark);
+    border-bottom: 1px solid var(--border);
+    display: flex; flex-wrap: wrap; gap: 6px;
+    padding: 12px 0 14px;
+    margin-bottom: 18px;
+}
+.watch-tab {
+    flex: 1 1 90px;
+    text-align: center;
+    padding: 8px 6px;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    background: var(--bg-card);
+    color: var(--gray);
+    font-size: 0.85rem; font-weight: 500;
+    transition: all 0.15s ease;
+    text-decoration: none !important;
+    white-space: nowrap;
+}
+.watch-tab:hover { color: var(--white); border-color: var(--gold); text-decoration: none !important; }
+.watch-tab.active { background: var(--gold); color: #000; border-color: var(--gold); font-weight: 600; }
+.watch-tab .tab-time { display: block; font-size: 0.7rem; opacity: 0.7; font-family: monospace; }
+.watch-tab.active .tab-time { opacity: 1; }
+
+/* "NOW" badge — shown on the watch tab whose time window contains current local time */
+.watch-tab.is-now { position: relative; box-shadow: 0 0 0 1px var(--gold-light) inset; }
+.watch-tab.is-now::after {
+  content: "NOW";
+  position: absolute; top: -7px; right: -4px;
+  background: var(--gold-light); color: #000;
+  font-size: 0.55rem; font-weight: 700;
+  padding: 1px 5px; border-radius: 100px;
+  letter-spacing: 0.08em;
+}
+
+.watch {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px 22px;
+    margin-bottom: 22px;
+    scroll-margin-top: 80px;
+}
+.watch-header { display: flex; align-items: baseline; gap: 14px; margin-bottom: 10px; flex-wrap: wrap; }
+.watch-time {
+    background: var(--bg-card2); color: var(--gold);
+    padding: 4px 12px; border-radius: 100px;
+    font-family: 'Inter', monospace; font-size: 0.85rem; font-weight: 600;
+    letter-spacing: 0.05em;
+}
+.watch-header h2 { font-size: 1.35rem; color: var(--white); }
+
+.intro { color: var(--gray); font-style: italic; margin-bottom: 14px; }
+
+.audio-slot {
+    margin: 14px 0 18px;
+    padding: 12px 14px;
+    background: var(--bg-card2);
+    border-radius: 8px;
+    border: 1px dashed var(--border);
+}
+.audio-slot.audio-pending { opacity: 0.55; }
+.audio-cap { font-size: 0.8rem; color: var(--gray); margin-top: 4px; }
+
+.scripture {
+    background: var(--bg-card2);
+    border-left: 3px solid var(--gold);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin: 16px 0 22px;
+}
+.scripture-ref { font-weight: 600; color: var(--gold); margin-bottom: 12px; font-size: 0.95rem; }
+.scripture-text p { margin-bottom: 8px; }
+.scripture-text p.stanza { margin-bottom: 14px; }
+
+.section-label {
+    font-family: 'Playfair Display', serif;
+    color: var(--gold); font-weight: 700; font-size: 1.05rem;
+    margin: 22px 0 10px; padding-top: 10px; border-top: 1px solid var(--border);
+}
+.section p, .context p, .reflection p, .history p, .application-block p { margin-bottom: 12px; }
+
+ul.application { padding-left: 22px; margin: 8px 0 14px; }
+ul.application li { margin-bottom: 8px; }
+.application-prose { font-style: italic; color: var(--gold-light); margin-top: 12px; }
+
+.history ul { padding-left: 22px; margin: 8px 0; }
+.history li { margin-bottom: 6px; }
+
+.prayer {
+    background: var(--bg-card2);
+    border-left: 3px solid var(--gold-light);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin: 22px 0;
+}
+.prayer-title { color: var(--gold-light); font-weight: 600; margin-bottom: 10px; font-size: 0.95rem; }
+.prayer p { line-height: 1.85; margin-bottom: 8px; }
+
+.helm {
+    background: var(--bg-card2);
+    border-radius: 6px;
+    padding: 12px 18px;
+    margin-top: 14px;
+    font-size: 0.95rem;
+}
+.helm-icon { color: var(--gold); font-size: 1.1rem; }
+.helm-label { color: var(--gold); font-weight: 600; }
+
+footer {
+    text-align: center;
+    color: var(--gray);
+    font-size: 0.82rem;
+    margin-top: 32px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+}
+footer .draft-tag {
+    display: inline-block;
+    background: #2a2410;
+    color: var(--gold);
+    padding: 4px 12px;
+    border-radius: 100px;
+    font-size: 0.78rem;
+    margin-bottom: 8px;
+    letter-spacing: 0.05em;
+}
+
+@media (max-width: 540px) {
+    .watch-tab { flex: 1 1 64px; font-size: 0.78rem; padding: 6px 4px; }
+    .watch-tab .tab-time { font-size: 0.65rem; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="nav-back">← <a href="/chronological.html">The Watchman's Chronological Plan</a></div>
+
+<div class="hero">
+<h1>Wednesday, May 27, 2026</h1>
+<div class="subtitle">Daily Reading — Day 147 of 365</div>
+<div class="doc-line">MOOP&#x27;s 2026 Daily Bible Readings — Document 5 of 12; for the month of May</div>
+</div>
+
+<nav class="watch-tabs" role="tablist">
+<a href="#all" class="watch-tab active" data-tab="all" role="tab"><span class="tab-label">All Watches</span></a>
+<a href="#wisdom" class="watch-tab" data-tab="wisdom" role="tab"><span class="tab-time">0600</span> <span class="tab-label">Morning Wisdom</span></a>
+<a href="#husband" class="watch-tab" data-tab="husband" role="tab"><span class="tab-time">0700</span> <span class="tab-label">Husband</span></a>
+<a href="#father" class="watch-tab" data-tab="father" role="tab"><span class="tab-time">1100</span> <span class="tab-label">Father</span></a>
+<a href="#citizen" class="watch-tab" data-tab="citizen" role="tab"><span class="tab-time">1500</span> <span class="tab-label">Citizen</span></a>
+<a href="#peace" class="watch-tab" data-tab="peace" role="tab"><span class="tab-time">2100</span> <span class="tab-label">Evening Peace</span></a>
+</nav>
+
+<section class="watch watch-wisdom" id="watch-wisdom" data-watch="wisdom">
+<div class="watch-header"><span class="watch-time">0600</span> <h2>Morning Wisdom</h2></div>
+<p class="intro">Solomon turns from the fool&#x27;s house to the friend&#x27;s hand. Today he asks us to receive what only love is qualified to give — the wound that sets us right, the iron that takes our edge off, the praise that comes from someone else&#x27;s mouth rather than our own.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Proverbs 27</div>
+<div class="scripture-text">
+<p class="stanza">Do not boast about tomorrow,<br>for you do not know what a day may bring forth.</p>
+<p class="stanza">Let another praise you, and not your own mouth —<br>a stranger, and not your own lips.</p>
+<p class="stanza">A stone is heavy and sand is weighty,<br>but the fool&#x27;s provocation is heavier than them both.</p>
+<p class="stanza">Wrath is cruel and anger overwhelming,<br>but who can stand before jealousy?</p>
+<p class="stanza">Better is an open rebuke<br>than a love that is hidden.</p>
+<p class="stanza">Faithful are the wounds of a friend,<br>but the kisses of an enemy are profuse.</p>
+<p class="stanza">A full soul tramples the honeycomb,<br>but to a hungry soul every bitter thing is sweet.</p>
+<p class="stanza">Like a bird that wanders from her nest<br>is a man who wanders from his place.</p>
+<p class="stanza">Oil and perfume make the heart glad,<br>and so the sweetness of a friend<br>comes from the counsel of the soul.</p>
+<p class="stanza">Do not forsake your own friend or your father&#x27;s friend,<br>nor go to your brother&#x27;s house in the day of your calamity —<br>better a neighbor nearby<br>than a brother far away.</p>
+<p class="stanza">Be wise, my son, and make my heart glad,<br>so I may answer the one who reproaches me.</p>
+<p class="stanza">The prudent man sees evil and hides himself,<br>but the simple pass on and are punished for it.</p>
+<p class="stanza">Take a man&#x27;s garment when he gives surety for a stranger;<br>hold him in pledge when he stands surety for foreigners.</p>
+<p class="stanza">He who blesses his friend with a loud voice early in the morning,<br>it will be reckoned a curse to him.</p>
+<p class="stanza">A continual dripping on a very rainy day<br>and a contentious woman are alike;<br>whoever would restrain her<br>restrains the wind<br>and grasps oil with his right hand.</p>
+<p class="stanza">As iron sharpens iron,<br>so a man sharpens the face of his friend.</p>
+<p class="stanza">Whoever tends the fig tree will eat its fruit,<br>and he who guards his master will be honored.</p>
+<p class="stanza">As in water face answers to face,<br>so the heart of a man to a man.</p>
+<p class="stanza">Sheol and Abaddon are never full,<br>and the eyes of a man are never satisfied.</p>
+<p class="stanza">The crucible is for silver and the furnace for gold,<br>but a man is tested by the mouth of his praisers.</p>
+<p class="stanza">Though you grind a fool in a mortar with a pestle along with crushed grain,<br>his folly will not depart from him.</p>
+<p class="stanza">Know well the condition of your flocks,<br>and pay close attention to your herds —<br>for riches are not forever,<br>nor does a crown endure to all generations.</p>
+<p class="stanza">When the hay is removed and the new grass appears,<br>and the herbs of the mountains are gathered in,<br>the lambs will be your clothing,<br>and the goats the price of your field;<br>there will be enough goats&#x27; milk for your food,<br>for the food of your household,<br>and maintenance for your female servants.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🧭 Context Summary</div>
+<p>Solomon turns the wisdom lamp inward today — onto the man who refuses correction, who praises himself, who tramples a friend&#x27;s counsel with his own full soul. The chapter is held together by one verse: &quot;Faithful are the wounds of a friend.&quot; Solomon is teaching that a man who cannot take a wound from a friend will instead take a kiss from an enemy. The same chapter closes with the gentlest pastoral image in the book — a careful shepherd checking on his flocks, knowing they are what stand between his household and ruin. The man who cannot be corrected cannot shepherd anything.</p>
+</div>
+<div class="section reflection">
+<div class="section-label">🛡️ Reflection for a REAL MAN — Receives Correction</div>
+<p>A REAL MAN who receives correction is not a man with a small ego — he is a man with a settled identity. Solomon&#x27;s chapter cuts at the place where most of us lie wounded: the place where we cannot let someone else speak hard truth into our lives. The full soul tramples the honeycomb. The man who has talked himself into thinking he&#x27;s fed already cannot taste what a friend is trying to feed him.</p>
+<p>The crucible verse should stop you cold, brother — &quot;the crucible is for silver and the furnace for gold, but a man is tested by the mouth of his praisers.&quot; Most men think their character is tested by criticism. Solomon says no — your character is tested by what flattery does to you. If a few warm words and a few people telling you that you&#x27;re brilliant are enough to take your edge off, you were never made of much. The faithful friend&#x27;s wound was meant to keep you sharp. The enemy&#x27;s kiss is what dulls you.</p>
+<p>Notice the order Solomon hands you. First, &quot;let another praise you, and not your own mouth.&quot; Second, &quot;better is an open rebuke than a love that is hidden.&quot; Third, &quot;faithful are the wounds of a friend.&quot; Fourth, &quot;as iron sharpens iron, so a man sharpens the face of his friend.&quot; This is one teaching in four shapes: shut your own mouth about yourself, open your ears to a man who loves you enough to hurt you, and stand near enough to another man that the iron contact can actually happen. Most men are bleeding out from the wound of having no friend close enough to wound them.</p>
+<p>And then the shepherd closes the chapter. &quot;Know well the condition of your flocks.&quot; A man who has not received the correction Solomon is offering will not know the condition of his own house, his own children, his own marriage, his own soul. He will be too busy explaining himself to actually look at his sheep. Receive the wound today, brother. The friend who loves you enough to swing it has paid a price most men aren&#x27;t willing to pay.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Identify the one friend who has been trying to say something hard to you for weeks. Go to him today, not the other way around, and say, &quot;Finish the sentence.&quot;</li>
+<li>Make a list of the praise you have received in the last month — and ask honestly whether it has made you sharper or softer. Be a furnace-tested man, not a flattery-warmed one.</li>
+<li>Pick one area where you have shut a brother out because his correction stung. Open the door back up before sundown.</li>
+<li>Sit with the shepherd&#x27;s last instruction: write down the actual condition of one of your &quot;flocks&quot; — a child, a habit, a bank account, a spiritual discipline. No spin. Then ask one wise man to read it.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer</div>
+<p>Father of all true correction,<br>You teach by wounds before You teach by warmth,<br>and You sharpen Your sons against other sons who love them.</p>
+<p>By the power of Your Holy Spirit,<br>strip me of the full soul that tramples the honeycomb,<br>and give me the hungry soul that tastes every bitter friend-word as sweet.<br>Bring me one faithful wound today.<br>Bring me one piece of iron close enough to sharpen my face.</p>
+<p>In the name of Jesus Christ, my Lord and Commander,<br>who took the wounds I deserved so that the wounds I receive now<br>can shape me without destroying me —<br>make me a man who can be corrected.<br>Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Helm Command:</span> Take the wound from the friend — let his iron sharpen your face before the enemy&#x27;s kiss dulls it.</div>
+</section>
+
+<section class="watch watch-husband" id="watch-husband" data-watch="husband">
+<div class="watch-header"><span class="watch-time">0700</span> <h2>First Watch — The Husband&#x27;s Post</h2></div>
+<p class="intro">The first watch carries us to a Syrian commander with leprosy under his armor, and a little Israelite slave girl with one true sentence on her lips. Today we watch a proud man yield to a humbler word — and we see the household that pride almost ruined healed by the same Jordan a stubborn man tried to avoid.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 2 Kings 5</div>
+<div class="scripture-text">
+<p>Naaman, commander of the army of the king of Aram, was a great man before his master and highly regarded, because by him the LORD had given victory to Aram. He was a mighty man of valor — but he was a leper.</p>
+<p>The Arameans had gone out in bands and brought back a little girl from the land of Israel, and she waited on Naaman&#x27;s wife. She said to her mistress: &quot;If only my master were before the prophet who is in Samaria — he would heal him of his leprosy.&quot;</p>
+<p>Naaman went and told his master: &quot;This is what the girl from the land of Israel said.&quot; The king of Aram said: &quot;Go, by all means, and I will send a letter to the king of Israel.&quot;</p>
+<p>So Naaman departed, taking with him ten talents of silver, six thousand pieces of gold, and ten changes of clothing. He brought the letter to the king of Israel, which said: &quot;Now when this letter comes to you, look — I have sent Naaman my servant to you, that you may heal him of his leprosy.&quot;</p>
+<p>When the king of Israel read the letter, he tore his clothes and said: &quot;Am I God, to kill and to make alive, that this man sends to me to heal a man of his leprosy? Just consider and see how he seeks a quarrel with me.&quot;</p>
+<p>When Elisha the man of God heard that the king of Israel had torn his clothes, he sent to the king: &quot;Why have you torn your clothes? Let him come to me now, and he will know that there is a prophet in Israel.&quot;</p>
+<p>So Naaman came with his horses and his chariot and stood at the door of Elisha&#x27;s house. Elisha sent a messenger to him, saying: &quot;Go and wash in the Jordan seven times, and your flesh will be restored to you, and you will be clean.&quot;</p>
+<p>Naaman became angry and went away. He said: &quot;Look — I thought, &#x27;Surely he will come out to me and stand and call on the name of the LORD his God, and wave his hand over the place and heal the leprosy.&#x27; Are not Abana and Pharpar, the rivers of Damascus, better than all the waters of Israel? Could I not wash in them and be clean?&quot; So he turned and went away in a rage.</p>
+<p>His servants came near and spoke to him: &quot;My father, if the prophet had asked you to do some great thing, would you not have done it? How much more then, when he says to you, &#x27;Wash and be clean&#x27;?&quot;</p>
+<p>So he went down and dipped himself seven times in the Jordan, according to the word of the man of God; and his flesh was restored like the flesh of a little child, and he was clean.</p>
+<p>He returned to the man of God, he and all his company, and stood before him. He said: &quot;Now I know that there is no God in all the earth, except in Israel. Now, please, take a gift from your servant.&quot;</p>
+<p>Elisha said: &quot;As the LORD lives, before whom I stand, I will not take it.&quot; Naaman urged him to take it, but he refused.</p>
+<p>Naaman said: &quot;If not, please let your servant be given two mule-loads of earth — for your servant will never again offer burnt offering or sacrifice to other gods, but only to the LORD. May the LORD pardon your servant in this one matter: when my master goes into the house of Rimmon to worship there, and he leans on my hand, and I bow myself in the house of Rimmon — when I bow myself in the house of Rimmon, may the LORD pardon your servant in this matter.&quot;</p>
+<p>Elisha said to him: &quot;Go in peace.&quot;</p>
+<p>When he had gone from him a short distance, Gehazi, the servant of Elisha the man of God, said to himself: &quot;Look, my master spared this Naaman the Aramean, by not receiving from his hand what he brought. As the LORD lives, I will run after him and take something from him.&quot;</p>
+<p>So Gehazi pursued Naaman. When Naaman saw him running after him, he stepped down from the chariot to meet him and said: &quot;Is all well?&quot;</p>
+<p>He said: &quot;All is well. My master sent me, saying, &#x27;Look, two young men from the hill country of Ephraim have just come to me from the sons of the prophets. Please give them a talent of silver and two changes of clothing.&#x27;&quot;</p>
+<p>Naaman said: &quot;Be willing — take two talents.&quot; He urged him, and tied two talents of silver in two bags, with two changes of clothing, and laid them on two of his servants, and they carried them before Gehazi.</p>
+<p>When Gehazi came to the citadel, he took them from their hand and stored them in the house. He sent the men away, and they departed.</p>
+<p>Then he went in and stood before his master. Elisha said: &quot;Where have you been, Gehazi?&quot; He said: &quot;Your servant did not go anywhere.&quot;</p>
+<p>Elisha said: &quot;Did not my heart go with you when the man turned from his chariot to meet you? Was it a time to accept money, and to accept garments, olive groves, vineyards, sheep, oxen, male and female servants? Therefore the leprosy of Naaman will cling to you and to your descendants forever.&quot;</p>
+<p>He went out from his presence — a leper, as white as snow.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🗺️ Briefing Summary</div>
+<p>A great commander walks into the prophet&#x27;s yard with horses, chariots, ten talents of silver, six thousand pieces of gold, and ten changes of clothing — and walks out clean only because he agreed to dip seven times in a river he had insulted. Then a servant of the prophet walks out the same gate with leprosy on his skin because he could not yield his own greed. Two yielding tests in one chapter: Naaman yields his pride and is healed; Gehazi refuses to yield his appetite and is ruined. The household between them is the prophet&#x27;s house, the king&#x27;s house, and the Aramean officer&#x27;s house — and it is the woman&#x27;s house, where a little slave girl spoke one sentence that started everything.</p>
+</div>
+<div class="section reflection">
+<div class="section-label">❤️ Reflection for Your Wife — H.A.P.P.Y. Husband — Yielding</div>
+<p>As a HAPPY husband called to yield, this passage is built around your weakest muscle. Naaman is the man you are tempted to become every time something hard arrives at the door of your marriage — a great commander, highly regarded by his master, the man on whom victory has rested. But he is a leper, brother. Under the armor and the chariot wheels and the bags of silver, there is a thing rotting that he cannot fix and that his wife already knows about. Yielding for a husband means letting the small voice at his elbow speak the one sentence that begins his healing.</p>
+<p>It started with a little Israelite girl waiting on his wife. She did not write a book, she did not lead a council, she did not shame him. She spoke one true sentence to a woman she served: &quot;If only my master were before the prophet who is in Samaria.&quot; That sentence rode all the way to Aram&#x27;s throne and on to Israel&#x27;s gate. Brother, the small voices in your house — your wife&#x27;s, your daughter&#x27;s, the friend your wife trusts more than you sometimes do — are God&#x27;s preferred delivery system for the word that begins your healing. The yielding husband listens to them.</p>
+<p>Naaman almost lost the healing twice. First because he wanted a show — &quot;I thought, surely he will come out to me.&quot; Then because he wanted his own rivers — &quot;Are not Abana and Pharpar better than all the waters of Israel?&quot; His servants stopped him: &quot;My father, if the prophet had asked you a great thing, would you not have done it?&quot; That sentence in the mouth of a servant saved his skin. A husband whose servants — or whose wife, or whose pastor, or whose brother — cannot speak to him plainly in the moment of his rage is a husband who will lose to the rage every time. A yielding husband makes it safe for the truth to be spoken across the smaller voices in the room.</p>
+<p>And then notice the dipping. Seven times. The number is not arbitrary; God has tied healing to a slow obedience that humbles the proud all the way down. The first dip did not heal him. The second did not. The sixth did not. He had to stay in the muddy water past the point of his own dignity. Yielding in a marriage usually looks like that. Maria is not going to feel safer because you went down once. She will feel safer the seventh time she sees you go down — when she watches you keep yielding past your own preferences, past your own rivers, into the water God actually put in front of you.</p>
+<p>Gehazi at the end of the chapter is your warning. He served the right prophet for years, and the moment yielding was required, he did not. He chased the silver Naaman had laid down. He lied to cover his run. He brought leprosy home as his wages. A husband who cannot say no to the small grasping appetite — the lie to his wife, the bag of silver under the chariot, the half-truth that he tells himself will only cost him a little — will end up wearing what Naaman just took off. Yield, brother, before the leprosy comes the other direction.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Identify the small voice in your house you have been overriding — your wife, your child, a servant of the LORD speaking through her. Ask her to finish a sentence she started and you cut off this week.</li>
+<li>Pick a &quot;Jordan&quot; — a slow, humbling, undignified obedience — and start dipping. Don&#x27;t insist on Abana and Pharpar.</li>
+<li>Watch for one moment today when your pride wants a show (&quot;surely he will come out to me&quot;) and refuse the show. Take the plain instruction instead.</li>
+<li>Search for the Gehazi moment — the small bag of silver you are about to chase under the radar — and refuse it before the chariot has stopped.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Stateroom</div>
+<p>Father, Healer of leprosy and Pardoner of pride,<br>You sent Your healing through a little slave girl&#x27;s sentence<br>and You bound it to seven slow dips in a river a great man despised.</p>
+<p>By the power of Your Holy Spirit,<br>make me a yielding husband —<br>ears open to the smallest voice in my house,<br>feet quick to go down into the Jordan You point to,<br>hands clean of the silver Gehazi would have grabbed.</p>
+<p>In the name of Jesus Christ, my Lord and Commander,<br>who emptied Himself and yielded all the way down for me —<br>let me come up from this day&#x27;s water like a little child,<br>clean before You and trustworthy before Maria.<br>Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Helm Command:</span> Yield down to the Jordan — let the small voice carry you to the seventh dip, and walk home clean.</div>
+</section>
+
+<section class="watch watch-father" id="watch-father" data-watch="father">
+<div class="watch-header"><span class="watch-time">1100</span> <h2>Second Watch — The Father&#x27;s Charge</h2></div>
+<p class="intro">The second watch shows us a father in faith teaching his apprentice to see what is actually there. A borrowed axe drops into the river and floats back; a servant opens his eyes and discovers that the hill they camp on is already surrounded by a host of fire that has been there all along.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 2 Kings 6:1–23</div>
+<div class="scripture-text">
+<p>The sons of the prophets said to Elisha: &quot;Look — the place where we live before you is too small for us. Please let us go to the Jordan, where each one of us can cut down a beam, and let us build a place there for ourselves to live.&quot;</p>
+<p>Elisha said: &quot;Go.&quot; And one said: &quot;Please be willing to go with your servants.&quot; He said: &quot;I will go.&quot; So he went with them.</p>
+<p>They came to the Jordan and cut down trees. As one was felling a beam, the iron head fell into the water. He cried out: &quot;Alas, my master — it was borrowed!&quot;</p>
+<p>The man of God said: &quot;Where did it fall?&quot; When he showed him the place, Elisha cut down a stick and threw it in there, and the iron floated. He said: &quot;Lift it up for yourself.&quot; So the man reached out his hand and took it.</p>
+<p>⸻</p>
+<p>Now the king of Aram was warring against Israel. He consulted with his servants and said: &quot;In such and such a place will be my camp.&quot; The man of God sent to the king of Israel: &quot;Take care not to pass that place, for the Arameans are coming down there.&quot; So the king of Israel sent to the place which the man of God told him; he warned him, and he was on guard there — not just once, not just twice.</p>
+<p>The heart of the king of Aram was troubled over this. He called his servants and said: &quot;Will you not tell me which of us is for the king of Israel?&quot;</p>
+<p>One of his servants said: &quot;None, my lord the king — but Elisha, the prophet who is in Israel, tells the king of Israel the words you speak in your bedchamber.&quot;</p>
+<p>The king said: &quot;Go and see where he is, so I may send and seize him.&quot; It was told to him: &quot;Look, he is in Dothan.&quot; He sent there horses and chariots and a great army, and they came by night and surrounded the city.</p>
+<p>When the attendant of the man of God rose early and went out — look, a great army was around the city with horses and chariots. His servant said to him: &quot;Alas, my master — what shall we do?&quot;</p>
+<p>Elisha said: &quot;Do not be afraid; for those who are with us are more than those who are with them.&quot;</p>
+<p>Then Elisha prayed: &quot;O LORD, please open his eyes that he may see.&quot; The LORD opened the eyes of the young man, and he saw — and look, the mountain was full of horses and chariots of fire all around Elisha.</p>
+<p>When the Arameans came down to him, Elisha prayed to the LORD: &quot;Strike this people, please, with blindness.&quot; So He struck them with blindness, according to the word of Elisha.</p>
+<p>Elisha said to them: &quot;This is not the way and this is not the city — follow me, and I will lead you to the man you are looking for.&quot; He led them to Samaria.</p>
+<p>When they entered Samaria, Elisha said: &quot;O LORD, open the eyes of these men, so they may see.&quot; The LORD opened their eyes, and they saw — and look, they were in the middle of Samaria.</p>
+<p>The king of Israel said to Elisha when he saw them: &quot;My father, shall I strike them? Shall I strike them?&quot;</p>
+<p>Elisha said: &quot;You shall not strike them. Would you strike those whom you have taken captive with your sword and your bow? Set bread and water before them, that they may eat and drink and go to their master.&quot;</p>
+<p>So he prepared a great feast for them; when they had eaten and drunk, he sent them away, and they went to their master. The bands of Aram did not come again into the land of Israel.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🗺️ Field Notes</div>
+<p>A father in the school of prophets does three things in one passage: he goes with his apprentices when they ask, he recovers what they have borrowed and lost, and he teaches a frightened servant to see the chariots of fire that have been on the hill the whole time. Then he refuses to let the king kill enemies the LORD has already humbled — and breaks the back of a war with bread and water instead of swords. The instructing father is not soft; he is the one with eyes that see all the way through the battle line.</p>
+</div>
+<div class="section reflection">
+<div class="section-label">👨‍👦 Reflection for Your Children — F.U.L.F.I.L.L.E.D. Father — Instructing</div>
+<p>As a FULFILLED father called to instruct, Elisha at Dothan is the picture you want burned onto the inside of your eyelids. His servant runs to him panicked, looking at horses and chariots ringed around the city, and says, &quot;Alas, my master — what shall we do?&quot; Notice what Elisha does not do. He does not lecture his servant about the doctrine of providence. He does not shame the boy for being afraid. He prays one short, specific prayer: &quot;O LORD, please open his eyes that he may see.&quot;</p>
+<p>Instructing fatherhood looks like that. Most of the time your children are not asking for more information — they are asking for new eyes. Gideon is nineteen, and the army around his future looks like horses and chariots: career questions, identity questions, the sneer of a culture that has decided his faith is small. Instructing Gideon does not mean handing him a longer answer; it means teaching him to pray Elisha&#x27;s prayer for himself — &quot;LORD, open my eyes that I may see&quot; — and to expect the chariots of fire to be on his hill already.</p>
+<p>Boaz is fourteen and the army around his city is louder still — peers, screens, the constant noise that tells him his manhood is on a clock. Instructing Boaz means walking him up onto Elisha&#x27;s mountain at fourteen so he sees the unseen host before he meets his first heavy adversary. Don&#x27;t wait until he is panicked to teach him about chariots of fire. Teach him now, at the dinner table, with the Bible open: those who are with you are more than those who are against you. The instruction has to be in his memory before the army arrives.</p>
+<p>Shiloh is five, and the army around her is mostly imagined — the dark hallway, the next thunderstorm, the moment she discovers that not everyone is kind. Instructing a five-year-old daughter is not advanced theology; it is the slow, repeated, gentle naming of who the LORD is and what He has done. The chariots of fire on her hill, in her vocabulary, look like &quot;Daddy and Mommy are praying; Jesus loves you; the LORD is taking care of you.&quot; Sit with her tonight and pray Elisha&#x27;s prayer over her — &quot;LORD, open her eyes that she may see&quot; — and trust that He will, in His time, in her language.</p>
+<p>Don&#x27;t miss the floating axe-head either. The smaller son in your house has a small problem — a borrowed thing he has dropped, an apology he owes, a habit he has broken — and an instructing father does not say, &quot;Figure it out yourself.&quot; Elisha asked one question: &quot;Where did it fall?&quot; Then he gave the small son the dignity of reaching out his own hand to lift the iron back. Instruct your sons by going with them to the river where they dropped the thing, throwing in the stick that makes the iron float, and handing the recovery to them. That is fathering at the apprenticeship level.</p>
+<p>And the bread-and-water ending is for you, the father, more than for your children. When the LORD humbles an enemy of your house — a rival, a critic, a man who has spoken ill of your sons — do not strike him with sword or bow. Set bread and water before him. The bands that came against your land may stop coming for a generation if you instruct your children that the way to break a war is to feed the man who came to fight.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Pray Elisha&#x27;s prayer out loud over one of your children today — by name. &quot;LORD, open his eyes that he may see.&quot;</li>
+<li>Pick one chariots-of-fire moment from your own life and tell it at the dinner table. Let your kids hear what God has already done on hills they don&#x27;t remember.</li>
+<li>Find the floating-axe-head moment with one son — the small lost thing he has been quietly carrying — and go to the river with him, not at him.</li>
+<li>Identify one enemy of your family you have been planning to strike. Set bread and water in front of him instead and see if the war breaks.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Wardroom</div>
+<p>Father of all true sight,<br>You open eyes that have been closed all their lives<br>and You ring Your servants in fire long before they see the cavalry.</p>
+<p>By the power of Your Holy Spirit,<br>make me an instructing father —<br>quiet in the panic, plain in the prayer,<br>willing to go to the river for the iron my sons have dropped,<br>willing to set bread and water before the men You have already humbled.</p>
+<p>In the name of Jesus Christ, my Lord and Commander,<br>the great Teacher who opens blind eyes —<br>open Gideon&#x27;s eyes, open Boaz&#x27;s eyes, open Shiloh&#x27;s eyes,<br>and let my children grow up on a mountain full of fire.<br>Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Rudder Steer:</span> Pray for opened eyes, then point to the fire — instruct your children to see the host before they see the threat.</div>
+</section>
+
+<section class="watch watch-citizen" id="watch-citizen" data-watch="citizen">
+<div class="watch-header"><span class="watch-time">1500</span> <h2>Third Watch — The Citizen&#x27;s Stand</h2></div>
+<p class="intro">The third watch is the long siege — Samaria starved, the king at the wall, a prophet under house arrest with hope. Then four lepers at the gate decide they will not sit there and die — and the LORD makes the army of Aram hear chariots that are not there, until a city is fed by men who had nothing to lose.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 2 Kings 6:24–33 &amp; 2 Kings 7</div>
+<div class="scripture-text">
+<p>After this Ben-hadad king of Aram gathered his whole army and went up and besieged Samaria. There was a great famine in Samaria — they besieged it so closely that a donkey&#x27;s head sold for eighty pieces of silver, and a fourth of a cab of dove&#x27;s dung for five pieces of silver.</p>
+<p>As the king of Israel was passing by on the wall, a woman cried out to him: &quot;Help me, my lord the king!&quot;</p>
+<p>He said: &quot;If the LORD does not help you, where shall I find help for you? From the threshing floor or from the winepress?&quot;</p>
+<p>Then the king said to her: &quot;What is the matter with you?&quot;</p>
+<p>She said: &quot;This woman said to me, &#x27;Give your son so we may eat him today, and we will eat my son tomorrow.&#x27; So we cooked my son and ate him. And I said to her on the next day, &#x27;Give your son so we may eat him,&#x27; but she has hidden her son.&quot;</p>
+<p>When the king heard the words of the woman, he tore his clothes. As he was passing by on the wall, the people looked — and look, he had sackcloth on under his clothing, on his body. He said: &quot;May God do so to me and more also, if the head of Elisha son of Shaphat remains on him today.&quot;</p>
+<p>Elisha was sitting in his house, and the elders were sitting with him. The king sent a man ahead of him, but before the messenger came to him, Elisha said to the elders: &quot;Do you see how this son of a murderer has sent to take away my head? Look — when the messenger comes, shut the door and hold it shut against him. Is not the sound of his master&#x27;s feet behind him?&quot;</p>
+<p>While he was still speaking with them, the messenger came down to him — and the king with him — and the king said: &quot;Look, this evil is from the LORD. Why should I wait for the LORD any longer?&quot;</p>
+<p>Elisha said: &quot;Hear the word of the LORD. Thus says the LORD: tomorrow about this time a measure of fine flour will be sold for a shekel, and two measures of barley for a shekel, in the gate of Samaria.&quot;</p>
+<p>The captain on whose hand the king leaned answered the man of God: &quot;If the LORD would make windows in heaven, could this thing be?&quot;</p>
+<p>Elisha said: &quot;Look, you will see it with your own eyes, but you will not eat of it.&quot;</p>
+<p>⸻</p>
+<p>Now there were four men, lepers, at the entrance of the gate. They said to one another: &quot;Why do we sit here until we die? If we say, &#x27;Let us enter the city,&#x27; the famine is in the city, and we will die there. If we sit still here, we will die too. So now, come — let us defect to the camp of the Arameans. If they spare us, we will live; if they kill us, we will die.&quot;</p>
+<p>They rose at twilight to go to the camp of the Arameans. When they came to the edge of the camp — look, there was no one there. For the LORD had caused the army of the Arameans to hear the sound of chariots and the sound of horses, the sound of a great army; they had said to one another: &quot;Look, the king of Israel has hired against us the kings of the Hittites and the kings of the Egyptians to come on us.&quot; So they had risen up and fled in the twilight — leaving their tents, their horses, their donkeys, the camp as it was, and fled for their lives.</p>
+<p>When these lepers came to the edge of the camp, they went into one tent and ate and drank, and carried away silver and gold and clothing, and went and hid them. They returned and entered another tent and carried away its contents and went and hid them.</p>
+<p>Then they said to one another: &quot;We are not doing right. This day is a day of good news, and we are silent. If we wait until morning light, punishment will overtake us. Now then, come — let us go and tell the king&#x27;s household.&quot;</p>
+<p>So they went and called to the gatekeepers of the city and told them: &quot;We came to the camp of the Arameans — and look, no one was there, not a man&#x27;s voice, only horses tied and donkeys tied, and the tents as they were.&quot;</p>
+<p>The gatekeepers cried out and reported it inside the king&#x27;s household. The king rose at night and said to his servants: &quot;I will tell you what the Arameans have done to us. They know we are hungry, so they have gone out from the camp to hide in the field, saying, &#x27;When they come out of the city we will take them alive and enter the city.&#x27;&quot;</p>
+<p>One of his servants answered: &quot;Please let some take five of the horses that remain in the city — look, they will be like all the multitude of Israel who are perishing — let us send and see.&quot;</p>
+<p>So they took two chariots with horses, and the king sent after the army of the Arameans, saying: &quot;Go and see.&quot; They went after them as far as the Jordan; and look, all the way was full of clothing and weapons which the Arameans had thrown away in their haste. The messengers returned and told the king.</p>
+<p>The people went out and plundered the camp of the Arameans. So a measure of fine flour was sold for a shekel, and two measures of barley for a shekel, according to the word of the LORD.</p>
+<p>The king appointed the captain on whose hand he leaned to be in charge of the gate, and the people trampled him in the gate, and he died — as the man of God had spoken when the king came down to him.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🛰️ Situation Report</div>
+<p>A city has eaten itself down to a donkey&#x27;s head for eighty pieces of silver; a mother on the wall has done the unspeakable; a king tears his clothes and would rather take Elisha&#x27;s head than wait one more night for the LORD. The prophet says: tomorrow at this time, fine flour for a shekel. Four lepers, ruled out by everyone, decide they will not sit at the gate and die. They walk toward the enemy and find a camp the LORD has emptied with phantom chariots in Aramean ears. By daylight, Samaria eats; the officer who scoffed at the prophet is trampled at the gate where he had stood guard. Endurance is the citizen&#x27;s lesson — endurance under siege, endurance past the king&#x27;s despair, endurance into the one more night the prophet promised.</p>
+</div>
+<div class="section reflection resolute">
+<div class="section-label">🛡️ Reflection for a R.E.S.O.L.U.T.E. Citizen — Enduring</div>
+<p>Fredericksburg (local)<br>As a RESOLUTE citizen called to endure, the four lepers at the gate of Samaria are your local picture. They are the men everyone has written off — unclean, useless, on the margin of the city. The king did not consult them. The elders did not consult them. The prophet&#x27;s circle did not consult them. And yet they are the men who said the most important sentence of the whole siege: &quot;Why do we sit here until we die?&quot; Endurance in your block in Fredericksburg looks like that. Not the loud man on the council, but the quiet brother who refuses to sit at the gate and rot. Get up tonight from whatever your version of the gate is — and walk one direction. The LORD has often emptied the camp before the leper arrives.</p>
+<p>Virginia (state)<br>Across Virginia, endurance looks like Elisha holding his door shut while a king&#x27;s executioner is on the way. Notice what Elisha does not do. He does not flee, he does not bargain, he does not call down fire on the king. He shuts the door, tells the elders the truth about the man who is coming, and waits — because he knows the master&#x27;s feet are behind the messenger. Endurance for a Virginia citizen is door-holding in the season when the culture is angrier than usual at men who quote the prophets. Hold the door, brother. The same God who put chariots of fire around Dothan still sits the prophet behind a closed door in Samaria, and still moves the master&#x27;s feet behind the messenger.</p>
+<p>United States (nation)<br>At the national level the king&#x27;s sentence is the one that ought to scare us — &quot;Why should I wait for the LORD any longer?&quot; That is the voice of a nation that has come to the wall, looked at the famine inside its own gates, and decided that the LORD&#x27;s timing is not fast enough. Brother, an entire generation of American leaders is preaching that sentence right now, loudly. Endurance for an American citizen means refusing to join the chorus of &quot;Why should I wait?&quot; — and instead taking Elisha&#x27;s posture: &quot;Tomorrow about this time.&quot; We have a long, exhausting history of being delivered on the one night we almost quit. Don&#x27;t be the captain who saw the windows of heaven open and then was trampled in the gate because he scoffed. Endure into the morning.</p>
+</div>
+<div class="section history">
+<div class="section-label">🦅 This Day in American History — May 27</div>
+<p>• 1937 — The Golden Gate Bridge opens to pedestrians for the first time, after four and a half years of construction, eleven workers killed, and decades of public skepticism. Endurance at the civic scale looks like men who keep stringing cable across a strait the city has been told cannot be bridged.<br>• 1941 — The Royal Navy sinks the German battleship Bismarck after eight days of pursuit across more than seventeen hundred nautical miles of Atlantic water, including the loss of HMS Hood. Endurance in a long chase, by men who refused to lose the trail.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Find your gate-of-the-city moment — the place you have been sitting and waiting to die. Get up tonight and walk one direction.</li>
+<li>Pick a &quot;tomorrow at this time&quot; promise from Scripture and write it on something you will see in the morning. Refuse the king&#x27;s &quot;Why should I wait&quot; sentence in your own mouth.</li>
+<li>If you have shut a door against a real threat — a temptation, a relationship, an obligation that would compromise you — keep it shut. The master&#x27;s feet are behind the messenger.</li>
+<li>Walk slowly past one civic place where you have been tempted to scoff at God&#x27;s timing. Repent of the scoff and pray for the windows of heaven.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Bridge</div>
+<p>Father, God of the long siege and the sudden deliverance,<br>You empty enemy camps with phantom chariots<br>and You feed Your starved cities through the hands of men no one consulted.</p>
+<p>By the power of Your Holy Spirit,<br>make me an enduring citizen — in this city, in this state, in this nation —<br>slow to scoff at Your timing,<br>slow to leave the post You have set me on,<br>slow to despair at the donkey&#x27;s head at the gate.</p>
+<p>In the name of Jesus Christ, my Lord and Commander,<br>the true Bread sent down out of heaven —<br>let me endure into the morning when the flour comes,<br>and let me not be the captain trampled in the gate.<br>Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Rudder Steer:</span> Don&#x27;t sit at the gate to die — get up, hold the door, wait for the flour, and refuse to scoff at the morning.</div>
+</section>
+
+<section class="watch watch-peace" id="watch-peace" data-watch="peace">
+<div class="watch-header"><span class="watch-time">2100</span> <h2>Evening Peace</h2></div>
+<p class="intro">Tonight closes a long day with the shortest pilgrim psalm — three verses of stilled soul, weaned child, and one nation taught to hope in the LORD from this time forth and forever.</p>
+<div class="audio-slot">
+  <audio controls preload="metadata" style="width:100%;max-width:560px;">
+    <source src="../assets/audio/readings/2026-05-27-peace.mp3" type="audio/mpeg">
+    Your browser does not support audio.
+  </audio>
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — Evening Peace</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Psalm 131</div>
+<div class="scripture-text">
+<p>A Song of Ascents. Of David.</p>
+<p class="stanza">O LORD, my heart is not lifted up,<br>nor are my eyes raised too high;<br>I do not occupy myself with things<br>too great and too marvelous for me.</p>
+<p class="stanza">But I have stilled and quieted my soul,<br>like a weaned child with its mother —<br>like a weaned child is my soul within me.</p>
+<p class="stanza">O Israel, hope in the LORD<br>from this time forth and forevermore.</p>
+</div>
+</div>
+<div class="section reflection">
+<div class="section-label">🌾 Reflection for a Man at Home and in Community</div>
+<p>Tonight David hands you the shortest, hardest psalm in the Songs of Ascents. Three verses — no narrative, no enemies named, no praise of God&#x27;s mighty acts. Just one man saying that his heart has stopped climbing, his eyes have come down from too-high places, and his soul is stilled inside him like a child who has been weaned. The strongest line in the psalm is the third, and it is for all of Israel: &quot;Hope in the LORD from this time forth and forevermore.&quot; Tonight the day&#x27;s three roles come home and lay themselves down.</p>
+<p>As a HAPPY husband, Yielding tonight means you stop occupying yourself with things too great for you in your marriage. Maria did not marry you for your speculations about her future or her healing or her happiness — she married you for your present, quiet, weaned-child presence at her side. Tell her tonight, plainly, &quot;My heart is not lifted up; my eyes are not raised too high.&quot; Yield the ambition you brought into the evening and be the stilled man she can lean against until she sleeps.</p>
+<p>As a FULFILLED father, Instructing tonight means you do not load Gideon, Boaz, and Shiloh with your own anxious climbing. The instructing father teaches his children to be weaned by being weaned himself in front of them. Pray Psalm 131 out loud over them tonight — not as a recitation but as a confession. &quot;Father, my heart is not lifted up.&quot; Then tell each child by name to hope in the LORD from this time forth. That is the instruction that outlasts every other thing you will teach them.</p>
+<p>As a RESOLUTE citizen, Enduring tonight means you carry the third verse out the door tomorrow morning. The city does not need more men with their eyes raised too high; it needs men with weaned souls who will hope in the LORD from this time forth and forevermore. Fredericksburg, Virginia, the United States — none of them is held together by your loud civic climbing. They are held by the LORD, and your steadiest civic act tonight is the prayer of a stilled child before sleep.</p>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Stateroom</div>
+<p>Father, Weaner of restless souls,<br>You teach Your children to stop reaching, to stop climbing,<br>to lie still against You the way a satisfied child lies against his mother.</p>
+<p>By the power of Your Holy Spirit,<br>still my heart tonight,<br>lower my eyes from the things that are too great for me,<br>quiet my soul like a weaned child.<br>Hold Maria under Your covering,<br>hold Gideon, Boaz, and Shiloh under Your hand,<br>hold our city in Your hope.</p>
+<p>In the name of Jesus Christ, my Lord and Commander,<br>the perfect Son who did nothing on His own —<br>let me sleep as a weaned child against Your shoulder,<br>and let me wake to hope in You from this time forth and forevermore.<br>Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Rudder Steer:</span> Lower your eyes, still your soul — sleep weaned against the LORD, and rise to hope in Him from this time forth.</div>
+</section>
+
+<footer>
+<div class="draft-tag">PROTOTYPE — sign-off pending</div>
+<div>U.S.M.C. Ministries · The Watchman's Chronological Plan for the Year of our Lord 2026</div>
+<div style="margin-top:6px;font-size:0.78rem;">Adam Johns &middot; rich interpretive blend &middot; divine name LORD</div>
+</footer>
+
+</div>
+<script>
+(function(){
+  const SLUGS = ['all','wisdom','husband','father','citizen','peace'];
+
+  // Watch windows in local hours (each watch is "live" from its start time
+  // until the NEXT watch begins). Evening peace owns 21:00 → 04:59.
+  function currentWatchSlug() {
+    const h = new Date().getHours();
+    if (h >= 5  && h < 7)  return 'wisdom';
+    if (h >= 7  && h < 11) return 'husband';
+    if (h >= 11 && h < 15) return 'father';
+    if (h >= 15 && h < 21) return 'citizen';
+    return 'peace';                       // 21:00 – 04:59
+  }
+  const NOW_SLUG = currentWatchSlug();
+
+  function markNowBadge(){
+    document.querySelectorAll('.watch-tab').forEach(t => {
+      t.classList.toggle('is-now', t.dataset.tab === NOW_SLUG);
+    });
+  }
+  function showOnly(slug){
+    const isAll = slug === 'all' || !SLUGS.includes(slug);
+    document.querySelectorAll('section.watch').forEach(s => {
+      s.style.display = (isAll || s.dataset.watch === slug) ? '' : 'none';
+    });
+    document.querySelectorAll('.watch-tab').forEach(t => {
+      t.classList.toggle('active', t.dataset.tab === (isAll ? 'all' : slug));
+    });
+  }
+  document.querySelectorAll('.watch-tab').forEach(t => {
+    t.addEventListener('click', function(e){
+      e.preventDefault();
+      const slug = this.dataset.tab;
+      history.replaceState(null, '', '#' + slug);
+      showOnly(slug);
+      window.scrollTo({top: 0, behavior:'smooth'});
+    });
+  });
+
+  // Initial selection priority:
+  //   1. URL hash if present  (#all / #wisdom / #husband / #father / #citizen / #peace)
+  //   2. Auto-select the watch that is "live right now"
+  let initial;
+  if (location.hash) {
+    initial = location.hash.slice(1);
+  } else {
+    initial = NOW_SLUG;
+  }
+  markNowBadge();
+  showOnly(initial);
+})();
+</script>
+</body>
+</html>
