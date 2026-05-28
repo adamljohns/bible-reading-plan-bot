@@ -200,7 +200,7 @@
         <ul class="page-list">
             <li>Blog posts: <strong>165</strong></li>
             <li>Dictionary definitions: <strong><span id="dictCount">4,838</span>+</strong></li>
-            <li>Lexicon word studies: <strong><span id="lexCount">2,864</span>+</strong></li>
+            <li>Lexicon word studies: <strong><span id="lexCount">7,777</span>+</strong></li>
             <li>Cross-reference entries: <strong><span id="xrefCount">17,777</span>+</strong></li>
             <li>Churches in directory: <strong><span id="churchCount">28,584</span></strong></li>
             <li>Self-assessments: <strong>5</strong></li>
@@ -227,10 +227,15 @@
         var el = document.getElementById(id);
         if (el) el.textContent = val;
     }
-    fetch('assets/lexicon-manifest.json')
+    fetch('assets/lexicon-pages.json')
         .then(r => r.json())
         .then(m => {
-            var c = m.count.toLocaleString();
+            // lexicon-pages.json (May 2026+) is the source of truth for
+            // "word studies" — it counts the published lexicon/<id>.html
+            // pages (3,333 Greek + 4,444 Hebrew = 7,777). The older
+            // lexicon-manifest.json counts curated-data entries (~2,864),
+            // which is a different metric.
+            var c = (m.count || (m.pages && m.pages.length) || 0).toLocaleString();
             updateCount('lexCount', c + '+');
             updateCount('lexDescCount', c);
         })
