@@ -37,6 +37,20 @@ function ico(name, size=16) {
   return `<img class="site-icon" src="/assets/icons/${name}" alt="" width="${size}" height="${size}" style="vertical-align:middle;">`;
 }
 
+// Network-logo lookup for the per-church 'Network Affiliations' chip row in
+// the hero. Keep this aligned with NETWORK_META in scripts/build-directory-networks.js;
+// the chip label here is the short brand name shown next to the logo.
+const NETWORK_BRANDING = {
+  'founders':           { short: 'Founders', logo: '/assets/icons/networks/founders.png' },
+  '9marks':             { short: '9Marks',   logo: '/assets/icons/networks/9marks.png' },
+  'tgc-cn':             { short: 'TGC',      logo: '/assets/icons/networks/tgc-cn.png' },
+  'acts29':             { short: 'Acts 29',  logo: '/assets/icons/networks/acts29.png' },
+  'sgc':                { short: 'SGC',      logo: '/assets/icons/networks/sgc.png' },
+  'pillar-network':     { short: 'Pillar',   logo: '/assets/icons/networks/pillar-network.png' },
+  'trinity-foundation': { short: 'Trinity',  logo: '/assets/icons/networks/trinity-foundation.png' },
+  'sbc':                { short: 'SBC',      logo: '/assets/icons/networks/sbc.png' },
+};
+
 function colorLabel(score) {
   if (score === 'green') return `${ico('shield-chain-salvation-48.png')} Strong`;
   if (score === 'red') return `${ico('shield-warning-48.png')} WARNING!`;
@@ -398,6 +412,27 @@ const CSS = `
     font-size: 0.95rem;
     margin-bottom: 18px;
   }
+  .hero .network-row {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    justify-content: center;
+    margin: 0 auto 18px;
+    max-width: 600px;
+  }
+  .hero .network-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    color: var(--gold-light); text-decoration: none;
+    font-size: 0.78rem; font-weight: 600;
+    padding: 5px 12px 5px 6px;
+    border: 1px solid rgba(212,175,55,0.35); border-radius: 18px;
+    background: rgba(212,175,55,0.06);
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+  }
+  .hero .network-chip img {
+    background: #fff; border-radius: 50%;
+    padding: 2px;
+    object-fit: contain;
+  }
+  .hero .network-chip:hover { background: rgba(212,175,55,0.18); border-color: var(--gold); }
 
   /* Threat / Rating badge */
   .threat-badge {
@@ -736,6 +771,12 @@ ${(() => {
   <div class="denom-tag">${escapeHtml(church.type || church.denomination || 'Church')}</div>
   <h1>${escapeHtml(church.name)}</h1>
   <div class="address">${ico('shield-map-48.png', 14)} ${escapeHtml(church.address)}</div>
+  ${Array.isArray(church.cross_listed_in) && church.cross_listed_in.some(n => NETWORK_BRANDING[n]) ? `<div class="network-row">
+    ${church.cross_listed_in.filter(n => NETWORK_BRANDING[n]).map(n => {
+      const b = NETWORK_BRANDING[n];
+      return `<a class="network-chip" href="/directory-networks.html#meth-${n}" title="${escapeHtml(b.short)} on the MOOP networks page"><img src="${b.logo}" alt="" width="18" height="18" loading="lazy">${escapeHtml(b.short)}</a>`;
+    }).join('')}
+  </div>` : ''}
   ${threatBadge(church)}
 </div>
 
