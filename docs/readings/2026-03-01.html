@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg">
+<title>Sunday, March 1, 2026 — Daily Reading | U.S.M.C. Ministries</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+    --bg-dark: #000000; --bg-card: #111111; --bg-card2: #161616;
+    --gold: #D4AF37; --gold-light: #F4D470;
+    --white: #FFFFFF; --gray: #888888; --border: #333333;
+}
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--white);
+    min-height: 100vh;
+    line-height: 1.7;
+}
+h1, h2, h3 { font-family: 'Playfair Display', serif; font-weight: 700; }
+.container { max-width: 820px; margin: 0 auto; padding: 24px 20px 60px; }
+a { color: var(--gold); text-decoration: none; }
+a:hover { color: var(--gold-light); text-decoration: underline; }
+
+.nav-back { margin-bottom: 14px; font-size: 0.95rem; }
+
+.hero { text-align: center; padding: 16px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 18px; }
+.hero h1 { font-size: clamp(1.5rem, 4vw, 2.2rem); color: var(--white); margin-bottom: 6px; }
+.hero .subtitle { color: var(--gold); font-size: 0.95rem; font-style: italic; }
+.hero .doc-line { color: var(--gray); font-size: 0.82rem; margin-top: 6px; }
+
+.watch-tabs {
+    position: sticky; top: 0; z-index: 30;
+    background: var(--bg-dark);
+    border-bottom: 1px solid var(--border);
+    display: flex; flex-wrap: wrap; gap: 6px;
+    padding: 12px 0 14px;
+    margin-bottom: 18px;
+}
+.watch-tab {
+    flex: 1 1 90px;
+    text-align: center;
+    padding: 8px 6px;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    background: var(--bg-card);
+    color: var(--gray);
+    font-size: 0.85rem; font-weight: 500;
+    transition: all 0.15s ease;
+    text-decoration: none !important;
+    white-space: nowrap;
+}
+.watch-tab:hover { color: var(--white); border-color: var(--gold); text-decoration: none !important; }
+.watch-tab.active { background: var(--gold); color: #000; border-color: var(--gold); font-weight: 600; }
+.watch-tab .tab-time { display: block; font-size: 0.7rem; opacity: 0.7; font-family: monospace; }
+.watch-tab.active .tab-time { opacity: 1; }
+
+/* "NOW" badge — shown on the watch tab whose time window contains current local time */
+.watch-tab.is-now { position: relative; box-shadow: 0 0 0 1px var(--gold-light) inset; }
+.watch-tab.is-now::after {
+  content: "NOW";
+  position: absolute; top: -7px; right: -4px;
+  background: var(--gold-light); color: #000;
+  font-size: 0.55rem; font-weight: 700;
+  padding: 1px 5px; border-radius: 100px;
+  letter-spacing: 0.08em;
+}
+
+.watch {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px 22px;
+    margin-bottom: 22px;
+    scroll-margin-top: 80px;
+}
+.watch-header { display: flex; align-items: baseline; gap: 14px; margin-bottom: 10px; flex-wrap: wrap; }
+.watch-time {
+    background: var(--bg-card2); color: var(--gold);
+    padding: 4px 12px; border-radius: 100px;
+    font-family: 'Inter', monospace; font-size: 0.85rem; font-weight: 600;
+    letter-spacing: 0.05em;
+}
+.watch-header h2 { font-size: 1.35rem; color: var(--white); }
+
+.intro { color: var(--gray); font-style: italic; margin-bottom: 14px; }
+
+.audio-slot {
+    margin: 14px 0 18px;
+    padding: 12px 14px;
+    background: var(--bg-card2);
+    border-radius: 8px;
+    border: 1px dashed var(--border);
+}
+.audio-slot.audio-pending { opacity: 0.55; }
+.audio-cap { font-size: 0.8rem; color: var(--gray); margin-top: 4px; }
+
+.scripture {
+    background: var(--bg-card2);
+    border-left: 3px solid var(--gold);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin: 16px 0 22px;
+}
+.scripture-ref { font-weight: 600; color: var(--gold); margin-bottom: 12px; font-size: 0.95rem; }
+.scripture-text p { margin-bottom: 8px; }
+.scripture-text p.stanza { margin-bottom: 14px; }
+
+.section-label {
+    font-family: 'Playfair Display', serif;
+    color: var(--gold); font-weight: 700; font-size: 1.05rem;
+    margin: 22px 0 10px; padding-top: 10px; border-top: 1px solid var(--border);
+}
+.section p, .context p, .reflection p, .history p, .application-block p { margin-bottom: 12px; }
+
+ul.application { padding-left: 22px; margin: 8px 0 14px; }
+ul.application li { margin-bottom: 8px; }
+.application-prose { font-style: italic; color: var(--gold-light); margin-top: 12px; }
+
+.history ul { padding-left: 22px; margin: 8px 0; }
+.history li { margin-bottom: 6px; }
+
+.prayer {
+    background: var(--bg-card2);
+    border-left: 3px solid var(--gold-light);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin: 22px 0;
+}
+.prayer-title { color: var(--gold-light); font-weight: 600; margin-bottom: 10px; font-size: 0.95rem; }
+.prayer p { line-height: 1.85; margin-bottom: 8px; }
+
+.helm {
+    background: var(--bg-card2);
+    border-radius: 6px;
+    padding: 12px 18px;
+    margin-top: 14px;
+    font-size: 0.95rem;
+}
+.helm-icon { color: var(--gold); font-size: 1.1rem; }
+.helm-label { color: var(--gold); font-weight: 600; }
+
+footer {
+    text-align: center;
+    color: var(--gray);
+    font-size: 0.82rem;
+    margin-top: 32px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+}
+footer .draft-tag {
+    display: inline-block;
+    background: #2a2410;
+    color: var(--gold);
+    padding: 4px 12px;
+    border-radius: 100px;
+    font-size: 0.78rem;
+    margin-bottom: 8px;
+    letter-spacing: 0.05em;
+}
+
+@media (max-width: 540px) {
+    .watch-tab { flex: 1 1 64px; font-size: 0.78rem; padding: 6px 4px; }
+    .watch-tab .tab-time { font-size: 0.65rem; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="nav-back">← <a href="/chronological.html">The Watchman's Chronological Plan</a></div>
+
+<div class="hero">
+<h1>Sunday, March 1, 2026</h1>
+<div class="subtitle">Daily Reading — Day 60 of 365</div>
+<div class="doc-line">MOOP&#x27;s 2026 Daily Bible Readings — Document 3 of 12; for the month of March</div>
+</div>
+
+<nav class="watch-tabs" role="tablist">
+<a href="#all" class="watch-tab active" data-tab="all" role="tab"><span class="tab-label">All Watches</span></a>
+<a href="#wisdom" class="watch-tab" data-tab="wisdom" role="tab"><span class="tab-time">0600</span> <span class="tab-label">Morning Wisdom</span></a>
+<a href="#husband" class="watch-tab" data-tab="husband" role="tab"><span class="tab-time">0700</span> <span class="tab-label">Husband</span></a>
+<a href="#father" class="watch-tab" data-tab="father" role="tab"><span class="tab-time">1100</span> <span class="tab-label">Father</span></a>
+<a href="#citizen" class="watch-tab" data-tab="citizen" role="tab"><span class="tab-time">1500</span> <span class="tab-label">Citizen</span></a>
+<a href="#peace" class="watch-tab" data-tab="peace" role="tab"><span class="tab-time">2100</span> <span class="tab-label">Evening Peace</span></a>
+</nav>
+
+<section class="watch watch-wisdom" id="watch-wisdom" data-watch="wisdom">
+<div class="watch-header"><span class="watch-time">0600</span> <h2>Morning Wisdom</h2></div>
+<p class="intro">Solomon opens the great instruction with a father&#x27;s voice — and then turns the page to find Wisdom herself standing in the public square crying out to anyone who will hear. The man who refuses both voices today will have neither to lean on when the storm arrives.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Proverbs 1:8–33</div>
+<div class="scripture-text">
+<p class="stanza">My son, hear the instruction of your father,<br>and do not forsake the law of your mother;<br>they will be a graceful wreath on your head<br>and pendants around your neck.</p>
+<p class="stanza">My son, if sinners entice you,<br>do not consent.<br>If they say, &quot;Come with us — let us lie in wait for blood,<br>let us ambush the innocent without cause;<br>let us swallow them alive like Sheol,<br>whole, like those who go down to the pit;<br>we will find every kind of precious goods,<br>we will fill our houses with plunder;<br>throw in your lot among us,<br>we will all have one purse&quot; —<br>my son, do not walk in the way with them;<br>keep your foot from their path,<br>for their feet run to evil<br>and they hurry to shed blood.<br>Surely in vain a net is spread<br>in the sight of any bird;<br>but these men lie in wait for their own blood,<br>they set an ambush for their own lives.<br>So are the ways of every one who is greedy for gain —<br>it takes away the life of its possessors.</p>
+<p class="stanza">Wisdom cries aloud in the street,<br>in the markets she raises her voice;<br>at the head of the noisy streets she calls out,<br>at the entrance of the gates in the city she speaks her words:</p>
+<p class="stanza">&quot;How long, you simple ones, will you love simplicity?<br>How long will scoffers delight in scoffing,<br>and fools hate knowledge?<br>Turn at my reproof!<br>Look — I will pour out my spirit on you,<br>I will make my words known to you.</p>
+<p class="stanza">Because I called and you refused;<br>I stretched out my hand and no one paid attention;<br>because you ignored all my counsel<br>and would have none of my reproof —<br>I also will laugh at your calamity,<br>I will mock when terror strikes you,<br>when terror comes upon you like a storm<br>and your calamity comes like a whirlwind,<br>when distress and anguish come upon you.</p>
+<p class="stanza">Then they will call upon me, but I will not answer;<br>they will seek me earnestly but they will not find me,<br>because they hated knowledge<br>and did not choose the fear of the LORD,<br>would have none of my counsel,<br>despised all my reproof.<br>Therefore they will eat the fruit of their own way,<br>and have their fill of their own schemes.</p>
+<p class="stanza">For the turning away of the simple will kill them,<br>and the complacency of fools will destroy them;<br>but whoever listens to me will dwell safely,<br>and will be at ease, without dread of evil.&quot;</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🧭 Context Summary</div>
+<p>Solomon opens the great instruction with a single image: a father at the door of his house, speaking to a son about to walk out into a city full of voices that want him dead. The first voice is gentle — the father and mother teaching at home, putting a graceful wreath on his head. The second voice is loud and seductive — a gang at the corner offering him purse-shared plunder. The third voice is Wisdom herself, crying in the marketplace. Solomon&#x27;s whole question is which voice the son will follow. The son who hears the father will walk safely; the son who walks with the gang will spread his own net; the son who ignores Wisdom in the street will one day call her name in a whirlwind and hear her laugh.</p>
+</div>
+<div class="section reflection">
+<div class="section-label">🛡️ Reflection for a REAL MAN — Hears Instruction</div>
+<p>A REAL MAN who hears instruction is not a passive man — he is an active receiver, with his ear bent toward three voices at once: the father in his home, the friend at his elbow, and Wisdom in the public square. Solomon does not hand the son a list of rules; he hands him an ear. And he tells him that every other choice of his life — the gang, the plunder, the purse — is downstream of which voice that ear is tuned to.</p>
+<p>Watch how Solomon describes the gang&#x27;s pitch, brother. &quot;Come with us. Let us lie in wait. Let us swallow them alive. We will fill our houses with plunder. Throw in your lot among us — we will all have one purse.&quot; Listen to that sentence again. The seduction is not pleasure — it is belonging. The gang is offering him a team. And the son who has not been listening to his father at home will hear that team-offer and think it is the first real fellowship of his life. A man who has stopped hearing instruction always ends up taking instruction from somebody — usually from the men who least love him.</p>
+<p>Then Wisdom steps into the street. She does not whisper from a hidden room; she stands at the head of the noisy streets and calls out at the gates. Solomon is teaching that the LORD has not made wisdom hard to find. He has made it loud. The man who says, &quot;I just don&#x27;t know what God wants from me,&quot; has often spent years walking past Wisdom&#x27;s pulpit at the city gate with his ears full of his own music. Hearing instruction begins with turning the music off.</p>
+<p>The most chilling line in the chapter is the one most men ignore until it is too late: &quot;Then they will call upon me, but I will not answer.&quot; That is not God being cruel — that is God describing the architecture of a man&#x27;s life. A man who refuses to listen across enough years builds an ear that cannot hear when he finally needs to. The storm arrives, the whirlwind hits, and his mouth is forming the right prayer but his ear is too calloused to register the reply. Hear today, brother. While the father is still at the door. While the friend can still wound you faithfully. While Wisdom is still standing at the gate.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Identify the loudest voice in your ear right now — a podcast, a friend group, a news cycle, your own head. Turn it down for one full day and listen for the older voices.</li>
+<li>Honor a father-shaped voice today: call a man older than you who has earned the right to speak into your life, and ask him a real question.</li>
+<li>Refuse a &quot;one purse&quot; offer — any place where the team is calling you to do what your father would not bless. Walk out of that group chat, that deal, that habit before sundown.</li>
+<li>Walk through one public place today (the grocery, the gym, the church lobby) listening for Wisdom&#x27;s voice instead of broadcasting your own. She is louder than you think when you stop talking.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer</div>
+<p>Father of all true instruction,<br>You set Wisdom at the gate<br>and You put a father at the door of every house<br>so that no son would have to grow up deaf.</p>
+<p>By the power of Your Holy Spirit,<br>unstop my ears today.<br>Quiet the loud voices that have crowded out the older ones.<br>Make me a man who hears the father, hears the friend&#x27;s faithful wound,<br>and hears Wisdom crying at the gate before the whirlwind arrives.</p>
+<p>In the name of Jesus Christ, my Lord and Commander,<br>the eternal Wisdom of God incarnate,<br>who stood in the street and called out to whoever would hear —<br>let me be the son who turned at His reproof.<br>Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Helm Command:</span> Bend your ear to the older voices — the father, the friend, Wisdom at the gate — and let the gang&#x27;s purse stay closed.</div>
+</section>
+
+<section class="watch watch-husband" id="watch-husband" data-watch="husband">
+<div class="watch-header"><span class="watch-time">0700</span> <h2>First Watch — The Husband&#x27;s Post</h2></div>
+<p class="intro">The first watch carries us into the dedication of the tabernacle. The LORD hands Aaron and his sons the words by which His people will be blessed forever, and then the princes of Israel come forward one by one — beginning with Nahshon of Judah — to lay the dedication offering on the new altar.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Numbers 6:22–27 &amp; Numbers 7:1–17</div>
+<div class="scripture-text">
+<p>The LORD spoke to Moses: &quot;Speak to Aaron and his sons, saying: thus you shall bless the children of Israel. Say to them:</p>
+<p class="stanza">The LORD bless you and keep you;<br>the LORD make His face shine upon you,<br>and be gracious to you;<br>the LORD lift up His countenance upon you<br>and give you peace.</p>
+<p>So they shall put My name on the children of Israel, and I will bless them.&quot;</p>
+<p>⸻</p>
+<p>On the day Moses finished setting up the tabernacle, he anointed it and consecrated it, with all its furnishings; the altar and all its utensils he anointed and consecrated them. Then the leaders of Israel, the heads of their fathers&#x27; houses — they were the leaders of the tribes, those over the registered men — brought their offerings before the LORD: six covered wagons and twelve oxen, a wagon for two of the leaders and an ox for each. They presented them in front of the tabernacle.</p>
+<p>The LORD spoke to Moses: &quot;Accept these from them; they shall be used in performing the service of the tent of meeting. Give them to the Levites, to every man according to his service.&quot; So Moses took the wagons and the oxen and gave them to the Levites. He gave two wagons and four oxen to the sons of Gershon according to their service; he gave four wagons and eight oxen to the sons of Merari according to their service, under the hand of Ithamar the son of Aaron the priest. But to the sons of Kohath he gave none, because their service was the service of the sanctuary, which they carried on their shoulders.</p>
+<p>The leaders presented the offerings for the dedication of the altar on the day it was anointed; the leaders presented their offering before the altar. The LORD said to Moses: &quot;They shall present their offering, each leader on his day, for the dedication of the altar.&quot;</p>
+<p>⸻</p>
+<p>The one who presented his offering on the first day was Nahshon son of Amminadab, of the tribe of Judah. His offering was one silver platter weighing one hundred thirty shekels, and one silver basin of seventy shekels by the sanctuary shekel, both of them full of fine flour mingled with oil for a grain offering; one gold pan of ten shekels, full of incense; one young bull, one ram, and one male lamb a year old for a burnt offering; one male goat for a sin offering; and for the sacrifice of peace offerings, two oxen, five rams, five male goats, and five male lambs a year old. This was the offering of Nahshon son of Amminadab.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🗺️ Briefing Summary</div>
+<p>Two pictures of blessing in one watch. First the LORD hands Aaron a six-line benediction — keep, shine, be gracious, lift up, give peace — and tells him this is how He intends to put His name on His people. Then the dedication of the altar begins, and Nahshon of Judah walks out on day one to lay his offering down: silver, gold, grain, oil, incense, and four animals to cover every category of approach. The husband&#x27;s lesson is straight ahead — God has put words of blessing in your mouth that He wants on your wife, and He has set a pattern of costly daily dedication that He wants on your house.</p>
+</div>
+<div class="section reflection">
+<div class="section-label">❤️ Reflection for Your Wife — H.A.P.P.Y. Husband — Honest</div>
+<p>As a HAPPY husband called to be honest, the Aaronic blessing is the most important sentence you can carry in your mouth this week. Notice how Honest the blessing is. There is no posturing, no clever phrasing, no negotiation. &quot;The LORD bless you and keep you; the LORD make His face shine upon you, and be gracious to you; the LORD lift up His countenance upon you and give you peace.&quot; The honest husband speaks plain words from a plain God over the woman he was given, with no spin in his mouth.</p>
+<p>Most men struggle to be honest with their wives in two opposite directions, brother. Some of us lie upward — we pretend things are better than they are because we don&#x27;t want her to worry. Some of us lie downward — we exaggerate the gloom because we want her sympathy. The Aaronic blessing cuts through both. It does not flatter and it does not whine. It just speaks what the LORD has promised, plainly, into the room. Try saying it over Maria tonight without any decoration. Watch what plain truth does to a tired woman.</p>
+<p>Then look at Nahshon of Judah. The first prince to step up with his offering does not bring a creative gift. He brings the standard offering, plainly listed — one silver platter, one silver basin, one gold pan, one bull, one ram, one lamb, one goat, plus the peace offering animals. Honest worship looks like that. He does not say, &quot;Let me give You something nobody else has thought of.&quot; He says, &quot;Here is what You asked for, exactly.&quot; Honesty in a husband shows up at the altar of dedication just like it shows up at the kitchen table: plain offering, plain words, full weight.</p>
+<p>And note that Nahshon went first. Judah is the lead tribe in the camp&#x27;s marching order, and Judah&#x27;s prince leads off the dedication. There is a strain of honest husbanding that is brave enough to go first — to confess first, to forgive first, to say &quot;I was wrong&quot; first, to bless first. A husband who waits to see if his wife will move toward him before he moves toward her is not honest about the rank he has been given. The leader of the tribe of Judah laid his offering down on day one. Lay yours down too.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Speak the Aaronic blessing over Maria tonight, slowly, by name, without adding anything. Let the plain words land.</li>
+<li>Audit one place where you have been lying upward to your wife — &quot;fine, all good&quot; when it is not. Tell her the actual condition before bedtime.</li>
+<li>Audit one place where you have been lying downward — exaggerating tiredness, hardship, or stress to soften her expectations. Confess that too, plainly.</li>
+<li>Go first today. Don&#x27;t wait for her to soften before you bless. Lay the offering down on day one.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Stateroom</div>
+<p>Father, Author of the plain blessing,<br>You set six honest lines in Aaron&#x27;s mouth<br>to put Your name on Your people<br>and You set Nahshon at the head of the dedication line<br>to teach Your sons how to bring their offerings up plainly.</p>
+<p>By the power of Your Holy Spirit,<br>make me an honest husband —<br>no spin upward, no spin downward,<br>just plain blessing in my mouth and plain offering in my hands<br>for the woman You have given me to keep.</p>
+<p>In the name of Jesus Christ, my Lord and Commander,<br>the true Mediator who carries Your name to His Bride —<br>let Maria know that the LORD is making His face shine upon her,<br>through the plain words in my mouth today.<br>Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Helm Command:</span> Speak the plain blessing — let the LORD&#x27;s name land on her without a single decoration in your mouth.</div>
+</section>
+
+<section class="watch watch-father" id="watch-father" data-watch="father">
+<div class="watch-header"><span class="watch-time">1100</span> <h2>Second Watch — The Father&#x27;s Charge</h2></div>
+<p class="intro">The second watch is a long, deliberate parade — days two through six of the dedication. Five more tribes walk forward one at a time. Each prince brings the same offering. The LORD does not skip a single one. The repetition is the point.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Numbers 7:18–53</div>
+<div class="scripture-text">
+<p>On the second day Nethanel son of Zuar, the leader of Issachar, drew near. He presented his offering — one silver platter weighing one hundred thirty shekels, one silver basin of seventy shekels by the sanctuary shekel, both of them full of fine flour mingled with oil for a grain offering; one gold pan of ten shekels, full of incense; one young bull, one ram, and one male lamb a year old for a burnt offering; one male goat for a sin offering; and for the sacrifice of peace offerings, two oxen, five rams, five male goats, and five male lambs a year old. This was the offering of Nethanel son of Zuar.</p>
+<p>⸻</p>
+<p>On the third day Eliab son of Helon, leader of the children of Zebulun, drew near. His offering: one silver platter weighing one hundred thirty shekels, one silver basin of seventy shekels by the sanctuary shekel, both full of fine flour mingled with oil for a grain offering; one gold pan of ten shekels full of incense; one young bull, one ram, one male lamb a year old for a burnt offering; one male goat for a sin offering; and for the sacrifice of peace offerings, two oxen, five rams, five male goats, and five male lambs a year old. This was the offering of Eliab son of Helon.</p>
+<p>⸻</p>
+<p>On the fourth day Elizur son of Shedeur, leader of the children of Reuben, drew near. His offering: one silver platter weighing one hundred thirty shekels, one silver basin of seventy shekels by the sanctuary shekel, both full of fine flour mingled with oil for a grain offering; one gold pan of ten shekels full of incense; one young bull, one ram, one male lamb a year old for a burnt offering; one male goat for a sin offering; and for the sacrifice of peace offerings, two oxen, five rams, five male goats, and five male lambs a year old. This was the offering of Elizur son of Shedeur.</p>
+<p>⸻</p>
+<p>On the fifth day Shelumiel son of Zurishaddai, leader of the children of Simeon, drew near. His offering, identical in every detail to the offerings of those who had gone before him: one silver platter, one silver basin, one gold pan, the grain offering, the incense, the burnt offering of bull and ram and lamb, the sin offering of one goat, and the peace offering of two oxen, five rams, five male goats, and five male lambs a year old. This was the offering of Shelumiel son of Zurishaddai.</p>
+<p>⸻</p>
+<p>On the sixth day Eliasaph son of Deuel, leader of the children of Gad, drew near. His offering, identical to those before it in every measure, every category, and every count, was presented in full. This was the offering of Eliasaph son of Deuel.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🗺️ Field Notes</div>
+<p>Five tribes in a row. Five identical offerings, listed in full. The LORD does not summarize and Moses does not abbreviate; every prince gets his own day, his own paragraph, and his own count of silver, gold, oil, incense, and four kinds of animals. The point of the parade is not novelty — it is love. Each tribe is named, each prince is named, each father&#x27;s house is named, and the same six-line offering is recited again. The LORD is teaching that no son is repetitive in His sight, no daughter is a copy of her sister, no child is a generic version of his brother. Each gets his own paragraph. Each gets the same dignity.</p>
+</div>
+<div class="section reflection">
+<div class="section-label">👨‍👦 Reflection for Your Children — F.U.L.F.I.L.L.E.D. Father — Loving</div>
+<p>As a FULFILLED father called to love, this passage is a slow, glorious correction of the way most men father. You and I have been trained by the world to value novelty — the kid with the most original talent, the moment with the biggest fireworks, the milestone with the most likes. The LORD walks through five identical offerings here without an edit, without a shortcut, and without a hint of boredom — because love that names each child equally is louder than novelty.</p>
+<p>Gideon is nineteen. The temptation with Gideon at nineteen is to assume the long paragraph belongs to him because he is the oldest, the most articulate, the closest to launch. Loving Gideon means making sure his paragraph still gets read in full when the day&#x27;s offering is the same as yesterday&#x27;s. He does not need a special place at the table; he needs the place he has always had. A loving father does not graduate his eldest into &quot;low maintenance&quot; status the moment he can shave.</p>
+<p>Boaz is fourteen. Boaz&#x27;s offering will sometimes look identical to his older brother&#x27;s — same grade level, same Bible reading, same lawn to mow. A loving father does not roll Boaz into Gideon&#x27;s paragraph. He stops, says Boaz&#x27;s name out loud, and reads Boaz&#x27;s offering in full. &quot;On the fifth day Boaz son of Adam drew near.&quot; Try saying it that way once tonight at the table. Watch what happens to a fourteen-year-old when his name lands in the room without being attached to anyone else&#x27;s.</p>
+<p>Shiloh is five. Shiloh&#x27;s offering looks tiny next to the older brothers&#x27; — a scribble, a hug, a question about why the moon is following the car. A loving father does not summarize her. He lets her drag her silver platter to the altar in full. Five years old gets the same liturgy that nineteen years old gets, because the LORD wrote out Eliasaph&#x27;s offering with the same words He wrote Nahshon&#x27;s. The father who learns to love a five-year-old in full paragraphs will know how to love a thirty-five-year-old in full paragraphs later.</p>
+<p>And then notice the wagons in 7:1–8. Six wagons, twelve oxen — handed to the Levites according to their service. Gershon&#x27;s sons got two wagons because they carried fabric. Merari&#x27;s sons got four wagons because they carried boards. Kohath&#x27;s sons got no wagons because they carried the holy things on their shoulders. A loving father gives each child the help his service requires — no more, no less. Loving is not equal weight on every child; it is equal honor and right-sized help. Some of your children will get more wagons than others. Loving means you matched the help to the load they actually carry.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Read each of your children&#x27;s &quot;offerings&quot; out loud at dinner tonight — what they brought to the day, in full, by name. No combined paragraphs.</li>
+<li>Resist the lazy summary. When you describe one child, do not start the sentence with &quot;Just like the others…&quot;; start it with that child&#x27;s name.</li>
+<li>Match the wagons to the service. Identify one child whose load is heavier right now and quietly increase the help. Identify another whose carry is on the shoulders, and stop trying to give him wagons he does not need.</li>
+<li>Stop and notice the identical-looking day. The seventh time you tuck Shiloh in this week is not less holy than the first; the seventh time you correct Boaz is not less loving than the first. Same offering, same dignity.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Wardroom</div>
+<p>Father, who counted each tribe&#x27;s offering in full<br>and did not shorten a single paragraph<br>across twelve identical days at the altar,</p>
+<p>By the power of Your Holy Spirit,<br>make me a loving father —<br>patient enough to read each child&#x27;s offering by name,<br>honest enough to name the wagons each one needs,<br>unwilling to summarize what You have written in full.</p>
+<p>In the name of Jesus Christ, my Lord and Commander,<br>the only Son who counted each of His Father&#x27;s sheep by name —<br>help me to love Gideon, Boaz, and Shiloh<br>the way You love each of Your tribes,<br>on identical days and on glorious ones.<br>Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Rudder Steer:</span> Read every child&#x27;s offering in full — no combined paragraphs, no shortened liturgy, no lazy summary at the altar.</div>
+</section>
+
+<section class="watch watch-citizen" id="watch-citizen" data-watch="citizen">
+<div class="watch-header"><span class="watch-time">1500</span> <h2>Third Watch — The Citizen&#x27;s Stand</h2></div>
+<p class="intro">The third watch finishes the parade — Ephraim, Manasseh, Benjamin, Dan, Asher, and Naphtali walk forward. Twelve tribes, twelve days, twelve identical offerings. Then Moses steps into the tent and hears the voice of the LORD speaking from above the mercy seat between the cherubim.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Numbers 7:54–89</div>
+<div class="scripture-text">
+<p>On the seventh day Elishama son of Ammihud, leader of the children of Ephraim, drew near. His offering: one silver platter weighing one hundred thirty shekels, one silver basin of seventy shekels by the sanctuary shekel, both full of fine flour mingled with oil for a grain offering; one gold pan of ten shekels full of incense; one young bull, one ram, one male lamb a year old for a burnt offering; one male goat for a sin offering; and for the sacrifice of peace offerings, two oxen, five rams, five male goats, and five male lambs a year old. This was the offering of Elishama son of Ammihud.</p>
+<p>⸻</p>
+<p>On the eighth day Gamaliel son of Pedahzur, leader of the children of Manasseh, drew near, with the same full offering — silver, gold, grain, incense, the four-animal burnt and the five-times-five peace offering. This was the offering of Gamaliel son of Pedahzur.</p>
+<p>⸻</p>
+<p>On the ninth day Abidan son of Gideoni, leader of the children of Benjamin, drew near, with the same full offering. This was the offering of Abidan son of Gideoni.</p>
+<p>⸻</p>
+<p>On the tenth day Ahiezer son of Ammishaddai, leader of the children of Dan, drew near, with the same full offering. This was the offering of Ahiezer son of Ammishaddai.</p>
+<p>⸻</p>
+<p>On the eleventh day Pagiel son of Ocran, leader of the children of Asher, drew near, with the same full offering. This was the offering of Pagiel son of Ocran.</p>
+<p>⸻</p>
+<p>On the twelfth day Ahira son of Enan, leader of the children of Naphtali, drew near, with the same full offering — silver, gold, grain, incense, the burnt of bull and ram and lamb, the sin offering of one goat, and the peace offering of two oxen, five rams, five male goats, and five male lambs a year old. This was the offering of Ahira son of Enan.</p>
+<p>⸻</p>
+<p>This was the dedication offering for the altar from the leaders of Israel, on the day it was anointed: twelve silver platters and twelve silver basins, with twelve gold pans full of incense — every silver platter weighing one hundred thirty shekels and every basin seventy, all the silver of the vessels weighing two thousand four hundred shekels by the sanctuary shekel; the twelve gold pans full of incense weighing ten shekels each by the sanctuary shekel, all the gold of the pans weighing one hundred twenty shekels. All the cattle for the burnt offering: twelve bulls, twelve rams, twelve male lambs a year old, with their grain offering; twelve male goats for the sin offering. And all the cattle for the sacrifice of peace offerings: twenty-four bulls, sixty rams, sixty male goats, sixty male lambs a year old. This was the dedication of the altar after it was anointed.</p>
+<p>When Moses went into the tent of meeting to speak with the LORD, he heard the voice speaking to him from above the mercy seat that was on the ark of the testimony, from between the two cherubim — and He spoke to him.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🛰️ Situation Report</div>
+<p>Twelve princes, twelve days, twelve identical offerings — and then the camp totals up its total of silver, gold, incense, and animals across the whole rotation. Two thousand four hundred shekels of silver. One hundred twenty shekels of gold. Twelve bulls, twelve rams, twelve lambs, twelve goats for the burnt and sin offerings, and four times that count for the peace offerings. The dedication is finished because every prince showed up on his appointed day. And then the camera turns and Moses walks into the tent and hears the voice of the LORD speaking from above the mercy seat between the cherubim. A nation that built its altar one responsible offering at a time is a nation that gets to hear God&#x27;s voice between the wings.</p>
+</div>
+<div class="section reflection resolute">
+<div class="section-label">🛡️ Reflection for a R.E.S.O.L.U.T.E. Citizen — Responsible</div>
+<p>Fredericksburg (local)<br>As a RESOLUTE citizen called to be responsible, the twelve princes are your local picture. There was a roster. Each man knew his day. Nahshon did not skip the line because he was already the head of Judah. Ahira son of Enan did not skip the line because his tribe was last in the marching order. Every prince showed up on his appointed day with the same offering. The altar got dedicated because nobody decided his shift was optional. In Fredericksburg, the church row, the school board, the homeschool co-op, the neighborhood watch, the men&#x27;s huddle — these run on responsible citizens who show up on their day with the standard offering and lay it down. Be Ahira, brother. Be the twelfth man who still brought the full count.</p>
+<p>Virginia (state)<br>Across Virginia, responsibility looks like the running total in verses 84–88. The LORD bothered to count. Two thousand four hundred shekels of silver, one hundred twenty shekels of gold, twelve of every animal in the burnt and sin offering, four-times-twelve in the peace offering. The Commonwealth runs on quiet running totals — a man who paid his property tax on time, a family that kept its tithe steady through the lean year, a county that did not skip a single board meeting. The LORD is not embarrassed to add up small responsibilities. Neither should you be. Take responsibility for your contribution to the running total of your state, and stop assuming that the totals get filled in by somebody else.</p>
+<p>United States (nation)<br>At the national level, the most striking line is the last one. &quot;When Moses went into the tent of meeting to speak with the LORD, he heard the voice speaking to him from above the mercy seat that was on the ark of the testimony, from between the two cherubim — and He spoke to him.&quot; The voice from between the wings was the reward of twelve days of responsible rotation. A nation that has stopped showing up on its appointed day to make its appointed offering will stop hearing the voice from between the cherubim. America&#x27;s spiritual deafness in this hour is not a mystery — it is the cost of generations of unattended altars. The responsible citizen in our country does not lobby for the voice from between the wings; he shows up on his day with the silver platter, the gold pan, and the four animals. The voice comes after the offering.</p>
+</div>
+<div class="section history">
+<div class="section-label">🦅 This Day in American History — March 1</div>
+<p>• 1781 — The Articles of Confederation are ratified, becoming the first governing document of the United States. Thirteen colonies show up on their appointed day with their appointed offering. The Articles are imperfect and the union will be remade in 1787, but the responsible act of ratification is what makes the next altar possible.<br>• 1872 — Congress and President Grant set aside Yellowstone as the first national park. A responsible nation lays a silver platter of common stewardship on the altar — a piece of land kept from private hands so that generations of citizens can carry their incense to the same canyon their grandfathers knew.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Identify your appointed day in one local rotation — church serving, men&#x27;s huddle, your block&#x27;s prayer time, a child&#x27;s coaching schedule. Show up on it this week, with the standard offering, no excuses.</li>
+<li>Add up a running total in your own life. Pick one quiet responsibility (giving, prayer, exercise, a habit of repair) and write the running count for the last twelve days, plainly. Be a man the LORD could add up.</li>
+<li>Refuse the &quot;first prince&quot; or &quot;last prince&quot; excuse. Don&#x27;t skip because you have already done your part, and don&#x27;t skip because your turn comes after everyone else&#x27;s enthusiasm has cooled.</li>
+<li>Build one altar today before you go looking for the voice between the wings. Pray, give, serve — make the offering before you complain about the silence.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Bridge</div>
+<p>Father of every appointed day,<br>You wrote the calendar of dedication<br>and You did not skip a single prince<br>across twelve days at the altar.</p>
+<p>By the power of Your Holy Spirit,<br>make me a responsible citizen — in this city, in this state, in this nation —<br>quick to show up on my day with the standard offering,<br>unwilling to leave the altar empty because the work felt repetitive,<br>slow to demand the voice from between the wings<br>before I have done my day&#x27;s work.</p>
+<p>In the name of Jesus Christ, my Lord and Commander,<br>the true Mediator who spoke from above the mercy seat —<br>let America&#x27;s altars be re-attended by responsible men,<br>and let the voice between the cherubim be heard in our generation again.<br>Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Rudder Steer:</span> Show up on your appointed day with the standard offering — and trust that the voice between the wings will come when the altar is full.</div>
+</section>
+
+<section class="watch watch-peace" id="watch-peace" data-watch="peace">
+<div class="watch-header"><span class="watch-time">2100</span> <h2>Evening Peace</h2></div>
+<p class="intro">Tonight closes a long Sunday with a hard-pressed psalm — David seized by the Philistines in Gath, but answering the threat with one of the bravest sentences in the Psalter: &quot;In God I have put my trust; I will not fear what flesh can do to me.&quot;</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Psalm 56</div>
+<div class="scripture-text">
+<p>To the choirmaster: according to The Dove on Far-off Terebinths. A Miktam of David, when the Philistines seized him in Gath.</p>
+<p class="stanza">Be gracious to me, O God, for man tramples on me;<br>all day long an attacker oppresses me;<br>my enemies trample on me all day long,<br>for many attack me proudly.</p>
+<p class="stanza">When I am afraid,<br>I put my trust in You.<br>In God, whose word I praise,<br>in God I have put my trust;<br>I will not fear.<br>What can flesh do to me?</p>
+<p class="stanza">All day long they injure my cause;<br>all their thoughts are against me for evil.<br>They stir up strife, they lurk;<br>they watch my steps,<br>as they have waited for my life.</p>
+<p class="stanza">Repay them for their iniquity;<br>in wrath cast down the peoples, O God.</p>
+<p class="stanza">You have kept count of my tossings;<br>put my tears in Your bottle.<br>Are they not in Your book?</p>
+<p class="stanza">Then my enemies will turn back<br>in the day when I call.<br>This I know: that God is for me.</p>
+<p class="stanza">In God, whose word I praise,<br>in the LORD, whose word I praise,<br>in God I have put my trust;<br>I will not fear.<br>What can man do to me?</p>
+<p class="stanza">I am under vows to You, O God;<br>I will render thank offerings to You.<br>For You have delivered my soul from death,<br>yes, my feet from falling,<br>that I may walk before God<br>in the light of life.</p>
+</div>
+</div>
+<div class="section reflection">
+<div class="section-label">🌾 Reflection for a Man at Home and in Community</div>
+<p>Tonight David hands you a psalm out of his worst day in Gath — surrounded by Philistines, his cover blown, his life on the table. He answers the trample of his enemies with one repeated refrain: &quot;In God I have put my trust; I will not fear. What can flesh do to me?&quot; The bravery of the psalm is not that David has run out of fear; it is that he names the fear in the same breath as the trust. &quot;When I am afraid, I put my trust in You.&quot; That is the rhythm of a Sunday evening for a man who has tried to lead a house, a family, and a city across a long day.</p>
+<p>As a HAPPY husband, Honest tonight means you do not pretend the day&#x27;s trampling did not happen. Tell Maria, plainly, what frightened you today and what you trusted God with anyway. The Aaronic blessing in your mouth this morning meets David&#x27;s Miktam in your mouth tonight — both honest, both pointed at God, both refusing to flatter the fear or hide it.</p>
+<p>As a FULFILLED father, Loving tonight means you read each of your children&#x27;s offerings into the same trust David is showing here. Gideon, Boaz, and Shiloh are each going to be tempted to put their trust in something other than the LORD across the week — a friendship, a screen, a grade, a feeling. Tonight, pray Psalm 56 over them by name: &quot;When Gideon is afraid, may he put his trust in You. When Boaz is afraid, may he put his trust in You. When Shiloh is afraid, may she put her trust in You.&quot; Let them hear the refrain in your own voice before they meet the trampling in theirs.</p>
+<p>As a RESOLUTE citizen, Responsible tonight means you remember that the LORD has kept count of your tossings and has put your tears in His bottle. Civic faithfulness is not a closed ledger the world keeps on you; it is an open book the LORD keeps for you. Sleep tonight as a man whose tears the LORD has bottled and whose page in His book is already written. Fredericksburg, Virginia, the United States — none of them will tally your responsibility correctly. But God is for you. That is enough.</p>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Stateroom</div>
+<p>Father, who bottles every tear<br>and keeps the running count of every restless tossing of Your sons,</p>
+<p>By the power of Your Holy Spirit,<br>quiet me tonight from the day&#x27;s trample.<br>Let me put my trust in You while I am still afraid,<br>and let me sleep as a man under vows of thank-offering<br>because You have delivered my soul from death and my feet from falling.</p>
+<p>Hold Maria under Your covering,<br>hold Gideon, Boaz, and Shiloh under Your hand,<br>hold our city in Your gracious count.</p>
+<p>In the name of Jesus Christ, my Lord and Commander,<br>the true Dove on the far-off terebinth<br>who was hunted and not destroyed —<br>let me walk before You in the light of life tomorrow.<br>Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Rudder Steer:</span> Name the fear and the trust in the same breath — sleep as a man whose tears are bottled and whose page is already written.</div>
+</section>
+
+<footer>
+<div class="draft-tag">PROTOTYPE — sign-off pending</div>
+<div>U.S.M.C. Ministries · The Watchman's Chronological Plan for the Year of our Lord 2026</div>
+<div style="margin-top:6px;font-size:0.78rem;">Adam Johns &middot; rich interpretive blend &middot; divine name LORD</div>
+</footer>
+
+</div>
+<script>
+(function(){
+  const SLUGS = ['all','wisdom','husband','father','citizen','peace'];
+
+  // Watch windows in local hours (each watch is "live" from its start time
+  // until the NEXT watch begins). Evening peace owns 21:00 → 04:59.
+  function currentWatchSlug() {
+    const h = new Date().getHours();
+    if (h >= 5  && h < 7)  return 'wisdom';
+    if (h >= 7  && h < 11) return 'husband';
+    if (h >= 11 && h < 15) return 'father';
+    if (h >= 15 && h < 21) return 'citizen';
+    return 'peace';                       // 21:00 – 04:59
+  }
+  const NOW_SLUG = currentWatchSlug();
+
+  function markNowBadge(){
+    document.querySelectorAll('.watch-tab').forEach(t => {
+      t.classList.toggle('is-now', t.dataset.tab === NOW_SLUG);
+    });
+  }
+  function showOnly(slug){
+    const isAll = slug === 'all' || !SLUGS.includes(slug);
+    document.querySelectorAll('section.watch').forEach(s => {
+      s.style.display = (isAll || s.dataset.watch === slug) ? '' : 'none';
+    });
+    document.querySelectorAll('.watch-tab').forEach(t => {
+      t.classList.toggle('active', t.dataset.tab === (isAll ? 'all' : slug));
+    });
+  }
+  document.querySelectorAll('.watch-tab').forEach(t => {
+    t.addEventListener('click', function(e){
+      e.preventDefault();
+      const slug = this.dataset.tab;
+      history.replaceState(null, '', '#' + slug);
+      showOnly(slug);
+      window.scrollTo({top: 0, behavior:'smooth'});
+    });
+  });
+
+  // Initial selection priority:
+  //   1. URL hash if present  (#all / #wisdom / #husband / #father / #citizen / #peace)
+  //   2. Auto-select the watch that is "live right now"
+  let initial;
+  if (location.hash) {
+    initial = location.hash.slice(1);
+  } else {
+    initial = NOW_SLUG;
+  }
+  markNowBadge();
+  showOnly(initial);
+})();
+</script>
+</body>
+</html>
