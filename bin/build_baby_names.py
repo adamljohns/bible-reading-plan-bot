@@ -657,15 +657,29 @@ def render_tradition_section(title, anchor, intro, names):
     cards = []
     primaries = 0
     variant_count = 0
+    # Aliases for tradition names where the most-famous bearer has a more
+    # specific slug than the simple lower-case form. The DISPLAY name on
+    # the card stays the popular form; the link goes to the specific entry.
+    alias = {
+        'Catherine': 'catherine-of-siena',
+        'Theresa':   'teresa-of-avila',
+        'Gregory':   'gregory-the-great',
+        'Bernard':   'bernard-of-clairvaux',
+    }
     for name, meaning, variants, popularity in names:
         if popularity == 0:
             continue
-        # The "name" may or may not match a dict slug. Check both forms.
-        slug_lower = name.lower().replace(' ', '-')
-        if is_dict_slug(slug_lower):
-            cards.append(render_card(slug_lower, meaning, variants, popularity, name))
+        # 1) check explicit alias map first
+        # 2) then check direct lower-case-and-dashed form
+        # 3) fall back to info-only card
+        if name in alias and is_dict_slug(alias[name]):
+            cards.append(render_card(alias[name], meaning, variants, popularity, name))
         else:
-            cards.append(render_card(name, meaning, variants, popularity, name))
+            slug_lower = name.lower().replace(' ', '-')
+            if is_dict_slug(slug_lower):
+                cards.append(render_card(slug_lower, meaning, variants, popularity, name))
+            else:
+                cards.append(render_card(name, meaning, variants, popularity, name))
         primaries += 1
         variant_count += len(variants)
     cards_html = '\n        '.join(cards)

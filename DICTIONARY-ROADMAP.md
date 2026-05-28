@@ -185,9 +185,12 @@ redefinition, use the caveat template in `corruption_summary`.
 | 2026-05-27 | — | Re-link sweep #3 — chapter/blog/lexicon linkers re-run after batches 107-109 (+6,373 chapter links + 96 blog + 161 lexicon backlinks = +6,630 additional cross-links). Big jump came from new tribal-name tokens (Reuben, Simeon, Asher, etc.) which appear constantly in OT chapter text. | linkage | 5,048 |
 | 2026-05-27 | 110 | Phase C — obscure but baby-name-friendly biblical figures (hadassah, jemima, keziah, shem, eliezer, jubal, jabal, eber, cleopas, abijah-king) — Esther's covenant-Hebrew name; Job's three restored daughters; Gen 4's three culture-founder brothers; Hebrew-root patriarch Eber; Emmaus-road disciple Cleopas; Abijah's double identity (king of Judah + priestly course of Zacharias) | +10 | **5,058** |
 | 2026-05-27 | — | Baby-names builder folded in batch 110 + popularity. Final session tally: **100 biblical boys + 47 biblical girls + 7 biblical unisex + 43 Christian-tradition boys + 39 Christian-tradition girls = 236 primary names, 864 total displayed with variants**. | curation | 5,058 |
+| 2026-05-27 | 111 | **Phase D opener — Christian-tradition figures** (ignatius-of-antioch, cecilia-of-rome, perpetua-of-carthage, lucy-of-syracuse, monica-mother-of-augustine, patrick-of-ireland, gregory-the-great, bernard-of-clairvaux, catherine-of-siena, teresa-of-avila) — apostolic father → Roman virgin-martyrs → mother of Augustine → Irish missionary → last Latin Doctor → Cistercian abbot → medieval Italian mystic → Spanish Carmelite reformer. 110 AD → 1582 AD, full span of pre-Reformation Christian tradition. Each entry distinguishes the historically attested record from medieval hagiographic embellishment, anchors in Scripture, and engages Reformed-vs-Catholic theological tensions honestly. Also added alias-map in `bin/build_baby_names.py` so that Catherine→catherine-of-siena, Theresa→teresa-of-avila, Gregory→gregory-the-great, Bernard→bernard-of-clairvaux render as real links in the baby-names directory (10 previously info-only cards now live). | +10 | **5,068** |
+| 2026-05-27 | — | Re-link sweep #4 — manifest rebuilt (2,494 tokens + 2,047 phrases + 4,764 hover summaries; 0 skipped); chapter linker +3,880 links across 928/1,182 chapter pages; blog +1; lexicon backlink +2. Cumulative session cross-link tally: ~66,460. | linkage | 5,068 |
 
-> **Next up:** Continue toward 7,777 (2,719 entries to go). The baby-names directory now at 864 displayed names
-> with search + popularity + Christian-tradition section. Possible next batches: more OT kings
-> (Jehoshaphat, Joash, Amaziah, Ahaz, Asa-related sources), more minor characters (Cleopas's wife? other
-> Emmaus-road figures?), more covenant doctrine, more biblical institutions (cities of refuge, jubilee,
-> year-of-release), more Hebrew-Greek word studies, more flora/fauna/realia.
+> **Next up:** Continue toward 7,777 (2,709 entries to go). Baby-names directory now at 864 displayed
+> with all 10 batch-111 Christian-tradition figures wired up as real links via alias-map.
+> Possible next batches: more Christian-tradition (Bonaventure, Aquinas, Wycliffe, Hus, Zwingli, Cranmer,
+> Latimer, Ridley, Knox-doctrine, Owen-doctrine — Reformation-era + medieval Doctors); more OT kings
+> (Jehoshaphat, Joash, Amaziah, Ahaz, Asa-detail); more covenant doctrine (cities of refuge, jubilee,
+> year-of-release); more Hebrew-Greek word studies; more biblical flora/fauna/realia (still gap entries).
