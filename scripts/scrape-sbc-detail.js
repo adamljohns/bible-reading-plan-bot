@@ -26,11 +26,12 @@ const DELAY_MS = 11_000; // SBC.net polite delay (same as original bulk scrape)
 const FETCH_TIMEOUT_MS = 25_000;
 
 function parseArgs() {
-  const out = { count: null, jsonl: DEFAULT_JSONL };
+  const out = { count: null, jsonl: DEFAULT_JSONL, state: null };
   const a = process.argv.slice(2);
   for (let i = 0; i < a.length; i++) {
     if (a[i] === '--count') out.count = parseInt(a[++i], 10);
     else if (a[i] === '--jsonl') out.jsonl = a[++i];
+    else if (a[i] === '--state') out.state = a[++i].toUpperCase();
   }
   return out;
 }
@@ -90,6 +91,7 @@ async function main() {
   }
 
   // Build queue: SBC records with sbc.net source_url and missing website
+  const stateFilter = args.state === 'ALL' ? null : args.state;
   const todo = [];
   for (const c of data.churches) {
     if (!c.source_url || !c.source_url.includes('churches.sbc.net')) continue;
@@ -99,9 +101,18 @@ async function main() {
     const hasWebsite = c.website && /^https?:/i.test(c.website);
     const hasGeo = typeof c.latitude === 'number' && typeof c.longitude === 'number';
     if (hasWebsite && hasGeo) continue;
+    if (stateFilter && !new RegExp(`,\\s*${stateFilter}\\b`).test(c.address || '')) continue;
     todo.push(c);
   }
+  // Fredericksburg-first priority sort within whatever state scope is in effect.
+  // Stable for the rest of the list since Array.prototype.sort is stable on V8.
+  todo.sort((a, b) => {
+    const af = /Fredericksburg/i.test(a.address || '') ? 0 : 1;
+    const bf = /Fredericksburg/i.test(b.address || '') ? 0 : 1;
+    return af - bf;
+  });
   if (args.count) todo.splice(args.count);
+  console.log(`State filter: ${stateFilter || 'ALL'}`);
   console.log(`Records to fetch: ${todo.length}`);
   console.log(`Polite delay: ${DELAY_MS}ms — est ${(todo.length * (DELAY_MS+500) / 60000).toFixed(1)} min`);
   if (!todo.length) { console.log('Nothing to do.'); return; }

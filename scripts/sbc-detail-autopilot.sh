@@ -17,6 +17,7 @@ cd /Users/moop_bot_pro/bible-reading-plan-bot || { echo "repo not found"; exit 1
 DURATION_HRS="${DURATION_HRS:-6}"
 TICK_INTERVAL="${TICK_INTERVAL:-900}"     # 15 min
 PER_TICK="${PER_TICK:-50}"                 # 50 × 11s = ~9.5 min scrape per tick
+STATE="${STATE:-all}"                      # 'all' or a 2-letter code like 'VA'
 LOCKFILE="/tmp/sbc-detail-autopilot.lock"
 JSONL_PATH="/tmp/sbc-detail.jsonl"
 
@@ -42,6 +43,7 @@ remaining_to_fetch() {
         try { done.add(JSON.parse(l).id); } catch(e){}
       }
     }
+    const stateFilter='$STATE';
     let n=0;
     for(const c of d.churches){
       if(!c.source_url||!c.source_url.includes('churches.sbc.net')) continue;
@@ -49,6 +51,7 @@ remaining_to_fetch() {
       const hasWeb=c.website&&/^https?:/i.test(c.website);
       const hasGeo=typeof c.latitude==='number';
       if(hasWeb && hasGeo) continue;
+      if(stateFilter!=='all' && !new RegExp(',\\\\s*'+stateFilter+'\\\\b').test(c.address||'')) continue;
       n++;
     }
     console.log(n);
@@ -56,7 +59,7 @@ remaining_to_fetch() {
 }
 
 END_TS=$(( $(date +%s) + DURATION_HRS * 3600 ))
-echo "[$(ts)] === sbc-detail-autopilot starting · duration=${DURATION_HRS}h · tick=${TICK_INTERVAL}s · per_tick=${PER_TICK} ==="
+echo "[$(ts)] === sbc-detail-autopilot starting · duration=${DURATION_HRS}h · tick=${TICK_INTERVAL}s · per_tick=${PER_TICK} · state=${STATE} ==="
 
 TICK=0
 EMPTY_TICKS=0
@@ -69,9 +72,11 @@ while [ "$(date +%s)" -lt "$END_TS" ]; do
     break
   fi
 
-  echo "[$(ts)] scraping up to $PER_TICK SBC detail pages (JSONL mode) ..."
+  echo "[$(ts)] scraping up to $PER_TICK SBC detail pages (JSONL mode, state=${STATE}) ..."
   BEFORE=$([ -f "$JSONL_PATH" ] && wc -l < "$JSONL_PATH" | tr -d ' ' || echo 0)
-  node scripts/scrape-sbc-detail.js --count "$PER_TICK" --jsonl "$JSONL_PATH" 2>&1 | tail -3
+  STATE_ARG=""
+  if [ "$STATE" != "all" ]; then STATE_ARG="--state $STATE"; fi
+  node scripts/scrape-sbc-detail.js --count "$PER_TICK" --jsonl "$JSONL_PATH" $STATE_ARG 2>&1 | tail -3
   AFTER=$([ -f "$JSONL_PATH" ] && wc -l < "$JSONL_PATH" | tr -d ' ' || echo 0)
   NEW_THIS_TICK=$((AFTER - BEFORE))
 

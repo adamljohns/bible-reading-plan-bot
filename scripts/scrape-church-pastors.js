@@ -171,6 +171,12 @@ async function main() {
     if (!c.website || !/^https?:/i.test(c.website)) continue;
     todo.push(c);
   }
+  // Fredericksburg-first priority sort within whatever state scope is in effect.
+  todo.sort((a, b) => {
+    const af = /Fredericksburg/i.test(a.address || '') ? 0 : 1;
+    const bf = /Fredericksburg/i.test(b.address || '') ? 0 : 1;
+    return af - bf;
+  });
   if (args.count) todo.splice(args.count);
   console.log(`State filter: ${stateFilter || 'ALL'}`);
   console.log(`Records to fetch: ${todo.length}`);
