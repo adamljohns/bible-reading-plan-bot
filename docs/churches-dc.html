@@ -427,9 +427,26 @@
     function stopProp(e) { e.stopPropagation(); }
     function esc(str) { if (!str) return ''; return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
+    // Multi-shard loader: fetches per-state JSON shards (V7.0.2+) instead of
+    // the full 58 MB churches.json. DC-NoVA records span VA + DC + MD, so
+    // payload drops from ~60 MB → ~5 MB (3 shards).
+    async function fetchShards(stateList) {
+        const responses = await Promise.all(
+            stateList.map(s =>
+                fetch(`data/churches/by-state/${s.toLowerCase()}.json`).then(r => r.json())
+            )
+        );
+        const churches = responses.flatMap(d => d.churches || []);
+        return {
+            rubric: responses[0]?.rubric || [],
+            churches,
+            directory_version: responses[0]?.directory_version,
+            directory_updated: responses[0]?.directory_updated,
+        };
+    }
+
     async function loadChurches() {
-        const res = await fetch('data/churches.json');
-        const data = await res.json();
+        const data = await fetchShards(['VA', 'DC', 'MD']);
 
         // Build rubric panel
         const rubricGrid = document.getElementById('rubric-grid');
@@ -544,8 +561,10 @@
         <p style="margin-top:6px;font-size:0.72rem;color:#444;letter-spacing:1px;">MOOP Church Directory V5.5.0 &middot; <span data-church-count>4,911</span> churches &middot; Updated <span data-directory-updated>2026-05-02</span> &middot; <a href="directory-overview.html" style="color:var(--gold,#D4AF37);text-decoration:none;">Progress overview</a></p>
     </footer>
     <script>
-        fetch('data/churches.json').then(r => r.json()).then(d => {
-            var n = (d.total_churches || (d.churches || d).length || 0).toLocaleString();
+        // Footer counts fetch the tiny _index.json (few KB) instead of the
+        // 58 MB churches.json — same data, fraction of the payload.
+        fetch('data/churches/by-state/_index.json').then(r => r.json()).then(d => {
+            var n = (d.total_records || 0).toLocaleString();
             document.querySelectorAll('[data-church-count]').forEach(el => el.textContent = n);
             if (d.directory_updated) document.querySelectorAll('[data-directory-updated]').forEach(el => el.textContent = d.directory_updated);
         }).catch(() => {});

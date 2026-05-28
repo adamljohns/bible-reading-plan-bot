@@ -58,33 +58,51 @@ def main():
     OUT_DIR.mkdir(parents=True, exist_ok=True)
 
     # Shared metadata copied to every shard so each shard is self-describing.
+    # The rubric is included so page loaders can render the per-record scorecard
+    # WITHOUT a second fetch of the 58 MB monolith just for rubric labels.
     meta = {
         "directory_version": data.get("directory_version"),
         "directory_updated": data.get("directory_updated"),
         "shard_source": "docs/data/churches.json",
         "shard_generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-        "shard_format_version": 1,
+        "shard_format_version": 2,  # bumped: shards now carry rubric
+        "rubric": data.get("rubric"),
     }
 
-    # Group records by state
+    # Group records by state. Records with a country_code != 'US' get routed
+    # to the international shard instead of _unstated, since they're properly
+    # classified, just not US.
     by_state = defaultdict(list)
+    by_country = defaultdict(list)  # international shard contents
     unstated = []
     case_warning = []
-    foreign_or_unknown = []
+    foreign_or_unknown = []  # records with state field that's not a US code
 
     for c in churches:
         state = c.get("state")
-        if not state or not isinstance(state, str):
-            unstated.append(c)
+        country_code = c.get("country_code")
+
+        # Path 1: Has a US state — route to state shard
+        if state and isinstance(state, str):
+            state_upper = state.strip().upper()
+            if state_upper in US_STATES:
+                if state != state_upper:
+                    case_warning.append(c["id"])
+                by_state[state_upper].append(c)
+                continue
+            else:
+                # State field but not a US code — anomalous
+                foreign_or_unknown.append(c)
+                continue
+
+        # Path 2: No state, but has a non-US country code — international shard
+        if country_code and country_code != 'US':
+            country_name = c.get("country") or country_code
+            by_country[country_name].append(c)
             continue
-        state_upper = state.strip().upper()
-        if state_upper not in US_STATES:
-            # Non-US or malformed — bucket separately
-            foreign_or_unknown.append(c)
-            continue
-        if state != state_upper:
-            case_warning.append(c["id"])
-        by_state[state_upper].append(c)
+
+        # Path 3: No state, no country — truly unstated
+        unstated.append(c)
 
     # Write per-state shards
     shard_stats = {}
@@ -116,7 +134,7 @@ def main():
     }
     unstated_path.write_text(json.dumps(unstated_data, indent=2, ensure_ascii=False))
 
-    # Write _foreign shard if any
+    # Write _foreign shard if any (state field set to non-US code — anomaly)
     if foreign_or_unknown:
         foreign_path = OUT_DIR / "_foreign.json"
         foreign_data = {
@@ -128,8 +146,21 @@ def main():
         }
         foreign_path.write_text(json.dumps(foreign_data, indent=2, ensure_ascii=False))
 
+    # Write _international shard (records with country_code != US and no state)
+    international_path = OUT_DIR / "_international.json"
+    international_total = sum(len(v) for v in by_country.values())
+    international_data = {
+        **meta,
+        "state": None,
+        "note": "Records outside the US, classified by country_code. Each church record retains its `country` and `country_code` fields; grouped here for filtered loading on per-country queries.",
+        "record_count": international_total,
+        "by_country": {k: len(v) for k, v in sorted(by_country.items())},
+        "churches": [c for k in sorted(by_country.keys()) for c in by_country[k]],
+    }
+    international_path.write_text(json.dumps(international_data, indent=2, ensure_ascii=False))
+
     # Verify invariant
-    total_sharded = sum(s["count"] for s in shard_stats.values()) + len(unstated) + len(foreign_or_unknown)
+    total_sharded = sum(s["count"] for s in shard_stats.values()) + len(unstated) + len(foreign_or_unknown) + international_total
     invariant_ok = total_sharded == total_input
 
     # Write _index.json
@@ -137,6 +168,7 @@ def main():
         **meta,
         "total_records": total_input,
         "total_in_state_shards": sum(s["count"] for s in shard_stats.values()),
+        "total_international": international_total,
         "total_unstated": len(unstated),
         "total_foreign_or_unknown": len(foreign_or_unknown),
         "invariant_ok": invariant_ok,
@@ -153,6 +185,7 @@ def main():
     print(f"Wrote shards to {OUT_DIR.relative_to(ROOT)}/")
     print(f"  state shards present:    {index_data['shards_present']}/51 (50 states + DC)")
     print(f"  total in state shards:   {index_data['total_in_state_shards']}")
+    print(f"  international shard:     {index_data['total_international']}")
     print(f"  unstated shard:          {index_data['total_unstated']}")
     print(f"  foreign/unknown shard:   {index_data['total_foreign_or_unknown']}")
     print(f"  case warnings:           {index_data['case_warnings']}")
