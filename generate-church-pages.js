@@ -374,6 +374,16 @@ const CSS = `
     letter-spacing: 0.5px;
   }
   .hero h1 span { color: var(--gold); }
+  .hero .church-logo {
+    display: block;
+    width: 86px; height: 86px;
+    margin: 0 auto 16px;
+    object-fit: contain;
+    background: #fff;
+    border-radius: 14px;
+    padding: 6px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.5), 0 0 0 1px rgba(212,175,55,0.2);
+  }
   .hero .denom-tag {
     display: inline-block;
     background: rgba(212,175,55,0.1);
@@ -694,6 +704,7 @@ ${(() => {
   return '';
 })()}<div class="hero">
   ${verificationBadge(church)}
+  ${church.image_thumb && /^https?:/.test(church.image_thumb) ? `<img class="church-logo" src="${escapeHtml(church.image_thumb)}" alt="${escapeHtml(church.name)} logo" loading="lazy" onerror="this.style.display='none'">` : ''}
   <div class="denom-tag">${escapeHtml(church.type || church.denomination || 'Church')}</div>
   <h1>${escapeHtml(church.name)}</h1>
   <div class="address">${ico('shield-map-48.png', 14)} ${escapeHtml(church.address)}</div>
