@@ -1182,8 +1182,19 @@
     </div>
   </div>
 
-  <!-- ── PHASE 11 (FUTURE) ── -->
-  <div class="phase-marker"><span class="phase-label" style="border-color:var(--blue);color:var(--blue);">🔮 Phase 11 — M5 Max Migration (Projected: May–Jun 2026)</span></div>
+  <!-- ── PHASE 11 (FUTURE → COMPRESSED) ── -->
+  <div class="phase-marker"><span class="phase-label" style="border-color:var(--blue);color:var(--blue);">🔮 Phase 11 — M5 Max Migration (Originally Projected May–Jun · ACTUAL: April 16, 2026)</span></div>
+
+  <div class="entry right" data-category="infra">
+    <div class="entry-spacer"></div>
+    <div class="entry-dot dot-gold"></div>
+    <div class="entry-card milestone">
+      <div class="entry-date">Update: 2026-05-27</div>
+      <div class="entry-title">⚡ Note on the Projections Below — Compressed Faster Than Planned</div>
+      <div class="entry-desc">The entries below were drafted in April projecting May–Sep timing. Reality compressed: M5 Max (128 GB / 8 TB &mdash; spec exceeded the projected 64 GB / 4 TB) deployed 2026-04-16. Local-LLM majority achieved by 5/1 (Gemma 4 31B migration). RAG v2 with 4 provenance-tiered collections (~74,400 chunks) shipped 5/3. Per-agent LoRA experiments concluded that plain Gemma was ≈ fused (corpus-limited) &mdash; LoRA work parked until corpus rebuilds. See Phase 13 below for the May 22–27 reliability sprint, the actual current state.</div>
+      <div class="entry-tags"><span class="tag tag-infra">Infrastructure</span></div>
+    </div>
+  </div>
 
   <div class="entry left" data-category="infra">
     <div class="entry-card">
@@ -1262,6 +1273,119 @@
       <div class="entry-tags"><span class="tag tag-infra">Infrastructure</span></div>
     </div>
     <div class="entry-dot dot-red"></div>
+    <div class="entry-spacer"></div>
+  </div>
+
+  <!-- ── PHASE 13 — RELIABILITY SPRINT (May 22–27, 2026) ── -->
+  <div class="phase-marker"><span class="phase-label">🛠️ Phase 13 — Reliability Sprint (May 22–27, 2026)</span></div>
+
+  <div class="entry right" data-category="infra automation">
+    <div class="entry-spacer"></div>
+    <div class="entry-dot dot-gold"></div>
+    <div class="entry-card milestone">
+      <div class="entry-date">2026-05-22</div>
+      <div class="entry-title">Fleet Tier-1 / Tier-2 / Qwen Routing Established</div>
+      <div class="entry-desc">Three-tier MLX model layering on the M5 Max: <strong>Tier-1 Gemma 4 31B</strong> for interactive / persona (10 PSAs primary); <strong>Tier-2 Gemma 4 26B-A4B</strong> aliased <code>fast</code> for heartbeats + 28/41 enabled crons; <strong>Qwen 2.5 32B</strong> retained for Carnegie + Prof-X domain work. Default heartbeat model moved to gemma-4-26b-a4b-it. Lesson: 3 large resident MLX models = swap death. Keep two Gemmas resident, lazy-load Qwen.</div>
+      <div class="entry-tags"><span class="tag tag-infra">Infrastructure</span><span class="tag tag-automation">Automation</span></div>
+    </div>
+  </div>
+
+  <div class="entry left" data-category="infra automation">
+    <div class="entry-card">
+      <div class="entry-date">2026-05-22</div>
+      <div class="entry-title">Hermes Brain → Qwen 3.6 35B-A3B GGUF + Morning Brief Shipped</div>
+      <div class="entry-desc">Switched the private <code>@MOOPbotPro</code> lane from Qwen 2.5 32B to Qwen 3.6 35B-A3B MoE on llama-server :1235 with native vision (<code>mmproj</code>) and 256K context. Same day, shipped <code>~/Scripts/morning-brief.py</code> — daily 7 AM EDT synthesizer pulling calendar + email + Airbnb + Garmin + news + civic into a one-page PDF delivered to Adam's Telegram. Anti-fabrication clauses baked into SYSTEM_PROMPT: every fact must appear verbatim in the source data block.</div>
+      <div class="entry-tags"><span class="tag tag-infra">Infrastructure</span><span class="tag tag-automation">Automation</span></div>
+    </div>
+    <div class="entry-dot dot-purple"></div>
+    <div class="entry-spacer"></div>
+  </div>
+
+  <div class="entry right" data-category="infra">
+    <div class="entry-spacer"></div>
+    <div class="entry-dot dot-gold"></div>
+    <div class="entry-card">
+      <div class="entry-date">2026-05-23</div>
+      <div class="entry-title">PJ Daily-Watch Tier-1 Pin</div>
+      <div class="entry-desc">Preacher John's 10 daily-watch crons MUST stay on Tier-1 Gemma 31B, never Tier-2. PJ's ~60KB AGENTS.md bootstrap overflows Tier-2's 32KB compaction window → <code>PostCompactionLoopPersistedError</code> killed runs. Documented as EXCEPTIONS subsection in the tier-routing memo. Harmony patch at <code>assistant-visible-text-DWECa3ch.js:44/51</code> verified still in place after upgrade scares.</div>
+      <div class="entry-tags"><span class="tag tag-infra">Infrastructure</span></div>
+    </div>
+  </div>
+
+  <div class="entry left" data-category="infra">
+    <div class="entry-card milestone">
+      <div class="entry-date">2026-05-26</div>
+      <div class="entry-title">🔐 Security Sprint Phase 5 — Zero Plaintext Credentials on Disk</div>
+      <div class="entry-desc">Closed the last 18 plaintext credentials in <code>openclaw.json</code> (gateway auth, Slack tokens, Discord, BlueBubbles, 13 Telegram bot tokens). Each replaced with <code>{source:"env", provider:"default", id:"OPENCLAW_..."}</code> SecretRef syntax. Gateway wrapper extended to export all 18 from Keychain at launch via a for-loop. File perms: openclaw.json + .env + auth-profiles.json all 600; parent agent dirs 700. Phases 1-3 (API keys to Keychain) landed earlier in the sprint; this closed the loop.</div>
+      <div class="entry-tags"><span class="tag tag-infra">Infrastructure</span></div>
+    </div>
+    <div class="entry-dot dot-gold"></div>
+    <div class="entry-spacer"></div>
+  </div>
+
+  <div class="entry right" data-category="automation">
+    <div class="entry-spacer"></div>
+    <div class="entry-dot dot-purple"></div>
+    <div class="entry-card milestone">
+      <div class="entry-date">2026-05-26 → 27</div>
+      <div class="entry-title">📬 Pops Inbox Autopilot LIVE + Three Silent IMAP Bugs Caught</div>
+      <div class="entry-desc">First PSA email autopilot running real mutations on Personal Gmail (daily 06:45 EDT, <code>OBSERVE_ONLY=0</code>). Categorize refinements: fixed <code>x.com</code> substring bug (was JUNKing <code>dropbox.com</code> via interior match), fixed <code>reply</code> substring bug (was flipping every <code>no-reply@</code> sender to ACTION), added LEGAL_POLICY + ORDER overrides, added 6 marketing subdomains to JUNK. <strong>Critical find:</strong> <code>imap_trash</code> / <code>imap_archive</code> had <code>"\\\\Trash"</code> (4 literal backslashes) which Gmail rejected with <code>BAD parse error</code> — <em>38 days of zero Gmail trashes since v4 shipped 4/18</em>, masked by silent <code>try/except: return False</code>. Found via the v2 wrapper's new mutation counters. Drained Pops's 200-unread backlog: 25 trashed + 21 archived in one sweep.</div>
+      <div class="entry-tags"><span class="tag tag-automation">Automation</span></div>
+    </div>
+  </div>
+
+  <div class="entry left" data-category="automation infra">
+    <div class="entry-card">
+      <div class="entry-date">2026-05-26 → 27</div>
+      <div class="entry-title">Carnegie Qwen 32B Pre-Warmup Pattern + 600s Timeouts</div>
+      <div class="entry-desc">Tue STEWARDSHIP errored "Model has not started loading" (race vs LM Studio idle-evict) and Wed WISDOM timed out at 462s &gt; 300s window. Fixed by (a) bumping all 6 weekday-post timeouts to 600s, and (b) adding a new 7:25 AM Mon-Sat pre-warmup cron <code>dad19d9e</code> that forces Qwen 32B JIT-load before the 7:30 AM daily-post. Light-context, isolated session, single-word "OK" reply, best-effort delivery. Pattern reusable for any agent on a slow lazy-loaded model with a tight schedule.</div>
+      <div class="entry-tags"><span class="tag tag-automation">Automation</span><span class="tag tag-infra">Infrastructure</span></div>
+    </div>
+    <div class="entry-dot dot-purple"></div>
+    <div class="entry-spacer"></div>
+  </div>
+
+  <div class="entry right" data-category="infra">
+    <div class="entry-spacer"></div>
+    <div class="entry-dot dot-gold"></div>
+    <div class="entry-card">
+      <div class="entry-date">2026-05-26 → 27</div>
+      <div class="entry-title">Cron Timeout Architecture Decoded</div>
+      <div class="entry-desc">22+ crons remediated for the OpenClaw 30s-default-too-short issue. Late-night source-spelunk through <code>server-cron-CM4aws4s.js</code> revealed the full architecture: <code>timeoutSeconds</code> IS enforced, but for isolated agentTurn jobs the clock <em>defers until execution starts</em> via <code>onExecutionStarted</code> callback. If unset, fallback is <code>AGENT_TURN_SAFETY_TIMEOUT_MS = 60 * 60000</code> (60 min). Documented in <code>feedback_cron_timeout_architecture_2026-05-26.md</code> so future sessions don't waste time on the wrong knob.</div>
+      <div class="entry-tags"><span class="tag tag-infra">Infrastructure</span></div>
+    </div>
+  </div>
+
+  <div class="entry left" data-category="ministry infra">
+    <div class="entry-card">
+      <div class="entry-date">2026-05-27</div>
+      <div class="entry-title">PSA-CC Chain-of-Thought Discipline Normalized</div>
+      <div class="entry-desc">Audited fleet CoT coverage per Hermes-CC handoff (Adam's "20 AI Concepts" review). doc / sheriff-roy / prof-x already had <code>REASONING DISCIPLINE</code> blocks from the 5/19 pass — Carnegie's template adapted per domain (clinical SOAP for Doc, civic R/Y/G for Roy, synthesis for Prof-X). Only Sally was missing; added a B&amp;A hospitality-finance block with two persona-specific additions: (1) escape clause so CoT doesn't trigger on purely-hospitality questions (guest reply drafts, etc.) — her Southern voice IS the answer there; (2) cadence-switching note so the work-the-problem middle step stays operator-tight (CPA register) while the conclusion returns to hospitality warmth. Live-tested clean on a RevPAR-gap probe.</div>
+      <div class="entry-tags"><span class="tag tag-ministry">Ministry</span><span class="tag tag-infra">Infrastructure</span></div>
+    </div>
+    <div class="entry-dot dot-purple"></div>
+    <div class="entry-spacer"></div>
+  </div>
+
+  <div class="entry right" data-category="infra automation">
+    <div class="entry-spacer"></div>
+    <div class="entry-dot dot-gold"></div>
+    <div class="entry-card milestone">
+      <div class="entry-date">2026-05-27</div>
+      <div class="entry-title">🚨 Fleet-Wide Failure-Alert Wiring (41/41 Crons)</div>
+      <div class="entry-desc">Before tonight: 0/41 enabled crons had failure-alert configured. After: 41/41. Wired via new idempotent script <code>~/.openclaw/bin/apply-failure-alerts.sh</code>. Policy: alert after 1 consecutive failure, 1h cooldown per cron, exclude skipped events, deliver via Telegram to Adam's DM (chat 454000856) in announce mode. Closes the observability gap that hid 18 crons silently rotting into error state across 5/26 (Sally Airbnb 4 days running, PJ Father's Charge hung 60 min, Carnegie Wed WISDOM timed out, etc.). Now any cron error pings Adam within seconds.</div>
+      <div class="entry-tags"><span class="tag tag-infra">Infrastructure</span><span class="tag tag-automation">Automation</span></div>
+    </div>
+  </div>
+
+  <div class="entry left" data-category="automation">
+    <div class="entry-card">
+      <div class="entry-date">2026-05-27</div>
+      <div class="entry-title">Morning Brief — Pops Inbox Recap Wired In</div>
+      <div class="entry-desc">Wired <code>gather_pops_inbox_recap()</code> into <code>~/Scripts/morning-brief.py</code> — sources <code>pops-inbox-latest.json</code> and surfaces (scan timestamp, mutation counters, breakdown by category, verbatim ACTION_REQUIRED items, FYI/NEWSLETTER lists) into the daily 7 AM brief. SYSTEM_PROMPT updated to teach the LLM: prefer Pops's <code>ACTION_REQUIRED</code> list as the primary signal for Personal Gmail (pre-filtered for marketing noise); parenthetically mention autopilot mutations ("autopilot cleaned 6 marketing items") when ≥3 items moved, so Adam sees the system working.</div>
+      <div class="entry-tags"><span class="tag tag-automation">Automation</span></div>
+    </div>
+    <div class="entry-dot dot-teal"></div>
     <div class="entry-spacer"></div>
   </div>
 
