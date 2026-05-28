@@ -538,6 +538,22 @@ const CSS = `
 
   /* Buttons */
   .btn-row { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 28px; }
+  .quick-links { margin-bottom: 28px; }
+  .quick-links-label {
+    font-size: 0.78rem; text-transform: uppercase; letter-spacing: 1.2px;
+    color: var(--gray); margin-bottom: 8px; font-weight: 600;
+  }
+  .quick-links-row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .quick-link {
+    display: inline-flex; align-items: center; gap: 6px;
+    color: var(--gold); text-decoration: none;
+    font-size: 0.86rem; font-weight: 500;
+    padding: 7px 14px;
+    border: 1px solid rgba(212,175,55,0.4); border-radius: 18px;
+    background: rgba(212,175,55,0.06);
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+  }
+  .quick-link:hover { background: var(--gold); color: #000; border-color: var(--gold); }
   .btn-gold {
     display: inline-flex; align-items: center; gap: 8px;
     background: var(--gold); color: #000;
@@ -632,6 +648,18 @@ function buildPage(church) {
 
   // Website button
   const websiteBtn = church.website ? `<a href="${escapeHtml(church.website)}" target="_blank" rel="noopener" class="btn-gold">${ico('shield-globe-48.png', 14)} Visit Their Website</a>` : '';
+
+  // Quick links — the chip row of deep-link pages the scrape-church-quicklinks
+  // pass found on this church's website (beliefs, sermons, leadership, etc.)
+  const quickLinks = Array.isArray(church.quick_links) ? church.quick_links : [];
+  const quickLinksHtml = quickLinks.length > 0
+    ? `<div class="quick-links">
+        <div class="quick-links-label">Explore ${escapeHtml(church.name)}</div>
+        <div class="quick-links-row">
+          ${quickLinks.map(l => `<a href="${escapeHtml(l.url)}" target="_blank" rel="noopener" class="quick-link" title="${escapeHtml(l.label)} on ${escapeHtml(church.website || '')}">${l.icon ? ico(l.icon, 14) : ''}${escapeHtml(l.label)}</a>`).join('')}
+        </div>
+      </div>`
+    : '';
 
   // Brand icon helper — uses MOOP brand SVG assets
   const brandIco = (name) => `<img src="/assets/icons/${name}" alt="" width="18" height="18" style="vertical-align:middle;margin-right:6px;">`;
@@ -777,6 +805,7 @@ ${(() => {
     ${websiteBtn}
     <a href="/churches.html" class="btn-outline">← Back to Church Directory</a>
   </div>
+  ${quickLinksHtml}
   ${socialHtml}
   ${pastorSocialHtml}
 
