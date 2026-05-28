@@ -2,6 +2,26 @@
 const fs = require('fs');
 const path = require('path');
 
+// Tiny .env loader — picks up GOOGLE_STREETVIEW_API_KEY (and any other env vars
+// you want to set on a single project). Looks for a .env file alongside this
+// script; ignores blank lines and lines starting with '#'. No dotenv dependency.
+(function loadDotEnv() {
+  const envPath = path.join(__dirname, '.env');
+  if (!fs.existsSync(envPath)) return;
+  for (const line of fs.readFileSync(envPath, 'utf8').split(/\r?\n/)) {
+    const t = line.trim();
+    if (!t || t.startsWith('#')) continue;
+    const eq = t.indexOf('=');
+    if (eq < 1) continue;
+    const k = t.slice(0, eq).trim();
+    let v = t.slice(eq + 1).trim();
+    if ((v.startsWith('"') && v.endsWith('"')) || (v.startsWith("'") && v.endsWith("'"))) {
+      v = v.slice(1, -1);
+    }
+    if (!(k in process.env)) process.env[k] = v;
+  }
+})();
+
 const data = JSON.parse(fs.readFileSync(path.join(__dirname, 'docs/data/churches.json'), 'utf8'));
 const outDir = path.join(__dirname, 'docs/churches');
 
@@ -652,7 +672,27 @@ function buildPage(church) {
 <body>
 ${NAV}
 
-${church.image_url ? `<div style="width:100%;max-height:280px;overflow:hidden;background:#0a0a0a;border-bottom:1px solid var(--border);"><img src="${escapeHtml(church.image_url)}" alt="${escapeHtml(church.name)}" style="width:100%;height:auto;max-height:280px;object-fit:cover;object-position:center 35%;display:block;" onerror="this.parentElement.style.display='none'"></div>\n` : ''}<div class="hero">
+${(() => {
+  // Hero image resolution order:
+  //   1. real OG image scraped from church website (church.image_url)
+  //   2. Google Static Street View at lat/lng (needs GOOGLE_STREETVIEW_API_KEY env var)
+  //   3. nothing (no hero strip)
+  if (church.image_url && /^https?:/.test(church.image_url)) {
+    return `<div style="width:100%;max-height:280px;overflow:hidden;background:#0a0a0a;border-bottom:1px solid var(--border);"><img src="${escapeHtml(church.image_url)}" alt="${escapeHtml(church.name)}" style="width:100%;height:auto;max-height:280px;object-fit:cover;object-position:center 35%;display:block;" onerror="this.parentElement.style.display='none'"></div>\n`;
+  }
+  const key = process.env.GOOGLE_STREETVIEW_API_KEY || '';
+  if (key && typeof church.latitude === 'number' && typeof church.longitude === 'number') {
+    // Static Street View URL — 800x320 fits the hero strip; fov=80 is a wide field
+    // that captures the building front; pitch=0 keeps the camera level with the
+    // street; source=outdoor ensures we get a roadside panorama, not interior or
+    // user-contributed close-ups; return_error_code returns a 404 (instead of a
+    // 'no panorama available' grey placeholder) when Google has no coverage at
+    // the lat/lng, which lets the browser's onerror handler hide the strip.
+    const sv = `https://maps.googleapis.com/maps/api/streetview?size=800x320&location=${church.latitude},${church.longitude}&fov=80&heading=0&pitch=0&source=outdoor&return_error_code=true&key=${encodeURIComponent(key)}`;
+    return `<div style="width:100%;max-height:280px;overflow:hidden;background:#0a0a0a;border-bottom:1px solid var(--border);"><img src="${sv}" alt="Street View near ${escapeHtml(church.name)}" style="width:100%;height:auto;max-height:280px;object-fit:cover;object-position:center;display:block;" onerror="this.parentElement.style.display='none'" loading="lazy"></div>\n`;
+  }
+  return '';
+})()}<div class="hero">
   ${verificationBadge(church)}
   <div class="denom-tag">${escapeHtml(church.type || church.denomination || 'Church')}</div>
   <h1>${escapeHtml(church.name)}</h1>
