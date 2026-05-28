@@ -455,7 +455,21 @@ def build_index(words, by_letter, total):
             </div>
         </div><!-- /#rangeSection -->
 
-        <!-- Featured Entries — Doctrinal Anchors -->
+        <!-- Special Directories — surfaced for visibility -->
+        <div class="featured-section">
+            <h3>&#x1F48E; Special Directories</h3>
+            <p class="subtitle">Curated sub-collections &mdash; start here if you want a focused entry-point into the dictionary.</p>
+            <div class="featured-grid">
+                <a href="baby-names.html" class="featured-card"><div class="fword">Baby Names</div><div class="ftag">236 curated &middot; 864 with variants</div></a>
+                <a href="names.html" class="featured-card"><div class="fword">Biblical Names</div><div class="ftag">A-Z proper names</div></a>
+                <a href="doctrinal-anchors.html" class="featured-card"><div class="fword">Doctrinal Anchors</div><div class="ftag">Foundational</div></a>
+                <a href="biblical-order.html" class="featured-card"><div class="fword">Biblical Order</div><div class="ftag">Headship &middot; roles</div></a>
+                <a href="expressly-prohibited.html" class="featured-card"><div class="fword">Expressly Prohibited</div><div class="ftag">Forbidden</div></a>
+                <a href="most-corrupted.html" class="featured-card"><div class="fword">Most Corrupted</div><div class="ftag">Words at war</div></a>
+            </div>
+        </div>
+
+        <!-- Featured Entries &mdash; Doctrinal Anchors -->
         <div class="featured-section">
             <h3><a href="doctrinal-anchors.html" class="section-title-link"><img src="../assets/icons/shield-chain-salvation-48.png" alt="" width="20" height="20"> Doctrinal Anchors <span class="see-all">browse all &rarr;</span></a></h3>
             <p class="subtitle">Words that hold the line. Foundational entries every man should know cold.</p>
