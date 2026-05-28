@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg">
+<title>Thursday, May 28, 2026 — Daily Reading | U.S.M.C. Ministries</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+    --bg-dark: #000000; --bg-card: #111111; --bg-card2: #161616;
+    --gold: #D4AF37; --gold-light: #F4D470;
+    --white: #FFFFFF; --gray: #888888; --border: #333333;
+}
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--white);
+    min-height: 100vh;
+    line-height: 1.7;
+}
+h1, h2, h3 { font-family: 'Playfair Display', serif; font-weight: 700; }
+.container { max-width: 820px; margin: 0 auto; padding: 24px 20px 60px; }
+a { color: var(--gold); text-decoration: none; }
+a:hover { color: var(--gold-light); text-decoration: underline; }
+
+.nav-back { margin-bottom: 14px; font-size: 0.95rem; }
+
+.hero { text-align: center; padding: 16px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 18px; }
+.hero h1 { font-size: clamp(1.5rem, 4vw, 2.2rem); color: var(--white); margin-bottom: 6px; }
+.hero .subtitle { color: var(--gold); font-size: 0.95rem; font-style: italic; }
+.hero .doc-line { color: var(--gray); font-size: 0.82rem; margin-top: 6px; }
+
+.watch-tabs {
+    position: sticky; top: 0; z-index: 30;
+    background: var(--bg-dark);
+    border-bottom: 1px solid var(--border);
+    display: flex; flex-wrap: wrap; gap: 6px;
+    padding: 12px 0 14px;
+    margin-bottom: 18px;
+}
+.watch-tab {
+    flex: 1 1 90px;
+    text-align: center;
+    padding: 8px 6px;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    background: var(--bg-card);
+    color: var(--gray);
+    font-size: 0.85rem; font-weight: 500;
+    transition: all 0.15s ease;
+    text-decoration: none !important;
+    white-space: nowrap;
+}
+.watch-tab:hover { color: var(--white); border-color: var(--gold); text-decoration: none !important; }
+.watch-tab.active { background: var(--gold); color: #000; border-color: var(--gold); font-weight: 600; }
+.watch-tab .tab-time { display: block; font-size: 0.7rem; opacity: 0.7; font-family: monospace; }
+.watch-tab.active .tab-time { opacity: 1; }
+
+/* "NOW" badge — shown on the watch tab whose time window contains current local time */
+.watch-tab.is-now { position: relative; box-shadow: 0 0 0 1px var(--gold-light) inset; }
+.watch-tab.is-now::after {
+  content: "NOW";
+  position: absolute; top: -7px; right: -4px;
+  background: var(--gold-light); color: #000;
+  font-size: 0.55rem; font-weight: 700;
+  padding: 1px 5px; border-radius: 100px;
+  letter-spacing: 0.08em;
+}
+
+.watch {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px 22px;
+    margin-bottom: 22px;
+    scroll-margin-top: 80px;
+}
+.watch-header { display: flex; align-items: baseline; gap: 14px; margin-bottom: 10px; flex-wrap: wrap; }
+.watch-time {
+    background: var(--bg-card2); color: var(--gold);
+    padding: 4px 12px; border-radius: 100px;
+    font-family: 'Inter', monospace; font-size: 0.85rem; font-weight: 600;
+    letter-spacing: 0.05em;
+}
+.watch-header h2 { font-size: 1.35rem; color: var(--white); }
+
+.intro { color: var(--gray); font-style: italic; margin-bottom: 14px; }
+
+.audio-slot {
+    margin: 14px 0 18px;
+    padding: 12px 14px;
+    background: var(--bg-card2);
+    border-radius: 8px;
+    border: 1px dashed var(--border);
+}
+.audio-slot.audio-pending { opacity: 0.55; }
+.audio-cap { font-size: 0.8rem; color: var(--gray); margin-top: 4px; }
+
+.scripture {
+    background: var(--bg-card2);
+    border-left: 3px solid var(--gold);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin: 16px 0 22px;
+}
+.scripture-ref { font-weight: 600; color: var(--gold); margin-bottom: 12px; font-size: 0.95rem; }
+.scripture-text p { margin-bottom: 8px; }
+.scripture-text p.stanza { margin-bottom: 14px; }
+
+.section-label {
+    font-family: 'Playfair Display', serif;
+    color: var(--gold); font-weight: 700; font-size: 1.05rem;
+    margin: 22px 0 10px; padding-top: 10px; border-top: 1px solid var(--border);
+}
+.section p, .context p, .reflection p, .history p, .application-block p { margin-bottom: 12px; }
+
+ul.application { padding-left: 22px; margin: 8px 0 14px; }
+ul.application li { margin-bottom: 8px; }
+.application-prose { font-style: italic; color: var(--gold-light); margin-top: 12px; }
+
+.history ul { padding-left: 22px; margin: 8px 0; }
+.history li { margin-bottom: 6px; }
+
+.prayer {
+    background: var(--bg-card2);
+    border-left: 3px solid var(--gold-light);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin: 22px 0;
+}
+.prayer-title { color: var(--gold-light); font-weight: 600; margin-bottom: 10px; font-size: 0.95rem; }
+.prayer p { line-height: 1.85; margin-bottom: 8px; }
+
+.helm {
+    background: var(--bg-card2);
+    border-radius: 6px;
+    padding: 12px 18px;
+    margin-top: 14px;
+    font-size: 0.95rem;
+}
+.helm-icon { color: var(--gold); font-size: 1.1rem; }
+.helm-label { color: var(--gold); font-weight: 600; }
+
+footer {
+    text-align: center;
+    color: var(--gray);
+    font-size: 0.82rem;
+    margin-top: 32px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+}
+footer .draft-tag {
+    display: inline-block;
+    background: #2a2410;
+    color: var(--gold);
+    padding: 4px 12px;
+    border-radius: 100px;
+    font-size: 0.78rem;
+    margin-bottom: 8px;
+    letter-spacing: 0.05em;
+}
+
+@media (max-width: 540px) {
+    .watch-tab { flex: 1 1 64px; font-size: 0.78rem; padding: 6px 4px; }
+    .watch-tab .tab-time { font-size: 0.65rem; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="nav-back">← <a href="/chronological.html">The Watchman's Chronological Plan</a></div>
+
+<div class="hero">
+<h1>Thursday, May 28, 2026</h1>
+<div class="subtitle">Daily Reading — Day 148 of 365</div>
+<div class="doc-line">MOOP&#x27;s 2026 Daily Bible Readings — Document 5 of 12; for the month of May</div>
+</div>
+
+<nav class="watch-tabs" role="tablist">
+<a href="#all" class="watch-tab active" data-tab="all" role="tab"><span class="tab-label">All Watches</span></a>
+<a href="#wisdom" class="watch-tab" data-tab="wisdom" role="tab"><span class="tab-time">0600</span> <span class="tab-label">Morning Wisdom</span></a>
+<a href="#husband" class="watch-tab" data-tab="husband" role="tab"><span class="tab-time">0700</span> <span class="tab-label">Husband</span></a>
+<a href="#father" class="watch-tab" data-tab="father" role="tab"><span class="tab-time">1100</span> <span class="tab-label">Father</span></a>
+<a href="#citizen" class="watch-tab" data-tab="citizen" role="tab"><span class="tab-time">1500</span> <span class="tab-label">Citizen</span></a>
+<a href="#peace" class="watch-tab" data-tab="peace" role="tab"><span class="tab-time">2100</span> <span class="tab-label">Evening Peace</span></a>
+</nav>
+
+<section class="watch watch-wisdom" id="watch-wisdom" data-watch="wisdom">
+<div class="watch-header"><span class="watch-time">0600</span> <h2>Morning Wisdom</h2></div>
+<p class="intro">Solomon walks us through a chapter held together by one verse — &quot;Happy is the man who fears always.&quot; Today the difference between a wicked man on the run and a righteous man bold as a lion is the same difference: who fears the LORD, and who pretends he does not need to.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Proverbs 28</div>
+<div class="scripture-text">
+<p class="stanza">The wicked flee when no one pursues,<br>but the righteous are bold as a lion.</p>
+<p class="stanza">When a land transgresses, it has many rulers,<br>but with a man of understanding and knowledge<br>its stability will long endure.</p>
+<p class="stanza">A poor man who oppresses the lowly<br>is like a beating rain that leaves no food.</p>
+<p class="stanza">Those who forsake the law praise the wicked,<br>but those who keep the law strive against them.</p>
+<p class="stanza">Evil men do not understand justice,<br>but those who seek the LORD understand all things.</p>
+<p class="stanza">Better is the poor who walks in his integrity<br>than a man crooked in his ways, though he is rich.</p>
+<p class="stanza">A discerning son keeps the law,<br>but a companion of gluttons shames his father.</p>
+<p class="stanza">He who multiplies his wealth by interest and increase<br>gathers it for one who is gracious to the poor.</p>
+<p class="stanza">One who turns his ear away from hearing the law,<br>even his prayer is an abomination.</p>
+<p class="stanza">He who leads the upright astray into an evil way<br>will fall into his own pit,<br>but the blameless will inherit good.</p>
+<p class="stanza">The rich man is wise in his own eyes,<br>but the poor who has understanding sees through him.</p>
+<p class="stanza">When the righteous rejoice, there is great glory,<br>but when the wicked rise, men hide themselves.</p>
+<p class="stanza">He who covers his sins will not prosper,<br>but he who confesses and forsakes them will obtain mercy.</p>
+<p class="stanza">Happy is the man who fears always,<br>but he who hardens his heart will fall into calamity.</p>
+<p class="stanza">Like a roaring lion or a charging bear<br>is a wicked ruler over a poor people.</p>
+<p class="stanza">A leader lacking understanding is also a great oppressor,<br>but he who hates unjust gain will lengthen his days.</p>
+<p class="stanza">A man burdened with the blood of any person<br>will flee into the pit;<br>let no one help him.</p>
+<p class="stanza">Whoever walks blamelessly will be saved,<br>but he who is crooked in his ways will fall in one of them.</p>
+<p class="stanza">He who tills his land will have plenty of bread,<br>but he who follows worthless pursuits will have plenty of poverty.</p>
+<p class="stanza">A faithful man will abound with blessings,<br>but he who hurries to be rich will not go unpunished.</p>
+<p class="stanza">To show partiality is not good,<br>yet for a piece of bread a man will transgress.</p>
+<p class="stanza">A man with an evil eye hastens after wealth<br>and does not know that want will come on him.</p>
+<p class="stanza">He who rebukes a man will afterward find more favor<br>than he who flatters with the tongue.</p>
+<p class="stanza">Whoever robs his father or mother and says, &quot;It is no transgression,&quot;<br>is the companion of a destroyer.</p>
+<p class="stanza">A greedy man stirs up strife,<br>but he who trusts in the LORD will be enriched.</p>
+<p class="stanza">He who trusts in his own heart is a fool,<br>but he who walks in wisdom will be delivered.</p>
+<p class="stanza">He who gives to the poor will not lack,<br>but he who hides his eyes will have many curses.</p>
+<p class="stanza">When the wicked rise, men hide themselves,<br>but when they perish, the righteous increase.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🧭 Context Summary</div>
+<p>Solomon stitches this chapter together around the fear of the LORD. The wicked run with no one chasing — because the conscience that has stopped fearing God starts inventing pursuers. The righteous, by contrast, walk into the same situations bold as a lion, because their fear is set on the right object. The chapter circles back again and again to honest dealings — with the poor, with the law, with one&#x27;s own sins, with one&#x27;s neighbor — and crowns it all with verse fourteen: &quot;Happy is the man who fears always.&quot; The man who keeps that fear is the man who can be trusted with everything else.</p>
+</div>
+<div class="section reflection">
+<div class="section-label">🛡️ Reflection for a REAL MAN — Fears the LORD</div>
+<p>A REAL MAN who fears the LORD is not a man who lives in terror; he is a man who has had his priorities permanently adjusted by reality. The fear of the LORD is the recognition that there is a Judge before whom every transaction, every word, every glance, every shadow purchase is already known and weighed. The man who lives under that fear is the only man who can actually be bold — because he has nothing to hide from the One who matters and therefore has nothing to fear from anyone else.</p>
+<p>Solomon contrasts this with the wicked who &quot;flee when no one pursues.&quot; Brother, that is one of the most pastoral diagnoses in Scripture. The man who has stopped fearing God starts fearing everything else — his boss, his bank balance, his reputation, the next text message, the look on his wife&#x27;s face. The fear has not gone away; it has only relocated to lesser objects. And those lesser objects are merciless. Restore the fear of God to its proper place in your heart and the other fears will lose most of their grip on you.</p>
+<p>Verse thirteen is the hinge: &quot;He who covers his sins will not prosper, but he who confesses and forsakes them will obtain mercy.&quot; A man who fears the LORD does not cover. He confesses, forsakes, and walks. That is bold-as-a-lion living. The cover-up man is always glancing over his shoulder. The confessing man walks straight because he has no rear to guard.</p>
+<p>And notice the gentle landing in verse fourteen: &quot;Happy is the man who fears always.&quot; Solomon does not promise the God-fearing man wealth, or ease, or even respect — he promises happiness. The settled gladness that comes from living in the open under the eye of the One who already knows everything is the kind of joy you cannot buy and cannot fake. Receive that fear today, brother. Let it adjust your prices. Then walk like the lion you were always meant to be.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Name one place you have been &quot;fleeing when no one pursues&quot; — a lesser fear that has eaten more than its share of your attention. Lay it down before the LORD this morning.</li>
+<li>Practice verse thirteen out loud: confess one specific covered thing to one trusted brother before sundown. Forsake it cleanly.</li>
+<li>Audit your day&#x27;s calendar through the lens of &quot;happy is the man who fears always&quot; — what entry would the God-fearing man not do, and what would he add?</li>
+<li>When you feel boldness ebbing, return to the fear of the LORD as its source, not pep talks or self-image.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer</div>
+<p>Father of all true fear,<br>You weigh hearts and You see in secret;<br>no shadow is dark to You, no transaction hidden.</p>
+<p>By the power of Your Holy Spirit,<br>restore the fear of the LORD to its rightful place in my heart,<br>and let every lesser fear lose its grip on me.<br>Make me a man who does not cover his sins<br>but confesses them and walks free.</p>
+<p>In the name of Jesus Christ, my Lord and Commander,<br>who feared You perfectly and lived bold as a lion all the way to the cross —<br>make me a happy man because I fear You always.<br>Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Helm Command:</span> Set the fear of the LORD high — and the lesser fears will let you walk bold as a lion.</div>
+</section>
+
+<section class="watch watch-husband" id="watch-husband" data-watch="husband">
+<div class="watch-header"><span class="watch-time">0700</span> <h2>First Watch — The Husband&#x27;s Post</h2></div>
+<p class="intro">The first watch takes us back to the Shunammite woman, who is given seven warning years and rises before the famine; then turns south to Jehoram of Judah, the son-in-law of Ahab, who married into a wicked house and brought a curse on his own.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 2 Kings 8:1–24 &amp; 2 Chronicles 21:1–20</div>
+<div class="scripture-text">
+<p>Elisha spoke to the woman whose son he had restored to life: &quot;Get up and go, you and your household, and sojourn wherever you can sojourn — for the LORD has called for a famine, and it will come on the land seven years.&quot;</p>
+<p>The woman got up and did according to the word of the man of God. She went with her household and sojourned in the land of the Philistines seven years.</p>
+<p>At the end of seven years, she returned from the land of the Philistines and went out to appeal to the king for her house and for her land. Now the king was speaking with Gehazi the servant of the man of God, saying: &quot;Please tell me all the great things that Elisha has done.&quot;</p>
+<p>While Gehazi was telling the king how Elisha had restored the dead to life, the woman whose son he had restored came in to appeal to the king for her house and for her land. Gehazi said: &quot;My lord the king, this is the woman, and this is her son whom Elisha restored to life.&quot;</p>
+<p>When the king asked the woman, she told him. So the king appointed an officer for her, saying: &quot;Restore all that was hers and all the produce of the field from the day she left the land until now.&quot;</p>
+<p>⸻</p>
+<p>In the fifth year of Joram the son of Ahab king of Israel — Jehoshaphat being king of Judah then — Jehoram the son of Jehoshaphat, king of Judah, began to reign. He was thirty-two years old when he became king, and he reigned eight years in Jerusalem.</p>
+<p>He walked in the way of the kings of Israel, as the house of Ahab had done, for the daughter of Ahab became his wife. He did evil in the eyes of the LORD. Yet the LORD would not destroy Judah, for the sake of David His servant, since He had promised to give him a lamp through his descendants always.</p>
+<p>In his days Edom revolted from under the hand of Judah and set a king over themselves. Then Jehoram crossed over to Zair, and all his chariots with him. He rose up by night and struck the Edomites who had surrounded him and the captains of the chariots; the army fled to their tents. So Edom revolted from under the hand of Judah to this day. Libnah also revolted at the same time, because Jehoram had forsaken the LORD God of his fathers.</p>
+<p>The rest of the acts of Jehoram, and all that he did, are written in the book of the chronicles of the kings of Judah.</p>
+<p>⸻</p>
+<p>When Jehoshaphat had given his sons many gifts of silver, gold, and precious things, with fortified cities in Judah, he gave the kingdom to Jehoram, because he was the firstborn. But Jehoram, when he had risen to the kingdom of his father and was established, he killed all his brothers with the sword, and also some of the princes of Israel.</p>
+<p>He walked in the way of the kings of Israel, as did the house of Ahab, for he had the daughter of Ahab as his wife — and he did evil in the eyes of the LORD. Yet the LORD would not destroy the house of David because of the covenant He had made with David, and as He promised to give him a lamp and his sons forever.</p>
+<p>A writing came to him from Elijah the prophet: &quot;Thus says the LORD God of David your father: because you have not walked in the ways of Jehoshaphat your father, nor in the ways of Asa king of Judah, but have walked in the way of the kings of Israel and have made Judah and the inhabitants of Jerusalem play the harlot like the harlotry of the house of Ahab, and also have killed your brothers, of your father&#x27;s house, who were better than yourself — the LORD is going to strike with a great plague your people, your children, your wives, and all your possessions; and you yourself will have a severe illness, an intestinal disease, until your bowels come out by reason of the illness, day by day.&quot;</p>
+<p>The LORD stirred up against Jehoram the spirit of the Philistines and of the Arabians who were near the Cushites. They came up against Judah, broke into it, and carried away all the substance found in the king&#x27;s house, along with his sons and his wives — so that he was left with no son except Jehoahaz, his youngest.</p>
+<p>After all this the LORD struck him in his bowels with an incurable disease. In the course of time, at the end of two years, his bowels came out because of his sickness; and he died in severe pain. His people made no fire for him like the burning made for his fathers.</p>
+<p>He was thirty-two when he became king and reigned eight years in Jerusalem. He departed with no one&#x27;s regret. They buried him in the City of David, but not in the tombs of the kings.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🗺️ Briefing Summary</div>
+<p>Two husbands in the same chapter. The first is invisible — the Shunammite&#x27;s husband, who never appears, but the wife of his old age is so attuned to the prophet&#x27;s word that she relocates her whole household for seven years on a sentence. The second is a king — Jehoram of Judah, son of godly Jehoshaphat, who marries the daughter of Ahab and lets the bedroom decide the kingdom. The Shunammite obeys an instruction from God&#x27;s man and is restored everything she sojourned through. Jehoram trusts the daughter of Ahab and dies with no one mourning him, his bowels coming out of his body. A husband&#x27;s house rises or falls by the voices he marries into it.</p>
+</div>
+<div class="section reflection">
+<div class="section-label">❤️ Reflection for Your Wife — H.A.P.P.Y. Husband — Protecting</div>
+<p>As a HAPPY husband called to protect, you are looking at the contrast every husband must reckon with. The Shunammite household is the model of an obeyed protection — Elisha tells the woman to sojourn for seven years, and her husband (silent but apparently aligned) is part of a household that simply gets up and goes. They lose seven years of land and crops. They sleep in tents and Philistine territory. And they come back to a king who is told their story and orders everything restored. The protected household is the household that took the prophet&#x27;s warning seriously.</p>
+<p>Then Jehoram. Brother, this is the warning passage you cannot afford to read too quickly. Jehoram had every advantage. He had Jehoshaphat for a father. He had Asa for a grandfather. He had the lamp of David burning through his line. He inherited gifts of silver and gold, fortified cities, and a kingdom that had been carefully reformed by faithful men. And he threw it all away because he married into Ahab&#x27;s house and let his wife import her father&#x27;s gods. The result was the slow physical horror of his last two years and a funeral where no one lit a fire for him.</p>
+<p>The reason this is in your husband&#x27;s watch is that the same dynamic operates at scale in every house. Maria is not Jezebel, brother — but every man&#x27;s house has a thousand small invitations to import what does not belong. A streaming service, a friend group, a Pinterest aesthetic, a financial habit, a sleep-cycle compromise, a Christmas tradition borrowed from a worldly side of the family. Protection does not mean treating your wife as a threat — it means knowing where the gate of your house is and what you will and will not let through it. The husband at Ahab&#x27;s table is the husband whose grandchildren will be hiding in temples to escape Athaliah.</p>
+<p>Notice what the protecting husband Jehoshaphat did NOT do for his son. He gave him silver, gold, fortified cities, and the kingdom. He did not, apparently, give him a thorough catechesis on whom NOT to marry. Money and walls did not save Jehoram. Maria deserves a husband whose protecting goes deeper than the safe in the basement and the lock on the front door. A protecting husband guards the doctrine in his house, the friendships in his children&#x27;s circle, the inputs over his wife&#x27;s evenings. The bowels that came out of Jehoram are a mercy by comparison to a marriage that quietly leaks the LORD out of its rooms.</p>
+<p>Then notice the Shunammite&#x27;s return — she lost seven years and got them all back the day she crossed paths with the right story being told to the right king. Brother, when you protect your house under the word of God, the LORD has a way of writing the restoration into the next chapter you did not see coming. Restore lost years come to obedient households.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Walk your house this morning and name one &quot;Ahab&quot; you have let through the gate — a habit, an influence, a subscription, a friendship that imports what should not be imported. Cut it cleanly before sundown.</li>
+<li>Speak the protective sentence to Maria out loud today: &quot;I am the gate of this house, and the LORD is the wall.&quot; Make her hear it.</li>
+<li>Catechize at the dinner table, not just provide. Money and walls did not save Jehoram. The Word will.</li>
+<li>Trust the Shunammite math — losses obeyed under God&#x27;s instruction return in the day His story crosses the king&#x27;s table.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Stateroom</div>
+<p>Father, Protector of every faithful house,<br>You moved a widow to sojourn seven years on a sentence<br>and You wrote her restoration into a king&#x27;s day.</p>
+<p>By the power of Your Holy Spirit,<br>make me a protecting husband —<br>gate-keeper of what enters this house,<br>guard of the doctrine that holds Maria,<br>unwilling to let Ahab&#x27;s daughter through my door<br>no matter what gift she comes carrying.</p>
+<p>In the name of Jesus Christ, my Lord and Commander,<br>the true Bridegroom who guards His bride against every wolf —<br>let my house be one no one regrets,<br>and let restoration follow obedience under my roof.<br>Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Helm Command:</span> Watch the gate — let the prophet&#x27;s word in, keep Ahab&#x27;s daughter out, and walk your house under the LORD&#x27;s covering.</div>
+</section>
+
+<section class="watch watch-father" id="watch-father" data-watch="father">
+<div class="watch-header"><span class="watch-time">1100</span> <h2>Second Watch — The Father&#x27;s Charge</h2></div>
+<p class="intro">The second watch shows us the consequence of Jehoram&#x27;s marriage rolling into the next generation, and a priest-father named Jehoiada quietly hiding the last living heir of David from a grandmother who would have killed him. Understanding fatherhood saves a kingdom in a hidden room.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 2 Kings 8:25–29; 9:1–22 &amp; 2 Chronicles 22:1–9</div>
+<div class="scripture-text">
+<p>In the twelfth year of Joram the son of Ahab king of Israel, Ahaziah the son of Jehoram king of Judah began to reign. He was twenty-two years old when he became king, and he reigned one year in Jerusalem. His mother&#x27;s name was Athaliah the granddaughter of Omri king of Israel. He walked in the way of the house of Ahab and did evil in the eyes of the LORD, like the house of Ahab — for he was a son-in-law of the house of Ahab.</p>
+<p>He went with Joram the son of Ahab to make war against Hazael king of Aram at Ramoth-gilead, and the Arameans wounded Joram. So King Joram returned to Jezreel to recover from the wounds the Arameans had given him at Ramah when he fought against Hazael king of Aram. Ahaziah king of Judah went down to see Joram the son of Ahab in Jezreel, because he was sick.</p>
+<p>⸻</p>
+<p>Elisha the prophet called one of the sons of the prophets and said: &quot;Tuck up your robe under your belt, take this flask of oil in your hand, and go to Ramoth-gilead. When you arrive, find Jehu the son of Jehoshaphat, the son of Nimshi. Go in and have him rise from among his brothers; take him to an inner room. Then take the flask of oil and pour it on his head and say: &#x27;Thus says the LORD: I have anointed you king over Israel.&#x27; Then open the door, flee, and do not wait.&quot;</p>
+<p>So the young man, the servant of the prophet, went to Ramoth-gilead. When he arrived, the captains of the army were sitting together. He said: &quot;I have a word for you, captain.&quot; Jehu said: &quot;For which of us all?&quot; He said: &quot;For you, captain.&quot;</p>
+<p>So he arose and went into the house. He poured the oil on his head and said to him: &quot;Thus says the LORD God of Israel: I have anointed you king over the people of the LORD, over Israel. You shall strike the house of Ahab your master, that I may avenge the blood of My servants the prophets and the blood of all the servants of the LORD at the hand of Jezebel. The whole house of Ahab shall perish; I will cut off from Ahab every male, bond or free, in Israel. I will make the house of Ahab like the house of Jeroboam the son of Nebat and like the house of Baasha the son of Ahijah. The dogs shall eat Jezebel in the property of Jezreel, and there will be no one to bury her.&quot; Then he opened the door and fled.</p>
+<p>When Jehu came out to the servants of his master, one said: &quot;Is all well? Why did this madman come to you?&quot; He said: &quot;You know the man and his speech.&quot; They said: &quot;It is a lie — tell us.&quot; He said: &quot;Thus and so he spoke to me, saying, &#x27;Thus says the LORD: I have anointed you king over Israel.&#x27;&quot;</p>
+<p>Then each of them quickly took his garment and put it under him on the top of the steps, and they blew the trumpet and said: &quot;Jehu is king!&quot;</p>
+<p>⸻</p>
+<p>So Jehu the son of Jehoshaphat the son of Nimshi conspired against Joram. Now Joram with all Israel had been defending Ramoth-gilead against Hazael king of Aram, but King Joram had returned to be healed in Jezreel of the wounds that the Arameans had given him in his fight with Hazael king of Aram. Jehu said: &quot;If this is your will, then let no one slip out and escape from the city to go and tell it in Jezreel.&quot;</p>
+<p>So Jehu rode in a chariot and went to Jezreel, for Joram was lying there. Ahaziah king of Judah had come down to see Joram. When the watchman on the tower of Jezreel saw the company of Jehu coming, he said: &quot;I see a company.&quot; Joram said: &quot;Take a horseman, send him to meet them, and let him say, &#x27;Is it peace?&#x27;&quot;</p>
+<p>The horseman went to meet him and said: &quot;Thus says the king: &#x27;Is it peace?&#x27;&quot; Jehu said: &quot;What have you to do with peace? Turn behind me.&quot; The watchman reported: &quot;The messenger reached them and he is not coming back.&quot; Joram sent out a second horseman, who came to them and said: &quot;Thus says the king: &#x27;Is it peace?&#x27;&quot; Jehu answered: &quot;What have you to do with peace? Turn behind me.&quot;</p>
+<p>The watchman reported: &quot;He reached them and is not coming back. The driving is like the driving of Jehu the son of Nimshi, for he drives furiously.&quot;</p>
+<p>Joram said: &quot;Make ready.&quot; They harnessed his chariot. Joram king of Israel and Ahaziah king of Judah went out, each in his chariot, to meet Jehu — and met him in the property of Naboth the Jezreelite.</p>
+<p>When Joram saw Jehu, he said: &quot;Is it peace, Jehu?&quot; He answered: &quot;What peace, so long as the harlotries of your mother Jezebel and her sorceries are so many?&quot; Joram turned his hand and fled, and said to Ahaziah: &quot;There is treachery, Ahaziah!&quot; Jehu drew his bow with full strength and shot Joram between the shoulders; the arrow went out at his heart, and he sank in his chariot. Jehu said to Bidkar his captain: &quot;Take him up and throw him on the property of Naboth the Jezreelite, for remember when you and I rode together after Ahab his father, and the LORD made this pronouncement against him: &#x27;I have surely seen the blood of Naboth and the blood of his sons yesterday; I will repay you in this property.&#x27; Now take him and cast him on the property, according to the word of the LORD.&quot;</p>
+<p>⸻</p>
+<p>When Athaliah the mother of Ahaziah saw that her son was dead, she rose and destroyed all the seed royal of the house of Judah. But Jehoshabeath the daughter of King Jehoram, sister of Ahaziah, took Joash the son of Ahaziah and stole him from among the king&#x27;s sons who were being killed, and put him and his nurse in a bedroom. Jehoshabeath the daughter of King Jehoram, the wife of Jehoiada the priest — because she was the sister of Ahaziah — hid him from Athaliah, so that she did not kill him. He was with them, hidden in the house of God, six years; and Athaliah reigned over the land.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🗺️ Field Notes</div>
+<p>A king&#x27;s bad marriage one generation back arrives this morning as a grandmother murdering her own grandchildren to seize a throne. The collateral damage is total — except for one child, hidden by his aunt and her husband, the priest Jehoiada, in a bedroom for six years and then in the house of God. The understanding father in this story is not loud; he is the one who knows what the next decade requires before the next decade has arrived. While Jehu is hunting through Israel, Jehoiada is quietly raising the seed of David in the temple where Athaliah will not look. Understanding fatherhood saves a covenant line.</p>
+</div>
+<div class="section reflection">
+<div class="section-label">👨‍👦 Reflection for Your Children — F.U.L.F.I.L.L.E.D. Father — Understanding</div>
+<p>As a FULFILLED father called to understand, the priest Jehoiada and his wife Jehoshabeath are the picture to fix in your mind tonight. The bloodline of David was three generations from extinction. Athaliah was murdering through the palace nursery, methodical and total. And in one room a priest and his wife hid one baby and a nurse and locked the door — and stood guard over the covenant line for six years while the wicked queen reigned. The whole future of Christ&#x27;s earthly genealogy ran through that hidden room. Understanding fatherhood does not need a stage; it needs a door, a child, a wife, and the will to stand.</p>
+<p>Gideon is nineteen, and the Athaliahs at his level look like the algorithms, the credential pressure, the secular discipleship his peers are receiving without knowing it. Understanding Gideon does not mean lecturing him about all the threats; it means seeing what is actually happening to nineteen-year-old men in the country he is growing up in and quietly building him a room where the King&#x27;s seed survives. Read the times he is in, brother. He is being murdered slowly by inputs that do not look like murder. Understand it before he does, and stand at his bedroom door.</p>
+<p>Boaz is fourteen, and the Athaliah at his age is louder — the noise, the porn, the comparison, the appetite. Understanding Boaz means knowing he cannot articulate yet what is being done to him. The understanding father sees the wound forming before the boy can name it. Sit with him in his room tonight — not to give a sermon, but to be present long enough for him to say the thing he was not going to say. Understanding fatherhood at fourteen looks like long silence and short questions.</p>
+<p>Shiloh is five, and the Athaliah at her scale is whatever the screen, the school, or the well-meaning grown-up wants to install in her about who she is. Understanding a five-year-old daughter is mostly seeing what she imitates and choosing carefully whom she sees. She is watching you watch Maria; she is watching Maria watch you; she is learning what a man is by the way the man in her room treats the woman in her room. Hide her tonight, brother, in the simple house liturgy that puts the LORD&#x27;s name over her bed.</p>
+<p>And then notice Jehoiada hid Joash in the house of God. Understanding fatherhood does not just hide; it places. The room where your children are protected most is the church under faithful preaching, the household under daily worship, the Sabbath under sustained attention. The temple was Joash&#x27;s school for six years while the world thought he was dead. Make your house and your church the same kind of room for Gideon, Boaz, and Shiloh.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Read your children&#x27;s actual era — write down one specific threat each is facing right now that you have been too busy to see. Then plan one specific guard.</li>
+<li>Stand at one bedroom door tonight in silence long enough to give a child room to speak. Don&#x27;t fill the air.</li>
+<li>Place each child somewhere the LORD&#x27;s name is loud — Lord&#x27;s Day worship, a discipleship pairing, a memorization rhythm, family worship after dinner.</li>
+<li>Make your wife your Jehoshabeath. The hidden child needs two adults aligned. Plan one specific covenant move with Maria this week.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Wardroom</div>
+<p>Father of all true understanding,<br>You hid an infant from a murderous queen for six years<br>and brought him out at the right moment to save Your people.</p>
+<p>By the power of Your Holy Spirit,<br>make me an understanding father —<br>quick to see what my children cannot yet name,<br>patient enough to stand at a bedroom door in silence,<br>willing to place them in the rooms where Your name is loud.</p>
+<p>In the name of Jesus Christ, my Lord and Commander,<br>the true Son of David hidden in a manger from the murder of Herod —<br>let Gideon and Boaz and Shiloh be raised under Your covering,<br>and let me be the father who understood the times.<br>Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Rudder Steer:</span> Read the times, find the room, stand at the door — understanding fatherhood hides what the world would kill.</div>
+</section>
+
+<section class="watch watch-citizen" id="watch-citizen" data-watch="citizen">
+<div class="watch-header"><span class="watch-time">1500</span> <h2>Third Watch — The Citizen&#x27;s Stand</h2></div>
+<p class="intro">The third watch is the long arc of judgment and restoration — Jehu sent by the LORD to wipe out Ahab&#x27;s house and the Baal cult in Israel, and Jehoiada finally bringing the hidden seven-year-old Joash out of the temple and crowning him in front of an armed people. An obedient citizen is the man whose hard duty is the LORD&#x27;s command, not his own zeal.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 2 Kings 9:23–37; 10:1–14 &amp; 2 Chronicles 22:10–12; 23:1–21</div>
+<div class="scripture-text">
+<p>When Joram turned his hand and fled, saying to Ahaziah: &quot;There is treachery, Ahaziah!&quot; — Jehu drew his bow with full strength and shot Joram between the shoulders; the arrow went out at his heart, and he sank in his chariot. Jehu said to Bidkar his captain: &quot;Take him up and throw him into the property of Naboth the Jezreelite — for remember when you and I rode together after Ahab his father, and the LORD pronounced this oracle against him.&quot;</p>
+<p>When Ahaziah king of Judah saw it, he fled by the way of the garden house. Jehu followed him and said: &quot;Strike him also in the chariot.&quot; They did so at the ascent of Gur, by Ibleam. He fled to Megiddo and died there. His servants carried him in a chariot to Jerusalem and buried him in his tomb with his fathers in the City of David.</p>
+<p>Jehu came to Jezreel. When Jezebel heard of it, she painted her eyes and arranged her hair and looked out the window. As Jehu entered the gate, she said: &quot;Is it peace, Zimri, murderer of your master?&quot;</p>
+<p>He lifted up his face to the window and said: &quot;Who is on my side? Who?&quot; Two or three eunuchs looked out at him. He said: &quot;Throw her down.&quot; So they threw her down — and some of her blood spattered on the wall and on the horses, and Jehu trampled her under foot. Then he came in and ate and drank, and said: &quot;See now to this cursed woman, and bury her, for she is a king&#x27;s daughter.&quot; But when they went to bury her, they found no more of her than the skull and the feet and the palms of her hands. Therefore they came back and told him. He said: &quot;This is the word of the LORD which He spoke by His servant Elijah the Tishbite: &#x27;In the property of Jezreel the dogs shall eat the flesh of Jezebel, and the corpse of Jezebel shall be like dung on the surface of the field in the property of Jezreel, so that they cannot say, This is Jezebel.&#x27;&quot;</p>
+<p>⸻</p>
+<p>Ahab had seventy sons in Samaria. Jehu wrote letters and sent them to Samaria, to the rulers of Jezreel — to the elders and the guardians of the children of Ahab — saying: &quot;Now, when this letter comes to you, since your master&#x27;s sons are with you, and you have chariots and horses, a fortified city, and weapons — look out the best and most upright of your master&#x27;s sons and set him on his father&#x27;s throne, and fight for your master&#x27;s house.&quot;</p>
+<p>But they were exceedingly afraid and said: &quot;Look, two kings did not stand before him; how then can we stand?&quot; The one who was over the household, and the one over the city, with the elders and the guardians of the children, sent to Jehu: &quot;We are your servants, and we will do all that you tell us. We will not make anyone king — do what is good in your eyes.&quot;</p>
+<p>He wrote a second letter: &quot;If you are on my side and will obey my voice, take the heads of the men, your master&#x27;s sons, and come to me at Jezreel by this time tomorrow.&quot;</p>
+<p>So when the letter came to them, they took the king&#x27;s sons and slaughtered seventy people, put their heads in baskets, and sent them to him at Jezreel. A messenger came and told him: &quot;They have brought the heads of the king&#x27;s sons.&quot; He said: &quot;Lay them in two heaps at the entrance of the gate until morning.&quot;</p>
+<p>In the morning he went out and stood, and said to all the people: &quot;You are righteous. Look — I conspired against my master and killed him; but who killed all these? Know now that nothing of the word of the LORD which the LORD spoke about the house of Ahab will fall to the earth; the LORD has done what He spoke by His servant Elijah.&quot; So Jehu killed all who remained of the house of Ahab in Jezreel — and all his great men, his close friends, and his priests — until he left him no survivor.</p>
+<p>He arose and departed and went to Samaria. On his way, at Beth-eked of the shepherds, Jehu met the brothers of Ahaziah king of Judah and said: &quot;Who are you?&quot; They said: &quot;We are the brothers of Ahaziah; we have come down to greet the sons of the king and the sons of the queen mother.&quot; He said: &quot;Take them alive.&quot; They took them alive and slaughtered them at the pit of Beth-eked, forty-two men. He did not leave one of them.</p>
+<p>⸻</p>
+<p>In the seventh year Jehoiada strengthened himself and entered into a covenant with the captains of hundreds — Azariah son of Jeroham, Ishmael son of Jehohanan, Azariah son of Obed, Maaseiah son of Adaiah, and Elishaphat son of Zichri.</p>
+<p>They went throughout Judah and gathered the Levites from all the cities of Judah, and the heads of the fathers&#x27; houses of Israel, and they came to Jerusalem. The whole assembly made a covenant with the king in the house of God. Jehoiada said to them: &quot;Look — the king&#x27;s son! He shall reign, as the LORD has spoken concerning the sons of David.&quot;</p>
+<p>He posted all the people, each man with his weapon in his hand, surrounding the king, from the right side of the temple to the left side, by the altar and by the temple. Then they brought out the king&#x27;s son and put the crown on him and gave him the testimony, and made him king. Jehoiada and his sons anointed him and said: &quot;Long live the king!&quot;</p>
+<p>When Athaliah heard the noise of the people running and praising the king, she came to the people in the house of the LORD. She looked, and there was the king standing by his pillar at the entrance, and the captains and the trumpets by the king, and all the people of the land rejoicing and blowing trumpets, with the singers with their musical instruments leading the praise. Athaliah tore her clothes and said: &quot;Treason! Treason!&quot;</p>
+<p>Jehoiada the priest brought out the captains of hundreds who were set over the army and said to them: &quot;Bring her out between the ranks; whoever follows her, put to the sword.&quot; For the priest had said: &quot;Do not kill her in the house of the LORD.&quot; So they made way for her, and she went by the entrance of the Horse Gate to the king&#x27;s house, and they put her to death there.</p>
+<p>Jehoiada made a covenant between himself and all the people and the king, that they would be the LORD&#x27;s people. Then all the people went to the house of Baal and tore it down. They broke its altars and its images in pieces and killed Mattan the priest of Baal before the altars. Jehoiada appointed the offices of the house of the LORD by the hand of the priests, the Levites, whom David had assigned to the house of the LORD, to offer the burnt offerings of the LORD as it is written in the law of Moses, with rejoicing and with singing as ordained by David.</p>
+<p>He posted gatekeepers at the gates of the house of the LORD, so that no one who was unclean in anything should enter. He took the captains of hundreds, the nobles, the rulers of the people, and all the people of the land, and brought the king down from the house of the LORD; and they came through the upper gate to the king&#x27;s house and set the king on the throne of the kingdom. All the people of the land rejoiced, and the city was quiet — for they had killed Athaliah with the sword.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🛰️ Situation Report</div>
+<p>Two obedient citizens, two different scales. Jehu carries out the LORD&#x27;s long-promised judgment on Ahab&#x27;s house — Jezebel thrown from the window, seventy sons of Ahab beheaded in baskets, forty-two of Ahaziah&#x27;s brothers struck down at a pit. The judgment is severe; the obedience is real. Down in Judah, after six years of Athaliah&#x27;s reign over rubble, the priest Jehoiada strengthens himself, makes a covenant with the captains, brings out the hidden seven-year-old Joash, crowns him in the temple surrounded by armed men, and Athaliah dies at the Horse Gate while the city rejoices. Both stories pivot on citizens obeying the word of the LORD without negotiating. Obedience at this level is not a personality trait; it is a sworn allegiance executed under fire.</p>
+</div>
+<div class="section reflection resolute">
+<div class="section-label">🛡️ Reflection for a R.E.S.O.L.U.T.E. Citizen — Obedient</div>
+<p>Fredericksburg (local)<br>As a RESOLUTE citizen called to be obedient, your block in Fredericksburg is the scale at which obedience first shows up. Jehoiada strengthened himself in the seventh year and gathered the captains of hundreds in his own city before he ever crowned a king. Obedience for a local citizen is not the day you take to the streets; it is the seven years you spent building covenant relationships with five trustworthy men so that when the moment comes, you have someone to stand the gate with you. Pick up the phone today and check on one of your captains of hundreds. Sustained obedience starts in the long, quiet years.</p>
+<p>Virginia (state)<br>Across Virginia, obedience looks like Jehoiada&#x27;s instruction at the temple — &quot;do not kill her in the house of the LORD.&quot; Even in righteous judgment, the obedient citizen respects the boundary God has set. He does not let zeal stretch the rules. Brother, in a Commonwealth where many men are loudly zealous on either side, the obedient citizen is the man who refuses to overshoot the LORD&#x27;s actual command. Be quick to act when God commands and slow to invent commands of your own. Athaliah died at the Horse Gate, not at the altar — the gate of the LORD&#x27;s house stayed undefiled even on the day of her judgment.</p>
+<p>United States (nation)<br>At the national scale, Jehu is the warning. The LORD commissioned him for a real judgment, and he carried out a great work in obedience. But 2 Kings 10 (later in the chapter) tells us Jehu himself eventually kept the golden calves of Jeroboam at Bethel and Dan. Obedience that is real this decade does not guarantee obedience next decade. For our nation, the lesson is stark — early obedience does not exempt a citizen or a generation from later drift. Stay obedient over time, not just at the dramatic moment. Confess, repent, return; confess, repent, return. The obedient citizen does not graduate from the discipline.</p>
+</div>
+<div class="section history">
+<div class="section-label">🦅 This Day in American History — May 28</div>
+<p>• 1830 — President Andrew Jackson signs the Indian Removal Act, authorizing the forced relocation of tens of thousands of native peoples from their ancestral lands to territory west of the Mississippi. A sober reminder that citizen-obedience to a government policy that crushes the vulnerable is not obedience to the LORD; the prophet who would not have signed it was already on the page.<br>• 1918 — At Cantigny, the U.S. 1st Division attacks and seizes the village in the first major American offensive of World War I — citizen-soldiers obeying a higher chain of command in their first proving day on French soil. Obedience under fire was being tested at scale, and held.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Identify your five captains of hundreds. If you do not have them, start the seven-year work today by reaching out to one trustworthy man.</li>
+<li>Practice a Jehoiada boundary today — refuse to overshoot a command God did not give. Zeal that invents its own orders is not obedience.</li>
+<li>Audit one place you obeyed God five years ago and have quietly drifted from since. Confess, repent, return.</li>
+<li>Refuse the Jackson move. Where current civic pressure asks you to cooperate with a policy that crushes the vulnerable, say no — kindly, plainly, without rhetoric.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Bridge</div>
+<p>Father, King of righteous judgment and patient restoration,<br>You sent Jehu to wipe out Ahab&#x27;s house<br>and You preserved Your covenant in a hidden bedroom for six years.</p>
+<p>By the power of Your Holy Spirit,<br>make me an obedient citizen — in this city, in this state, in this nation —<br>slow to invent commands You did not give,<br>fast to obey the ones You did,<br>faithful in the long years that nobody is watching.</p>
+<p>In the name of Jesus Christ, my Lord and Commander,<br>the perfect Servant who obeyed all the way to the cross —<br>let my obedience be sustained, not just dramatic,<br>and let my house and my city be quiet under Your peace.<br>Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Rudder Steer:</span> Strengthen yourself, gather your captains, keep the LORD&#x27;s boundary — obey for the long seven years, not just the loud day.</div>
+</section>
+
+<section class="watch watch-peace" id="watch-peace" data-watch="peace">
+<div class="watch-header"><span class="watch-time">2100</span> <h2>Evening Peace</h2></div>
+<p class="intro">Tonight closes a heavy day with the Davidic covenant psalm — the LORD remembers His oath to David and chooses Zion for His dwelling. Three roles come home tonight to the same throne and the same promise.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Psalm 132</div>
+<div class="scripture-text">
+<p>A Song of Ascents.</p>
+<p class="stanza">O LORD, remember David<br>and all his affliction —<br>how he swore to the LORD,<br>and vowed to the Mighty One of Jacob:<br>&quot;Surely I will not enter the chamber of my house,<br>nor lie down on my bed;<br>I will not give sleep to my eyes<br>or slumber to my eyelids,<br>until I find a place for the LORD,<br>a dwelling for the Mighty One of Jacob.&quot;</p>
+<p class="stanza">Look, we heard of it in Ephrathah;<br>we found it in the fields of Jaar.<br>Let us go to His dwelling;<br>let us worship at His footstool.</p>
+<p class="stanza">Arise, O LORD, to Your resting place,<br>You and the ark of Your strength.<br>Let Your priests be clothed with righteousness,<br>and let Your saints shout for joy.<br>For the sake of David Your servant,<br>do not turn away the face of Your anointed.</p>
+<p class="stanza">The LORD swore in truth to David;<br>He will not turn from it:<br>&quot;From the fruit of your body<br>I will set on your throne.<br>If your sons will keep My covenant<br>and My testimony which I shall teach them,<br>their sons also will sit on your throne forevermore.&quot;</p>
+<p class="stanza">For the LORD has chosen Zion;<br>He has desired it for His dwelling place:<br>&quot;This is My resting place forever;<br>here I will dwell, for I have desired it.<br>I will abundantly bless her provision;<br>I will satisfy her poor with bread.<br>Her priests I will clothe with salvation,<br>and her saints will shout aloud for joy.<br>There I will make a horn sprout for David;<br>I have prepared a lamp for My anointed.<br>His enemies I will clothe with shame,<br>but on him his crown will flourish.&quot;</p>
+</div>
+</div>
+<div class="section reflection">
+<div class="section-label">🌾 Reflection for a Man at Home and in Community</div>
+<p>Tonight the heavy day rests on the LORD&#x27;s oath to David. After Jehoram, after Athaliah, after Jehu, after Jehoiada — the line still stands because the LORD swore in truth and will not turn from it. The covenant outlived every disaster a generation could throw at it. That is the right place to lay a tired head down.</p>
+<p>As a HAPPY husband, Protecting tonight means you stop trying to be the covenant and start standing under it. Maria is not safe because you alone are vigilant; she is safe because the LORD swore in truth to David, and the Anointed One who came from David&#x27;s line keeps every promise tonight. Tell her plainly, &quot;Our house stands under His covenant, not under my watch alone.&quot; Then sleep as a man who trusts the Oath-Keeper.</p>
+<p>As a FULFILLED father, Understanding tonight means you remember that the room Jehoiada hid Joash in was the LORD&#x27;s room before it was a hiding place. Gideon, Boaz, and Shiloh do not survive your fathering because you are clever — they survive because the LORD has chosen Zion, prepared a lamp for His Anointed, and ordained the same Anointed to be the older brother of every redeemed child. Pray Psalm 132 over each of them tonight by name and place them under His preserved lamp.</p>
+<p>As a RESOLUTE citizen, Obedient tonight means you remember that the LORD has chosen Zion — He is not waiting on Fredericksburg, Richmond, or Washington to vote Him in. You serve a kingdom that was sworn into existence by oath in truth. Your obedience tonight is small civic faithfulness in a city whose true King is already enthroned. Lay your civic burdens down at the dwelling place He has chosen.</p>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Stateroom</div>
+<p>Father, Keeper of Your oath to David,<br>You swore in truth and have not turned;<br>You have prepared a lamp for Your Anointed<br>and a resting place for Your name.</p>
+<p>By the power of Your Holy Spirit,<br>let me sleep tonight under the covenant<br>You swore long before I was born.<br>Hold Maria under Your covering,<br>hold Gideon and Boaz and Shiloh under Your lamp,<br>hold our city under the King You have chosen.</p>
+<p>In the name of Jesus Christ, my Lord and Commander,<br>the true Anointed Son of David whose crown will flourish forever —<br>let my house and my city rest tonight under Your oath,<br>and let me wake to obey You in the long quiet years.<br>Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Rudder Steer:</span> Lay it down under the oath — the LORD has sworn to David, prepared the lamp, chosen the city; sleep as one of the saints He clothes.</div>
+</section>
+
+<footer>
+<div class="draft-tag">PROTOTYPE — sign-off pending</div>
+<div>U.S.M.C. Ministries · The Watchman's Chronological Plan for the Year of our Lord 2026</div>
+<div style="margin-top:6px;font-size:0.78rem;">Adam Johns &middot; rich interpretive blend &middot; divine name LORD</div>
+</footer>
+
+</div>
+<script>
+(function(){
+  const SLUGS = ['all','wisdom','husband','father','citizen','peace'];
+
+  // Watch windows in local hours (each watch is "live" from its start time
+  // until the NEXT watch begins). Evening peace owns 21:00 → 04:59.
+  function currentWatchSlug() {
+    const h = new Date().getHours();
+    if (h >= 5  && h < 7)  return 'wisdom';
+    if (h >= 7  && h < 11) return 'husband';
+    if (h >= 11 && h < 15) return 'father';
+    if (h >= 15 && h < 21) return 'citizen';
+    return 'peace';                       // 21:00 – 04:59
+  }
+  const NOW_SLUG = currentWatchSlug();
+
+  function markNowBadge(){
+    document.querySelectorAll('.watch-tab').forEach(t => {
+      t.classList.toggle('is-now', t.dataset.tab === NOW_SLUG);
+    });
+  }
+  function showOnly(slug){
+    const isAll = slug === 'all' || !SLUGS.includes(slug);
+    document.querySelectorAll('section.watch').forEach(s => {
+      s.style.display = (isAll || s.dataset.watch === slug) ? '' : 'none';
+    });
+    document.querySelectorAll('.watch-tab').forEach(t => {
+      t.classList.toggle('active', t.dataset.tab === (isAll ? 'all' : slug));
+    });
+  }
+  document.querySelectorAll('.watch-tab').forEach(t => {
+    t.addEventListener('click', function(e){
+      e.preventDefault();
+      const slug = this.dataset.tab;
+      history.replaceState(null, '', '#' + slug);
+      showOnly(slug);
+      window.scrollTo({top: 0, behavior:'smooth'});
+    });
+  });
+
+  // Initial selection priority:
+  //   1. URL hash if present  (#all / #wisdom / #husband / #father / #citizen / #peace)
+  //   2. Auto-select the watch that is "live right now"
+  let initial;
+  if (location.hash) {
+    initial = location.hash.slice(1);
+  } else {
+    initial = NOW_SLUG;
+  }
+  markNowBadge();
+  showOnly(initial);
+})();
+</script>
+</body>
+</html>
