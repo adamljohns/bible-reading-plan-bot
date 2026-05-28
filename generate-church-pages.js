@@ -222,11 +222,21 @@ function sourcesSection(church) {
       <p style="color:var(--gray-light);font-size:0.85rem;line-height:1.55;">${escapeHtml(enrichmentNotes)}</p>
     </div>` : '';
 
+  // Fallback for the "no URL sources" case: if we at least have a location, render a
+  // Google Maps deep link so the user can verify the address and step into Street View
+  // for a public visual of the property.
+  const locUrl = (typeof church.latitude === 'number' && typeof church.longitude === 'number')
+    ? `https://www.google.com/maps/search/?api=1&query=${church.latitude},${church.longitude}`
+    : (church.address ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(church.address)}` : null);
+  const sourcesFallback = locUrl
+    ? `<p style="color:var(--gray);font-size:0.82rem;font-style:italic;margin-bottom:8px;">No URL sources recorded yet for this church. The rating draws on denominational defaults and directory-level metadata; we are progressively adding per-church URL evidence as the directory matures.</p>
+    <p style="font-size:0.85rem;margin:0;"><a href="${locUrl}" target="_blank" rel="noopener" style="color:var(--gold);text-decoration:none;border-bottom:1px dashed var(--gold);">View this address on Google Maps</a> for a public-record visual of the property.</p>`
+    : '<p style="color:var(--gray);font-size:0.82rem;font-style:italic;">No URL sources recorded for this church. Rating based on denominational defaults and/or directory-level metadata.</p>';
   const sourcesBlock = sources.length > 0 ? `
     <p style="color:var(--gray);font-size:0.82rem;margin-bottom:12px;">These are the URLs consulted to arrive at this church's scoring. Score-note claims are synthesized from homepage content, denominational directories, and public statements of faith at the time of review. Church websites change frequently; we're progressively adding Internet Archive snapshots to prevent link rot.</p>
     <ol style="list-style:none;padding-left:0;margin:0;">
       ${sourceItems}
-    </ol>` : '<p style="color:var(--gray);font-size:0.82rem;font-style:italic;">No URL sources recorded for this church. Rating based on denominational defaults and/or directory-level metadata.</p>';
+    </ol>` : sourcesFallback;
 
   return `<div class="card" style="margin-top:28px;">
     <div class="card-title"><img class="site-icon" src="/assets/icons/shield-checklist-48.png" alt="" width="20" height="20"> Sources &amp; Evidence</div>
@@ -572,6 +582,14 @@ function buildPage(church) {
 
   // Map — handle addresses with dashes/unknowns
   const hasRealAddress = church.address && !church.address.toLowerCase().includes('unconfirmed') && !church.address.toLowerCase().includes('unknown');
+  // Street View deep link: prefer lat/lng (works without API key); fall back to address search.
+  // Pattern: /maps/@LAT,LNG,3a,75y,90t/data=!3m1!1e3 = "go to Street View at this point"
+  const streetViewUrl = (typeof church.latitude === 'number' && typeof church.longitude === 'number')
+    ? `https://www.google.com/maps/@${church.latitude},${church.longitude},3a,75y,90t/data=!3m1!1e3`
+    : (hasRealAddress ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(church.address)}` : null);
+  const streetViewBtn = streetViewUrl
+    ? `<div style="margin-top:10px;text-align:center;"><a href="${streetViewUrl}" target="_blank" rel="noopener" style="display:inline-block;color:var(--gold);font-size:0.86rem;font-weight:600;text-decoration:none;border:1px solid var(--gold);border-radius:20px;padding:7px 16px;letter-spacing:0.3px;">${ico('shield-map-48.png', 14)} See on Google Street View &rarr;</a></div>`
+    : '';
   const mapEmbed = hasRealAddress ? `
     <div class="map-wrap">
       <iframe
@@ -580,7 +598,7 @@ function buildPage(church) {
         referrerpolicy="no-referrer-when-downgrade"
         title="Map for ${escapeHtml(church.name)}">
       </iframe>
-    </div>` : '';
+    </div>${streetViewBtn}` : '';
 
   // Website button
   const websiteBtn = church.website ? `<a href="${escapeHtml(church.website)}" target="_blank" rel="noopener" class="btn-gold">${ico('shield-globe-48.png', 14)} Visit Their Website</a>` : '';
