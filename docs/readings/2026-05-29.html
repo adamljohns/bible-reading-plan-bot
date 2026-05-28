@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg">
+<title>Friday, May 29, 2026 — Daily Reading | U.S.M.C. Ministries</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+    --bg-dark: #000000; --bg-card: #111111; --bg-card2: #161616;
+    --gold: #D4AF37; --gold-light: #F4D470;
+    --white: #FFFFFF; --gray: #888888; --border: #333333;
+}
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--white);
+    min-height: 100vh;
+    line-height: 1.7;
+}
+h1, h2, h3 { font-family: 'Playfair Display', serif; font-weight: 700; }
+.container { max-width: 820px; margin: 0 auto; padding: 24px 20px 60px; }
+a { color: var(--gold); text-decoration: none; }
+a:hover { color: var(--gold-light); text-decoration: underline; }
+
+.nav-back { margin-bottom: 14px; font-size: 0.95rem; }
+
+.hero { text-align: center; padding: 16px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 18px; }
+.hero h1 { font-size: clamp(1.5rem, 4vw, 2.2rem); color: var(--white); margin-bottom: 6px; }
+.hero .subtitle { color: var(--gold); font-size: 0.95rem; font-style: italic; }
+.hero .doc-line { color: var(--gray); font-size: 0.82rem; margin-top: 6px; }
+
+.watch-tabs {
+    position: sticky; top: 0; z-index: 30;
+    background: var(--bg-dark);
+    border-bottom: 1px solid var(--border);
+    display: flex; flex-wrap: wrap; gap: 6px;
+    padding: 12px 0 14px;
+    margin-bottom: 18px;
+}
+.watch-tab {
+    flex: 1 1 90px;
+    text-align: center;
+    padding: 8px 6px;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    background: var(--bg-card);
+    color: var(--gray);
+    font-size: 0.85rem; font-weight: 500;
+    transition: all 0.15s ease;
+    text-decoration: none !important;
+    white-space: nowrap;
+}
+.watch-tab:hover { color: var(--white); border-color: var(--gold); text-decoration: none !important; }
+.watch-tab.active { background: var(--gold); color: #000; border-color: var(--gold); font-weight: 600; }
+.watch-tab .tab-time { display: block; font-size: 0.7rem; opacity: 0.7; font-family: monospace; }
+.watch-tab.active .tab-time { opacity: 1; }
+
+/* "NOW" badge — shown on the watch tab whose time window contains current local time */
+.watch-tab.is-now { position: relative; box-shadow: 0 0 0 1px var(--gold-light) inset; }
+.watch-tab.is-now::after {
+  content: "NOW";
+  position: absolute; top: -7px; right: -4px;
+  background: var(--gold-light); color: #000;
+  font-size: 0.55rem; font-weight: 700;
+  padding: 1px 5px; border-radius: 100px;
+  letter-spacing: 0.08em;
+}
+
+.watch {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px 22px;
+    margin-bottom: 22px;
+    scroll-margin-top: 80px;
+}
+.watch-header { display: flex; align-items: baseline; gap: 14px; margin-bottom: 10px; flex-wrap: wrap; }
+.watch-time {
+    background: var(--bg-card2); color: var(--gold);
+    padding: 4px 12px; border-radius: 100px;
+    font-family: 'Inter', monospace; font-size: 0.85rem; font-weight: 600;
+    letter-spacing: 0.05em;
+}
+.watch-header h2 { font-size: 1.35rem; color: var(--white); }
+
+.intro { color: var(--gray); font-style: italic; margin-bottom: 14px; }
+
+.audio-slot {
+    margin: 14px 0 18px;
+    padding: 12px 14px;
+    background: var(--bg-card2);
+    border-radius: 8px;
+    border: 1px dashed var(--border);
+}
+.audio-slot.audio-pending { opacity: 0.55; }
+.audio-cap { font-size: 0.8rem; color: var(--gray); margin-top: 4px; }
+
+.scripture {
+    background: var(--bg-card2);
+    border-left: 3px solid var(--gold);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin: 16px 0 22px;
+}
+.scripture-ref { font-weight: 600; color: var(--gold); margin-bottom: 12px; font-size: 0.95rem; }
+.scripture-text p { margin-bottom: 8px; }
+.scripture-text p.stanza { margin-bottom: 14px; }
+
+.section-label {
+    font-family: 'Playfair Display', serif;
+    color: var(--gold); font-weight: 700; font-size: 1.05rem;
+    margin: 22px 0 10px; padding-top: 10px; border-top: 1px solid var(--border);
+}
+.section p, .context p, .reflection p, .history p, .application-block p { margin-bottom: 12px; }
+
+ul.application { padding-left: 22px; margin: 8px 0 14px; }
+ul.application li { margin-bottom: 8px; }
+.application-prose { font-style: italic; color: var(--gold-light); margin-top: 12px; }
+
+.history ul { padding-left: 22px; margin: 8px 0; }
+.history li { margin-bottom: 6px; }
+
+.prayer {
+    background: var(--bg-card2);
+    border-left: 3px solid var(--gold-light);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin: 22px 0;
+}
+.prayer-title { color: var(--gold-light); font-weight: 600; margin-bottom: 10px; font-size: 0.95rem; }
+.prayer p { line-height: 1.85; margin-bottom: 8px; }
+
+.helm {
+    background: var(--bg-card2);
+    border-radius: 6px;
+    padding: 12px 18px;
+    margin-top: 14px;
+    font-size: 0.95rem;
+}
+.helm-icon { color: var(--gold); font-size: 1.1rem; }
+.helm-label { color: var(--gold); font-weight: 600; }
+
+footer {
+    text-align: center;
+    color: var(--gray);
+    font-size: 0.82rem;
+    margin-top: 32px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+}
+footer .draft-tag {
+    display: inline-block;
+    background: #2a2410;
+    color: var(--gold);
+    padding: 4px 12px;
+    border-radius: 100px;
+    font-size: 0.78rem;
+    margin-bottom: 8px;
+    letter-spacing: 0.05em;
+}
+
+@media (max-width: 540px) {
+    .watch-tab { flex: 1 1 64px; font-size: 0.78rem; padding: 6px 4px; }
+    .watch-tab .tab-time { font-size: 0.65rem; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="nav-back">← <a href="/chronological.html">The Watchman's Chronological Plan</a></div>
+
+<div class="hero">
+<h1>Friday, May 29, 2026</h1>
+<div class="subtitle">Daily Reading — Day 149 of 365</div>
+<div class="doc-line">MOOP&#x27;s 2026 Daily Bible Readings — Document 5 of 12; for the month of May</div>
+</div>
+
+<nav class="watch-tabs" role="tablist">
+<a href="#all" class="watch-tab active" data-tab="all" role="tab"><span class="tab-label">All Watches</span></a>
+<a href="#wisdom" class="watch-tab" data-tab="wisdom" role="tab"><span class="tab-time">0600</span> <span class="tab-label">Morning Wisdom</span></a>
+<a href="#husband" class="watch-tab" data-tab="husband" role="tab"><span class="tab-time">0700</span> <span class="tab-label">Husband</span></a>
+<a href="#father" class="watch-tab" data-tab="father" role="tab"><span class="tab-time">1100</span> <span class="tab-label">Father</span></a>
+<a href="#citizen" class="watch-tab" data-tab="citizen" role="tab"><span class="tab-time">1500</span> <span class="tab-label">Citizen</span></a>
+<a href="#peace" class="watch-tab" data-tab="peace" role="tab"><span class="tab-time">2100</span> <span class="tab-label">Evening Peace</span></a>
+</nav>
+
+<section class="watch watch-wisdom" id="watch-wisdom" data-watch="wisdom">
+<div class="watch-header"><span class="watch-time">0600</span> <h2>Morning Wisdom</h2></div>
+<p class="intro">Solomon walks us through the long-haul wisdom — the man who walks steady year after year while the loud man, the flattering man, and the proud man burn out around him. Today he reminds us that the righteous take heart in the cause of the poor, that a stiff-necked man hardens past the point of repair, and that the fear of the LORD is what holds a man upright when his good days run thin.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Proverbs 29</div>
+<div class="scripture-text">
+<p class="stanza">A man who hardens his neck after much reproof<br>will suddenly be broken — beyond healing.</p>
+<p class="stanza">When the righteous increase, the people rejoice;<br>but when the wicked rule, the people groan.</p>
+<p class="stanza">A man who loves wisdom makes his father glad,<br>but he who keeps company with prostitutes wastes his wealth.</p>
+<p class="stanza">A king establishes the land by justice,<br>but he who takes bribes overthrows it.</p>
+<p class="stanza">A man who flatters his neighbor<br>spreads a net for his feet.</p>
+<p class="stanza">By a transgression an evil man is snared,<br>but the righteous sings and rejoices.</p>
+<p class="stanza">The righteous considers the cause of the poor,<br>but the wicked does not understand such knowledge.</p>
+<p class="stanza">Scoffers set a city on fire,<br>but the wise turn away anger.</p>
+<p class="stanza">If a wise man has a controversy with a foolish man,<br>the fool rages and laughs, and there is no rest.</p>
+<p class="stanza">Men of bloodshed hate the blameless,<br>but the upright seek his soul.</p>
+<p class="stanza">A fool vents all his anger,<br>but a wise man holds it back quietly.</p>
+<p class="stanza">If a ruler listens to lies,<br>all his servants become wicked.</p>
+<p class="stanza">The poor man and the oppressor have this in common —<br>the LORD gives light to the eyes of both.</p>
+<p class="stanza">If a king judges the poor with faithfulness,<br>his throne will be established forever.</p>
+<p class="stanza">The rod and reproof give wisdom,<br>but a child left to himself shames his mother.</p>
+<p class="stanza">When the wicked increase, transgression increases,<br>but the righteous will see their fall.</p>
+<p class="stanza">Correct your son, and he will give you comfort;<br>he will give delight to your soul.</p>
+<p class="stanza">Where there is no vision, the people are unrestrained,<br>but happy is he who keeps the law.</p>
+<p class="stanza">A servant will not be corrected by words alone,<br>for though he understands, he will not answer.</p>
+<p class="stanza">Do you see a man who is hasty in his words?<br>There is more hope for a fool than for him.</p>
+<p class="stanza">He who pampers his servant from youth<br>will in the end find him a son.</p>
+<p class="stanza">An angry man stirs up strife,<br>and a hot-tempered man abounds in transgression.</p>
+<p class="stanza">A man&#x27;s pride will bring him low,<br>but a humble spirit will obtain honor.</p>
+<p class="stanza">Whoever partners with a thief hates his own soul;<br>he hears the curse and does not disclose it.</p>
+<p class="stanza">The fear of man brings a snare,<br>but he who trusts in the LORD will be safe.</p>
+<p class="stanza">Many seek the ruler&#x27;s favor,<br>but every man&#x27;s justice comes from the LORD.</p>
+<p class="stanza">An unjust man is an abomination to the righteous,<br>and the upright in the way is an abomination to the wicked.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🧭 Context Summary</div>
+<p>Solomon stitches this chapter around steadiness under pressure. The hot-tempered man stirs strife and is broken; the wise man holds back his anger and turns away the city&#x27;s fire. The flatterer spreads a net; the steady friend gives reproof and is heard. The fear of man snares; the trust in the LORD keeps a man safe. Two verses to set over your day — verse fifteen (&quot;the rod and reproof give wisdom&quot;) for any father in the room, and verse eighteen (&quot;where there is no vision, the people are unrestrained&quot;) for any citizen who has wondered why the room keeps catching fire. A man who walks steady is a man who has answered both verses out loud.</p>
+</div>
+<div class="section reflection">
+<div class="section-label">🛡️ Reflection for a REAL MAN — Walks Steady</div>
+<p>A REAL MAN who walks steady is not the man with the loudest day; he is the man whose tenth year looks like his first. Solomon hands you a gallery of men who do not walk steady — the hot-tempered, the hasty in his words, the flatterer, the bribe-taker, the scoffer who sets the city on fire. Each of them is, in his own way, fast. The wise man is described by what he does not do — he does not vent all his anger, he does not rule by hearing lies, he does not partner with thieves, he does not pamper his servants into princes. The wise man is steady because he refuses the shortcuts.</p>
+<p>Notice the opening verse: &quot;A man who hardens his neck after much reproof will suddenly be broken — beyond healing.&quot; Solomon does not say the stiff-necked man will be broken slowly. He says suddenly — and beyond healing. Steady walking, in Solomon&#x27;s mind, is not the absence of strong feeling; it is the willingness to keep softening your neck after years of reproof. A man who is still teachable at fifty is the man who will still be standing at seventy. A man who hardened his neck at forty will not be standing at fifty in any way that matters.</p>
+<p>Verse twenty-five is the secret behind every steady man&#x27;s calm: &quot;The fear of man brings a snare, but he who trusts in the LORD will be safe.&quot; A man who walks steady has transferred his fear from the wrong altar to the right one. He has stopped negotiating with the opinions of his peers and started living under the eye of his Judge. Once that transfer is made, the speed of the day drops. The flatterer stops getting traction. The hot-tempered man stops setting the pace. The steady man can wait.</p>
+<p>And then the practical question: how does a man actually become steady when his temperament is fast, his calendar is hot, and his appetites are loud? Solomon&#x27;s answer is in verse eighteen: &quot;Where there is no vision, the people are unrestrained, but happy is he who keeps the law.&quot; Steadiness is not a personality reform; it is the application of the law of God to the same situations, day after day, until the responses become formed. Keep the law. Read the law. Repeat the law. Submit to the law. The unsteady man is the man who has lost his anchor in the law and is now drifting on his own feelings.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Identify one place you have been hot-tempered this week — and one specific practice that would have slowed you down (a 24-hour rule on hard emails, prayer before reply, calling a brother first). Install it today.</li>
+<li>Confess one stiff-necked spot. Where has reproof come for years and you have not bent? Bend today before suddenly arrives.</li>
+<li>Memorize verse 25 this morning. Hang the fear of man at the door and walk through the day without it.</li>
+<li>Read one chapter of the law tonight before bed. Steady walking is law-soaked walking.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer</div>
+<p>Father of all true steadiness,<br>You do not change like shifting shadows,<br>and You teach Your sons to walk Your way over decades.</p>
+<p>By the power of Your Holy Spirit,<br>strip me of the fear of man,<br>soften my neck under reproof,<br>slow my words and my temper,<br>and keep me under Your law one day at a time.</p>
+<p>In the name of Jesus Christ, my Lord and Commander,<br>who walked steady from Bethlehem to the cross without faltering once —<br>make me a man whose tenth year looks like his first.<br>Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Helm Command:</span> Trade the fear of man for the fear of the LORD — and walk steady through a hot day on the bearing the law has set.</div>
+</section>
+
+<section class="watch watch-husband" id="watch-husband" data-watch="husband">
+<div class="watch-header"><span class="watch-time">0700</span> <h2>First Watch — The Husband&#x27;s Post</h2></div>
+<p class="intro">The first watch carries us into Jehu&#x27;s later years and Joash&#x27;s early years — the same lesson on two thrones. A man who abides under the LORD while the older voice of correction is alive is the man whose household holds. A man who only abides while the prophet is in the room is the man whose later years undo his earlier ones.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 2 Kings 10:15–36 &amp; 2 Chronicles 24:1–14</div>
+<div class="scripture-text">
+<p>When Jehu had departed from there, he met Jehonadab the son of Rechab coming to meet him. He greeted him and said: &quot;Is your heart upright with my heart, as my heart is with yours?&quot; Jehonadab said: &quot;It is.&quot; &quot;If it is, give me your hand.&quot;</p>
+<p>He gave him his hand, and Jehu took him up to him into the chariot and said: &quot;Come with me and see my zeal for the LORD.&quot; So he made him ride in his chariot.</p>
+<p>When he came to Samaria, he killed all who were left to Ahab in Samaria, until he had destroyed them, according to the word of the LORD which He spoke to Elijah.</p>
+<p>Then Jehu gathered all the people and said to them: &quot;Ahab served Baal a little; Jehu will serve him much. Now then, summon to me all the prophets of Baal, all his worshipers, and all his priests. Let no one be missing, for I have a great sacrifice for Baal. Whoever is missing will not live.&quot;</p>
+<p>But Jehu acted deceitfully, in order to destroy the worshipers of Baal. Jehu said: &quot;Sanctify a solemn assembly for Baal.&quot; So they proclaimed it. Jehu sent throughout all Israel, and all the worshipers of Baal came — there was not a man left who did not come. They entered the temple of Baal, and the temple of Baal was filled from one end to the other.</p>
+<p>He said to the one in charge of the wardrobe: &quot;Bring out garments for all the worshipers of Baal.&quot; So he brought them out. Then Jehu went in, with Jehonadab the son of Rechab, into the temple of Baal, and said to the worshipers of Baal: &quot;Search and see that there is no servant of the LORD here among you — only the worshipers of Baal.&quot; Then they went in to offer sacrifices and burnt offerings.</p>
+<p>Now Jehu had posted eighty men outside, and had said: &quot;The man who lets any of them escape — whose I have brought into your hands — his life shall be for the life of that one.&quot;</p>
+<p>As soon as he had finished offering the burnt offering, Jehu said to the guard and to the captains: &quot;Go in, strike them down. Let no one come out.&quot; They struck them with the edge of the sword. The guard and the captains threw them out, and went into the inner shrine of the temple of Baal. They brought out the sacred pillars of the temple of Baal and burned them. They broke down the sacred pillar of Baal and tore down the temple of Baal, and made it a refuse dump to this day.</p>
+<p>So Jehu wiped out Baal from Israel. However, Jehu did not turn aside from the sins of Jeroboam the son of Nebat, with which he had made Israel sin — the golden calves which were at Bethel and at Dan.</p>
+<p>The LORD said to Jehu: &quot;Because you have done well in carrying out what is right in My eyes, and have done to the house of Ahab according to all that was in My heart — your sons of the fourth generation shall sit on the throne of Israel.&quot;</p>
+<p>But Jehu was not careful to walk in the law of the LORD God of Israel with all his heart; he did not turn aside from the sins of Jeroboam, which made Israel sin.</p>
+<p>In those days the LORD began to cut off portions of Israel. Hazael struck them in all the territory of Israel from the Jordan eastward — all the land of Gilead, the Gadites, the Reubenites, and the Manassites — from Aroer, which is by the Valley of the Arnon, even Gilead and Bashan.</p>
+<p>⸻</p>
+<p>Joash was seven years old when he became king, and he reigned forty years in Jerusalem. His mother&#x27;s name was Zibiah of Beersheba. Joash did what was right in the eyes of the LORD all the days of Jehoiada the priest. Jehoiada took for him two wives, and he had sons and daughters.</p>
+<p>After this Joash had it in his heart to repair the house of the LORD. He gathered the priests and the Levites and said to them: &quot;Go out to the cities of Judah, and collect money from all Israel to repair the house of your God year by year. See that you act quickly.&quot; But the Levites did not act quickly.</p>
+<p>The king called for Jehoiada the chief and said to him: &quot;Why have you not required the Levites to bring in from Judah and from Jerusalem the tax fixed by Moses the servant of the LORD and by the assembly of Israel for the tent of the testimony?&quot;</p>
+<p>For the sons of Athaliah, that wicked woman, had broken into the house of God, and had also used all the dedicated things of the house of the LORD for the Baals. At the king&#x27;s command, they made a chest, and they set it outside the gate of the house of the LORD. They made proclamation in Judah and Jerusalem to bring to the LORD the tax that Moses the servant of God laid on Israel in the wilderness.</p>
+<p>All the rulers and all the people rejoiced and brought in their contributions and dropped them into the chest until they had finished. Whenever the chest was brought into the king&#x27;s office by the hand of the Levites, and when they saw that there was much money, the king&#x27;s secretary and the officer of the chief priest came and emptied the chest and took it and returned it to its place. Thus they did day by day, and they collected money in abundance.</p>
+<p>The king and Jehoiada gave it to those who did the work of the service of the house of the LORD; they hired masons and carpenters to repair the house of the LORD, and also workers in iron and bronze to repair the house of the LORD. So the workmen worked, and the work of repair progressed in their hands. They restored the house of God to its proper condition and reinforced it.</p>
+<p>When they had finished, they brought the rest of the money before the king and Jehoiada; with it they made articles for the house of the LORD, articles for the service and for the burnt offering, and ladles and articles of gold and silver. They offered burnt offerings in the house of the LORD continually all the days of Jehoiada.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🗺️ Briefing Summary</div>
+<p>Two husbands, both with great early seasons, both with the same vulnerability. Jehu rides up with zeal for the LORD, wipes Baal out of Israel, and is publicly commended by the LORD — and quietly keeps Jeroboam&#x27;s golden calves at Bethel and Dan. Joash is crowned at seven, reigns under Jehoiada the priest as long as Jehoiada is alive, and pours himself into repairing the temple. Both stories pivot on the question: when the strongest voice of correction is gone or kept at arm&#x27;s length, does the husband still abide under the LORD? Or does the household quietly install something the husband never quite named?</p>
+</div>
+<div class="section reflection">
+<div class="section-label">❤️ Reflection for Your Wife — H.A.P.P.Y. Husband — Abiding</div>
+<p>As a HAPPY husband called to abide, today&#x27;s two thrones show you the same vulnerability dressed differently. Jehu was zealous, public, and effective — he could wipe out a Baal temple in a single staged morning. But he kept the golden calves of Jeroboam at Bethel and Dan, and the prophet&#x27;s record of his life closes with the quiet note: &quot;Jehu was not careful to walk in the law of the LORD God of Israel with all his heart.&quot; Brother, that line could be written over more married Christian men than we want to admit. Public zeal. Private compromise. A wife who watches him knock down something dramatic on a Sunday and quietly keep something undramatic on a Tuesday.</p>
+<p>Joash is the gentler warning. He did what was right in the eyes of the LORD all the days of Jehoiada the priest. While the old priest was alive and present at the throne, Joash repaired the temple, organized the giving box, kept the priests at their work, and worshiped under the law. Then Jehoiada died — and 2 Chronicles 24 will show us this afternoon what happened next. Abiding for a husband is not a season of strong feeling under a strong mentor; it is the sustained shape of his life after the mentor is gone, after the strong feeling has subsided, after the day-to-day flatness arrives.</p>
+<p>So ask yourself, brother, what voice of correction has been in your life — a pastor, a small group leader, a brother, a father, a mentor — and where will your marriage stand if that voice is removed tomorrow? Abiding is the question of the empty room. Will Maria find the same husband in your eyes when no one is correcting you? Will the prayer at the table still happen? Will the Sabbath still be observed? Will the lust be still mortified? The abiding husband is the man whose life does not need a chaperone.</p>
+<p>And do not miss Jehu&#x27;s golden calves. He kept them, almost certainly, for reasons of state — Bethel and Dan were strategic worship centers; closing them would have driven his northern subjects south to Jerusalem and undermined his throne. Brother, &quot;for reasons of state&quot; is exactly the kind of sentence that lets calves stand in a marriage. The financial arrangement you cannot quite untangle. The friendship you keep that erodes your wife. The schedule that quietly excludes family worship. The screen habit you have rationalized. Tear them down today. Maria deserves an abiding husband who has no calves stashed at Bethel.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Name one &quot;Jehu calf&quot; you have kept &quot;for reasons of state&quot; — a half-tolerated thing you would not let the prophet name out loud. Tear it down before sundown.</li>
+<li>Rehearse the empty-room test: if your strongest voice of correction disappeared tomorrow, what would change in your marriage in 90 days? Now close that gap before the day comes.</li>
+<li>Pick one Jehoiada in your life — a brother, a pastor, a mentor — and thank him out loud this week. The abiding husband is grateful for the voices that have kept him honest.</li>
+<li>Plan a Sabbath rhythm that survives any mentor leaving the room. Build the abiding into the calendar, not the personality.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Stateroom</div>
+<p>Father, who searches the heart and who weighs the calf left standing,<br>You see Jehu&#x27;s public zeal and the private calves at Bethel;<br>You see Joash&#x27;s bright reign and the season that came after.</p>
+<p>By the power of Your Holy Spirit,<br>make me an abiding husband —<br>the same man in the empty room as in the public square,<br>the same husband under correction and after the corrector is gone,<br>the same shepherd of this house at fifty as at thirty.</p>
+<p>In the name of Jesus Christ, my Lord and Commander,<br>the true Husband of the Church who abides forever —<br>let no calf stand in my house at Bethel,<br>and let Maria find the same man at my eyes today and tomorrow.<br>Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Helm Command:</span> Tear down the calf at Bethel — and abide as the same husband whether the prophet is in the room or not.</div>
+</section>
+
+<section class="watch watch-father" id="watch-father" data-watch="father">
+<div class="watch-header"><span class="watch-time">1100</span> <h2>Second Watch — The Father&#x27;s Charge</h2></div>
+<p class="intro">The second watch gives us the most painful father-son scene in this stretch of Chronicles. Jehoiada dies at one hundred thirty years old, having raised Joash from infancy. And the king who repaired the temple turns on Jehoiada&#x27;s son and orders him stoned in the temple court. An encouraging father is the gift Joash got and lost. The lesson is for the encouragers still here.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 2 Kings 11 &amp; 2 Chronicles 24:15–27</div>
+<div class="scripture-text">
+<p>Now Jehoiada became old and full of days; he died at one hundred thirty years old. They buried him in the City of David among the kings, because he had done good in Israel, both toward God and toward His house.</p>
+<p>After the death of Jehoiada, the rulers of Judah came and bowed down to the king; then the king listened to them. They forsook the house of the LORD God of their fathers, and served the Asherim and the idols. Wrath came on Judah and Jerusalem for this guilt of theirs.</p>
+<p>Yet He sent prophets to them to bring them back to the LORD; they testified against them, but they would not listen.</p>
+<p>Then the Spirit of God came on Zechariah the son of Jehoiada the priest, and he stood above the people and said: &quot;Thus says God: why do you transgress the commandments of the LORD, so you cannot prosper? Because you have forsaken the LORD, He has also forsaken you.&quot;</p>
+<p>But they conspired against him, and at the command of the king they stoned him with stones in the court of the house of the LORD. King Joash did not remember the kindness which Jehoiada his father had done him, but killed his son. As he died he said: &quot;May the LORD see and require it.&quot;</p>
+<p>⸻</p>
+<p>At the turn of the year, the army of the Arameans came up against him; they came to Judah and Jerusalem, and destroyed all the rulers of the people from the people, and sent all their spoil to the king of Damascus. Though the army of the Arameans came with a small company, the LORD delivered into their hand a very great army, because they had forsaken the LORD God of their fathers. So they executed judgment on Joash.</p>
+<p>When they had departed from him — for they left him very ill — his own servants conspired against him because of the blood of the son of Jehoiada the priest, and killed him on his bed. So he died. They buried him in the City of David, but they did not bury him in the tombs of the kings.</p>
+<p>These are the men who conspired against him: Zabad the son of Shimeath the Ammonitess, and Jehozabad the son of Shimrith the Moabitess.</p>
+<p>Now concerning his sons and the many oracles against him, and the rebuilding of the house of God, behold, they are written in the annotations of the Book of the Kings. His son Amaziah reigned in his place.</p>
+<p>⸻</p>
+<p>In the seventh year of Jehu, Jehoash became king, and he reigned forty years in Jerusalem. His mother&#x27;s name was Zibiah of Beersheba. Jehoash did what was right in the eyes of the LORD all his days in which Jehoiada the priest instructed him. However, the high places were not taken away; the people still sacrificed and burned incense on the high places.</p>
+<p>Jehoash said to the priests: &quot;All the money of the holy things which is brought into the house of the LORD, the money of each man&#x27;s assessment, the money each man is taxed, all the money which any man&#x27;s heart prompts him to bring into the house of the LORD — let the priests take it for themselves, each from his contributor; they shall repair the damages of the house, wherever any damage may be found.&quot;</p>
+<p>But by the twenty-third year of King Jehoash, the priests had not repaired the damages of the house. So King Jehoash called for Jehoiada the priest and the priests, and said to them: &quot;Why are you not repairing the damages of the house? Now therefore take no more money from your contributors, but hand it over for the damages of the house.&quot;</p>
+<p>So the priests agreed that they would receive no more money from the people, nor repair the damages of the house. Then Jehoiada the priest took a chest, bored a hole in its lid, and set it beside the altar, on the right side as one enters the house of the LORD. The priests who kept the doorway put all the money that was brought into the house of the LORD into it. Whenever they saw there was much money in the chest, the king&#x27;s scribe and the high priest came up and bagged it and counted the money which was found in the house of the LORD. They put the money that was weighed out into the hands of those who did the work, who had the oversight of the house of the LORD; they paid it out to the carpenters and the builders who worked on the house of the LORD — and to the masons and the stonecutters, and for buying timber and quarried stone, to repair the damages of the house of the LORD, and for all that was paid out for the repairs of the house.</p>
+<p>The work of the men who did the work was done in fidelity.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🗺️ Field Notes</div>
+<p>Jehoiada died at one hundred thirty. He had raised Joash from infancy, crowned him at seven, instructed him through forty years of reign, partnered with him on the temple repair, and stood by him as the father he had never had. And within a generation of Jehoiada&#x27;s death, the same Joash ordered Jehoiada&#x27;s son stoned in the temple court for telling the truth, and died on his bed by his own servants&#x27; hands. The encouraging father gave Joash everything. The man who failed to keep encouraging himself after the encourager was gone undid every one of it. Encouraging fatherhood is more powerful than we know — and more fragile in the receiver than we admit.</p>
+</div>
+<div class="section reflection">
+<div class="section-label">👨‍👦 Reflection for Your Children — F.U.L.F.I.L.L.E.D. Father — Encouraging</div>
+<p>As a FULFILLED father called to encourage, look long at Jehoiada — and then look honestly at how thin the layer of encouragement can be on the son&#x27;s heart even after decades. Jehoiada poured himself into Joash for the better part of a hundred years. He hid him as an infant. He crowned him at seven. He instructed him through his thirties. He helped him organize the giving box that fixed the temple. He buried him in the kings&#x27; tombs when he died, with the people&#x27;s blessing. And the son turned on the encourager&#x27;s son the moment the encourager was no longer breathing in the room. Brother, that should make you tender with the encouragers in your own life, and humble about what your own encouragement will produce in the children watching you.</p>
+<p>Gideon is nineteen and stepping into the season of his life where the encouragers in his story will determine more than his talents will. Encouraging Gideon does not mean praising his every move; it means consistently calling him to courage in the LORD when his peers are calling him to performance, comparison, and frustration. Notice that Jehoiada&#x27;s encouragement of Joash was not flattery — it was steady, decades-long, sometimes corrective (&quot;why are you not repairing the damages of the house?&quot;). Encourage Gideon the same way: present, steady, occasionally pointed, and unmistakably for him.</p>
+<p>Boaz is fourteen and at the age when encouragement easily becomes either nagging or sentimentality. Avoid both. The encouraging father at fourteen names what he sees in his son with specificity — &quot;I saw you do that hard thing with your brother; that took a real man&quot; — and stays out of the territory of generic praise that Boaz will spot as fake. Boaz also needs the encouragement that does not depend on results. Sometimes a fourteen-year-old needs his father to put a hand on his shoulder after a loss and say, &quot;I am proud of who you are becoming, not how this game went.&quot; Encouragement of that order plants for the years he will need it.</p>
+<p>Shiloh is five, and encouragement at five is mostly the safety of being delighted in. The encouraging father of a young daughter is the daddy whose voice she trusts when she is afraid, whose lap she runs to when she is hurt, whose eyes she looks for in a crowd to make sure she is still seen. Tonight, see Shiloh on purpose. Use her name. Catch her doing one thing well, name it out loud, and let her watch you tell her mother about it. Five-year-olds carry the encouragement of their fathers into every subsequent decade.</p>
+<p>And then the warning. Jehoiada&#x27;s whole work in Joash unraveled the moment Jehoiada was not in the room. Encouraging fatherhood does not finally protect a son&#x27;s heart — only the LORD does. So encourage your children steadily AND teach them to receive their encouragement directly from the Father whose face does not die at one hundred thirty. Pray over them in the hearing of their ears: &quot;May the LORD bless you and keep you; may the LORD make His face shine on you and be gracious to you; may the LORD lift up His countenance on you and give you peace.&quot; That is the encouragement that outlasts your funeral.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Speak one specific, true sentence of encouragement to each of your children today by name — not generic, not flattery, particular to the actual person.</li>
+<li>Name and thank one Jehoiada in your own life this week. Encouragers carry our lives further than we admit.</li>
+<li>Plan the layer of encouragement that does not depend on you — what church, what friend, what older brother, what discipling pattern will keep encouraging Gideon, Boaz, and Shiloh after you are gone?</li>
+<li>Pray the Aaronic blessing over one child tonight slowly, hands on shoulders, eyes open.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Wardroom</div>
+<p>Father of all true encouragement,<br>You raised Jehoiada to encourage Joash through a hundred and thirty years<br>and You did not stop encouraging Your people when he died.</p>
+<p>By the power of Your Holy Spirit,<br>make me an encouraging father —<br>specific in my praise, steady through the seasons,<br>patient with the fourteen-year-old, delighted with the five-year-old,<br>present for the nineteen-year-old walking into his future.</p>
+<p>In the name of Jesus Christ, my Lord and Commander,<br>the perfect Older Brother who is not ashamed to call us His own —<br>let my encouragement plant deep,<br>and let the LORD&#x27;s blessing outlast my voice in my children&#x27;s ears.<br>Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Rudder Steer:</span> Encourage by name, specifically, steadily — and teach your children to keep receiving the encouragement that does not die at one hundred thirty.</div>
+</section>
+
+<section class="watch watch-citizen" id="watch-citizen" data-watch="citizen">
+<div class="watch-header"><span class="watch-time">1500</span> <h2>Third Watch — The Citizen&#x27;s Stand</h2></div>
+<p class="intro">The third watch is the citizen&#x27;s stewardship — Joash&#x27;s giving box that fixed the temple, and Amaziah&#x27;s clean-then-compromised reign. The trustworthy citizen is the man the LORD can give a great deliverance to without his importing Edomite gods on the chariot home.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 2 Chronicles 25:1–28</div>
+<div class="scripture-text">
+<p>Amaziah was twenty-five years old when he became king, and he reigned twenty-nine years in Jerusalem. His mother&#x27;s name was Jehoaddan of Jerusalem. He did what was right in the eyes of the LORD, but not with a whole heart.</p>
+<p>Now when the kingdom was firmly in his hand, he killed his servants who had killed his father the king. But he did not put their children to death, but did as is written in the law in the book of Moses, where the LORD commanded: &quot;Fathers shall not be put to death for the children, nor children be put to death for the fathers, but each man shall be put to death for his own sin.&quot;</p>
+<p>Then Amaziah gathered Judah together and set them by their fathers&#x27; houses, by commanders of thousands and of hundreds, throughout Judah and Benjamin. He numbered those from twenty years old and upward — three hundred thousand choice men, able to go to war and handle spear and shield. He also hired one hundred thousand mighty men of valor from Israel for one hundred talents of silver.</p>
+<p>But a man of God came to him and said: &quot;O king, do not let the army of Israel go with you, for the LORD is not with Israel — with any of these Ephraimites. If you do go, take action, be strong for the battle; God will bring you down before the enemy, for God has power to help and to bring down.&quot;</p>
+<p>Amaziah said to the man of God: &quot;But what shall I do for the hundred talents which I have given to the troops of Israel?&quot; The man of God answered: &quot;The LORD has much more to give you than this.&quot;</p>
+<p>So Amaziah dismissed the troops that had come to him from Ephraim, to go home. They became very angry with Judah and returned home in fierce anger.</p>
+<p>Amaziah strengthened himself and led his people. He went to the Valley of Salt, and struck down ten thousand of the sons of Seir. The men of Judah also captured ten thousand alive, and brought them to the top of the cliff, and threw them down from the top of the cliff so that they were all broken in pieces.</p>
+<p>But the troops that Amaziah sent back, that they should not go with him to battle, raided the cities of Judah from Samaria to Beth-horon. They struck down three thousand of them and took much spoil.</p>
+<p>After Amaziah came from striking down the Edomites, he brought the gods of the sons of Seir, set them up as his gods, bowed before them, and burned incense to them. So the anger of the LORD was kindled against Amaziah, and He sent a prophet to him who said: &quot;Why have you sought the gods of the people which could not deliver their own people from your hand?&quot;</p>
+<p>As he was speaking to him, the king said to him: &quot;Have we appointed you the king&#x27;s counselor? Stop! Why should you be put to death?&quot; The prophet stopped and said: &quot;I know that God has determined to destroy you, because you have done this and have not listened to my counsel.&quot;</p>
+<p>Then Amaziah king of Judah took counsel and sent to Jehoash the son of Jehoahaz, the son of Jehu, king of Israel, saying: &quot;Come, let us face one another.&quot;</p>
+<p>Jehoash king of Israel sent to Amaziah king of Judah: &quot;The thistle that was in Lebanon sent to the cedar that was in Lebanon, saying, &#x27;Give your daughter to my son in marriage&#x27; — but a wild beast in Lebanon passed by and trampled the thistle. You have indeed struck Edom, and your heart has lifted you up. Enjoy your glory and stay home. Why should you provoke trouble, so you, even you, would fall, and Judah with you?&quot;</p>
+<p>But Amaziah would not listen, for it was of God, that He might give them into the hand of their enemies, because they had sought the gods of Edom. Jehoash king of Israel came up. He and Amaziah king of Judah faced each other at Beth-shemesh, which belongs to Judah. Judah was defeated by Israel. Jehoash king of Israel captured Amaziah king of Judah, the son of Joash, the son of Jehoahaz, at Beth-shemesh, and brought him to Jerusalem and broke down the wall of Jerusalem from the Gate of Ephraim to the Corner Gate, four hundred cubits. He took all the gold and silver, all the utensils which were found in the house of God with Obed-edom, and the treasures of the king&#x27;s house, and hostages also, and returned to Samaria.</p>
+<p>Amaziah the son of Joash king of Judah lived fifteen years after the death of Jehoash son of Jehoahaz king of Israel. Now the rest of the acts of Amaziah, from first to last, are they not written in the Book of the Kings of Judah and Israel? From the time that Amaziah turned away from following the LORD, they conspired against him in Jerusalem, and he fled to Lachish; but they sent after him to Lachish and killed him there. They brought him on horses and buried him with his fathers in the City of Judah.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🛰️ Situation Report</div>
+<p>Amaziah is the cautionary tale of the trustworthy citizen who almost gets there. He listens to a man of God in chapter twenty-five, dismisses the mercenary troops he had paid for, accepts the financial loss, and strikes Edom with the LORD&#x27;s help. Then he brings the gods of the people he just defeated home and bows down to them. The same king who would not put fathers to death for their children&#x27;s sins ten verses earlier now imports the gods of the children he just killed. The LORD sends a prophet; the prophet is silenced; the king picks a fight with Israel; Judah is defeated; the wall of Jerusalem is broken down four hundred cubits; the temple gold is carried off; and Amaziah dies fifteen years later in a conspiracy at Lachish. Trustworthiness for a citizen is not a one-day verdict. It is whether the LORD can keep handing things to you over decades without you turning the gift into an idol.</p>
+</div>
+<div class="section reflection resolute">
+<div class="section-label">🛡️ Reflection for a R.E.S.O.L.U.T.E. Citizen — Trustworthy</div>
+<p>Fredericksburg (local)<br>As a RESOLUTE citizen called to be trustworthy, your block in Fredericksburg watches what you do with what God has handed you, far more than what you say at the city council. Amaziah was trustworthy at the start of his reign — he obeyed the man of God, took the financial hit, dismissed the wrong army, and led Judah to a real victory at the Valley of Salt. The local lesson is simple. Trustworthiness is what you do with God&#x27;s first gifts. If a small victory in a small Fredericksburg sphere makes you proud or careless, you cannot be trusted with a larger one. Be the citizen who can take a win and stay humble in the same week.</p>
+<p>Virginia (state)<br>Across Virginia, trustworthiness looks like Joash organizing the giving box outside the gate of the temple. The whole story turns on the simple fact that when &quot;the chest was brought into the king&#x27;s office by the hand of the Levites, and when they saw there was much money, the king&#x27;s secretary and the officer of the chief priest came and emptied the chest and took it and returned it to its place.&quot; Open accounting. Documented hand-offs. Trustworthy stewardship of the LORD&#x27;s silver. Brother, in a Commonwealth where dollar after dollar is moved by people no citizen ever sees, be the man whose own books are open and clean. Trustworthy citizenship at the state scale starts with personally trustworthy handling of every coin that passes through your own hand.</p>
+<p>United States (nation)<br>At the national scale, Amaziah&#x27;s import of Edom&#x27;s gods is the warning. He won a real victory, and he could not stop himself from bringing the spoils&#x27; theology home. A trustworthy American citizen does not import the worldview of the cultures he just defeated commercially, militarily, or politically. Every time our nation has been handed an unmistakable mercy by the LORD, the temptation has been to bow down to whatever new idol was in the spoils. Be the citizen who, after a national victory or a personal one, does not let the foreign gods through the gate. The LORD has much more to give you than this. He always has.</p>
+</div>
+<div class="section history">
+<div class="section-label">🦅 This Day in American History — May 29</div>
+<p>• 1736 — Patrick Henry, future Virginia governor and one of the orators of the American Revolution, is born at Studley plantation in Hanover County, Virginia. His most famous line — &quot;Give me liberty or give me death&quot; — was delivered to the Virginia Convention at St. John&#x27;s Church in Richmond on March 23, 1775. A trustworthy citizen is the man whose words match what he is actually willing to do.<br>• 1953 — Edmund Hillary of New Zealand and Tenzing Norgay of Nepal reach the summit of Mount Everest, the first humans to do so. They reached the top as a pair, by mutual encouragement; neither would claim sole credit afterward. Trustworthy citizenship in a hard climb is the man who shares the rope and the summit honestly with his partner.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Pick one resource the LORD has handed you recently — a small win, a sum of money, a season of influence, a teaching opportunity — and ask plainly: have I imported a foreign god with the spoils? Send the idol back today.</li>
+<li>Open your own books. Make at least one financial record transparent to one trusted person this week. Trustworthiness starts with willing accountability.</li>
+<li>Take the financial hit Amaziah was asked to take: cancel something you have already paid for if a man of God says the LORD is not in it.</li>
+<li>Refuse to silence the prophet. When a brother says &quot;stop and listen,&quot; do not say &quot;have we appointed you the king&#x27;s counselor?&quot; Sit down and hear him out.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Bridge</div>
+<p>Father, Owner of every gift handed to Your servants,<br>You can be trusted with Edom and with Jerusalem;<br>You give victory and call us to bring no foreign gods home.</p>
+<p>By the power of Your Holy Spirit,<br>make me a trustworthy citizen — in this city, in this state, in this nation —<br>slow to import the gods of any spoil You hand me,<br>quick to take the financial hit a man of God asks me to take,<br>careful with every coin and every season of influence You entrust to my hand.</p>
+<p>In the name of Jesus Christ, my Lord and Commander,<br>the true King who could be trusted with all things in heaven and on earth —<br>make me a man You can hand the next gift to without losing me to it.<br>Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Rudder Steer:</span> Take the win humbly, leave the foreign gods at the border, keep open books — and the LORD will keep handing you the next thing.</div>
+</section>
+
+<section class="watch watch-peace" id="watch-peace" data-watch="peace">
+<div class="watch-header"><span class="watch-time">2100</span> <h2>Evening Peace</h2></div>
+<p class="intro">Tonight closes a day of fading mentors and complicated kings with the shortest, sweetest pilgrim psalm in the book — three verses on what happens when brothers actually dwell together in unity.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Psalm 133</div>
+<div class="scripture-text">
+<p>A Song of Ascents. Of David.</p>
+<p class="stanza">Look — how good and how pleasant it is<br>when brothers dwell together in unity!</p>
+<p class="stanza">It is like the precious oil on the head,<br>running down on the beard —<br>the beard of Aaron,<br>running down on the edge of his garments.</p>
+<p class="stanza">It is like the dew of Hermon,<br>descending on the mountains of Zion;<br>for there the LORD commanded the blessing —<br>life forevermore.</p>
+</div>
+</div>
+<div class="section reflection">
+<div class="section-label">🌾 Reflection for a Man at Home and in Community</div>
+<p>Tonight David hands you three verses that the whole long day was groaning for. After Jehu&#x27;s calves, after Joash&#x27;s betrayal of Jehoiada&#x27;s son, after Amaziah&#x27;s Edomite gods, after the bricks of Jerusalem&#x27;s wall coming down — three verses on brothers dwelling together in unity, on the oil running down Aaron&#x27;s beard onto his garments, on the dew of Hermon settling on Zion. The contrast is on purpose. After the day&#x27;s wreckage, the LORD reminds His servants what He still commands: the blessing of life forevermore where brothers stay together under His name.</p>
+<p>As a HAPPY husband, Abiding tonight means you make your marriage the smallest possible picture of the dwelling-together David describes. Maria is the brother you covenanted with for life. Abiding husband-wife unity is not a feeling; it is the slow daily settling of the same two people under the same Lord. Tell her tonight, plainly, &quot;The LORD commands the blessing where we dwell together in unity. Tonight we dwell together under His name.&quot; Then let the oil run down.</p>
+<p>As a FULFILLED father, Encouraging tonight means you remember that the brothers Gideon and Boaz dwelling together — and Shiloh dwelling with them — is itself a place where the LORD commands the blessing. Encourage that unity. Catch them being kind to one another and name it. Refuse the rivalries that the world wants to plant between siblings. Pray over them tonight: &quot;May the dew of Hermon fall on this house, and may my children&#x27;s brotherhood last.&quot;</p>
+<p>As a RESOLUTE citizen, Trustworthy tonight means you remember that the unity of the LORD&#x27;s people across a city is itself a means of grace. Fredericksburg, Virginia, the United States — none of them is held together by your trustworthy strength alone. They are held together where the brothers under Christ dwell in unity, and where the LORD commands the blessing on that dwelling. Lay civic isolation down tonight. Reach out tomorrow to one brother in your church who you have not stood near in too long. The dew falls on the gathered, not the scattered.</p>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Stateroom</div>
+<p>Father, Commander of the blessing where brothers dwell together,<br>You pour the oil on the head and let it run down to the hem,<br>and You send the dew of Hermon on Your mountain Zion.</p>
+<p>By the power of Your Holy Spirit,<br>make this house a place where the blessing You commanded falls.<br>Hold Maria under Your covering,<br>hold Gideon and Boaz and Shiloh under Your unity,<br>hold our city under the dew of life forevermore.</p>
+<p>In the name of Jesus Christ, my Lord and Commander,<br>the great High Priest whose oil runs down on every one of His brothers —<br>let me sleep tonight as one of Your gathered,<br>and let me wake to dwell in unity with the brothers You have given me.<br>Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Rudder Steer:</span> Let the oil run down — dwell together under His name tonight, and rise tomorrow to be near the brothers where the dew falls.</div>
+</section>
+
+<footer>
+<div class="draft-tag">PROTOTYPE — sign-off pending</div>
+<div>U.S.M.C. Ministries · The Watchman's Chronological Plan for the Year of our Lord 2026</div>
+<div style="margin-top:6px;font-size:0.78rem;">Adam Johns &middot; rich interpretive blend &middot; divine name LORD</div>
+</footer>
+
+</div>
+<script>
+(function(){
+  const SLUGS = ['all','wisdom','husband','father','citizen','peace'];
+
+  // Watch windows in local hours (each watch is "live" from its start time
+  // until the NEXT watch begins). Evening peace owns 21:00 → 04:59.
+  function currentWatchSlug() {
+    const h = new Date().getHours();
+    if (h >= 5  && h < 7)  return 'wisdom';
+    if (h >= 7  && h < 11) return 'husband';
+    if (h >= 11 && h < 15) return 'father';
+    if (h >= 15 && h < 21) return 'citizen';
+    return 'peace';                       // 21:00 – 04:59
+  }
+  const NOW_SLUG = currentWatchSlug();
+
+  function markNowBadge(){
+    document.querySelectorAll('.watch-tab').forEach(t => {
+      t.classList.toggle('is-now', t.dataset.tab === NOW_SLUG);
+    });
+  }
+  function showOnly(slug){
+    const isAll = slug === 'all' || !SLUGS.includes(slug);
+    document.querySelectorAll('section.watch').forEach(s => {
+      s.style.display = (isAll || s.dataset.watch === slug) ? '' : 'none';
+    });
+    document.querySelectorAll('.watch-tab').forEach(t => {
+      t.classList.toggle('active', t.dataset.tab === (isAll ? 'all' : slug));
+    });
+  }
+  document.querySelectorAll('.watch-tab').forEach(t => {
+    t.addEventListener('click', function(e){
+      e.preventDefault();
+      const slug = this.dataset.tab;
+      history.replaceState(null, '', '#' + slug);
+      showOnly(slug);
+      window.scrollTo({top: 0, behavior:'smooth'});
+    });
+  });
+
+  // Initial selection priority:
+  //   1. URL hash if present  (#all / #wisdom / #husband / #father / #citizen / #peace)
+  //   2. Auto-select the watch that is "live right now"
+  let initial;
+  if (location.hash) {
+    initial = location.hash.slice(1);
+  } else {
+    initial = NOW_SLUG;
+  }
+  markNowBadge();
+  showOnly(initial);
+})();
+</script>
+</body>
+</html>
