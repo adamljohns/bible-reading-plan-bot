@@ -19,6 +19,7 @@ const NETWORK_META = {
     label: 'Founders Ministries',
     shortLabel: 'Founders',
     color: '#8B5E3C',
+    logo: '/assets/icons/networks/founders.png',
     directoryUrl: 'https://church.founders.org/churches',
     description: 'Reformed-Baptist confessional network ("Founders Friendly") affirming the 1689 LBC and complementarian polity.',
     methodology: 'Founders Ministries publishes a vetted "Founders Friendly" directory at <a href="https://founders.org" target="_blank" rel="noopener">founders.org</a>. Each listed church voluntarily affirms the 1689 London Baptist Confession + complementarian polity. <strong>Vetting strength: HIGH.</strong>',
@@ -27,6 +28,7 @@ const NETWORK_META = {
     label: '9Marks Church-Search',
     shortLabel: '9Marks',
     color: '#3F6F8F',
+    logo: '/assets/icons/networks/9marks.png',
     directoryUrl: 'https://www.9marks.org/church-search/',
     description: '9Marks self-listing directory (Mark Dever) — churches self-identifying with the 9 Marks of a Healthy Church.',
     methodology: '9Marks publishes a Google-Maps backed church-finder at <a href="https://www.9marks.org/church-search/" target="_blank" rel="noopener">9marks.org/church-search</a>. <strong>Listings are user-submitted; 9Marks editorial staff does NOT individually vet entries.</strong> Treat inclusion as a self-attested signal of alignment with the 9 Marks (expositional preaching, congregational polity, complementarianism, biblical church discipline, meaningful membership, etc.) — <strong>not</strong> a 9Marks certification.',
@@ -35,6 +37,7 @@ const NETWORK_META = {
     label: 'TGC Church Directory',
     shortLabel: 'TGC',
     color: '#4A7A4A',
+    logo: '/assets/icons/networks/tgc-cn.png',
     directoryUrl: 'https://www.thegospelcoalition.org/churches/',
     description: 'The Gospel Coalition\'s open Church Directory (sponsored by Midwestern Seminary) — broader Reformed-evangelical tent.',
     methodology: 'The Gospel Coalition publishes an open self-listing Church Directory at <a href="https://www.thegospelcoalition.org/churches/" target="_blank" rel="noopener">thegospelcoalition.org/churches</a>. <strong>~52% of listings carry no formal network affiliation</strong>; the rest declare Acts 29, SEND Network, Harbor Network, Converge, or Redeemer City to City. Directory presence does NOT imply TGC Foundation Documents vetting; verify complementarianism + inerrancy independently.',
@@ -43,6 +46,7 @@ const NETWORK_META = {
     label: 'Acts 29',
     shortLabel: 'Acts 29',
     color: '#9F4A4A',
+    logo: '/assets/icons/networks/acts29.png',
     directoryUrl: 'https://www.acts29.com/find-a-church/',
     description: 'Acts 29 church-planting network — Reformed-leaning evangelical, complementarian, missional. Globally distributed.',
     methodology: 'Acts 29 vets each church-planter through a residency before granting network membership. Distinctives: gospel-centered, Reformed soteriology, complementarian, missional church-planting, Spirit-empowered. Mark Driscoll was expelled in 2014; current leadership emphasizes accountability + elder plurality. <strong>Vetting strength: HIGH.</strong>',
@@ -51,6 +55,7 @@ const NETWORK_META = {
     label: 'Sovereign Grace Churches',
     shortLabel: 'SGC',
     color: '#6A4A8A',
+    logo: '/assets/icons/networks/sgc.png',
     directoryUrl: 'https://sovereigngrace.com/churches',
     description: 'Sovereign Grace Churches (C.J. Mahaney heritage) — Reformed-Baptist-flavored, continuationist-friendly, complementarian.',
     methodology: 'Sovereign Grace Churches requires confessional alignment with SGC\'s Statement of Faith and Polity for membership; tracked via the SGC office. Distinctives: doctrines of grace, continuationist (open to charismatic gifts within an orderly worship frame), complementarian, gospel-centered church-planting. <strong>Vetting strength: HIGH.</strong>',
@@ -59,6 +64,7 @@ const NETWORK_META = {
     label: 'Pillar Network',
     shortLabel: 'Pillar',
     color: '#5A7A9A',
+    logo: '/assets/icons/networks/pillar-network.png',
     directoryUrl: 'https://thepillarnetwork.com/directory',
     description: 'Pillar Network — church-planting + revitalization, SBC-cooperating, Reformed-leaning, complementarian.',
     methodology: 'Pillar Network (<a href="https://thepillarnetwork.com" target="_blank" rel="noopener">thepillarnetwork.com</a>) is a church-planting and church-revitalization network headquartered in Wake Forest, NC. Members affirm shared doctrine and commit to plant or revitalize churches; partners with NAMB on certain plants. <strong>Vetting strength: HIGH.</strong>',
@@ -67,13 +73,23 @@ const NETWORK_META = {
     label: 'Trinity Foundation Registry',
     shortLabel: 'Trinity',
     color: '#7A5A3A',
+    logo: '/assets/icons/networks/trinity-foundation.png',
     directoryUrl: 'https://trinityfoundation.org/churchapproved.php',
     description: 'Trinity Foundation Church Registry & Clearinghouse (Gordon Clark / John Robbins tradition) — vetted confessional Reformed clearinghouse.',
     methodology: 'The Trinity Foundation publishes a screened Church Registry & Clearinghouse at <a href="https://trinityfoundation.org/churchapproved.php" target="_blank" rel="noopener">trinityfoundation.org/churchapproved.php</a>. Explicit disclaimer: "We are not establishing a new denomination." Each entry is vetted against confessional Reformed standards (1689 LBCF, Westminster Confession of Faith 1729, or Three Forms of Unity). Smaller in scope but highly confessional. <strong>Vetting strength: HIGH.</strong>',
   },
+  sbc: {
+    label: 'Southern Baptist Convention',
+    shortLabel: 'SBC',
+    color: '#C8A24B',
+    logo: '/assets/icons/networks/sbc.png',
+    directoryUrl: 'https://www.sbc.net/',
+    description: 'Southern Baptist Convention — largest US Baptist denomination. Cooperating churches affirm the Baptist Faith & Message 2000, complementarian polity, and Cooperative Program giving.',
+    methodology: 'The Southern Baptist Convention is the largest US Protestant denomination by membership (~13M). Member churches affirm the <a href="https://bfm.sbc.net/" target="_blank" rel="noopener">Baptist Faith &amp; Message 2000</a> and participate in the Cooperative Program. Listing here reflects appearance in the SBC\'s church-finder at <a href="https://churches.sbc.net" target="_blank" rel="noopener">churches.sbc.net</a>. SBC churches are autonomous and vary in confessional precision from Calvinistic Reformed Baptist to Arminian-leaning revivalist; consult each congregation\'s statement of faith for confessional alignment. <strong>Vetting strength: MEDIUM</strong> (denominational affiliation, not per-church confessional vetting).',
+  },
 };
 
-const NETWORK_ORDER = ['founders', '9marks', 'tgc-cn', 'acts29', 'sgc', 'pillar-network', 'trinity-foundation'];
+const NETWORK_ORDER = ['founders', '9marks', 'tgc-cn', 'acts29', 'sgc', 'pillar-network', 'trinity-foundation', 'sbc'];
 
 function escapeHtml(s) {
   return String(s == null ? '' : s)
@@ -164,15 +180,25 @@ function renderHtml({ records, summary, total_churches }) {
   const chipFilters = NETWORK_ORDER.map(n => {
     const meta = NETWORK_META[n];
     const count = summary.byNetwork[n] || 0;
-    return `<button class="filter-btn" data-filter-net="${n}" style="--net-color:${meta.color};"><span class="dot" style="background:${meta.color}"></span>${escapeHtml(meta.shortLabel)} <span class="count-suffix">(${count})</span></button>`;
+    const logoTag = meta.logo ? `<img class="net-logo-mini" src="${meta.logo}" alt="" width="16" height="16" loading="lazy">` : `<span class="dot" style="background:${meta.color}"></span>`;
+    return `<button class="filter-btn" data-filter-net="${n}" style="--net-color:${meta.color};">${logoTag}${escapeHtml(meta.shortLabel)} <span class="count-suffix">(${count})</span></button>`;
   }).join('');
 
   const methodologyBlocks = NETWORK_ORDER.map(n => {
     const meta = NETWORK_META[n];
     const count = summary.byNetwork[n] || 0;
+    const logoTag = meta.logo ? `<img class="net-logo" src="${meta.logo}" alt="${escapeHtml(meta.shortLabel)} logo" loading="lazy">` : `<span class="dot" style="background:${meta.color}"></span>`;
+    const directoryLink = meta.directoryUrl ? `<a href="${escapeHtml(meta.directoryUrl)}" target="_blank" rel="noopener" class="meth-directory-link">View ${escapeHtml(meta.shortLabel)} directory &rarr;</a>` : '';
     return `<section class="meth-card" id="meth-${n}">
-      <h3 style="border-left-color:${meta.color}"><span class="dot" style="background:${meta.color}"></span>${escapeHtml(meta.label)} <span class="count">${count} listed</span></h3>
+      <div class="meth-head" style="border-left-color:${meta.color}">
+        ${logoTag}
+        <div class="meth-title">
+          <h3>${escapeHtml(meta.label)}</h3>
+          <span class="count">${count} listed</span>
+        </div>
+      </div>
       <p>${meta.methodology}</p>
+      ${directoryLink}
     </section>`;
   }).join('');
 
@@ -258,13 +284,37 @@ function renderHtml({ records, summary, total_churches }) {
     .methodology { margin-top:50px; }
     .methodology h2 { color:var(--gold-light); font-size:1.4rem; margin-bottom:16px; }
     .meth-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(340px, 1fr)); gap:14px; }
-    .meth-card { background:var(--card2); border:1px solid var(--border); border-left:4px solid var(--gold); border-radius:10px; padding:18px; }
-    .meth-card h3 { color:var(--gold-light); font-size:1.05rem; margin-bottom:8px; display:flex; align-items:center; gap:8px; }
-    .meth-card h3 .dot { width:10px; height:10px; border-radius:50%; }
-    .meth-card h3 .count { color:var(--gray); font-size:0.72rem; font-family:'Inter',sans-serif; font-weight:400; margin-left:auto; }
-    .meth-card p { color:var(--gray); font-size:0.86rem; line-height:1.55; }
+    .meth-card { background:var(--card2); border:1px solid var(--border); border-radius:10px; padding:0; overflow:hidden; }
+    .meth-head { display:flex; align-items:center; gap:14px; padding:16px 18px 12px; border-left:4px solid var(--gold); }
+    .meth-head .net-logo {
+      width:48px; height:48px; min-width:48px;
+      object-fit:contain;
+      background:#fff; border-radius:8px;
+      padding:4px;
+      box-shadow:0 1px 3px rgba(0,0,0,0.4);
+    }
+    .meth-head .dot { width:10px; height:10px; border-radius:50%; }
+    .meth-title { display:flex; flex-direction:column; flex:1; min-width:0; }
+    .meth-title h3 { color:var(--gold-light); font-size:1.05rem; line-height:1.25; margin:0; }
+    .meth-title .count { color:var(--gray); font-size:0.72rem; font-family:'Inter',sans-serif; font-weight:400; margin-top:2px; }
+    .meth-card p { color:var(--gray); font-size:0.86rem; line-height:1.55; padding:0 18px 14px; margin:0; }
     .meth-card p a { color:var(--gold); text-decoration:none; border-bottom:1px dotted #555; }
     .meth-card p a:hover { color:var(--gold-light); border-color:var(--gold-light); }
+    .meth-directory-link {
+      display:inline-block;
+      color:var(--gold); text-decoration:none;
+      font-size:0.82rem; font-weight:600;
+      margin:0 18px 16px; padding:5px 12px;
+      border:1px solid var(--gold); border-radius:14px;
+      transition:background 0.15s, color 0.15s;
+    }
+    .meth-directory-link:hover { background:var(--gold); color:#000; }
+    .filter-btn .net-logo-mini {
+      width:16px; height:16px;
+      object-fit:contain;
+      background:#fff; border-radius:3px;
+      padding:1px;
+    }
 
     footer { padding:30px 20px; text-align:center; color:var(--gray); font-size:0.78rem; border-top:1px solid var(--border); margin-top:60px; }
     footer a { color:var(--gold); text-decoration:none; }
