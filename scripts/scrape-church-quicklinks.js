@@ -29,7 +29,7 @@ const http = require('http');
 const CHURCHES = path.join(__dirname, '..', 'docs', 'data', 'churches.json');
 const DEFAULT_JSONL = '/tmp/quicklinks-scrapes.jsonl';
 const UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36 MOOP-Church-Directory/1.0 (+https://usmcmin.org/churches.html)';
-const PROBE_TIMEOUT_MS = 8000;
+const PROBE_TIMEOUT_MS = 4500;
 const POLITE_DELAY_MS = 1200;
 
 // Path -> label mapping. Labels chosen to read naturally as chip text on the
@@ -142,20 +142,21 @@ async function main() {
     const found = [];
     let probedThisChurch = 0;
 
-    for (const probe of PATH_PROBES) {
-      // Stop probing this label group as soon as we find a hit
-      for (const p of probe.paths) {
-        const url = base + p;
-        const r = await probeOnce(url);
-        probedThisChurch++;
-        if (r.ok) {
-          found.push({ label: probe.label, icon: probe.icon, url: r.redirected_to || url });
-          break;
-        }
-        // Quarter-second between path probes on same site
-        await new Promise(res => setTimeout(res, 250));
-      }
-    }
+    // Probe all path-groups in parallel; within each group, probe all paths
+    // in parallel and take the first successful 200. This is the big speedup
+    // vs. the prior sequential version: a 9-group church is now bounded by
+    // a single ~4.5s timeout window rather than 30+ sequential probes.
+    const groupResults = await Promise.all(PATH_PROBES.map(async probe => {
+      const probes = probe.paths.map(p => ({ url: base + p, label: probe.label, icon: probe.icon }));
+      probedThisChurch += probes.length;
+      const responses = await Promise.all(probes.map(async pp => {
+        const r = await probeOnce(pp.url);
+        return r.ok ? { ok: true, hit: pp, finalUrl: r.redirected_to || pp.url } : { ok: false };
+      }));
+      const winner = responses.find(r => r.ok);
+      return winner ? { label: winner.hit.label, icon: winner.hit.icon, url: winner.finalUrl } : null;
+    }));
+    for (const g of groupResults) if (g) found.push(g);
 
     const result = { id: c.id || c.slug, quick_links: found, probed_at: new Date().toISOString(), paths_tried: probedThisChurch };
     fs.appendFileSync(args.jsonl, JSON.stringify(result) + '\n');
