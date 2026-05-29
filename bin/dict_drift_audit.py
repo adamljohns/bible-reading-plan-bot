@@ -266,20 +266,34 @@ def scan_batch_json(path: str) -> list[Finding]:
     LIST_FIELDS = ("webster_full", "corruption_paragraphs", "roots_lines", "usage")
     for entry in data:
         slug = entry.get("slug", "(no-slug)")
+        # Entry-level voice-lock-ok: a JSON array of suppressed categories.
+        # Used when an entire entry is a corruption-correcting entry that
+        # legitimately uses the banned register to name what it rebuts.
+        entry_ok: set[str] = set()
+        elo = entry.get("voice_lock_ok")
+        if isinstance(elo, list):
+            entry_ok = {str(x).lower() for x in elo}
+
+        def scan_field(text: str, field_name: str) -> list[Finding]:
+            raw = scan_text(text, path, slug, field_name)
+            if not entry_ok:
+                return raw
+            return [f for f in raw if f.category.lower() not in entry_ok]
+
         for field in SCANNED_FIELDS:
             text = entry.get(field) or ""
             if isinstance(text, str):
-                findings.extend(scan_text(text, path, slug, field))
+                findings.extend(scan_field(text, field))
         for field in LIST_FIELDS:
             arr = entry.get(field) or []
             if isinstance(arr, list):
                 for i, item in enumerate(arr):
                     if isinstance(item, str):
-                        findings.extend(scan_text(item, path, slug, f"{field}[{i}]"))
+                        findings.extend(scan_field(item, f"{field}[{i}]"))
         # scriptures: only check the kv text, not refs
         for i, sc in enumerate(entry.get("scriptures") or []):
             if isinstance(sc, list) and len(sc) >= 2 and isinstance(sc[1], str):
-                findings.extend(scan_text(sc[1], path, slug, f"scriptures[{i}].text"))
+                findings.extend(scan_field(sc[1], f"scriptures[{i}].text"))
     return findings
 
 

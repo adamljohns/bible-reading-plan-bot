@@ -466,13 +466,20 @@ corruption. The closed canon is the rule.
 Before any batch is committed:
 
 1. `python3 bin/dict_drift_audit.py data/dictionary-batches/batch-NN.json`
-2. The audit reports every banned-register hit with file, slug, and 80-char
-   context.
+2. The audit reports every banned-register hit with file, slug, field, and
+   80-char context.
 3. Each hit must be reviewed. Where the hit is a genuine drift, the text is
    revised. Where the hit is a discussion of the corruption pattern itself
-   (e.g., an entry on "progressive evangelicalism" that names the term), the
-   audit is told to ignore that hit via an inline `# voice-lock-ok: <reason>`
-   comment in the batch JSON.
+   (e.g., an entry on `critical-race-theory` that names CRT's banned-register
+   vocabulary to rebut it), the audit can be told to ignore the hit two ways:
+   - **Per-field marker**: inline `# voice-lock-ok: <category-or-phrase>:
+     <reason>` inside the field's text. Suppresses hits matching that
+     category/phrase in that field only.
+   - **Per-entry array**: top-level `voice_lock_ok` field on the entry
+     containing a JSON array of categories to suppress for the WHOLE entry,
+     e.g., `"voice_lock_ok": ["progressive", "histcrit"]`. Use this when the
+     entire entry is a corruption-correcting entry that legitimately uses the
+     banned register throughout.
 4. The audit must return clean (exit code 0) before the batch is generated.
 
 The audit can also be run against any prior batch to find drift evidence in
