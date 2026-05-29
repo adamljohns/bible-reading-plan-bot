@@ -141,11 +141,34 @@ Substitute Reformed moral vocabulary (mirrors the dictionary's voice-lock):
 | "validate" (as moral category) | soft | confirm / affirm / commend |
 | "unhealthy patterns" | soft | sin patterns / besetting sins |
 
-### 3.9. Em-dash overuse
+### 3.9. Em-dash overuse &mdash; STANDING DECISION REQUIRED
 
-Em-dashes are house-style (see &sect;2). But more than two in a single
-paragraph reads like AI. The remedy is variety, not abstention &mdash; mix
-em-dashes with commas, colons, semicolons, and sentence breaks.
+**Conflict to resolve:** The most-downloaded humanize-AI-writing skill on
+GitHub (@blader/humanizer, 16,800+ stars) takes a hard line: em-dashes
+(`—`) are one of the strongest AI tells and must be cut from all final
+rewrites. The Wikipedia "Signs of AI Writing" guide that skill is built
+on agrees.
+
+This guide's §2 ("Em-dashes are house-style") was written BEFORE the
+@blader/humanizer skill was installed. The two positions conflict:
+
+- **Position A (this guide, until 2026-05-28):** em-dashes are Adam's
+  natural flowing-prose voice and should be kept. AI tell or not, it's
+  the house rhythm.
+- **Position B (@blader/humanizer):** em-dashes are a strong AI tell;
+  replace with periods, commas, colons, parentheses, or restructure.
+
+**Until Adam decides which position governs**, the `usmcmin-content`
+prep skill follows Position A (keep em-dashes) for blog posts at
+`usmcmin.org` and Position B (strip em-dashes) for ALL other content
+(Telegram replies, professional emails, dictionary entries, LBCF
+chapters, citizen page additions).
+
+The voice audit script (`bin/voice_audit_blog.py`) still soft-flags
+3+ em-dashes in a single paragraph as a heads-up; it does not hard-fail.
+
+When Adam decides, this section should be updated and the
+`usmcmin-content` skill spec adjusted accordingly.
 
 ---
 
