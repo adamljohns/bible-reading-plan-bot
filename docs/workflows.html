@@ -449,6 +449,10 @@
 <!-- ── Main Content (hidden until unlocked) ── -->
 <div id="main-content" style="display:none">
 
+    <div id="persist-warn" style="display:none; margin:12px 24px 0; padding:10px 14px; background:rgba(244,67,54,0.12); border:1px solid rgba(244,67,54,0.5); border-radius:8px; color:#ffb4ac; font-size:0.82rem;">
+        ⚠ This browser is blocking saved progress (private mode or storage full), so check-offs won't stick here. Use the same non-private browser each time, or tap <b>Copy State → MbPro</b> to hand your progress off.
+    </div>
+
     <div class="page-header">
         <h1><img src="assets/icons/shield-checklist-48.png" alt="" width="16" height="16" style="vertical-align:middle;margin-right:3px;"> Workflow Command Center</h1>
         <div class="subtitle">State-machine tracker — all areas of life</div>
@@ -464,7 +468,7 @@
 
     <div class="filter-bar" id="filter-bar"></div>
     <div style="text-align:right; padding: 0 24px 8px; opacity:0.6; font-size:0.8rem;">
-        <button onclick="exportStateToClipboard()" style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.2); color:#ccc; padding:5px 14px; border-radius:6px; cursor:pointer; font-size:0.78rem;"><img src="assets/icons/shield-checklist-48.png" alt="" width="16" height="16" style="vertical-align:middle;margin-right:3px;"> Copy State → MbPro</button>
+        <span id="sync-note" style="margin-right:12px; color:#8fae8f;"></span><button onclick="exportStateToClipboard()" style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.2); color:#ccc; padding:5px 14px; border-radius:6px; cursor:pointer; font-size:0.78rem;"><img src="assets/icons/shield-checklist-48.png" alt="" width="16" height="16" style="vertical-align:middle;margin-right:3px;"> Copy State → MbPro</button>
     </div>
 
     <div class="workflow-grid" id="workflow-grid"></div>
@@ -559,7 +563,7 @@ const WORKFLOWS_DEFAULT = [
         category: 'Ministry',
         icon: '✝️',
         status: 'active',
-        currentStep: 0,
+        currentStep: 2,
         steps: [
             { name: 'Intake Sent',           desc: 'Send intake questionnaire to mentoring client.' },
             { name: 'Intake Received',        desc: 'Client returns completed intake form.' },
@@ -634,7 +638,7 @@ const WORKFLOWS_DEFAULT = [
         category: 'Business',
         icon: '<img src="assets/icons/shield-calendar.png" alt="" width="16" height="16" style="vertical-align:middle;margin-right:3px;">',
         status: 'active',
-        currentStep: 0,
+        currentStep: 2,
         steps: [
             { name: 'Build Page',                         desc: 'Create direct booking page on the website. (DONE ✅)' },
             { name: 'Add Real Photos',                    desc: 'Replace placeholder images with actual property photos.' },
@@ -650,7 +654,7 @@ const WORKFLOWS_DEFAULT = [
         category: 'Ministry',
         icon: '🤝',
         status: 'active',
-        currentStep: 0,
+        currentStep: 4,
         steps: [
             { name: 'Intake Form Ready',       desc: 'Build and publish counseling intake form.' },
             { name: 'Define Pricing',           desc: 'Set counseling session rates and packages.' },
@@ -665,8 +669,8 @@ const WORKFLOWS_DEFAULT = [
         title: 'BTE Lexicon Expansion',
         category: 'Ministry',
         icon: '<img src="assets/icons/shield-bible.png" alt="" width="16" height="16" style="vertical-align:middle;margin-right:3px;">',
-        status: 'active',
-        currentStep: 2,
+        status: 'complete',
+        currentStep: 5,
         steps: [
             { name: 'Initial 487 pages',     desc: 'Starting baseline: BTE lexicon at 487 pages.' },
             { name: '1,000 pages',           desc: 'Expand lexicon to 1,000 pages.' },
@@ -681,7 +685,7 @@ const WORKFLOWS_DEFAULT = [
         category: 'Ministry',
         icon: '🔗',
         status: 'active',
-        currentStep: 2,
+        currentStep: 4,
         steps: [
             { name: 'Initial 700',                  desc: 'Starting baseline: 700 cross-references.' },
             { name: '5,000',                         desc: 'Expand to 5,000 cross-references.' },
@@ -696,7 +700,7 @@ const WORKFLOWS_DEFAULT = [
         category: 'Ministry',
         icon: '<img src="assets/icons/shield-book.png" alt="" width="16" height="16" style="vertical-align:middle;margin-right:3px;">',
         status: 'active',
-        currentStep: 2,
+        currentStep: 4,
         steps: [
             { name: 'Initial 100 words',         desc: 'Starting baseline: 100 dictionary entries.' },
             { name: '200 words',                 desc: 'Expand to 200 entries. Current: ~201 ✅' },
@@ -726,7 +730,7 @@ const WORKFLOWS_DEFAULT = [
         category: 'Ministry',
         icon: '<img src="assets/icons/shield-broadcast-48.png" alt="" width="16" height="16" style="vertical-align:middle;margin-right:3px;">',
         status: 'active',
-        currentStep: 1,
+        currentStep: 2,
         steps: [
             { name: 'Sheet Created',        desc: 'Create the outreach contact tracking spreadsheet.' },
             { name: '100 contacts loaded',  desc: '100 contacts entered. Current: 100/851 ✅' },
@@ -740,8 +744,8 @@ const WORKFLOWS_DEFAULT = [
         title: 'Blog Publishing',
         category: 'Ministry',
         icon: '✍️',
-        status: 'active',
-        currentStep: 1,
+        status: 'complete',
+        currentStep: 5,
         steps: [
             { name: '149 posts migrated',          desc: 'All 149 existing posts migrated to new platform.' },
             { name: '2 new drafts written',        desc: 'Write 2 new blog post drafts. (In progress)' },
@@ -868,7 +872,7 @@ const WORKFLOWS_DEFAULT = [
         category: 'Business',
         icon: '📧',
         status: 'active',
-        currentStep: 2,
+        currentStep: 3,
         steps: [
             { name: 'v1 built',                 desc: 'Initial Email Autopilot version built.' },
             { name: 'v2 working',               desc: 'v2 working with improved logic.' },
@@ -901,7 +905,7 @@ const WORKFLOWS_DEFAULT = [
         category: 'Family',
         icon: '📓',
         status: 'active',
-        currentStep: 0,
+        currentStep: 1,
         steps: [
             { name: 'Design doc written',     desc: 'Write the formation binder design document.' },
             { name: 'Review with Moop',       desc: 'Review design doc and refine.' },
@@ -996,8 +1000,8 @@ const WORKFLOWS_DEFAULT = [
         title: 'Disney Trip Planning',
         category: 'Family',
         icon: '🏰',
-        status: 'active',
-        currentStep: 0,
+        status: 'complete',
+        currentStep: 4,
         steps: [
             { name: 'Tickets paid',         desc: 'Disney park tickets purchased for the family. (DONE ✅)' },
             { name: 'Plan daily itinerary', desc: 'Research rides, shows, dining — build day-by-day plan.' },
@@ -1020,6 +1024,9 @@ const STATUS_LABELS = {
 //  STATE (localStorage)
 // ─────────────────────────────────────────────
 const STORAGE_KEY = 'wf-state-v1';
+// Bumped on each server deploy that bakes verified progress into WORKFLOWS_DEFAULT.
+// Surfaced in the UI so Adam can tell the page reflects a real sync, not just local clicks.
+const SEED_SYNCED = '2026-05-29';
 
 function loadState() {
     try {
@@ -1036,7 +1043,18 @@ function saveState(workflows) {
         currentStep: w.currentStep,
         status: w.status,
     }));
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(slim));
+    let ok = true;
+    try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(slim));
+    } catch(e) {
+        // Safari Private Mode / quota / storage disabled throws here. Catch it so a failed
+        // write can't abort the rest of the click handler (the re-render must still run),
+        // and surface a visible warning so a silent no-save never looks like success.
+        ok = false;
+        console.warn('workflows: state did not persist to localStorage —', e);
+        const warn = document.getElementById('persist-warn');
+        if (warn) warn.style.display = '';
+    }
     // Also write to a visible export blob so MbPro can read it
     try {
         const exportData = {
@@ -1045,6 +1063,7 @@ function saveState(workflows) {
         };
         localStorage.setItem('wf-export-latest', JSON.stringify(exportData));
     } catch(e) {}
+    return ok;
 }
 
 function exportStateToClipboard() {
@@ -1066,13 +1085,23 @@ function exportStateToClipboard() {
 
 function mergeState(defaults) {
     const saved = loadState();
-    if (!saved) return defaults.map(w => ({...w, steps: w.steps.map(s=>({...s}))}));
     return defaults.map(w => {
-        const override = saved.find(s => s.id === w.id);
-        if (override) {
-            return { ...w, steps: w.steps.map(s=>({...s})), currentStep: override.currentStep, status: override.status };
-        }
-        return {...w, steps: w.steps.map(s=>({...s}))};
+        const base = { ...w, steps: w.steps.map(s => ({...s})) };
+        const override = saved ? saved.find(s => s.id === w.id) : null;
+        // The deployed seed (WORKFLOWS_DEFAULT) is the authoritative FLOOR for progress:
+        // it carries server-verified state and is identical on every device. A browser's
+        // saved localStorage may only ADVANCE a workflow past that floor — it can never
+        // pull it back below. This is the fix for "the page doesn't stay updated": stale
+        // local state can no longer mask a newer deployed baseline, while any steps Adam
+        // completed locally beyond the baseline are still preserved.
+        const cs = override ? Math.max(w.currentStep || 0, override.currentStep || 0) : (w.currentStep || 0);
+        // Always derive status from step count so a fully-stepped workflow can never show
+        // "100%" while still badged Active (keeps the badge + stat counts honest).
+        let status;
+        if (cs >= w.steps.length) status = 'complete';
+        else if (override && (override.status === 'blocked' || override.status === 'waiting')) status = override.status;
+        else status = w.status;
+        return { ...base, currentStep: cs, status };
     });
 }
 
@@ -1290,6 +1319,8 @@ function init() {
     renderStats();
     renderFilters();
     renderGrid();
+    const note = document.getElementById('sync-note');
+    if (note) note.textContent = 'Server-synced ' + SEED_SYNCED;
 }
 
 // Auto-init on load
