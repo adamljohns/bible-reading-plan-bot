@@ -460,6 +460,7 @@ def build_index(words, by_letter, total):
             <h3>&#x1F48E; Special Directories</h3>
             <p class="subtitle">Curated sub-collections &mdash; start here if you want a focused entry-point into the dictionary.</p>
             <div class="featured-grid">
+                <a href="by-topic.html" class="featured-card"><div class="fword">Browse by Topic</div><div class="ftag">11 categories &middot; 306 entries</div></a>
                 <a href="baby-names.html" class="featured-card"><div class="fword">Baby Names</div><div class="ftag">236 curated &middot; 864 with variants</div></a>
                 <a href="names.html" class="featured-card"><div class="fword">Biblical Names</div><div class="ftag">A-Z proper names</div></a>
                 <a href="doctrinal-anchors.html" class="featured-card"><div class="fword">Doctrinal Anchors</div><div class="ftag">Foundational</div></a>
