@@ -1,42 +1,56 @@
-// U.S.M.C. Ministries — Service Worker v4
-// Network-first for everything, cache as backup only
-// Updated to support Crew Chores PWA
-const CACHE_NAME = 'usmc-v4';
-const PRECACHE = [
-  '/crew-quarters.html',
-  '/manifest.json'
+// U.S.M.C. Ministries — Service Worker v5
+// App-shell precache + network-first runtime caching (installable, offline-capable).
+// Scope "/" controls the whole site, including /dictionary/* once registered from any page.
+const CACHE = 'usmc-v5';
+
+// Core "app shell": the public ministry pages + key assets. Small + high-value.
+// Big data (Bible JSON, dictionary entries) caches on first visit via network-first below.
+const SHELL = [
+  '/', '/index.html', '/manifest.json', '/offline.html',
+  '/bible.html', '/bible-plan.html', '/proverbs.html', '/mbt.html',
+  '/dictionary/', '/dictionary/index.html',
+  '/lexicon.html', '/cross-references.html', '/watchman.html',
+  '/institutes.html', '/lbcf.html', '/blog.html', '/connect.html', '/about.html',
+  '/crew-quarters.html', // preserve existing Crew Chores PWA offline support
+  '/assets/icons/favicon.svg', '/assets/icons/icon-192.png',
+  '/assets/icons/icon-512.png', '/assets/icons/apple-touch-icon.png'
 ];
 
 self.addEventListener('install', e => {
+  // Cache each item independently so one 404 can't abort the whole precache.
   e.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(PRECACHE))
+    caches.open(CACHE).then(c => Promise.all(SHELL.map(u => c.add(u).catch(() => {}))))
   );
   self.skipWaiting();
 });
 
 self.addEventListener('activate', e => {
   e.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
-    ).then(() => self.clients.claim())
+    caches.keys()
+      .then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k))))
+      .then(() => self.clients.claim())
   );
 });
 
 self.addEventListener('fetch', e => {
-  // Skip non-GET requests
   if (e.request.method !== 'GET') return;
-  
-  // Network-first for everything
+  const url = new URL(e.request.url);
+  if (url.origin !== location.origin) return; // leave cross-origin requests alone
+
+  // Network-first: fresh when online, cached fallback when offline.
   e.respondWith(
     fetch(e.request)
-      .then(response => {
-        // Cache successful responses for offline fallback
-        if (response.ok && response.type === 'basic') {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(e.request, clone));
+      .then(res => {
+        if (res && res.ok && res.type === 'basic') {
+          const clone = res.clone();
+          caches.open(CACHE).then(c => c.put(e.request, clone));
         }
-        return response;
+        return res;
       })
-      .catch(() => caches.match(e.request))
+      .catch(() =>
+        caches.match(e.request).then(hit =>
+          hit || (e.request.mode === 'navigate' ? caches.match('/offline.html') : Response.error())
+        )
+      )
   );
 });
