@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg">
+<title>Friday, April 24, 2026 — Daily Reading | U.S.M.C. Ministries</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+    --bg-dark: #000000; --bg-card: #111111; --bg-card2: #161616;
+    --gold: #D4AF37; --gold-light: #F4D470;
+    --white: #FFFFFF; --gray: #888888; --border: #333333;
+}
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--white);
+    min-height: 100vh;
+    line-height: 1.7;
+}
+h1, h2, h3 { font-family: 'Playfair Display', serif; font-weight: 700; }
+.container { max-width: 820px; margin: 0 auto; padding: 24px 20px 60px; }
+a { color: var(--gold); text-decoration: none; }
+a:hover { color: var(--gold-light); text-decoration: underline; }
+
+.nav-back { margin-bottom: 14px; font-size: 0.95rem; }
+
+.hero { text-align: center; padding: 16px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 18px; }
+.hero h1 { font-size: clamp(1.5rem, 4vw, 2.2rem); color: var(--white); margin-bottom: 6px; }
+.hero .subtitle { color: var(--gold); font-size: 0.95rem; font-style: italic; }
+.hero .doc-line { color: var(--gray); font-size: 0.82rem; margin-top: 6px; }
+
+.watch-tabs {
+    position: sticky; top: 0; z-index: 30;
+    background: var(--bg-dark);
+    border-bottom: 1px solid var(--border);
+    display: flex; flex-wrap: wrap; gap: 6px;
+    padding: 12px 0 14px;
+    margin-bottom: 18px;
+}
+.watch-tab {
+    flex: 1 1 90px;
+    text-align: center;
+    padding: 8px 6px;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    background: var(--bg-card);
+    color: var(--gray);
+    font-size: 0.85rem; font-weight: 500;
+    transition: all 0.15s ease;
+    text-decoration: none !important;
+    white-space: nowrap;
+}
+.watch-tab:hover { color: var(--white); border-color: var(--gold); text-decoration: none !important; }
+.watch-tab.active { background: var(--gold); color: #000; border-color: var(--gold); font-weight: 600; }
+.watch-tab .tab-time { display: block; font-size: 0.7rem; opacity: 0.7; font-family: monospace; }
+.watch-tab.active .tab-time { opacity: 1; }
+
+/* "NOW" badge — shown on the watch tab whose time window contains current local time */
+.watch-tab.is-now { position: relative; box-shadow: 0 0 0 1px var(--gold-light) inset; }
+.watch-tab.is-now::after {
+  content: "NOW";
+  position: absolute; top: -7px; right: -4px;
+  background: var(--gold-light); color: #000;
+  font-size: 0.55rem; font-weight: 700;
+  padding: 1px 5px; border-radius: 100px;
+  letter-spacing: 0.08em;
+}
+
+.watch {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px 22px;
+    margin-bottom: 22px;
+    scroll-margin-top: 80px;
+}
+.watch-header { display: flex; align-items: baseline; gap: 14px; margin-bottom: 10px; flex-wrap: wrap; }
+.watch-time {
+    background: var(--bg-card2); color: var(--gold);
+    padding: 4px 12px; border-radius: 100px;
+    font-family: 'Inter', monospace; font-size: 0.85rem; font-weight: 600;
+    letter-spacing: 0.05em;
+}
+.watch-header h2 { font-size: 1.35rem; color: var(--white); }
+
+.intro { color: var(--gray); font-style: italic; margin-bottom: 14px; }
+
+.audio-slot {
+    margin: 14px 0 18px;
+    padding: 12px 14px;
+    background: var(--bg-card2);
+    border-radius: 8px;
+    border: 1px dashed var(--border);
+}
+.audio-slot.audio-pending { opacity: 0.55; }
+.audio-cap { font-size: 0.8rem; color: var(--gray); margin-top: 4px; }
+
+.scripture {
+    background: var(--bg-card2);
+    border-left: 3px solid var(--gold);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin: 16px 0 22px;
+}
+.scripture-ref { font-weight: 600; color: var(--gold); margin-bottom: 12px; font-size: 0.95rem; }
+.scripture-text p { margin-bottom: 8px; }
+.scripture-text p.stanza { margin-bottom: 14px; }
+
+.section-label {
+    font-family: 'Playfair Display', serif;
+    color: var(--gold); font-weight: 700; font-size: 1.05rem;
+    margin: 22px 0 10px; padding-top: 10px; border-top: 1px solid var(--border);
+}
+.section p, .context p, .reflection p, .history p, .application-block p { margin-bottom: 12px; }
+
+ul.application { padding-left: 22px; margin: 8px 0 14px; }
+ul.application li { margin-bottom: 8px; }
+.application-prose { font-style: italic; color: var(--gold-light); margin-top: 12px; }
+
+.history ul { padding-left: 22px; margin: 8px 0; }
+.history li { margin-bottom: 6px; }
+
+.prayer {
+    background: var(--bg-card2);
+    border-left: 3px solid var(--gold-light);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin: 22px 0;
+}
+.prayer-title { color: var(--gold-light); font-weight: 600; margin-bottom: 10px; font-size: 0.95rem; }
+.prayer p { line-height: 1.85; margin-bottom: 8px; }
+
+.helm {
+    background: var(--bg-card2);
+    border-radius: 6px;
+    padding: 12px 18px;
+    margin-top: 14px;
+    font-size: 0.95rem;
+}
+.helm-icon { color: var(--gold); font-size: 1.1rem; }
+.helm-label { color: var(--gold); font-weight: 600; }
+
+footer {
+    text-align: center;
+    color: var(--gray);
+    font-size: 0.82rem;
+    margin-top: 32px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+}
+footer .draft-tag {
+    display: inline-block;
+    background: #2a2410;
+    color: var(--gold);
+    padding: 4px 12px;
+    border-radius: 100px;
+    font-size: 0.78rem;
+    margin-bottom: 8px;
+    letter-spacing: 0.05em;
+}
+
+@media (max-width: 540px) {
+    .watch-tab { flex: 1 1 64px; font-size: 0.78rem; padding: 6px 4px; }
+    .watch-tab .tab-time { font-size: 0.65rem; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="nav-back">← <a href="/chronological.html">The Watchman's Chronological Plan</a></div>
+
+<div class="hero">
+<h1>Friday, April 24, 2026</h1>
+<div class="subtitle">Daily Reading — Day 114 of 365</div>
+<div class="doc-line">MOOP&#x27;s 2026 Daily Bible Readings — Document 4 of 12; for the month of April</div>
+</div>
+
+<nav class="watch-tabs" role="tablist">
+<a href="#all" class="watch-tab active" data-tab="all" role="tab"><span class="tab-label">All Watches</span></a>
+<a href="#wisdom" class="watch-tab" data-tab="wisdom" role="tab"><span class="tab-time">0600</span> <span class="tab-label">Morning Wisdom</span></a>
+<a href="#husband" class="watch-tab" data-tab="husband" role="tab"><span class="tab-time">0700</span> <span class="tab-label">Husband</span></a>
+<a href="#father" class="watch-tab" data-tab="father" role="tab"><span class="tab-time">1100</span> <span class="tab-label">Father</span></a>
+<a href="#citizen" class="watch-tab" data-tab="citizen" role="tab"><span class="tab-time">1500</span> <span class="tab-label">Citizen</span></a>
+<a href="#peace" class="watch-tab" data-tab="peace" role="tab"><span class="tab-time">2100</span> <span class="tab-label">Evening Peace</span></a>
+</nav>
+
+<section class="watch watch-wisdom" id="watch-wisdom" data-watch="wisdom">
+<div class="watch-header"><span class="watch-time">0600</span> <h2>Morning Wisdom</h2></div>
+<p class="intro">Brother, begin your watch by anchoring your heart in the enduring truth that God’s wisdom is the only solid ground in a shifting world.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Proverbs 24</div>
+<div class="scripture-text">
+<p>Do not envy evildoers, nor desire to be with them, for their heart plots destruction, and their lips speak trouble. By wisdom a house is built, and by understanding it is established; by knowledge the rooms are filled with all precious and pleasant riches. My son, do not be absent from wisdom’s discipline, for there is hope for you, and your future will not be cut off. Have you fallen? Rise again, for great is your strength in rising. Deliver those who are being taken away to death; hold back those staggering toward slaughter. If you say, Behold, we did not know this, does not He who weighs the heart perceive it? Does not He who keeps your soul know it? And will He not render to man according to his work?</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🧭 Context Summary</div>
+<p>This chapter stands as a stark contrast between the fleeting prosperity of the wicked and the secure foundation of the wise. Solomon urges the reader to reject the seductive allure of evil company and to actively build a life rooted in divine understanding. The passage emphasizes that true strength is found not in physical prowess alone, but in the moral courage to rise after failure and to act with justice toward the vulnerable. It reminds us that God, the ultimate Judge, sees the heart and will render to every man according to his deeds.</p>
+</div>
+<div class="section reflection">
+<div class="section-label">🛡️ Reflection for a REAL MAN — Builds Wisdom</div>
+<p>Brother, the world around us often celebrates the quick gain and the easy path, but your calling as a man of God is to build a house that stands firm against the storm. You do not build this house with mere good intentions, but with the deliberate application of wisdom. Just as a physical structure requires a deep foundation and strong materials, your family and your soul require the solid bedrock of God’s Word. When you choose to act with integrity in your business, in your discipline of your children, and in your provision for your wife, you are laying another stone in this spiritual edifice.</p>
+<p>Do not let the envy of the wicked steal your peace or distract you from your duty. The evildoer may seem to prosper in the short term, but his foundation is sand, and his heart is full of malice. Your strength is proven when you rise after a fall, not when you avoid falling altogether. As a father and a husband, you must be the one who delivers the weak and protects the innocent. This is not a passive role; it is a command to engage, to correct, and to provide. God weighs your heart, and He knows your motives. Let your work be done for His glory, knowing that He will render to you according to your faithfulness.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Inspect the foundations of your home today by reviewing your family’s spiritual habits and correcting any drift from biblical truth.</li>
+<li>Reject any envy toward the success of ungodly men by praying for contentment and focusing on your own covenant duties.</li>
+<li>Take concrete action to protect the vulnerable in your sphere, whether by defending the innocent in your community or caring for a struggling neighbor.</li>
+<li>Document one area where you have failed to rise after a fall, and commit to a specific, practical step to correct it this week.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer</div>
+<p>Father, I come before You as a soldier in Your army, asking for the wisdom to build my house upon Your rock. Forgive me for the times I have been distracted by the vanity of the world or the envy of the wicked. Grant me the strength to rise when I fall and the courage to defend those who cannot defend themselves. By the power of Your Holy Spirit, shape my heart to weigh what is eternal over what is temporal, and guide my hands to build with integrity. In the name of Jesus Christ, my Lord and Commander, I pray. Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Helm Command:</span> Anchor your heart in wisdom and build your house upon the Rock.</div>
+</section>
+
+<section class="watch watch-husband" id="watch-husband" data-watch="husband">
+<div class="watch-header"><span class="watch-time">0700</span> <h2>First Watch — The Husband&#x27;s Post</h2></div>
+<p class="intro">Brother, let the Lord’s Word stand as a shield against the deceit that seeks to erode your covenant home.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 2 Samuel 4</div>
+<div class="scripture-text">
+<p>There was war between the house of Saul and the house of David, but David grew stronger and stronger, while the house of Saul grew weaker and weaker. Now Ish-bosheth, Saul’s son, had two men who were captains of bands; the name of the one was Baanah, and the name of the other, Rechab, sons of Rimmon the Beerothite, of the children of Benjamin; for Beeroth also was reckoned as part of Benjamin. And the Beerothites fled to Gittaim, and have sojourned there as aliens until this day. Now Ish-bosheth, Saul’s son, was forty years old when he began to reign over Israel, and he reigned two years; but the house of David was stronger and stronger, and the house of Saul was weaker and weaker.</p>
+<p>And the sons of Rimmon the Beerothite, Rechab and Baanah, went at the time of the heat of the day, and the city was very quiet, as though they were about to take a meal. Then they entered the house of Ish-bosheth, while he was taking his noonday rest in his bedchamber. And they struck him and killed him, and cut off his head. They took his head, and went by the way of the Arabah all night, and brought his head to David at Hebron. And David said to Rechab and to his brother Baanah, the sons of Rimmon the Beerothite, “As the LORD lives, who has redeemed my soul out of all adversity, when one told me, ‘Behold, Saul is dead,’ and thought he was bringing good news, I seized him and put him to death in Ziklag, which was the reward I gave him for his news. How much more, when wicked men have killed a righteous person in his own house on his bed, shall I not now require his blood from your hand and remove you from the earth?” Then David gave an order to his young men, and they killed them and cut off their hands and their feet, and hung them by the pool in Hebron. But they took the head of Ish-bosheth and buried it in the tomb of Abner at Hebron.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🗺️ Briefing Summary</div>
+<p>This chapter details the tragic collapse of Saul’s lineage through the treachery of two mercenary captains who murder their sleeping master to curry favor with the rising King David. While David’s kingdom expands, the house of Saul shrinks, illustrating the sovereignty of the LORD in establishing His chosen line. The assassination of Ish-bosheth represents a violent attempt to alter the divine order, yet God’s justice remains uncompromised.</p>
+</div>
+<div class="section reflection">
+<div class="section-label">❤️ Reflection for Your Wife — H.A.P.P.Y. Husband — Protecting</div>
+<p>Brother, you see the chaos that results when a man abandons his post or allows wickedness to fester in his household. Ish-bosheth lay dead in his bed, not because he was weak in spirit, but because his protection had evaporated, leaving him vulnerable to the treachery of those who should have served him. As a husband, you are the designated guardian of your home, Maria. Your duty is not merely to provide materially, but to maintain a spiritual and physical integrity that repels the encroaching darkness. When you stand firm in truth, you create a sanctuary where your wife can rest without fear, knowing her head is aligned with the Lord’s will.</p>
+<p>David’s reaction to the murder of Ish-bosheth was not joy at a rival’s fall, but holy anger at the breach of covenant and the murder of a man in his own house. He recognized that such acts of treachery undermine the very order God has established. You must guard against the subtle betrayals that rot a marriage from within: complacency, hidden sins, or a lack of decisive leadership. Your protection is active. It involves confronting sin, establishing boundaries, and leading your household with a clarity that leaves no room for ambiguity or spiritual compromise.</p>
+<p>This passage reminds us that the house of David grew strong not because of human might alone, but because it was anchored in the LORD’s promise. Your strength as a husband flows from your submission to Christ. When you lead with humility and courage, you protect Maria from the chaos of the world. You do not rule as a tyrant, but as a shepherd who lays down his life for the safety of his flock. Let your home be a fortress of faith, where the enemy finds no foothold because your leadership is rooted in the Word.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Conduct a weekly spiritual inventory of your home, identifying any areas where you have failed to lead or where sin has gained ground.</li>
+<li>Establish clear, biblically grounded boundaries with outside influences that threaten the purity and peace of your marriage.</li>
+<li>Speak truth decisively to Maria, reinforcing her security in your leadership and in Christ, especially during times of uncertainty.</li>
+<li>Pray daily for the strength to confront evil with holy anger and to defend the vulnerable with gentle firmness.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Stateroom</div>
+<p>Father, I thank You for the covenant of marriage and the sacred trust You have placed in my hands. Forgive me for the times I have been passive or fearful, allowing chaos to encroach upon my home. By the power of Your Holy Spirit, grant me the courage to lead with integrity, to protect my wife with vigilance, and to stand firm against the schemes of the enemy. May my house be a place of peace and truth, reflecting the order of Your kingdom. In the name of Jesus Christ, my Lord and Commander, I pray. Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Helm Command:</span> Secure the perimeter of your heart and home against all treachery.</div>
+</section>
+
+<section class="watch watch-father" id="watch-father" data-watch="father">
+<div class="watch-header"><span class="watch-time">1100</span> <h2>Second Watch — The Father&#x27;s Charge</h2></div>
+<p class="intro">Brother, the weight of leadership rests not on the strength of your arm, but on the faithfulness of your walk with the Lord.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 2 Samuel 5:1-10 &amp; 1 Chronicles 11:1-9</div>
+<div class="scripture-text">
+<p>Then all the tribes of Israel came to David at Hebron, and spoke, saying, &quot;Behold, we are your bone and your flesh. In times past, when Saul was king over us, you were he who led out and brought in Israel. Also the LORD said to you, &#x27;You shall feed My people Israel, and you shall be a prince over My people Israel.&#x27;&quot; Therefore all the elders of Israel came to the king at Hebron, and King David made a covenant with them at Hebron before the LORD, and they anointed David king over Israel. David was thirty years old when he began to reign, and he reigned forty years. In Hebron he reigned over Judah seven years and six months, and in Jerusalem he reigned thirty-three years over all Israel and Judah.</p>
+<p>And the king and his men went to Jerusalem against the Jebusites, the inhabitants of the land, who spoke to David, saying, &quot;You shall not come in here, but the blind and the lame will repel you&quot;—thinking, &quot;David cannot come in here.&quot; Nevertheless, David took the stronghold of Zion, which is the City of David. David said, &quot;Whoever leads the attack against the Jebusites shall become chief and captain.&quot; So Joab went up first, and became chief.</p>
+<p>And David dwelt in the stronghold; therefore they called it the City of David. Then he built the city all around, from the Millo all around, and Joab repaired the rest of the city. And David became greater and greater, for the LORD of hosts was with him.</p>
+<p>And these are the chiefs of mighty men whom David had, who strengthened themselves against him while he was still a refugee; and they were among the despised of Israel, and took charge of him. And the chief was named Asahel, and the brother of Joab was Elhanan; and Shammoth the Harodite, and Elika the Harodite; Hezro the Nimrahite, and Izri the son of Jokai; and Joash the Gibeonite; and Jeziel and Philetiah the sons of Azmaveth; and Jerimoth, and Bealiah, and Joha the Gibeonite; and Issi the son of Ishai, and Shallum the son of Adai, and Eliab the brother of Shammah; and Henod the son of Pahaz-moab, and Abi-albon the Arubite; and Azmaveth the Baharumite; and Eliahba the Shaalbonite; and the sons of Hashem the Gizonite; and Jonathan the son of Shagee the Hararite; and Ahiam the son of Sharar the Hararite; and Eliphalet the son of Ahasbai the son of Maacath; and Eliam the son of Ahithophel the Gilonite; and Hezro the Carmelite; and Paarai the Arbite; and Igal the son of Nathan of Zobah; and Bani the Gadite; and Zelek the Ammonite; and Naharai the Betherite, the armor-bearer of Joab the son of Zeruiah; and Ira the son of Ikkesh the Tekoite; and Abiezer the Anathothite; and Sibbecai the Hushathite; and Ilai the Ahohite; and Maharai the Netophathite; and Heled the son of Baanah the Netophathite; and Ithai the son of Ribai of Gibeah, who was of the sons of Benjamin; and Benaiah the Pirathonite; and Hiddai of the brooks of Gaash; and Abi-albon the Arbathite; and Azmaveth the Bahurimite; and Eliahba the Shaalbonite; and Jashen the Gisonite; and Jonathan; and Shammah and Jeiel, and all the house of his father, and the sons of Asiel the brother of Joab; and the sons of Elam the son of Jeshaiah; and the sons of Japheth the Gedorite; and the sons of Ezer the son of Jeshubah the Carhelite; and Abishai the brother of Joab; and Elhanan the son of Dodo of Bethlehem; and Shammah the Harodite; and Elika the Harodite; and Hezro the Nimrahite; and Izri the son of Jokai; and Joash the Gizonite; and Jeziel and Philetiah the sons of Azmaveth; and Jerimoth, and Bealiah, and Joha the Gibeonite; and Issi the son of Ishai, and Shallum the son of Adai, and Eliab the brother of Shammah; and Henod the son of Pahaz-moab, and Abi-albon the Arubite; and Azmaveth the Baharumite; and Eliahba the Shaalbonite; and the sons of Hashem the Gizonite; and Jonathan the son of Shagee the Hararite; and Ahiam the son of Sharar the Hararite; and Eliphalet the son of Ahasbai the son of Maacath; and Eliam the son of Ahithophel the Gilonite; and Hezro the Carmelite; and Paarai the Arbite; and Igal the son of Nathan of Zobah; and Bani the Gadite; and Zelek the Ammonite; and Naharai the Betherite, the armor-bearer of Joab the son of Zeruiah; and Ira the son of Ikkesh the Tekoite; and Abiezer the Anathothite; and Sibbecai the Hushathite; and Ilai the Ahohite; and Maharai the Netophathite; and Heled the son of Baanah the Netophathite; and Ithai the son of Ribai of Gibeah, who was of the sons of Benjamin; and Benaiah the Pirathonite; and Hiddai of the brooks of Gaash; and Abi-albon the Arbathite; and Azmaveth the Bahurimite; and Eliahba the Shaalbonite; and Jashen the Gisonite; and Jonathan; and Shammah and Jeiel, and all the house of his father, and the sons of Asiel the brother of Joab.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🗺️ Field Notes</div>
+<p>David, once a despised outcast and a shepherd boy, is now crowned king over a united nation by the sovereign will of the Lord. The text highlights that his strength came not from his own prowess, but from the presence of the LORD of hosts who was with him. He captured the stronghold of Zion, establishing a secure city where his family and the people could dwell under the protection of his rule. This transition from refugee to ruler demonstrates how God elevates the humble and establishes order through His chosen leadership.</p>
+</div>
+<div class="section reflection">
+<div class="section-label">👨‍👦 Reflection for Your Children — F.U.L.F.I.L.L.E.D. Father — Leading</div>
+<p>Brother, the call to lead is a heavy burden, yet it is a holy one that God places upon the shoulders of godly men. David did not seize power for himself, but accepted the charge to feed the people and rule as a prince over them. You must lead your home with the same clarity and conviction, knowing that your authority is delegated from Heaven. Gideon, as the eldest, you are learning the weight of responsibility, and this passage reminds you that true leadership begins with submission to God’s will. Boaz, at fourteen, you are in the prime of your youth, and you must watch how your father serves as the head of the house, not as a tyrant, but as a shepherd. Shiloh, though you are but five, you are under the shadow of your father’s wings, and you will grow to understand the peace that comes from a father who leads with wisdom.</p>
+<p>David built the city from the stronghold outward, establishing order out of chaos. In your home, you must build a spiritual foundation that protects your wife and children from the world’s confusion. Do not seek the applause of men, but seek the approval of the Lord who anoints you. Your leadership is a service, a duty to provide, protect, and guide your family toward the promises of God. Let your children see that your strength is derived from your dependence on the Almighty, not from your own might.</p>
+<p>As you raise these boys, remember that you are training them for a war they may not yet understand. Teach them that to lead is to serve, and to serve is to lay down one’s life for the flock. Let your household be a place of order, truth, and grace, where the name of the Lord is honored in every decision. Stand firm in your role, brother, for the Lord is with you as He was with David.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Review the spiritual responsibilities of the father in the home and write a specific plan for leading family worship this week.</li>
+<li>Speak to Gideon about the biblical mandate of male headship and the honor due to his position as the firstborn.</li>
+<li>Engage Boaz in a discussion about his duties to his younger brother Shiloh and the nature of protective leadership.</li>
+<li>Pray specifically for the wisdom to lead your household with the same reliance on God that David demonstrated in Hebron.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Wardroom</div>
+<p>Father, we thank You for the gift of leadership and the solemn charge to rule in Your name. Grant me the grace to lead my family with the same faithfulness that David showed, knowing that my strength is found only in You. By the power of Your Holy Spirit, help me to build my home upon the rock of Your Word, protecting my wife and children from the enemy’s schemes. Give Gideon wisdom, guide Boaz in righteousness, and shelter Shiloh under Your wings. May our home be a testament to Your glory and a refuge of peace. In the name of Jesus Christ, my Lord and Commander, Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Rudder Steer:</span> Hold the line of authority with grace, for the storm tests the captain most.</div>
+</section>
+
+<section class="watch watch-citizen" id="watch-citizen" data-watch="citizen">
+<div class="watch-header"><span class="watch-time">1500</span> <h2>Third Watch — The Citizen&#x27;s Stand</h2></div>
+<p class="intro">The Lord establishes His King not by the sword of man, but by the power of His own Spirit.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 2 Samuel 5:11-25 &amp; 1 Chronicles 14</div>
+<div class="scripture-text">
+<p>The Tyrians sent messengers to David, along with cedar trees, masons and carpenters, to build him a palace. David then knew that the LORD had established him as king over Israel and that His kingdom had been highly exalted for the sake of His people Israel. David took more concubines and wives in Jerusalem, and more sons and daughters were born to him. These are the names of those who were born to him in Jerusalem: Shammua, Shobab, Nathan, Solomon, Ibhar, Elishua, Nepheg, Japhia, Elishama, Eliada and Eliphelet. The Philistines had heard that David had been anointed king over all Israel, so they went up in full force to search him out, but David heard about it and went down to the stronghold. Now the Philistines had come and spread out in the Valley of Rephaim; so David inquired of the LORD, &#x27;Shall I go up against the Philistines? Will You hand them over to me?&#x27; The LORD answered him, &#x27;Go up, for I will surely hand the Philistines over to you.&#x27; So David went to Baal Perazim, and there he defeated them. He said, &#x27;As waters break out, the LORD has broken out against my enemies before me.&#x27; So he named that place Baal Perazim. The Philistines abandoned their idols there, and David and his men carried them away. Again the Philistines came up and spread out in the Valley of Rephaim; so David inquired of the LORD, and He answered, &#x27;Do not go straight up, but circle around them and attack them in front of the poplar trees. As soon as you hear the sound of marching in the tops of the poplar trees, move quickly, because that will mean the LORD has gone out in front of you to strike the Philistine army.&#x27; So David did just as the LORD commanded him, and he struck down the Philistines from Gibeon all the way to Gezer.</p>
+<p>Hiram king of Tyre sent messengers to David, along with cedar trees, carpenters and stonemasons, and they built a palace for David. Then David knew that the LORD had established him as king over Israel and had exalted His kingdom for the sake of His people Israel. David took more wives and concubines in Jerusalem, and more sons and daughters were born to him. All these sons and daughters of David were born to him in Jerusalem.</p>
+<p>🸻</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🛰️ Situation Report</div>
+<p>When the Philistines sought to crush the newly established monarchy, David did not rely on military instinct alone but sought the mind of the Almighty. The Lord provided specific tactical instructions for victory, demonstrating that holy warfare is ultimately an exercise in obedience to divine command. This passage reveals that the strength of the nation rests entirely on the King’s submission to God’s word.</p>
+<p>🸻</p>
+</div>
+<div class="section reflection resolute">
+<div class="section-label">🛡️ Reflection for a R.E.S.O.L.U.T.E. Citizen — Steadfast</div>
+<p>Fredericksburg (local)<br>Brother, look to the Valley of Rephaim, where the dust of battle once settled near our own sacred ground. David’s men did not charge blindly into the fray; they waited for the sound of marching in the poplar trees, signaling the Lord’s advance. This is the essence of Steadfastness for a Christian soldier. It is not the absence of fear, but the discipline to hold your position until God moves. In your own battles at home or in the workplace, do not react to the noise of the enemy. Wait on the Lord. Stand firm in your posts, guarding the faith and your family, trusting that the Lord goes before you when you obey His word.</p>
+<p>Virginia (state)<br>Consider the cedar of Lebanon sent to build the house of the Lord’s anointed. Just as Hiram provided materials for David’s physical palace, God provides the spiritual resources for your domestic sanctuary. A man must be Steadfast in building his home as a fortress of righteousness. You are the cedar, rooted in Christ, providing shelter and structure for your wife and children. When the storms of culture rage against the traditional family, you do not waver. You remain fixed, offering the stability of biblical truth to those who look to you for leadership.</p>
+<p>United States (nation)<br>The nation finds its peace only when its leaders and citizens submit to the Lord’s strategy. David’s victories were not due to superior numbers but to his reliance on divine intelligence. We see in this text that God fights for His people when they walk in obedience. As citizens, we are called to be Steadfast in our loyalty to God’s laws above man’s decrees. We must be ready to stand firm against the encroaching tides of chaos, knowing that the Lord has established the foundations of our society upon His eternal covenant.</p>
+</div>
+<div class="section history">
+<div class="section-label">🦅 This Day in American History — April 24</div>
+<p>On April 24, 1775, the Battle of Concord was fought, marking the first military engagement of the American Revolutionary War, where colonial militia stood firm against the British army to defend their God-given liberties. On April 24, 1865, President Abraham Lincoln was assassinated, a tragic event that tested the nation’s resolve, yet it ultimately paved the way for the restoration of the Union and the fulfillment of the promise of liberty for all men under God’s sovereign providence.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Maintain a daily devotional routine of prayer and scripture reading to anchor your soul before facing the day’s pressures.</li>
+<li>Establish a clear spiritual leadership role in your household by leading family worship and instructing your children in the catechism.</li>
+<li>Refuse to compromise biblical ethics in your professional life, even when it costs you social capital or financial gain.</li>
+<li>Practice active endurance in times of trial, recording God’s faithfulness in a journal to strengthen your resolve for future battles.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Bridge</div>
+<p>Father, we thank You for establishing David as a man after Your own heart, who sought Your face in every conflict. Grant us the grace to be Steadfast in our faith, that we may not be moved by the noise of the enemy or the pressures of the world. By the power of Your Holy Spirit, give us the discipline to wait for Your timing and the courage to obey Your commands without hesitation. Strengthen our hands to build our homes and our minds to discern Your will. In the name of Jesus Christ, my Lord and Commander, who is the true King of Israel, Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Rudder Steer:</span> Hold the line until the trumpet sounds.</div>
+</section>
+
+<section class="watch watch-peace" id="watch-peace" data-watch="peace">
+<div class="watch-header"><span class="watch-time">2100</span> <h2>Evening Peace</h2></div>
+<p class="intro">The day’s watch is ended, brother, and now we turn our eyes to the King who demands integrity in the house of His people.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Psalm 101</div>
+<div class="scripture-text">
+<p>I will sing of mercy and justice. To You, O LORD, I will sing praises. I will study the way that is blameless. Oh, when will You come to me? I will walk with integrity of heart within my house. I will set before my eyes no worthless thing. Hate of evil I cling to. It shall not cling to me. A perverse heart shall be far from me. I will know no evil man. A crooked tongue shall not stand before my eyes. He who slanders his neighbor secretly I will destroy. He who has a haughty look and a proud heart I will not tolerate. My eyes shall be on the faithful of the land, to sit with me. He who walks in the way of blameless shall minister to me. He who practices deceit shall not dwell within my house. He who utters lies shall not continue before my eyes. Morning by morning I will destroy all the wicked of the land, to cut off all the evildoers from the city of the LORD.</p>
+</div>
+</div>
+<div class="section reflection">
+<div class="section-label">🌾 Reflection for a Man at Home and in Community</div>
+<p>As a HAPPY husband, you recognize that your home is the primary theater of your covenant loyalty, where you must set your eyes on what is pure and blameless. You do not tolerate the petty intrigues or the secret slanders that poison the peace of your household, for you are called to be the gatekeeper of grace in your own quarter. You protect your wife and your union by actively rejecting the worthless things that the world offers as substitutes for truth, choosing instead to walk with an integrity of heart that reflects the steadfast love of Christ for His Church.</p>
+<p>As a FULFILLED father, you understand that your authority is not a license for pride, but a sacred stewardship requiring you to destroy the wickedness of the world in the hearts of your children. You do not tolerate the haughty looks or the proud hearts that rise in youthful rebellion, but you correct them with the firmness of one who serves the King. You teach them to hate evil and cling to it, showing them that the way of the blameless is the only path that leads to true fellowship with God and the community of the faithful.</p>
+<p>As a RESOLUTE citizen, you stand as a witness in the city of the LORD, refusing to dwell with those who practice deceit or utter lies. You know that your ultimate allegiance is to the King who will judge all the wicked, and this knowledge frees you from the fear of men and the pressure of compromised culture. You serve the city with a clear conscience, knowing that your daily walk is a testimony to the righteousness of the Judge, and you commit your labor and your life to His glory until the final dawn.</p>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Stateroom</div>
+<p>Father, we thank You for the privilege of serving under Your banner in the quiet hours of the evening. Grant us the grace to guard our hearts against the allure of evil and to walk in integrity before You and our neighbors. By the power of Your Holy Spirit, give us the courage to reject the crooked ways of this age and to hold fast to the truth of Your Word. Establish our homes as places of mercy and justice, and make us faithful ministers in Your sight. In the name of Jesus Christ, my Lord and Commander, we pray. Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Rudder Steer:</span> Guard your home with truth and walk in integrity before the King.</div>
+</section>
+
+<footer>
+<div class="draft-tag">PROTOTYPE — sign-off pending</div>
+<div>U.S.M.C. Ministries · The Watchman's Chronological Plan for the Year of our Lord 2026</div>
+<div style="margin-top:6px;font-size:0.78rem;">Adam Johns &middot; rich interpretive blend &middot; divine name LORD</div>
+</footer>
+
+</div>
+<script>
+(function(){
+  const SLUGS = ['all','wisdom','husband','father','citizen','peace'];
+
+  // Watch windows in local hours (each watch is "live" from its start time
+  // until the NEXT watch begins). Evening peace owns 21:00 → 04:59.
+  function currentWatchSlug() {
+    const h = new Date().getHours();
+    if (h >= 5  && h < 7)  return 'wisdom';
+    if (h >= 7  && h < 11) return 'husband';
+    if (h >= 11 && h < 15) return 'father';
+    if (h >= 15 && h < 21) return 'citizen';
+    return 'peace';                       // 21:00 – 04:59
+  }
+  const NOW_SLUG = currentWatchSlug();
+
+  function markNowBadge(){
+    document.querySelectorAll('.watch-tab').forEach(t => {
+      t.classList.toggle('is-now', t.dataset.tab === NOW_SLUG);
+    });
+  }
+  function showOnly(slug){
+    const isAll = slug === 'all' || !SLUGS.includes(slug);
+    document.querySelectorAll('section.watch').forEach(s => {
+      s.style.display = (isAll || s.dataset.watch === slug) ? '' : 'none';
+    });
+    document.querySelectorAll('.watch-tab').forEach(t => {
+      t.classList.toggle('active', t.dataset.tab === (isAll ? 'all' : slug));
+    });
+  }
+  document.querySelectorAll('.watch-tab').forEach(t => {
+    t.addEventListener('click', function(e){
+      e.preventDefault();
+      const slug = this.dataset.tab;
+      history.replaceState(null, '', '#' + slug);
+      showOnly(slug);
+      window.scrollTo({top: 0, behavior:'smooth'});
+    });
+  });
+
+  // Initial selection priority:
+  //   1. URL hash if present  (#all / #wisdom / #husband / #father / #citizen / #peace)
+  //   2. Auto-select the watch that is "live right now"
+  let initial;
+  if (location.hash) {
+    initial = location.hash.slice(1);
+  } else {
+    initial = NOW_SLUG;
+  }
+  markNowBadge();
+  showOnly(initial);
+})();
+</script>
+</body>
+</html>

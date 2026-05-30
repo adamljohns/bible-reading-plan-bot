@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg">
+<title>Thursday, April 30, 2026 — Daily Reading | U.S.M.C. Ministries</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+    --bg-dark: #000000; --bg-card: #111111; --bg-card2: #161616;
+    --gold: #D4AF37; --gold-light: #F4D470;
+    --white: #FFFFFF; --gray: #888888; --border: #333333;
+}
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--white);
+    min-height: 100vh;
+    line-height: 1.7;
+}
+h1, h2, h3 { font-family: 'Playfair Display', serif; font-weight: 700; }
+.container { max-width: 820px; margin: 0 auto; padding: 24px 20px 60px; }
+a { color: var(--gold); text-decoration: none; }
+a:hover { color: var(--gold-light); text-decoration: underline; }
+
+.nav-back { margin-bottom: 14px; font-size: 0.95rem; }
+
+.hero { text-align: center; padding: 16px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 18px; }
+.hero h1 { font-size: clamp(1.5rem, 4vw, 2.2rem); color: var(--white); margin-bottom: 6px; }
+.hero .subtitle { color: var(--gold); font-size: 0.95rem; font-style: italic; }
+.hero .doc-line { color: var(--gray); font-size: 0.82rem; margin-top: 6px; }
+
+.watch-tabs {
+    position: sticky; top: 0; z-index: 30;
+    background: var(--bg-dark);
+    border-bottom: 1px solid var(--border);
+    display: flex; flex-wrap: wrap; gap: 6px;
+    padding: 12px 0 14px;
+    margin-bottom: 18px;
+}
+.watch-tab {
+    flex: 1 1 90px;
+    text-align: center;
+    padding: 8px 6px;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    background: var(--bg-card);
+    color: var(--gray);
+    font-size: 0.85rem; font-weight: 500;
+    transition: all 0.15s ease;
+    text-decoration: none !important;
+    white-space: nowrap;
+}
+.watch-tab:hover { color: var(--white); border-color: var(--gold); text-decoration: none !important; }
+.watch-tab.active { background: var(--gold); color: #000; border-color: var(--gold); font-weight: 600; }
+.watch-tab .tab-time { display: block; font-size: 0.7rem; opacity: 0.7; font-family: monospace; }
+.watch-tab.active .tab-time { opacity: 1; }
+
+/* "NOW" badge — shown on the watch tab whose time window contains current local time */
+.watch-tab.is-now { position: relative; box-shadow: 0 0 0 1px var(--gold-light) inset; }
+.watch-tab.is-now::after {
+  content: "NOW";
+  position: absolute; top: -7px; right: -4px;
+  background: var(--gold-light); color: #000;
+  font-size: 0.55rem; font-weight: 700;
+  padding: 1px 5px; border-radius: 100px;
+  letter-spacing: 0.08em;
+}
+
+.watch {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px 22px;
+    margin-bottom: 22px;
+    scroll-margin-top: 80px;
+}
+.watch-header { display: flex; align-items: baseline; gap: 14px; margin-bottom: 10px; flex-wrap: wrap; }
+.watch-time {
+    background: var(--bg-card2); color: var(--gold);
+    padding: 4px 12px; border-radius: 100px;
+    font-family: 'Inter', monospace; font-size: 0.85rem; font-weight: 600;
+    letter-spacing: 0.05em;
+}
+.watch-header h2 { font-size: 1.35rem; color: var(--white); }
+
+.intro { color: var(--gray); font-style: italic; margin-bottom: 14px; }
+
+.audio-slot {
+    margin: 14px 0 18px;
+    padding: 12px 14px;
+    background: var(--bg-card2);
+    border-radius: 8px;
+    border: 1px dashed var(--border);
+}
+.audio-slot.audio-pending { opacity: 0.55; }
+.audio-cap { font-size: 0.8rem; color: var(--gray); margin-top: 4px; }
+
+.scripture {
+    background: var(--bg-card2);
+    border-left: 3px solid var(--gold);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin: 16px 0 22px;
+}
+.scripture-ref { font-weight: 600; color: var(--gold); margin-bottom: 12px; font-size: 0.95rem; }
+.scripture-text p { margin-bottom: 8px; }
+.scripture-text p.stanza { margin-bottom: 14px; }
+
+.section-label {
+    font-family: 'Playfair Display', serif;
+    color: var(--gold); font-weight: 700; font-size: 1.05rem;
+    margin: 22px 0 10px; padding-top: 10px; border-top: 1px solid var(--border);
+}
+.section p, .context p, .reflection p, .history p, .application-block p { margin-bottom: 12px; }
+
+ul.application { padding-left: 22px; margin: 8px 0 14px; }
+ul.application li { margin-bottom: 8px; }
+.application-prose { font-style: italic; color: var(--gold-light); margin-top: 12px; }
+
+.history ul { padding-left: 22px; margin: 8px 0; }
+.history li { margin-bottom: 6px; }
+
+.prayer {
+    background: var(--bg-card2);
+    border-left: 3px solid var(--gold-light);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin: 22px 0;
+}
+.prayer-title { color: var(--gold-light); font-weight: 600; margin-bottom: 10px; font-size: 0.95rem; }
+.prayer p { line-height: 1.85; margin-bottom: 8px; }
+
+.helm {
+    background: var(--bg-card2);
+    border-radius: 6px;
+    padding: 12px 18px;
+    margin-top: 14px;
+    font-size: 0.95rem;
+}
+.helm-icon { color: var(--gold); font-size: 1.1rem; }
+.helm-label { color: var(--gold); font-weight: 600; }
+
+footer {
+    text-align: center;
+    color: var(--gray);
+    font-size: 0.82rem;
+    margin-top: 32px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+}
+footer .draft-tag {
+    display: inline-block;
+    background: #2a2410;
+    color: var(--gold);
+    padding: 4px 12px;
+    border-radius: 100px;
+    font-size: 0.78rem;
+    margin-bottom: 8px;
+    letter-spacing: 0.05em;
+}
+
+@media (max-width: 540px) {
+    .watch-tab { flex: 1 1 64px; font-size: 0.78rem; padding: 6px 4px; }
+    .watch-tab .tab-time { font-size: 0.65rem; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="nav-back">← <a href="/chronological.html">The Watchman's Chronological Plan</a></div>
+
+<div class="hero">
+<h1>Thursday, April 30, 2026</h1>
+<div class="subtitle">Daily Reading — Day 120 of 365</div>
+<div class="doc-line">MOOP&#x27;s 2026 Daily Bible Readings — Document 4 of 12; for the month of April</div>
+</div>
+
+<nav class="watch-tabs" role="tablist">
+<a href="#all" class="watch-tab active" data-tab="all" role="tab"><span class="tab-label">All Watches</span></a>
+<a href="#wisdom" class="watch-tab" data-tab="wisdom" role="tab"><span class="tab-time">0600</span> <span class="tab-label">Morning Wisdom</span></a>
+<a href="#husband" class="watch-tab" data-tab="husband" role="tab"><span class="tab-time">0700</span> <span class="tab-label">Husband</span></a>
+<a href="#father" class="watch-tab" data-tab="father" role="tab"><span class="tab-time">1100</span> <span class="tab-label">Father</span></a>
+<a href="#citizen" class="watch-tab" data-tab="citizen" role="tab"><span class="tab-time">1500</span> <span class="tab-label">Citizen</span></a>
+<a href="#peace" class="watch-tab" data-tab="peace" role="tab"><span class="tab-time">2100</span> <span class="tab-label">Evening Peace</span></a>
+</nav>
+
+<section class="watch watch-wisdom" id="watch-wisdom" data-watch="wisdom">
+<div class="watch-header"><span class="watch-time">0600</span> <h2>Morning Wisdom</h2></div>
+<p class="intro">The battle for a godly mind begins with the humility to acknowledge that your understanding is finite compared to the infinite counsel of the Almighty.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Proverbs 30:1-14</div>
+<div class="scripture-text">
+<p>The words of Agur the son of Jakeh. The man declares to Ishcath, Surely I am more brutish than any man, and do not have the understanding of a man. I have not learned wisdom, nor have the knowledge of the Holy One. Who has ascended into heaven, or descended? Who has gathered the wind in His fists? Who has bound the waters in a garment? Who has established all the ends of the earth? What is His name, and what is His son’s name, if you know? Every word of God is pure; He is a shield to those who put their trust in Him. Add not to His words, lest He reprove you, and you be found a liar. Two things I have requested of You; deny them not to me before I die: Remove far from me vanity and lies; give me neither poverty nor riches; feed me with food convenient for me: Lest I be full, and deny You, and say, Who is the LORD? Or lest I be poor, and steal, and take the name of my God in vain.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🧭 Context Summary</div>
+<p>Agur, a Gentile king or wise man, approaches God with raw honesty, admitting his intellectual limitations in the face of Divine transcendence. He recognizes that the Creator’s ways are unsearchable and that human wisdom is but a drop in the ocean of God’s knowledge. This passage serves as a corrective to pride, reminding the believer that true strength lies not in self-sufficiency but in total dependence on the Sovereign who holds the winds and waters. It establishes the foundation for a life of contentment, warning against the spiritual dangers of both excess and destitution.</p>
+</div>
+<div class="section reflection">
+<div class="section-label">🛡️ Reflection for a REAL MAN — Embracing Humility</div>
+<p>Brother, you stand in the trenches of life expecting to have the answers, to be the rock upon which your family rests. Yet, Agur teaches us that the first mark of a true man is not an unshakable confidence in himself, but a reverent awe before the One who shook the earth. You are called to lead, yes, but you lead from a posture of submission to the Highest Commander. Your strength is derived from acknowledging that you are not the source of wisdom, but a vessel for it. This is not weakness; it is the ultimate discipline of the spirit.</p>
+<p>When you face the chaos of command or the complexities of fatherhood, do not rush to fill the silence with your own opinions. Instead, pause and remember that the Holy One is the source of all truth. Your duty is to align your will with His revealed Word, not to invent your own path. As a husband and father, you must model this humility for your children. Show them that the strongest man in the room is the one who kneels first in prayer, admitting he needs God’s grace more than he needs his own competence.</p>
+<p>This humility protects you from the twin snares of arrogance and despair. If you are prosperous, you must guard against the lie that you did it alone. If you are in the valley, you must guard against the lie that God has abandoned you. Both extremes steal glory from the LORD. By embracing your limitations, you make room for God’s power to work through you. Let your confidence rest not in your tactical proficiency, but in the purity of His Word, which is a shield to those who trust in Him.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Begin your daily staff ride or family devotion by confessing your need for divine guidance before seeking human counsel.</li>
+<li>Study the Scriptures with a teachable spirit, admitting when you do not understand and asking the LORD for clarity.</li>
+<li>Practice contentment in both provision and lack, refusing to blame God for your circumstances or boast in your own success.</li>
+<li>Model repentance and submission to authority for your children, showing them that strength is found in obedience, not independence.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer</div>
+<p>Father, I come before You as a servant who knows his place. I confess that my wisdom is often clouded by pride and my courage by self-reliance. I ask that You would strip away the vanity that seeks my own glory and replace it with a humble heart that seeks only Your will. By the power of Your Holy Spirit, teach me to rest in Your sovereignty, trusting that You are the shield of my soul and the author of my strength. Guard me from the deceit of poverty and the idolatry of wealth, that I may walk uprightly in the station You have assigned me. In the name of Jesus Christ, my Lord and Commander, I pray. Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Helm Command:</span> Steady your course by the compass of Scripture, not the winds of your own pride.</div>
+</section>
+
+<section class="watch watch-husband" id="watch-husband" data-watch="husband">
+<div class="watch-header"><span class="watch-time">0700</span> <h2>First Watch — The Husband&#x27;s Post</h2></div>
+<p class="intro">The Lord calls His servants to trust His sovereignty even when the path leads through the wilderness of exile.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 2 Samuel 15:13-31</div>
+<div class="scripture-text">
+<p>When David’s servant brought the news, the King arose and ordered his household to flee the city, for he knew no peace could be found in Jerusalem while Absalom plotted against him. David commanded his mighty men to march with him, though they urged him to stay, for he knew the Lord would show him mercy and restore him to his place. As the company crossed the Kidron Valley, the King walked toward the Mount of Olives, weeping and covering his head, while all his followers covered theirs and wept aloud. When Ziba, the servant of Mephibosheth, met him with saddled donkeys and provisions, David entrusted the estate to Mephibosheth, declaring that the land belonged to the young man regardless of the outcome. Further along, Hushai the Archite tore his clothes and threw dust on his head, pledging his loyalty to David, who sent him back to Jerusalem to frustrate the counsel of Ahithophel. When the priests Zadok and Abiathar arrived with the Ark of the Covenant, David ordered them to carry it back to the city, saying that if the LORD found favor with him, He would bring him back to see it again. David declared that whether he lived or died, he would remain faithful to the LORD, trusting that the Lord would do what seemed good in His eyes.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🗺️ Briefing Summary</div>
+<p>David’s flight from Jerusalem demonstrates a king who submits to the will of the LORD rather than clinging to his own throne. The narrative highlights the faithfulness of his loyal followers and the strategic wisdom of sending Hushai to counter Ahithophel’s counsel. David’s refusal to force the Ark to accompany him reveals a profound trust in God’s sovereignty over his restoration. This passage establishes the principle that a godly leader finds his security not in political stability but in the pleasure of the LORD.</p>
+</div>
+<div class="section reflection">
+<div class="section-label">❤️ Reflection for Your Wife — H.A.P.P.Y. Husband — Abiding</div>
+<p>Brother, when the storms of life threaten your position or your peace, do you cling to your rights or abide in the will of the LORD? David’s example is not one of passive resignation but of active trust. He did not fight for his crown with the sword of man but with the prayer of a man who knew his King was the LORD of hosts. As a husband and father, you are called to this same posture. Your authority in the home is not a tyranny to be defended by force but a stewardship to be maintained by faith. When Maria faces trials, or when your children rebel, your first response must be to seek the face of the LORD, just as David sought Him in the wilderness.</p>
+<p>You must teach your household that your strength is derived from submission to Christ. David wept and covered his head, showing that true masculinity includes humility before God. He did not pretend everything was fine; he acknowledged the judgment and trusted the Judge. In your marriage, this means you do not demand respect as a right but earn it by reflecting the humility of Christ. You abide in His word, and from that abiding flows the strength to lead, to protect, and to provide. Let your eyes be fixed on the One who determines the rise and fall of kings, knowing that your ultimate restoration comes from Him alone.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Read the Psalms of David during his flight and meditate on his submission to God’s will.</li>
+<li>Pray for Maria and your children, committing their welfare to the LORD rather than striving to control the outcome.</li>
+<li>Identify one area where you are relying on your own strength and surrender it to the Holy Spirit today.</li>
+<li>Speak words of trust in God’s sovereignty to your family when difficulties arise.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Stateroom</div>
+<p>Father, we thank You that You are the Sovereign Lord who directs the steps of Your servants. Grant us the grace to abide in Your will, even when the path leads through the valley of mourning. By the power of Your Holy Spirit, help us to trust Your wisdom over our own understanding and to find our rest in Your pleasure. Strengthen our hands to lead with humility and our hearts to love with fidelity. In the name of Jesus Christ, my Lord and Commander, we pray. Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Helm Command:</span> Hold fast to the rudder of faith when the winds of adversity blow.</div>
+</section>
+
+<section class="watch watch-father" id="watch-father" data-watch="father">
+<div class="watch-header"><span class="watch-time">1100</span> <h2>Second Watch — The Father&#x27;s Charge</h2></div>
+<p class="intro">David’s flight from Jerusalem reveals that true leadership is forged in the fires of suffering, not the comfort of the throne.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 2 Samuel 15:32-16:9</div>
+<div class="scripture-text">
+<p>And it came to pass, when David came to the summit, where men worshipped God, that, behold, Ahithophel there with him, and Hushai the Archite came tearing his clothes, and dust on his head. And David said unto him, If thou passest on with me, then thou shalt be a burden unto me. But if thou returnest back to the city, and sayest unto Absalom, I will be thy servant, O king; as I have been in thy father&#x27;s days heretofore, so now will I be thy servant; then mayest thou for me break down the counsel of Ahithophel. And it came to pass, that when Hushai was come to Absalom, that Hushai said unto Absalom, God save the king, God save the king. And Absalom said to Hushai, Is this thy kindness to thy friend? why wentest thou not with thy friend? And Hushai said unto Absalom, Nay; but whom the LORD, and this people, and every man in Israel, choose, his will I be, and with him will I abide. Moreover, whom should I serve? should I not serve in the presence of his son? as I have served in thy father&#x27;s presence, so will I be in thy presence.</p>
+<p>Then said Absalom to Hushai, Speak now, what shall we do? And Hushai answered Ahithophel, Thus and thus the counsel of Ahithophel hath given in this time; but I counsel, that all the Israelites be gathered unto thee, from Dan even to Beer-sheba, as the sand that is by the sea for multitude; and that thou go to battle in thine own person. So that we be smitten, and fall, then shall the hearers say, There is a slaughter among the people that follow Absalom. And even so shall every wise man among thee come to all the mighty men that are with thee, and say, Let not thy men be bold; for thy father is a mighty man, and they which be with him are mighty men in the field, like bears robbed of their whelps in the field. Moreover, he is expert in war, and he will not lodge with the people this night. Let him therefore be pried upon, and he will come forth like a wild boar in the field, and will rend some of the people presently. Then all the counsel shall be for nought, for we shall not be able to meet him. And Absalom and all the men of Israel said, The counsel of Hushai the Archite is better than the counsel of Ahithophel. For the LORD had appointed to frustrate the good counsel of Ahithophel, to the intent that the LORD might bring evil upon Absalom.</p>
+<p>Then said Hushai unto Zadok and to Abiathar the priests, Thus and thus did Ahithophel counsel Absalom and the elders of Israel; and thus and thus have I counselled. Now therefore send quickly, and tell David, saying, Lodge not this night in the plains of the wilderness, but pass over; lest the king be swallowed up, and all the people that are with him. And Jonathan and Ahimaaz waited by En Rogel; and a wench went and told them; and they went and told it to David: nevertheless a lad saw them, and told Absalom: but they went both of them away quickly, and came to a man&#x27;s house in Bahurim, which had a well in his court; whither they went down. And when Absalom and his men were come to the end of the place, the woman said unto Absalom&#x27;s men, Wither went ye? And they said unto her, Over the brook of water. And when they were gone, she took and spread a covering over the well&#x27;s mouth, and spread ground corn thereon; and the thing was not known. And it came to pass, after they were departed, that they came up out of the well, and went and told king David, and said unto David, Arise, and pass quickly over the water: for thus hath Ahithophel counselled against you. Then David arose, and all the people that were with him, and they passed over the Jordan: by the morning light there lacked not one of them that was not gone over the Jordan.</p>
+<p>And it came to pass, when David was come to Mahanaim, that Shobi the son of Nahash of Rabbah of the children of Ammon, and Machir the son of Ammiel of Lo-debar, and Barzillai the Gileadite of Rogelim, brought beds, and basons, and vessels of earth, and wheat, and barley, and meal, and parched corn, and beans, and lentils, and parched pulse, and honey, and butter, and sheep, and cheese of kine, to David, and to the people that were with him, to eat: for they said, The people is hungry, and weary, and thirsty, in the wilderness.</p>
+<p>And Shimei the son of Gera, a Benjamite, which was of the kindred of Saul, came down with the men of Judah to meet king David at the river Jordan. And there were a thousand men of Benjamin with him, and Ziba the servant of the house of Saul, and his fifteen sons and his twenty servants with him; and they went over Jordan before the king. And the king went on his way along the side of Jordan; and all the people that were with him went over Jordan. And when king David was come over Jordan, the king looked on, and said unto Ziba, All that were Saul&#x27;s, are I have given unto thy master&#x27;s son. And Ziba said, I humbly beseech thee, that I may find grace in thy sight, my lord, O king. And the king said, And Shimei&#x27;s son? And Ziba answered, Behold, he tarrieth here at Jerusalem: for he said, To day shall the house of Israel restore me the kingdom of my father. Then the king said unto Shimei, Thou shalt not die. And the king sware unto him.</p>
+<p>And Barzillai the Gileadite came down from Rogelim, and brought the king over Jordan, and kissed him, and prayed for him. And the king said unto Barzillai, Come thou over with me, and I will feed thee with me in Jerusalem. And Barzillai said unto the king, How long have I to live, that I should go up with the king unto Jerusalem? I am this day fourscore years old, and can I discern between good and evil? can thy servant taste what I eat or what I drink? can I hear any more the voice of singing men and singing women? wherefore should thy servant be yet a burden unto my lord the king? Thy servant will die in his own city, and will lie by the grave of his father and of his mother. But behold, here is thy servant Chimham; let him go over with my lord the king; and do to him what shall seem good unto thee. And the king answered and said, Chimham shall go over with me, and I will do to him that which shall seem good unto thee: and whatsoever thou shalt require of me, I will do for thee. And all the people went over Jordan. And when the king was come over, the king kissed Barzillai, and blessed him; and he returned unto his own place.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🗺️ Field Notes</div>
+<p>David stands at the precipice of total collapse, stripped of his crown and betrayed by his own counselors. He must rely on divine providence and the loyalty of a few faithful men to preserve the line of the covenant. This passage demonstrates that the King’s authority is not derived from the people’s applause but from the LORD’s sovereign appointment, even when that appointment leads through the valley of humiliation.</p>
+</div>
+<div class="section reflection">
+<div class="section-label">👨‍👦 Reflection for Your Children — F.U.L.F.I.L.L.E.D. Father — Leading</div>
+<p>Brother, look closely at how David handles the crisis of his son’s rebellion. He does not panic. He does not seek revenge. He exercises godly leadership by making hard, strategic choices that prioritize the safety of the people and the will of God over his own pride. He sends Hushai back to Jerusalem to counter the evil counsel of Ahithophel, trusting the LORD to frustrate the plans of the wicked. This is the posture of a man who leads by submitting to the Sovereign Lord.</p>
+<p>Gideon, you are nineteen and standing on the threshold of manhood. You must learn that true leadership is not about power, but about stewardship. David did not cling to his throne; he clung to his God. When you face opposition, do not react in anger. Assess the situation. Seek wise counsel. And above all, trust that the LORD is sovereign over the outcome. Your strength is found in your submission to God’s will, not in your ability to control others.</p>
+<p>Boaz, at fourteen, you are in the formative years of your character. Watch how David protects his family and his people even when they have turned against him. He shows mercy to Shimei, who curses him, and he honors the loyalty of Barzillai, an old man who served him faithfully. You must learn to be loyal to your family and your friends, and to show grace even to those who wrong you. Do not seek retaliation. Seek reconciliation and justice under God’s authority.</p>
+<p>Shiloh, my little boy, though you are only five, you are learning the basics of trust. David trusted God to provide for him in the wilderness, and God sent Barzillai and others to bring him food and rest. You can trust your Daddy to provide for you, and you can trust God to watch over you. Be still, be quiet, and know that God is with you.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Review your current decisions to ensure they are submitted to God’s Word, not driven by emotional reaction to your children’s behavior.</li>
+<li>Identify one area where you are trying to control the outcome rather than trusting the LORD’s sovereignty over your family’s future.</li>
+<li>Pray specifically for Gideon’s spiritual courage, Boaz’s moral integrity, and Shiloh’s heart of trust this week.</li>
+<li>Practice graciousness toward those who oppose you or your family, reflecting the mercy Christ showed you.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Wardroom</div>
+<p>Father, I come before You as a humble servant, acknowledging that my authority as a husband and father is derived solely from Your grace. I pray for the strength to lead my family with the same godly wisdom and submission to Your will that You displayed in David. By the power of Your Holy Spirit, grant me discernment to recognize Your hand in the trials of my household, and courage to trust You when the path is dark. Forgive me when I seek my own glory instead of Yours. Keep Gideon, Boaz, and Shiloh under the shadow of Your wings. In the name of Jesus Christ, my Lord and Commander, I pray. Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Rudder Steer:</span> Anchor your heart in the Sovereign Lord, not in the shifting sands of public opinion.</div>
+</section>
+
+<section class="watch watch-citizen" id="watch-citizen" data-watch="citizen">
+<div class="watch-header"><span class="watch-time">1500</span> <h2>Third Watch — The Citizen&#x27;s Stand</h2></div>
+<p class="intro">The night is dark, but the King sits on His throne, and the faithful stand ready in His house.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 2 Samuel 16:10-23</div>
+<div class="scripture-text">
+<p>And the king said, What have I to do with you, ye children of Zeruiah? so let him curse, because the LORD hath bidden him. Who shall say, Wherefore doest thou so? And David said to Abishai, and to all his servants, Behold, my son which came forth of mine own bowels, seeketh my life: how much more now may this Benjamite do it? let him alone, and let him curse; for the LORD hath bidden him. It may be the LORD will look on mine affliction, and the LORD will requite me good for his cursing this day. And David and his men went by the way where Shimei went along on the hill&#x27;s side over against him. And Shimei went along, and cursed, and threw stones at him, and cast dust: and the whole people, and all the mighty men that were with him, were on his right hand, and on his left. And it came to pass, when David came to Bahurim, behold, thence came out a man of the family of the house of Saul, whose name was Shimei, the son of Gera, he came forth, and cursed still as he came. And he cast stones at David, and at all the servants of David: and all the people and all the mighty men were on his right hand, and on his left. And so it was, when Shimei the son of Gera cursed, that Abishai the son of Zeruiah said unto the king, Let not this dead dog curse my lord the king: let me go over, I pray thee, and take off his head. And the king said, What have I to do with you, ye children of Zeruiah? so let him curse, because the LORD hath bidden him. Who shall say, Wherefore doest thou so? And David said to Abishai, and to all his servants, Behold, my son which came forth of mine own bowels, seeketh my life; how much more now may this Benjamite do it? let him alone, and let him curse; for the LORD hath bidden him. It may be the LORD will look on mine affliction, and the LORD will requite me good for his cursing this day. And David and his men went by the way where Shimei went along on the hill&#x27;s side over against him. And Absalom said to Ahithophel, Come now, let us prepare us two thousand men, and go after David this night. And Ahithophel said unto him, Let not thy face be offended; I choose me this night three thousand men, and I will arise and pursue after David this night. And I will come upon him while his hand is weary, and will make him afraid; and all the people that are with him shall flee: and I will smite the king only. And let all the people that are with him be gathered unto me; and I will bring them all down to thee; as the bridegroom goeth in unto the bride, so will I bring down all the people that are with thee to thee. And the saying pleased Absalom well, and all the elders of Israel.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🛰️ Situation Report</div>
+<p>Shimei, a member of the former royal house, hurls insults and stones at the fleeing King David, yet David forbids his loyal guards from striking back. This restraint is not weakness but a profound submission to Divine Providence, trusting that God alone judges the heart and the outcome of the kingdom. The narrative then shifts to the treachery of Ahithophel, whose counsel to Absalom promises a swift, decisive strike against the weary king, illustrating how quickly loyalty can fracture when pride takes the throne.</p>
+</div>
+<div class="section reflection resolute">
+<div class="section-label">🛡️ Reflection for a R.E.S.O.L.U.T.E. Citizen — Steadfast</div>
+<p><strong>Fredericksburg (local)</strong><br>Brother, in the quiet of our local parish or the confines of our own home, steadfastness is the daily grind of maintaining a godly posture when the world throws its stones. You do not have to shout back when the culture insults your faith or your family. Like David, you stand your ground not by returning evil for evil, but by anchoring your soul in the sovereignty of God. This is the quiet courage of a man who knows that his reputation is safe in the hands of his Creator, allowing him to endure insult without losing his temper or his testimony.</p>
+<p><strong>Virginia (state)</strong><br>In our state, we see the temptation to react with immediate force, to defend our honor with the sword of political or social retaliation. But David’s refusal to strike Shimei teaches us that true strength is self-mastery under the authority of the LORD. When we are provoked by the shifting winds of public opinion or the hostility of neighbors, we are called to be like the rock, unmoved by the spray of the waves. This steadfastness signals to those around us that our allegiance is not to the crowd, but to the King of Kings, and that our peace is secured by His will, not by our victory in every argument.</p>
+<p><strong>United States (nation)</strong><br>As a nation, we often celebrate the loud retaliation of the powerful, yet the Bible exalts the steady spirit that trusts in Divine timing. David’s restraint was a prophetic act, acknowledging that the crown belongs to the LORD and that He will judge in His own time. For the American citizen, this means standing firm in biblical truth and civic duty even when it is unpopular. We must be a people who do not flinch in the face of adversity, who do not retaliate with hatred, but who continue to do good, trusting that the LORD will vindicate His cause and protect His people from the schemes of the enemy.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>When provoked by insult, pause and ask the LORD to reveal the truth of the situation before you speak or act.</li>
+<li>Refuse to retaliate against those who speak against your faith or your family, trusting God to defend your honor.</li>
+<li>Maintain your spiritual disciplines and family worship even when circumstances are chaotic or hostile.</li>
+<li>Study the lives of biblical men who endured suffering with patience, and write down one lesson from their example to apply today.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Bridge</div>
+<p>Father, I thank You for the example of Your Son, who when He was reviled, reviled not again. Grant me the grace to be steadfast in the face of opposition, not relying on my own strength but leaning entirely on Your power. By the power of Your Holy Spirit, give me a heart that trusts Your sovereignty over my reputation and my future, that I may endure trials with joy and patience. Keep my tongue from evil and my lips from deceit, that I may be a witness to Your faithfulness in all things. In the name of Jesus Christ, my Lord and Commander, I pray. Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Rudder Steer:</span> Hold the line, brother; let God handle the rest.</div>
+<div class="section history">
+<div class="section-label">🦅 This Day in American History — April 30</div>
+<p>In 1789, George Washington was inaugurated as the first President of the United States on the balcony of Federal Hall in New York, solemnly swearing his oath of office and acknowledging the Almighty in his inaugural address, setting a precedent of reverence and duty for the nation’s leadership. In 1803, the Louisiana Purchase was finalized, a vast expansion of the young republic that, while complex in its consequences, demonstrated the providential growth of the American experiment under the guidance of a nation seeking its footing in a new world.</p>
+<p>⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻</p>
+</div>
+</section>
+
+<section class="watch watch-peace" id="watch-peace" data-watch="peace">
+<div class="watch-header"><span class="watch-time">2100</span> <h2>Evening Peace</h2></div>
+<p class="intro">The day’s watch ends, brother, as we look to the One who holds the dawn and the dusk in His hand.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Psalm 107</div>
+<div class="scripture-text">
+<p>Let the redeemed of the LORD say so, whom He has redeemed from the hand of the foe. And gathered them from the lands, from the east and from the west, from the north and from the south. Some wandered in desert wastes, finding no way to a city to dwell in. They were hungry and thirsty, their soul fainted within them. Then they cried to the LORD in their trouble, and He delivered them from their distress. He led them by a straight way till they reached a city to dwell in. Let them thank the LORD for His steadfast love, for His wondrous works to the children of men! For He satisfies the longing soul, and the hungry soul He fills with good things. Some sat in darkness and in the shadow of death, prisoners in affliction and in irons, for they had rebelled against the words of God, and spurned the counsel of the Most High. So He bowed their hearts down with hard labor; they fell down, with none to help. Then they cried to the LORD in their trouble, and He saved them from their distress. He brought them out of darkness and the shadow of death, and burst their bonds apart. Let them thank the LORD for His steadfast love, for His wondrous works to the children of men! For He shatters the doors of bronze and cuts in two the bars of iron. Let them extol the LORD for His steadfast love, for His wondrous works to the children of men! For He breaks the doors of bronze and cuts in two the bars of iron. Some made ships and went on the sea to do business in the deep waters; they saw the works of the LORD, His wondrous deeds in the deep. For He commanded and raised the stormy wind, which lifted up the waves of the sea. They mounted up to heaven; they went down to the depths; their soul melted away in their evil plight. They reeled and staggered like a drunken man, and their wisdom was swallowed up. Then they cried to the LORD in their trouble, and He brought them out of their distress. He made the storm be still, and the waves of the sea were hushed. Then they were glad that the waters were quiet, and He brought them to their desired haven. Let them thank the LORD for His steadfast love, for His wondrous works to the children of men! Let them extol Him in the congregation of the people, and praise Him in the assembly of the elders. He turns rivers into a desert, springs of water into thirsty ground, into a land of fruitfulness by its richness. He turns a desert into a pool of water, a parched land into springs of water. And there He lets the hungry dwell, and they establish a city to dwell in; they sow fields and plant vineyards that yield a fruitful harvest. He blesses them, and they multiply greatly, and does not let their livestock diminish. When they are diminished and brought low through oppression, evil, and sorrow, He pours contempt on princes and makes them wander in trackless wastes. But He raises up the poor out of affliction, and makes their families like flocks. The upright see it and are glad, and all wickedness shuts its mouth. For who is wise, and will understand these things? Who is steadfast, and will perceive the steadfast love of the LORD?</p>
+</div>
+</div>
+<div class="section reflection">
+<div class="section-label">🌾 Reflection for a Man at Home and in Community</div>
+<p>As a HAPPY husband, brother, I see in this psalm the quiet assurance that our domestic peace is not our own achievement but a gift from the LORD. Just as He calmed the storm for the sailors, He calms the storms of life for His people. We do not earn the right to rest in our homes; we receive it by grace. Your wife and children are a trust from God, and your joy is found in stewarding that trust with a heart that acknowledges Him as the source of every good provision. Do not let the noise of the world drown out the gratitude you owe Him for the covenant bond He has knit between you and your helpmeet.</p>
+<p>As a FULFILLED father, you are called to be a visible sign of the LORD’s faithfulness to the next generation. The psalmist reminds us that the redeemed tell their children of His wondrous works. Your discipline, your provision, and your protection are not merely biological or social duties; they are acts of worship. When you stand firm in truth and lead your household in the fear of the LORD, you are shattering the doors of bronze that seek to bind your children to the world. Teach them that their ultimate security is not in their own strength, but in the One who raises up the poor and makes their families like flocks.</p>
+<p>As a RESOLUTE citizen, remember that your service to the nation is an extension of your service to the King. The LORD guides the redeemed through the wastes of this world, and you are called to walk in that straight way with integrity. Whether in the barracks or the boardroom, let your conduct reflect the steadfast love of the LORD. Do not be swayed by the shifting winds of public opinion, but stand firm on the rock of Scripture. Your authority is derived from above, and you exercise it with a firm hand and a gentle spirit, knowing that the LORD will bring justice in His time.</p>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Stateroom</div>
+<p>Father, we thank You for the day’s labor and the peace You grant us in the evening. We acknowledge that every good gift comes from Your hand, and we submit our homes, our families, and our duties to Your sovereign will. By the power of Your Holy Spirit, strengthen us to lead with courage and love, to teach our children Your truth, and to serve our neighbors with justice and mercy. Keep our hearts fixed on the hope of glory, and let our lives declare Your steadfast love to all who see us. In the name of Jesus Christ, my Lord and Commander, who redeemed us from the hand of the foe, we pray. Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Rudder Steer:</span> Anchor your heart in Christ, and let your home stand as a beacon of His grace.</div>
+</section>
+
+<footer>
+<div class="draft-tag">PROTOTYPE — sign-off pending</div>
+<div>U.S.M.C. Ministries · The Watchman's Chronological Plan for the Year of our Lord 2026</div>
+<div style="margin-top:6px;font-size:0.78rem;">Adam Johns &middot; rich interpretive blend &middot; divine name LORD</div>
+</footer>
+
+</div>
+<script>
+(function(){
+  const SLUGS = ['all','wisdom','husband','father','citizen','peace'];
+
+  // Watch windows in local hours (each watch is "live" from its start time
+  // until the NEXT watch begins). Evening peace owns 21:00 → 04:59.
+  function currentWatchSlug() {
+    const h = new Date().getHours();
+    if (h >= 5  && h < 7)  return 'wisdom';
+    if (h >= 7  && h < 11) return 'husband';
+    if (h >= 11 && h < 15) return 'father';
+    if (h >= 15 && h < 21) return 'citizen';
+    return 'peace';                       // 21:00 – 04:59
+  }
+  const NOW_SLUG = currentWatchSlug();
+
+  function markNowBadge(){
+    document.querySelectorAll('.watch-tab').forEach(t => {
+      t.classList.toggle('is-now', t.dataset.tab === NOW_SLUG);
+    });
+  }
+  function showOnly(slug){
+    const isAll = slug === 'all' || !SLUGS.includes(slug);
+    document.querySelectorAll('section.watch').forEach(s => {
+      s.style.display = (isAll || s.dataset.watch === slug) ? '' : 'none';
+    });
+    document.querySelectorAll('.watch-tab').forEach(t => {
+      t.classList.toggle('active', t.dataset.tab === (isAll ? 'all' : slug));
+    });
+  }
+  document.querySelectorAll('.watch-tab').forEach(t => {
+    t.addEventListener('click', function(e){
+      e.preventDefault();
+      const slug = this.dataset.tab;
+      history.replaceState(null, '', '#' + slug);
+      showOnly(slug);
+      window.scrollTo({top: 0, behavior:'smooth'});
+    });
+  });
+
+  // Initial selection priority:
+  //   1. URL hash if present  (#all / #wisdom / #husband / #father / #citizen / #peace)
+  //   2. Auto-select the watch that is "live right now"
+  let initial;
+  if (location.hash) {
+    initial = location.hash.slice(1);
+  } else {
+    initial = NOW_SLUG;
+  }
+  markNowBadge();
+  showOnly(initial);
+})();
+</script>
+</body>
+</html>
