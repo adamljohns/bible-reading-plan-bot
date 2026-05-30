@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg">
+<title>Tuesday, July 21, 2026 — Daily Reading | U.S.M.C. Ministries</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+    --bg-dark: #000000; --bg-card: #111111; --bg-card2: #161616;
+    --gold: #D4AF37; --gold-light: #F4D470;
+    --white: #FFFFFF; --gray: #888888; --border: #333333;
+}
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--white);
+    min-height: 100vh;
+    line-height: 1.7;
+}
+h1, h2, h3 { font-family: 'Playfair Display', serif; font-weight: 700; }
+.container { max-width: 820px; margin: 0 auto; padding: 24px 20px 60px; }
+a { color: var(--gold); text-decoration: none; }
+a:hover { color: var(--gold-light); text-decoration: underline; }
+
+.nav-back { margin-bottom: 14px; font-size: 0.95rem; }
+
+.hero { text-align: center; padding: 16px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 18px; }
+.hero h1 { font-size: clamp(1.5rem, 4vw, 2.2rem); color: var(--white); margin-bottom: 6px; }
+.hero .subtitle { color: var(--gold); font-size: 0.95rem; font-style: italic; }
+.hero .doc-line { color: var(--gray); font-size: 0.82rem; margin-top: 6px; }
+
+.watch-tabs {
+    position: sticky; top: 0; z-index: 30;
+    background: var(--bg-dark);
+    border-bottom: 1px solid var(--border);
+    display: flex; flex-wrap: wrap; gap: 6px;
+    padding: 12px 0 14px;
+    margin-bottom: 18px;
+}
+.watch-tab {
+    flex: 1 1 90px;
+    text-align: center;
+    padding: 8px 6px;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    background: var(--bg-card);
+    color: var(--gray);
+    font-size: 0.85rem; font-weight: 500;
+    transition: all 0.15s ease;
+    text-decoration: none !important;
+    white-space: nowrap;
+}
+.watch-tab:hover { color: var(--white); border-color: var(--gold); text-decoration: none !important; }
+.watch-tab.active { background: var(--gold); color: #000; border-color: var(--gold); font-weight: 600; }
+.watch-tab .tab-time { display: block; font-size: 0.7rem; opacity: 0.7; font-family: monospace; }
+.watch-tab.active .tab-time { opacity: 1; }
+
+/* "NOW" badge — shown on the watch tab whose time window contains current local time */
+.watch-tab.is-now { position: relative; box-shadow: 0 0 0 1px var(--gold-light) inset; }
+.watch-tab.is-now::after {
+  content: "NOW";
+  position: absolute; top: -7px; right: -4px;
+  background: var(--gold-light); color: #000;
+  font-size: 0.55rem; font-weight: 700;
+  padding: 1px 5px; border-radius: 100px;
+  letter-spacing: 0.08em;
+}
+
+.watch {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px 22px;
+    margin-bottom: 22px;
+    scroll-margin-top: 80px;
+}
+.watch-header { display: flex; align-items: baseline; gap: 14px; margin-bottom: 10px; flex-wrap: wrap; }
+.watch-time {
+    background: var(--bg-card2); color: var(--gold);
+    padding: 4px 12px; border-radius: 100px;
+    font-family: 'Inter', monospace; font-size: 0.85rem; font-weight: 600;
+    letter-spacing: 0.05em;
+}
+.watch-header h2 { font-size: 1.35rem; color: var(--white); }
+
+.intro { color: var(--gray); font-style: italic; margin-bottom: 14px; }
+
+.audio-slot {
+    margin: 14px 0 18px;
+    padding: 12px 14px;
+    background: var(--bg-card2);
+    border-radius: 8px;
+    border: 1px dashed var(--border);
+}
+.audio-slot.audio-pending { opacity: 0.55; }
+.audio-cap { font-size: 0.8rem; color: var(--gray); margin-top: 4px; }
+
+.scripture {
+    background: var(--bg-card2);
+    border-left: 3px solid var(--gold);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin: 16px 0 22px;
+}
+.scripture-ref { font-weight: 600; color: var(--gold); margin-bottom: 12px; font-size: 0.95rem; }
+.scripture-text p { margin-bottom: 8px; }
+.scripture-text p.stanza { margin-bottom: 14px; }
+
+.section-label {
+    font-family: 'Playfair Display', serif;
+    color: var(--gold); font-weight: 700; font-size: 1.05rem;
+    margin: 22px 0 10px; padding-top: 10px; border-top: 1px solid var(--border);
+}
+.section p, .context p, .reflection p, .history p, .application-block p { margin-bottom: 12px; }
+
+ul.application { padding-left: 22px; margin: 8px 0 14px; }
+ul.application li { margin-bottom: 8px; }
+.application-prose { font-style: italic; color: var(--gold-light); margin-top: 12px; }
+
+.history ul { padding-left: 22px; margin: 8px 0; }
+.history li { margin-bottom: 6px; }
+
+.prayer {
+    background: var(--bg-card2);
+    border-left: 3px solid var(--gold-light);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin: 22px 0;
+}
+.prayer-title { color: var(--gold-light); font-weight: 600; margin-bottom: 10px; font-size: 0.95rem; }
+.prayer p { line-height: 1.85; margin-bottom: 8px; }
+
+.helm {
+    background: var(--bg-card2);
+    border-radius: 6px;
+    padding: 12px 18px;
+    margin-top: 14px;
+    font-size: 0.95rem;
+}
+.helm-icon { color: var(--gold); font-size: 1.1rem; }
+.helm-label { color: var(--gold); font-weight: 600; }
+
+footer {
+    text-align: center;
+    color: var(--gray);
+    font-size: 0.82rem;
+    margin-top: 32px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+}
+footer .draft-tag {
+    display: inline-block;
+    background: #2a2410;
+    color: var(--gold);
+    padding: 4px 12px;
+    border-radius: 100px;
+    font-size: 0.78rem;
+    margin-bottom: 8px;
+    letter-spacing: 0.05em;
+}
+
+@media (max-width: 540px) {
+    .watch-tab { flex: 1 1 64px; font-size: 0.78rem; padding: 6px 4px; }
+    .watch-tab .tab-time { font-size: 0.65rem; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="nav-back">← <a href="/chronological.html">The Watchman's Chronological Plan</a></div>
+
+<div class="hero">
+<h1>Tuesday, July 21, 2026</h1>
+<div class="subtitle">Daily Reading — Day 202 of 365</div>
+<div class="doc-line">MOOP&#x27;s 2026 Daily Bible Readings — Document 7 of 12; for the month of July</div>
+</div>
+
+<nav class="watch-tabs" role="tablist">
+<a href="#all" class="watch-tab active" data-tab="all" role="tab"><span class="tab-label">All Watches</span></a>
+<a href="#wisdom" class="watch-tab" data-tab="wisdom" role="tab"><span class="tab-time">0600</span> <span class="tab-label">Morning Wisdom</span></a>
+<a href="#husband" class="watch-tab" data-tab="husband" role="tab"><span class="tab-time">0700</span> <span class="tab-label">Husband</span></a>
+<a href="#father" class="watch-tab" data-tab="father" role="tab"><span class="tab-time">1100</span> <span class="tab-label">Father</span></a>
+<a href="#citizen" class="watch-tab" data-tab="citizen" role="tab"><span class="tab-time">1500</span> <span class="tab-label">Citizen</span></a>
+<a href="#peace" class="watch-tab" data-tab="peace" role="tab"><span class="tab-time">2100</span> <span class="tab-label">Evening Peace</span></a>
+</nav>
+
+<section class="watch watch-wisdom" id="watch-wisdom" data-watch="wisdom">
+<div class="watch-header"><span class="watch-time">0600</span> <h2>Morning Wisdom</h2></div>
+<p class="intro">The Lord preserves His people through faithful remembrance and covenantal obedience.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Nehemiah 7</div>
+<div class="scripture-text">
+<p>Now these are the people of the province who came up out of the captivity of those exiles whom Nebuchadnezzar the king of Babylon had carried away to Babylon, and who came back to Jerusalem and Judah, each to his own city. They came with Zerubbabel, Jeshua, Nehemiah, Azariah, Raamiah, Nahamani, Mordecai, Bilshan, Mispard, Bigvai, Nehum, Baanah. The number of the men of the people of Israel was the following: the sons of Parosh, two thousand one hundred seventy-two; the sons of Shephatiah, three hundred seventy-two; the sons of Arah, seven hundred seventy-five; the sons of Pahath-moab of the sons of Jeshua and Joab, two thousand eight hundred twelve; the sons of Elam, one thousand two hundred fifty-four; the sons of Zattu, eight hundred forty-five; the sons of Zaccai, seven hundred and sixty; the sons of Binnui, six hundred forty-eight; the sons of Bebai, six hundred twenty-eight; the sons of Azgad, two thousand three hundred twenty-two; the sons of Adonikam, six hundred sixty-six; the sons of Bigvai, two thousand sixty-seven; the sons of Adin, six hundred fifty-five; the sons of Ater of Hezekiah, ninety-eight; the sons of Bezai, three hundred twenty-three; the sons of Jorah, one hundred twelve; the sons of Hashum, two hundred twenty-three; the sons of Gibbar, ninety-five; the men of Bethlehem and Netophah, one hundred eighty-five; the men of Anathoth, one hundred twenty-eight; the men of Beth-azmaveth, forty-two; the men of Kiriath-jearim, Kephirah, and Beeroth, seven hundred forty-three; the men of Ramah and Geba, six hundred twenty-one; the men of Michmas, one hundred twenty-two; the men of Bethel and Ai, one hundred twenty-three; the men of the other Nebo, fifty-two; the sons of the other Elam, one thousand two hundred fifty-four; the sons of Harim, three hundred and twenty; the sons of Lod, Hadid, and Ono, seven hundred twenty-one; the sons of Jericho, three hundred forty-five; the sons of Senaah, three thousand and sixty.</p>
+<p>The priests: the sons of Jedaiah of the house of Jeshua, nine hundred seventy-three; the sons of Immer, one thousand twenty-eight; the sons of Pashhur, one thousand two hundred forty-seven; the sons of Harim, one thousand twenty-eight.</p>
+<p>The Levites: the sons of Jeshua and Kadmiel, of the sons of Hodaviah, seventy-four.</p>
+<p>The singers: the sons of Asaph, one hundred twenty-eight.</p>
+<p>The gatekeepers: the sons of Shallum, the sons of Ater, the sons of Talmon, the sons of Akkub, the sons of Hatita, the sons of Shobai, one hundred thirty-eight.</p>
+<p>The temple servants: the sons of Ziha, the sons of Hashupha, the sons of Tabbaoth; the sons of Keros, the sons of Siaha, the sons of Padon; the sons of Leban, the sons of Hagaba, the sons of Shalmai; the sons of Hanan, the sons of Giddel, the sons of Gahar; the sons of Reaiah, the sons of Rezin, the sons of Nekoda; the sons of Gazzam, the sons of Uzza, the sons of Phaseah; the sons of Besai, the sons of Macon, the sons of Heba; the sons of Akzab; the sons of Aphai, the sons of Asuel; the sons of Pomim, the sons of Aznavan; the sons of Meunim, the sons of Phipim, the sons of Harhur; the sons of Bazlith, the sons of Mehida, the sons of Harsha; the sons of Barkos; the sons of Sissera, the sons of Tamah; the sons of Neziah, the sons of Hatipha.</p>
+<p>The sons of Solomon’s servants: the sons of Sotai, the sons of Sophereth, the sons of Perida; the sons of Jaala, the sons of Darkon, the sons of Giddel; the sons of Shephatiah, the sons of Hattil, the sons of Pochereth of Zebaim; the sons of Amon.</p>
+<p>All the temple servants and the sons of Solomon’s servants were three hundred ninety-two.</p>
+<p>And these were the ones who came up out of Tel-melah, Tel-harsha, Cherub, Addon, and Immer, but they could not prove their fathers’ houses nor their descent, whether they belonged to Israel: the sons of Delaiah, the sons of Tobiah, the sons of Nekoda, six hundred fifty-two.</p>
+<p>And of the sons of the priests: the sons of Hobaiah, the sons of Hakkoz, the sons of Barzillai, who took a wife from the daughters of Barzillai the Gileadite, and was called by their name. These sought their registration among those enrolled in the genealogies, but it was not found there, and they were excluded from the priesthood as unclean.</p>
+<p>The governor commanded them not to eat of the most holy things until a priest arose with Urim and Thummim.</p>
+<p>The whole congregation together was forty-two thousand three hundred sixty, besides their male and female servants, of whom there were seven thousand three hundred thirty-seven; and they had two hundred singing men and singing women.</p>
+<p>Their horses were seven hundred thirty-six, their mules two hundred forty-five, their camels four hundred thirty-five, their donkeys six thousand seven hundred twenty.</p>
+<p>Some of the heads of fathers’ houses gave to the work. The governor gave to the treasury one thousand drachmas of gold, fifty bowls, and five hundred and thirty priests’ garments.</p>
+<p>Some of the heads of fathers’ houses gave to the treasury for the work two thousand drachmas of gold and two thousand minas of silver.</p>
+<p>The rest of the people gave two thousand drachmas of gold, two thousand minas of silver, and sixty-seven priests’ garments.</p>
+<p>So the priests, the Levites, the gatekeepers, the singers, some of the people, the temple servants, and all Israel lived in their cities.</p>
+<p>When the seventh month came, the people of Israel lived in their cities.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🧭 Context Summary</div>
+<p>This chapter serves as the historical ledger of the return from Babylon, detailing the genealogies of those who rebuilt the foundation of the community. It lists the returning exiles, the priests, the Levites, and the temple servants to establish the legitimate lineage required for worship under the Law. By recording who returned and who could not prove their priestly descent, the text underscores the seriousness of covenantal purity and order. The people gather in Jerusalem not merely as a political entity, but as a redeemed nation organized for the glory of the LORD.</p>
+</div>
+<div class="section reflection">
+<div class="section-label">🛡️ Reflection for a REAL MAN — Covenantal Order</div>
+<p>Brother, the world often despises order, calling it restrictive or outdated. Yet, Nehemiah 7 reveals that the strength of Israel lay not in chaotic freedom, but in the faithful preservation of their identity. You are called to be the priest of your home, guarding the spiritual lineage and the truth of the Gospel with the same rigor these men guarded their genealogies. Do not let the enemy confuse you with the noise of the culture; stand firm in the clear boundaries God has established for your family.</p>
+<p>The exclusion of those who could not prove their lineage was not an act of cruelty, but of holiness. It protected the worship of the LORD from being defiled by ignorance or compromise. As a father and husband, you must guard the spiritual heritage of your children. You are responsible to ensure that your household knows the LORD, that they are registered in the book of life, and that they walk in the light of His Word. This is your primary duty, above all career ambitions or social accolades.</p>
+<p>The generosity of the heads of households shows that true manhood is characterized by stewardship. They did not hoard their wealth but invested it in the restoration of God’s house. Your provision is not just for comfort, but for the advancement of the Kingdom. You must lead your family in giving, in worship, and in the fear of the LORD. Let your home be a testament to the order and peace that comes from submission to Christ’s Lordship.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Audit your family’s spiritual records by teaching your children the doctrines of the faith and the story of redemption this week.</li>
+<li>Establish a consistent time for family worship to reinforce the covenantal order in your home.</li>
+<li>Review your financial stewardship to ensure you are giving sacrificially to the local church and supporting the work of the ministry.</li>
+<li>Correct any compromise in your household regarding gender roles or biblical authority with gentle but firm correction.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer</div>
+<p>Father, we thank You for the order You have established in Your Word and in Your creation. Forgive us for our tendency toward chaos and our neglect of the duties You have entrusted to us as men. By the power of Your Holy Spirit, grant us the courage to guard the faith in our homes and to lead our wives and children in the way they should go. Strengthen our hands to rebuild what has been broken and to preserve the truth of the Gospel for our offspring. In the name of Jesus Christ, my Lord and Commander, Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Helm Command:</span> Secure your spiritual quarters and guard the truth.</div>
+</section>
+
+<section class="watch watch-husband" id="watch-husband" data-watch="husband">
+<div class="watch-header"><span class="watch-time">0700</span> <h2>First Watch — The Husband&#x27;s Post</h2></div>
+<p class="intro">Brother, stand firm in the truth that God’s justice is absolute and His covenant demands a heart that fears Him above all else.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Amos 2</div>
+<div class="scripture-text">
+<p class="stanza">Thus says the LORD:<br>For three transgressions of Moab, and for four,<br>I will not revoke the punishment,<br>because he burned to lime the bones of the king of Edom.<br>So I will send a fire upon the wall of Moab,<br>and it shall devour her strongholds.<br>And Moab shall die amid tumult, amid shouting and the sound of the trumpet.<br>And I will cut off the judge from her midst,<br>and will slay all her princes with him.<br>Thus says the LORD:<br>For three transgressions of Edom, and for four,<br>I will not revoke the punishment,<br>because he pursued his brother with the sword<br>and stifled his compassion,<br>and his anger bit continually,<br>and his fury he kept awake.<br>So I will send a fire upon Teman,<br>and it shall devour the strongholds of Bozrah.<br>Thus says the LORD:<br>For three transgressions of the sons of Ammon, and for four,<br>I will not revoke the punishment,<br>because they have ripped open the pregnant women of Gilead,<br>that they might enlarge their border.<br>So I will kindle a fire in the wall of Rabbah,<br>and it shall devour her strongholds,<br>with shouting on the day of battle,<br>with a tempest in the day of the stormwind.<br>And their king shall go into exile,<br>he and his princes together,<br>says the LORD.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🗺️ Briefing Summary</div>
+<p>The prophet Amos delivers a solemn judgment against the surrounding nations, declaring that God holds all peoples accountable to the moral law written on their hearts. These nations faced destruction not merely for political rivalry, but for violating the fundamental duties of humanity and brotherhood. The text underscores that no nation is immune to the righteous wrath of God when they reject compassion and pursue power through cruelty. This passage serves as a sobering reminder that God is the ultimate Sovereign who executes justice upon the earth.</p>
+</div>
+<div class="section reflection">
+<div class="section-label">❤️ Reflection for Your Wife — H.A.P.P.Y. Husband — Protecting</div>
+<p>Adam, you are called to be a protector in your home, just as God is the Protector of His covenant people. The nations in Amos were judged for their lack of compassion and their violent expansionism, but your calling is the opposite. You are to be a shield to Maria, creating an environment where she can flourish without fear. Your strength is not for domination, but for the preservation of her peace and dignity.</p>
+<p>In the Reformed tradition, we understand that headship is a burden of responsibility, not a privilege of power. God’s justice in Amos shows that He hates the exploitation of the vulnerable. As her husband, you must actively guard against any spirit of self-interest that would seek to use her for your own gain. Your protection is spiritual, emotional, and physical, ensuring that the home remains a sanctuary of grace.</p>
+<p>This protection requires you to kill the anger and fury that Amos condemns in the nations. You must be slow to wrath and quick to listen. When you stand between Maria and the chaos of the world, you do so not because you are superior, but because you have been appointed by God to bear the weight of leadership. Your courage is found in your submission to Christ, which empowers you to serve her well.</p>
+<p>Brother, remember that your role is to reflect the heart of Christ, who gave Himself up for the Church. You protect Maria by loving her with a sacrificial love that seeks her highest good above your own comfort. This is the mark of a godly man: one who uses his strength to lift up his wife, not to crush her spirit.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Establish a daily habit of asking Maria how you can specifically support her spiritual and emotional needs that day.</li>
+<li>Confront and reject any internal attitude of impatience or frustration when Maria expresses her views or feelings.</li>
+<li>Create a physical and digital boundary around your home to minimize external distractions that could erode your focus on her.</li>
+<li>Verbally affirm Maria’s value and beauty to you, reinforcing her identity as a beloved daughter of the King.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Stateroom</div>
+<p>Father, we thank You for the example of Your righteous judgment and Your holy standard for leadership. Forgive us, Lord, for the times we have been slow to protect and quick to anger. By the power of Your Holy Spirit, give Adam the courage to stand firm as a protector of his wife, Maria. Help him to lay down his selfish ambitions and pick up the mantle of sacrificial love, guarding her heart and home with vigilance and grace. May his leadership reflect the humility and strength of our Commander, Jesus Christ. In the name of Jesus Christ, my Lord and Commander, Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Helm Command:</span> Guard the gate of your heart with the sword of the Word.</div>
+</section>
+
+<section class="watch watch-father" id="watch-father" data-watch="father">
+<div class="watch-header"><span class="watch-time">1100</span> <h2>Second Watch — The Father&#x27;s Charge</h2></div>
+<p class="intro">Brother, the morning light reveals the weight of the covenant you carry as the spiritual head of your house.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Amos 3</div>
+<div class="scripture-text">
+<p class="stanza">Does a lion roar in the forest when he has no prey?<br>Does a young lion cry out from his den if he has caught nothing?<br>Does a bird fall in a snare on the earth when there is no trap for it?<br>Does a snare spring up from the ground when it has caught nothing?<br>If a trumpet is blown in a city, do not the people tremble?<br>If there is calamity in a city, has not the LORD caused it?<br>For the Lord GOD does nothing without revealing his secret to his servants the prophets.<br>The lion has roared; who will not fear?<br>The Lord GOD has spoken; who will not prophesy?</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🗺️ Field Notes</div>
+<p>Amos confronts the complacency of Israel by asserting that disaster is never random but always ordained by the sovereign will of the LORD. The prophet uses the analogy of the lion’s roar to demonstrate that God’s judgment is both deliberate and inevitable for those who reject His covenant. This passage strips away the illusion of safety for the unrepentant, reminding us that the LORD directs all events according to His righteous purposes.</p>
+</div>
+<div class="section reflection">
+<div class="section-label">👨‍👦 Reflection for Your Children — F.U.L.F.I.L.L.E.D. Father — Leading</div>
+<p>Brother, you stand in the breach for your family just as Amos stood for Israel. Your role is not merely to provide materially but to lead spiritually by discerning the signs of the times and calling your household to repentance. You must teach Gideon, Boaz, and little Shiloh that the world is under judgment, but the house of God is under grace.</p>
+<p>Gideon is a man now, and he must understand that true leadership requires the courage to speak truth when it is unpopular. You must model for him that a man does not shy away from the weight of responsibility but embraces it with fear and trembling before God. Boaz, at fourteen, is in the critical season of youth where he must learn to distinguish between the noise of the culture and the voice of the LORD.</p>
+<p>Little Shiloh watches your every move, learning what a godly man looks like through your eyes. He needs to see you pray, study, and act with authority that comes from submission to Christ. Your leadership is the rudder that keeps the ship of your family from drifting into the storm of sin.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Read Amos daily to understand the seriousness of God’s warnings against sin.</li>
+<li>Speak clearly to Gideon about his duty to protect and provide for his future family.</li>
+<li>Instruct Boaz on the importance of spiritual vigilance during his teenage years.</li>
+<li>Pray with Shiloh every night, modeling dependence on God’s protection.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Wardroom</div>
+<p>Father, we thank You for the authority You have entrusted to us as husbands and fathers. By the power of Your Holy Spirit, grant us the discernment to recognize Your hand in all things and the courage to lead our households with integrity and truth. Strengthen us to stand firm against the tides of compromise and to guide our sons toward a life of faithful obedience. In the name of Jesus Christ, my Lord and Commander, we pray. Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Rudder Steer:</span> Hold the line of truth when the world demands you lower it.</div>
+</section>
+
+<section class="watch watch-citizen" id="watch-citizen" data-watch="citizen">
+<div class="watch-header"><span class="watch-time">1500</span> <h2>Third Watch — The Citizen&#x27;s Stand</h2></div>
+<p class="intro">Brother, the night is deep, but the Watchman stands firm on the wall of truth.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Amos 4</div>
+<div class="scripture-text">
+<p>Hear this word, you cows of Bashan who are on the mountain of Samaria, who oppress the poor, who crush the needy, who say to their husbands, &quot;Bring, that we may drink!&quot; The Lord God has sworn by His holiness that, behold, days are coming upon you, when He will take you away with hooks, and the last of you with fish hooks. You shall go out through breaches, each one straight ahead; and you shall be driven out to Harmon, says the LORD.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🛰️ Situation Report</div>
+<p>The prophet Amos addresses the elite of Israel with severe clarity, exposing their greed and spiritual complacency. They treated their neighbors with cruelty while maintaining a facade of religious observance, believing their rituals shielded them from judgment. God warns that their oppression of the lowly and downtrodden has reached a point of no return, and their false security will be shattered.</p>
+</div>
+<div class="section reflection resolute">
+<div class="section-label">🛡️ Reflection for a R.E.S.O.L.U.T.E. Citizen — Steadfast</div>
+<p>Fredericksburg (local)<br>Brother, consider the ground beneath your feet. In the shadow of the Rappahannock, men of old stood firm when the world tried to break them. Your stability is not found in the shifting sands of popular opinion, but in the unyielding rock of God’s Word. When your culture praises the oppressor and mocks the righteous, you must stand like a sentinel, unmoved by the tide of iniquity. Your steadiness is a witness to those who are wavering.</p>
+<p>Virginia (state)<br>The Commonwealth has seen seasons of great trial, where the strong were called to protect the weak and the wealthy were called to repent of their hoarding. Amos reminds us that no amount of ritual can cover a heart that crushes the needy. As a man in this land, you are called to be a protector of the vulnerable, not a participant in their oppression. Your home must be a fortress of justice, where the poor are welcomed and the righteous are honored.</p>
+<p>United States (nation)<br>The nation stands at a precipice, much like Israel did before the exile. When a people turn from justice to greed, God’s judgment is inevitable. Yet, for you, brother, this is a call to vigilance. You must hold fast to the truth when lies are celebrated as virtue. Your steadfastness in the face of cultural pressure is an act of worship. You do not bend to the wind of the age, but stand firm in the covenant promises of God.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Review your household budget to ensure you are giving generously to the poor and supporting the work of the Gospel.</li>
+<li>Confront any instance of injustice or bullying you witness in your community or online, speaking truth with courage.</li>
+<li>Dedicate time this week to mentor a younger man in the faith, teaching him to stand firm in his convictions.</li>
+<li>Pray for your nation’s leaders, asking God to raise up men of integrity who will uphold justice for the downtrodden.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Bridge</div>
+<p>Father, we thank You for Your holiness, which demands justice and righteousness from Your people. Forgive us for the times we have been indifferent to the suffering of others. By the power of Your Holy Spirit, make us steadfast in the face of cultural pressure, that we may stand firm in Your truth. Grant us the courage to protect the weak and to speak against oppression in our homes and communities. Keep our hearts fixed on You, our Rock and Redeemer. In the name of Jesus Christ, my Lord and Commander, Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Rudder Steer:</span> Stand firm when the tide of compromise rises.</div>
+<div class="section history">
+<div class="section-label">🦅 This Day in American History — July 21</div>
+<p>On July 21, 1861, the First Battle of Bull Run marked the beginning of the American Civil War, a grim reminder that sin and rebellion bring destruction to nations, yet God remains sovereign over history. In 1789, the U.S. Constitution went into effect, establishing a framework for liberty under law, a testament to the providential wisdom granted to the founding fathers to secure the blessings of civil order for their descendants.</p>
+<p>⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻</p>
+</div>
+</section>
+
+<section class="watch watch-peace" id="watch-peace" data-watch="peace">
+<div class="watch-header"><span class="watch-time">2100</span> <h2>Evening Peace</h2></div>
+<p class="intro">The Lord calls His people to return with all their heart, for He is the only rock of safety in a world of shifting sand.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Hosea 5</div>
+<div class="scripture-text">
+<p>Woe to them, for they have strayed from Him! He will devour them. They are a thorn and a brier in the midst of their revelers. My people are bent on turning from Me. Though they have humbled themselves in Egypt, they have not sought Me. I have written for them the many things of My law, but they counted them as a strange thing. They sacrifice flesh offerings and eat the meat, but the LORD does not accept them. Now He will remember their iniquity and punish their sins.</p>
+</div>
+</div>
+<div class="section reflection">
+<div class="section-label">🌾 Reflection for a Man at Home and in Community</div>
+<p>As a HAPPY husband, you must recognize that the peace of your home rests on the authority of the Lord, not on the whims of culture. Your wife looks to you to lead her in the fear of the LORD, just as Christ leads the Church. When you fail to uphold the truth of Scripture in your household, you invite the same spiritual decay that Hosea condemns. Do not treat the Word of God as a foreign object or a burden. Embrace it as the lifeline of your marriage, guiding your decisions with clarity and strength. Your joy is found in obedience to Him, for He is the head of the house, and you are His steward.</p>
+<p>As a FULFILLED father, you are called to instruct your children in the way they should go, without compromising the hard truths of the Gospel. The world will try to soften your voice, but you must stand firm like a rock against the tide of error. Your children need a father who is not afraid to correct them with love and to point them to the cross. Do not let them think that their rebellion is merely a phase to be tolerated. Teach them that sin is a thorn that pierces the soul and that only repentance brings true relief. Your legacy is not your wealth, but your faithfulness to the covenant you have made before God.</p>
+<p>As a RESOLUTE citizen, you must remember that your ultimate allegiance is to the Kingdom of Heaven, not to the shifting tides of political power. You serve in a land that has forgotten its God, and you are called to be a light in the darkness. Do not be deceived by the false security of human institutions. The LORD does not accept the sacrifices of those who claim to worship Him while their hearts are far from Him. Stand firm in your convictions, brother. Let your actions speak louder than your words, and let your life be a testament to the sovereignty of God over all nations.</p>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Stateroom</div>
+<p>Father, we thank You for the clarity of Your Word, which cuts through the fog of our sin and reveals the path of righteousness. Forgive us for the times we have treated Your law as a stranger or ignored Your call to repentance. Strengthen our hands to lead our families with courage and our minds with wisdom. By the power of Your Holy Spirit, convict us of our sin and drive us to the cross for pardon and grace. Guard our hearts from the pride of self-reliance and keep us steadfast in our covenant duties. In the name of Jesus Christ, my Lord and Commander, we pray. Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Rudder Steer:</span> Hold the line of truth in your home, for the world is watching your steps.</div>
+</section>
+
+<footer>
+<div class="draft-tag">PROTOTYPE — sign-off pending</div>
+<div>U.S.M.C. Ministries · The Watchman's Chronological Plan for the Year of our Lord 2026</div>
+<div style="margin-top:6px;font-size:0.78rem;">Adam Johns &middot; rich interpretive blend &middot; divine name LORD</div>
+</footer>
+
+</div>
+<script>
+(function(){
+  const SLUGS = ['all','wisdom','husband','father','citizen','peace'];
+
+  // Watch windows in local hours (each watch is "live" from its start time
+  // until the NEXT watch begins). Evening peace owns 21:00 → 04:59.
+  function currentWatchSlug() {
+    const h = new Date().getHours();
+    if (h >= 5  && h < 7)  return 'wisdom';
+    if (h >= 7  && h < 11) return 'husband';
+    if (h >= 11 && h < 15) return 'father';
+    if (h >= 15 && h < 21) return 'citizen';
+    return 'peace';                       // 21:00 – 04:59
+  }
+  const NOW_SLUG = currentWatchSlug();
+
+  function markNowBadge(){
+    document.querySelectorAll('.watch-tab').forEach(t => {
+      t.classList.toggle('is-now', t.dataset.tab === NOW_SLUG);
+    });
+  }
+  function showOnly(slug){
+    const isAll = slug === 'all' || !SLUGS.includes(slug);
+    document.querySelectorAll('section.watch').forEach(s => {
+      s.style.display = (isAll || s.dataset.watch === slug) ? '' : 'none';
+    });
+    document.querySelectorAll('.watch-tab').forEach(t => {
+      t.classList.toggle('active', t.dataset.tab === (isAll ? 'all' : slug));
+    });
+  }
+  document.querySelectorAll('.watch-tab').forEach(t => {
+    t.addEventListener('click', function(e){
+      e.preventDefault();
+      const slug = this.dataset.tab;
+      history.replaceState(null, '', '#' + slug);
+      showOnly(slug);
+      window.scrollTo({top: 0, behavior:'smooth'});
+    });
+  });
+
+  // Initial selection priority:
+  //   1. URL hash if present  (#all / #wisdom / #husband / #father / #citizen / #peace)
+  //   2. Auto-select the watch that is "live right now"
+  let initial;
+  if (location.hash) {
+    initial = location.hash.slice(1);
+  } else {
+    initial = NOW_SLUG;
+  }
+  markNowBadge();
+  showOnly(initial);
+})();
+</script>
+</body>
+</html>
