@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg">
+<title>Thursday, May 21, 2026 — Daily Reading | U.S.M.C. Ministries</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+    --bg-dark: #000000; --bg-card: #111111; --bg-card2: #161616;
+    --gold: #D4AF37; --gold-light: #F4D470;
+    --white: #FFFFFF; --gray: #888888; --border: #333333;
+}
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--white);
+    min-height: 100vh;
+    line-height: 1.7;
+}
+h1, h2, h3 { font-family: 'Playfair Display', serif; font-weight: 700; }
+.container { max-width: 820px; margin: 0 auto; padding: 24px 20px 60px; }
+a { color: var(--gold); text-decoration: none; }
+a:hover { color: var(--gold-light); text-decoration: underline; }
+
+.nav-back { margin-bottom: 14px; font-size: 0.95rem; }
+
+.hero { text-align: center; padding: 16px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 18px; }
+.hero h1 { font-size: clamp(1.5rem, 4vw, 2.2rem); color: var(--white); margin-bottom: 6px; }
+.hero .subtitle { color: var(--gold); font-size: 0.95rem; font-style: italic; }
+.hero .doc-line { color: var(--gray); font-size: 0.82rem; margin-top: 6px; }
+
+.watch-tabs {
+    position: sticky; top: 0; z-index: 30;
+    background: var(--bg-dark);
+    border-bottom: 1px solid var(--border);
+    display: flex; flex-wrap: wrap; gap: 6px;
+    padding: 12px 0 14px;
+    margin-bottom: 18px;
+}
+.watch-tab {
+    flex: 1 1 90px;
+    text-align: center;
+    padding: 8px 6px;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    background: var(--bg-card);
+    color: var(--gray);
+    font-size: 0.85rem; font-weight: 500;
+    transition: all 0.15s ease;
+    text-decoration: none !important;
+    white-space: nowrap;
+}
+.watch-tab:hover { color: var(--white); border-color: var(--gold); text-decoration: none !important; }
+.watch-tab.active { background: var(--gold); color: #000; border-color: var(--gold); font-weight: 600; }
+.watch-tab .tab-time { display: block; font-size: 0.7rem; opacity: 0.7; font-family: monospace; }
+.watch-tab.active .tab-time { opacity: 1; }
+
+/* "NOW" badge — shown on the watch tab whose time window contains current local time */
+.watch-tab.is-now { position: relative; box-shadow: 0 0 0 1px var(--gold-light) inset; }
+.watch-tab.is-now::after {
+  content: "NOW";
+  position: absolute; top: -7px; right: -4px;
+  background: var(--gold-light); color: #000;
+  font-size: 0.55rem; font-weight: 700;
+  padding: 1px 5px; border-radius: 100px;
+  letter-spacing: 0.08em;
+}
+
+.watch {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px 22px;
+    margin-bottom: 22px;
+    scroll-margin-top: 80px;
+}
+.watch-header { display: flex; align-items: baseline; gap: 14px; margin-bottom: 10px; flex-wrap: wrap; }
+.watch-time {
+    background: var(--bg-card2); color: var(--gold);
+    padding: 4px 12px; border-radius: 100px;
+    font-family: 'Inter', monospace; font-size: 0.85rem; font-weight: 600;
+    letter-spacing: 0.05em;
+}
+.watch-header h2 { font-size: 1.35rem; color: var(--white); }
+
+.intro { color: var(--gray); font-style: italic; margin-bottom: 14px; }
+
+.audio-slot {
+    margin: 14px 0 18px;
+    padding: 12px 14px;
+    background: var(--bg-card2);
+    border-radius: 8px;
+    border: 1px dashed var(--border);
+}
+.audio-slot.audio-pending { opacity: 0.55; }
+.audio-cap { font-size: 0.8rem; color: var(--gray); margin-top: 4px; }
+
+.scripture {
+    background: var(--bg-card2);
+    border-left: 3px solid var(--gold);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin: 16px 0 22px;
+}
+.scripture-ref { font-weight: 600; color: var(--gold); margin-bottom: 12px; font-size: 0.95rem; }
+.scripture-text p { margin-bottom: 8px; }
+.scripture-text p.stanza { margin-bottom: 14px; }
+
+.section-label {
+    font-family: 'Playfair Display', serif;
+    color: var(--gold); font-weight: 700; font-size: 1.05rem;
+    margin: 22px 0 10px; padding-top: 10px; border-top: 1px solid var(--border);
+}
+.section p, .context p, .reflection p, .history p, .application-block p { margin-bottom: 12px; }
+
+ul.application { padding-left: 22px; margin: 8px 0 14px; }
+ul.application li { margin-bottom: 8px; }
+.application-prose { font-style: italic; color: var(--gold-light); margin-top: 12px; }
+
+.history ul { padding-left: 22px; margin: 8px 0; }
+.history li { margin-bottom: 6px; }
+
+.prayer {
+    background: var(--bg-card2);
+    border-left: 3px solid var(--gold-light);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin: 22px 0;
+}
+.prayer-title { color: var(--gold-light); font-weight: 600; margin-bottom: 10px; font-size: 0.95rem; }
+.prayer p { line-height: 1.85; margin-bottom: 8px; }
+
+.helm {
+    background: var(--bg-card2);
+    border-radius: 6px;
+    padding: 12px 18px;
+    margin-top: 14px;
+    font-size: 0.95rem;
+}
+.helm-icon { color: var(--gold); font-size: 1.1rem; }
+.helm-label { color: var(--gold); font-weight: 600; }
+
+footer {
+    text-align: center;
+    color: var(--gray);
+    font-size: 0.82rem;
+    margin-top: 32px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+}
+footer .draft-tag {
+    display: inline-block;
+    background: #2a2410;
+    color: var(--gold);
+    padding: 4px 12px;
+    border-radius: 100px;
+    font-size: 0.78rem;
+    margin-bottom: 8px;
+    letter-spacing: 0.05em;
+}
+
+@media (max-width: 540px) {
+    .watch-tab { flex: 1 1 64px; font-size: 0.78rem; padding: 6px 4px; }
+    .watch-tab .tab-time { font-size: 0.65rem; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="nav-back">← <a href="/chronological.html">The Watchman's Chronological Plan</a></div>
+
+<div class="hero">
+<h1>Thursday, May 21, 2026</h1>
+<div class="subtitle">Daily Reading — Day 141 of 365</div>
+<div class="doc-line">MOOP&#x27;s 2026 Daily Bible Readings — Document 5 of 12; for the month of May</div>
+</div>
+
+<nav class="watch-tabs" role="tablist">
+<a href="#all" class="watch-tab active" data-tab="all" role="tab"><span class="tab-label">All Watches</span></a>
+<a href="#wisdom" class="watch-tab" data-tab="wisdom" role="tab"><span class="tab-time">0600</span> <span class="tab-label">Morning Wisdom</span></a>
+<a href="#husband" class="watch-tab" data-tab="husband" role="tab"><span class="tab-time">0700</span> <span class="tab-label">Husband</span></a>
+<a href="#father" class="watch-tab" data-tab="father" role="tab"><span class="tab-time">1100</span> <span class="tab-label">Father</span></a>
+<a href="#citizen" class="watch-tab" data-tab="citizen" role="tab"><span class="tab-time">1500</span> <span class="tab-label">Citizen</span></a>
+<a href="#peace" class="watch-tab" data-tab="peace" role="tab"><span class="tab-time">2100</span> <span class="tab-label">Evening Peace</span></a>
+</nav>
+
+<section class="watch watch-wisdom" id="watch-wisdom" data-watch="wisdom">
+<div class="watch-header"><span class="watch-time">0600</span> <h2>Morning Wisdom</h2></div>
+<p class="intro">The morning light reveals the sturdy foundations of a home built on the fear of the LORD, calling the warrior to align his heart with divine order.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Proverbs 21</div>
+<div class="scripture-text">
+<p>The king’s heart is in the hand of the LORD; He directs it like a watercourse wherever He pleases.</p>
+<p>Every way of a man seems right in his own eyes, but the LORD weighs the heart.</p>
+<p>To do righteousness and justice is more acceptable to the LORD than sacrifice.</p>
+<p>Haughty eyes and a proud heart, the lamp of the wicked, are sin.</p>
+<p>The plans of the diligent lead surely to abundance, but everyone who is hasty comes only to poverty.</p>
+<p>Getting treasures by a lying tongue is a fleeting vapor and a snare of death.</p>
+<p>The pressure of the wicked drives them to flee, but the righteous are as bold as a lion.</p>
+<p>The way of the crooked is an abomination to the LORD, but He delights in him who walks uprightly.</p>
+<p>To the one who hides his eyes from bloodshed, and who has an open hand, will come deliverance.</p>
+<p>The punishment of a scoffer is good for a city, and the tongue of the wise makes deliverance sweet.</p>
+<p>When a scoffer is punished, the simple gains wisdom; when a wise man is instructed, he receives knowledge.</p>
+<p>The Righteous One gives heed to the cause of the lowly; but the wicked over hear their plea.</p>
+<p>Whoever shuts his ears to the cry of the poor will himself call out and not be answered.</p>
+<p>A gift in secret averts anger, and a bribe in the cloak restrains fury.</p>
+<p>Righteousness exalts a nation, but sin is a reproach to any people.</p>
+<p>Woe to those who decree evil decrees, who write oppression when they sit to judge, to turn aside the needy from justice and to rob the poor of My people of their right, that widows may be their spoil, and that they may make the fatherless their prey!</p>
+<p>Yet I will declare what He will do to them; I will make His enemies know their punishment.</p>
+<p>For they will turn back to the ruins, and they will be taken captive among the prisoners; thus I have said in My distress.</p>
+<p>How long, O LORD, will you look on?</p>
+<p>For the wicked lay in wait for the innocent; they hide their snare; they say, “Who sees us?”</p>
+<p>They search out the iniquities of the lowly; they say, “Who will know it?”</p>
+<p>But the LORD becomes the high refuge for the oppressed, a stronghold in times of trouble.</p>
+<p>So they will be led back to Sheol; all the nations that forget God will do so.</p>
+<p>For He will not be remembered forever; but the hope of the poor will not perish forever.</p>
+<p>Arise, O LORD! Do not let man prevail; let the nations be judged before You!</p>
+<p>Put them in fear, O LORD! Let the nations know they are but men!</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🧭 Context Summary</div>
+<p>This chapter presents a stark contrast between the sovereign authority of God over human affairs and the inevitable futility of wickedness. It challenges the reader to recognize that while human judgment is often flawed, the LORD weighs the heart and directs the course of history according to His righteous will. The passage urges the believer to pursue justice and humility, trusting in God’s ultimate deliverance while rejecting the pride and oppression that characterize the wicked.</p>
+</div>
+<div class="section reflection">
+<div class="section-label">🛡️ Reflection for a REAL MAN — Sovereign Control</div>
+<p>Brother, you stand in the watchtower of your family, tasked with the heavy burden of protection and provision. It is easy to feel the weight of the world pressing against your shoulders, wondering if your strategies and strength are enough. But the text reminds you that the heart of every king, every leader, and every circumstance is in the hand of the LORD. He directs it like a watercourse, flowing exactly where His sovereign pleasure dictates. You are not the master of the tide; you are a steward of the bank.</p>
+<p>This truth liberates you from the anxiety of control. You do not need to manipulate outcomes or force righteousness upon a rebellious world. Your duty is to walk uprightly, to weigh your own heart before the LORD, and to do what is right in His sight. When you align your will with His, you stand bold as a lion, not because of your own might, but because you are anchored in the Righteous One who cares for the cause of the lowly.</p>
+<p>As a husband and father, you must lead with this same confidence. Your home is not a democracy of opinions but a kingdom under Christ. You provide, you protect, and you guide, but you do so in submission to the higher Command. Let your wife and children see that your strength is derived from your reliance on the LORD. When you face opposition or uncertainty, remember that the LORD is the high refuge for the oppressed and the stronghold in times of trouble. Stand firm in this faith.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Review your current decisions regarding your family’s spiritual direction and submit them in prayer to the LORD’s sovereign will before acting.</li>
+<li>Identify one area where you have been relying on your own strength or manipulation, and consciously surrender control to the LORD in worship.</li>
+<li>Actively seek the welfare of the lowly and oppressed in your community, demonstrating the justice that exalts a nation.</li>
+<li>Spend ten minutes in silent meditation on the sovereignty of God, trusting Him with the anxieties of your military service and family life.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer</div>
+<p>Father, I acknowledge that my heart and my actions are in Your hand. Direct me like a watercourse, guiding my steps toward righteousness and justice. Forgive me for the times I have trusted in my own understanding rather than fearing You. Give me the courage to walk uprightly, to protect the weak, and to lead my household with wisdom that comes from above. By the power of Your Holy Spirit, help me to submit my will to Yours, trusting that You are the high refuge for the oppressed and the stronghold in times of trouble. In the name of Jesus Christ, my Lord and Commander, who sits at the right hand of the Father, Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Helm Command:</span> Steady your course on the rock of His sovereignty, brother, and trust the currents of His will.</div>
+</section>
+
+<section class="watch watch-husband" id="watch-husband" data-watch="husband">
+<div class="watch-header"><span class="watch-time">0700</span> <h2>First Watch — The Husband&#x27;s Post</h2></div>
+<p class="intro">Brother, stand firm in the covenant of your home as you survey the spiritual borders of your household this morning.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 2 Chronicles 11:5-23; 12:1-4</div>
+<div class="scripture-text">
+<p>And Rehoboam dwelt in Jerusalem, and built cities for defense in Judah. And he built Beth-zur, and Sokho, and Aijalon, and Hazazon. And Tappuah, and Adoraim, and Lachish, and Azekah. And Dor, and Zorai, and En-gaddim. And he strengthened the fortresses, and put captains in them, and store of food, and of oil and wine. And he put shields and spears in all the fortresses, and made them very strong. And he set the kingdom, and confirmed himself against Judah and Benjamin.</p>
+<p>And it came to pass at the strength of the king, that he forsook the law of the LORD, and all Israel with him. And it came to pass in the fifth year of king Rehoboam, that Shishak king of Egypt came up against Jerusalem: With twelve hundred chariots, and threescore thousand horsemen: and the people were without number that came with him out of Egypt; the Libyans, and the Ethiopians, and the Luim. And they took the fenced cities which pertained unto Judah, and came to Jerusalem.</p>
+<p>Then came Shemaiah the man of God to Rehoboam, and to the princes of Judah, that were gathered together to Jerusalem because of Shishak, And said unto them, Thus saith the LORD, Ye have forsaken me, and therefore have I also left you in the hand of Shishak. Whereupon the princes of Israel and the king humbled themselves; and they said, The LORD is righteous. And when the LORD saw that they humbled themselves, the word of the LORD came to Shemaiah, saying, They have humbled themselves; therefore I will not destroy them, but I will grant them some deliverance, and my fury shall not be poured out upon Jerusalem by the hand of Shishak. Nevertheless they shall be his servants; that they may know my service, and the service of the kingdoms of the countries.</p>
+<p>So Shishak king of Egypt came up against Jerusalem, And took the treasures of the house of the LORD, and the treasures of the king&#x27;s house; he even took all: he carried also away the shields of gold which Solomon had made. And instead of those made Rehoboam shields of brass, and committed the keeping of the king&#x27;s house unto the hands of the captains of the guard, which waited upon the king every day. And when the king went into the house of the LORD, the guard came and fetched them, and brought them again into the guard chamber. And they walked in the ways of David, and in the ways of Solomon: for in the days of Jeremiah the prophet the strength of the LORD was with them.</p>
+<p>And Rehoboam begat Abijah, and Abijah begat Asa, and Asa begat Jehoshaphat. And Jehoshaphat begat Jehoram, and Jehoram begat Uzziah. And Uzziah begat Jotham, and Jotham begat Ahaz, and Ahaz begat Hezekiah. And Hezekiah begat Manasseh, and Manasseh begat Amon, and Amon begat Josiah. And Josiah begat Jechonias and his brethren, about the time they were carried away to Babylon.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🗺️ Briefing Summary</div>
+<p>The passage tracks the decline of Rehoboam’s spiritual resolve, where his success led to pride and the eventual abandonment of the Law. When the Egyptian army of Shishak ravaged the fortified cities of Judah and stripped the Temple, the nation faced the consequences of their covenant unfaithfulness. Yet in the crisis, Rehoboam and the princes of Israel humbled themselves, recognizing the righteousness of God’s judgment. This moment of repentance secured a measure of mercy, preventing total destruction while they served as a lesson in submission to higher authority.</p>
+</div>
+<div class="section reflection">
+<div class="section-label">❤️ Reflection for Your Wife — H.A.P.P.Y. Husband — Protecting</div>
+<p>Brother, look to the example of Rehoboam in the face of Shishak. The king had built strong walls and stocked his stores, yet his heart was not aligned with the LORD. When the enemy came, the physical fortifications were breached, and the treasures were taken. You, Adam, are the head of your house, called to be a shield and a fortress for Maria. But remember that true protection does not stem from your own strength, wealth, or status. It stems from your submission to the Law of the LORD. If you forsake His commands, your defenses are hollow. You must lead your household in the way of David and Solomon, for only then is the strength of the LORD with you.</p>
+<p>When the storms of life come, and they will, Maria needs to see you humbling yourself before God, not before the enemy. The princes of Israel and the king humbled themselves, and the LORD stayed His hand. Your authority as a husband is not a license for self-will, but a stewardship of divine order. Protect Maria by keeping your own soul in submission to Christ. When you stand firm in righteousness, you create a spiritual security that no Shishak can plunder. Your vigilance in prayer and your obedience to Scripture are the true shields of your home.</p>
+<p>Do not rely on the &quot;shields of gold&quot; of this world—career prestige, financial accumulation, or social approval. These are temporary and can be stripped away. Instead, forge &quot;shields of brass&quot;—resilient, humble, and grounded in the truth. Guard the gates of your heart and your home by daily meditating on God’s Word. Let your leadership be marked by a willingness to submit to God’s correction. When you humble yourself, you invite the power of the Holy Spirit to fortify your marriage against every attack.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Inspect the spiritual defenses of your home by reviewing your daily devotion and prayer life for consistency.</li>
+<li>Identify any area of pride or self-reliance in your leadership and confess it to God immediately.</li>
+<li>Speak words of encouragement and affirmation to Maria that reinforce your commitment to her spiritual and physical safety.</li>
+<li>Engage in a specific act of service for Maria this week that requires sacrifice of your time or comfort.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Stateroom</div>
+<p>Father, we thank You for the covenant of marriage and the calling to lead with strength and humility. Forgive us, Lord, when we trust in our own fortifications rather than in Your Law. Grant us the grace to humble ourselves before You when we err, that we may know Your service and the service of Your Kingdom. By the power of Your Holy Spirit, strengthen our spiritual walls and keep our hearts aligned with Your will, that we may protect our households in righteousness. In the name of Jesus Christ, my Lord and Commander, we pray. Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Helm Command:</span> Secure the spiritual perimeter of your home through daily submission to the Word.</div>
+</section>
+
+<section class="watch watch-father" id="watch-father" data-watch="father">
+<div class="watch-header"><span class="watch-time">1100</span> <h2>Second Watch — The Father&#x27;s Charge</h2></div>
+<p class="intro">The Lord commands obedience that transcends natural affection, revealing that our deepest loyalties must bow to His absolute authority.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 1 Kings 13:15-34</div>
+<div class="scripture-text">
+<p>After the man of God had eaten and drunk, the old prophet said to him, Come home with me, and eat bread. But he said, I cannot turn back, nor go with you, nor eat bread or drink water in this place. For it was said to me by the word of the LORD, You shall eat no bread, nor drink water, nor turn back by the way you came. So he went another way and did not return by the way he came to Bethel.</p>
+<p>Now there was an old prophet living in Bethel, whose sons came and told him all the works that the man of God had done that day in Bethel. The things that he had spoken to them they told to their father. And their father said to them, Which way did he go? Now his sons had seen the way that the man of God who came from Judah had gone. Then he said to his sons, Saddle the donkey for me, and they saddled the donkey for him and he rode it and went after the man of God. He found him sitting under an oak, and said to him, Are you the man of God who came from Judah? And he said, I am. Then he said to him, Come home with me, and eat bread. He answered, I may not turn back to go with you, nor eat bread or drink water with you in this place. For it was said to me by the word of the LORD, You shall eat no bread, nor drink water there, nor turn back to go by the way you came. The old prophet answered him, I too am a prophet as you are, and an angel spoke to me by the word of the LORD, Bring him back to your house, that he may eat bread and drink water. But he lied to him. So he went back with him, and ate bread and drank water in his house.</p>
+<p>Now as they sat at the table, the word of the LORD came to the old prophet who had brought him back. And he cried to the man of God who had come from Judah, Thus says the LORD, Because you have disobeyed the word of the LORD and have not kept the commandment that the LORD your God commanded you, but have come back and have eaten and drunk in the place of which he said to you, Eat no bread and drink no water, your body shall not come to the tomb of your fathers. And it happened, as he had eaten bread and drunk, that he saddled for him the donkey, the donkey that he had brought back. So he went his way and a lion met him on the road and killed him. And his body was thrown on the road, and the donkey stood beside it. The lion did not eat the body nor maul the donkey. And behold, men passed by and saw the body thrown there and the lion standing beside the body. They went and told it in the city where the old prophet lived.</p>
+<p>When the old prophet the prophet who had brought him back from the way heard it, he said, It is the man of God who was disobedient to the word of the LORD. The LORD has given him over to the lion, and it has mauled him and killed him, according to the word that the LORD spoke to him. And he said to his sons, Saddle the donkey for me, and they saddled it. Then he rode and found the body thrown on the road, with the lion and the donkey standing beside it. The lion had neither eaten the body nor mauled the donkey. And the old prophet took up the body of the man of God and laid it on the donkey and brought it back to the city to mourn and grieve over him. Then he laid the body in his own tomb, and they mourned over him, saying, Alas, my brother! And it happened, after he had laid the body in his tomb, that he said to his sons, When I die, bury me in the grave where the man of God is. Lay my bones beside his bones. For the word that he cried by the word of the LORD against the altar in Bethel, and against all the houses of the high places that are in the cities of Samaria, shall surely come to pass.</p>
+<p>Then he made an offering on the altar that God had commanded at the word of the man of God. And he laid his bones beside the bones of the man of God and of the man who came from Judah. And he said, Let no man do anything to their bones. So he kept the feast on the altar that God had commanded at the word of the man of God, and he made an offering on the altar and burned incense.</p>
+<p>After this event Jeroboam did not turn from his evil way, but made priests for the high places from the lowest of the people. Whoever wished, he ordained them to be priests of the high places. This was the sin of the house of Jeroboam, so that it was cut off and destroyed from the face of the earth.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🗺️ Field Notes</div>
+<p>This narrative demonstrates the fatal cost of compromising divine instruction for the sake of human fellowship. The old prophet’s deception highlights how even religious leaders can lead God’s people astray through subtle lies. The man of God’s obedience, even unto death, stands as a stark witness to the supremacy of God’s word over personal safety. This passage confronts us with the reality that spiritual discipline requires unwavering adherence to God’s commands, regardless of the consequences.</p>
+</div>
+<div class="section reflection">
+<div class="section-label">👨‍👦 Reflection for Your Children — F.U.L.F.I.L.L.E.D. Father — Faithful</div>
+<p>Brother, look at the man of God. He faced a lion rather than break his vow to the LORD. You must teach Gideon, Boaz, and Shiloh that faithfulness is not a feeling but a firm resolve to keep your word to God and man. When you say you will do something, you do it, because your word reflects the character of the LORD.</p>
+<p>To Gideon, who is approaching manhood, I say that your integrity is your armor. Do not let the pressures of your generation or the pleas of friends cause you to shift your stance on truth. Boaz, you are old enough to understand that honesty builds trust. Keep your promises small and large, for God keeps His. Shiloh, watch your father. See how I strive to be faithful even when it is hard. This is the foundation of a godly man.</p>
+<p>We serve a God who is unchanging. Your father must model this constancy for you. When you fail, you confess and return to the straight path. But you never abandon the path. This is how we honor the LORD in our daily walk.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Review your commitments to Gideon, Boaz, and Shiloh today to ensure they align with your word to the LORD.</li>
+<li>Identify one area where you have been lax in keeping a promise and correct it immediately.</li>
+<li>Speak truth to Shiloh about the importance of keeping his word to his friends and family.</li>
+<li>Pray for the grace to remain steadfast in your duties as husband and father, regardless of external pressure.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Wardroom</div>
+<p>Father, we thank You for the example of the man of God who chose obedience over life. Forgive us for our frequent compromises and our love of comfort over Your command. By the power of Your Holy Spirit, strengthen our resolve to keep our vows to You and to our families. Grant us the courage to stand firm in truth, even when the lion roars. Guide our steps in faithfulness, that our households may know the stability of Your covenant love. In the name of Jesus Christ, my Lord and Commander, we pray. Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Rudder Steer:</span> Hold your course by the compass of His Word, regardless of the storm.</div>
+</section>
+
+<section class="watch watch-citizen" id="watch-citizen" data-watch="citizen">
+<div class="watch-header"><span class="watch-time">1500</span> <h2>Third Watch — The Citizen&#x27;s Stand</h2></div>
+<p class="intro">The Lord examines the heart of every leader and rewards the man who seeks Him with all his soul.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 1 Kings 14:1-24 &amp; 2 Chronicles 12:5-16</div>
+<div class="scripture-text">
+<p>Jeroboam fell sick, so he instructed his wife to disguise herself and go to Shiloh to find the prophet Ahijah. The Lord had told Ahijah that the wife of Jeroboam would come asking for her son, and He declared that He would bring disaster upon Jeroboam’s house because of the idolatry she supported. When the woman arrived, the blind prophet recognized her by faith and delivered a solemn judgment that her son would die and be buried in mourning, signaling the end of Jeroboam’s dynasty. Jeroboam’s wickedness was greater than all who preceded him, for he made gods of gold and appointed priests for the high places, leading Israel into sin.</p>
+<p>In the fifth year of King Rehoboam, Shishak king of Egypt attacked Jerusalem with a vast army and a thousand chariots. The prophet Shemaiah came to Rehoboam and the princes of Judah, declaring that because they had forsaken the law of the LORD, the LORD had also forsaken them to their hands. Shishak took the fortified cities of Judah and finally came to Jerusalem, stripping the temple and the palace of all gold, including the shields Solomon had made.</p>
+<p>When Rehoboam saw that the people were humbled, he and the princes humbled themselves, and the word of the LORD came to Shemaiah that He would not destroy them but would deliver them to Shishak so they might learn the difference between serving Him and serving other gods. Rehoboam made bronze shields to replace the gold ones, and as long as the people humbled themselves, the anger of the LORD turned away from them. Judah did evil in the sight of the LORD, provoking Him to jealousy with their sins, but the LORD did not abandon them.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🛰️ Situation Report</div>
+<p>Jeroboam’s deception reveals the danger of leadership that prioritizes political survival over covenant faithfulness. Rehoboam’s humility in the face of divine judgment demonstrates the only path to restoration for a fallen nation. The removal of the gold shields signifies that temporal security is fleeting, but reliance on the LORD provides enduring protection.</p>
+</div>
+<div class="section reflection resolute">
+<div class="section-label">🛡️ Reflection for a R.E.S.O.L.U.T.E. Citizen — Steadfast</div>
+<p>Fredericksburg (local)<br>Brother, look to the banks of the Rappahannock where the ground remembers the cost of loyalty. In this town, we learn that true steadfastness is not the absence of fear, but the refusal to abandon one’s post when the enemy advances. Just as the citizens of old had to choose between the comfort of compromise and the hard road of obedience, you stand at the intersection of daily duty and eternal consequence. Your home is your first garrison; when the pressure mounts, do you hold the line of truth or retreat into the swamp of convenience?</p>
+<p>Virginia (state)<br>The Commonwealth has seen seasons of pride followed by the stripping away of its treasures, much like the shields Solomon forged and then lost. Rehoboam’s experience teaches that a state, like a man, must recognize its dependence on the Sovereign. When the bronze shields were hung in the house of the captain of the guard, it was a visible reminder that strength comes from the LORD, not from the wealth of the nation. We must cultivate a culture of humility in our communities, knowing that prosperity without piety is a prelude to plunder.</p>
+<p>United States (nation)<br>The nation stands under the same scrutiny as ancient Judah. The idolatry of Jeroboam was not merely religious; it was a political structure designed to keep the people from God. Today, the temptation is to build altars to self-reliance and secular power. Yet, the promise remains: when the people humble themselves, the anger of the LORD turns away. The steadfast citizen knows that our national destiny is bound to our covenant faithfulness, and we must pray for a spirit of repentance that leads to genuine restoration.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Audit your household for any &quot;high places&quot; where you have allowed compromise to replace biblical authority.</li>
+<li>Confess any pride that has led you to rely on your own strength rather than the Lord in your current trials.</li>
+<li>Establish a daily time of prayer for the nation, asking God to humble our leaders and our people.</li>
+<li>Replace a habit of self-reliance with a deliberate act of dependence on God’s provision this week.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Bridge</div>
+<p>Father, You search the hearts of men and know the secrets of our motives. Forgive us for the times we have sought to manage our own affairs through deception or self-sufficiency. By the power of Your Holy Spirit, humble our pride and restore our reliance on Your Word. Grant us the steadfastness to stand firm in our duties as husbands, fathers, and citizens, even when the cost is high. Protect our homes from the Shishaks of this world by keeping us close to Your throne. In the name of Jesus Christ, my Lord and Commander, who is the true Shield of our salvation, Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Rudder Steer:</span> Hold the line of truth when the tide of compromise rises.</div>
+<div class="section history">
+<div class="section-label">🦅 This Day in American History — May 21</div>
+<p>In 1775, the Battle of Moore’s Creek Bridge took place in North Carolina, where Patriot militia decisively defeated Loyalist forces, securing the colony for the cause of liberty and demonstrating the power of a united, faith-driven people against a superior force. In 1844, the first transatlantic telegraph message was sent from Ireland to Newfoundland, a marvel of engineering that foreshadowed the interconnectedness of the world, reminding us that God’s truth transcends all boundaries and distances.</p>
+<p>⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻</p>
+</div>
+</section>
+
+<section class="watch watch-peace" id="watch-peace" data-watch="peace">
+<div class="watch-header"><span class="watch-time">2100</span> <h2>Evening Peace</h2></div>
+<p class="intro">The day’s watch ends, and your heart turns to the immovable Rock who holds all things in His sovereign hand.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Psalm 125</div>
+<div class="scripture-text">
+<p>Those who trust in the LORD are as Mount Zion, which cannot be moved, but abides forever. As the mountains surround Jerusalem, so the LORD surrounds His people, both now and forevermore. For the rod of wickedness shall not rest on the lot of the righteous, lest the righteous stretch out their hands to do what is wrong. Do good, O LORD, to those who are good, and to those who are upright in their hearts. As for those who turn aside to their crooked ways, the LORD will lead them away with evildoers. Peace be upon Israel.</p>
+</div>
+</div>
+<div class="section reflection">
+<div class="section-label">🌾 Reflection for a Man at Home and in Community</div>
+<p>As a HAPPY husband, you find your strength not in the shifting sands of cultural approval, but in the unshakeable foundation of your Bridegroom, Christ Jesus. Just as the mountains encircle the city, God’s grace encircles your marriage, protecting it from the winds of worldly compromise. You do not strive to be the master of your home, but the servant-leader who looks to the LORD for wisdom. Your headship is a sacred trust, a daily act of worship where you lay down your will to lift up your wife in love, mirroring the self-giving sacrifice of our Savior.</p>
+<p>As a FULFILLED father, you recognize that the rod of correction and the rod of provision are both gifts from the Father above. You raise your children in the fear and admonition of the Lord, not by the standards of the age, but by the timeless truths of Scripture. Your presence is their sanctuary; your discipline is their guide. You teach them that their ultimate security is not in your ability to provide for every need, but in the LORD’s faithful care for His covenant people. Your authority is exercised with gentleness, knowing that you too are a son under authority, serving the Captain of your salvation.</p>
+<p>As a RESOLUTE citizen, you stand firm in the truth that your ultimate allegiance is to the Kingdom of Heaven, though you fulfill your duties on earth with diligence and honor. You reject the pride of man and the idolatry of self, choosing instead to walk in the narrow path of obedience. Your life is a testimony to the sovereignty of God, showing the world that a man who fears the LORD is free from the tyranny of public opinion. You stand with the upright in heart, doing good in your community, not for applause, but for the glory of His name.</p>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Stateroom</div>
+<p>Father, we thank You for the stability of Your truth in a world that trembles. Forgive us for the times we have sought our security in ourselves or in the opinions of men. Grant us the grace to trust in You alone, that we might stand firm in our callings as husbands, fathers, and citizens. By the power of Your Holy Spirit, strengthen our hands to lead with courage and our hearts to love with depth. Align our wills with Yours, that we may walk in integrity and peace. In the name of Jesus Christ, my Lord and Commander, who is the Rock of our salvation. Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Rudder Steer:</span> Anchor your soul in the Gospel before you attempt to navigate the storms of the home.</div>
+</section>
+
+<footer>
+<div class="draft-tag">PROTOTYPE — sign-off pending</div>
+<div>U.S.M.C. Ministries · The Watchman's Chronological Plan for the Year of our Lord 2026</div>
+<div style="margin-top:6px;font-size:0.78rem;">Adam Johns &middot; rich interpretive blend &middot; divine name LORD</div>
+</footer>
+
+</div>
+<script>
+(function(){
+  const SLUGS = ['all','wisdom','husband','father','citizen','peace'];
+
+  // Watch windows in local hours (each watch is "live" from its start time
+  // until the NEXT watch begins). Evening peace owns 21:00 → 04:59.
+  function currentWatchSlug() {
+    const h = new Date().getHours();
+    if (h >= 5  && h < 7)  return 'wisdom';
+    if (h >= 7  && h < 11) return 'husband';
+    if (h >= 11 && h < 15) return 'father';
+    if (h >= 15 && h < 21) return 'citizen';
+    return 'peace';                       // 21:00 – 04:59
+  }
+  const NOW_SLUG = currentWatchSlug();
+
+  function markNowBadge(){
+    document.querySelectorAll('.watch-tab').forEach(t => {
+      t.classList.toggle('is-now', t.dataset.tab === NOW_SLUG);
+    });
+  }
+  function showOnly(slug){
+    const isAll = slug === 'all' || !SLUGS.includes(slug);
+    document.querySelectorAll('section.watch').forEach(s => {
+      s.style.display = (isAll || s.dataset.watch === slug) ? '' : 'none';
+    });
+    document.querySelectorAll('.watch-tab').forEach(t => {
+      t.classList.toggle('active', t.dataset.tab === (isAll ? 'all' : slug));
+    });
+  }
+  document.querySelectorAll('.watch-tab').forEach(t => {
+    t.addEventListener('click', function(e){
+      e.preventDefault();
+      const slug = this.dataset.tab;
+      history.replaceState(null, '', '#' + slug);
+      showOnly(slug);
+      window.scrollTo({top: 0, behavior:'smooth'});
+    });
+  });
+
+  // Initial selection priority:
+  //   1. URL hash if present  (#all / #wisdom / #husband / #father / #citizen / #peace)
+  //   2. Auto-select the watch that is "live right now"
+  let initial;
+  if (location.hash) {
+    initial = location.hash.slice(1);
+  } else {
+    initial = NOW_SLUG;
+  }
+  markNowBadge();
+  showOnly(initial);
+})();
+</script>
+</body>
+</html>
