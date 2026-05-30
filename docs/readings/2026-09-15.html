@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg">
+<title>Tuesday, September 15, 2026 — Daily Reading | U.S.M.C. Ministries</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+    --bg-dark: #000000; --bg-card: #111111; --bg-card2: #161616;
+    --gold: #D4AF37; --gold-light: #F4D470;
+    --white: #FFFFFF; --gray: #888888; --border: #333333;
+}
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--white);
+    min-height: 100vh;
+    line-height: 1.7;
+}
+h1, h2, h3 { font-family: 'Playfair Display', serif; font-weight: 700; }
+.container { max-width: 820px; margin: 0 auto; padding: 24px 20px 60px; }
+a { color: var(--gold); text-decoration: none; }
+a:hover { color: var(--gold-light); text-decoration: underline; }
+
+.nav-back { margin-bottom: 14px; font-size: 0.95rem; }
+
+.hero { text-align: center; padding: 16px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 18px; }
+.hero h1 { font-size: clamp(1.5rem, 4vw, 2.2rem); color: var(--white); margin-bottom: 6px; }
+.hero .subtitle { color: var(--gold); font-size: 0.95rem; font-style: italic; }
+.hero .doc-line { color: var(--gray); font-size: 0.82rem; margin-top: 6px; }
+
+.watch-tabs {
+    position: sticky; top: 0; z-index: 30;
+    background: var(--bg-dark);
+    border-bottom: 1px solid var(--border);
+    display: flex; flex-wrap: wrap; gap: 6px;
+    padding: 12px 0 14px;
+    margin-bottom: 18px;
+}
+.watch-tab {
+    flex: 1 1 90px;
+    text-align: center;
+    padding: 8px 6px;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    background: var(--bg-card);
+    color: var(--gray);
+    font-size: 0.85rem; font-weight: 500;
+    transition: all 0.15s ease;
+    text-decoration: none !important;
+    white-space: nowrap;
+}
+.watch-tab:hover { color: var(--white); border-color: var(--gold); text-decoration: none !important; }
+.watch-tab.active { background: var(--gold); color: #000; border-color: var(--gold); font-weight: 600; }
+.watch-tab .tab-time { display: block; font-size: 0.7rem; opacity: 0.7; font-family: monospace; }
+.watch-tab.active .tab-time { opacity: 1; }
+
+/* "NOW" badge — shown on the watch tab whose time window contains current local time */
+.watch-tab.is-now { position: relative; box-shadow: 0 0 0 1px var(--gold-light) inset; }
+.watch-tab.is-now::after {
+  content: "NOW";
+  position: absolute; top: -7px; right: -4px;
+  background: var(--gold-light); color: #000;
+  font-size: 0.55rem; font-weight: 700;
+  padding: 1px 5px; border-radius: 100px;
+  letter-spacing: 0.08em;
+}
+
+.watch {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px 22px;
+    margin-bottom: 22px;
+    scroll-margin-top: 80px;
+}
+.watch-header { display: flex; align-items: baseline; gap: 14px; margin-bottom: 10px; flex-wrap: wrap; }
+.watch-time {
+    background: var(--bg-card2); color: var(--gold);
+    padding: 4px 12px; border-radius: 100px;
+    font-family: 'Inter', monospace; font-size: 0.85rem; font-weight: 600;
+    letter-spacing: 0.05em;
+}
+.watch-header h2 { font-size: 1.35rem; color: var(--white); }
+
+.intro { color: var(--gray); font-style: italic; margin-bottom: 14px; }
+
+.audio-slot {
+    margin: 14px 0 18px;
+    padding: 12px 14px;
+    background: var(--bg-card2);
+    border-radius: 8px;
+    border: 1px dashed var(--border);
+}
+.audio-slot.audio-pending { opacity: 0.55; }
+.audio-cap { font-size: 0.8rem; color: var(--gray); margin-top: 4px; }
+
+.scripture {
+    background: var(--bg-card2);
+    border-left: 3px solid var(--gold);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin: 16px 0 22px;
+}
+.scripture-ref { font-weight: 600; color: var(--gold); margin-bottom: 12px; font-size: 0.95rem; }
+.scripture-text p { margin-bottom: 8px; }
+.scripture-text p.stanza { margin-bottom: 14px; }
+
+.section-label {
+    font-family: 'Playfair Display', serif;
+    color: var(--gold); font-weight: 700; font-size: 1.05rem;
+    margin: 22px 0 10px; padding-top: 10px; border-top: 1px solid var(--border);
+}
+.section p, .context p, .reflection p, .history p, .application-block p { margin-bottom: 12px; }
+
+ul.application { padding-left: 22px; margin: 8px 0 14px; }
+ul.application li { margin-bottom: 8px; }
+.application-prose { font-style: italic; color: var(--gold-light); margin-top: 12px; }
+
+.history ul { padding-left: 22px; margin: 8px 0; }
+.history li { margin-bottom: 6px; }
+
+.prayer {
+    background: var(--bg-card2);
+    border-left: 3px solid var(--gold-light);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin: 22px 0;
+}
+.prayer-title { color: var(--gold-light); font-weight: 600; margin-bottom: 10px; font-size: 0.95rem; }
+.prayer p { line-height: 1.85; margin-bottom: 8px; }
+
+.helm {
+    background: var(--bg-card2);
+    border-radius: 6px;
+    padding: 12px 18px;
+    margin-top: 14px;
+    font-size: 0.95rem;
+}
+.helm-icon { color: var(--gold); font-size: 1.1rem; }
+.helm-label { color: var(--gold); font-weight: 600; }
+
+footer {
+    text-align: center;
+    color: var(--gray);
+    font-size: 0.82rem;
+    margin-top: 32px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+}
+footer .draft-tag {
+    display: inline-block;
+    background: #2a2410;
+    color: var(--gold);
+    padding: 4px 12px;
+    border-radius: 100px;
+    font-size: 0.78rem;
+    margin-bottom: 8px;
+    letter-spacing: 0.05em;
+}
+
+@media (max-width: 540px) {
+    .watch-tab { flex: 1 1 64px; font-size: 0.78rem; padding: 6px 4px; }
+    .watch-tab .tab-time { font-size: 0.65rem; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="nav-back">← <a href="/chronological.html">The Watchman's Chronological Plan</a></div>
+
+<div class="hero">
+<h1>Tuesday, September 15, 2026</h1>
+<div class="subtitle">Daily Reading — Day 258 of 365</div>
+<div class="doc-line">MOOP&#x27;s 2026 Daily Bible Readings — Document 9 of 12; for the month of September</div>
+</div>
+
+<nav class="watch-tabs" role="tablist">
+<a href="#all" class="watch-tab active" data-tab="all" role="tab"><span class="tab-label">All Watches</span></a>
+<a href="#wisdom" class="watch-tab" data-tab="wisdom" role="tab"><span class="tab-time">0600</span> <span class="tab-label">Morning Wisdom</span></a>
+<a href="#husband" class="watch-tab" data-tab="husband" role="tab"><span class="tab-time">0700</span> <span class="tab-label">Husband</span></a>
+<a href="#father" class="watch-tab" data-tab="father" role="tab"><span class="tab-time">1100</span> <span class="tab-label">Father</span></a>
+<a href="#citizen" class="watch-tab" data-tab="citizen" role="tab"><span class="tab-time">1500</span> <span class="tab-label">Citizen</span></a>
+<a href="#peace" class="watch-tab" data-tab="peace" role="tab"><span class="tab-time">2100</span> <span class="tab-label">Evening Peace</span></a>
+</nav>
+
+<section class="watch watch-wisdom" id="watch-wisdom" data-watch="wisdom">
+<div class="watch-header"><span class="watch-time">0600</span> <h2>Morning Wisdom</h2></div>
+<p class="intro">Brother, begin your watch by aligning your heart with the sovereign wisdom that governs all speech and conduct.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Proverbs 15</div>
+<div class="scripture-text">
+<p class="stanza">A gentle answer turns away wrath, but a harsh word stirs up anger.<br>The eye of the LORD is in every place, keeping watch on the evil and the good.<br>A cheerful heart is good medicine, but a crushed spirit dries up the bones.<br>Honor your father and your mother, and all will live in long life; you will be spared the pain of death.<br>The heart of the wise makes his tongue wise, but the mouth of the foolish gushes folly.<br>All the days of the afflicted are evil, but a heart of joy makes a continual feast.<br>To withdraw from discipline is to despise oneself, but he who heeds correction gains understanding.<br>The fear of the LORD is a fountain of life, that one may turn away from the snares of death.<br>The path of life leads upward for the prudent, that he may avoid going down to Sheol below.<br>A mocking man stirs up strife, but a rebuker of fools causes discord.<br>Wisdom is before him who has understanding, but the eyes of fools are on the ends of the earth.<br>A servant who deals with folly is like a madman thrown into despair.<br>A greedy man stirs up strife, but he who hates bribes will live.<br>The righteousness of the blameless walks uprightly, but he who is perverse in his ways will fall by his own fault.<br>To show partiality is not good, because for a piece of bread a man will transgress.<br>He who covers over an offense seeks love, but he who repeats a matter separates close friends.<br>An evil man listens to wicked lips, and a liar gives ear to a mischievous tongue.<br>Whoever mocks the poor insults his Maker; he who is glad at calamity will not go unpunished.<br>Children’s children are the crown of old men, and the glory of children is their fathers.<br>Exceeding speech is not becoming to a fool, much more are lying lips to a ruler.<br>A gift is a precious stone in the eyes of its owner; wherever he turns, he prospers.<br>When a man’s ways please the LORD, He makes even his enemies at peace with him.<br>Better is a little with righteousness than great revenues with injustice.<br>A faithful man will abound with blessings, but he who is hasty to be rich will not go unpunished.<br>He who gathers treasure by a lying tongue is a fleeting vapor seeking death.<br>The light of the eyes rejoices the heart, and a good report makes the bones healthy.<br>The ear that listens to life-giving reproof will dwell among the wise.<br>He who ignores discipline despises himself, but he who listens to reproof gains intelligence.<br>The fear of the LORD is the instruction of wisdom, and before honor is humility.<br>The fear of the LORD is the beginning of wisdom, and the knowledge of the Holy One is insight.<br>For by wisdom your days will be many, and you will add years to your life.<br>If you are wise, you are wise for yourself; if you mock, you alone will bear it.<br>Have you not said, “My justice is my own, and I shall not come to the judgment of God”?<br>As for me, I know that my Redeemer lives, and at the last day He will stand upon the earth; and after my skin is destroyed, yet in my flesh I shall see God, whom I shall see for myself, and my eyes shall behold, and not another. My heart faints within me!<br>I have heard of You with the hearing of the ear, but now my eye sees You; therefore I despise myself, and repent in dust and ashes.<br>Who has counted the dust of Jacob, or numbered the quarter of Israel? Let me die with the death of the righteous, and let my last end be like His!<br>How beautiful upon the mountains are the feet of him who brings good tidings, who publishes peace, who brings good tidings of good things, who publishes salvation, who says to Zion, “Your God reigns!”<br>The voice of your watchmen—they lift up their voice; together they sing for joy; for eye to eye they see when the LORD brings back Zion.<br>Break forth into joy, sing together, you ruins of Jerusalem; for the LORD has comforted His people; He has redeemed Jerusalem.<br>The LORD has made bare His holy arm in the eyes of all the nations; and all the ends of the earth shall see the salvation of our God.<br>Depart, depart, go out from there, touch no unclean thing; go out from the midst of her, purify yourselves, you who bear the vessels of the LORD.<br>For you shall not go out in haste, nor go in flight; for the LORD will go before you, and the God of Israel will be your rear guard.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🧭 Context Summary</div>
+<p>Proverbs 15 serves as a comprehensive manual for the godly man, contrasting the wisdom of the upright with the folly of the wicked. It emphasizes that God’s sovereign eye observes all human conduct, rewarding righteousness and judging pride. The passage underscores the critical duties of honoring parents, accepting correction, and maintaining peace within the household and community. It concludes with a profound affirmation of the believer’s hope in the living Redeemer who justifies and restores.</p>
+</div>
+<div class="section reflection">
+<div class="section-label">🛡️ Reflection for a REAL MAN — WALKS UPRIGHTLY</div>
+<p>Brother, the text declares that the righteousness of the blameless walks uprightly, while the perverse fall by their own fault. This is not a suggestion for the casual believer but a mandate for the man who leads. Your walk is not merely a private matter between you and God; it is a public testimony to your family and your congregation. As a father and a husband, your stability is the foundation upon which your home rests. When you walk uprightly, you provide a safe harbor for your wife and children, shielding them from the chaos that characterizes the world.</p>
+<p>The passage reminds us that the fear of the LORD is the beginning of wisdom. For the Marine veteran, this translates to a disciplined reverence for the Commander of the universe. You do not walk uprightly by your own strength, but by submitting to His discipline. When you heed correction, you demonstrate the humility of a true leader who knows that his authority is derived from God. You reject the pride that says you are your own justice, and instead, you acknowledge that your Redeemer lives.</p>
+<p>This upright walk requires you to guard your tongue and your heart. A gentle answer turns away wrath, a principle that saves marriages and commands respect in the community. You must be a man of peace, not by avoiding conflict, but by resolving it with truth and grace. Your eyes are fixed on the last day, where you will stand before your God. Therefore, you live with eternal urgency, gathering treasure not by lying tongues, but by faithful labor and righteous conduct.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Review your recent decisions through the lens of Proverbs 15:6, asking if your tongue brought wisdom or folly to your family discussions.</li>
+<li>Identify one area where you have resisted correction, and actively seek counsel from a mature elder or mentor this week.</li>
+<li>Lead your family in a brief prayer of confession, acknowledging your need for the fear of the LORD as the foundation of your household.</li>
+<li>Guard your heart against partiality and favoritism, ensuring you treat all people, including those in your workplace or community, with the justice due to image-bearers of God.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer</div>
+<p>Father, I come before You as Your servant, acknowledging that my righteousness is but as filthy rags without the covering of Christ. Forgive me for the times I have walked in perversity and spoken with harshness. Teach me to fear You, for You are the fountain of life. By the power of Your Holy Spirit, give me the grace to walk uprightly, to honor my family, and to trust in my Redeemer who lives. May my life reflect the wisdom that comes from above, leading those under my care to Your salvation. In the name of Jesus Christ, my Lord and Commander, I pray. Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Helm Command:</span> Keep your course steady and your eyes fixed on the eternal shore.</div>
+</section>
+
+<section class="watch watch-husband" id="watch-husband" data-watch="husband">
+<div class="watch-header"><span class="watch-time">0700</span> <h2>First Watch — The Husband&#x27;s Post</h2></div>
+<p class="intro">Brother, as you stand at the gate of your daily duty, remember that true strength is found in serving the weak with the authority of Christ.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Acts 3:1-10</div>
+<div class="scripture-text">
+<p>Now Peter and John went up together into the temple at the hour of prayer, the ninth hour. And a certain man lame from his mother’s womb was carried, whom they laid daily at the gate of the temple which is called Beautiful, to ask alms from those who entered the temple; who, seeing Peter and John about to go into the temple, asked for alms. Then Peter, fixing his eyes on him, with John, said, Look on us. So he gave them his attention, and expected to receive something from them. Then Peter said, Silver and gold I do not have, but what I do have I give you: In the name of Jesus Christ of Nazareth, rise up and walk. And he took him by the right hand and lifted him up, and immediately his feet and ankle bones received strength. And leaping up, he stood and walked and entered the temple with them, walking and leaping and praising God. And all the people saw him walking and praising God. And they knew that it was he who sat begging alms at the Beautiful gate of the temple; and they were filled with wonder and amazement at what had happened to him.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🗺️ Briefing Summary</div>
+<p>Peter and John encounter a man who has been helpless since birth, positioned at the very threshold of God’s house. They do not offer him the silver and gold he expects, but rather the power of the Name of Jesus. The miracle is immediate, restoring not just his body but his dignity and place within the community of faith.</p>
+</div>
+<div class="section reflection">
+<div class="section-label">❤️ Reflection for Your Wife — H.A.P.P.Y. Husband — Providing</div>
+<p>Brother, look to the example of Peter when he stands before Maria. He possesses no earthly wealth to offer the beggar, yet he possesses everything of eternal value. As a husband and father, your role is not merely to accumulate resources but to channel God’s grace through your own hands. You are called to provide not just for Maria’s physical needs, but for her spiritual and emotional well-being. When you lack the natural inclination to comfort, or when you feel empty of your own strength, you do not retreat. You step forward. You offer the only thing that truly sustains: the power of Jesus Christ. Your provision is active. It is not a passive deposit in a bank account, but a lifting up of those you love. You lift Maria up by serving her, by leading her, by pointing her to the Savior who is richer than all the world. This is the heart of a godly man: to be a conduit of divine strength to those under your care.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Inspect your spiritual reserves daily, ensuring you are drawing from the Well of Living Water before you attempt to fill Maria’s cup.</li>
+<li>Identify one specific need Maria faces this week that requires your active intervention, not just financial support, and address it with deliberate care.</li>
+<li>Speak the Name of Jesus over your household during meals, reminding Maria and the children that their true security rests in Christ alone.</li>
+<li>Practice physical acts of service, such as preparing a meal or handling a tedious task, to demonstrate that your provision is tangible and sacrificial.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Stateroom</div>
+<p>Father, we thank You for the example of Your servants who relied not on their own strength but on the power of Your Name. Grant me the courage to provide for Maria and our family with the same zeal and faith. By the power of Your Holy Spirit, open my eyes to the needs around me and my hands to serve them. Let my life be a testament to the sufficiency of Christ, that Maria may see Your glory reflected in my actions. In the name of Jesus Christ, my Lord and Commander, I pray. Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Helm Command:</span> Anchor yourself in Christ’s power to lift those you love out of their despair.</div>
+</section>
+
+<section class="watch watch-father" id="watch-father" data-watch="father">
+<div class="watch-header"><span class="watch-time">1100</span> <h2>Second Watch — The Father&#x27;s Charge</h2></div>
+<p class="intro">Brother, the Lord calls us to stand firm in the authority of His Word while extending mercy to the broken.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Acts 3:11-26</div>
+<div class="scripture-text">
+<p>As Peter and John were going into the temple at the hour of prayer, the ninth hour, a man who was lame from his mother&#x27;s womb was being carried. They laid him at the gate of the temple called Beautiful every day to ask for alms from those entering the temple. When he saw Peter and John about to go into the temple, he asked to receive alms. And Peter directed his gaze at him, as did John, and said, Look at us. And he fixed his attention on them, expecting to receive something from them. But Peter said, I have no silver and gold, but what I do have I give to you: In the name of Jesus Christ of Nazareth, rise up and walk! And he took him by the right hand and raised him up, and immediately his feet and ankles were made strong. And leaping up he stood and walked and entered the temple with them, walking and leaping and praising God. And all the people saw him walking and praising God, and recognized that it was he who sat at the Beautiful Gate of the temple and they were filled with wonder and amazement at what had happened to him. While he clung to Peter and John, all the people, utterly astounded, ran together to them in the portico called Solomon&#x27;s. And when Peter saw it he addressed the people: Men of Israel, why do you wonder at this, or why do you stare at us, as though by our own power or piety we have made him walk? The God of Abraham, the God of Isaac, and the God of Jacob, the God of our fathers, glorified His servant Jesus, whom you delivered over and denied in the presence of Pilate, when he had decided to release Him. But you denied the Holy and Righteous One and asked to get a murderer granted to you, and you killed the Author of life, whom God raised from the dead. To this we are witnesses. And His name, by faith in His name, has made this man strong whom you see and know; and the faith that is through Jesus has given the man this perfect health in the presence of all of you. And now, brothers, I know that you acted in ignorance, as did also your rulers. But what God foretold by the mouth of all the prophets, that His Christ would suffer, He thus fulfilled. Repent therefore, and turn again, that your sins may be blotted out, that times of refreshing may come from the presence of the Lord, and that He may send the Christ appointed for you, Jesus, whom heaven must receive until the time of restoring all that God spoke by the mouth of His holy prophets since the world began. For Moses said, The Lord God will raise up for you a prophet like me from your brothers. You shall hear Him in whatever He tells you. And whoever will not hear that prophet will be thoroughly destroyed from among the people. And all the prophets who have spoken, from Samuel and those who came after him, also proclaimed these days. You are the sons of the prophets and of the covenant that God gave to your fathers, saying to Abraham, And in your offspring shall all the families of the earth be blessed. God, having raised up His servant, sent Him to you first, to bless you by turning each of you from your wickedness.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🗺️ Field Notes</div>
+<p>Peter confronts the religious leaders with the hard truth that they rejected the Messiah, yet he immediately pivots to the glorious promise that God’s plan was fulfilled through that very rejection. This passage reminds us that God’s sovereignty works even through human sin to bring about redemption for His people. The apostle calls for a decisive turn from sin toward the God who fulfills every ancient promise.</p>
+</div>
+<div class="section reflection">
+<div class="section-label">👨‍👦 Reflection for Your Children — F.U.L.F.I.L.L.E.D. Father — Leading</div>
+<p>Gideon, as you navigate the complexities of young adulthood, remember that true leadership begins with submitting to the ultimate Commander. Boaz, at fourteen, you are old enough to understand that faith is not merely a feeling but a trust in the promises God keeps. Little Shiloh, even in your play, you learn to look to your father for guidance, just as we must look to Christ.</p>
+<p>Brother, we often want to be the source of our own help, but Peter makes it clear that we possess nothing of saving value. We are like the lame man at the gate, dependent entirely on the name of another for our standing. God’s plan did not fail when men rejected His Son; rather, it was fulfilled through that rejection. Your duty as a man is not to manage outcomes but to proclaim the truth and call others to repentance. You must lead your household by pointing them to the One who blots out sin and grants refreshing.</p>
+<p>This is a heavy charge, brother. You must stand firm in doctrine while extending mercy to those who stumble. Do not be surprised by the world’s hostility toward the truth, for the world rejected its Author. Your call is to be faithful in your witness, knowing that the power to save belongs to God alone. Lead your family with courage, knowing that the God of Abraham, Isaac, and Jacob is sovereign over all things.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Examine your own heart for any pride that claims credit for the good in your family’s lives.</li>
+<li>Speak the gospel clearly to Gideon, Boaz, and Shiloh, emphasizing their need for a Savior.</li>
+<li>Pray for the courage to stand firm in Reformed truth amidst cultural pressure.</li>
+<li>Serve those in your community who are spiritually lame, pointing them to Christ’s power.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Wardroom</div>
+<p>Father, we thank You for Your sovereign plan that fulfills every promise. By the power of Your Holy Spirit, give us the grace to lead our families with humility and boldness. Help us to deny ourselves and take up our cross daily, following Your Son. In the name of Jesus Christ, my Lord and Commander, we pray. Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Rudder Steer:</span> Hold the line of truth while extending the hand of mercy.</div>
+</section>
+
+<section class="watch watch-citizen" id="watch-citizen" data-watch="citizen">
+<div class="watch-header"><span class="watch-time">1500</span> <h2>Third Watch — The Citizen&#x27;s Stand</h2></div>
+<p class="intro">Brother, stand firm in the truth that God has appointed, for the world may oppose the Gospel, but it cannot overturn His sovereign decree.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Acts 4:1-12</div>
+<div class="scripture-text">
+<p>The priests and the captain of the temple guard and the Sadducees came up to Peter and John while they were speaking to the people. They were greatly disturbed that the apostles were teaching the people, proclaiming in Jesus the resurrection of the dead. They seized Peter and John and, because it was evening, they put them in jail until morning. But many who heard the message believed; so the number of men who believed grew to about five thousand.</p>
+<p>The next day the rulers, elders and teachers of the law met in Jerusalem. Annas the high priest was there, along with Caiaphas, John, Alexander and others of the high priest’s family. They had Peter and John brought before them and began to question them: “By what power or what name did you do this?”</p>
+<p>Then Peter filled with the Holy Spirit, said to them: “Rulers and elders of our people! If we are being called to account today for an act of kindness shown to a cripple and are asked how he was healed, then know this, you and all the people of Israel: It is by the name of Jesus Christ of Nazareth, whom you crucified but whom God raised from the dead, that this man stands before you healed.</p>
+<p>He is</p>
+<p>“the stone you builders rejected, which has become the cornerstone.”</p>
+<p>Salvation is found in no one else, for there is no other name under heaven given to mankind by which we must be saved.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🛰️ Situation Report</div>
+<p>The religious authorities attempt to silence the apostles, demanding to know the source of their miraculous authority. Peter, filled with the Spirit, refuses to bow to their jurisdiction, pointing instead to the crucified and risen Christ as the sole foundation of salvation. This confrontation establishes that the Church’s obedience to God supersedes the demands of human institutions.</p>
+</div>
+<div class="section reflection resolute">
+<div class="section-label">🛡️ Reflection for a R.E.S.O.L.U.T.E. Citizen — Steadfast</div>
+<p>Fredericksburg (local)<br>Brother, the streets of Fredericksburg may echo with the quiet of a Sunday morning, but the spiritual battle for the soul of our city rages unseen. Just as Peter stood before the Sanhedrin, you too face the pressure to conform to a culture that despises the name of Jesus. Your steadfastness is not merely personal piety; it is a public declaration that Christ alone is Lord over this land. When the neighbors or even the local leaders mock the Gospel, let your resolve harden like the stone of the cornerstone. You are a citizen of Heaven first, and your duty is to proclaim the King, regardless of the cost.</p>
+<p>Virginia (state)<br>The Commonwealth of Virginia carries the weight of its history, yet God’s sovereignty extends over every county and parish. In our state, where political winds shift and moral relativism grows, the call to be steadfast is urgent. You must stand as a pillar in your community, upholding the biblical definition of manhood and family against the tide of confusion. Do not be swayed by the popular opinions of the day. Your loyalty is to the Law of God, which provides the only true order for society. By holding fast to Scripture, you provide a stable anchor for your family and a witness to your neighbors.</p>
+<p>United States (nation)<br>The United States stands at a crossroads, but the Church must never compromise its message to gain political favor. The apostles did not negotiate with the powers that be; they proclaimed the truth that Jesus is the only Savior. As a Christian man in this nation, you are called to be a steadfast guardian of biblical truth. You must raise your sons to love their country by loving the God who made it, not by adopting the world’s idols. Stand firm in the conviction that national blessing comes only through obedience to the Lord. Your steadfast faith is a beacon of hope in a darkening world.</p>
+<p>⸏⸏⸏</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Review your daily interactions for moments where you compromised the Gospel to avoid conflict, and confess this lack of courage to the LORD.</li>
+<li>Memorize Acts 4:12 and recite it aloud when faced with secular opposition at work or in public.</li>
+<li>Lead your family in a consistent evening prayer of thanksgiving for the security found in Christ alone.</li>
+<li>Speak up with clarity and love when you hear the name of Jesus mocked in your home or community.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Bridge</div>
+<p>Father, we thank You for the courage of Your servants who stood firm when the world demanded silence. Grant this soldier the spirit of steadfastness, that he may not be moved by the fears of man or the fads of the age. By the power of Your Holy Spirit, strengthen his heart to proclaim Jesus as Lord in every sphere of his life. Keep him faithful to his covenant duties as a husband and father, and let his life be a testimony to Your saving grace. In the name of Jesus Christ, my Lord and Commander, we pray. Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Rudder Steer:</span> Hold the line where the truth meets the tide.</div>
+</section>
+
+<section class="watch watch-peace" id="watch-peace" data-watch="peace">
+<div class="watch-header"><span class="watch-time">2100</span> <h2>Evening Peace</h2></div>
+<p class="intro">The day’s labor ends, but the King’s sovereignty remains absolute over your home and your history.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Psalm 2</div>
+<div class="scripture-text">
+<p class="stanza">Why do the nations rage and the peoples plot in vain?<br>The kings of the earth rise up and the rulers band together against the LORD and against His Anointed One, saying,<br>“Let us break their chains and throw off their shackles.”<br>The One enthroned in heaven laughs; the LORD scoffs at them.<br>He rebukes them in His anger and terrifies them in His wrath, saying,<br>“I have installed My King on Zion, My holy mountain.”<br>Let me declare the LORD’S decree:<br>He said to Me, “You are My Son; today I have become Your Father.”<br>Ask of Me, and I will make the nations Your inheritance, the ends of the earth Your possession.<br>You will rule them with an iron scepter and shatter them like pottery.”<br>Therefore, you kings, be wise; be warned, you rulers of the earth.<br>Serve the LORD with fear and celebrate His rule with trembling.<br>Kiss the Son, lest He be angry and you be destroyed in your ways, for His wrath can flare up in a moment.<br>Blessed are all who take refuge in Him.</p>
+</div>
+</div>
+<div class="section reflection">
+<div class="section-label">🌾 Reflection for a Man at Home and in Community</div>
+<p>As a HAPPY husband, you find your rest not in the chaos of the world’s rebellion, but in the steadfast decree of the King who rules from Zion. The nations may plot against order, but your wife and children are under the shadow of the Almighty’s protection. You lead your household not as a tyrant, but as a man who has kissed the Son, submitting to Christ’s authority so that you may faithfully exercise your God-given headship with grace and strength. Your peace is anchored in the truth that your domestic sphere is a small reflection of the greater Kingdom, secure under the One who laughs at the schemes of those who oppose God’s ordained order.</p>
+<p>As a FULFILLED father, you recognize that your role is a sacred stewardship, mirroring the Father’s love for His Son. You do not raise your children to merely survive the world’s rage, but to take refuge in the Son. Your discipline and instruction are acts of worship, pointing them toward the King who shatters the powers of darkness. You provide for them not just materially, but spiritually, teaching them that true security is found only in submission to Christ. Your love is a tangible expression of divine grace, protecting the weak and guiding the strong toward the only solid foundation.</p>
+<p>As a RESOLUTE citizen, you stand firm against the prevailing winds of rebellion that seek to dismantle biblical authority. You serve in your community with wisdom and fear, knowing that all earthly power is subordinate to the Lord’s decree. Your service is not a plea for acceptance by the world, but a faithful witness to the King who has installed His rule on Zion. You walk with trembling before God, yet with boldness in your convictions, upholding the truth that justice and order are gifts from the Almighty. Your life is a testament to the blessedness of those who take refuge in Him, demonstrating that true freedom is found only under His scepter.</p>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Stateroom</div>
+<p>Father, we thank You for the peace that comes from acknowledging Your sovereign rule over all things. Forgive us for the times we have plotted in vain against Your will or failed to lead our households with the wisdom You provide. By the power of Your Holy Spirit, empower us to stand firm in our God-ordained roles, loving our wives as Christ loves the church, and raising our children in the discipline and instruction of the Lord. Guard our hearts from the rage of the world and keep us humble before Your majesty. In the name of Jesus Christ, my Lord and Commander, we pray. Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Rudder Steer:</span> Anchor your soul in Christ’s finished work before you seek to steer the ship of your family.</div>
+</section>
+
+<footer>
+<div class="draft-tag">PROTOTYPE — sign-off pending</div>
+<div>U.S.M.C. Ministries · The Watchman's Chronological Plan for the Year of our Lord 2026</div>
+<div style="margin-top:6px;font-size:0.78rem;">Adam Johns &middot; rich interpretive blend &middot; divine name LORD</div>
+</footer>
+
+</div>
+<script>
+(function(){
+  const SLUGS = ['all','wisdom','husband','father','citizen','peace'];
+
+  // Watch windows in local hours (each watch is "live" from its start time
+  // until the NEXT watch begins). Evening peace owns 21:00 → 04:59.
+  function currentWatchSlug() {
+    const h = new Date().getHours();
+    if (h >= 5  && h < 7)  return 'wisdom';
+    if (h >= 7  && h < 11) return 'husband';
+    if (h >= 11 && h < 15) return 'father';
+    if (h >= 15 && h < 21) return 'citizen';
+    return 'peace';                       // 21:00 – 04:59
+  }
+  const NOW_SLUG = currentWatchSlug();
+
+  function markNowBadge(){
+    document.querySelectorAll('.watch-tab').forEach(t => {
+      t.classList.toggle('is-now', t.dataset.tab === NOW_SLUG);
+    });
+  }
+  function showOnly(slug){
+    const isAll = slug === 'all' || !SLUGS.includes(slug);
+    document.querySelectorAll('section.watch').forEach(s => {
+      s.style.display = (isAll || s.dataset.watch === slug) ? '' : 'none';
+    });
+    document.querySelectorAll('.watch-tab').forEach(t => {
+      t.classList.toggle('active', t.dataset.tab === (isAll ? 'all' : slug));
+    });
+  }
+  document.querySelectorAll('.watch-tab').forEach(t => {
+    t.addEventListener('click', function(e){
+      e.preventDefault();
+      const slug = this.dataset.tab;
+      history.replaceState(null, '', '#' + slug);
+      showOnly(slug);
+      window.scrollTo({top: 0, behavior:'smooth'});
+    });
+  });
+
+  // Initial selection priority:
+  //   1. URL hash if present  (#all / #wisdom / #husband / #father / #citizen / #peace)
+  //   2. Auto-select the watch that is "live right now"
+  let initial;
+  if (location.hash) {
+    initial = location.hash.slice(1);
+  } else {
+    initial = NOW_SLUG;
+  }
+  markNowBadge();
+  showOnly(initial);
+})();
+</script>
+</body>
+</html>
