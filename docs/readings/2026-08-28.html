@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg">
+<title>Friday, August 28, 2026 — Daily Reading | U.S.M.C. Ministries</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+    --bg-dark: #000000; --bg-card: #111111; --bg-card2: #161616;
+    --gold: #D4AF37; --gold-light: #F4D470;
+    --white: #FFFFFF; --gray: #888888; --border: #333333;
+}
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--white);
+    min-height: 100vh;
+    line-height: 1.7;
+}
+h1, h2, h3 { font-family: 'Playfair Display', serif; font-weight: 700; }
+.container { max-width: 820px; margin: 0 auto; padding: 24px 20px 60px; }
+a { color: var(--gold); text-decoration: none; }
+a:hover { color: var(--gold-light); text-decoration: underline; }
+
+.nav-back { margin-bottom: 14px; font-size: 0.95rem; }
+
+.hero { text-align: center; padding: 16px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 18px; }
+.hero h1 { font-size: clamp(1.5rem, 4vw, 2.2rem); color: var(--white); margin-bottom: 6px; }
+.hero .subtitle { color: var(--gold); font-size: 0.95rem; font-style: italic; }
+.hero .doc-line { color: var(--gray); font-size: 0.82rem; margin-top: 6px; }
+
+.watch-tabs {
+    position: sticky; top: 0; z-index: 30;
+    background: var(--bg-dark);
+    border-bottom: 1px solid var(--border);
+    display: flex; flex-wrap: wrap; gap: 6px;
+    padding: 12px 0 14px;
+    margin-bottom: 18px;
+}
+.watch-tab {
+    flex: 1 1 90px;
+    text-align: center;
+    padding: 8px 6px;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    background: var(--bg-card);
+    color: var(--gray);
+    font-size: 0.85rem; font-weight: 500;
+    transition: all 0.15s ease;
+    text-decoration: none !important;
+    white-space: nowrap;
+}
+.watch-tab:hover { color: var(--white); border-color: var(--gold); text-decoration: none !important; }
+.watch-tab.active { background: var(--gold); color: #000; border-color: var(--gold); font-weight: 600; }
+.watch-tab .tab-time { display: block; font-size: 0.7rem; opacity: 0.7; font-family: monospace; }
+.watch-tab.active .tab-time { opacity: 1; }
+
+/* "NOW" badge — shown on the watch tab whose time window contains current local time */
+.watch-tab.is-now { position: relative; box-shadow: 0 0 0 1px var(--gold-light) inset; }
+.watch-tab.is-now::after {
+  content: "NOW";
+  position: absolute; top: -7px; right: -4px;
+  background: var(--gold-light); color: #000;
+  font-size: 0.55rem; font-weight: 700;
+  padding: 1px 5px; border-radius: 100px;
+  letter-spacing: 0.08em;
+}
+
+.watch {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px 22px;
+    margin-bottom: 22px;
+    scroll-margin-top: 80px;
+}
+.watch-header { display: flex; align-items: baseline; gap: 14px; margin-bottom: 10px; flex-wrap: wrap; }
+.watch-time {
+    background: var(--bg-card2); color: var(--gold);
+    padding: 4px 12px; border-radius: 100px;
+    font-family: 'Inter', monospace; font-size: 0.85rem; font-weight: 600;
+    letter-spacing: 0.05em;
+}
+.watch-header h2 { font-size: 1.35rem; color: var(--white); }
+
+.intro { color: var(--gray); font-style: italic; margin-bottom: 14px; }
+
+.audio-slot {
+    margin: 14px 0 18px;
+    padding: 12px 14px;
+    background: var(--bg-card2);
+    border-radius: 8px;
+    border: 1px dashed var(--border);
+}
+.audio-slot.audio-pending { opacity: 0.55; }
+.audio-cap { font-size: 0.8rem; color: var(--gray); margin-top: 4px; }
+
+.scripture {
+    background: var(--bg-card2);
+    border-left: 3px solid var(--gold);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin: 16px 0 22px;
+}
+.scripture-ref { font-weight: 600; color: var(--gold); margin-bottom: 12px; font-size: 0.95rem; }
+.scripture-text p { margin-bottom: 8px; }
+.scripture-text p.stanza { margin-bottom: 14px; }
+
+.section-label {
+    font-family: 'Playfair Display', serif;
+    color: var(--gold); font-weight: 700; font-size: 1.05rem;
+    margin: 22px 0 10px; padding-top: 10px; border-top: 1px solid var(--border);
+}
+.section p, .context p, .reflection p, .history p, .application-block p { margin-bottom: 12px; }
+
+ul.application { padding-left: 22px; margin: 8px 0 14px; }
+ul.application li { margin-bottom: 8px; }
+.application-prose { font-style: italic; color: var(--gold-light); margin-top: 12px; }
+
+.history ul { padding-left: 22px; margin: 8px 0; }
+.history li { margin-bottom: 6px; }
+
+.prayer {
+    background: var(--bg-card2);
+    border-left: 3px solid var(--gold-light);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin: 22px 0;
+}
+.prayer-title { color: var(--gold-light); font-weight: 600; margin-bottom: 10px; font-size: 0.95rem; }
+.prayer p { line-height: 1.85; margin-bottom: 8px; }
+
+.helm {
+    background: var(--bg-card2);
+    border-radius: 6px;
+    padding: 12px 18px;
+    margin-top: 14px;
+    font-size: 0.95rem;
+}
+.helm-icon { color: var(--gold); font-size: 1.1rem; }
+.helm-label { color: var(--gold); font-weight: 600; }
+
+footer {
+    text-align: center;
+    color: var(--gray);
+    font-size: 0.82rem;
+    margin-top: 32px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+}
+footer .draft-tag {
+    display: inline-block;
+    background: #2a2410;
+    color: var(--gold);
+    padding: 4px 12px;
+    border-radius: 100px;
+    font-size: 0.78rem;
+    margin-bottom: 8px;
+    letter-spacing: 0.05em;
+}
+
+@media (max-width: 540px) {
+    .watch-tab { flex: 1 1 64px; font-size: 0.78rem; padding: 6px 4px; }
+    .watch-tab .tab-time { font-size: 0.65rem; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="nav-back">← <a href="/chronological.html">The Watchman's Chronological Plan</a></div>
+
+<div class="hero">
+<h1>Friday, August 28, 2026</h1>
+<div class="subtitle">Daily Reading — Day 240 of 365</div>
+<div class="doc-line">MOOP&#x27;s 2026 Daily Bible Readings — Document 8 of 12; for the month of August</div>
+</div>
+
+<nav class="watch-tabs" role="tablist">
+<a href="#all" class="watch-tab active" data-tab="all" role="tab"><span class="tab-label">All Watches</span></a>
+<a href="#wisdom" class="watch-tab" data-tab="wisdom" role="tab"><span class="tab-time">0600</span> <span class="tab-label">Morning Wisdom</span></a>
+<a href="#husband" class="watch-tab" data-tab="husband" role="tab"><span class="tab-time">0700</span> <span class="tab-label">Husband</span></a>
+<a href="#father" class="watch-tab" data-tab="father" role="tab"><span class="tab-time">1100</span> <span class="tab-label">Father</span></a>
+<a href="#citizen" class="watch-tab" data-tab="citizen" role="tab"><span class="tab-time">1500</span> <span class="tab-label">Citizen</span></a>
+<a href="#peace" class="watch-tab" data-tab="peace" role="tab"><span class="tab-time">2100</span> <span class="tab-label">Evening Peace</span></a>
+</nav>
+
+<section class="watch watch-wisdom" id="watch-wisdom" data-watch="wisdom">
+<div class="watch-header"><span class="watch-time">0600</span> <h2>Morning Wisdom</h2></div>
+<p class="intro">The Lord speaks to the upright heart, calling us to stand firm in the truth of His Word against the shifting sands of the world.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Proverbs 28</div>
+<div class="scripture-text">
+<p class="stanza">The wicked flee when no one pursues, but the righteous are bold as a lion.<br>He who lacks understanding brings dishonor to his father, but he who keeps the law is a son who brings glory.<br>Woe to him who pursues unjust gain, for it will lead to poverty, but he who hates bribes will live.<br>He who walks blamelessly in his fear will be blessed, but he who pursues crooked paths will fall into the pit.<br>He who works his land will have plenty of bread, but he who chases fantasies will have his fill of poverty.<br>A faithful man will abound with blessings, but he who hastens to be rich will not go unpunished.<br>He who can be trusted with very little can also be trusted with much, and he who is dishonest with very little will also be dishonest with much.<br>No one is more wicked than the man who deals in dishonest gain, for he seeks to bring about his own ruin.<br>The righteous man walks in his integrity; blessed are his children after him.<br>A ruler who lacks understanding is a great oppressor, but he who hates unjust gain will prolong his days.<br>If a man is burdened with the guilt of bloodshed, he will be a fugitive until death; let no one support him.<br>He who walks in integrity will be delivered, but he who is crooked in his ways will suddenly fall.<br>He who works the land will have plenty of bread, but he who chases fantasies will have his fill of poverty.<br>A faithful man will abound with blessings, but he who hastens to be rich will not go unpunished.<br>He who can be trusted with very little can also be trusted with much, and he who is dishonest with very little will also be dishonest with much.<br>No one is more wicked than the man who deals in dishonest gain, for he seeks to bring about his own ruin.<br>The righteous man walks in his integrity; blessed are his children after him.<br>A ruler who lacks understanding is a great oppressor, but he who hates unjust gain will prolong his days.<br>If a man is burdened with the guilt of bloodshed, he will be a fugitive until death; let no one support him.<br>He who walks in integrity will be delivered, but he who is crooked in his ways will suddenly fall.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🧭 Context Summary</div>
+<p>Solomon addresses the covenant people of Israel with stark contrasts between the conduct of the wicked and the character of the righteous. He emphasizes that true righteousness is not merely external compliance but an internal integrity that flows from the fear of the Lord. The passage warns against the seductive lure of unjust gain and the inevitable collapse of those who pursue it. It establishes that a man’s integrity in small matters determines his standing before God and his effectiveness in leadership.</p>
+</div>
+<div class="section reflection">
+<div class="section-label">🛡️ Reflection for a REAL MAN — Walks Blamelessly</div>
+<p>Brother, the text does not promise you a life without conflict, but it does promise boldness to the righteous. When you walk in integrity, you do not need to run from the truth because you have nothing to hide. Your courage is not derived from your own strength but from your alignment with the Lord’s will. As a father and a husband, your primary duty is to model this blameless walk for your household. Your children watch your steps more closely than your words. If you are crooked in your private dealings, you will be unstable in your public leadership.</p>
+<p>The Lord hates dishonest gain because it reveals a heart that trusts in wealth more than in Him. You must guard your finances and your business dealings with the same rigor you guard your home. A man who is faithful in the small things proves his trustworthiness to the Commander-in-Chief. This is not about perfectionism but about direction. Your path must be straight, even when the world around you is bent. Let your word be as solid as the ground you stand on.</p>
+<p>Brother, do not let the pressure of the age make you compromise your integrity. The wicked may flee when no one pursues, but you stand firm. Your boldness comes from knowing that the LORD sees all. You are called to be a pillar in your family and your community. Walk blamelessly, and your children will be blessed by your legacy. Keep your hands clean and your heart pure.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Review your recent financial decisions to ensure they are honest and free from any hint of exploitation.</li>
+<li>Confess any hidden compromises in your speech or actions to the LORD and seek restitution where possible.</li>
+<li>Speak truthfully in all your interactions, even when it is costly or inconvenient.</li>
+<li>Lead your family in a nightly review of the day’s actions, holding yourself accountable to biblical standards.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer</div>
+<p>Father, I come before You seeking the grace to walk blamelessly in Your sight. Forgive me for the times I have chosen the easy path over the right one. By the power of Your Holy Spirit, give me the courage to stand firm in integrity, even when the world pressures me to compromise. Help me to be a faithful steward of my resources and a bold witness to Your truth. In the name of Jesus Christ, my Lord and Commander, Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Helm Command:</span> Steady the course and hold the line with integrity.</div>
+</section>
+
+<section class="watch watch-husband" id="watch-husband" data-watch="husband">
+<div class="watch-header"><span class="watch-time">0700</span> <h2>First Watch — The Husband&#x27;s Post</h2></div>
+<p class="intro">Brother, as you stand guard over the spiritual integrity of your home, remember that the stability of your marriage rests on the unshakable Rock of Christ, not on the shifting sands of this present age.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Matthew 24:1-14</div>
+<div class="scripture-text">
+<p>Jesus left the temple and was walking away when His disciples came near to show Him the buildings of the temple. And He said to them, “Do you not see all these things? Truly, I say to you, there will not be left here one stone upon another that will not be thrown down.”</p>
+<p>As He was sitting on the Mount of Olives, the disciples came to Him privately, saying, “Tell us, when will these things be, and what will be the sign of Your coming and of the end of the age?” And Jesus answered them, “See that no one leads you astray. For many will come in My name, saying, ‘I am the Christ,’ and they will lead many astray. And you will hear of wars and rumors of wars. See that you are not alarmed, for this must take place, but the end is not yet. For nation will rise against nation, and kingdom against kingdom, and there will be famines and earthquakes in various places. All this is but the beginning of the birth pangs.</p>
+<p>“Then they will deliver you up to tribulation and put you to death, and you will be hated by all nations for My name’s sake. And then many will fall away and betray one another and hate one another. And many false prophets will arise and lead many astray. And because lawlessness will be increased, the love of many will grow cold. But the one who endures to the end will be saved. And this gospel of the kingdom will be proclaimed throughout the whole world as a testimony to all nations, and then the end will come.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🗺️ Briefing Summary</div>
+<p>In this passage, the Lord Jesus dismantles the false security of outward religiosity and warns His followers that the current age will be marked by deception, conflict, and persecution. He instructs His disciples to remain steadfast in truth and love despite the increasing lawlessness that characterizes the times. The promise of the end comes not with the collapse of the world, but with the faithful proclamation of the gospel to all nations.</p>
+</div>
+<div class="section reflection">
+<div class="section-label">❤️ Reflection for Your Wife — H.A.P.P.Y. Husband — Protecting</div>
+<p>Brother, just as the disciples sought security in the visible grandeur of the temple, Maria and you may sometimes look to the stability of your circumstances, your finances, or your social standing for peace. Yet the Lord reminds us that no earthly structure is permanent, and no human institution can save us. Your primary duty as the head of your house is to protect Maria’s heart and your family’s soul from the deception of this age. You must stand as a sentinel against the lies that whisper that safety is found in comfort rather than in Christ alone.</p>
+<p>This protection is not merely physical but spiritual. You must guard your marriage against the &quot;love growing cold&quot; that results from compromise with the world’s values. When the culture promotes confusion regarding gender roles and moral truth, you must hold fast to the clear teaching of Scripture. Your steadfastness in the truth provides a sanctuary for Maria, allowing her to rest in the knowledge that her husband is walking in alignment with the Commander’s will. You protect her by leading her not toward the world, but toward the Cross, where true security is found.</p>
+<p>The gospel is to be proclaimed to all nations, but it begins in your heart and flows through your home. By enduring to the end in your faith and your fidelity to Maria, you become a living testimony to the unshakeable nature of Christ’s kingdom. Your vigilance in spiritual matters is the strongest shield you can provide for your family, ensuring that neither you nor Maria is led astray by the fleeting promises of this falling world.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Speak clearly and kindly to Maria about the biblical distinctions God has ordained for husband and wife, reinforcing her dignity in her role.</li>
+<li>Identify one cultural lie that threatens your family’s faith and prepare a Scripture-based rebuttal to discuss with her this week.</li>
+<li>Pray daily for the grace to endure spiritual warfare without losing love for your neighbors or your wife.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Stateroom</div>
+<p>Father, we thank You that our hope is not in the structures of this world, but in the eternal kingdom You have established. Protect Adam and Maria from the deceivers who would lead them astray. Grant Adam the courage to stand firm in the truth, guarding his home with vigilance and love. By the power of Your Holy Spirit, keep their love from growing cold in the face of lawlessness. Anchor their marriage in the unshakeable Rock of Christ. In the name of Jesus Christ, my Lord and Commander, Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Helm Command:</span> Hold fast to the Truth while the world shifts beneath your feet.</div>
+</section>
+
+<section class="watch watch-father" id="watch-father" data-watch="father">
+<div class="watch-header"><span class="watch-time">1100</span> <h2>Second Watch — The Father&#x27;s Charge</h2></div>
+<p class="intro">Brother, the King has returned to claim His own, and we stand ready in the watchtower.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Matthew 24:15-31</div>
+<div class="scripture-text">
+<p>At that time, if anyone says to you, &#x27;Look, here is the Christ!&#x27; or &#x27;There He is!&#x27; do not believe it. For false christs and false prophets will arise and perform great signs and wonders to deceive, if possible, even the elect. See, I have told you beforehand. So if they say to you, &#x27;Look, He is in the wilderness!&#x27; do not go out. &#x27;Look, He is in the inner rooms!&#x27; do not believe it. For as the lightning comes from the east and flashes to the west, so will be the coming of the Son of Man. Wherever the corpse is, there the vultures will gather.</p>
+<p>Immediately after the tribulation of those days the sun will be darkened, and the moon will not give its light, the stars will fall from heaven, and the powers of the heavens will be shaken. Then the sign of the Son of Man will appear in heaven, and then all the tribes of the earth will mourn, and they will see the Son of Man coming on the clouds of heaven with power and great glory. And He will send His angels with a great trumpet voice, and they will gather together His elect from the four winds, from one end of heaven to the other.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🗺️ Field Notes</div>
+<p>The text shifts from the terror of tribulation to the triumphant return of the Son of Man, a scene of cosmic authority and final judgment. This passage assures the faithful that their endurance is not in vain, for the King will personally gather His people at the end of the age. It calls for vigilance, for no one knows the day or the hour, yet the certainty of His return is as sure as the lightning.</p>
+</div>
+<div class="section reflection">
+<div class="section-label">👨‍👦 Reflection for Your Children — F.U.L.F.I.L.L.E.D. Father — Leading</div>
+<p>Brother, as you stand in the breach for your household, remember that your primary duty is to lead them toward the King, not merely to keep them safe from the world. You must teach Gideon, who is at the age of manhood, that true leadership is rooted in submission to Christ’s authority. He needs to see that you do not rule by whim, but by the Word, just as the Son of Man rules by righteous judgment.</p>
+<p>To Boaz, who is in the thick of youth, show him that the world’s false promises of power are empty compared to the reality of the coming Kingdom. Teach him that his strength is not for self-aggrandizement, but for the defense of the weak and the proclamation of truth. Let him learn that the elect are gathered not by their own merit, but by the sovereign call of the Father.</p>
+<p>And for little Shiloh, model the patience of the saints who wait for the Lord. Show him that while the world grows dark and confused, the home of the believer remains a beacon of hope. Your leadership is a shadow of the Lord’s, pointing your sons to the One who will one day wipe away every tear and judge the earth with equity.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Review the doctrine of Christ’s Second Coming with Gideon to sharpen his theological resolve.</li>
+<li>Challenge Boaz to take on a specific responsibility in the home that requires sacrificial service.</li>
+<li>Read the Psalms of ascent with Shiloh, emphasizing God’s care for the little ones.</li>
+<li>Examine your own heart daily to ensure you are not seeking the approval of men over the approval of God.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Wardroom</div>
+<p>Father, we thank You for the certainty of our Lord’s return, which steadies our hearts in the midst of chaos. Grant us the grace to lead our families with wisdom and courage, keeping our eyes fixed on the clouds of heaven. By the power of Your Holy Spirit, purge our hearts of complacency and fill us with a holy fear of You. May our lives be a testament to the truth that the Son of Man is coming to judge the living and the dead. In the name of Jesus Christ, my Lord and Commander, we pray. Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Rudder Steer:</span> Keep your eyes on the horizon, for the Captain is coming.</div>
+</section>
+
+<section class="watch watch-citizen" id="watch-citizen" data-watch="citizen">
+<div class="watch-header"><span class="watch-time">1500</span> <h2>Third Watch — The Citizen&#x27;s Stand</h2></div>
+<p class="intro">The faithful soldier stands his post with eyes fixed on the King, neither sleeping nor slacking, for the Master’s return is certain and his account will be strict.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Matthew 24:32-51</div>
+<div class="scripture-text">
+<p>Learn this lesson from the fig tree: When its branch becomes tender and puts out leaves, you know that summer is near. So also, when you see all these things, you know that He is near, at the very gates. Truly, I say to you, this generation will not pass away until all these things take place. Heaven and earth will pass away, but My words will not pass away.</p>
+<p>But concerning that day and hour no one knows, not even the angels of heaven, nor the Son, but the Father alone. For as were the days of Noah, so will be the coming of the Son of Man. For as in those days before the flood they were eating and drinking, marrying and giving in marriage, until the day when Noah entered the ark, and they were unaware until the flood came and swept them all away, so will be the coming of the Son of Man. Then two men will be in the field; one will be taken and one left. Two women will be grinding at the mill; one will be taken and one left. Therefore, stay awake, for you do not know on what day your Lord is coming.</p>
+<p>Understand this: if the master of the house had known in what part of the night the thief was coming, he would have stayed awake and would not have let his house be broken into. Therefore you also must be ready, for the Son of Man is coming at an hour you do not expect.</p>
+<p>Who then is the faithful and wise servant, whom his master has set over his household, to give them their food at the proper time? Blessed is that servant whom his master will find so doing when he comes. Truly, I say to you, he will set him over all his possessions. But if that wicked servant says to himself, &#x27;My master is delaying his coming,&#x27; and begins to beat his fellow servants and eats and drinks with drunkards, the master of that servant will come on a day he does not expect and at an hour he does not know and will punish him with a severe beating. And the servant who knew his master’s will but did not get ready or act according to it will suffer a severe beating. Everyone to whom much was given, of him much will be required, and from him to whom they entrusted much, they will demand the more.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🛰️ Situation Report</div>
+<p>The passage warns the faithful against the spiritual lethargy that comes from presuming upon God’s patience. You are to live with a holy urgency, knowing that your accountability is direct and immediate. The imagery of the thief and the sudden flood demands a vigilance that is active, not passive.</p>
+</div>
+<div class="section reflection resolute">
+<div class="section-label">🛡️ Reflection for a R.E.S.O.L.U.T.E. Citizen — Steadfast</div>
+<p>Fredericksburg (local)<br>Brother, look to the banks of the Rappahannock. The stones there are cold and hard, much like the resolve required of a man who knows his duty. In the shadow of that town, men stood firm against chaos, holding their ground when the world demanded they flee. Your steadfastness is not merely about enduring hardship, but about maintaining your position in the faith while your brothers falter. You must be the stone wall that does not crack under the pressure of cultural decay or personal comfort.</p>
+<p>Virginia (state)<br>Consider the soil of this Commonwealth, tilled by generations of men who understood that stewardship requires discipline. The land does not yield to the lazy; it yields to the one who rises before dawn and labors with purpose. Your household is your field. You must cultivate it with the same iron will, ensuring that your wife and children are protected under your provision and guided by your authority. Steadfastness here means refusing to let the winds of modern confusion erode the biblical structure of your home.</p>
+<p>United States (nation)<br>The nation stands on the precipice, much like the generation before the flood, unaware of the coming judgment. Yet, the citizen who is steadfast does not panic; he prepares. He builds his life on the Rock, knowing that empires rise and fall, but the Word of the Lord remains. Your duty is to stand as a witness in your community, upholding truth and order, showing that a man who fears God is not swayed by the shifting tides of public opinion. You are a pillar in a house of clay, holding firm until the King returns.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Inspect your spiritual readiness daily, asking if your heart has grown cold to the urgency of the Gospel.</li>
+<li>Establish a consistent discipline of prayer and Scripture reading that cannot be disrupted by the demands of the day.</li>
+<li>Speak truth to your family with authority and love, reinforcing their place under your godly headship.</li>
+<li>Resist the temptation to conform to the world’s pacing; set your own rhythms by the eternal timeline of God.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Bridge</div>
+<p>Father, You are the Master who keeps no sleepless watch, yet You call Your servants to do so. Grant me the grace to remain steadfast in my duty, guarding my heart against the deceit of comfort. By the power of Your Holy Spirit, sharpen my senses to discern Your will and strengthen my hands to execute it without hesitation. Keep me faithful in the small things, that I may be trusted with the greater responsibilities of Your kingdom. In the name of Jesus Christ, my Lord and Commander, I pray. Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Rudder Steer:</span> Hold your post until the Captain calls you home.</div>
+<div class="section history">
+<div class="section-label">🦅 This Day in American History — August 28</div>
+<p>In 1776, General George Washington was appointed Commander-in-Chief of the Continental Army, a pivotal moment where God raised up a leader to preserve the liberties of the colonies through disciplined resistance and faith in Divine Providence. In 1863, the Emancipation Proclamation took full effect, a complex moment in history where God’s sovereign hand worked through the struggles of a fractured nation, ultimately bringing justice and freedom to the downtrodden slaves, affirming His righteousness in all His judgments.</p>
+<p>⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻</p>
+</div>
+</section>
+
+<section class="watch watch-peace" id="watch-peace" data-watch="peace">
+<div class="watch-header"><span class="watch-time">2100</span> <h2>Evening Peace</h2></div>
+<p class="intro">The day’s exertions yield to the quiet assurance that the Creator remains immutable while His creation shifts.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Psalm 102:12-28</div>
+<div class="scripture-text">
+<p>But You, O LORD, are enthroned forever; Your name endures to all generations. You will arise and have pity on Zion, for the time to favor her has come, for the appointed time. For Your servants hold her stones in affection, and they pity her dust. The nations will fear the name of the LORD, and all the kings of the earth will be in awe of Your glory. For the LORD has built up Zion; He has appeared in His glory. He has turned to the prayer of the destitute and has not despised their plea. Let this be written for the generation to come, so that a people yet to be created may praise the LORD. For He looked down from His holy height; from heaven the LORD gazed at the earth, to hear the groaning of the prisoners, to release those destined to die, that men may declare in Zion the name of the LORD, and in Jerusalem His praise, when the peoples are gathered together, and the kingdoms, to worship the LORD. He has weakened my strength in the way; He has shortened my days. I say, &quot;O my God, do not take me away in the midst of my days; Your years are throughout all generations. In the beginning, O LORD, You laid the foundation of the earth, and the heavens are the work of Your hands; they will perish, but You will endure; indeed, they will wear out like a garment, like clothing You will roll them up, and they will be changed. But You are the same, and Your years will not cease. The children of Your servants will continue, and their descendants will be established before You.&quot;</p>
+</div>
+</div>
+<div class="section reflection">
+<div class="section-label">🌾 Reflection for a Man at Home and in Community</div>
+<p>As a HAPPY husband, brother, you find your rest not in the fluctuating fortunes of the world, but in the eternal throne of the LORD. The psalmist declares that while the heavens and earth may wear out like an old garment, God remains the same. This unchanging nature is the bedrock of your covenant marriage. When the storms of life batter your home, you do not panic because you serve a Commander who does not change. Your wife finds peace in your steadfastness because it mirrors the steadfastness of your God. You lead with confidence because you are anchored in a truth that time cannot erode, offering her a shelter that is secure against the shifting winds of culture.</p>
+<p>As a FULFILLED father, you recognize that your days are short and your strength can feel diminished by the weight of provision and protection. The psalmist laments the fading of his days, yet the text reminds us that God hears the groaning of the destitute and does not despise their plea. You must teach your children that their father is not the ultimate source of their security, but he is the visible hand of God’s provision. Your legacy is not in your physical strength, which will fade, but in the faith you instill in them. You write the story of God’s faithfulness for the next generation, ensuring that when they look to the heavens, they see the same God who laid the foundation of the earth and who remains faithful to His covenant promises.</p>
+<p>As a RESOLUTE citizen, you stand in the knowledge that the LORD is enthroned forever and that all earthly powers are subject to His gaze. The kings of the earth will eventually stand in awe of His glory, and the nations will fear His name. Your duty as a man is to submit to this King and to reflect His justice in your community. You do not serve the temporary ideologies of the age, for they will pass away. You serve the One who builds Zion and answers the prayer of the lowly. Your resolve comes from knowing that history is moving toward His judgment and His glory. You stand firm in your convictions, not as a rebel against order, but as a loyal subject of the Heavenly King, calling your neighbors to repentance and faith in the only name that saves.</p>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Stateroom</div>
+<p>Father, we thank You for Your eternal throne, which stands firm while the world below trembles. Grant us the grace to rest in Your immutability, that our homes may be sanctuaries of peace and our lives testaments of Your faithfulness. By the power of Your Holy Spirit, strengthen our hands to provide, our hearts to love, and our wills to obey Your law without compromise. Keep us from despair in our weakness, and fill us with awe at Your glory. In the name of Jesus Christ, my Lord and Commander, we pray. Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Rudder Steer:</span> Anchor your soul in the unchanging Word while the world shifts around you.</div>
+</section>
+
+<footer>
+<div class="draft-tag">PROTOTYPE — sign-off pending</div>
+<div>U.S.M.C. Ministries · The Watchman's Chronological Plan for the Year of our Lord 2026</div>
+<div style="margin-top:6px;font-size:0.78rem;">Adam Johns &middot; rich interpretive blend &middot; divine name LORD</div>
+</footer>
+
+</div>
+<script>
+(function(){
+  const SLUGS = ['all','wisdom','husband','father','citizen','peace'];
+
+  // Watch windows in local hours (each watch is "live" from its start time
+  // until the NEXT watch begins). Evening peace owns 21:00 → 04:59.
+  function currentWatchSlug() {
+    const h = new Date().getHours();
+    if (h >= 5  && h < 7)  return 'wisdom';
+    if (h >= 7  && h < 11) return 'husband';
+    if (h >= 11 && h < 15) return 'father';
+    if (h >= 15 && h < 21) return 'citizen';
+    return 'peace';                       // 21:00 – 04:59
+  }
+  const NOW_SLUG = currentWatchSlug();
+
+  function markNowBadge(){
+    document.querySelectorAll('.watch-tab').forEach(t => {
+      t.classList.toggle('is-now', t.dataset.tab === NOW_SLUG);
+    });
+  }
+  function showOnly(slug){
+    const isAll = slug === 'all' || !SLUGS.includes(slug);
+    document.querySelectorAll('section.watch').forEach(s => {
+      s.style.display = (isAll || s.dataset.watch === slug) ? '' : 'none';
+    });
+    document.querySelectorAll('.watch-tab').forEach(t => {
+      t.classList.toggle('active', t.dataset.tab === (isAll ? 'all' : slug));
+    });
+  }
+  document.querySelectorAll('.watch-tab').forEach(t => {
+    t.addEventListener('click', function(e){
+      e.preventDefault();
+      const slug = this.dataset.tab;
+      history.replaceState(null, '', '#' + slug);
+      showOnly(slug);
+      window.scrollTo({top: 0, behavior:'smooth'});
+    });
+  });
+
+  // Initial selection priority:
+  //   1. URL hash if present  (#all / #wisdom / #husband / #father / #citizen / #peace)
+  //   2. Auto-select the watch that is "live right now"
+  let initial;
+  if (location.hash) {
+    initial = location.hash.slice(1);
+  } else {
+    initial = NOW_SLUG;
+  }
+  markNowBadge();
+  showOnly(initial);
+})();
+</script>
+</body>
+</html>

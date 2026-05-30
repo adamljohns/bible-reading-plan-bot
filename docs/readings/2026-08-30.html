@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg">
+<title>Sunday, August 30, 2026 — Daily Reading | U.S.M.C. Ministries</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+    --bg-dark: #000000; --bg-card: #111111; --bg-card2: #161616;
+    --gold: #D4AF37; --gold-light: #F4D470;
+    --white: #FFFFFF; --gray: #888888; --border: #333333;
+}
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--white);
+    min-height: 100vh;
+    line-height: 1.7;
+}
+h1, h2, h3 { font-family: 'Playfair Display', serif; font-weight: 700; }
+.container { max-width: 820px; margin: 0 auto; padding: 24px 20px 60px; }
+a { color: var(--gold); text-decoration: none; }
+a:hover { color: var(--gold-light); text-decoration: underline; }
+
+.nav-back { margin-bottom: 14px; font-size: 0.95rem; }
+
+.hero { text-align: center; padding: 16px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 18px; }
+.hero h1 { font-size: clamp(1.5rem, 4vw, 2.2rem); color: var(--white); margin-bottom: 6px; }
+.hero .subtitle { color: var(--gold); font-size: 0.95rem; font-style: italic; }
+.hero .doc-line { color: var(--gray); font-size: 0.82rem; margin-top: 6px; }
+
+.watch-tabs {
+    position: sticky; top: 0; z-index: 30;
+    background: var(--bg-dark);
+    border-bottom: 1px solid var(--border);
+    display: flex; flex-wrap: wrap; gap: 6px;
+    padding: 12px 0 14px;
+    margin-bottom: 18px;
+}
+.watch-tab {
+    flex: 1 1 90px;
+    text-align: center;
+    padding: 8px 6px;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    background: var(--bg-card);
+    color: var(--gray);
+    font-size: 0.85rem; font-weight: 500;
+    transition: all 0.15s ease;
+    text-decoration: none !important;
+    white-space: nowrap;
+}
+.watch-tab:hover { color: var(--white); border-color: var(--gold); text-decoration: none !important; }
+.watch-tab.active { background: var(--gold); color: #000; border-color: var(--gold); font-weight: 600; }
+.watch-tab .tab-time { display: block; font-size: 0.7rem; opacity: 0.7; font-family: monospace; }
+.watch-tab.active .tab-time { opacity: 1; }
+
+/* "NOW" badge — shown on the watch tab whose time window contains current local time */
+.watch-tab.is-now { position: relative; box-shadow: 0 0 0 1px var(--gold-light) inset; }
+.watch-tab.is-now::after {
+  content: "NOW";
+  position: absolute; top: -7px; right: -4px;
+  background: var(--gold-light); color: #000;
+  font-size: 0.55rem; font-weight: 700;
+  padding: 1px 5px; border-radius: 100px;
+  letter-spacing: 0.08em;
+}
+
+.watch {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px 22px;
+    margin-bottom: 22px;
+    scroll-margin-top: 80px;
+}
+.watch-header { display: flex; align-items: baseline; gap: 14px; margin-bottom: 10px; flex-wrap: wrap; }
+.watch-time {
+    background: var(--bg-card2); color: var(--gold);
+    padding: 4px 12px; border-radius: 100px;
+    font-family: 'Inter', monospace; font-size: 0.85rem; font-weight: 600;
+    letter-spacing: 0.05em;
+}
+.watch-header h2 { font-size: 1.35rem; color: var(--white); }
+
+.intro { color: var(--gray); font-style: italic; margin-bottom: 14px; }
+
+.audio-slot {
+    margin: 14px 0 18px;
+    padding: 12px 14px;
+    background: var(--bg-card2);
+    border-radius: 8px;
+    border: 1px dashed var(--border);
+}
+.audio-slot.audio-pending { opacity: 0.55; }
+.audio-cap { font-size: 0.8rem; color: var(--gray); margin-top: 4px; }
+
+.scripture {
+    background: var(--bg-card2);
+    border-left: 3px solid var(--gold);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin: 16px 0 22px;
+}
+.scripture-ref { font-weight: 600; color: var(--gold); margin-bottom: 12px; font-size: 0.95rem; }
+.scripture-text p { margin-bottom: 8px; }
+.scripture-text p.stanza { margin-bottom: 14px; }
+
+.section-label {
+    font-family: 'Playfair Display', serif;
+    color: var(--gold); font-weight: 700; font-size: 1.05rem;
+    margin: 22px 0 10px; padding-top: 10px; border-top: 1px solid var(--border);
+}
+.section p, .context p, .reflection p, .history p, .application-block p { margin-bottom: 12px; }
+
+ul.application { padding-left: 22px; margin: 8px 0 14px; }
+ul.application li { margin-bottom: 8px; }
+.application-prose { font-style: italic; color: var(--gold-light); margin-top: 12px; }
+
+.history ul { padding-left: 22px; margin: 8px 0; }
+.history li { margin-bottom: 6px; }
+
+.prayer {
+    background: var(--bg-card2);
+    border-left: 3px solid var(--gold-light);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin: 22px 0;
+}
+.prayer-title { color: var(--gold-light); font-weight: 600; margin-bottom: 10px; font-size: 0.95rem; }
+.prayer p { line-height: 1.85; margin-bottom: 8px; }
+
+.helm {
+    background: var(--bg-card2);
+    border-radius: 6px;
+    padding: 12px 18px;
+    margin-top: 14px;
+    font-size: 0.95rem;
+}
+.helm-icon { color: var(--gold); font-size: 1.1rem; }
+.helm-label { color: var(--gold); font-weight: 600; }
+
+footer {
+    text-align: center;
+    color: var(--gray);
+    font-size: 0.82rem;
+    margin-top: 32px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+}
+footer .draft-tag {
+    display: inline-block;
+    background: #2a2410;
+    color: var(--gold);
+    padding: 4px 12px;
+    border-radius: 100px;
+    font-size: 0.78rem;
+    margin-bottom: 8px;
+    letter-spacing: 0.05em;
+}
+
+@media (max-width: 540px) {
+    .watch-tab { flex: 1 1 64px; font-size: 0.78rem; padding: 6px 4px; }
+    .watch-tab .tab-time { font-size: 0.65rem; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="nav-back">← <a href="/chronological.html">The Watchman's Chronological Plan</a></div>
+
+<div class="hero">
+<h1>Sunday, August 30, 2026</h1>
+<div class="subtitle">Daily Reading — Day 242 of 365</div>
+<div class="doc-line">MOOP&#x27;s 2026 Daily Bible Readings — Document 8 of 12; for the month of August</div>
+</div>
+
+<nav class="watch-tabs" role="tablist">
+<a href="#all" class="watch-tab active" data-tab="all" role="tab"><span class="tab-label">All Watches</span></a>
+<a href="#wisdom" class="watch-tab" data-tab="wisdom" role="tab"><span class="tab-time">0600</span> <span class="tab-label">Morning Wisdom</span></a>
+<a href="#husband" class="watch-tab" data-tab="husband" role="tab"><span class="tab-time">0700</span> <span class="tab-label">Husband</span></a>
+<a href="#father" class="watch-tab" data-tab="father" role="tab"><span class="tab-time">1100</span> <span class="tab-label">Father</span></a>
+<a href="#citizen" class="watch-tab" data-tab="citizen" role="tab"><span class="tab-time">1500</span> <span class="tab-label">Citizen</span></a>
+<a href="#peace" class="watch-tab" data-tab="peace" role="tab"><span class="tab-time">2100</span> <span class="tab-label">Evening Peace</span></a>
+</nav>
+
+<section class="watch watch-wisdom" id="watch-wisdom" data-watch="wisdom">
+<div class="watch-header"><span class="watch-time">0600</span> <h2>Morning Wisdom</h2></div>
+<p class="intro">A one-sentence intro.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Proverbs 30</div>
+<div class="scripture-text">
+<p class="stanza">What is His name, and what is His Son’s name? If you know, tell me!<br>Every word of God is flawless; He is a Shield to those who take refuge in Him.<br>Do not add to His words, or He will rebuke you and prove you a liar.<br>I am the most lowly man alive, with the understanding of a man.<br>I have not learned wisdom, nor have I attained the knowledge of the Holy One.<br>Who has ascended to heaven and come down? Who has gathered the wind in His fists? Who has wrapped up the waters in His garment? Who has established all the ends of the earth? What is His name, and what is His Son’s name? Tell me if you know!<br>Every word of God is flawless; He is a Shield to those who take refuge in Him.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🧭 Context Summary</div>
+<p>Agur, a man of humble origin, approaches King Lemuel with a profound confession of his own intellectual insufficiency. He highlights the vast gap between the finite human mind and the infinite Creator, who alone holds the cosmos in His hands. This passage serves as a sobering reminder that true wisdom begins with the acknowledgment of our own ignorance before the Sovereign. It calls the believer to rest in the perfect reliability of God’s Word rather than trusting in human speculation.</p>
+</div>
+<div class="section reflection">
+<div class="section-label">🛡️ Reflection for a REAL MAN — Embracing Humility</div>
+<p>Brother, the strength of a true man is not found in his ability to claim omniscience, but in his courage to admit his limitations. Agur does not hide his lack of learning; he stands before his King and confesses, &quot;I am the most lowly man alive.&quot; This is the posture of a warrior who knows that his sword is useless without the General’s strategy. You, as a father and a Marine veteran, know that no amount of training can prepare you for the chaos of battle without reliance on higher command. In the same way, your spiritual authority in your home and your church is derived entirely from your submission to the Lord.</p>
+<p>The text asks, &quot;Who has ascended to heaven and come down?&quot; This rhetorical question silences the pride of the intellect. No man has climbed to the throne of God to extract His secrets. We do not discover truth by ascending; we receive it by descending in humility to receive His revelation. When you face the complexities of leading your family or the uncertainties of life, do not try to manufacture answers from your own limited resources. Your duty is to stand firm in the truth He has given, not to invent new paths.</p>
+<p>Every word of God is described as a Shield. For a man who has seen the cost of battle, a shield is not an ornament; it is the difference between life and death. The Lord is your protection against the lies of the world and the deceptions of your own heart. Guard your mind, brother. Do not add to His words with your own philosophies or cultural trends. The battlefield of the mind requires strict discipline. Hold fast to the Scripture, for it is the only ground that will not shift under your feet.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Confess your ignorance to God daily, acknowledging that Your understanding is finite and His is infinite.</li>
+<li>Resist the urge to offer your own opinions as truth when leading your family in prayer or instruction.</li>
+<li>Study the Scriptures with a posture of a student, not a critic, seeking to know His will rather than to debate His nature.</li>
+<li>Protect your household by relying solely on the &quot;flawless&quot; Word of God for guidance in moral and spiritual decisions.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer</div>
+<p>Father, I confess that I am but a man, limited in sight and strength. I thank You that You do not require me to be wise in my own power, but to trust in Your flawless Word. By the power of Your Holy Spirit, strip away my pride and replace it with a holy reverence for Your sovereignty. Teach me to lead my family not by my own cleverness, but by submitting to Your authority. Guard my heart from the temptation to add to or subtract from Your truth. In the name of Jesus Christ, my Lord and Commander, Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Helm Command:</span> Steady your course by the fixed stars of Scripture, not the shifting winds of your own opinion.</div>
+</section>
+
+<section class="watch watch-husband" id="watch-husband" data-watch="husband">
+<div class="watch-header"><span class="watch-time">0700</span> <h2>First Watch — The Husband&#x27;s Post</h2></div>
+<p class="intro">Brother, let us stand firm in the covenant of our marriage as we behold the Lord’s ultimate sacrifice for His Church.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Luke 22:1-23</div>
+<div class="scripture-text">
+<p>Now the Feast of Unleavened Bread drew near, which is called the Passover. And the chief priests and the scribes were seeking how to put Him to death, for they feared the people. Then Satan entered into Judas, called Iscariot, who was of the number of the twelve. He went away and conferred with the chief priests and officers how he might betray Him to them. And they were glad, and agreed to give him money. So he promised and sought opportunity to betray Him to them in the absence of the multitude. Then came the Day of Unleavened Bread, when the Passover must be killed. And He sent Peter and John, saying, “Go and prepare the Passover for us, that we may eat.” So they said to Him, “Where do You want us to prepare?” And He said to them, “Behold, when you have entered the city, a man carrying a pitcher of water will meet you; follow him into the house which he enters. Then you shall say to the master of the house, ‘The Teacher says to you, “Where is the guest room in which I may eat the Passover with My disciples?”’ Then he will show you a large, furnished upper room; there make ready.” So they went and found it just as He had said to them, and they prepared the Passover. When the hour had come, He sat down, and the twelve apostles with Him. And He said to them, “With fervent desire I have desired to eat this Passover with you before I suffer; for I say to you, I will by no means eat it until it is fulfilled in the kingdom of God.” Then He took the cup, and gave thanks, and said, “Take this and divide it among yourselves; for I say to you, I will not drink of the fruit of the vine until the kingdom of God comes.” And He took bread, gave thanks and broke it, and gave to them, saying, “This is My body which is given for you; do this in remembrance of Me.” Likewise He also took the cup after supper, saying, “This cup is the new covenant in My blood, which is shed for you.”</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🗺️ Briefing Summary</div>
+<p>The shadow of the cross lengthens as the religious leaders conspire to destroy the Messiah, yet Satan prepares the traitor Judas to facilitate this very plan. Jesus commands His servants to prepare the Passover, establishing the sacred context for the institution of the Lord’s Supper. He reorients the ancient ritual toward His own impending sacrifice, declaring that He will not partake again until the kingdom is fully realized. This moment marks the transition from the old covenant signs to the new covenant reality established in His blood.</p>
+</div>
+<div class="section reflection">
+<div class="section-label">❤️ Reflection for Your Wife — H.A.P.P.Y. Husband — Providing</div>
+<p>Brother, look closely at the Lord’s actions in this text. He does not merely speak of provision; He enacts it. He sends Peter and John to secure the very elements necessary for the covenant meal, ensuring that His people are not left in confusion or lack. As a husband and father, you are called to mirror this sovereign provision for your household. You do not provide merely to sustain life, but to create the space where the gospel is proclaimed and remembered. Your wife Maria needs to see that you are attentive to the spiritual and physical needs of your family, just as the Lord was attentive to His disciples.</p>
+<p>This provision is rooted in His love, which is given *for you*. In your home, your provision is an act of worship and a declaration of your headship. You lead by serving, by securing the resources, and by guarding the spiritual integrity of your marriage. You provide the stability that allows Maria to flourish in her God-given role. You do not provide out of fear, but out of a confident trust in the Lord’s command and promise.</p>
+<p>When you provide, you point to Christ. Every meal you prepare, every bill you pay, every decision you make to protect your family’s future is a small echo of the Lord’s ultimate provision. He gave His body and blood so that we might live. You give of your strength and resources so that your family might thrive in the truth. This is the burden and the privilege of the Christian husband. You are a provider because the Lord has provided for you in Christ.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Audit your family’s spiritual resources this week, ensuring Bibles, catechisms, and sound preaching are accessible and utilized.</li>
+<li>Schedule a specific time to discuss long-term financial stewardship with Maria, seeking wisdom and unity in budgeting for your children’s future.</li>
+<li>Identify one physical burden Maria carries and remove it this week, whether through labor, service, or rest.</li>
+<li>Pray specifically for the Lord to increase your capacity and willingness to work diligently for the good of your household.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Stateroom</div>
+<p>Father, we thank You for the example of our Lord Jesus Christ, who provided the ultimate sacrifice for His people. Grant me the grace to be a faithful provider for Maria and my children, not merely in material things, but in spiritual truth and protection. By the power of Your Holy Spirit, help me to lead my home with clarity, strength, and love, reflecting the headship of Christ. May my actions always point my family to the cross and the coming kingdom. In the name of Jesus Christ, my Lord and Commander, Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Helm Command:</span> Secure your family’s spiritual provisions before the darkness of the day encroaches.</div>
+</section>
+
+<section class="watch watch-father" id="watch-father" data-watch="father">
+<div class="watch-header"><span class="watch-time">1100</span> <h2>Second Watch — The Father&#x27;s Charge</h2></div>
+<p class="intro">The Lord establishes His authority not by the clamor of worldly power, but by the humble service of a servant’s hand.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Luke 22:24-38</div>
+<div class="scripture-text">
+<p>A dispute also arose among them, which of them it was that should be accounted the greatest. And He said unto them, The kings of the Gentiles exercise lordship over them; and they that exercise authority upon them are called benefactors. But ye shall not be so: but he that is greatest among you, let him be as the younger; and he that is chief, as he that doth serve. For whether is greater, he that sitteth at meat, or he that serveth? is not he that sitteth at meat? but I am among you as he that serveth. Ye are they which have continued with me in my temptations. And I appoint unto you a kingdom, as my Father hath appointed unto me; That ye may eat and drink at my table in my kingdom, and sit on thrones judging the twelve tribes of Israel. Simon, Simon, behold, Satan hath desired to have you, that he may sift you as wheat: But I have prayed for thee, that thy faith fail not: and when thou art converted, strengthen thy brethren. And he said unto him, Lord, I am ready with thee to go both into prison, and to death. And he said, I tell thee, Peter, the cock shall not crow this day, before that thou shalt thrice deny that thou knowest me. And he said unto them, When I sent you without purse, and scrip, and shoes, lacked ye any thing? And they said, Nothing. Then said he unto them, But now, he that hath a purse, let him take it, and likewise his scrip: and he that hath no sword, let him sell his garment, and buy one. For I say unto you, that this that is written must yet be accomplished in me, And he was reckoned among the transgressors: for the things concerning me have an end. And they said, Lord, behold, here are two swords. And he said unto them, It is enough.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🗺️ Field Notes</div>
+<p>The disciples argue over rank while the King prepares to lay down His life, revealing that true authority is found in sacrificial service. Jesus warns Peter of his impending denial yet intercedes for his faith, demonstrating the Shepherd’s vigilance over His flock. The sudden shift to purchasing swords highlights the grim reality of the coming conflict and the fulfillment of prophecy regarding His condemnation.</p>
+</div>
+<div class="section reflection">
+<div class="section-label">👨‍👦 Reflection for Your Children — F.U.L.F.I.L.L.E.D. Father — Leading</div>
+<p>Brother, the world tells you that leadership is about titles, power, and being served. The Lord shows you that true leadership is about responsibility, sacrifice, and serving others. You are called to lead your family with the same humility and strength that Christ displayed in the upper room. This is not weakness; it is the strongest form of authority because it is rooted in love and obedience to the Father.</p>
+<p>Gideon, at nineteen, you stand on the threshold of manhood. Do not seek the approval of men through dominance. Instead, seek to serve your brothers and your future family with a spirit of humility. Your leadership will be proven by your willingness to bear burdens for others, just as Christ bore yours. Lead by example, not by command, and let your actions speak louder than your words.</p>
+<p>Boaz, at fourteen, you are learning the discipline of obedience. The disciples failed to understand the nature of the Kingdom until after the Cross. Do not wait for perfection to serve. Start now by submitting to the authority of your father and the Word of God. Your faith will be tested, but the Lord has prayed for your faith to remain strong. Trust Him in the trials that come, for they refine you for greater service.</p>
+<p>Shiloh, at five, you are learning the simple truth that Jesus loves you. He calls you His own and promises to keep you. As you grow, remember that the greatest among us are those who serve. Your father will teach you to lead by loving, protecting, and providing for those under his care, just as the Lord leads His people.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Teach your sons that authority is a stewardship from God, not a personal right to be claimed.</li>
+<li>Actively serve your family’s needs before asserting your own preferences in daily decisions.</li>
+<li>Pray specifically for Gideon’s spiritual maturity and Boaz’s steadfastness in his faith.</li>
+<li>Prepare your household for spiritual conflict by grounding them in the Word and prayer.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Wardroom</div>
+<p>Father, You have appointed us to lead as Christ led, not by lording over others but by serving them. Grant me the grace to lay down my pride and take up the mantle of responsibility for my family. By the power of Your Holy Spirit, strengthen Gideon to walk in manhood and Boaz to walk in obedience. Guard Shiloh’s heart and prepare our home for the trials ahead. Keep us faithful to our covenant duties. In the name of Jesus Christ, my Lord and Commander, Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Rudder Steer:</span> Hold the line of service, brother, for the Kingdom advances through humility.</div>
+</section>
+
+<section class="watch watch-citizen" id="watch-citizen" data-watch="citizen">
+<div class="watch-header"><span class="watch-time">1500</span> <h2>Third Watch — The Citizen&#x27;s Stand</h2></div>
+<p class="intro">The true worship of the King demands a sacrifice that costs everything, for the Son of Man was worth the breaking of the vessel.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Matthew 26:6-16 &amp; Mark 14:1-11</div>
+<div class="scripture-text">
+<p>While Jesus was in Bethany at the house of Simon the leper, a woman came to Him with an alabaster jar of very expensive perfume, which she poured on His head as He was reclining at the table. When the disciples saw this, they were indignant. “Why this waste?” they asked. “This perfume could have been sold at a high price and the money given to the poor.”</p>
+<p>Aware of this, Jesus said to them, “Why are you bothering this woman? She has done a beautiful thing to Me. You will always have the poor among you, but you will not always have Me. When she poured this perfume on My body, she did it to prepare Me for burial. Truly I tell you, wherever this gospel is preached throughout the whole world, what she has done will also be told, in memory of her.”</p>
+<p>Then one of the Twelve—the one called Judas Iscariot—went to the chief priests and asked, “What are you willing to give me if I deliver Him over to you?” So they counted out for him thirty pieces of silver. From then on Judas watched for an opportunity to hand Him over.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🛰️ Situation Report</div>
+<p>The religious leaders plot in the shadows while a woman acts in the light, offering her all to the One who holds all authority. Judas trades the Prince of Glory for silver, revealing that the heart’s loyalty is measured by what we value above the Messiah.</p>
+</div>
+<div class="section reflection resolute">
+<div class="section-label">🛡️ Reflection for a R.E.S.O.L.U.T.E. Citizen — Loyal</div>
+<p>Fredericksburg (local)<br>Brother, consider the quiet fidelity of the woman in Bethany. While the men debated the utility of the oil, she recognized the worth of the Owner. In our own communities, true loyalty is not found in loud declarations but in costly, private acts of devotion. You are called to be a man who sees the supreme value of your Lord and does not hesitate to pour out your resources, your time, and your respect upon Him, even when the world calls it a waste. Your home must be a place where Christ is honored above the pragmatic concerns of the age.</p>
+<p>Virginia (state)<br>The plot of Judas illustrates the danger of a divided heart. He sat with the Master yet kept one foot in the camp of the enemy. In the Commonwealth, we see how easily public profession can mask private betrayal. A loyal citizen does not merely occupy a seat among the righteous; he guards his heart against the subtle lure of gain. Your loyalty to the truth must be absolute, unshakeable by the offer of silver or the pressure of the crowd. Stand firm in your covenant duties, knowing that your reward is not in the pockets of men but in the approval of God.</p>
+<p>United States (nation)<br>The gospel is preached because the sacrifice of the Cross was the ultimate act of obedience and love. Judas sought to stop it, but God’s purpose stands. As a man in this nation, your duty is to uphold the order of God’s creation and the truth of His Word, regardless of the cultural cost. You are a steward of liberty, but your primary citizenship is in Heaven. Let your life proclaim that Jesus is King, not by political maneuvering, but by the steadfast witness of a man who has counted all else as loss for the sake of knowing Him.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Identify one area of your life where you have been holding back out of fear or pride, and surrender it fully to Christ this week.</li>
+<li>Speak a word of encouragement to your wife or daughter that affirms her God-given role and dignity, reinforcing the order of your household.</li>
+<li>Examine your finances: ensure that your giving to the Church and the poor reflects a heart that values eternal treasure over earthly security.</li>
+<li>Reject the temptation of secret sin by establishing a daily habit of confessing your failures to God and seeking accountability with a godly brother.</li>
+</ul>
+</div>
+<div class="section history">
+<div class="section-label">🦅 This Day in American History — August 30</div>
+<p>On August 30, 1789, George Washington issued a proclamation establishing the first national day of prayer and thanksgiving, recognizing that the nation’s survival depended on humble dependence on Divine Providence.</p>
+<p>On August 30, 1933, the U.S. Congress authorized the creation of the National Park Service, a stewardship of God’s natural world for the edification and restoration of the American spirit.</p>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Bridge</div>
+<p>Father, we thank You for the example of the faithful woman who loved Jesus above all. Forgive us, Lord, for the times we have valued the silver of this world over the person of our Savior. Grant us the grace to be loyal to You in secret and in public. By the power of Your Holy Spirit, break the chains of Judas-like compromise in our hearts and make us bold witnesses of the Gospel. Keep us steadfast in our duties as husbands, fathers, and citizens. In the name of Jesus Christ, my Lord and Commander, Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Rudder Steer:</span> Pour out your all on the King, for He alone is worthy of your complete devotion.</div>
+</section>
+
+<section class="watch watch-peace" id="watch-peace" data-watch="peace">
+<div class="watch-header"><span class="watch-time">2100</span> <h2>Evening Peace</h2></div>
+<p class="intro">The day’s watch is ended, and now you return to the quiet stewardship of your home.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Psalm 41</div>
+<div class="scripture-text">
+<p>Blessed is the man who considers the lowly; the LORD will deliver him in the day of trouble. The LORD will keep him alive and give him happiness on the earth; you will not surrender him to the desire of his enemies. The LORD will sustain him on his sickbed; in his illness, you restore him to full health. As for me, I said, “O LORD, be gracious to me; heal my soul, for I have sinned against You.” My enemies speak evil of me: “When will he die, and his name perish?” And when he comes to see me, he speaks deceit; his heart gathers iniquity for itself; when he goes out, he tells it. All who hate me whisper together against me; against me they devise my harm: “A deadly thing is poured out on him; he will not rise again from where he lies.” Even my close friend in whom I trusted, who ate my bread, has lifted up his heel against me. But You, O LORD, be gracious to me and raise me up, that I may repay them. By this I know that You delight in me: my enemy will not rejoice over me. But by my integrity You uphold me and establish me before Your face forever. Blessed be the LORD, the God of Israel, from everlasting and to everlasting! Amen and Amen.</p>
+</div>
+</div>
+<div class="section reflection">
+<div class="section-label">🌾 Reflection for a Man at Home and in Community</div>
+<p>As a HAPPY husband, brother, you find your strength in the covenantal fidelity that mirrors the LORD’s own faithfulness to His people. Just as the psalmist trusted in the LORD’s sustaining hand during times of vulnerability, so too do you rest in the promise that the LORD upholds your household. Your love is not a fleeting emotion but a steadfast commitment to provide, protect, and lead your wife in the fear of the LORD. When the world grows weary and enemies whisper deceit, remember that your security is not in your own ability to perform, but in the grace of God who restores the soul. You are called to be a faithful steward of the domestic church, offering daily sacrifices of prayer and service, knowing that your labor in the Lord is not in vain.</p>
+<p>As a FULFILLED father, you recognize that the discipline and instruction you provide are gifts from the Father of lights. The psalmist’s plea for healing reminds us that our children are under the sovereign care of God, yet we are appointed as the earthly instruments of His grace. You do not raise your sons and daughters in isolation; you raise them in the context of the covenant community, teaching them the statutes of the LORD with gentleness and firmness. Your authority is not tyranny but a reflection of the Father’s loving rule. By your example of repentance and trust, you show your children that true manhood is found in submission to God’s Word and faithful obedience to His commands.</p>
+<p>As a RESOLUTE citizen, you stand firm against the deceit of a world that seeks to undermine the order God has established. The betrayal described in the psalm serves as a sobering reminder that even among those who share your table, loyalty can fracture. Yet, you do not retaliate in flesh but commit your cause to the LORD who judges righteously. Your citizenship in the kingdom of heaven empowers you to serve your nation with integrity, defending the weak and upholding justice without compromising the truth. You are a watchman on the wall, not of a physical fortress, but of the moral and spiritual fabric of society, calling others to repentance and faith in the LORD Jesus Christ.</p>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Stateroom</div>
+<p>Father, we thank You for the peace of this evening and for the provision of Your Word. We confess that we have often failed to consider the lowly and have relied on our own strength. Forgive us for the deceit in our hearts and the pride in our eyes. By the power of Your Holy Spirit, renew in us a steadfast spirit. Grant us the grace to lead our wives with love, to father our children with wisdom, and to live as faithful citizens who honor Your name. Keep us from the traps of our enemies and anchor our souls in Your truth. In the name of Jesus Christ, my Lord and Commander, we pray. Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Rudder Steer:</span> Anchor your heart in the LORD’s faithfulness and tend to your household with holy vigilance.</div>
+</section>
+
+<footer>
+<div class="draft-tag">PROTOTYPE — sign-off pending</div>
+<div>U.S.M.C. Ministries · The Watchman's Chronological Plan for the Year of our Lord 2026</div>
+<div style="margin-top:6px;font-size:0.78rem;">Adam Johns &middot; rich interpretive blend &middot; divine name LORD</div>
+</footer>
+
+</div>
+<script>
+(function(){
+  const SLUGS = ['all','wisdom','husband','father','citizen','peace'];
+
+  // Watch windows in local hours (each watch is "live" from its start time
+  // until the NEXT watch begins). Evening peace owns 21:00 → 04:59.
+  function currentWatchSlug() {
+    const h = new Date().getHours();
+    if (h >= 5  && h < 7)  return 'wisdom';
+    if (h >= 7  && h < 11) return 'husband';
+    if (h >= 11 && h < 15) return 'father';
+    if (h >= 15 && h < 21) return 'citizen';
+    return 'peace';                       // 21:00 – 04:59
+  }
+  const NOW_SLUG = currentWatchSlug();
+
+  function markNowBadge(){
+    document.querySelectorAll('.watch-tab').forEach(t => {
+      t.classList.toggle('is-now', t.dataset.tab === NOW_SLUG);
+    });
+  }
+  function showOnly(slug){
+    const isAll = slug === 'all' || !SLUGS.includes(slug);
+    document.querySelectorAll('section.watch').forEach(s => {
+      s.style.display = (isAll || s.dataset.watch === slug) ? '' : 'none';
+    });
+    document.querySelectorAll('.watch-tab').forEach(t => {
+      t.classList.toggle('active', t.dataset.tab === (isAll ? 'all' : slug));
+    });
+  }
+  document.querySelectorAll('.watch-tab').forEach(t => {
+    t.addEventListener('click', function(e){
+      e.preventDefault();
+      const slug = this.dataset.tab;
+      history.replaceState(null, '', '#' + slug);
+      showOnly(slug);
+      window.scrollTo({top: 0, behavior:'smooth'});
+    });
+  });
+
+  // Initial selection priority:
+  //   1. URL hash if present  (#all / #wisdom / #husband / #father / #citizen / #peace)
+  //   2. Auto-select the watch that is "live right now"
+  let initial;
+  if (location.hash) {
+    initial = location.hash.slice(1);
+  } else {
+    initial = NOW_SLUG;
+  }
+  markNowBadge();
+  showOnly(initial);
+})();
+</script>
+</body>
+</html>
