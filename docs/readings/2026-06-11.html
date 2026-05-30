@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg">
+<title>Thursday, June 11, 2026 — Daily Reading | U.S.M.C. Ministries</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+    --bg-dark: #000000; --bg-card: #111111; --bg-card2: #161616;
+    --gold: #D4AF37; --gold-light: #F4D470;
+    --white: #FFFFFF; --gray: #888888; --border: #333333;
+}
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--white);
+    min-height: 100vh;
+    line-height: 1.7;
+}
+h1, h2, h3 { font-family: 'Playfair Display', serif; font-weight: 700; }
+.container { max-width: 820px; margin: 0 auto; padding: 24px 20px 60px; }
+a { color: var(--gold); text-decoration: none; }
+a:hover { color: var(--gold-light); text-decoration: underline; }
+
+.nav-back { margin-bottom: 14px; font-size: 0.95rem; }
+
+.hero { text-align: center; padding: 16px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 18px; }
+.hero h1 { font-size: clamp(1.5rem, 4vw, 2.2rem); color: var(--white); margin-bottom: 6px; }
+.hero .subtitle { color: var(--gold); font-size: 0.95rem; font-style: italic; }
+.hero .doc-line { color: var(--gray); font-size: 0.82rem; margin-top: 6px; }
+
+.watch-tabs {
+    position: sticky; top: 0; z-index: 30;
+    background: var(--bg-dark);
+    border-bottom: 1px solid var(--border);
+    display: flex; flex-wrap: wrap; gap: 6px;
+    padding: 12px 0 14px;
+    margin-bottom: 18px;
+}
+.watch-tab {
+    flex: 1 1 90px;
+    text-align: center;
+    padding: 8px 6px;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    background: var(--bg-card);
+    color: var(--gray);
+    font-size: 0.85rem; font-weight: 500;
+    transition: all 0.15s ease;
+    text-decoration: none !important;
+    white-space: nowrap;
+}
+.watch-tab:hover { color: var(--white); border-color: var(--gold); text-decoration: none !important; }
+.watch-tab.active { background: var(--gold); color: #000; border-color: var(--gold); font-weight: 600; }
+.watch-tab .tab-time { display: block; font-size: 0.7rem; opacity: 0.7; font-family: monospace; }
+.watch-tab.active .tab-time { opacity: 1; }
+
+/* "NOW" badge — shown on the watch tab whose time window contains current local time */
+.watch-tab.is-now { position: relative; box-shadow: 0 0 0 1px var(--gold-light) inset; }
+.watch-tab.is-now::after {
+  content: "NOW";
+  position: absolute; top: -7px; right: -4px;
+  background: var(--gold-light); color: #000;
+  font-size: 0.55rem; font-weight: 700;
+  padding: 1px 5px; border-radius: 100px;
+  letter-spacing: 0.08em;
+}
+
+.watch {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px 22px;
+    margin-bottom: 22px;
+    scroll-margin-top: 80px;
+}
+.watch-header { display: flex; align-items: baseline; gap: 14px; margin-bottom: 10px; flex-wrap: wrap; }
+.watch-time {
+    background: var(--bg-card2); color: var(--gold);
+    padding: 4px 12px; border-radius: 100px;
+    font-family: 'Inter', monospace; font-size: 0.85rem; font-weight: 600;
+    letter-spacing: 0.05em;
+}
+.watch-header h2 { font-size: 1.35rem; color: var(--white); }
+
+.intro { color: var(--gray); font-style: italic; margin-bottom: 14px; }
+
+.audio-slot {
+    margin: 14px 0 18px;
+    padding: 12px 14px;
+    background: var(--bg-card2);
+    border-radius: 8px;
+    border: 1px dashed var(--border);
+}
+.audio-slot.audio-pending { opacity: 0.55; }
+.audio-cap { font-size: 0.8rem; color: var(--gray); margin-top: 4px; }
+
+.scripture {
+    background: var(--bg-card2);
+    border-left: 3px solid var(--gold);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin: 16px 0 22px;
+}
+.scripture-ref { font-weight: 600; color: var(--gold); margin-bottom: 12px; font-size: 0.95rem; }
+.scripture-text p { margin-bottom: 8px; }
+.scripture-text p.stanza { margin-bottom: 14px; }
+
+.section-label {
+    font-family: 'Playfair Display', serif;
+    color: var(--gold); font-weight: 700; font-size: 1.05rem;
+    margin: 22px 0 10px; padding-top: 10px; border-top: 1px solid var(--border);
+}
+.section p, .context p, .reflection p, .history p, .application-block p { margin-bottom: 12px; }
+
+ul.application { padding-left: 22px; margin: 8px 0 14px; }
+ul.application li { margin-bottom: 8px; }
+.application-prose { font-style: italic; color: var(--gold-light); margin-top: 12px; }
+
+.history ul { padding-left: 22px; margin: 8px 0; }
+.history li { margin-bottom: 6px; }
+
+.prayer {
+    background: var(--bg-card2);
+    border-left: 3px solid var(--gold-light);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin: 22px 0;
+}
+.prayer-title { color: var(--gold-light); font-weight: 600; margin-bottom: 10px; font-size: 0.95rem; }
+.prayer p { line-height: 1.85; margin-bottom: 8px; }
+
+.helm {
+    background: var(--bg-card2);
+    border-radius: 6px;
+    padding: 12px 18px;
+    margin-top: 14px;
+    font-size: 0.95rem;
+}
+.helm-icon { color: var(--gold); font-size: 1.1rem; }
+.helm-label { color: var(--gold); font-weight: 600; }
+
+footer {
+    text-align: center;
+    color: var(--gray);
+    font-size: 0.82rem;
+    margin-top: 32px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+}
+footer .draft-tag {
+    display: inline-block;
+    background: #2a2410;
+    color: var(--gold);
+    padding: 4px 12px;
+    border-radius: 100px;
+    font-size: 0.78rem;
+    margin-bottom: 8px;
+    letter-spacing: 0.05em;
+}
+
+@media (max-width: 540px) {
+    .watch-tab { flex: 1 1 64px; font-size: 0.78rem; padding: 6px 4px; }
+    .watch-tab .tab-time { font-size: 0.65rem; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="nav-back">← <a href="/chronological.html">The Watchman's Chronological Plan</a></div>
+
+<div class="hero">
+<h1>Thursday, June 11, 2026</h1>
+<div class="subtitle">Daily Reading — Day 162 of 365</div>
+<div class="doc-line">MOOP&#x27;s 2026 Daily Bible Readings — Document 6 of 12; for the month of June</div>
+</div>
+
+<nav class="watch-tabs" role="tablist">
+<a href="#all" class="watch-tab active" data-tab="all" role="tab"><span class="tab-label">All Watches</span></a>
+<a href="#wisdom" class="watch-tab" data-tab="wisdom" role="tab"><span class="tab-time">0600</span> <span class="tab-label">Morning Wisdom</span></a>
+<a href="#husband" class="watch-tab" data-tab="husband" role="tab"><span class="tab-time">0700</span> <span class="tab-label">Husband</span></a>
+<a href="#father" class="watch-tab" data-tab="father" role="tab"><span class="tab-time">1100</span> <span class="tab-label">Father</span></a>
+<a href="#citizen" class="watch-tab" data-tab="citizen" role="tab"><span class="tab-time">1500</span> <span class="tab-label">Citizen</span></a>
+<a href="#peace" class="watch-tab" data-tab="peace" role="tab"><span class="tab-time">2100</span> <span class="tab-label">Evening Peace</span></a>
+</nav>
+
+<section class="watch watch-wisdom" id="watch-wisdom" data-watch="wisdom">
+<div class="watch-header"><span class="watch-time">0600</span> <h2>Morning Wisdom</h2></div>
+<p class="intro">The soul of the faithful man finds its strength not in the absence of trouble, but in the steadfast hope anchored in the Word of the Lord.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Psalm 119:81-88</div>
+<div class="scripture-text">
+<p class="stanza">My soul faints for Your salvation; I wait for Your word.<br>My eyes fail for Your promise; I say, “When will You comfort me?”<br>For I have become like a wineskin in the smoke, yet I have not forgotten Your statutes.<br>How many are the days of Your servant? When will You execute judgment on those who persecute me?<br>The arrogant have dug a pit for me; they do not live according to Your law.<br>All Your commandments are trustworthy; help me against their persecution with truth.<br>They have almost made an end of me on earth, but I have not forsaken Your precepts.<br>In Your steadfast love give me life, and I will keep the testimony of Your mouth.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🧭 Context Summary</div>
+<p>The psalmist, likely David, pours out the anguish of a man who remains faithful to the covenant while surrounded by hostile enemies. He describes the physical and spiritual toll of waiting on God, likening himself to a dried wineskin exposed to the harsh smoke of battle or drought. Despite the relentless persecution of the arrogant who seek to destroy him, he affirms that God’s statutes remain the only source of stability and life. This passage bridges the gap between deep human suffering and the unshakeable nature of divine truth, reminding us that endurance is not passive but an active trust in God’s character.</p>
+</div>
+<div class="section reflection">
+<div class="section-label">🛡️ Reflection for a REAL MAN — Endures Persecution</div>
+<p>Brother, you know the weight of the uniform and the burden of the family. There are days when the pressure feels like smoke filling a confined space, choking your spirit and testing your resolve. The arrogant world around us often digs pits for men who stand on biblical ground, mocking our convictions and seeking to undermine our authority. Yet, as a man of God and a veteran, you understand that true strength is not the absence of pain, but the capacity to bear it without abandoning your post.</p>
+<p>When your eyes fail from waiting and your soul faints from the delay of justice, you must look to the character of the LORD. His commandments are not burdensome shackles, but the only trustworthy path through the chaos. The world may persecute you for your faithfulness, just as they persecuted Christ, but they cannot touch the eternal truth of His Word. You stand firm not because you are strong, but because You have not forsaken His precepts.</p>
+<p>This endurance is an act of worship. It is the quiet, daily decision to keep the testimony of His mouth even when the earth seems to be shaking beneath your feet. By keeping your eyes fixed on the promise of His steadfast love, you find the life necessary to continue your watch. You do not fight for victory; you fight from victory, sustained by the truth that God is sovereign over both the persecutor and the persecuted.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Identify one area of life where cultural pressure is urging you to compromise biblical truth, and commit to standing firm in that specific area today.</li>
+<li>When you feel the &quot;smoke&quot; of stress or persecution rising, pause to recite a specific promise from Scripture that affirms God’s sovereignty.</li>
+<li>Lead your family in a brief evening reflection on the nature of suffering, teaching them that endurance is a mark of genuine faith.</li>
+<li>Pray specifically for those who persecute your faith, asking God to soften their hearts and reveal the truth to them, rather than harboring bitterness.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer</div>
+<p>Father, I thank You for the example of Your Son, who endured the cross for the joy set before Him. Grant me the grace to endure the persecution and mockery of this world without compromising Your truth. When my spirit faints from the weight of duty and delay, remind me that Your commandments are trustworthy and Your love is steadfast. Give me the courage to lead my home with integrity, even when the world stands against me. By the power of Your Holy Spirit, strengthen my resolve to keep the testimony of Your mouth. In the name of Jesus Christ, my Lord and Commander, who bore my sins and secured my victory, I pray. Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Helm Command:</span> Hold the line of truth while the storm rages, for the Captain has not abandoned the deck.</div>
+</section>
+
+<section class="watch watch-husband" id="watch-husband" data-watch="husband">
+<div class="watch-header"><span class="watch-time">0700</span> <h2>First Watch — The Husband&#x27;s Post</h2></div>
+<p class="intro">Brother, stand firm in the covenant as Josiah did, for the restoration of the home begins with the restoration of the Word.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 2 Kings 23:21-37</div>
+<div class="scripture-text">
+<p>And the king commanded all the people, saying, Keep the passover unto the LORD your God. And they kept the passover unto the LORD in Jerusalem. And there was no passover like to that kept in Israel from the days of Samuel the prophet; neither did all the kings of Israel keep such a passover as Josiah kept, and the priests, and the Levites, and all Judah and Israel that were present, and the inhabitants of Jerusalem. But in the eighteenth year of king Josiah, wherein the passover was kept, he caused the priests to serve, and to encourage them in the house of the LORD. And he set the Levites in the house of the LORD by the office of David, and of Asaph the seer in his posture, as David had spoken by the prophet, and Asaph in his posture according to the ordinance of David, and of Heman the king&#x27;s seer in the words of Nathan, and of Jeduthun the seer by the vision of David. And they stood by their office after the commandment of the king, and the singers by their degree, and the porters by their degree. So they took their set office of the people, and the priests divided themselves into their courses according to the manner of David their father, and to the manner of Asaph, and Heiman, and Jeduthun their father&#x27;s seer, and the porters by their divisions according to the commandment of David, and of Solomon his son. So they ministered, and took their set place by the commandment of the king. And they brought the passover forth to the priests, and to the Levites according to the commandment of Josiah, and Kohath to all the people that were left, to prepare them to the LORD, as it is written in the book of Moses. And the children that were left in Israel kept the passover, and the inhabitants of Jerusalem. And in the three and twentieth year of his reign his service was complete.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🗺️ Briefing Summary</div>
+<p>Josiah commands the people to return to the ancient ordinances, specifically the Passover, which had not been observed in such a manner since the days of the prophets. He reorganizes the temple services, appointing the Levites and priests to their specific duties as established by David. This act of corporate worship signifies a national turning back to the Lord after a long period of idolatry under Manasseh and Amon.</p>
+</div>
+<div class="section reflection">
+<div class="section-label">❤️ Reflection for Your Wife — H.A.P.P.Y. Husband — Providing</div>
+<p>Brother, Josiah did not merely issue a decree; he provided the structure for the people to worship God correctly. He restored the Levites to their offices and ensured the priests had their portions. This is a picture of godly provision. You do not just give money to Maria; you provide the spiritual order, the discipline, and the reverence that allows her soul to rest in the truth. A husband provides the framework within which his wife can flourish, just as Josiah provided the framework for Judah to flourish.</p>
+<p>You must look at your home and ask if you are clearing the debris of idolatry. Are there things in your household that distract from the worship of the LORD? Josiah removed the high places and the idols. You must remove the distractions that keep Maria from focusing on Christ. Your provision is not just material; it is the provision of a godly example. You lead the family to the table of the Word. You ensure that the &quot;passover&quot; of your daily life is centered on the sacrifice of Jesus.</p>
+<p>This requires strength, brother. It requires you to stand firm when the culture around you mocks the old paths. Josiah stood alone against the tide of his ancestors&#x27; sin. You must stand firm for the truth in your marriage. You provide the stability that Maria needs to trust in God. When you lead with clarity and conviction, you give her the gift of peace. You show her that the LORD is worthy of her total allegiance, just as He is worthy of yours.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Establish a fixed time for family worship where you read the Word and pray with Maria, providing spiritual rhythm.</li>
+<li>Review your household finances to ensure you are meeting the material needs of the family without anxiety, trusting God for the rest.</li>
+<li>Identify and remove one &quot;high place&quot; in your home—perhaps a habit or object—that competes with God&#x27;s glory.</li>
+<li>Speak clearly to Maria about your commitment to lead her spiritually, reinforcing her confidence in your godly stewardship.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Stateroom</div>
+<p>Father, we thank You for the example of Josiah who sought to restore Your worship. We ask that You would strengthen our hands to provide for our households, not just in wealth, but in truth and righteousness. By the power of Your Holy Spirit, give us the courage to remove idolatry from our homes and to lead our wives in the way of the LORD. Keep us faithful to the covenant we have made before You. In the name of Jesus Christ, my Lord and Commander, we pray. Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Helm Command:</span> Secure the spiritual defenses of your home by leading your wife in the daily observance of God&#x27;s Word.</div>
+</section>
+
+<section class="watch watch-father" id="watch-father" data-watch="father">
+<div class="watch-header"><span class="watch-time">1100</span> <h2>Second Watch — The Father&#x27;s Charge</h2></div>
+<p class="intro">The Lord calls His servants to stand firm in the covenant, securing the worship of His people through the authority of His Word.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 2 Chronicles 35</div>
+<div class="scripture-text">
+<p>Josiah kept the passover unto the LORD in Jerusalem. And he killed the passover lambs, and sent them unto all the Israelites that were present, to make them know the house of the LORD; and set the people in their places according to the divisions of the families of the fathers&#x27; houses, and after the division of every family. And he set the priests in their charges, and strengthened them to the service of the house of the LORD, and said unto the Levites that taught all Israel, which were holy unto the LORD, Put the holy ark in the house which Solomon the son of David king of Israel did build; it shall not be a burden upon your shoulders: serve now the LORD your God, and His people Israel. And prepare yourselves by your fathers&#x27; houses, after the divisions of your fathers&#x27; houses, according to the writing of David king of Israel, and according to the writing of Solomon his son. And stand in the holy place according to the divisions of the families of the fathers&#x27; houses of your brethren the people, and after the division of the families of the Levites. So they made ready the passover throughout all the house of the LORD. And the priests killed the passover, and the Levites flayed them, and removed the skins from them, and cut the flesh in pieces; also they boiled it in pots, and in caldrons, and in pans, and carried it forth speedily unto all the people. And after they had made ready the inward parts, and the fat, they laid it upon the bread of the courses; to bring it to the house of the LORD according to the commandment of Josiah. And they roasted the passover with fire according to the ordinance: but the other holy offerings sod they in the pots, and in the caldrons, and in the pans, and in the fowling dishes, and carried it forth speedily to all the people Israel. And after that they made ready themselves, and the Levites by their courses, according to the commandment of Josiah, and Joseph, and Nathan, and Azariah, and Hilkiah, and Shaphan, the officers of the house of the LORD; And they made ready the passover for themselves, and for the priests; and the Levites made ready for themselves, and for the priests&#x27; sons, and for all the people that were present.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🗺️ Field Notes</div>
+<p>Josiah, a king after God&#x27;s own heart, restores the broken patterns of worship by enforcing the Law with decisive authority. He does not leave the service to chance but organizes the priests and Levites by their ancestral divisions to ensure the ritual is performed exactly as commanded. This meticulous order reflects the holiness of God, who requires His people to approach Him with reverence and precision.</p>
+</div>
+<div class="section reflection">
+<div class="section-label">👨‍👦 Reflection for Your Children — F.U.L.F.I.L.L.E.D. Father — Leading</div>
+<p>Brother, you know that leadership is not merely about holding rank, but about holding the line of truth with clarity and courage. Josiah did not delegate his spiritual responsibility to the crowd; he stood at the front, directing the worship and ensuring that the sacrifices were offered according to the statute. As the head of your house, you must lead your family in the knowledge of God, just as you lead your Marines in the defense of liberty. Your authority is a stewardship from the Almighty, and you must exercise it with the same diligence Josiah showed in restoring the Temple.</p>
+<p>You teach your sons that order is the foundation of peace. When you instruct Gideon, Boaz, and Shiloh, you are not just giving commands; you are shaping their character for the battles ahead. Gideon, at nineteen, must learn the weight of responsibility; Boaz, at fourteen, must learn the discipline of obedience; and Shiloh, at five, must learn the safety found in his father&#x27;s protection. By leading them in prayer and the reading of Scripture, you provide the spiritual armor they will need to stand against the world&#x27;s chaos.</p>
+<p>True leadership requires you to be the bridge between the holy God and your household. Josiah prepared the people by their fathers&#x27; houses, recognizing that the lineage of faith is passed down through the father. You must fill the gap in your sons&#x27; lives by modeling a godly manhood that is neither harsh nor absent, but firm and loving. Let them see you bowing before the LORD, so they may learn to bow before Him as well.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Establish a fixed time for family worship that no duty can displace, mirroring Josiah&#x27;s commitment to the Passover.</li>
+<li>Speak clearly to Boaz about the cost of discipleship, preparing him for the sacrifices required in his youth.</li>
+<li>Protect Shiloh’s innocence by ensuring the home remains a sanctuary of peace and biblical truth.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Wardroom</div>
+<p>Father, we thank You for the example of Josiah, who did not turn aside from Your commands. Grant me the wisdom to lead my household with the same clarity and courage. By the power of Your Holy Spirit, strengthen my hands to guide Gideon, Boaz, and Shiloh in the way they should go. Let my authority reflect Your own, rooted in love and grounded in Your Word. In the name of Jesus Christ, my Lord and Commander, I pray. Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Rudder Steer:</span> Hold the line of truth and lead your family to the ark of safety.</div>
+</section>
+
+<section class="watch watch-citizen" id="watch-citizen" data-watch="citizen">
+<div class="watch-header"><span class="watch-time">1500</span> <h2>Third Watch — The Citizen&#x27;s Stand</h2></div>
+<p class="intro">A king rises in haste, only to find his crown heavy with the weight of disobedience and his reign short with the burden of pride.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 2 Chronicles 36:1-10</div>
+<div class="scripture-text">
+<p>Jehoahaz was twenty-three years old when he became king, and he reigned three months in Jerusalem. His father had deposed his brother Jehoahaz, who had been reigning in Jerusalem. The king of Egypt also deposed him in Jerusalem and imposed on the land a tribute of a hundred talents of silver and a talent of gold. He made Eliakim, Jehoahaz’s brother, king over Judah and Jerusalem, giving him the name Jehoiakim. But Neco took Eliakim’s brother Hosiah and carried him off to Egypt.</p>
+<p>Jehoiakim was twenty-five years old when he became king, and he reigned eleven years in Jerusalem. He did evil in the sight of the LORD his God. Nebuchadnezzar king of Babylon came up against him and bound him with bronze chains to carry him to Babylon. Nebuchadnezzar also carried some of the vessels of the house of the LORD to Babylon and put them in his temple at Babylon.</p>
+<p>Jehoiachin was eight years old when he became king, and he reigned three months and ten days in Jerusalem. He did evil in the sight of the LORD. At the turn of the year, King Nebuchadnezzar sent and brought him to Babylon, with the precious vessels of the house of the LORD, and made Zedekiah, his uncle, king over Judah and Jerusalem.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🛰️ Situation Report</div>
+<p>The lineage of David’s kingship descends rapidly into moral decay as Jehoahaz, Jehoiakim, and Jehoiachin each reign briefly while doing evil in the sight of the LORD. Their short tenures reflect the instability of a nation that has turned its back on covenant faithfulness, resulting in foreign domination and the loss of divine protection. The removal of temple vessels and the exile of the kings serve as tangible signs that the LORD has withdrawn His favor due to persistent rebellion.</p>
+</div>
+<div class="section reflection resolute">
+<div class="section-label">🛡️ Reflection for a R.E.S.O.L.U.T.E. Citizen — Obedient</div>
+<p>Fredericksburg (local)<br>Brother, consider the quiet streets of our city where the noise of rebellion often masks the silence of truth. When we fail to submit to the lawful authorities God has permitted, or when we ignore the clear commands of Scripture in our private lives, we invite chaos into our homes. Just as the kings of Judah thought they could bypass the law of the land and the law of God, we too often believe we can negotiate our duties as fathers and husbands. But there is no negotiation with righteousness; there is only the immediate, costly, and necessary path of obedience.</p>
+<p>Virginia (state)<br>The history of our state, like the history of Judah, teaches that liberty without submission to God’s order is merely license for destruction. The kings who reigned in Jerusalem sought their own glory, ignoring the covenant that bound them to their King. In our own communities, when men refuse the hard work of spiritual leadership and moral accountability, the social fabric begins to fray. We see the consequences in the instability of families and the weakness of communities that have forgotten that true freedom is found only in submitting to the Lord’s authority.</p>
+<p>United States (nation)<br>On a national level, we witness the same pattern: a people who have enjoyed great blessings but have grown arrogant in their independence. The exile of the kings and the plundering of the temple remind us that no nation is immune to the judgment of the Most High when it abandons its foundational covenants. Yet, this judgment is not the final word. Even in the darkest hours of exile, the LORD preserves a remnant. As a citizen of this republic, you are called to stand firm in the truth, leading your household and your community back to the only source of lasting stability: the fear of the LORD.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Review your weekly schedule and identify one area where you have been compromising biblical principles for convenience, and commit to correcting it by next Sunday.</li>
+<li>Lead your family in reading Psalm 119:105-16 this evening, asking the Lord to reveal any hidden disobedience in your heart.</li>
+<li>Write a letter of encouragement to a fellow brother in Christ who is struggling with a specific sin, urging him to repent and return to obedience.</li>
+<li>Examine your financial stewardship and ensure that you are honoring the LORD with your firstfruits, removing any debt or habit that hinders your ability to give generously.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Bridge</div>
+<p>Father, we thank You for Your unwavering standard of righteousness, which calls us out of our self-deception and into the light of Your truth. By the power of Your Holy Spirit, convict us of our disobedience, break our pride, and grant us the courage to submit to Your authority in every area of our lives. Strengthen us to lead our families with integrity, that we might stand firm in the faith when the world around us crumbles. In the name of Jesus Christ, my Lord and Commander, who alone is the obedient King, we pray. Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Rudder Steer:</span> Stand firm in the truth, brother, for the world is sinking, but the Rock remains.</div>
+<div class="section history">
+<div class="section-label">🦅 This Day in American History — June 11</div>
+<p>On June 11, 1861, the Battle of Big Bethel took place during the Civil War, marking the first major land battle of the conflict. While the Union forces suffered a defeat, the event served as a sobering wake-up call for the North, highlighting the necessity of discipline, preparation, and unified command in the face of a determined enemy. It reminded the nation that the defense of liberty requires not just righteous cause, but also the virtue of steadfastness and the willingness to endure hardship for the preservation of order.</p>
+<p>On June 11, 1963, President John F. Kennedy delivered a historic address on civil rights, calling for comprehensive legislation to ensure equal access to public facilities and voting rights. This moment marked a significant step in the nation’s long struggle to align its laws and practices with the biblical principle that all men are created in the image of God. It stands as a testament to the power of moral leadership in confronting injustice, reminding us that the pursuit of justice is a lifelong covenant responsibility for every citizen.</p>
+<p>⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻</p>
+</div>
+</section>
+
+<section class="watch watch-peace" id="watch-peace" data-watch="peace">
+<div class="watch-header"><span class="watch-time">2100</span> <h2>Evening Peace</h2></div>
+<p class="intro">The day’s labor yields to the quiet watch of God’s enduring faithfulness.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Psalm 145</div>
+<div class="scripture-text">
+<p>I will exalt You, my God the King, and bless Your name forever and ever. Every day I will bless You and praise Your name forever and ever. Great is the LORD and most worthy of praise; His greatness cannot be fathomed. One generation commends Your works to another; they tell of Your mighty acts. They speak of the glorious splendor of Your majesty and I will meditate on Your wonderful works. They tell of the power of Your awesome deeds and I will proclaim Your great deeds. Your kingdom is a kingdom for all ages and Your dominion endures through all generations. The LORD is faithful to all and loving toward all He has made. Your hands uphold all who fall and lift them up when they stumble. All your friends look to You and You give them their nourishment at the proper time. You open Your hand and satisfy the desires of every living thing. The LORD is righteous in all His ways and faithful in all He does. The LORD is near to all who call on Him, to all who call on Him in truth. He fulfills the desires of those who fear Him; He hears their cry and saves them. The LORD watches over all who love Him but all the wicked He will destroy. My mouth will speak in praise of the LORD. Let every creature praise His holy name forever and ever.</p>
+</div>
+</div>
+<div class="section reflection">
+<div class="section-label">🌾 Reflection for a Man at Home and in Community</div>
+<p>As a HAPPY husband, brother, you find your rest in the same covenant love that steadies the heavens. The text declares that the LORD is faithful to all and loving toward all He has made. This is not a vague sentiment but a concrete reality for your household. You are called to be that tangible faithfulness to your wife, mirroring the steadfastness of your Creator. When the world grows chaotic, your home must be a sanctuary of reliability. You do not waver. You do not shift. You stand firm in the truth that your love, grounded in Christ, reflects the unchanging nature of God Himself.</p>
+<p>As a FULFILLED father, you teach your children that the LORD is near to all who call on Him. Your authority is not derived from your strength alone but from your submission to the King of Kings. You lift them up when they stumble, just as God lifts the fallen. This is a heavy burden but a glorious one. You provide not merely bread but direction. You speak of Your works to them, commending the mighty acts of God to the next generation. Your voice must carry the weight of truth and the warmth of grace, showing them that their Father in heaven is just like their earthly father, only without sin.</p>
+<p>As a RESOLUTE citizen, you recognize that Your kingdom is a kingdom for all ages. Your duty to the state is secondary to your duty to the Sovereign. Yet, you serve with integrity, knowing that God upholds all who fall. You are a pillar in your community, steadfast in righteousness and faithful in all you do. You do not seek the approval of men but the approval of God. You stand against the tide of confusion with clear moral boundaries. You are a man of action, defending the weak and speaking truth to power, anchored in the eternal dominion that endures through all generations.</p>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Stateroom</div>
+<p>Father, I thank You for the peace of this evening and the assurance of Your covenant faithfulness. Forgive me where I have faltered in my role as husband, father, and citizen. Forgive me where I have sought my own glory rather than Yours. By the power of Your Holy Spirit, strengthen my hands to uphold those who fall in my care. Root my heart in the truth that Your kingdom endures forever. Guard my tongue, my mind, and my actions so that I may reflect Your righteousness to my family and my community. In the name of Jesus Christ, my Lord and Commander, I pray. Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Rudder Steer:</span> Stand firm in your covenant duties and let your home be a fortress of gospel truth.</div>
+</section>
+
+<footer>
+<div class="draft-tag">PROTOTYPE — sign-off pending</div>
+<div>U.S.M.C. Ministries · The Watchman's Chronological Plan for the Year of our Lord 2026</div>
+<div style="margin-top:6px;font-size:0.78rem;">Adam Johns &middot; rich interpretive blend &middot; divine name LORD</div>
+</footer>
+
+</div>
+<script>
+(function(){
+  const SLUGS = ['all','wisdom','husband','father','citizen','peace'];
+
+  // Watch windows in local hours (each watch is "live" from its start time
+  // until the NEXT watch begins). Evening peace owns 21:00 → 04:59.
+  function currentWatchSlug() {
+    const h = new Date().getHours();
+    if (h >= 5  && h < 7)  return 'wisdom';
+    if (h >= 7  && h < 11) return 'husband';
+    if (h >= 11 && h < 15) return 'father';
+    if (h >= 15 && h < 21) return 'citizen';
+    return 'peace';                       // 21:00 – 04:59
+  }
+  const NOW_SLUG = currentWatchSlug();
+
+  function markNowBadge(){
+    document.querySelectorAll('.watch-tab').forEach(t => {
+      t.classList.toggle('is-now', t.dataset.tab === NOW_SLUG);
+    });
+  }
+  function showOnly(slug){
+    const isAll = slug === 'all' || !SLUGS.includes(slug);
+    document.querySelectorAll('section.watch').forEach(s => {
+      s.style.display = (isAll || s.dataset.watch === slug) ? '' : 'none';
+    });
+    document.querySelectorAll('.watch-tab').forEach(t => {
+      t.classList.toggle('active', t.dataset.tab === (isAll ? 'all' : slug));
+    });
+  }
+  document.querySelectorAll('.watch-tab').forEach(t => {
+    t.addEventListener('click', function(e){
+      e.preventDefault();
+      const slug = this.dataset.tab;
+      history.replaceState(null, '', '#' + slug);
+      showOnly(slug);
+      window.scrollTo({top: 0, behavior:'smooth'});
+    });
+  });
+
+  // Initial selection priority:
+  //   1. URL hash if present  (#all / #wisdom / #husband / #father / #citizen / #peace)
+  //   2. Auto-select the watch that is "live right now"
+  let initial;
+  if (location.hash) {
+    initial = location.hash.slice(1);
+  } else {
+    initial = NOW_SLUG;
+  }
+  markNowBadge();
+  showOnly(initial);
+})();
+</script>
+</body>
+</html>
