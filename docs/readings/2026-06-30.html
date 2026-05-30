@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg">
+<title>Tuesday, June 30, 2026 — Daily Reading | U.S.M.C. Ministries</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+    --bg-dark: #000000; --bg-card: #111111; --bg-card2: #161616;
+    --gold: #D4AF37; --gold-light: #F4D470;
+    --white: #FFFFFF; --gray: #888888; --border: #333333;
+}
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--white);
+    min-height: 100vh;
+    line-height: 1.7;
+}
+h1, h2, h3 { font-family: 'Playfair Display', serif; font-weight: 700; }
+.container { max-width: 820px; margin: 0 auto; padding: 24px 20px 60px; }
+a { color: var(--gold); text-decoration: none; }
+a:hover { color: var(--gold-light); text-decoration: underline; }
+
+.nav-back { margin-bottom: 14px; font-size: 0.95rem; }
+
+.hero { text-align: center; padding: 16px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 18px; }
+.hero h1 { font-size: clamp(1.5rem, 4vw, 2.2rem); color: var(--white); margin-bottom: 6px; }
+.hero .subtitle { color: var(--gold); font-size: 0.95rem; font-style: italic; }
+.hero .doc-line { color: var(--gray); font-size: 0.82rem; margin-top: 6px; }
+
+.watch-tabs {
+    position: sticky; top: 0; z-index: 30;
+    background: var(--bg-dark);
+    border-bottom: 1px solid var(--border);
+    display: flex; flex-wrap: wrap; gap: 6px;
+    padding: 12px 0 14px;
+    margin-bottom: 18px;
+}
+.watch-tab {
+    flex: 1 1 90px;
+    text-align: center;
+    padding: 8px 6px;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    background: var(--bg-card);
+    color: var(--gray);
+    font-size: 0.85rem; font-weight: 500;
+    transition: all 0.15s ease;
+    text-decoration: none !important;
+    white-space: nowrap;
+}
+.watch-tab:hover { color: var(--white); border-color: var(--gold); text-decoration: none !important; }
+.watch-tab.active { background: var(--gold); color: #000; border-color: var(--gold); font-weight: 600; }
+.watch-tab .tab-time { display: block; font-size: 0.7rem; opacity: 0.7; font-family: monospace; }
+.watch-tab.active .tab-time { opacity: 1; }
+
+/* "NOW" badge — shown on the watch tab whose time window contains current local time */
+.watch-tab.is-now { position: relative; box-shadow: 0 0 0 1px var(--gold-light) inset; }
+.watch-tab.is-now::after {
+  content: "NOW";
+  position: absolute; top: -7px; right: -4px;
+  background: var(--gold-light); color: #000;
+  font-size: 0.55rem; font-weight: 700;
+  padding: 1px 5px; border-radius: 100px;
+  letter-spacing: 0.08em;
+}
+
+.watch {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px 22px;
+    margin-bottom: 22px;
+    scroll-margin-top: 80px;
+}
+.watch-header { display: flex; align-items: baseline; gap: 14px; margin-bottom: 10px; flex-wrap: wrap; }
+.watch-time {
+    background: var(--bg-card2); color: var(--gold);
+    padding: 4px 12px; border-radius: 100px;
+    font-family: 'Inter', monospace; font-size: 0.85rem; font-weight: 600;
+    letter-spacing: 0.05em;
+}
+.watch-header h2 { font-size: 1.35rem; color: var(--white); }
+
+.intro { color: var(--gray); font-style: italic; margin-bottom: 14px; }
+
+.audio-slot {
+    margin: 14px 0 18px;
+    padding: 12px 14px;
+    background: var(--bg-card2);
+    border-radius: 8px;
+    border: 1px dashed var(--border);
+}
+.audio-slot.audio-pending { opacity: 0.55; }
+.audio-cap { font-size: 0.8rem; color: var(--gray); margin-top: 4px; }
+
+.scripture {
+    background: var(--bg-card2);
+    border-left: 3px solid var(--gold);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin: 16px 0 22px;
+}
+.scripture-ref { font-weight: 600; color: var(--gold); margin-bottom: 12px; font-size: 0.95rem; }
+.scripture-text p { margin-bottom: 8px; }
+.scripture-text p.stanza { margin-bottom: 14px; }
+
+.section-label {
+    font-family: 'Playfair Display', serif;
+    color: var(--gold); font-weight: 700; font-size: 1.05rem;
+    margin: 22px 0 10px; padding-top: 10px; border-top: 1px solid var(--border);
+}
+.section p, .context p, .reflection p, .history p, .application-block p { margin-bottom: 12px; }
+
+ul.application { padding-left: 22px; margin: 8px 0 14px; }
+ul.application li { margin-bottom: 8px; }
+.application-prose { font-style: italic; color: var(--gold-light); margin-top: 12px; }
+
+.history ul { padding-left: 22px; margin: 8px 0; }
+.history li { margin-bottom: 6px; }
+
+.prayer {
+    background: var(--bg-card2);
+    border-left: 3px solid var(--gold-light);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin: 22px 0;
+}
+.prayer-title { color: var(--gold-light); font-weight: 600; margin-bottom: 10px; font-size: 0.95rem; }
+.prayer p { line-height: 1.85; margin-bottom: 8px; }
+
+.helm {
+    background: var(--bg-card2);
+    border-radius: 6px;
+    padding: 12px 18px;
+    margin-top: 14px;
+    font-size: 0.95rem;
+}
+.helm-icon { color: var(--gold); font-size: 1.1rem; }
+.helm-label { color: var(--gold); font-weight: 600; }
+
+footer {
+    text-align: center;
+    color: var(--gray);
+    font-size: 0.82rem;
+    margin-top: 32px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+}
+footer .draft-tag {
+    display: inline-block;
+    background: #2a2410;
+    color: var(--gold);
+    padding: 4px 12px;
+    border-radius: 100px;
+    font-size: 0.78rem;
+    margin-bottom: 8px;
+    letter-spacing: 0.05em;
+}
+
+@media (max-width: 540px) {
+    .watch-tab { flex: 1 1 64px; font-size: 0.78rem; padding: 6px 4px; }
+    .watch-tab .tab-time { font-size: 0.65rem; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="nav-back">← <a href="/chronological.html">The Watchman's Chronological Plan</a></div>
+
+<div class="hero">
+<h1>Tuesday, June 30, 2026</h1>
+<div class="subtitle">Daily Reading — Day 181 of 365</div>
+<div class="doc-line">MOOP&#x27;s 2026 Daily Bible Readings — Document 6 of 12; for the month of June</div>
+</div>
+
+<nav class="watch-tabs" role="tablist">
+<a href="#all" class="watch-tab active" data-tab="all" role="tab"><span class="tab-label">All Watches</span></a>
+<a href="#wisdom" class="watch-tab" data-tab="wisdom" role="tab"><span class="tab-time">0600</span> <span class="tab-label">Morning Wisdom</span></a>
+<a href="#husband" class="watch-tab" data-tab="husband" role="tab"><span class="tab-time">0700</span> <span class="tab-label">Husband</span></a>
+<a href="#father" class="watch-tab" data-tab="father" role="tab"><span class="tab-time">1100</span> <span class="tab-label">Father</span></a>
+<a href="#citizen" class="watch-tab" data-tab="citizen" role="tab"><span class="tab-time">1500</span> <span class="tab-label">Citizen</span></a>
+<a href="#peace" class="watch-tab" data-tab="peace" role="tab"><span class="tab-time">2100</span> <span class="tab-label">Evening Peace</span></a>
+</nav>
+
+<section class="watch watch-wisdom" id="watch-wisdom" data-watch="wisdom">
+<div class="watch-header"><span class="watch-time">0600</span> <h2>Morning Wisdom</h2></div>
+<p class="intro">The Sovereign Lord sits enthroned above the chaos of history, judging the kingdoms of men with perfect righteousness.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Daniel 7</div>
+<div class="scripture-text">
+<p>I kept watching in the night visions, and behold, with the clouds of heaven One like a son of man was coming, and He came up to the Ancient of Days and was presented before Him. And to Him was given dominion, glory and a kingdom, that all the peoples, nations and men of every language might serve Him. His dominion is an everlasting dominion which will not pass away; and His kingdom is one which will not be destroyed.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🧭 Context Summary</div>
+<p>Daniel receives a vision of four great beasts rising from the sea, representing successive earthly empires characterized by pride and violence. Amidst this turmoil, the court of heaven is convened, and the Ancient of Days takes His seat to execute judgment. The Son of Man is then given eternal authority, contrasting the temporary nature of human power with the everlasting kingdom of God. This passage assures the faithful that their ultimate King reigns supreme over all earthly rulers.</p>
+</div>
+<div class="section reflection">
+<div class="section-label">🛡️ Reflection for a REAL MAN — Eternal Authority</div>
+<p>Brother, the world tells you that power is measured by the size of your arsenal or the extent of your influence. But the vision in Daniel reveals a different reality. The Ancient of Days sits in judgment, and to Him, the Son of Man is given dominion that will never end. As a father and a husband, you do not rule by your own might, but by submitting to the authority of this Eternal King.</p>
+<p>Your strength as a man comes from knowing Whose you are. The kingdoms of this world rise and fall, but the Lord’s kingdom stands firm. When you lead your home, you do so under the gaze of the Son of Man. You are called to reflect His just rule, providing for your family and protecting them from harm, just as Christ protects His Church.</p>
+<p>Do not be shaken by the chaos around you. The Lord has established a government that cannot be moved. Stand firm in your duties, knowing that your labor in the Lord is not in vain. Your authority is derived from Him, and your ultimate reward is found in His everlasting kingdom. Serve Him faithfully, brother, for He is the true Commander.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Study the character of the Son of Man to understand the nature of your own leadership.</li>
+<li>Submit your decisions to the judgment of the Ancient of Days through prayer before acting.</li>
+<li>Provide for your household with the diligence of one who serves the Eternal King.</li>
+<li>Protect your family from spiritual harm by anchoring them in the truth of His everlasting kingdom.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer</div>
+<p>Father, we thank You for the assurance that You sit in judgment and rule over all. By the power of Your Holy Spirit, grant us the courage to stand firm in our duties, knowing that our King reigns forever. Help us to lead our homes with the wisdom and strength that comes from Him. In the name of Jesus Christ, my Lord and Commander, we pray. Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Helm Command:</span> Hold the line of faith while the Eternal King judges the nations.</div>
+</section>
+
+<section class="watch watch-husband" id="watch-husband" data-watch="husband">
+<div class="watch-header"><span class="watch-time">0700</span> <h2>First Watch — The Husband&#x27;s Post</h2></div>
+<p class="intro">Brother, as you stand guard over your covenant home, remember that true strength is found in humble submission to the LORD’s sovereign plan.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Jeremiah 40</div>
+<div class="scripture-text">
+<p>The word that came to Jeremiah from the LORD after Nebuzaradan the captain of the guard had released him at Ramah, when he had taken him being bound in chains among all the prisoners who were carried away captive from Jerusalem and Judah to Babylon. The captain of the guard took Jeremiah and said to him, &quot;The LORD your God decreed this disaster for this place. And now the LORD has fulfilled His decree and brought it on, because you sinned against the LORD and did not obey His voice. Therefore this thing has come to pass just as the LORD declared. But now behold, I am releasing you today from the chains which were on your wrists. If it seems good to you to come with me, come; but if it seems bad to you, do not come. See, all the land is before you; go wherever it seems good and right for you to go.&quot; Then it came about, when Jeremiah had not yet returned to Michmash, that the captain of the guard had given him a present, and had let him go. So Jeremiah went to Ishmael son of Nethaniah at Mizpah. And when Johanan the son of Kareah and all the captains of the forces who were in the open country came to him at Mizpah, they said to him, &quot;Please let us know your decision on what we should do, whether we should go away to the Egyptians or not, and we will listen.&quot; But Jeremiah the priest said to them, &quot;Do not go to Egypt; please know that you will die by the sword, by famine, and by pestilence in the place where you want to go.&quot; For thus says the LORD, the God of hosts, the God of Israel, &quot;If you still resolve to go to Egypt, and you do go, then the sword which you fear will overtake you there, and famine which you dread will follow you into Egypt, and you will die there. So all the men who have set their faces to go into the land of Egypt to reside there will die by the sword, by famine, and by pestilence; they shall have no survivors or survivors from the disaster which I will bring on them.&quot; For thus says the LORD of hosts, the God of Israel, &quot;Why are you acting so foolishly regarding your own souls, by causing yourselves to die by the sword, by famine, and by pestilence, just as the LORD has spoken against you? For you did not obey the voice of the LORD.&quot; Then Johanan the son of Kareah and all the captains of the forces said to Gedaliah son of Ahikam, &quot;Let us please kill Gedaliah by secret assassination, and no one will know it; then we will kill the rest of the Jews who have joined the Chaldeans, and the remnant of Judah will not be scattered, and all that is left of Judah will not perish.&quot; But Gedaliah the son of Ahikam answered them, &quot;Do not do such a thing, for you are speaking falsely about me.&quot;</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🗺️ Briefing Summary</div>
+<p>Jeremiah, released from chains by Nebuzaradan, chooses to remain in the land under Gedaliah’s governorship rather than flee to Egypt. The military leaders, driven by fear and distrust, plot to assassinate the appointed governor, ignoring the clear prophetic warning against such a move. God had already decreed judgment for their rebellion, yet they sought to secure their future through deceit and violence rather than faithful submission to His will. This passage illustrates the peril of allowing fear to override divine instruction and the necessity of trusting God’s sovereignty even when circumstances appear dire.</p>
+</div>
+<div class="section reflection">
+<div class="section-label">❤️ Reflection for Your Wife — H.A.P.P.Y. Husband — Protecting</div>
+<p>Brother, consider how Jeremiah stood firm in the truth while others plotted in the shadows. Your role as the head of your household with Maria is not merely to provide material needs, but to establish a sanctuary of peace where the truth of God’s Word reigns supreme. You must protect the spiritual integrity of your home from the encroaching fears and deceptions of this world, just as Jeremiah protected the people from the fatal error of fleeing to Egypt.</p>
+<p>When Maria looks to you, she should see a man who trusts God’s promises over his own anxieties. The captains in Mizpah acted out of fear, seeking control through secret plots, but you are called to lead with open hands and a surrendered heart. Protect your wife by modeling unwavering faith, showing her that our security rests in the LORD’s decree, not in our own clever schemes or worldly safeguards.</p>
+<p>True protection is not just physical defense, but the steadfast leadership that keeps the family aligned with God’s will. You guard Maria’s soul by consistently directing her eyes to Christ, ensuring that the domestic altar remains unshaken by the storms of culture or circumstance. Stand firm in your covenant duty, brother, for your faithfulness is the shield that covers her and your children.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Establish a daily rhythm of prayer with Maria that explicitly commits your family’s safety and spiritual well-being to the LORD’s care.</li>
+<li>Confront any fear or anxiety in your home with immediate Scripture reading, refusing to entertain thoughts that contradict God’s promises.</li>
+<li>Speak clearly and authoritatively to your children about the importance of trusting God over the world’s wisdom, modeling the same resolve as Jeremiah.</li>
+<li>Create a physical and spiritual boundary around your household that rejects the deceptive &quot;Egypt&quot; of compromise, keeping your home centered on biblical truth.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Stateroom</div>
+<p>Father, we thank You for Your sovereign hand that guides all things for the good of those who love You. Grant me the courage to stand firm in my duty as the head of my home, protecting Maria and my children from the deceptions of this age. By the power of Your Holy Spirit, give me a heart that trusts Your decrees above my own fears, and let my leadership reflect the steadfast love of Christ. Guard our domestic altar from the plots of the enemy and keep us anchored in Your truth. In the name of Jesus Christ, my Lord and Commander, Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Helm Command:</span> Hold the line of faith against the fog of fear.</div>
+</section>
+
+<section class="watch watch-father" id="watch-father" data-watch="father">
+<div class="watch-header"><span class="watch-time">1100</span> <h2>Second Watch — The Father&#x27;s Charge</h2></div>
+<p class="intro">Brother, let this morning’s solemn history remind you that covenant loyalty demands vigilance against the subtle deceit of the enemy.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Jeremiah 41</div>
+<div class="scripture-text">
+<p>In the seventh month, Ishmael son of Nethaniah son of Elishama, of the royal family, came with ten men to Gedaliah son of Ahikam. They ate together in Mizpah. But Ishmael and the ten men who were with him rose up and struck down Gedaliah son of Ahikam, the governor, with the sword, and killed the men of Judah who were with him there. The next day, before Gedaliah had been buried, some men came from Shechem, Shiloh, and Samaria, shaving their beards, tearing their clothes, and cutting themselves, bringing grain offerings and incense to the house of the LORD. Ishmael son of Nethaniah came out from Mizpah to meet them, weeping as he went. When he met them, he said, Come to Gedaliah the governor. They went into the midst of the city. But Ishmael son of Nethaniah slaughtered them and cast them into the cistern, he and the ten men who were with him. Now ten men were among them who said to Ishmael, Do not kill us, for we have hidden treasures of wheat, barley, oil, and honey in the field. So he refrained from slaughtering them among their brothers. The cistern into which Ishmael cast all the bodies of the men he had slain was the one King Asa had made for fear of Baasha king of Israel. Ishmael son of Nethaniah filled it with the dead. When Ishmael had finished slaying Gedaliah and those with him, he took captive all the rest of the people who were in Mizpah, the king’s daughters who were with them, and all the rest of the people who remained in Mizpah, whom Nebuzar-adan the captain of the guard had committed to Gedaliah son of Ahikam. Ishmael son of Nethaniah took them captive and set out to cross over to the Ammonites.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🗺️ Field Notes</div>
+<p>The assassination of Gedaliah at Mizpah shattered the fragile peace of the remnant in Judah, revealing how quickly treachery can unravel divine provision. Ishmael’s betrayal was not merely political but deeply spiritual, as he slaughtered those bringing offerings to the LORD in their place. This event illustrates the catastrophic consequences of failing to discern the heart of a man who appears friendly but harbors deadly intent.</p>
+</div>
+<div class="section reflection">
+<div class="section-label">👨‍👦 Reflection for Your Children — F.U.L.F.I.L.L.E.D. Father — Leading</div>
+<p>Gideon, you stand at the threshold of manhood, and I charge you to cultivate a spirit of discernment that protects the flock under your care. Boaz, you are learning the weight of responsibility, so guard your heart against the flattery of those who seek to lead you astray. Shiloh, though you are young, learn to trust in the guidance of your father and the Word of God, for the world is filled with wolves in sheep’s clothing.</p>
+<p>Brother, the failure of Gedaliah was not in his goodness but in his lack of spiritual vigilance, for he did not recognize the danger until it was too late. As a father, you must lead your household with eyes wide open, distinguishing between those who seek the LORD and those who seek only to consume. Your leadership is not merely about providing material needs but about establishing a spiritual boundary that repels evil. You must teach your sons to value truth over comfort and loyalty over convenience, for the enemy often approaches with a smile.</p>
+<p>When Ishmael wept as he met the pilgrims, he deceived their eyes, yet his heart was set on destruction. Similarly, the world will present falsehoods that seem merciful, but they lead only to captivity. Your duty is to raise men who can smell the rot beneath the perfume of deception. You must be the gatekeeper of your home, ensuring that your children know the voice of the Shepherd and flee from the stranger. This is the burden of biblical manhood: to see clearly, to judge rightly, and to act decisively for the preservation of God’s people.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Conduct a weekly review of your family’s spiritual health, asking each son to report on their walk with God.</li>
+<li>Teach Gideon to identify the motives of those who seek influence over him, prioritizing godly counsel over popular opinion.</li>
+<li>Instruct Boaz to stand firm in biblical truth when peer pressure demands compromise, even at the cost of social standing.</li>
+<li>Show Shiloh the difference between friendly words and faithful friendship by modeling consistent, honest communication.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Wardroom</div>
+<p>Father, grant me the discernment of a soldier and the wisdom of a sage to lead my house with clarity and courage. By the power of Your Holy Spirit, give me eyes to see the subtle traps of the enemy and a heart to reject the deceit of the wicked. Strengthen my sons to stand firm in the faith, guarding their hearts against the flattery of the world. In the name of Jesus Christ, my Lord and Commander, I pray for Your protection and guidance over my family. Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Rudder Steer:</span> Hold the line against deception, for truth is the only safe harbor.</div>
+</section>
+
+<section class="watch watch-citizen" id="watch-citizen" data-watch="citizen">
+<div class="watch-header"><span class="watch-time">1500</span> <h2>Third Watch — The Citizen&#x27;s Stand</h2></div>
+<p class="intro">The weight of command demands not just the courage to act, but the wisdom to know when to stand still.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Jeremiah 42</div>
+<div class="scripture-text">
+<p>Jeremiah 42:1-22</p>
+<p>Then all the captains of the forces, including Johanan the son of Kareah, Nahamiah the son of Yishmael, and the rest of the open-faced men, came near and spoke to Jeremiah the prophet. They said to him, &quot;Please hear our petition before you, and pray to the LORD your God for all this company, that the LORD your God may show us the way in which we should go, and the thing that we should do.&quot; And Jeremiah the prophet said to them, &quot;I have heard you. Behold, I will pray to the LORD your God according to your words, and it shall come to pass that whatever the LORD answers you I will tell you; I will keep nothing back from you.&quot; Then they said to Jeremiah, &quot;May the LORD be between us as a true and faithful witness if we do not act according to all the word with which the LORD your God sends you through us! Whether it is favorable or unfavorable, we will obey the voice of the LORD our God, to whom we send you, that it may be well with us, because we obey the voice of the LORD our God.&quot; And it happened after ten days that the word of the LORD came to Jeremiah. Then he called Johanan the son of Kareah and all the captains of the forces who were with him, and all the people from the least even to the greatest, and said to them, &quot;Thus says the LORD, the God of Israel, to whom you sent me to present your petition before him: &#x27;Thus says the LORD, the God of Israel: If you will indeed stay in this land, then I will build you up and not pull you down; I will plant you and not pluck you up; for I have relented concerning the disaster that I have brought upon you. Do not be afraid of the king of Babylon, of whom you are afraid. Do not be afraid of him, for I am with you to save you and to deliver you from his hand. I will grant you mercy, and he will have mercy on you and let you remain in your own land. But if you say, &quot;We will not stay in this land,&quot; so as not to obey the voice of the LORD your God, saying, &quot;No, but we will go into the land of Egypt to live there, where we will not see war or hear the sound of the trumpet or have hunger of bread; and there we will live,&quot; then hear the word of the LORD, O remnant of Judah. Thus says the LORD of hosts, the God of Israel: If you set your faces to go into Egypt and live there, then the sword which you fear shall overtake you there, and the famine of which you are afraid shall follow close after you into Egypt; and there you shall die. So all the men who know that they have set their faces to go into the land of Egypt to live there shall die by the sword, by the famine, and by the pestilence; and they shall have no remnant or survivor from the disaster that I will bring upon them. For thus says the LORD of hosts, the God of Israel: As My anger and My fury have been poured out upon the inhabitants of Jerusalem, so shall My fury be poured out upon you when you go into Egypt; and you shall be a curse, an astonishment, a reproach, and a disgrace, and you shall see this place no more. Now remember the word that I have spoken to you Jeremiah, to stay in the land of Judah. Do not obey the voice of Nahamiah the son of Yishmael, the son of Elishama, the prophet of the nations; do not listen to his words. For he prophesies to you a lie, saying, &quot;It shall not be so.&quot; For thus says the LORD, O remnant of Judah: &quot;Do not go to Egypt! Know for certain that I have warned you today.&quot; For you went out before me, saying, &quot;We will not go into the land of Egypt.&quot; But you have forgotten the voice of the LORD your God and all that He told you to say. Now therefore, know for certain that the sword, the famine, and the pestilence shall overtake you at the place where you wish to go to live.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🛰️ Situation Report</div>
+<p>The remnant of Judah has survived the fall of Jerusalem, yet they remain in a state of spiritual paralysis, clinging to the ruins of their covenant land. They seek the prophet’s intercession, but their hearts are already bent toward the security of Egypt, a place of former slavery and idolatry. Their request for guidance is genuine in form but deceptive in intent, for they have already decided on the destination and only seek divine approval for their rebellion.</p>
+</div>
+<div class="section reflection resolute">
+<div class="section-label">🛡️ Reflection for a R.E.S.O.L.U.T.E. Citizen — Obedient</div>
+<p>Fredericksburg (local)<br>Brother, consider the chaos of the mud and the blood at the Rappahannock. When the order to cross comes, the soldier does not debate the strategy with the river behind him. He trusts the chain of command because he knows that disobedience leads to the slaughter of his brothers. In the quiet of your home, you must be that same unwavering instrument. Your wife and children look to you not for a debate on theology, but for the steady hand of a man who knows his duty. To hesitate in your leadership is to invite the fog of confusion into your household.</p>
+<p>Virginia (state)<br>The colony of Virginia was built on the principle that order is a gift from God, maintained through submission to lawful authority. When the settlers faced the wilderness, they did not wander aimlessly seeking their own comfort; they established towns, churches, and courts in obedience to the charter given them. You, as a father in this Commonwealth, are the magistrate of your domain. You must establish the boundaries of righteousness in your children’s lives, not because they are comfortable with them, but because they are true. To yield to their whims is to betray the trust placed in your headship.</p>
+<p>United States (nation)<br>The Republic endures not because men are free to do whatever they desire, but because they are disciplined to do what is right. When the nation faces crisis, the citizen who retreats to the comfort of his own preferences fails the covenant. We must remember that our liberty is bounded by our duty to God and our neighbors. The soldier who breaks rank to save himself brings shame to the regiment; the father who breaks his vow to lead his family brings ruin to the next generation. Stand firm in your post, brother, for the nation needs men who fear God more than they fear man.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Review your family’s daily schedule and identify one area where you have allowed your children or wife to dictate the terms of your time, and reclaim that authority with gentleness and firmness.</li>
+<li>Read the chapter on civil authority in the 1689 London Baptist Confession of Faith and meditate on the duty of submission to God’s ordained rulers.</li>
+<li>Write a letter to your children outlining your expectations for their conduct and your commitment to provide for them, and read it to them at the next family meal.</li>
+<li>Identify a current decision in your household where you are seeking &quot;approval&quot; for a choice you have already made, and bring that decision before God in prayer, submitting to His will regardless of the outcome.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Bridge</div>
+<p>Father, I thank You for the example of Jeremiah, who spoke the truth even when it was unpopular. Forgive me, Lord, for the times I have sought Your blessing on my own rebellious plans. Give me the grace to submit to Your will completely, even when it leads through the valley of the shadow. By the power of Your Holy Spirit, strengthen my will to obey Your commands in my home, my work, and my walk. Keep me steadfast in my duty as a husband and father, that I may lead my household in the way of righteousness. In the name of Jesus Christ, my Lord and Commander, I pray. Amen.</p>
+</div>
+<div class="section history">
+<div class="section-label">🦅 This Day in American History — June 30</div>
+<p>• In 1867, the United States officially took possession of Alaska from Russia, a providential expansion that would later secure resources and strategic depth for the nation.<br>• In 1944, during World War II, General George S. Patton was slapped by two soldiers suffering from combat fatigue, an incident that later led to a profound moment of repentance and a renewed focus on the spiritual readiness of the troops.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Rudder Steer:</span> Submit your will to God’s command before you seek His blessing on your own.</div>
+</section>
+
+<section class="watch watch-peace" id="watch-peace" data-watch="peace">
+<div class="watch-header"><span class="watch-time">2100</span> <h2>Evening Peace</h2></div>
+<p class="intro">The day’s exertions yield to the quiet assurance that the Almighty holds the reins of history.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Isaiah 19</div>
+<div class="scripture-text">
+<p>Behold, the LORD rides on a swift cloud and comes to Egypt. The idols of Egypt tremble at His presence, and the hearts of the Egyptians melt within them. I will stir up Egyptian against Egyptian, brother against brother, neighbor against neighbor, city against city, and kingdom against kingdom. Then the spirit of Egypt will be crushed within her, and I will destroy her counsel. They will seek advice from idols, from mediums, and from those who consult the dead. The Egyptians will be like women in distress, and their heart will melt within them. I will hand over the Egyptians to the power of a cruel lord, and a fierce king will rule over them, declares the LORD, the LORD of hosts.</p>
+<p>The waters of the Nile will dry up, and the river will become parched and dry. Its canals will stink, and the streams of Egypt will dwindle and dry up. The reeds and rushes will wither, and the grass by the Nile will wither and blow away. The linen workers will be dismayed, and the flax workers will be crushed. Those who work with fine cloth will be ashamed, and all who hire skilled workers will be grieved in spirit. The princes of Zoan are fools, the counsel of the wise counselors of Pharaoh becomes senseless. How will you say to Pharaoh, I am a son of the wise, a son of ancient kings? Where are your wise men? Let them stand forth and tell you what the LORD of hosts has planned against Egypt. The princes of Zoan have become fools, the princes of Memphis are deceived. They have led Egypt astray who are its cornerstones. The LORD has mixed into their midst a spirit of dizziness; they have made Egypt stagger in all its deeds, as a drunkard staggers in his vomit. Egypt will be no longer a power to the sons of Israel, but will bring sin to remembrance. When the LORD sees it, He will strike Egypt, striking and healing again. When the LORD strikes Egypt, He will heal it; and they will return to the LORD, and He will be entreated by them and will heal them. In that day there will be a highway from Egypt to Assyria, and the Assyrians will come to Egypt and the Egyptians to Assyria, and the Egyptians will worship with the Assyrians. In that day Israel will be the third with Egypt and Assyria, a blessing in the midst of the land, whom the LORD of hosts will bless, saying, Blessed are My people Egypt, and the work of My hand Assyria, and My inheritance Israel.</p>
+</div>
+</div>
+<div class="section reflection">
+<div class="section-label">🌾 Reflection for a Man at Home and in Community</div>
+<p>As a HAPPY husband, you find your strength not in your own ability to control the chaotic winds of culture, but in the sovereign stability of your God. The text reminds you that the Lord rides on a swift cloud, commanding the very forces that seem to threaten your household. When the world around you stirs up confusion or when the idols of this age demand your allegiance, remember that your God is not distant. He is actively involved in the affairs of men, and His counsel stands firm against the shifting tides of public opinion. Your peace is anchored in the truth that He alone is the Lord of hosts, and no storm can arise without His permission and ultimate purpose.</p>
+<p>As a FULFILLED father, you are called to lead your family with the same resolute trust that Pharaoh’s counselors lacked. The passage warns that human wisdom, when divorced from the fear of the Lord, becomes foolishness and leads to despair. Do not let the anxiety of the age infect your home. Instead, teach your children that the Lord strikes and heals, that His discipline is a sign of His covenant love. You are to be a pillar of clarity in your household, pointing your family away from the vain attempts to find security in worldly power and toward the only true refuge. Your authority is not for domination, but for sheltering your kin under the wings of the Almighty.</p>
+<p>As a RESOLUTE citizen, you recognize that your ultimate allegiance is to the Kingdom of Heaven, even as you serve your nation with integrity. The prophecy speaks of a future where God blesses Egypt and Assyria, nations once hostile to His people, showing that His mercy extends beyond tribal boundaries. This should humble your heart and broaden your view. You do not fight for the supremacy of your own tribe or ideology, but you stand firm for the truth of God’s Word in the public square. You are a citizen of the city above, yet you fulfill your duties here with diligence and courage, knowing that your inheritance is secure in Christ, regardless of the political winds that blow.</p>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Stateroom</div>
+<p>Father, we thank You for Your sovereign rule over all nations and the affairs of men. Grant us the grace to stand firm in Your truth when the world around us stumbles into foolishness. By the power of Your Holy Spirit, strengthen us to lead our homes with wisdom and courage, and to live as faithful witnesses in a land that often forgets You. Keep our hearts anchored in Your covenant love, and give us the wisdom to distinguish between Your eternal will and the fleeting opinions of the age. In the name of Jesus Christ, my Lord and Commander, we pray. Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Rudder Steer:</span> Anchor your soul in the Lord’s sovereignty, not the shifting sands of culture.</div>
+</section>
+
+<footer>
+<div class="draft-tag">PROTOTYPE — sign-off pending</div>
+<div>U.S.M.C. Ministries · The Watchman's Chronological Plan for the Year of our Lord 2026</div>
+<div style="margin-top:6px;font-size:0.78rem;">Adam Johns &middot; rich interpretive blend &middot; divine name LORD</div>
+</footer>
+
+</div>
+<script>
+(function(){
+  const SLUGS = ['all','wisdom','husband','father','citizen','peace'];
+
+  // Watch windows in local hours (each watch is "live" from its start time
+  // until the NEXT watch begins). Evening peace owns 21:00 → 04:59.
+  function currentWatchSlug() {
+    const h = new Date().getHours();
+    if (h >= 5  && h < 7)  return 'wisdom';
+    if (h >= 7  && h < 11) return 'husband';
+    if (h >= 11 && h < 15) return 'father';
+    if (h >= 15 && h < 21) return 'citizen';
+    return 'peace';                       // 21:00 – 04:59
+  }
+  const NOW_SLUG = currentWatchSlug();
+
+  function markNowBadge(){
+    document.querySelectorAll('.watch-tab').forEach(t => {
+      t.classList.toggle('is-now', t.dataset.tab === NOW_SLUG);
+    });
+  }
+  function showOnly(slug){
+    const isAll = slug === 'all' || !SLUGS.includes(slug);
+    document.querySelectorAll('section.watch').forEach(s => {
+      s.style.display = (isAll || s.dataset.watch === slug) ? '' : 'none';
+    });
+    document.querySelectorAll('.watch-tab').forEach(t => {
+      t.classList.toggle('active', t.dataset.tab === (isAll ? 'all' : slug));
+    });
+  }
+  document.querySelectorAll('.watch-tab').forEach(t => {
+    t.addEventListener('click', function(e){
+      e.preventDefault();
+      const slug = this.dataset.tab;
+      history.replaceState(null, '', '#' + slug);
+      showOnly(slug);
+      window.scrollTo({top: 0, behavior:'smooth'});
+    });
+  });
+
+  // Initial selection priority:
+  //   1. URL hash if present  (#all / #wisdom / #husband / #father / #citizen / #peace)
+  //   2. Auto-select the watch that is "live right now"
+  let initial;
+  if (location.hash) {
+    initial = location.hash.slice(1);
+  } else {
+    initial = NOW_SLUG;
+  }
+  markNowBadge();
+  showOnly(initial);
+})();
+</script>
+</body>
+</html>
