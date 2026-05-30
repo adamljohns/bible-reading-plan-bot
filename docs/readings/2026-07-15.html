@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg">
+<title>Wednesday, July 15, 2026 — Daily Reading | U.S.M.C. Ministries</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+    --bg-dark: #000000; --bg-card: #111111; --bg-card2: #161616;
+    --gold: #D4AF37; --gold-light: #F4D470;
+    --white: #FFFFFF; --gray: #888888; --border: #333333;
+}
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--white);
+    min-height: 100vh;
+    line-height: 1.7;
+}
+h1, h2, h3 { font-family: 'Playfair Display', serif; font-weight: 700; }
+.container { max-width: 820px; margin: 0 auto; padding: 24px 20px 60px; }
+a { color: var(--gold); text-decoration: none; }
+a:hover { color: var(--gold-light); text-decoration: underline; }
+
+.nav-back { margin-bottom: 14px; font-size: 0.95rem; }
+
+.hero { text-align: center; padding: 16px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 18px; }
+.hero h1 { font-size: clamp(1.5rem, 4vw, 2.2rem); color: var(--white); margin-bottom: 6px; }
+.hero .subtitle { color: var(--gold); font-size: 0.95rem; font-style: italic; }
+.hero .doc-line { color: var(--gray); font-size: 0.82rem; margin-top: 6px; }
+
+.watch-tabs {
+    position: sticky; top: 0; z-index: 30;
+    background: var(--bg-dark);
+    border-bottom: 1px solid var(--border);
+    display: flex; flex-wrap: wrap; gap: 6px;
+    padding: 12px 0 14px;
+    margin-bottom: 18px;
+}
+.watch-tab {
+    flex: 1 1 90px;
+    text-align: center;
+    padding: 8px 6px;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    background: var(--bg-card);
+    color: var(--gray);
+    font-size: 0.85rem; font-weight: 500;
+    transition: all 0.15s ease;
+    text-decoration: none !important;
+    white-space: nowrap;
+}
+.watch-tab:hover { color: var(--white); border-color: var(--gold); text-decoration: none !important; }
+.watch-tab.active { background: var(--gold); color: #000; border-color: var(--gold); font-weight: 600; }
+.watch-tab .tab-time { display: block; font-size: 0.7rem; opacity: 0.7; font-family: monospace; }
+.watch-tab.active .tab-time { opacity: 1; }
+
+/* "NOW" badge — shown on the watch tab whose time window contains current local time */
+.watch-tab.is-now { position: relative; box-shadow: 0 0 0 1px var(--gold-light) inset; }
+.watch-tab.is-now::after {
+  content: "NOW";
+  position: absolute; top: -7px; right: -4px;
+  background: var(--gold-light); color: #000;
+  font-size: 0.55rem; font-weight: 700;
+  padding: 1px 5px; border-radius: 100px;
+  letter-spacing: 0.08em;
+}
+
+.watch {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px 22px;
+    margin-bottom: 22px;
+    scroll-margin-top: 80px;
+}
+.watch-header { display: flex; align-items: baseline; gap: 14px; margin-bottom: 10px; flex-wrap: wrap; }
+.watch-time {
+    background: var(--bg-card2); color: var(--gold);
+    padding: 4px 12px; border-radius: 100px;
+    font-family: 'Inter', monospace; font-size: 0.85rem; font-weight: 600;
+    letter-spacing: 0.05em;
+}
+.watch-header h2 { font-size: 1.35rem; color: var(--white); }
+
+.intro { color: var(--gray); font-style: italic; margin-bottom: 14px; }
+
+.audio-slot {
+    margin: 14px 0 18px;
+    padding: 12px 14px;
+    background: var(--bg-card2);
+    border-radius: 8px;
+    border: 1px dashed var(--border);
+}
+.audio-slot.audio-pending { opacity: 0.55; }
+.audio-cap { font-size: 0.8rem; color: var(--gray); margin-top: 4px; }
+
+.scripture {
+    background: var(--bg-card2);
+    border-left: 3px solid var(--gold);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin: 16px 0 22px;
+}
+.scripture-ref { font-weight: 600; color: var(--gold); margin-bottom: 12px; font-size: 0.95rem; }
+.scripture-text p { margin-bottom: 8px; }
+.scripture-text p.stanza { margin-bottom: 14px; }
+
+.section-label {
+    font-family: 'Playfair Display', serif;
+    color: var(--gold); font-weight: 700; font-size: 1.05rem;
+    margin: 22px 0 10px; padding-top: 10px; border-top: 1px solid var(--border);
+}
+.section p, .context p, .reflection p, .history p, .application-block p { margin-bottom: 12px; }
+
+ul.application { padding-left: 22px; margin: 8px 0 14px; }
+ul.application li { margin-bottom: 8px; }
+.application-prose { font-style: italic; color: var(--gold-light); margin-top: 12px; }
+
+.history ul { padding-left: 22px; margin: 8px 0; }
+.history li { margin-bottom: 6px; }
+
+.prayer {
+    background: var(--bg-card2);
+    border-left: 3px solid var(--gold-light);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin: 22px 0;
+}
+.prayer-title { color: var(--gold-light); font-weight: 600; margin-bottom: 10px; font-size: 0.95rem; }
+.prayer p { line-height: 1.85; margin-bottom: 8px; }
+
+.helm {
+    background: var(--bg-card2);
+    border-radius: 6px;
+    padding: 12px 18px;
+    margin-top: 14px;
+    font-size: 0.95rem;
+}
+.helm-icon { color: var(--gold); font-size: 1.1rem; }
+.helm-label { color: var(--gold); font-weight: 600; }
+
+footer {
+    text-align: center;
+    color: var(--gray);
+    font-size: 0.82rem;
+    margin-top: 32px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+}
+footer .draft-tag {
+    display: inline-block;
+    background: #2a2410;
+    color: var(--gold);
+    padding: 4px 12px;
+    border-radius: 100px;
+    font-size: 0.78rem;
+    margin-bottom: 8px;
+    letter-spacing: 0.05em;
+}
+
+@media (max-width: 540px) {
+    .watch-tab { flex: 1 1 64px; font-size: 0.78rem; padding: 6px 4px; }
+    .watch-tab .tab-time { font-size: 0.65rem; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="nav-back">← <a href="/chronological.html">The Watchman's Chronological Plan</a></div>
+
+<div class="hero">
+<h1>Wednesday, July 15, 2026</h1>
+<div class="subtitle">Daily Reading — Day 196 of 365</div>
+<div class="doc-line">MOOP&#x27;s 2026 Daily Bible Readings — Document 7 of 12; for the month of July</div>
+</div>
+
+<nav class="watch-tabs" role="tablist">
+<a href="#all" class="watch-tab active" data-tab="all" role="tab"><span class="tab-label">All Watches</span></a>
+<a href="#wisdom" class="watch-tab" data-tab="wisdom" role="tab"><span class="tab-time">0600</span> <span class="tab-label">Morning Wisdom</span></a>
+<a href="#husband" class="watch-tab" data-tab="husband" role="tab"><span class="tab-time">0700</span> <span class="tab-label">Husband</span></a>
+<a href="#father" class="watch-tab" data-tab="father" role="tab"><span class="tab-time">1100</span> <span class="tab-label">Father</span></a>
+<a href="#citizen" class="watch-tab" data-tab="citizen" role="tab"><span class="tab-time">1500</span> <span class="tab-label">Citizen</span></a>
+<a href="#peace" class="watch-tab" data-tab="peace" role="tab"><span class="tab-time">2100</span> <span class="tab-label">Evening Peace</span></a>
+</nav>
+
+<section class="watch watch-wisdom" id="watch-wisdom" data-watch="wisdom">
+<div class="watch-header"><span class="watch-time">0600</span> <h2>Morning Wisdom</h2></div>
+<p class="intro">Brother, the weight of the nation rests on the faithfulness of men who first bow before the Throne.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Nehemiah 1</div>
+<div class="scripture-text">
+<p>I heard the report about the survivors who survived the exile and who were left over from the captivity, that they are in great trouble and disgrace. The wall of Jerusalem is broken down, and its gates have been burned with fire. I sat down and wept and mourned for days, fasting and praying before the God of heaven. I said, I pray You, O LORD God of heaven, the great and awesome God, who keeps His covenant and shows mercy to those who love Him and keep His commandments, let Your ear now be attentive and Your eyes open to hear the prayer and supplication of Your servant which I am praying before You now day and night on behalf of the sons of Israel Your servants, while I confess the sins of the sons of Israel which we have sinned against You. Both I and my father’s house have sinned. We have acted very corruptly against You and have not kept the commandments, the statutes, and the ordinances which You commanded Your servant Moses. Remember, I pray, the word that You commanded Your servant Moses, saying, If you are unfaithful, I will scatter you among the peoples; but if you return to Me and keep My commandments and do them, though your outcasts were at the farthest ends of the earth, I will gather them from there and bring them to the place where I have chosen as a dwelling for My Name. Now these are Your servants and Your people whom You have redeemed by Your great power and by Your strong hand. O Lord, I pray, let Your ear now be attentive to the prayer of Your servant and to the prayer of Your servants who delight to fear Your Name, and give success to Your servant today, and grant him mercy in the sight of this man. For I was the king’s cupbearer.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🧭 Context Summary</div>
+<p>Nehemiah stands as a man of deep sorrow and decisive action, receiving news that shatters his peace regarding the holy city. He does not rush to political solutions but falls on his face before the God of the covenant, acknowledging the corporate sin of Israel. This passage establishes the spiritual foundation for all subsequent leadership: prayer must precede strategy, and repentance must precede reform. The Lord hears the cries of His people when they return to Him with humble hearts.</p>
+</div>
+<div class="section reflection">
+<div class="section-label">🛡️ Reflection for a REAL MAN — Repentant Leadership</div>
+<p>Brother, true strength is not found in the absence of emotion, but in the direction of it. Nehemiah did not suppress his grief; he directed it toward the Throne of Grace. He wept not for his own comfort, but for the disgrace of his God and the suffering of His people. As a man, as a father, and as a veteran, you are called to lead with this same holy sorrow. When the world around you breaks down, do not merely complain. Weep. Fast. Pray. Let your first response to chaos be submission to the sovereign will of the LORD.</p>
+<p>The Lord is a covenant-keeping God. He remembers His promises even when His people forget them. Nehemiah’s prayer is a model of biblical manhood because it is grounded in the character of God, not the circumstances of men. He confesses sin without excuse, claiming the guilt of his house and his people. This is the posture of a leader who knows he stands on grace alone. He does not approach the King as a peer, but as a servant who relies entirely on the mercy of the Almighty.</p>
+<p>Your duty as a husband and father is to protect the spiritual integrity of your home through such prayerful dependence. When your family faces trouble, or when the culture around you grows dark, your first line of defense is not your wallet or your weapon, but your knees. You must teach your sons that courage is not the absence of fear, but the presence of faith in the face of fear. Let your leadership be marked by a reverence for the LORD that compels you to seek His face before you seek His hand.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Set aside thirty minutes this morning for silent prayer, confessing specific sins of pride or neglect in your role as head of your household.</li>
+<li>Identify one area of spiritual decay in your family or church and intercede for it daily for the next seven days, fasting from a preferred comfort to sharpen your focus.</li>
+<li>Read Nehemiah 1 aloud to your wife and sons, explaining why you wept for the glory of God, and invite them to pray for the same.</li>
+<li>Write down the promises of God regarding His covenant faithfulness and post them where you will see them when you feel overwhelmed by the state of the world.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer</div>
+<p>Father, I come before You as a humble servant, acknowledging that I and my house have sinned. I confess my pride, my neglect of Your Word, and my failure to lead my family with the reverence You deserve. I ask for the grace to weep over what grieves Your heart, that my life might reflect a deep sorrow for sin and a passionate desire for Your glory. By the power of Your Holy Spirit, break my heart for what breaks Yours, and align my will with Your perfect law. Grant me the courage to stand firm in the truth of Your covenant, that I may lead my household in the way of righteousness. In the name of Jesus Christ, my Lord and Commander, I pray. Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Helm Command:</span> Kneel in repentance before you stand in authority.</div>
+</section>
+
+<section class="watch watch-husband" id="watch-husband" data-watch="husband">
+<div class="watch-header"><span class="watch-time">0700</span> <h2>First Watch — The Husband&#x27;s Post</h2></div>
+<p class="intro">Brother, today the Lord commands us to confront the idolatry of vengeance and to rest in His sovereign justice.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Ezekiel 35</div>
+<div class="scripture-text">
+<p>The word of the LORD came to me: Son of man, set your face against the mountain of Seir, and prophesy against it. Say to it, Thus says the Lord GOD: Behold, I am against you, O mountain of Seir, and I will stretch out My hand against you, and I will make you a desolation and a waste. I will fill your mountains with your slain; your hills, your valleys, and all your ravines shall be filled with those slain with the sword. I will make you an everlasting waste, and your cities shall not be inhabited. Then you shall know that I am the LORD. Because you hated the land of Israel with relentless hostility and shed its blood in time of distress, when the captives went to their doom, therefore, as I live, declares the Lord GOD, I will prepare you for blood, and blood shall pursue you. Since you hated blood, blood shall pursue you. I will make the mountain of Seir a desolation and a waste, and I will cut off from it the one who goes up and the one who comes down. I will fill its mountains with the slain; those slain by the sword shall fall on your hills and in your valleys and in all your ravines. I will make you an everlasting desolation, and your cities shall not be inhabited. Then you shall know that I am the LORD, who has spoken. Thus says the Lord GOD: Because the whole house of Edom acts with presumptuousness and guilt by making the land a possession with joy and contempt in their hearts, therefore, behold, I will stretch out My hand against Edom and cut off man and beast from it. I will make it desolate from Teman to Dedan; they shall fall by the sword. And I will lay my vengeance on Edom by the hand of my people Israel, and they shall deal in Edom according to my anger and according to my fury. They shall know my vengeance, declares the Lord GOD.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🗺️ Briefing Summary</div>
+<p>Ezekiel delivers a grim oracle against Edom, the perpetual enemy of Israel, for their malicious rejoicing over Judah’s downfall. The prophet declares that God will execute judgment on the mountain of Seir, turning their pride into desolation. This passage illustrates the certainty of divine retribution against those who delight in the suffering of God’s people. It serves as a sobering reminder that God defends His covenant people and judges the proud with justice.</p>
+</div>
+<div class="section reflection">
+<div class="section-label">❤️ Reflection for Your Wife — H.A.P.P.Y. Husband — Protecting</div>
+<p>Brother, this passage demands that we understand the nature of true protection. It is not merely physical defense, but a spiritual vigilance against the forces that seek to devour the flock. Edom’s sin was not just aggression; it was the joy taken in the destruction of the covenant community. You must guard your heart against such malice, especially toward your sister in Christ, Maria. Your role as head is to stand as a bulwark, ensuring that no spirit of contempt or harm finds a foothold in your home.</p>
+<p>The Lord’s judgment on Edom is absolute and final. He does not negotiate with pride or ignore hostility. As your husband, I am called to emulate this divine resolve in my defense of our family’s spiritual integrity. I must be willing to confront the enemies of our peace, whether they are external pressures or internal sins that threaten to divide us. There is no room for compromise when the soul and the sanctity of the marriage covenant are at stake.</p>
+<p>I must not be passive in the face of evil. Just as the Lord stretched out His hand against Seir, I must actively oppose anything that seeks to undermine Maria’s faith or our unity. This protection is rooted in a holy jealousy for what God has joined. It is a fierce, faithful love that refuses to let the enemy steal what belongs to the Lord and to us.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Examine your heart daily for any secret joy in the failures of others, and repent immediately of such pride.</li>
+<li>Establish clear spiritual boundaries in your home to shield Maria and your children from corrosive influences.</li>
+<li>Speak words of defense and encouragement to Maria when she feels attacked by the world or by your own weaknesses.</li>
+<li>Pray specifically for the Lord’s strength to stand firm against any spiritual enemy targeting your family’s peace.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Stateroom</div>
+<p>Father, I thank You for Your righteous judgment and Your fierce love for Your people. Forgive me for the times I have been passive in the face of evil or have harbored pride in my own eyes. By the power of Your Holy Spirit, grant me the courage to protect my wife, Maria, and our household with the same zeal You showed in defending Your covenant. Help me to stand as a faithful guardian, opposing all that seeks to harm our spiritual walk. In the name of Jesus Christ, my Lord and Commander, I pray. Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Helm Command:</span> Stand firm in the defense of your covenant home.</div>
+</section>
+
+<section class="watch watch-father" id="watch-father" data-watch="father">
+<div class="watch-header"><span class="watch-time">1100</span> <h2>Second Watch — The Father&#x27;s Charge</h2></div>
+<p class="intro">The Lord has spoken a word of restoration that calls every father to stand firm in the covenant promise over his household.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Ezekiel 36</div>
+<div class="scripture-text">
+<p>The Son of Man, you must prophesy to the mountains of Israel and say, O mountains of Israel, hear the word of the LORD. Thus says the Lord GOD to the mountains and the hills, to the ravines and the valleys, I am about to bring a sword upon you, and I will destroy your high places. Your altars shall be desolated and your incense altars shall be broken, and I will lay your slain bodies before your idols. And I will lay the carcasses of the people of Israel before their idols, and I will scatter your bones around your altars. Wherever you lived, there shall be a ruin of cities, a place of desolation, and you shall be desolated and ruined forever. Thus says the Lord GOD: Because they say to you, O house of Israel, You are the land that has come under foot and has become a victim to the people, yet you will not leave your land ungiven to them. Therefore, O mountains of Israel, hear the word of the Lord GOD: Thus says the Lord GOD to the mountains and the hills, to the ravines and the valleys, I am the one who is about to cause you to be fruitful and multiply, and I will cause the people of Israel to settle on you again, and you shall no more deprive them of their children. Thus says the Lord GOD: Because they make you desolate and swallow you up from every side, so that you may be a possession for the rest of the nations and a target for the talk of the peoples, therefore, you mountains of Israel, you shall shoot forth your branches and bear your fruit for my people Israel, for they are about to come. For behold, I am for you, and I will turn to you, and you shall be tilled and sown. I will multiply the people on you, the whole house of Israel, all of it, and the cities shall be inhabited and the ruins rebuilt. I will multiply on you man and beast, and they shall multiply and be fruitful, and I will cause you to be inhabited as in former times, and I will do more good to you than in former times, and you shall know that I am the LORD. Yes, I will cause men to walk on you, even my people Israel, and they shall possess you, and you shall be their inheritance, and you shall no more deprive them of their children. Thus says the Lord GOD: Because they say to you, You have swallowed up man and deprived your people of their children, therefore you shall no more deprive men of their children, and you shall no longer cause your people to stumble. I will not let you hear the shame of the peoples anymore, and you shall no longer bear the reproach of the nations, and you shall no more cause your people to stumble, says the Lord GOD.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🗺️ Field Notes</div>
+<p>This passage moves from the terrifying reality of judgment to the glorious promise of restoration, reminding us that the land itself mourns the absence of its rightful heirs. The LORD declares that He will act not for the sake of Israel, but for the sake of His holy name, restoring what was broken by sin. As a father, you see this pattern of destruction followed by divine reconstruction in the life of your family. The promise is that God will make the barren places of your lineage fruitful again through His sovereign grace.</p>
+</div>
+<div class="section reflection">
+<div class="section-label">👨‍👦 Reflection for Your Children — F.U.L.F.I.L.L.E.D. Father — Disciplining</div>
+<p>Brother, the weight of this chapter is not merely historical but deeply personal to the role of the father. We often fear the sword of judgment, yet we must trust the hand of the Father who disciplines those He loves. When I look at Gideon, now a young man of nineteen, I see the need for firm direction as he faces the world. I must not shrink from the duty of correcting his path, for true love requires us to speak the truth in love, even when it stings. Discipline is not anger; it is the disciplined application of God’s Word to shape character and protect the soul.</p>
+<p>To Boaz, fourteen years old and standing on the precipice of manhood, I offer this correction as a shield. He is strong, but he lacks wisdom, and without the rod of instruction, his strength becomes pride. I must guide him with clarity, showing him that biblical manhood is not about dominance but about service to God and submission to His authority. My voice must be steady, reminding him that the Lord disciplines whom He loves, and I am entrusted with this sacred duty to prepare him for battle against sin.</p>
+<p>And to little Shiloh, five years old, I see the beginnings of a spirit that needs gentle but firm boundaries. He is learning the shape of the world, and I must be the first to show him the boundaries of God’s order. My discipline for him is not about punishment but about protection, teaching him to respect authority and to find joy in obedience. These three boys are my charge, and I will not fail them by avoiding the hard work of godly correction. I must be a man who leads with both a sword and a staff, cutting down sin and guiding the sheep.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Review the household rules with Gideon this evening, ensuring he understands the consequences of his actions and the reason behind them.</li>
+<li>Correct Boaz gently but firmly when he speaks back or shows disrespect, immediately pointing him to Scripture on honoring authority.</li>
+<li>Establish a consistent bedtime routine for Shiloh that includes a brief lesson on obedience and thankfulness.</li>
+<li>Pray specifically for the grace to correct my sons without anger, ensuring my discipline flows from love for their souls.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Wardroom</div>
+<p>Father, I come before You as the Commander of my home, asking for the strength to lead with Your wisdom. Forgive me when I have been passive in the face of sin or harsh in my correction. Teach me to discipline Gideon, Boaz, and Shiloh with a heart that mirrors Your own, seeking their good above my own comfort. By the power of Your Holy Spirit, give me the courage to speak the truth and the patience to walk the path of righteousness with them. May my home be a place where Your law is cherished and Your name is honored. In the name of Jesus Christ, my Lord and Commander, I pray. Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Rudder Steer:</span> Hold the line of authority with love, for the ship cannot navigate the storm without a steady hand on the tiller.</div>
+</section>
+
+<section class="watch watch-citizen" id="watch-citizen" data-watch="citizen">
+<div class="watch-header"><span class="watch-time">1500</span> <h2>Third Watch — The Citizen&#x27;s Stand</h2></div>
+<p class="intro">Brother, stand firm in the promise that the dead shall rise by the power of the living God.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Ezekiel 37</div>
+<div class="scripture-text">
+<p>The hand of the LORD was upon me, and He brought me out in the Spirit of the LORD, and set me down in the midst of the valley which was full of bones. Then He caused me to pass by them all around, and behold, there were very many in the open valley; and indeed they were very dry. And He said to me, Son of man, can these bones live? So I answered, O LORD, You know. Then He said to me, Prophesy to these bones, and say to them, O dry bones, hear the word of the LORD. Thus says the LORD GOD to these bones: Behold, I will cause breath to enter you, and you shall live; I will put sinews on you and bring up flesh on you and cover you with skin; I will put breath in you, and you shall live; and you shall know that I am the LORD. So I prophesied as I was commanded; and as I prophesied, there was a sound, and behold, a rattling; and the bones came together, bone to its bone. Yes, there were sinews on them, and flesh had come on them, and skin had covered them; but there was no breath in them. Then He said to me, Prophesy to the breath, prophesy, son of man, and say to the breath, Thus says the LORD GOD: Come from the four winds, O breath, and breathe on these slain, that they may live. So I prophesied as He commanded me, and breath came into them, and they lived, and stood on their feet, an exceedingly great army. Now the hand of the LORD was upon me, and He brought me out by the Spirit of the LORD, and set me down in the plain; and it was full of bones. Then He said to me, Son of man, can these bones live? So I answered, O LORD GOD, You know. Again He said to me, Prophesy to these bones, and say to them: Thus says the LORD GOD to these bones: Behold, I will cause breath to enter you, and you shall live. I will lay sinews on you, bring up flesh on you, cover you with skin and put breath in you; and you shall live. Then you shall know that I am the LORD. So I prophesied as I was commanded; and the breath came into them, and they lived, and stood on their feet, an exceedingly great army. Then He said to me, Son of man, these bones are the whole house of Israel. Indeed they say, Our bones are dried up, and our hope is lost; we are cut off for ourselves. Therefore prophesy and say to them, Thus says the LORD GOD: Behold, O My people, I will open your graves, and cause you to come up from your graves, and bring you to the land of Israel. Then you shall know that I am the LORD, when I have opened your graves, O My people, and brought you up from your graves; and shall put My Spirit within you, and you shall live, and I will place you in your own land. Then you shall know that I, the LORD, have spoken it and performed it, says the LORD.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🛰️ Situation Report</div>
+<p>The prophet stands in a valley of death, facing the impossible task of speaking life into dry, scattered remains. This vision serves as a stark reminder that spiritual revival is not the work of human effort, but the sovereign act of God’s Spirit. The army that rises is not built by the bones themselves, but by the Word and Spirit of the Creator.</p>
+</div>
+<div class="section reflection resolute">
+<div class="section-label">🛡️ Reflection for a R.E.S.O.L.U.T.E. Citizen — Enduring</div>
+<p>Fredericksburg (local)<br>Brother, consider the muddy fields just across the Rappahannock, where men once faced the grim reality of death in the Civil War. The ground there is heavy with the memory of those who fell, yet it also testifies to the resilience of the human spirit under the sovereignty of God. Just as the bones in the valley were once scattered and hopeless, so too are the hearts of men before they are quickened by grace. You, who stand in this place of history, must remember that physical courage is but a shadow of the spiritual endurance required to stand firm when all hope seems lost.</p>
+<p>Virginia (state)<br>In this Commonwealth, the legacy of our forefathers is etched in stone and soil, reminding us that national strength is rooted in covenant faithfulness. When the land seems dry and the prospects for the future dim, we must look not to the shifting winds of political opinion, but to the unchanging Word of God. The revival of a nation, like the revival of a man, begins with the recognition of our deadness and the desperate cry for the Spirit to breathe life into our dry bones. Your endurance is not merely in staying the course, but in trusting that God will restore what He has promised.</p>
+<p>United States (nation)<br>The United States, as a nation, was founded on the principle that all men are created by a Creator and are accountable to Him. Yet, like the house of Israel, we often find ourselves in a valley of despair, thinking our hope is lost. The true strength of this nation does not lie in its military might or economic power, but in its adherence to the biblical truths that govern its civil order. As a citizen, your endurance is demonstrated by your steadfast commitment to these truths, even when the culture around you denies them. You must stand as a witness to the living God, knowing that He alone can raise up a righteous remnant.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Pray daily for the revival of your own heart, acknowledging your spiritual deadness apart from Christ.</li>
+<li>Study the Westminster Confession to ground your endurance in the sovereignty of God’s electing grace.</li>
+<li>Lead your family in evening worship, modeling a dependence on the Spirit for spiritual vitality.</li>
+<li>Serve in your local church with perseverance, trusting God to use your faithfulness for His glory.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Bridge</div>
+<p>Father, I come before You knowing that without Your Spirit, I am but dry bones. I ask You to breathe upon my heart, to quicken my spirit, and to give me the endurance to stand firm in my duties as a husband, father, and citizen. By the power of Your Holy Spirit, renew my mind and strengthen my will, that I may walk in obedience to Your Word. Keep me steadfast in the faith, and let my life be a testimony to Your power to raise the dead. In the name of Jesus Christ, my Lord and Commander, I pray. Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Rudder Steer:</span> Stand firm in the valley, for the Lord is your breath.</div>
+<div class="section history">
+<div class="section-label">🦅 This Day in American History — July 15</div>
+<p>On July 15, 1776, the Continental Congress officially adopted the Declaration of Independence, a bold act of faith in the providence of God that established the United States as a nation founded on the principles of liberty and self-government under divine law.</p>
+<p>On July 15, 1832, the Battle of Buena Vista concluded, where General Zachary Taylor’s outnumbered forces achieved a decisive victory, demonstrating the courage and discipline of American soldiers who fought with a sense of duty and honor that reflected the virtues of a godly people.</p>
+<p>⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻</p>
+</div>
+</section>
+
+<section class="watch watch-peace" id="watch-peace" data-watch="peace">
+<div class="watch-header"><span class="watch-time">2100</span> <h2>Evening Peace</h2></div>
+<p class="intro">The day’s march ends, and we turn our eyes to the eternal justice of our Sovereign Lord.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Isaiah 34</div>
+<div class="scripture-text">
+<p>Behold, the day of the LORD comes, cruel both with wrath and fierce anger, to make the land a desolation and to destroy its sinners from it. For the heavens above will be rolled up like a scroll, and they will be scattered like leaves from a vine. All the host of heaven will perish, and the skies will be rolled up like a scroll. For My sword has drunk its fill in the heavens; behold, it will descend for judgment on Edom, and on the people I have devoted to destruction. The sword of the LORD is filled with blood, it is made full with fatness, with the blood of lambs and goats, with the fat of the kidneys of rams. For the LORD has a sacrifice in Bozrah, and a great slaughter in the land of Edom. And the wild oxen shall fall with them, and the young bulls with the mighty bulls; and their land shall be soaked with blood, and their dust made fatty with fatness. For it is a day of vengeance, the year of recompense for the cause of Zion. And its streams shall be turned into pitch, and its dust into burning sulfur; its land shall become burning pitch. It shall not be quenched night or day; its smoke shall go up forever. From generation to generation it shall lie desolate; none shall pass through it forever and ever. But the pelican and the hedgehog shall possess it, the owl also shall dwell in it, and God shall lay out on it the line of confusion and the stones of emptiness. They shall call its nobles to the kingdom, but none shall be there, and all its princes shall be nothing. And thorns shall come up in its palaces, nettles and brambles in its fortresses. It shall be the haunt of jackals, a dwelling place for ostriches. And wild beasts shall meet with hyenas, the goat shall cry to its fellow; indeed, there the night creature shall rest and find for herself a place of rest. There the hawk shall nest and lay and hatch and brood under its shade; indeed, here shall the hawkers be gathered, each one with her mate.</p>
+</div>
+</div>
+<div class="section reflection">
+<div class="section-label">🌾 Reflection for a Man at Home and in Community</div>
+<p>As a HAPPY husband, you must recognize that the same God who commands the heavens to roll up like a scroll is the same God who holds your covenant vows in His hands. Brother, do not grow complacent in the peace of your home, for the Lord is a consuming fire who demands exclusive devotion. Your duty is to lead your wife in reverence to Christ, shielding her from the chaos of a fallen world by anchoring your household in the unshakeable truth of His Word. Just as Edom was judged for its pride and opposition to God’s people, so too must you examine your heart for any idol that displaces the Lord as the head of your home. Guard your wife’s soul with the same zeal you once guarded your brothers in arms, for she is your help meet, not your subordinate in spirit, but your partner in the covenant of grace.</p>
+<p>As a FULFILLED father, you bear the solemn responsibility of instructing your children in the ways of the LORD, not merely in moralism but in the stark reality of divine judgment and mercy. Brother, let your authority be exercised with the firmness of a commander and the tenderness of a shepherd, for you are accountable to the Judge of all earth. Teach your sons that true manhood is found in submission to Christ and protection of the weak, and teach your daughters the value of holy womanhood under the covering of their fathers and their Savior. Do not spare them the truth that sin leads to desolation, but point them constantly to the blood of the Lamb that alone can save them from the wrath to come. Your home is a small kingdom under your stewardship, and you must rule it with wisdom that honors the King of Kings.</p>
+<p>As a RESOLUTE citizen, you understand that the Lord executes justice on the nations and that no earthly power stands above His sovereignty. Brother, serve your country with diligence and integrity, yet keep your ultimate allegiance fixed on the Kingdom of God. The world may celebrate the proud and the powerful, but the Lord brings down the mighty and exalts the humble. Stand firm in your convictions, speaking truth to power without fear, knowing that your labor in the public square is a form of worship when done unto the Lord. Let your conduct be blameless, your work ethic exemplary, and your loyalty to lawful authority unwavering, for you are a subject of the Most High King first and a citizen of your nation second.</p>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Stateroom</div>
+<p>Father, we thank You for the peace of this evening and for the protection You have granted us throughout the day. Forgive us for the times we have neglected our duties as husbands, fathers, and citizens, and for the pride that has crept into our hearts. By the power of Your Holy Spirit, strengthen us to lead with humility, to love with sacrifice, and to stand firm in the truth of Your Word. Give us wisdom to rule our homes with grace and courage to serve our neighbors with justice. Keep our eyes fixed on the coming judgment and the hope of glory, that we may live faithfully until that day. In the name of Jesus Christ, my Lord and Commander, we pray. Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Rudder Steer:</span> Anchor your soul in the sovereignty of God and let no fear of man shake your covenant commitments.</div>
+</section>
+
+<footer>
+<div class="draft-tag">PROTOTYPE — sign-off pending</div>
+<div>U.S.M.C. Ministries · The Watchman's Chronological Plan for the Year of our Lord 2026</div>
+<div style="margin-top:6px;font-size:0.78rem;">Adam Johns &middot; rich interpretive blend &middot; divine name LORD</div>
+</footer>
+
+</div>
+<script>
+(function(){
+  const SLUGS = ['all','wisdom','husband','father','citizen','peace'];
+
+  // Watch windows in local hours (each watch is "live" from its start time
+  // until the NEXT watch begins). Evening peace owns 21:00 → 04:59.
+  function currentWatchSlug() {
+    const h = new Date().getHours();
+    if (h >= 5  && h < 7)  return 'wisdom';
+    if (h >= 7  && h < 11) return 'husband';
+    if (h >= 11 && h < 15) return 'father';
+    if (h >= 15 && h < 21) return 'citizen';
+    return 'peace';                       // 21:00 – 04:59
+  }
+  const NOW_SLUG = currentWatchSlug();
+
+  function markNowBadge(){
+    document.querySelectorAll('.watch-tab').forEach(t => {
+      t.classList.toggle('is-now', t.dataset.tab === NOW_SLUG);
+    });
+  }
+  function showOnly(slug){
+    const isAll = slug === 'all' || !SLUGS.includes(slug);
+    document.querySelectorAll('section.watch').forEach(s => {
+      s.style.display = (isAll || s.dataset.watch === slug) ? '' : 'none';
+    });
+    document.querySelectorAll('.watch-tab').forEach(t => {
+      t.classList.toggle('active', t.dataset.tab === (isAll ? 'all' : slug));
+    });
+  }
+  document.querySelectorAll('.watch-tab').forEach(t => {
+    t.addEventListener('click', function(e){
+      e.preventDefault();
+      const slug = this.dataset.tab;
+      history.replaceState(null, '', '#' + slug);
+      showOnly(slug);
+      window.scrollTo({top: 0, behavior:'smooth'});
+    });
+  });
+
+  // Initial selection priority:
+  //   1. URL hash if present  (#all / #wisdom / #husband / #father / #citizen / #peace)
+  //   2. Auto-select the watch that is "live right now"
+  let initial;
+  if (location.hash) {
+    initial = location.hash.slice(1);
+  } else {
+    initial = NOW_SLUG;
+  }
+  markNowBadge();
+  showOnly(initial);
+})();
+</script>
+</body>
+</html>
