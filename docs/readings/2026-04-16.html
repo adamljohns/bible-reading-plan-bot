@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg">
+<title>Thursday, April 16, 2026 — Daily Reading | U.S.M.C. Ministries</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+    --bg-dark: #000000; --bg-card: #111111; --bg-card2: #161616;
+    --gold: #D4AF37; --gold-light: #F4D470;
+    --white: #FFFFFF; --gray: #888888; --border: #333333;
+}
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--white);
+    min-height: 100vh;
+    line-height: 1.7;
+}
+h1, h2, h3 { font-family: 'Playfair Display', serif; font-weight: 700; }
+.container { max-width: 820px; margin: 0 auto; padding: 24px 20px 60px; }
+a { color: var(--gold); text-decoration: none; }
+a:hover { color: var(--gold-light); text-decoration: underline; }
+
+.nav-back { margin-bottom: 14px; font-size: 0.95rem; }
+
+.hero { text-align: center; padding: 16px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 18px; }
+.hero h1 { font-size: clamp(1.5rem, 4vw, 2.2rem); color: var(--white); margin-bottom: 6px; }
+.hero .subtitle { color: var(--gold); font-size: 0.95rem; font-style: italic; }
+.hero .doc-line { color: var(--gray); font-size: 0.82rem; margin-top: 6px; }
+
+.watch-tabs {
+    position: sticky; top: 0; z-index: 30;
+    background: var(--bg-dark);
+    border-bottom: 1px solid var(--border);
+    display: flex; flex-wrap: wrap; gap: 6px;
+    padding: 12px 0 14px;
+    margin-bottom: 18px;
+}
+.watch-tab {
+    flex: 1 1 90px;
+    text-align: center;
+    padding: 8px 6px;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    background: var(--bg-card);
+    color: var(--gray);
+    font-size: 0.85rem; font-weight: 500;
+    transition: all 0.15s ease;
+    text-decoration: none !important;
+    white-space: nowrap;
+}
+.watch-tab:hover { color: var(--white); border-color: var(--gold); text-decoration: none !important; }
+.watch-tab.active { background: var(--gold); color: #000; border-color: var(--gold); font-weight: 600; }
+.watch-tab .tab-time { display: block; font-size: 0.7rem; opacity: 0.7; font-family: monospace; }
+.watch-tab.active .tab-time { opacity: 1; }
+
+/* "NOW" badge — shown on the watch tab whose time window contains current local time */
+.watch-tab.is-now { position: relative; box-shadow: 0 0 0 1px var(--gold-light) inset; }
+.watch-tab.is-now::after {
+  content: "NOW";
+  position: absolute; top: -7px; right: -4px;
+  background: var(--gold-light); color: #000;
+  font-size: 0.55rem; font-weight: 700;
+  padding: 1px 5px; border-radius: 100px;
+  letter-spacing: 0.08em;
+}
+
+.watch {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px 22px;
+    margin-bottom: 22px;
+    scroll-margin-top: 80px;
+}
+.watch-header { display: flex; align-items: baseline; gap: 14px; margin-bottom: 10px; flex-wrap: wrap; }
+.watch-time {
+    background: var(--bg-card2); color: var(--gold);
+    padding: 4px 12px; border-radius: 100px;
+    font-family: 'Inter', monospace; font-size: 0.85rem; font-weight: 600;
+    letter-spacing: 0.05em;
+}
+.watch-header h2 { font-size: 1.35rem; color: var(--white); }
+
+.intro { color: var(--gray); font-style: italic; margin-bottom: 14px; }
+
+.audio-slot {
+    margin: 14px 0 18px;
+    padding: 12px 14px;
+    background: var(--bg-card2);
+    border-radius: 8px;
+    border: 1px dashed var(--border);
+}
+.audio-slot.audio-pending { opacity: 0.55; }
+.audio-cap { font-size: 0.8rem; color: var(--gray); margin-top: 4px; }
+
+.scripture {
+    background: var(--bg-card2);
+    border-left: 3px solid var(--gold);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin: 16px 0 22px;
+}
+.scripture-ref { font-weight: 600; color: var(--gold); margin-bottom: 12px; font-size: 0.95rem; }
+.scripture-text p { margin-bottom: 8px; }
+.scripture-text p.stanza { margin-bottom: 14px; }
+
+.section-label {
+    font-family: 'Playfair Display', serif;
+    color: var(--gold); font-weight: 700; font-size: 1.05rem;
+    margin: 22px 0 10px; padding-top: 10px; border-top: 1px solid var(--border);
+}
+.section p, .context p, .reflection p, .history p, .application-block p { margin-bottom: 12px; }
+
+ul.application { padding-left: 22px; margin: 8px 0 14px; }
+ul.application li { margin-bottom: 8px; }
+.application-prose { font-style: italic; color: var(--gold-light); margin-top: 12px; }
+
+.history ul { padding-left: 22px; margin: 8px 0; }
+.history li { margin-bottom: 6px; }
+
+.prayer {
+    background: var(--bg-card2);
+    border-left: 3px solid var(--gold-light);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin: 22px 0;
+}
+.prayer-title { color: var(--gold-light); font-weight: 600; margin-bottom: 10px; font-size: 0.95rem; }
+.prayer p { line-height: 1.85; margin-bottom: 8px; }
+
+.helm {
+    background: var(--bg-card2);
+    border-radius: 6px;
+    padding: 12px 18px;
+    margin-top: 14px;
+    font-size: 0.95rem;
+}
+.helm-icon { color: var(--gold); font-size: 1.1rem; }
+.helm-label { color: var(--gold); font-weight: 600; }
+
+footer {
+    text-align: center;
+    color: var(--gray);
+    font-size: 0.82rem;
+    margin-top: 32px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+}
+footer .draft-tag {
+    display: inline-block;
+    background: #2a2410;
+    color: var(--gold);
+    padding: 4px 12px;
+    border-radius: 100px;
+    font-size: 0.78rem;
+    margin-bottom: 8px;
+    letter-spacing: 0.05em;
+}
+
+@media (max-width: 540px) {
+    .watch-tab { flex: 1 1 64px; font-size: 0.78rem; padding: 6px 4px; }
+    .watch-tab .tab-time { font-size: 0.65rem; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="nav-back">← <a href="/chronological.html">The Watchman's Chronological Plan</a></div>
+
+<div class="hero">
+<h1>Thursday, April 16, 2026</h1>
+<div class="subtitle">Daily Reading — Day 106 of 365</div>
+<div class="doc-line">MOOP&#x27;s 2026 Daily Bible Readings — Document 4 of 12; for the month of April</div>
+</div>
+
+<nav class="watch-tabs" role="tablist">
+<a href="#all" class="watch-tab active" data-tab="all" role="tab"><span class="tab-label">All Watches</span></a>
+<a href="#wisdom" class="watch-tab" data-tab="wisdom" role="tab"><span class="tab-time">0600</span> <span class="tab-label">Morning Wisdom</span></a>
+<a href="#husband" class="watch-tab" data-tab="husband" role="tab"><span class="tab-time">0700</span> <span class="tab-label">Husband</span></a>
+<a href="#father" class="watch-tab" data-tab="father" role="tab"><span class="tab-time">1100</span> <span class="tab-label">Father</span></a>
+<a href="#citizen" class="watch-tab" data-tab="citizen" role="tab"><span class="tab-time">1500</span> <span class="tab-label">Citizen</span></a>
+<a href="#peace" class="watch-tab" data-tab="peace" role="tab"><span class="tab-time">2100</span> <span class="tab-label">Evening Peace</span></a>
+</nav>
+
+<section class="watch watch-wisdom" id="watch-wisdom" data-watch="wisdom">
+<div class="watch-header"><span class="watch-time">0600</span> <h2>Morning Wisdom</h2></div>
+<p class="intro">Brother, stand firm in the sovereign order of God’s Word as we examine the path of the righteous and the folly of the proud.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Proverbs 16</div>
+<div class="scripture-text">
+<p>The preparations of the heart in man, and the answer of the tongue, are from the LORD.</p>
+<p>All the ways of a man are pure in his own eyes, but the LORD weighs the spirits.</p>
+<p>Commit your work to the LORD, and your plans will be established.</p>
+<p>The LORD has made everything for its purpose, even the wicked for the day of trouble.</p>
+<p>Everyone who is proud in heart is an abomination to the LORD; be assured, he will not go unpunished.</p>
+<p>By steadfast love and faithfulness iniquity is atoned for, and by the fear of the LORD one turns away from evil.</p>
+<p>When a man&#x27;s ways please the LORD, he makes even his enemies be at peace with him.</p>
+<p>Better is a little with righteousness than great revenues with injustice.</p>
+<p>A man&#x27;s heart plans his way, but the LORD directs his steps.</p>
+<p>The execution of a deed is like a chance lot in the lap, but its every decision is from the LORD.</p>
+<p>Do not say, &quot;I will repay evil&quot;; wait for the LORD, and He will deliver you.</p>
+<p>The lips of priests should keep knowledge, and people should seek law from their mouth, for he is the messenger of the LORD of hosts.</p>
+<p>Do not rebuke a mocker, or he will hate you; rebuke a wise man, and he will love you.</p>
+<p>Give instruction to a wise man, and he will be still wiser; teach a righteous man, and he will increase in learning.</p>
+<p>The tongue of the righteous is choice silver; the heart of the wicked is of little worth.</p>
+<p>The lips of the righteous feed many, but the foolish die for lack of sense.</p>
+<p>The way of a fool is right in his own eyes, but a wise man listens to advice.</p>
+<p>If you bring your grievance before a ruler, he will listen to you, and he will grant your justice.</p>
+<p>A king who sits on the throne of judgment scorches away all evil with his eyes.</p>
+<p>The king&#x27;s wrath is a messenger of death, and the wise man will appease it.</p>
+<p>There are diverse weights, and diverse measures, both of them are alike an abomination to the LORD.</p>
+<p>A king cannot win a mighty army by many troops, and a mighty man cannot deliver himself by great strength.</p>
+<p>The horse is prepared for the day of battle, but the victory belongs to the LORD.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🧭 Context Summary</div>
+<p>Solomon addresses the tension between human agency and divine sovereignty, reminding us that while we plan and act, the LORD holds the ultimate authority over our steps and our spirits. He contrasts the self-deception of the proud with the humility of the wise, establishing that true righteousness is not measured by human standards but by the LORD’s weighing of our hearts. The passage calls for a life of reverence, where we commit our labors to God and trust His judgment over our own limited perspective. It is a sobering reminder that victory in battle and success in life do not depend on human might, but on the LORD’s sovereign will.</p>
+</div>
+<div class="section reflection">
+<div class="section-label">🛡️ Reflection for a REAL MAN — Commits His Plans</div>
+<p>Brother, you know the discipline of the Marine Corps, where orders are given and executed with precision. Yet in the spiritual realm, the greatest test of your manhood is not merely obedience to a superior, but submission to the Sovereign Lord. Many men, including those in uniform, struggle with the desire to control their outcomes. You plan the deployment, you train your family, you provide for your household, and in your own eyes, your ways appear pure and justified. But the LORD weighs the spirit, not just the action. He looks past the external display of strength to the internal posture of the heart.</p>
+<p>As a Reformed man, you understand that God is not a passive observer. He ordains the ends and the means. When you commit your work to the LORD, you are not abdicating your responsibility; you are acknowledging the source of your strength. Your plans are valid and necessary, but they are only established when they align with His will. This requires a humility that the world calls weakness, but which the Bible calls wisdom. It is the courage to say, &quot;Lord, I have done my part; now I trust You with the result.&quot;</p>
+<p>This trust is the foundation of a godly father and husband. Your family looks to you for security, but true security comes only when your heart is fixed on the LORD. If you rely on your own strength, you will eventually falter under the weight of life’s battles. But if you fear the LORD and turn away from evil, you place yourself under the cover of His steadfast love. Your enemies may oppose you, but if your ways please the LORD, He can even bring peace where there was conflict. Do not be proud in your own eyes. Listen to advice, weigh your motives, and let the LORD direct your steps.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Review your current major projects and family goals, and explicitly pray over each one, surrendering the outcome to the LORD’s sovereign will.</li>
+<li>Identify one area where you have relied on your own strength or intellect rather than seeking God’s guidance, and confess this pride as sin.</li>
+<li>Actively seek counsel from a mature, godly brother or elder regarding a difficult decision, demonstrating humility by valuing wise advice over your own opinion.</li>
+<li>Establish a daily habit of checking your heart motives, asking the LORD to weigh your spirit and correct any self-deception before you act.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer</div>
+<p>Father, we thank You for the gift of wisdom and for the clear instruction of Your Word. We confess that we often plan in our own strength and trust in our own understanding. Forgive us for the pride that hides in our hearts and for the ways we have tried to control outcomes apart from Your will. By the power of Your Holy Spirit, humble us before Your majesty. Teach us to commit our works to You, that our plans may be established according to Your good pleasure. Give us the courage to fear You above all else, that we may turn away from evil and walk uprightly before You. Direct our steps, O Lord, and let our lives bring glory to Your name. In the name of Jesus Christ, my Lord and Commander, Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Helm Command:</span> Anchor your plans in the LORD, for He alone directs your steps.</div>
+</section>
+
+<section class="watch watch-husband" id="watch-husband" data-watch="husband">
+<div class="watch-header"><span class="watch-time">0700</span> <h2>First Watch — The Husband&#x27;s Post</h2></div>
+<p class="intro">Brother, let us begin this watch by examining the solemn covenant of obedience that defines our standing before the King of Kings.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 1 Samuel 15</div>
+<div class="scripture-text">
+<p>The LORD said to Samuel, I regret that I have made Saul king, for he has turned back from following Me and has not performed My commands. And it grieved Samuel, and he cried out to the LORD all night. Then the LORD said to Samuel, How long will you grieve over Saul, since I have rejected him from reigning over Israel? Fill your horn with oil, and I will send you to Jesse the Bethlehemite, for I have chosen Myself a king among his sons. And Samuel said, How can I go? If Saul hears it, he will kill me. The LORD said, Take a heifer with you and say, I have come to sacrifice to the LORD. Call Jesse to the sacrifice, and I will show you what you shall do; and you shall anoint for Me him whom I declare to you. Jesse called Abinadab and passed him before Samuel. And Samuel said to Jesse, The LORD has not chosen this one. Then Jesse made Shammah pass by. And he said, Neither has the LORD chosen this one. In the same way, Jesse made seven of his sons pass before Samuel. And Samuel said to Jesse, The LORD has not chosen these. And Samuel said to Jesse, Are all your sons here? And he said, There remains yet the youngest. Behold, he is keeping the sheep. And Samuel said to Jesse, Send and get him; for we will not sit down to eat until he comes here. So he sent and got him and brought him in. Now he was ruddy, and with beautiful eyes and goodly in appearance. And the LORD said, Arise, anoint him; for this is the one. Then Samuel took the horn of oil and anointed him in the midst of his brothers; and the Spirit of the LORD came powerfully upon David from that day forward. And Samuel rose up and went to Ramah.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🗺️ Briefing Summary</div>
+<p>The narrative shifts from the tragic decline of King Saul to the quiet, sovereign selection of David, illustrating that God’s plans are never thwarted by human failure. Samuel’s grief gives way to the urgent mission of finding a man after God’s own heart, proving that divine authority rests not on outward appearance or military might, but on God’s elective grace. This passage establishes the principle that true leadership is conferred by the Almighty, not by popular acclaim or human strategy.</p>
+</div>
+<div class="section reflection">
+<div class="section-label">❤️ Reflection for Your Wife — H.A.P.P.Y. Husband — Providing</div>
+<p>Brother, the duty of a husband is to provide not merely materially, but spiritually and emotionally, ensuring that his household rests securely in the shadow of the Almighty. When Saul failed because he sought to preserve his own glory, David succeeded because he submitted entirely to the LORD’s timing and will. As the head of your home, you are called to be the spiritual provisioner for Maria, just as Jesse provided for his sons and the LORD provided for David. Your strength is not measured by your ability to control outcomes, but by your faithful stewardship of the resources, protection, and guidance God has entrusted to your care. You must look past the superficial metrics of the world and invest in the eternal welfare of your family, offering them the security that comes only from walking in obedience to God’s commandments. This is the burden and the privilege of biblical manhood: to stand firm in your covenant responsibilities, ensuring that your wife and children are shielded from the chaos of a fallen world by the order and truth of Scripture.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Conduct a weekly inventory of your spiritual leadership to ensure you are feeding Maria’s soul with the Word, not just your body with food.</li>
+<li>Pray specifically for the protection of your home, acknowledging that your authority is derived solely from the LORD and must be exercised in humility.</li>
+<li>Review your financial and practical resources to ensure they are allocated according to biblical priorities, prioritizing the gospel and your family’s holiness over worldly status.</li>
+<li>Speak words of affirmation and theological truth to Maria, reinforcing her identity in Christ and your commitment to lead her toward godliness.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Stateroom</div>
+<p>Father, we thank You for the example of David, who found favor in Your sight not by his own merit but by Your sovereign choice. Grant me the grace to provide for Maria and my children with the same fidelity that You have shown to Your people. By the power of Your Holy Spirit, strip away my pride and my desire for self-preservation, replacing them with a heart that seeks only to honor You in my role as husband and father. Give me the courage to stand firm in my duties, knowing that my strength is made perfect in weakness. In the name of Jesus Christ, my Lord and Commander, I pray. Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Helm Command:</span> Secure the spiritual deck and lead your household in the truth.</div>
+</section>
+
+<section class="watch watch-father" id="watch-father" data-watch="father">
+<div class="watch-header"><span class="watch-time">1100</span> <h2>Second Watch — The Father&#x27;s Charge</h2></div>
+<p class="intro">The Lord does not measure the heart by the standards of men, but by the purity of faith that trusts His sovereign will.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 1 Samuel 16</div>
+<div class="scripture-text">
+<p>The LORD said to Samuel, How long will you grieve over Saul? I have rejected him from reigning over Israel. Fill your horn with oil and go. I will send you to Jesse the Bethlehemite, for I have provided Myself a King among his sons. And Samuel said, How can I go? If Saul hears it, he will kill me. The LORD said, Take a heifer with you and say, I have come to sacrifice to the LORD. Call Jesse to the sacrifice, and I will show you what you shall do. You shall anoint for Me him whom I shall tell you. Jesse came and Samuel saw Eliab and said, Surely the LORD&#x27;S Anointed is before Him. But the LORD said to Samuel, Do not look at his appearance or at his physical stature, because I have refused him. For the LORD sees not as man sees; for man looks at the outward appearance, but the LORD looks at the heart. Then Jesse called Abinadab and made him pass before Samuel. And he said, Neither has the LORD chosen this one. Then Jesse made Shammah pass by. And he said, Neither has the LORD chosen this one. And so it was, when they had made seven of his sons pass before Samuel, that Samuel said to Jesse, The LORD has not chosen these. And Samuel said to Jesse, Are all your sons here? And he said, There remains yet the youngest. Behold, he is keeping the sheep. And Samuel said to Jesse, Send and fetch him. For we will not sit down to eat until he comes here. So he sent and brought him in. Now he was ruddy, with beautiful eyes, and good-looking. And the LORD said, Arise, anoint him; for this is the one. Then Samuel took the horn of oil and anointed him in the presence of his brothers. And the Spirit of the LORD came upon David from that day forward. So Samuel rose up and went to Ramah.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🗺️ Field Notes</div>
+<p>Samuel stands at the threshold of a new era, tasked with anointing a king from the house of Jesse, yet he fears the wrath of the rejected Saul. The Lord corrects the prophet’s reliance on human metrics, directing him to look past the imposing stature of the eldest brothers to the humble shepherd boy in the fields. This passage marks the divine selection of David, not by military might or appearance, but by the secret counsel of God’s heart. It serves as a sobering reminder to us that God’s choices often defy human expectation and earthly logic.</p>
+</div>
+<div class="section reflection">
+<div class="section-label">👨‍👦 Reflection for Your Children — F.U.L.F.I.L.L.E.D. Father — Leading</div>
+<p>Brother, you are called to lead your house with the same divine confidence that guided Samuel, even when the path seems counterintuitive. You must teach Gideon, Boaz, and Shiloh that true leadership is not about commanding attention through stature or strength, but about recognizing God’s hand in the quiet and the humble. When you guide your sons, do not merely point to their achievements or their physical prowess, but direct their eyes to the character God is forging in their hearts. Your authority as a father is a reflection of God’s sovereign choice, and you must exercise it with the wisdom to see what the world overlooks.</p>
+<p>Gideon, at nineteen, stands on the precipice of manhood. You must lead him to understand that his value is not in his ability to dominate his peers, but in his submission to God’s call. Boaz, at fourteen, is in the turbulent years of youth. Lead him to find his identity not in the approval of the crowd, but in the approval of the Lord who looks at the heart. Little Shiloh, at five, is learning the world through your eyes. Lead him to see that God sees him, loves him, and has a purpose for him, even in his smallness. This is the burden and the privilege of your headship.</p>
+<p>You must be willing to send your sons to the &quot;fields&quot; of their own calling, even when you cannot see the outcome. Just as Jesse had to fetch the youngest son, you must sometimes step back to allow God to work in the private places of their lives. Do not be satisfied with the outward appearance of piety in your children. Dig deeper. Pray for the Spirit to reveal the true state of their souls. Lead them to Christ, the true Shepherd, who was despised and rejected yet chosen by the Father for our salvation.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Sit with Gideon to discuss his vocational calling and pray for discernment in his career or ministry path.</li>
+<li>Establish a daily routine of reading Scripture with Boaz, focusing on the lives of the Patriarchs and Kings.</li>
+<li>Read Psalm 23 aloud to Shiloh before bed, emphasizing that the Lord is his Shepherd who cares for him.</li>
+<li>Examine your own heart daily to ensure you are not relying on your own strength or reputation for authority.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Wardroom</div>
+<p>Father, You who choose the foolish things of the world to confound the wise, I ask for the grace to lead my house according to Your will. Forgive me for the times I have looked at outward appearances rather than the heart. By the power of Your Holy Spirit, give me the courage to see my sons as You see them. Strengthen my hand to guide Gideon, instruct Boaz, and protect Shiloh. May my leadership be a reflection of Your sovereign grace. In the name of Jesus Christ, my Lord and Commander, I pray. Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Rudder Steer:</span> Anchor your authority in Scripture, not in sentiment.</div>
+</section>
+
+<section class="watch watch-citizen" id="watch-citizen" data-watch="citizen">
+<div class="watch-header"><span class="watch-time">1500</span> <h2>Third Watch — The Citizen&#x27;s Stand</h2></div>
+<p class="intro">The battlefield is not merely a place of combat, but a theater where the sovereignty of God is displayed through the faith of His people.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 1 Samuel 17:1-31</div>
+<div class="scripture-text">
+<p>The Philistines gathered their armies for war and were stationed at Socoh, which belongs to Judah, and they encamped between Socoh and Azekah, in Ephes-dammim. And Saul and the men of Israel were gathered together and encamped in the Valley of Elah and drew up in battle line against the Philistines. And the Philistines stood on one mountain and the men of Israel stood on another mountain, with the valley between them. And there went out a champion from the camp of the Philistines, named Goliath, from Gath, whose height was six cubits and a span. He had a helmet of bronze on his head, and he was armed with a coat of mail, and the weight of the coat was five thousand shekels of bronze. And he had bronze armor on his legs, and a spear of iron on his back; and the shaft of his spear was like a weaver&#x27;s beam, and his spear&#x27;s head weighed six hundred shekels of iron. And a shield-bearer went before him. He stood and cried out to the ranks of Israel and said to them, &quot;Why have you come out to draw up in battle line? Am I not a Philistine, and are you not servants of Saul? Choose a man for yourselves and let him come down to me. If he is able to fight with me and kill me, then we will be your servants, but if I prevail against him and kill him, then you shall be our servants and serve us.&quot; And the Philistine said, &quot;I defy the ranks of Israel this day! Give me a man, that we may fight together.&quot; And when Saul and all Israel heard these words of the Philistine, they were dismayed and greatly afraid. Now David was the son of that Ephrathite of Bethlehem Judah, whose name was Jesse, and who had eight sons. And in the days of Saul the man had gone into old age, and he was among the men who had gone to war, and the men whom Saul had left to keep the goods were Jesse. And Jesse said to his son David, &quot;Take for your brothers an ephah of this roasted grain and these ten loaves, and carry them quickly to the camp to your brothers; and look after the safety of your brothers, and bring back their pledge.&quot; Now Saul, and they, and all the men of Israel, were in the Valley of Elah, fighting with the Philistines. And David rose early in the morning and left the sheep in the care of a keeper, took the provisions, and went as Jesse had commanded him. And he came to the outpost as the army was going forth and shouting and drawing up in battle line. And Israel and the Philistines drew up in battle line, army against army. And David left his baggage in the care of the keeper of the baggage and ran to the ranks and went and greeted his brothers. And as he talked with them, behold, the champion, the Philistine of Gath, Goliath by name, came up out of the ranks of the Philistines and spoke according to the same words. And David heard it. And the men of Israel saw the man and fled from him greatly afraid. Now the men of Israel said, &quot;Have you seen this man who has come up? Surely he has come up to defy Israel; and the king will enrich the man who kills him with great riches and will give him his daughter and make his father&#x27;s house free in Israel.&quot; And David said to the men who stood by him, &quot;What shall be done for the man who kills this Philistine and takes away the reproach from Israel? For who is this uncircumcised Philistine, that he should defy the armies of the living God?&quot; And the people answered him in the same way, saying, &quot;So shall it be done for the man who kills him.&quot;</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🛰️ Situation Report</div>
+<p>Saul and the armies of Israel are paralyzed by the psychological warfare of Goliath, a giant who uses his physical stature to defy the living God. The veteran in the ranks knows the weight of fear when the enemy appears insurmountable, yet David arrives not with armor, but with the quiet confidence of one who has faced lions and bears in the field. This is the moment where human courage fails and divine intervention begins, for the battle belongs to the LORD, not to the strength of man.</p>
+</div>
+<div class="section reflection resolute">
+<div class="section-label">🛡️ Reflection for a R.E.S.O.L.U.T.E. Citizen — Steadfast</div>
+<p>Fredericksburg (local)<br>Brother, look to the banks of the Rappahannock where the ground is hard and the stakes are high. In Fredericksburg, the men of the 1689 LBCF tradition stood firm against the tide of secularism that sought to drown the truth in the mud of moral compromise. Just as David stood alone against the Philistine ranks, you are called to stand your ground in this city, not with the clamor of political outrage, but with the quiet, unshakeable fidelity to the text of Scripture. Your steadfastness is not measured by the applause of the crowd, but by your refusal to retreat from the post God has assigned you.</p>
+<p>Virginia (state)<br>The soil of Virginia is rich with the blood of patriots who understood that liberty is a gift from God, earned through discipline and faith. When the nation fractured, it was the steadfastness of those who held to the covenant responsibilities of husband and father that preserved the moral fabric of the commonwealth. You must emulate that legacy by being a pillar in your local church and community, resisting the cultural currents that seek to dissolve the family. Your duty is to uphold the authority of God’s Word in the home, just as the elders upheld the truth in the assembly, regardless of the pressure to conform to the world.</p>
+<p>United States (nation)<br>The United States was founded not on the shifting sands of human reason, but on the bedrock of biblical revelation. When the nation faces its own giants—idols of pride, greed, and relativism—you are called to be a citizen of steadfast resolve. Do not be swayed by the fear of men, for Goliath’s shout is loud but empty. Your strength comes from the God of Israel, who has ordained the rise and fall of nations. Stand firm in your covenant obligations to your wife, your children, and your Savior, knowing that the kingdom of this world is passing away, but the kingdom of God remains forever.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Review your daily schedule to ensure you are prioritizing family devotions over the noise of the news cycle.</li>
+<li>Identify one area in your workplace where you have compromised your witness and commit to speaking truth with grace this week.</li>
+<li>Engage in a specific act of physical or spiritual discipline, such as fasting or a rigorous workout, to strengthen your resolve against temptation.</li>
+<li>Visit a fellow brother who is struggling with fear or doubt, and offer him the encouragement of Scripture rather than mere sympathy.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Bridge</div>
+<p>Father, we thank You for the example of David, who trusted in Your name rather than in the sword or the spear. Forgive us for the times we have been paralyzed by the size of our problems or the strength of our enemies. Grant us the spirit of steadfastness, that we may stand firm in our duties as husbands, fathers, and citizens. By the power of Your Holy Spirit, strengthen our hearts to face the giants of our day with the courage of faith, knowing that You are with us. In the name of Jesus Christ, my Lord and Commander, Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Rudder Steer:</span> Hold the line of faith when the enemy shouts loudest.</div>
+<div class="section history">
+<div class="section-label">🦅 This Day in American History — April 16</div>
+<p>On April 16, 1622, the Powhatan Confederacy launched a coordinated attack against the Jamestown settlement, a tragic event that tested the survival of the early English colonies. Yet, in the providence of God, this trial forged a stronger resolve among the survivors, leading to a deeper reliance on divine provision and a more unified community under the authority of God’s law.</p>
+<p>On April 16, 1865, as the Civil War drew to a close, President Abraham Lincoln delivered his last public address at the White House, calling for charity toward the defeated South and urging the nation to bind up its wounds. This moment of grace amidst the ruin of war stands as a testament to the Christian duty of mercy and the hope of national restoration through repentance and faith.</p>
+<p>⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻</p>
+</div>
+</section>
+
+<section class="watch watch-peace" id="watch-peace" data-watch="peace">
+<div class="watch-header"><span class="watch-time">2100</span> <h2>Evening Peace</h2></div>
+<p class="intro">The sun has set on the day’s labor, and now the quiet of the home calls you to your truest watch.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Psalm 95</div>
+<div class="scripture-text">
+<p>Come, let us sing for joy to the LORD; let us shout aloud to the Rock of our salvation. Let us come before Him with thanksgiving and raise a loud shout with psalms of praise. For the LORD is the great God, the great King above all gods. In His hand are the depths of the earth, and the mountain peaks belong to Him. The sea belongs to Him, for He made it, and His hands formed the dry land. Come, let us bow down in worship, let us kneel before the LORD our Maker, for He is our God and we are the people of His pasture, the flock under His care. Today, if only you would hear His voice, do not harden your hearts as you did at Meribah, as you did that day at Massah in the wilderness, when your ancestors put Me to the test; though they had seen My works, for forty years I was angry with that generation; I said, “They are a people whose hearts go astray, and they have not known My ways.” So I declared on oath in My anger, “They shall never enter My rest.”</p>
+</div>
+</div>
+<div class="section reflection">
+<div class="section-label">🌾 Reflection for a Man at Home and in Community</div>
+<p>As a HAPPY husband, brother, you must recognize that the peace of your home rests on the authority of the Lord, not merely the comfort of your spouse. The Psalmist warns against a hard heart, and you must guard yours against the subtle hardness that comes from fatigue or pride. Your wife is under your care, but she is also a fellow heir of the grace of life. Lead her not by force, but by the steady, humble example of one who fears the LORD. Let your home be a place where the voice of Scripture is heard clearly, where thanksgiving is raised loud, and where the fear of the Lord is the foundation of your daily walk.</p>
+<p>As a FULFILLED father, brother, you are called to be the shepherd of your children’s souls, just as the LORD shepherds His flock. The text reminds us that we are the people of His pasture, and you must reflect that care in your discipline and instruction. Do not let your anger rule your household, nor let your children’s hearts harden against the truth. Train them in the way they should go, not with the harshness of a tyrant, but with the firm love of a covenant keeper. Your authority is a trust from God, and you will give an account for how you wield it. Protect their innocence, guide their steps, and point them constantly to the Rock of their salvation.</p>
+<p>As a RESOLUTE citizen, brother, you stand as a witness to the sovereignty of the Creator in a world that has forgotten Him. The LORD is King above all other gods, and no earthly power can usurp His right to rule. Your service to your nation and your community must be grounded in this supreme allegiance. You do not fight for a cause that is greater than God, but you serve under His banner with discipline and integrity. Let your work be an act of worship, your honesty a testimony to His truth, and your strength a shield for the weak. Stand firm in the faith, for the day of judgment is coming, and only those who hear His voice and do not harden their hearts will enter His rest.</p>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Stateroom</div>
+<p>Father, we thank You for the peace of this evening and for the privilege of returning to our posts under Your watchful eye. Forgive us for the times we have hardened our hearts against Your voice or neglected the duties You have entrusted to us. By the power of Your Holy Spirit, renew our strength and steady our hands. Help us to lead our wives with love, to train our children with wisdom, and to serve our neighbors with integrity. Keep us from pride and anger, and anchor our souls in the certainty of Your sovereign rule. In the name of Jesus Christ, my Lord and Commander, we pray. Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Rudder Steer:</span> Hold the line of faith and fulfill your covenant duties with unwavering resolve.</div>
+</section>
+
+<footer>
+<div class="draft-tag">PROTOTYPE — sign-off pending</div>
+<div>U.S.M.C. Ministries · The Watchman's Chronological Plan for the Year of our Lord 2026</div>
+<div style="margin-top:6px;font-size:0.78rem;">Adam Johns &middot; rich interpretive blend &middot; divine name LORD</div>
+</footer>
+
+</div>
+<script>
+(function(){
+  const SLUGS = ['all','wisdom','husband','father','citizen','peace'];
+
+  // Watch windows in local hours (each watch is "live" from its start time
+  // until the NEXT watch begins). Evening peace owns 21:00 → 04:59.
+  function currentWatchSlug() {
+    const h = new Date().getHours();
+    if (h >= 5  && h < 7)  return 'wisdom';
+    if (h >= 7  && h < 11) return 'husband';
+    if (h >= 11 && h < 15) return 'father';
+    if (h >= 15 && h < 21) return 'citizen';
+    return 'peace';                       // 21:00 – 04:59
+  }
+  const NOW_SLUG = currentWatchSlug();
+
+  function markNowBadge(){
+    document.querySelectorAll('.watch-tab').forEach(t => {
+      t.classList.toggle('is-now', t.dataset.tab === NOW_SLUG);
+    });
+  }
+  function showOnly(slug){
+    const isAll = slug === 'all' || !SLUGS.includes(slug);
+    document.querySelectorAll('section.watch').forEach(s => {
+      s.style.display = (isAll || s.dataset.watch === slug) ? '' : 'none';
+    });
+    document.querySelectorAll('.watch-tab').forEach(t => {
+      t.classList.toggle('active', t.dataset.tab === (isAll ? 'all' : slug));
+    });
+  }
+  document.querySelectorAll('.watch-tab').forEach(t => {
+    t.addEventListener('click', function(e){
+      e.preventDefault();
+      const slug = this.dataset.tab;
+      history.replaceState(null, '', '#' + slug);
+      showOnly(slug);
+      window.scrollTo({top: 0, behavior:'smooth'});
+    });
+  });
+
+  // Initial selection priority:
+  //   1. URL hash if present  (#all / #wisdom / #husband / #father / #citizen / #peace)
+  //   2. Auto-select the watch that is "live right now"
+  let initial;
+  if (location.hash) {
+    initial = location.hash.slice(1);
+  } else {
+    initial = NOW_SLUG;
+  }
+  markNowBadge();
+  showOnly(initial);
+})();
+</script>
+</body>
+</html>
