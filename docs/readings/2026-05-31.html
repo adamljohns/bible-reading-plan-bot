@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg">
+<title>Sunday, May 31, 2026 — Daily Reading | U.S.M.C. Ministries</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+    --bg-dark: #000000; --bg-card: #111111; --bg-card2: #161616;
+    --gold: #D4AF37; --gold-light: #F4D470;
+    --white: #FFFFFF; --gray: #888888; --border: #333333;
+}
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--white);
+    min-height: 100vh;
+    line-height: 1.7;
+}
+h1, h2, h3 { font-family: 'Playfair Display', serif; font-weight: 700; }
+.container { max-width: 820px; margin: 0 auto; padding: 24px 20px 60px; }
+a { color: var(--gold); text-decoration: none; }
+a:hover { color: var(--gold-light); text-decoration: underline; }
+
+.nav-back { margin-bottom: 14px; font-size: 0.95rem; }
+
+.hero { text-align: center; padding: 16px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 18px; }
+.hero h1 { font-size: clamp(1.5rem, 4vw, 2.2rem); color: var(--white); margin-bottom: 6px; }
+.hero .subtitle { color: var(--gold); font-size: 0.95rem; font-style: italic; }
+.hero .doc-line { color: var(--gray); font-size: 0.82rem; margin-top: 6px; }
+
+.watch-tabs {
+    position: sticky; top: 0; z-index: 30;
+    background: var(--bg-dark);
+    border-bottom: 1px solid var(--border);
+    display: flex; flex-wrap: wrap; gap: 6px;
+    padding: 12px 0 14px;
+    margin-bottom: 18px;
+}
+.watch-tab {
+    flex: 1 1 90px;
+    text-align: center;
+    padding: 8px 6px;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    background: var(--bg-card);
+    color: var(--gray);
+    font-size: 0.85rem; font-weight: 500;
+    transition: all 0.15s ease;
+    text-decoration: none !important;
+    white-space: nowrap;
+}
+.watch-tab:hover { color: var(--white); border-color: var(--gold); text-decoration: none !important; }
+.watch-tab.active { background: var(--gold); color: #000; border-color: var(--gold); font-weight: 600; }
+.watch-tab .tab-time { display: block; font-size: 0.7rem; opacity: 0.7; font-family: monospace; }
+.watch-tab.active .tab-time { opacity: 1; }
+
+/* "NOW" badge — shown on the watch tab whose time window contains current local time */
+.watch-tab.is-now { position: relative; box-shadow: 0 0 0 1px var(--gold-light) inset; }
+.watch-tab.is-now::after {
+  content: "NOW";
+  position: absolute; top: -7px; right: -4px;
+  background: var(--gold-light); color: #000;
+  font-size: 0.55rem; font-weight: 700;
+  padding: 1px 5px; border-radius: 100px;
+  letter-spacing: 0.08em;
+}
+
+.watch {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px 22px;
+    margin-bottom: 22px;
+    scroll-margin-top: 80px;
+}
+.watch-header { display: flex; align-items: baseline; gap: 14px; margin-bottom: 10px; flex-wrap: wrap; }
+.watch-time {
+    background: var(--bg-card2); color: var(--gold);
+    padding: 4px 12px; border-radius: 100px;
+    font-family: 'Inter', monospace; font-size: 0.85rem; font-weight: 600;
+    letter-spacing: 0.05em;
+}
+.watch-header h2 { font-size: 1.35rem; color: var(--white); }
+
+.intro { color: var(--gray); font-style: italic; margin-bottom: 14px; }
+
+.audio-slot {
+    margin: 14px 0 18px;
+    padding: 12px 14px;
+    background: var(--bg-card2);
+    border-radius: 8px;
+    border: 1px dashed var(--border);
+}
+.audio-slot.audio-pending { opacity: 0.55; }
+.audio-cap { font-size: 0.8rem; color: var(--gray); margin-top: 4px; }
+
+.scripture {
+    background: var(--bg-card2);
+    border-left: 3px solid var(--gold);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin: 16px 0 22px;
+}
+.scripture-ref { font-weight: 600; color: var(--gold); margin-bottom: 12px; font-size: 0.95rem; }
+.scripture-text p { margin-bottom: 8px; }
+.scripture-text p.stanza { margin-bottom: 14px; }
+
+.section-label {
+    font-family: 'Playfair Display', serif;
+    color: var(--gold); font-weight: 700; font-size: 1.05rem;
+    margin: 22px 0 10px; padding-top: 10px; border-top: 1px solid var(--border);
+}
+.section p, .context p, .reflection p, .history p, .application-block p { margin-bottom: 12px; }
+
+ul.application { padding-left: 22px; margin: 8px 0 14px; }
+ul.application li { margin-bottom: 8px; }
+.application-prose { font-style: italic; color: var(--gold-light); margin-top: 12px; }
+
+.history ul { padding-left: 22px; margin: 8px 0; }
+.history li { margin-bottom: 6px; }
+
+.prayer {
+    background: var(--bg-card2);
+    border-left: 3px solid var(--gold-light);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin: 22px 0;
+}
+.prayer-title { color: var(--gold-light); font-weight: 600; margin-bottom: 10px; font-size: 0.95rem; }
+.prayer p { line-height: 1.85; margin-bottom: 8px; }
+
+.helm {
+    background: var(--bg-card2);
+    border-radius: 6px;
+    padding: 12px 18px;
+    margin-top: 14px;
+    font-size: 0.95rem;
+}
+.helm-icon { color: var(--gold); font-size: 1.1rem; }
+.helm-label { color: var(--gold); font-weight: 600; }
+
+footer {
+    text-align: center;
+    color: var(--gray);
+    font-size: 0.82rem;
+    margin-top: 32px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+}
+footer .draft-tag {
+    display: inline-block;
+    background: #2a2410;
+    color: var(--gold);
+    padding: 4px 12px;
+    border-radius: 100px;
+    font-size: 0.78rem;
+    margin-bottom: 8px;
+    letter-spacing: 0.05em;
+}
+
+@media (max-width: 540px) {
+    .watch-tab { flex: 1 1 64px; font-size: 0.78rem; padding: 6px 4px; }
+    .watch-tab .tab-time { font-size: 0.65rem; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="nav-back">← <a href="/chronological.html">The Watchman's Chronological Plan</a></div>
+
+<div class="hero">
+<h1>Sunday, May 31, 2026</h1>
+<div class="subtitle">Daily Reading — Day 151 of 365</div>
+<div class="doc-line">MOOP&#x27;s 2026 Daily Bible Readings — Document 5 of 12; for the month of May</div>
+</div>
+
+<nav class="watch-tabs" role="tablist">
+<a href="#all" class="watch-tab active" data-tab="all" role="tab"><span class="tab-label">All Watches</span></a>
+<a href="#wisdom" class="watch-tab" data-tab="wisdom" role="tab"><span class="tab-time">0600</span> <span class="tab-label">Morning Wisdom</span></a>
+<a href="#husband" class="watch-tab" data-tab="husband" role="tab"><span class="tab-time">0700</span> <span class="tab-label">Husband</span></a>
+<a href="#father" class="watch-tab" data-tab="father" role="tab"><span class="tab-time">1100</span> <span class="tab-label">Father</span></a>
+<a href="#citizen" class="watch-tab" data-tab="citizen" role="tab"><span class="tab-time">1500</span> <span class="tab-label">Citizen</span></a>
+<a href="#peace" class="watch-tab" data-tab="peace" role="tab"><span class="tab-time">2100</span> <span class="tab-label">Evening Peace</span></a>
+</nav>
+
+<section class="watch watch-wisdom" id="watch-wisdom" data-watch="wisdom">
+<div class="watch-header"><span class="watch-time">0600</span> <h2>Morning Wisdom</h2></div>
+<p class="intro">Stand firm in the discipline of a godly household, knowing that Your authority is rooted in the fear of the LORD.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Proverbs 31</div>
+<div class="scripture-text">
+<p class="stanza">A king’s utterance is weighty and to be feared; who dares to say, “How do I answer?”<br>Let the king’s fear be upon him, for he serves the Most High.<br>Do not spend your strength on women, nor your ways on that which destroys kings.<br>It is not for kings, O Lemuel, not for kings to drink wine, nor for rulers to say, “Where is wine?”<br>Lest they drink and forget what has been decreed and pervert the rights of all the afflicted.<br>Let wine be given to him who is perishing, and wine to those in bitter distress;<br>Let him drink and forget his poverty and remember his misery no more.<br>Open your mouth for the mute, for the rights of all who are destitute.<br>Open your mouth, judge righteously, defend the rights of the poor and needy.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🧭 Context Summary</div>
+<p>King Lemuel receives maternal instruction on the duties of civil authority and the dangers of indulgence. The passage contrasts the heavy burden of kingship with the urgent call to defend the voiceless and uphold justice. It establishes that true power is exercised not through self-aggrandizement but through righteous judgment and restraint. The text serves as a sobering reminder that earthly authority is accountable to the divine King.</p>
+</div>
+<div class="section reflection">
+<div class="section-label">🛡️ Reflection for a REAL MAN — Judges Righteously</div>
+<p>Brother, the weight of command rests heavily on the shoulders of those who lead. You are called to be a king in your own domain, ruling with the wisdom that comes from above. The text warns against the softening influence of excess, reminding you that clarity of mind is essential for righteous judgment. When you are fogged by indulgence, you cannot see the needs of those under your care. Your strength must be reserved for the defense of the weak and the enforcement of what is right.</p>
+<p>The command to open your mouth for the mute is a direct order to the strong. As a father and a veteran, you possess the voice and the power that others lack. You must use this advantage to advocate for those who cannot advocate for themselves. This is not a suggestion for the pious but a mandate for the powerful. Your authority is a tool for justice, not a toy for pleasure.</p>
+<p>Brother, remember that your judgment will be weighed against the standards of the Most High. Do not pervert the rights of the poor and needy through negligence or bias. Stand firm in the truth, even when it is difficult. Protect the vulnerable with the same fervor you reserve for the battle line. Your household and your community look to you for stability and fairness.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Audit your daily habits to ensure they sharpen your judgment rather than dull it.</li>
+<li>Identify one person in your circle who lacks a voice and actively advocate for their rights today.</li>
+<li>Review a recent decision you made to ensure it was based on truth and justice, not convenience.</li>
+<li>Speak a word of encouragement and correction to a family member who needs structure and truth.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer</div>
+<p>Father, grant me the wisdom to rule my household with righteousness and fear of You. By the power of Your Holy Spirit, help me to keep my mind clear and my heart firm against the temptations that cloud judgment. Give me the courage to defend the rights of the weak and to speak truth to power. In the name of Jesus Christ, my Lord and Commander, Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Helm Command:</span> Hold the line of justice and defend the weak with every breath.</div>
+</section>
+
+<section class="watch watch-husband" id="watch-husband" data-watch="husband">
+<div class="watch-header"><span class="watch-time">0700</span> <h2>First Watch — The Husband&#x27;s Post</h2></div>
+<p class="intro">Brother, stand firm in the covenant of your marriage as you survey the long shadow of spiritual compromise.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 2 Kings 15:17-38</div>
+<div class="scripture-text">
+<p>Menahem son of Gadi went up from Tirzah and attacked Tiphsah, for the city had refused to open its gates. He sacked Tiphsah and ripped open all the women pregnant with child. At that time Menahem got his hold on the kingdom of Israel and ruled for ten years in Samaria. He did evil in the eyes of the LORD; he did not turn away from the sins of Jeroboam son of Nebat, which he had caused Israel to commit.</p>
+<p>Pekahiah son of Menahem began to reign over Israel in Samaria and ruled for two years. But Pekah son of Remaliah, his officer, conspired against him with fifty men of the Gileadites and assassinated him at the palace residence in Samaria, along with Argob and Arieh. He put Pekahiah to death and succeeded him as king.</p>
+<p>Pekah began to reign over Israel in Samaria and ruled for twenty years. He did evil in the eyes of the LORD and did not turn away from the sins of Jeroboam son of Nebat, which he had caused Israel to commit. During Pekah’s reign, Tiglath-Pileser king of Assyria came against Israel, capturing Ijon, Abel Beth Maakah, Janoah, Kedesh and Hazor. He took Gilead and Galilee, including all the land of Naphtali, and deported the people to Assyria. Hosiah son of Elah conspired against Pekah son of Remaliah and assassinated him, succeeding him as king during the twentieth year of Uzziah’s reign.</p>
+<p>As for the other events of Pekah’s reign and all he did, they are written in the book of the chronicles of the kings of Israel.</p>
+<p>Jotham son of Uzziah began to reign over Judah in the fifteenth year of Pekah son of Remaliah’s reign over Israel. He ruled in Jerusalem for sixteen years. Jotham his father had selected the upper gate of the house of the LORD, and he built extensively on the wall of Ophel. He did what was right in the eyes of the LORD, just as his father Uzziah had done, but he did not enter the temple of the LORD, and the people continued to act corruptly. The LORD afflicted the king’s father with a skin disease until he died. As for the other events of Jotham’s reign and all he did, they are written in the book of the chronicles of the kings of Israel. Jotham built the upper gate of the house of the LORD extensively. He also built towns in the hill country of Judah and fortified castles and towers.</p>
+<p>Ahaz son of Jotham began to reign over Judah in the seventeenth year of Pekah son of Remaliah’s reign. He was twenty years old when he became king, and he ruled in Jerusalem for sixteen years. Unlike David his father, he did not do what was right in the eyes of the LORD. He walked in the ways of the kings of Israel and even sacrificed his son in the fire, following the detestable ways of the nations the LORD had driven out before the Israelites. He offered sacrifices and burned incense at the high places, on the hilltops and under every spreading tree.</p>
+<p>The LORD his God delivered Ahaz into the hands of the king of Aram. The Arameans defeated him and took many of his people as prisoners and brought them to Damascus. He was also given into the hands of the king of Israel, who inflicted heavy casualties on him. In one day Pekah son of Remaliah killed 120,000 of Ahaz’s fighting men because they had abandoned the LORD, the God of their fathers. Zichri, a mighty warrior from Ephraim, killed Maaseiah the king’s son and Azrikam, the officer of the palace, and Elqamah, the second in the king’s authority, with a single blow. The Israelites carried off as prisoners from their brothers 200,000 women and boys and also seized a great amount of plunder, which they took back to Samaria.</p>
+<p>A prophet of the LORD named Oded was there, and he went out to meet the army returning to Samaria. He said to them, “Because the LORD, the God of your fathers, was angry with Judah, He gave them into your hands. But you have slaughtered them in a rage that reaches to heaven. And now you intend to subjugate the people of Judah and Jerusalem as male and female slaves for yourselves. Are you not also guilty of sins against the LORD your God? Now listen to me! Send back your brothers whom you have taken as prisoners, for the LORD’s fierce anger rests on you.”</p>
+<p>Then some of the leaders in Ephraim—Azariah son of Jehohanan, Berechiah son of Meshillemoth, Jehizkiah son of Shallum, and Amasa son of Hadlai—opposed those coming from the war. They said to them, “You must not bring those prisoners here, or we will be guilty before the LORD and will be held responsible for our sin. Our guilt would be greater than our sin, and we would be guilty before the LORD. Do not bring our brothers’ prisoners here.”</p>
+<p>So the soldiers gave up the prisoners and the plunder in the presence of the officials and all the assembly. The soldiers selected the men designated by name and took the prisoners, and from the plunder they clothed all who were naked. They provided them with clothes and sandals, food and drink, and healing balm. All those who were weak they put on donkeys. So they took them back to their fellow Israelites at Jericho, the City of Palms. Then they returned to Samaria.</p>
+<p>Ahaz was twenty years old when he became king, and he ruled in Jerusalem for sixteen years. Unlike David his father, he did not do what was right in the eyes of the LORD his God. Instead, he walked in the ways of the kings of Israel. He sacrificed his son in the fire, engaged in detestable practices, and idolized himself with carved images, provoking the LORD, the God of his fathers, to anger. He also promoted the worship of foreign gods at the high places, on the hilltops and under every spreading tree.</p>
+<p>As for the other events of his reign and his conduct, what he did from beginning to end, they are written in the book of the chronicles of the kings of Judah.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🗺️ Briefing Summary</div>
+<p>This passage chronicles the rapid decay of Israel’s northern kingdom through a succession of violent usurpers who refused to repent of their idolatry. While Judah’s King Jotham maintained a measure of righteousness, King Ahaz descended into deep apostasy, even sacrificing his own children to false gods. The text highlights the severe consequences of abandoning the covenant, showing how spiritual compromise leads to national vulnerability and divine judgment.</p>
+</div>
+<div class="section reflection">
+<div class="section-label">❤️ Reflection for Your Wife — H.A.P.P.Y. Husband — Providing</div>
+<p>Brother, the history of Israel in this text serves as a stark warning against the failure of spiritual provision. When a leader abandons the truth of God, the entire household and nation suffer the consequences. As a husband, you are called to be the spiritual head who provides the truth, not the chaos of the world. Your duty is to ensure that your home is anchored in the Lord, protecting your family from the encroaching darkness that Ahaz invited into his life.</p>
+<p>You must provide the spiritual covering that prevents your family from being plundered by the enemy. Just as the prophet Oded called the army to return the prisoners and care for the weak, you must actively care for the spiritual condition of your wife and children. This is not a passive role; it requires you to confront sin and restore order in the home. You provide by leading them to the cross, where true security is found, rather than allowing the world’s values to dictate your household’s direction.</p>
+<p>Your provision is not merely material but covenantal. You provide the structure of biblical manhood that allows Maria to flourish in her God-ordained role. By standing firm in the truth, you shield your family from the spiritual famine that results from a lack of divine guidance. You provide the example of a man who fears the LORD, showing your children that authority is exercised in submission to God’s Word.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Conduct a weekly family worship service where you read Scripture and pray, ensuring the Word is central to your home.</li>
+<li>Identify any area of spiritual neglect in your wife’s life and gently encourage her toward deeper communion with the LORD.</li>
+<li>Establish clear spiritual boundaries in your household that reject the idolatry of the modern world.</li>
+<li>Lead by example in your own prayer life, demonstrating to your family the necessity of daily dependence on God.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Stateroom</div>
+<p>Father, I thank You for the covenant of marriage You have given to Adam and Maria. Forgive me for the times I have failed to provide the spiritual leadership You have ordained. Grant me the courage to stand firm against the apostasy of this age, just as the prophet Oded stood against the returning army. By the power of Your Holy Spirit, strengthen my heart to lead my home in righteousness and to protect my family from the snares of the enemy. May our home be a sanctuary of Your truth and love. In the name of Jesus Christ, my Lord and Commander, I pray. Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Helm Command:</span> Secure the spiritual deck and hold the line against the encroaching tide of compromise.</div>
+</section>
+
+<section class="watch watch-father" id="watch-father" data-watch="father">
+<div class="watch-header"><span class="watch-time">1100</span> <h2>Second Watch — The Father&#x27;s Charge</h2></div>
+<p class="intro">Brother, the weight of authority demands constant vigilance against the pride that undermines it.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 2 Chronicles 26:1-21</div>
+<div class="scripture-text">
+<p>Uzziah was sixteen years old when he became king, and he reigned fifty-two years in Jerusalem. His mother’s name was Jecoliah, and she was from Jerusalem. He did what was right in the sight of the LORD, according to all that his father Amaziah had done. He sought God during the days of Zechariah, who had understanding in the visions of God. As long as he sought the LORD, God made him prosper. He went out and made war against the Philistines and broke down the wall of Gath and the wall of Jabneh and the wall of Ashdod. He built cities in the area of Ashdod and among the Philistines. God helped him against the Philistines and against the Arabs who lived in Gur and against the Meunites. The Ammonites brought tribute to Uzziah, and his fame spread to the border of Egypt, for he grew exceedingly strong. In Jerusalem he built towers at the Corner Gate, at the Valley Gate, and at the angle of the wall. He fortified them. In the wilderness he dug many wells, for he had much livestock, both in the lowlands and in the plains. He had workers in the mountains and in the carmel, for he was a lover of agriculture. But when he was strong, his heart was lifted up to his destruction. For he was unfaithful to the LORD his God. He entered the temple of the LORD to burn incense on the altar of incense. Azariah the priest went in after him with eighty priests of the LORD, who were men of valor. They confronted King Uzziah and said to him, It is not for you, Uzziah, to burn incense to the LORD, but for the priests, the sons of Aaron, who are consecrated to burn incense. Go out of the sanctuary, for you have been unfaithful, and you have no honor from the LORD God. While Uzziah held a censer in his hand to burn incense, leprosy broke out on his forehead. When Azariah the chief priest and all the priests looked at him, behold, he was leprous on his forehead. They hastened him out of there, and he himself hastened to go out, because the LORD had struck him. King Uzziah was a leper until the day of his death. He lived in a separate house, being a leper, for he was cut off from the house of the LORD. Jotham his son had charge of the palace, governing the people of the land.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🗺️ Field Notes</div>
+<p>Uzziah’s story is a stark warning for any leader who confuses temporal success with spiritual fidelity. His strength in battle and wisdom in agriculture were gifts from God, yet they became the very foundation of his pride. When he overstepped the priestly boundary, God’s judgment was immediate and total, stripping him of his honor and his position. This passage teaches us that no amount of earthly victory excuses disobedience to God’s ordained order.</p>
+</div>
+<div class="section reflection">
+<div class="section-label">👨‍👦 Reflection for Your Children — F.U.L.F.I.L.L.E.D. Father — Disciplining</div>
+<p>Gideon, at nineteen, you stand on the threshold of manhood, ready to take your place as a protector and provider. I want you to see that true strength is not found in the absence of consequence, but in the humility to submit to God’s law. When you feel the urge to assert your own authority over divine command, remember Uzziah. His power did not save him; it only magnified his fall. I discipline you now so that you may learn to respect boundaries, whether they are set by God or by the natural order He established. You must understand that your strength is a stewardship, not a right, and that pride is the precursor to ruin.</p>
+<p>Boaz, at fourteen, you are in the thick of adolescence, where the desire for independence often clashes with the need for guidance. I must be firm with you because I love you and fear for your soul. Just as the priests confronted Uzziah, I will confront your rebellion when it arises. Do not mistake my correction for a lack of love. I am shaping you to be a man who knows his place before God and respects the roles He has designed. Your youth is not a license for arrogance; it is a training ground for obedience. Listen to the voice of authority, for it is the only path to true honor.</p>
+<p>Shiloh, my little one, you are too young to grasp the depth of these warnings, but I pray that the seeds of reverence are planted in your heart. I desire for you to grow up knowing that God is holy and that He demands obedience from all who claim His name. As you grow, you will learn that the world is not yours to conquer by your own will, but to steward under God’s rule. I will teach you to bow before the King of Kings, so that you may walk in the light of His favor. Your childhood is a gift, but your character is a responsibility I must help you bear.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Review the specific boundaries I have set for each son this week and ensure they are enforced with consistent, loving firmness.</li>
+<li>Identify one area where I may be relying on my own strength or reputation rather than submitting to God’s authority in my leadership.</li>
+<li>Spend time in prayer asking God to strip away any pride that creeps into my heart as I exercise my fatherly role.</li>
+<li>Speak directly to each son about the importance of respecting God’s ordained order, tailored to their individual ages and temperaments.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Wardroom</div>
+<p>Father, I come before You as a servant and a father, acknowledging that all authority is Yours alone. Forgive me for the times I have allowed pride to cloud my judgment or for the times I have neglected to discipline with the seriousness that Your Word requires. By the power of Your Holy Spirit, break the spirit of Uzziah in my heart. Help me to lead my sons not by my own might, but by the wisdom of Your Word. Teach Gideon to respect boundaries, Boaz to submit to authority, and Shiloh to revere Your holiness. Keep me humble in my strength and faithful in my charge. In the name of Jesus Christ, my Lord and Commander, I pray. Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Rudder Steer:</span> Guard the gate of your heart against the pride that undermines your authority.</div>
+</section>
+
+<section class="watch watch-citizen" id="watch-citizen" data-watch="citizen">
+<div class="watch-header"><span class="watch-time">1500</span> <h2>Third Watch — The Citizen&#x27;s Stand</h2></div>
+<p class="intro">The discipline of the covenant is the only shield that holds against the erosion of the soul.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 2 Chronicles 26:22-23; 27; 28:1-15</div>
+<div class="scripture-text">
+<p>Now the rest of the things that Uzziah did, first and last, behold, they are written in the book of the kings of Judah and Israel. And Uzziah died and was buried with his fathers in the field of the cemetery that belonged to the kings, for they said, “He is a leper.” And Jotham his son reigned in his place.</p>
+<p>In the year that Amaziah the king of Judah died, Jeroboam the son of Joash king of Israel died. And all the days of Jotham were sixteen years. He reigned as king in Jerusalem; and his mother’s name was Jerusha the daughter of Zadok. And he did what was right in the sight of the LORD, according to all that his father Amaziah had done. Nevertheless the high places were not taken away; the people still sacrificed and burned incense on the high places. He built the upper gate of the house of the LORD.</p>
+<p>Also he fought with the king of the Ammonites and prevailed against them. Then the Ammonites gave him at that year one hundred talents of silver, ten thousand measures of wheat, and ten thousand of barley. The Ammonites also brought him the same amount in the second and third year. So the man Jotham became strong, because he ordered his ways before the LORD his God.</p>
+<p>Now the rest of the acts of Jotham, and all his wars, and his ways, behold, they are written in the book of the kings of Israel and Judah. He was twenty-five years old when he became king, and he reigned sixteen years in Jerusalem. And his mother’s name was Jerusha the daughter of Zadok. And he did what was right in the sight of the LORD, according to all that his father Amaziah had done. However, the people continued to corrupt themselves. Jotham built the upper gate of the house of the LORD.</p>
+<p>Ahaz was twenty years old when he became king, and he reigned sixteen years in Jerusalem; and he did not do what was right in the sight of the LORD his God, like David his father; but he walked in the ways of the kings of Israel. He also burned incense in the Valley of the Son of Hinnom, and he burned his children in the fire, according to the abominations of the nations whom the LORD had cast out before the children of Israel. And he sacrificed and burned incense on the high places and on the hills and under every green tree.</p>
+<p>Therefore the LORD his God delivered him into the hand of the king of the Arameans, who defeated him and took captive from him a great multitude of people, and brought them to Damascus; and he was also delivered into the hand of the king of Israel, who defeated him with a great slaughter. For Pekah the son of Remaliah killed one hundred and twenty thousand men in Judah in one day, all mighty men of valor, because they had forsaken the LORD God of their fathers. And Zichri, a mighty man of Ephraim, killed Maaseiah the king’s son, and Azrikam the officer of the palace, and Elkanah the second to the king. Then the children of Israel carried away of their brethren two hundred and seventy thousand, including women and children; and they also took much plunder from them, and brought the plunder to Samaria.</p>
+<p>But a prophet of the LORD was there; his name was Oded. And he went out to meet the army that came to Samaria, and said to them, “Look, because the LORD God of your fathers was angry with Judah, He has delivered them into your hand. But you have killed them in a rage that reaches to heaven. And now you intend to subjugate the children of Judah and Jerusalem for male and female slaves for yourselves. Are there not with you transgressions against the LORD your God? Now hear me, and return the captives whom you have taken from your brethren, for the fierce wrath of the LORD is upon you.”</p>
+<p>Then the leaders of the children of Ephraim, Azariah the son of Johanan, Berechiah the son of Meshillemoth, Jehizkiah the son of Shallum, and Amasa the son of Hadlai, confronted those who were coming from the war. And they said to them, “You shall not bring the captives here, for you intend to add to our sins and our guilt; for our iniquity is great, and fierce wrath is upon Israel.”</p>
+<p>So the armed men left the captives and the plunder before the leaders and all the congregation. Then the men listed by name rose up and took the captives, and from the plunder they clothed all who were naked among them, and clothed them, and gave them sandals; and they fed them all with food and drink, and healed all who were sick among them, and loaded all the weak on donkeys. So they brought them to their brethren at Jericho, the city of palm trees. Then they returned to Samaria.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🛰️ Situation Report</div>
+<p>The narrative shifts from the stability of Jotham to the catastrophic collapse of Ahaz, illustrating how quickly a nation falls when its leadership abandons the covenant. Ahaz’s idolatry did not merely offend God; it dismantled the spiritual defenses of Judah, allowing enemy forces to ravage the land with impunity. The intervention of the prophet Oded serves as a stark reminder that even in judgment, God provides a path for mercy and restoration if the people will listen.</p>
+</div>
+<div class="section reflection resolute">
+<div class="section-label">🛡️ Reflection for a R.E.S.O.L.U.T.E. Citizen — Steadfast</div>
+<p>Fredericksburg (local)<br>Brother, the ruins of the old stone walls in this city speak to the necessity of a foundation that does not crack under pressure. Ahaz sought security in the alliances of Assyria rather than the protection of the LORD, and in doing so, he lost everything. You must stand firm in the truth that God alone is your shield and your buckler. When the pressures of daily life in Fredericksburg test your resolve, do not look to the shifting sands of worldly power for safety. Your steadfastness is found in obedience to the Word, not in the approval of the culture around you.</p>
+<p>Virginia (state)<br>The history of Virginia is a testament to the fact that when a people turn from their Creator, they invite chaos into their homes and their commonwealth. Ahaz’s reign brought slaughter and captivity to Judah, a sobering lesson for any state that prioritizes political expediency over divine law. As a man in this commonwealth, you are called to be a pillar of order and righteousness. Your duty is to uphold the structures of family and faith that keep society from descending into the same disorder that plagued ancient Judah.</p>
+<p>United States (nation)<br>The nation stands at a precipice similar to that of Ahaz, tempted to trade its soul for temporary security and comfort. The Lord has delivered us into the hands of our adversaries when we forgot Him, and He restores us only when we return to the covenant. You must recognize that your citizenship in America is secondary to your citizenship in the Kingdom of Heaven. Stand steadfast in your convictions, defending the truth of Scripture against the lies of the age, knowing that true national blessing flows only from reverence for the God of Israel.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Examine your daily routine for any compromise with idolatry, whether it be the worship of wealth, status, or comfort, and repent of it immediately.</li>
+<li>Establish a consistent time for private prayer and Scripture reading to strengthen your spirit against the encroaching darkness of the world.</li>
+<li>Lead your family in the evening worship of God, ensuring that your children are taught the ways of the LORD with clarity and authority.</li>
+<li>Engage in public witness with courage, speaking the truth of the Gospel to your neighbors without fear of man’s rejection.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Bridge</div>
+<p>Father, we thank You for Your steadfast love that endures forever, even when we are unfaithful. Forgive us for the times we have sought security in the arms of the world rather than in Your mighty hand. By the power of Your Holy Spirit, grant us the grace to stand firm in the truth of Your Word, rejecting every idol that competes for our allegiance. Strengthen our hands to build up our families and our communities in righteousness, that we may be a light in the darkness. In the name of Jesus Christ, my Lord and Commander, we pray. Amen.</p>
+</div>
+<div class="section history">
+<div class="section-label">🦅 This Day in American History — May 31</div>
+<p>On May 31, 1865, the last major battle of the Civil War, the Battle of Palmito Ranch, was fought, marking the end of hostilities even as the surrender had already occurred; it serves as a sobering reminder that the cost of preserving the Union was immense, and that the subsequent Reconstruction required a deeper spiritual renewal than mere political victory could provide. In 1913, the first transcontinental telephone call was made, connecting New York and San Francisco; this marvel of engineering reminds us of the providential means God provides for communication, urging us to use such tools to build bridges of understanding and to proclaim the Gospel across great distances.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Rudder Steer:</span> Hold the line of truth when the world demands you lower your colors.</div>
+</section>
+
+<section class="watch watch-peace" id="watch-peace" data-watch="peace">
+<div class="watch-header"><span class="watch-time">2100</span> <h2>Evening Peace</h2></div>
+<p class="intro">The day’s labors yield to the quiet authority of God’s eternal word.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Psalm 135</div>
+<div class="scripture-text">
+<p>Praise the LORD. Praise the name of the LORD. Praise Him, O servants of the LORD. You who stand in the house of the LORD, in the courts of the house of our God. Praise the LORD, for the LORD is good. Sing praises to His name, for it is pleasant. For the LORD has chosen Jacob for Himself, Israel for His own possession. For I know that the LORD is great, and that our Lord is above all gods. Whatever the LORD pleased, that He did, in heaven and in earth, in the seas and in all deep places. He brings forth the clouds from the end of the earth. He makes lightning for the rain. He brings the wind out of His storehouses. Who struck down the firstborn of Egypt, both of man and beast. Who sent signs and wonders into your midst, O Egypt, against Pharaoh and all his servants. He struck down many nations and slaughtered mighty kings. Sihon king of the Amorites, and Og king of Bashan, and all the kingdoms of Canaan. He gave their land as a heritage, a heritage to Israel His people. Your name, O LORD, endures forever, and Your memorial, O LORD, through all generations. For the LORD will judge His people, and He will be grieved over His servants. The idols of the nations are silver and gold, the work of human hands. They have mouths, but they do not speak. Eyes they have, but they do not see. They have ears, but they do not hear. Nor is there any breath in their mouths. Those who make them are like them; everyone who trusts in them. Bless the LORD, O house of Israel. Bless the LORD, O house of Aaron. Bless the LORD, O house of Levi. You who fear the LORD, bless the LORD. Blessed be the LORD from Zion, who dwells in Jerusalem. Praise the LORD!</p>
+</div>
+</div>
+<div class="section reflection">
+<div class="section-label">🌾 Reflection for a Man at Home and in Community</div>
+<p>As a HAPPY husband, brother, you must recognize that your wife is not a project to be managed but a covenant partner to be cherished, just as the LORD chose Israel for Himself as His own peculiar treasure. Your duty is to reflect His steadfast love in your home, offering protection, provision, and spiritual leadership with a gentle yet firm resolve. You are called to honor her as the weaker vessel, not in weakness of character, but in the strength of your submission to Christ, thereby creating a sanctuary where her gifts can flourish under your covering.</p>
+<p>As a FULFILLED father, you bear the solemn responsibility of instructing your children in the way they should go, grounding them in the truth that the LORD is great and above all other gods. Your parenting is not merely about discipline but about discipleship, teaching them that true power belongs to the Creator who struck down the mighty and brought forth clouds from the end of the earth. You must model a faith that is robust and unshaken, showing your sons that godly masculinity is defined by service to God and care for His flock, not by the empty boasts of worldly status.</p>
+<p>As a RESOLUTE citizen, you stand in the courts of the house of our God, aware that the LORD has chosen His people and will judge all nations. Your role in the public square is to uphold justice and truth, rejecting the idols of silver and gold that dominate modern culture. You are a soldier of the cross, called to silence the lies of false gods by living a life of integrity and courage, reminding your community that the LORD’s name endures forever while the works of men fade away.</p>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Stateroom</div>
+<p>Father, we thank You for the peace that surpasses understanding, which guards our hearts and minds in Christ Jesus. We ask that You would strengthen us to lead our homes with wisdom and grace, that our children would know You as their refuge and strength. By the power of Your Holy Spirit, give us the courage to stand firm in the truth of Your Word, rejecting the idols of this age and living as faithful witnesses to Your glory. In the name of Jesus Christ, my Lord and Commander, we pray. Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Rudder Steer:</span> Anchor your heart in the Lord’s sovereignty and let His truth guide your next step.</div>
+</section>
+
+<footer>
+<div class="draft-tag">PROTOTYPE — sign-off pending</div>
+<div>U.S.M.C. Ministries · The Watchman's Chronological Plan for the Year of our Lord 2026</div>
+<div style="margin-top:6px;font-size:0.78rem;">Adam Johns &middot; rich interpretive blend &middot; divine name LORD</div>
+</footer>
+
+</div>
+<script>
+(function(){
+  const SLUGS = ['all','wisdom','husband','father','citizen','peace'];
+
+  // Watch windows in local hours (each watch is "live" from its start time
+  // until the NEXT watch begins). Evening peace owns 21:00 → 04:59.
+  function currentWatchSlug() {
+    const h = new Date().getHours();
+    if (h >= 5  && h < 7)  return 'wisdom';
+    if (h >= 7  && h < 11) return 'husband';
+    if (h >= 11 && h < 15) return 'father';
+    if (h >= 15 && h < 21) return 'citizen';
+    return 'peace';                       // 21:00 – 04:59
+  }
+  const NOW_SLUG = currentWatchSlug();
+
+  function markNowBadge(){
+    document.querySelectorAll('.watch-tab').forEach(t => {
+      t.classList.toggle('is-now', t.dataset.tab === NOW_SLUG);
+    });
+  }
+  function showOnly(slug){
+    const isAll = slug === 'all' || !SLUGS.includes(slug);
+    document.querySelectorAll('section.watch').forEach(s => {
+      s.style.display = (isAll || s.dataset.watch === slug) ? '' : 'none';
+    });
+    document.querySelectorAll('.watch-tab').forEach(t => {
+      t.classList.toggle('active', t.dataset.tab === (isAll ? 'all' : slug));
+    });
+  }
+  document.querySelectorAll('.watch-tab').forEach(t => {
+    t.addEventListener('click', function(e){
+      e.preventDefault();
+      const slug = this.dataset.tab;
+      history.replaceState(null, '', '#' + slug);
+      showOnly(slug);
+      window.scrollTo({top: 0, behavior:'smooth'});
+    });
+  });
+
+  // Initial selection priority:
+  //   1. URL hash if present  (#all / #wisdom / #husband / #father / #citizen / #peace)
+  //   2. Auto-select the watch that is "live right now"
+  let initial;
+  if (location.hash) {
+    initial = location.hash.slice(1);
+  } else {
+    initial = NOW_SLUG;
+  }
+  markNowBadge();
+  showOnly(initial);
+})();
+</script>
+</body>
+</html>
