@@ -101,18 +101,20 @@ const WORKFLOWS_DEFAULT = [
 
     {
         id: 'direct-booking-launch',
-        title: 'Direct Booking Launch',
+        title: 'Direct Booking & Payments (Bow & Arrow)',
         category: 'Business',
         icon: '<img src="assets/icons/shield-calendar.png" alt="" width="16" height="16" style="vertical-align:middle;margin-right:3px;">',
         status: 'active',
-        currentStep: 2,
+        currentStep: 3,
         steps: [
-            { name: 'Build Page',                         desc: 'Create direct booking page on the website. (DONE ✅)' },
-            { name: 'Add Real Photos',                    desc: 'Replace placeholder images with actual property photos.' },
-            { name: 'Set Up Payment',                     desc: 'Integrate Stripe or similar for direct payment.' },
-            { name: 'Test Booking Flow',                  desc: 'Run through the full booking experience end-to-end.' },
-            { name: 'Add to Airbnb Checkout Messages',    desc: 'Mention direct booking option in checkout message template.' },
-            { name: 'Promote',                            desc: 'Share direct booking link in bio, social, and with past guests.' },
+            { name: 'Build direct-booking page', desc: 'Live at usmcmin.com/direct-booking.html. Migrated OFF the ministry domain — usmcmin.org/stays/ now redirects here. (DONE ✅)' },
+            { name: 'Real photos + full listings', desc: '3 Historic-District apartments + combined #6/#8 + 1405 Sunken Rd mid-term, with real B&A photography. (DONE ✅)' },
+            { name: 'Add Car Rental section (Turo + Direct)', desc: 'Vehicle-rental section scaffolded on the booking page — Bow & Arrow LLC. (DONE ✅ — still need the Turo host URL + fleet photos.)' },
+            { name: 'Set up payments — Bow & Arrow ONLY', desc: 'Stripe under Bow & Arrow Studio LLC (EIN 87-2937218) → deposits to a B&A bank. NEVER route to USMC (88-1966617) or C5iSR (92-3564161). (IN PROGRESS — Adam to create the Stripe account.)' },
+            { name: 'Test booking + payment flow', desc: 'Run a real inquiry → quote → payment end-to-end before promoting.' },
+            { name: 'Take Turo listing live', desc: 'Publish the Turo host page; replace the "Reserve a Vehicle" inquire placeholder with the live Turo URL.' },
+            { name: 'Promote', desc: 'Add the direct-booking link to Airbnb checkout messages, bio, social, and the past-guest list.' },
+            { name: '(Future) separate coaching/AI payment surfaces', desc: 'Ministry coaching → its own surface under USMC (coaching.html); AI support → C5iSR. Keep these OFF the B&A booking page to avoid crossing entity streams.' },
         ]
     },
     {
@@ -193,17 +195,30 @@ const WORKFLOWS_DEFAULT = [
     },
     {
         id: 'outreach-contact-tracker',
-        title: 'Outreach Contact Tracker',
+        title: 'Ministry Outreach Contact Tracker',
         category: 'Ministry',
         icon: '<img src="assets/icons/shield-broadcast-48.png" alt="" width="16" height="16" style="vertical-align:middle;margin-right:3px;">',
         status: 'active',
         currentStep: 2,
         steps: [
-            { name: 'Sheet Created',        desc: 'Create the outreach contact tracking spreadsheet.' },
-            { name: '100 contacts loaded',  desc: '100 contacts entered. Current: 100/851 ✅' },
-            { name: '500 contacts',         desc: 'Load 500 contacts.' },
-            { name: '851 contacts',         desc: 'Reach full 851-contact target.' },
-            { name: 'Email campaigns live', desc: 'Launch active email outreach campaigns.' },
+            { name: 'Tracker built', desc: 'Contact tracker live at usmcmin.org/contacts.html ("MOOP Command"). (DONE ✅)' },
+            { name: 'Contacts imported', desc: '488 imported from the macOS Address Book — but 482 are tagged Personal, not ministry outreach. (DONE ✅)' },
+            { name: 'Segment by entity/purpose', desc: 'Split Personal contacts out to the new Personal Outreach tracker (usmcmin.com/personal-outreach.html); keep only true ministry + civic contacts here. (IN PROGRESS — the ~2,000-contact address-book grind.) Relates to: Chaplain Chuck (ministry), Sheriff Roy (civic), Sally Mae (B&A clients).' },
+            { name: 'Curate ministry-outreach list', desc: 'Build the real opt-in ministry list — people who actually want USMC Ministries outreach.' },
+            { name: 'Email campaigns (opt-in only)', desc: 'Launch outreach ONLY to opted-in ministry contacts — never blast the imported personal address book (CAN-SPAM + relational risk).' },
+        ]
+    },
+    {
+        id: 'personal-outreach-tracker',
+        title: 'Personal Outreach Tracker (Family & Friends)',
+        category: 'Personal',
+        icon: '👨‍👩‍👧‍👦',
+        status: 'active',
+        currentStep: 1,
+        steps: [
+            { name: 'Build the tracker', desc: 'Cadence-based family/friends tracker live at usmcmin.com/personal-outreach.html (PIN-gated; relationship, cadence, last-contacted, "Reach Out Soon"). (DONE ✅)' },
+            { name: 'Populate real people', desc: 'Replace the example entries with real family + friends; set each cadence (weekly → yearly). Pull from the personal slice of the address-book grind.' },
+            { name: 'Work the cadence', desc: 'Use the "Reach Out Soon" panel; log each touch so the next auto-schedules. Export periodically to back up.' },
         ]
     },
     {
