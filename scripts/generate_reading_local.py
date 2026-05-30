@@ -84,7 +84,12 @@ VOICE = (
     "progressive-political framing of any kind, and do not hedge or soften the patriarchal vision. "
     "Avoid loaded sociological vocabulary such as 'marginalized', 'privilege', 'systemic', 'social "
     "justice', 'oppressed classes', or 'underrepresented' even when describing a biblical outcast — use "
-    "plain, timeless words like lowly, outcast, rejected, despised, or downtrodden instead."
+    "plain, timeless words like lowly, outcast, rejected, despised, or downtrodden instead. "
+    "Do NOT use egalitarian framing such as 'the gospel transcends gender/ethnic/social barriers', "
+    "'neither male nor female' applied to flatten roles, or any language that dissolves the distinction "
+    "between men's and women's God-given roles. When the gospel reaches an outsider (a Samaritan, a "
+    "Gentile, a sinner), frame it as God's sovereign grace reaching the undeserving — never as 'breaking "
+    "down barriers' — and keep male headship and complementarian role distinctions fully intact."
 )
 
 
