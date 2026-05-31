@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg">
+<title>Thursday, November 19, 2026 — Daily Reading | U.S.M.C. Ministries</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+    --bg-dark: #000000; --bg-card: #111111; --bg-card2: #161616;
+    --gold: #D4AF37; --gold-light: #F4D470;
+    --white: #FFFFFF; --gray: #888888; --border: #333333;
+}
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--white);
+    min-height: 100vh;
+    line-height: 1.7;
+}
+h1, h2, h3 { font-family: 'Playfair Display', serif; font-weight: 700; }
+.container { max-width: 820px; margin: 0 auto; padding: 24px 20px 60px; }
+a { color: var(--gold); text-decoration: none; }
+a:hover { color: var(--gold-light); text-decoration: underline; }
+
+.nav-back { margin-bottom: 14px; font-size: 0.95rem; }
+
+.hero { text-align: center; padding: 16px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 18px; }
+.hero h1 { font-size: clamp(1.5rem, 4vw, 2.2rem); color: var(--white); margin-bottom: 6px; }
+.hero .subtitle { color: var(--gold); font-size: 0.95rem; font-style: italic; }
+.hero .doc-line { color: var(--gray); font-size: 0.82rem; margin-top: 6px; }
+
+.watch-tabs {
+    position: sticky; top: 0; z-index: 30;
+    background: var(--bg-dark);
+    border-bottom: 1px solid var(--border);
+    display: flex; flex-wrap: wrap; gap: 6px;
+    padding: 12px 0 14px;
+    margin-bottom: 18px;
+}
+.watch-tab {
+    flex: 1 1 90px;
+    text-align: center;
+    padding: 8px 6px;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    background: var(--bg-card);
+    color: var(--gray);
+    font-size: 0.85rem; font-weight: 500;
+    transition: all 0.15s ease;
+    text-decoration: none !important;
+    white-space: nowrap;
+}
+.watch-tab:hover { color: var(--white); border-color: var(--gold); text-decoration: none !important; }
+.watch-tab.active { background: var(--gold); color: #000; border-color: var(--gold); font-weight: 600; }
+.watch-tab .tab-time { display: block; font-size: 0.7rem; opacity: 0.7; font-family: monospace; }
+.watch-tab.active .tab-time { opacity: 1; }
+
+/* "NOW" badge — shown on the watch tab whose time window contains current local time */
+.watch-tab.is-now { position: relative; box-shadow: 0 0 0 1px var(--gold-light) inset; }
+.watch-tab.is-now::after {
+  content: "NOW";
+  position: absolute; top: -7px; right: -4px;
+  background: var(--gold-light); color: #000;
+  font-size: 0.55rem; font-weight: 700;
+  padding: 1px 5px; border-radius: 100px;
+  letter-spacing: 0.08em;
+}
+
+.watch {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px 22px;
+    margin-bottom: 22px;
+    scroll-margin-top: 80px;
+}
+.watch-header { display: flex; align-items: baseline; gap: 14px; margin-bottom: 10px; flex-wrap: wrap; }
+.watch-time {
+    background: var(--bg-card2); color: var(--gold);
+    padding: 4px 12px; border-radius: 100px;
+    font-family: 'Inter', monospace; font-size: 0.85rem; font-weight: 600;
+    letter-spacing: 0.05em;
+}
+.watch-header h2 { font-size: 1.35rem; color: var(--white); }
+
+.intro { color: var(--gray); font-style: italic; margin-bottom: 14px; }
+
+.audio-slot {
+    margin: 14px 0 18px;
+    padding: 12px 14px;
+    background: var(--bg-card2);
+    border-radius: 8px;
+    border: 1px dashed var(--border);
+}
+.audio-slot.audio-pending { opacity: 0.55; }
+.audio-cap { font-size: 0.8rem; color: var(--gray); margin-top: 4px; }
+
+.scripture {
+    background: var(--bg-card2);
+    border-left: 3px solid var(--gold);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin: 16px 0 22px;
+}
+.scripture-ref { font-weight: 600; color: var(--gold); margin-bottom: 12px; font-size: 0.95rem; }
+.scripture-text p { margin-bottom: 8px; }
+.scripture-text p.stanza { margin-bottom: 14px; }
+
+.section-label {
+    font-family: 'Playfair Display', serif;
+    color: var(--gold); font-weight: 700; font-size: 1.05rem;
+    margin: 22px 0 10px; padding-top: 10px; border-top: 1px solid var(--border);
+}
+.section p, .context p, .reflection p, .history p, .application-block p { margin-bottom: 12px; }
+
+ul.application { padding-left: 22px; margin: 8px 0 14px; }
+ul.application li { margin-bottom: 8px; }
+.application-prose { font-style: italic; color: var(--gold-light); margin-top: 12px; }
+
+.history ul { padding-left: 22px; margin: 8px 0; }
+.history li { margin-bottom: 6px; }
+
+.prayer {
+    background: var(--bg-card2);
+    border-left: 3px solid var(--gold-light);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin: 22px 0;
+}
+.prayer-title { color: var(--gold-light); font-weight: 600; margin-bottom: 10px; font-size: 0.95rem; }
+.prayer p { line-height: 1.85; margin-bottom: 8px; }
+
+.helm {
+    background: var(--bg-card2);
+    border-radius: 6px;
+    padding: 12px 18px;
+    margin-top: 14px;
+    font-size: 0.95rem;
+}
+.helm-icon { color: var(--gold); font-size: 1.1rem; }
+.helm-label { color: var(--gold); font-weight: 600; }
+
+footer {
+    text-align: center;
+    color: var(--gray);
+    font-size: 0.82rem;
+    margin-top: 32px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+}
+footer .draft-tag {
+    display: inline-block;
+    background: #2a2410;
+    color: var(--gold);
+    padding: 4px 12px;
+    border-radius: 100px;
+    font-size: 0.78rem;
+    margin-bottom: 8px;
+    letter-spacing: 0.05em;
+}
+
+@media (max-width: 540px) {
+    .watch-tab { flex: 1 1 64px; font-size: 0.78rem; padding: 6px 4px; }
+    .watch-tab .tab-time { font-size: 0.65rem; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="nav-back">← <a href="/chronological.html">The Watchman's Chronological Plan</a></div>
+
+<div class="hero">
+<h1>Thursday, November 19, 2026</h1>
+<div class="subtitle">Daily Reading — Day 323 of 365</div>
+<div class="doc-line">MOOP&#x27;s 2026 Daily Bible Readings — Document 11 of 12; for the month of November</div>
+</div>
+
+<nav class="watch-tabs" role="tablist">
+<a href="#all" class="watch-tab active" data-tab="all" role="tab"><span class="tab-label">All Watches</span></a>
+<a href="#wisdom" class="watch-tab" data-tab="wisdom" role="tab"><span class="tab-time">0600</span> <span class="tab-label">Morning Wisdom</span></a>
+<a href="#husband" class="watch-tab" data-tab="husband" role="tab"><span class="tab-time">0700</span> <span class="tab-label">Husband</span></a>
+<a href="#father" class="watch-tab" data-tab="father" role="tab"><span class="tab-time">1100</span> <span class="tab-label">Father</span></a>
+<a href="#citizen" class="watch-tab" data-tab="citizen" role="tab"><span class="tab-time">1500</span> <span class="tab-label">Citizen</span></a>
+<a href="#peace" class="watch-tab" data-tab="peace" role="tab"><span class="tab-time">2100</span> <span class="tab-label">Evening Peace</span></a>
+</nav>
+
+<section class="watch watch-wisdom" id="watch-wisdom" data-watch="wisdom">
+<div class="watch-header"><span class="watch-time">0600</span> <h2>Morning Wisdom</h2></div>
+<p class="intro">The morning light reveals the path of obedience, calling you to stand firm in the truth of Christ against the encroaching darkness of the world.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 1 John 2:1-14</div>
+<div class="scripture-text">
+<p>We have an Advocate with the Father, Jesus Christ the Righteous One, who is the propitiation for our sins, and not for ours only but also for the sins of the whole world. And by this we know that we have come to know Him, if we keep His commandments. Whoever says &quot;I know Him&quot; but does not keep His commandments is a liar, and the truth is not in him, but whoever keeps His word, in him truly the love of God is perfected. By this we know that we are in Him: whoever says he abides in Him ought to walk in the same way He walked. Beloved, I am writing you a new commandment, which is true in Him and in you, for the darkness is passing away and the true light is already shining. Whoever says he is in the light and hates his brother is still in darkness. Whoever loves his brother abides in the light, and in him there is no cause for stumbling. But whoever hates his brother is in the darkness and walks in the darkness, and does not know where he is going, because the darkness has blinded his eyes. I am writing to you, little children, because your sins are forgiven for His name’s sake. I am writing to you, fathers, because you know Him who is from the beginning. I am writing to you, young men, because you have overcome the evil one. I write to you because you are strong, and the word of God abides in you, and you have overcome the evil one.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🧭 Context Summary</div>
+<p>John addresses his readers with paternal affection, distinguishing between the little children who need assurance of forgiveness, the fathers who possess deep knowledge of the Creator, and the young men who exhibit spiritual strength. He establishes that genuine fellowship with God is evidenced not by mere intellectual assent but by moral conformity to His word and love for the brethren. The apostle warns that hatred toward a brother is incompatible with the light of Christ, marking the hater as still lost in spiritual blindness. This passage calls for a clear-eyed assessment of one’s spiritual state, urging believers to walk in the truth they profess.</p>
+</div>
+<div class="section reflection">
+<div class="section-label">🛡️ Reflection for a REAL MAN — Walks Righteously</div>
+<p>Brother, the world offers you a thousand excuses for compromise, but the Word of God demands integrity. You cannot claim to know the Commander while refusing to follow His orders. John makes it plain that your love for your family and your fidelity to your covenant duties are the litmus test of your faith. If you say you follow Christ but neglect your wife, neglect your children, or fail to provide for your household, you are lying to yourself and to God. The truth is not in you if your actions do not align with His commands.</p>
+<p>As a father and a husband, your role is not to be a passive observer but a vigilant guardian of the spiritual well-being of your home. You must love your brother, which means you must love those in your charge with the same sacrificial intent that Christ showed you. This is not a soft, sentimental love, but a steadfast, protective commitment that stands firm against the darkness. When you discipline your children, provide for your wife, and lead your family in prayer, you are walking in the light.</p>
+<p>Do not be deceived by the enemy’s tactics. He wants you to hate your brother, to become bitter, or to withdraw into a selfish silence. Such darkness blinds the soul and leads to stumbling. But when you walk in the light, you have no cause for stumbling in your duty. The Word of God abides in you, giving you strength to overcome the evil one. Stand firm, brother, in the righteousness of Christ, and let your life be a testament to His power.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Review your daily interactions with your family to ensure they reflect the patience and truth of Christ.</li>
+<li>Establish a consistent time for leading your household in prayer and Scripture reading.</li>
+<li>Confront any area of sin in your life where you have been compromising with the world.</li>
+<li>Serve a brother in need this week through a concrete act of provision or support.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer</div>
+<p>Father, we thank You for the gift of Your Son, our Advocate, who stands before Your throne on our behalf. By the power of Your Holy Spirit, grant us the courage to walk in the light, keeping Your commandments not out of fear, but out of love for You and our neighbors. Strengthen us as fathers and husbands to lead our homes with wisdom and grace, overcoming the darkness through the truth of Your Word. In the name of Jesus Christ, my Lord and Commander, we pray. Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Helm Command:</span> Steady the course by the compass of Scripture, and love your brother as Christ loved you.</div>
+</section>
+
+<section class="watch watch-husband" id="watch-husband" data-watch="husband">
+<div class="watch-header"><span class="watch-time">0700</span> <h2>First Watch — The Husband&#x27;s Post</h2></div>
+<p class="intro">Brother, as you stand at the helm of your household, remember that the Gospel you command is not merely a message but the very power of God for salvation.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Romans 10:14-21</div>
+<div class="scripture-text">
+<p>How then shall they call on Him in whom they have not believed? And how shall they believe in Him of whom they have not heard? And how shall they hear without a preacher? And how shall they preach unless they are sent? As it is written: How beautiful are the feet of those who preach the gospel of peace, those who bring glad tidings of good things! But they have not all obeyed the gospel. For Isaiah says: Lord, who has believed our report? So then faith comes by hearing, and hearing by the word of God. But I say, have they not heard? Yes indeed: Their sound has gone into all the earth, and their words to the ends of the world. But I say, did Israel not know? First Moses says: I will make you jealous by those who are not a nation; I will move you to anger by a foolish nation. And Isaiah is very bold and says: I was found by those who did not seek Me; I was made visible to those who did not ask for Me. But regarding Israel he says: All day long I have stretched out My Hands to a disobedient and contrary people.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🗺️ Briefing Summary</div>
+<p>Paul exposes the urgent necessity of the preached Word, establishing that faith is a sovereign gift triggered by the proclamation of Christ. He contrasts the Gentiles, who found the Lord without seeking Him, with Israel, who rejected Him despite His daily outstretched hands. The passage underscores that salvation is not a human achievement but a divine initiative received through hearing the Gospel.</p>
+</div>
+<div class="section reflection">
+<div class="section-label">❤️ Reflection for Your Wife — H.A.P.P.Y. Husband — Providing</div>
+<p>Brother, look to Maria, your wife, and recognize that your primary duty is not just to provide material security but to provide spiritual direction. You are the priest of your home, charged with ensuring that the Word is proclaimed clearly and faithfully within your walls. Just as the Gospel went to the ends of the earth, you must ensure that the truth of Christ reaches the hearts of those under your care, particularly your wife. Your provision is incomplete if it lacks the spiritual nourishment that comes only from the preached Word. You must lead her to faith, not by force, but by the faithful, humble, and persistent presentation of the truth. This is your covenantal responsibility before God, a duty that requires you to be a faithful preacher in your own domestic sphere.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Study the Gospel daily to ensure your preaching to Maria is accurate and compelling.</li>
+<li>Pray specifically for the Holy Spirit to open Maria’s eyes to the beauty of Christ.</li>
+<li>Engage Maria in Scripture reading, guiding her understanding of the text.</li>
+<li>Model obedience to the Gospel in your own life, demonstrating the power of the Word.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Stateroom</div>
+<p>Father, grant me the grace to be a faithful provider of spiritual truth for my wife. By the power of Your Holy Spirit, break the hardness of heart that resists Your Word and draw Maria closer to the Son. Let my life and my words proclaim the beauty of the Gospel, that she may believe and call upon Your name. In the name of Jesus Christ, my Lord and Commander, Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Helm Command:</span> Steadfastly preach the Gospel to your household until faith is born.</div>
+</section>
+
+<section class="watch watch-father" id="watch-father" data-watch="father">
+<div class="watch-header"><span class="watch-time">1100</span> <h2>Second Watch — The Father&#x27;s Charge</h2></div>
+<p class="intro">Brother, stand firm in the truth that God has not cast away His people, for His covenant promises remain unshaken.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Romans 11:1-15</div>
+<div class="scripture-text">
+<p>I ask then, has God rejected His people? By no means! For I also am an Israelite, a descendant of Abraham, of the tribe of Benjamin. God has not rejected His people whom He foreknew. Do you not know what the Scripture says of Elijah, how he pleads with God against Israel? “Lord, they have killed Your prophets, they have torn down Your altars, and I alone am left, and they seek my life.” But what is God’s response to him? “I have kept for Myself seven thousand men who have not bowed the knee to Baal.” So too at the present time there is a remnant chosen by grace. But if it is by grace, it is no longer on the basis of works; otherwise grace would no longer be grace. What then? Israel failed to obtain what it was seeking. The elect obtained it, but the rest were hardened, as it is written, “God gave them a spirit of stupor, eyes that would not see and ears that would not hear, down to this very day.” And David says, “Let their table become a snare and a trap, a stumbling block and a retribution to them; let their eyes be darkened so that they cannot see, and bend their backs forever.” I ask, then, have they stumbled so as to fall beyond recovery? By no means! Rather by their trespass salvation has come to the Gentiles, so as to make Israel jealous. Now if their trespass means riches for the world, and if their failure means riches for the Gentiles, how much more will their full inclusion mean! But I am speaking to you Gentiles. Inasmuch then as I am an apostle to the Gentiles, I magnify my ministry in order somehow to make my fellow Israelites jealous, and thus save some of them. For if their rejection means the reconciliation of the world, what will their acceptance mean but life from the dead?</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🗺️ Field Notes</div>
+<p>Paul stands as a witness to God’s sovereign preservation of a remnant, proving that divine election does not fail even when the nation stumbles. This passage reminds us that God’s purposes are not thwarted by human unfaithfulness, but are fulfilled through His mysterious and merciful design. The hardening of the many serves the greater good of the Gentiles, yet God’s heart remains fixed on the redemption of His own.</p>
+</div>
+<div class="section reflection">
+<div class="section-label">👨‍👦 Reflection for Your Children — F.U.L.F.I.L.L.E.D. Father — Faithful</div>
+<p>Gideon, at nineteen, you stand on the threshold of manhood, tasked with defending the truth. You must learn that your strength is not in your own might, but in the Faithful God who keeps His covenant. Just as God preserved a remnant for Himself, He calls you to stand firm in doctrine and duty. Do not waver when the world denies His sovereignty. Your father’s role is to point you to the Rock of Ages, who never changes, so that your own faith may be rooted in His unshakeable promises.</p>
+<p>Boaz, at fourteen, you are in the forge of character. The world will tell you that God has abandoned those who do not look like you or think like you. You must know that God’s grace is sovereign and selective, yet His call is irrevocable. When you face pressure to conform, remember the seven thousand who did not bow. Your father disciplines you not to crush your spirit, but to shape it into a vessel for God’s glory. Stand firm in your identity as a son of the King, walking in obedience to His Word.</p>
+<p>Shiloh, at five, you are the delight of your father’s house. Though you are young, you are known by God. Your father’s duty is to teach you the way of the Lord from your earliest days. He provides for you, protects you, and leads you in the paths of righteousness. Let your innocence be guarded by the truth of God’s Faithful love. As you grow, you will learn that God is your Provider and your Protector, just as your father strives to be in this fallen world.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Review the doctrine of election to ensure your confidence rests solely in God’s sovereign grace, not your own performance.</li>
+<li>Pray specifically for Gideon’s spiritual resolve as he navigates the pressures of young adulthood.</li>
+<li>Engage Boaz in a conversation about standing firm in biblical truth against cultural compromise.</li>
+<li>Establish a consistent routine of scripture reading with Shiloh to lay the foundation of faith early.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Wardroom</div>
+<p>Father, we thank You for Your faithfulness to Your covenant people. You have not cast off those You foreknew, and You preserve a remnant by grace. Strengthen my hand as I lead my family, that I may be faithful in my duties as a husband and father. By the power of Your Holy Spirit, give me wisdom to instruct my sons according to Your Word and courage to uphold the truth. Guard our hearts against pride and unbelief, and let our lives reflect Your sovereign grace. In the name of Jesus Christ, my Lord and Commander, Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Rudder Steer:</span> Keep your course true to the Rock of Ages, and do not drift with the tide of this age.</div>
+</section>
+
+<section class="watch watch-citizen" id="watch-citizen" data-watch="citizen">
+<div class="watch-header"><span class="watch-time">1500</span> <h2>Third Watch — The Citizen&#x27;s Stand</h2></div>
+<p class="intro">Brother, stand firm in the truth that your grafting into the Body is entirely by grace, not by inherent merit.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Romans 11:16-24</div>
+<div class="scripture-text">
+<p>If the part of the dough offered as firstfruits is holy, then the whole batch is holy; if the root is holy, so are the branches. But if some of the branches were broken off, and you, although a wild olive shoot, were grafted in among the others and now share in the nourishing sap from the olive root, do not consider yourself to be superior to those other branches. If you do, consider this: You do not support the root, but the root supports you. You will say then, “Branches were broken off so that I could be grafted in.” Granted. But they were broken off because of unbelief, and you stand by faith. Do not be arrogant, but tremble. For if God did not spare the natural branches, he will not spare you either.</p>
+<p>Consider therefore the kindness and sternness of God: sternness to those who fell, but kindness to you, provided that you continue in his kindness. Otherwise, you also will be cut off. And if they do not persist in unbelief, they will be grafted in, for God is able to graft them in again. After all, if you were cut out of an olive tree that is wild by nature, and contrary to nature were grafted into a cultivated tree, how much more readily will these, the natural branches, be grafted into their own olive tree!</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🛰️ Situation Report</div>
+<p>Paul warns the Gentile believers against spiritual pride, reminding them that their standing before God is sustained solely by His grace. The metaphor of the olive tree illustrates that while the natural branches were broken off for unbelief, the grafted branches remain only by faith, not by any inherent superiority. This passage demands a posture of humble dependence and reverence for God’s sovereign power to save and to judge.</p>
+</div>
+<div class="section reflection resolute">
+<div class="section-label">🛡️ Reflection for a R.E.S.O.L.U.T.E. Citizen — Steadfast</div>
+<p>Fredericksburg (local)<br>Brother, consider the ground beneath your feet in this historic Virginia town. The soil here remembers the cost of conflict and the fragility of human strength. Just as the olive branches were broken off not because the root failed, but because of unbelief, we see that our security does not lie in our own position or past victories. Your steadfastness is not a product of your own endurance, but of your continued abiding in the Root. When the fog of war or the fog of life obscures your vision, remember that your stability is found in the One who holds the graft. Do not look to your own strength to hold the line, but look to the Root that sustains you.</p>
+<p>Virginia (state)<br>The Commonwealth of Virginia stands as a testament to the enduring nature of truth, even amidst human failure. Like the natural branches of Israel, the state has seen seasons of blessing and seasons of judgment, yet the covenant promises of God remain firm. As a man of this land, you are called to be steadfast in your duty to your neighbor and your community. This means standing firm in your role as head of your household and leader in your church, not by demanding respect, but by embodying the humility of the grafted branch. Your faithfulness in the local sphere reflects your trust in the Sovereign who governs all nations.</p>
+<p>United States (nation)<br>The nation was founded upon the acknowledgment of a Sovereign God, yet it constantly drifts toward the arrogance of self-sufficiency. The warning in Romans is clear: kindness and sternness are both attributes of God. To be a steadfast citizen is to live with the reverence of one who knows that his standing is by grace alone. You do not boast in your heritage or your achievements. Instead, you tremble before God’s judgment and rest in His mercy. Your steadfastness is demonstrated by your refusal to be proud, your commitment to faith, and your recognition that all authority and provision flow from Him alone.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Audit your heart daily for any trace of spiritual pride regarding your faith or family role, confessing it as a failure to rely on the Root.</li>
+<li>Memorize the warning against arrogance in Romans 11:20-21 and recite it when you feel successful or superior to others.</li>
+<li>Serve your neighbor humbly this week, performing a task that offers you no recognition, thereby practicing the mindset of a grafted branch.</li>
+<li>Pray for the unbelief of those around you, not with judgment, but with a trembling reverence for God’s sovereignty and a desire for their repentance.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Bridge</div>
+<p>Father, I thank You for grafting me into Your true Israel by faith. Forgive me for the times I have looked down on others or trusted in my own standing. Keep me steadfast in Your kindness, that I may continue in faith and not fall into the same unbelief that broke off the natural branches. By the power of Your Holy Spirit, keep me humble, reverent, and dependent on the Root that sustains me. Guard my heart against pride and anchor my soul in Your sovereign grace. In the name of Jesus Christ, my Lord and Commander, I pray. Amen.</p>
+</div>
+<div class="section history">
+<div class="section-label">🦅 This Day in American History — November 19</div>
+<p>On November 19, 1863, President Abraham Lincoln delivered the Gettysburg Address, consecrating the battlefield as a final resting place for those who gave their lives. This act of solemn dedication honored the sacrifice of soldiers who died so that a nation conceived in liberty might endure, pointing to the ultimate cost of preserving a free society under God.</p>
+<p>On November 19, 1969, the Apollo 12 mission successfully landed on the Moon, marking a triumph of human ingenuity and God-given intellect. The precision and courage required for this feat reflected the biblical mandate to steward creation and explore the heavens, demonstrating the glory of God through the ordered work of His creatures.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Rudder Steer:</span> Anchor your soul in the Root, not the branch.</div>
+</section>
+
+<section class="watch watch-peace" id="watch-peace" data-watch="peace">
+<div class="watch-header"><span class="watch-time">2100</span> <h2>Evening Peace</h2></div>
+<p class="intro">The day’s noise settles, and you stand ready to receive the living water from the One who holds all authority.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 John 7:37-52</div>
+<div class="scripture-text">
+<p>On the last day of the feast, Jesus stood and cried out, saying, If anyone thirsts, let him come to Me and drink. He who believes in Me, as the Scripture has said, out of his belly shall flow rivers of living water. But this He spoke concerning the Spirit, whom those believing in Him would receive; for the Holy Spirit was not yet given, because Jesus was not yet glorified.</p>
+<p>When the people heard this saying, some of them said, Truly this is the Prophet. Others said, This is the Christ. But some said, Can the Christ come out of Galilee? Has not the Scripture said that the Christ comes from the seed of David and from the village of Bethlehem, where David was? So there was a division among the people because of Him. Some of them wanted to seize Him, but no one laid hands on Him.</p>
+<p>Then the officers came to the chief priests and Pharisees, who said to them, Why have you not brought Him? The officers answered, Never a man spoke like this Man! Then the Pharisees answered them, Are you also deceived? Have any of the rulers or of the Pharisees believed in Him? But this crowd that does not know the law is cursed. Nicodemus, one of them, who was one of them, said to them, Does our law judge a man before it hears him and knows what he does? They answered and said to him, Are you also from Galilee? Search and look, for no prophet has arisen out of Galilee.</p>
+<p>🸻</p>
+</div>
+</div>
+<div class="section reflection">
+<div class="section-label">🌾 Reflection for a Man at Home and in Community</div>
+<p>As a HAPPY husband, brother, you recognize that the domestic sphere is a sanctuary of grace, not a battlefield of competing wills. Your wife is a help meet for you, and your leadership is not a tyranny of ego but a stewardship of love. Just as the crowds in the temple were divided by their prejudice against Jesus’ origins, you must guard your heart against the world’s definition of masculinity. You lead by serving, by providing the spiritual covering that allows your home to flourish under the Lord’s blessing. Your authority is derived from Christ, and your submission to Him is the only thing that makes your headship over your household holy and effective.</p>
+<p>As a FULFILLED father, brother, you understand that your duty is to impart the living water to your children. You are not merely a provider of material goods but the primary priest of your household. When you teach your sons to stand firm in the faith and your daughters to walk in wisdom, you are fulfilling the covenant command to train up a child in the way he should go. Your discipline is an act of love, rooted in the truth that all have sinned and fall short. You point your children to the Savior, not to your own merit, showing them that their security rests in the finished work of Christ, not in their own performance.</p>
+<p>As a RESOLUTE citizen, brother, you maintain your integrity in a culture that often mocks biblical truth. Like Nicodemus, who questioned the prevailing religious wisdom, you must be willing to stand alone for the truth of Scripture. You do not seek the approval of the crowd but the approval of God. Your role in the community is to be a light that exposes the darkness without being consumed by it. You serve your nation with diligence, respecting authority as ordained by God, while holding fast to the conviction that your ultimate allegiance belongs to the Kingdom of Heaven.</p>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Stateroom</div>
+<p>Father, we thank You for the gift of the Holy Spirit, who flows from the glorified Christ to satisfy our deepest thirsts. Forgive us for our divided hearts and our tendency to judge by outward appearances rather than by Your Word. Grant us the courage to stand firm in our God-given roles, that we may lead our families and communities with wisdom and grace. By the power of Your Holy Spirit, quiet our minds and strengthen our resolve to walk in obedience to Your commands. Keep us steadfast in the truth, that we may reflect Your glory in all we do. In the name of Jesus Christ, my Lord and Commander, Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Rudder Steer:</span> Anchor your soul in Christ alone, for He is the only rock that withstands the tide.</div>
+</section>
+
+<footer>
+<div class="draft-tag">PROTOTYPE — sign-off pending</div>
+<div>U.S.M.C. Ministries · The Watchman's Chronological Plan for the Year of our Lord 2026</div>
+<div style="margin-top:6px;font-size:0.78rem;">Adam Johns &middot; rich interpretive blend &middot; divine name LORD</div>
+</footer>
+
+</div>
+<script>
+(function(){
+  const SLUGS = ['all','wisdom','husband','father','citizen','peace'];
+
+  // Watch windows in local hours (each watch is "live" from its start time
+  // until the NEXT watch begins). Evening peace owns 21:00 → 04:59.
+  function currentWatchSlug() {
+    const h = new Date().getHours();
+    if (h >= 5  && h < 7)  return 'wisdom';
+    if (h >= 7  && h < 11) return 'husband';
+    if (h >= 11 && h < 15) return 'father';
+    if (h >= 15 && h < 21) return 'citizen';
+    return 'peace';                       // 21:00 – 04:59
+  }
+  const NOW_SLUG = currentWatchSlug();
+
+  function markNowBadge(){
+    document.querySelectorAll('.watch-tab').forEach(t => {
+      t.classList.toggle('is-now', t.dataset.tab === NOW_SLUG);
+    });
+  }
+  function showOnly(slug){
+    const isAll = slug === 'all' || !SLUGS.includes(slug);
+    document.querySelectorAll('section.watch').forEach(s => {
+      s.style.display = (isAll || s.dataset.watch === slug) ? '' : 'none';
+    });
+    document.querySelectorAll('.watch-tab').forEach(t => {
+      t.classList.toggle('active', t.dataset.tab === (isAll ? 'all' : slug));
+    });
+  }
+  document.querySelectorAll('.watch-tab').forEach(t => {
+    t.addEventListener('click', function(e){
+      e.preventDefault();
+      const slug = this.dataset.tab;
+      history.replaceState(null, '', '#' + slug);
+      showOnly(slug);
+      window.scrollTo({top: 0, behavior:'smooth'});
+    });
+  });
+
+  // Initial selection priority:
+  //   1. URL hash if present  (#all / #wisdom / #husband / #father / #citizen / #peace)
+  //   2. Auto-select the watch that is "live right now"
+  let initial;
+  if (location.hash) {
+    initial = location.hash.slice(1);
+  } else {
+    initial = NOW_SLUG;
+  }
+  markNowBadge();
+  showOnly(initial);
+})();
+</script>
+</body>
+</html>
