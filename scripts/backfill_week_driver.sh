@@ -27,10 +27,15 @@ done
 # Rebuild inventory once
 python3 -c "import importlib.util; s=importlib.util.spec_from_file_location('m','scripts/build_reading_page_from_md.py'); m=importlib.util.module_from_spec(s); s.loader.exec_module(m); m.write_inventory()"
 
-# Stage exactly the generated files (never git add -A)
-FILES="docs/assets/readings-available.json"
+# Rebuild the day-keyed reading index (per-day JSON for each OK date + master index)
 for d in $OK; do
-  FILES="$FILES data/readings/$d.md docs/readings/$d.html"
+  python3 scripts/build_reading_index.py "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --date "$d" >/dev/null
+done
+
+# Stage exactly the generated files (never git add -A)
+FILES="docs/assets/readings-available.json docs/assets/reading-index.json"
+for d in $OK; do
+  FILES="$FILES data/readings/$d.md docs/readings/$d.html docs/assets/readings/$d.json"
 done
 
 if [ -n "$OK" ]; then

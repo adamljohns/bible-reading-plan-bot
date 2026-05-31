@@ -82,6 +82,8 @@ spec = importlib.util.spec_from_file_location('m', 'scripts/build_reading_page_f
 mod = importlib.util.module_from_spec(spec); spec.loader.exec_module(mod)
 mod.write_inventory()
 "
+  echo "  Rebuild reading index (per-day JSON + master)"
+  python3 scripts/build_reading_index.py "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --date "$DATE" | sed 's/^/  /'
 fi
 
 # ─── Audio ────────────────────────────────────────────────────────────────
@@ -115,7 +117,7 @@ fi
 # ─── Commit + push ────────────────────────────────────────────────────────
 echo
 echo "[4/5] Stage + commit"
-FILES=("data/readings/${DATE}.md" "docs/readings/${DATE}.html" "docs/assets/readings-available.json")
+FILES=("data/readings/${DATE}.md" "docs/readings/${DATE}.html" "docs/assets/readings-available.json" "docs/assets/readings/${DATE}.json" "docs/assets/reading-index.json")
 if [ "$NO_AUDIO" -eq 0 ]; then
   for w in wisdom husband father citizen peace; do
     f="docs/assets/audio/readings/${DATE}-${w}.mp3"
