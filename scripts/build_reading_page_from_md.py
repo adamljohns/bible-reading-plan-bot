@@ -763,10 +763,7 @@ def render_tabs():
 
 
 def doc_line_for(dt):
-    months = ["January","February","March","April","May","June",
-              "July","August","September","October","November","December"]
-    m = dt.month
-    return f"MOOP's 2026 Daily Bible Readings — Document {m} of 12; for the month of {months[m-1]}"
+    return "MOOP's 2026 Daily Bible Readings"
 
 
 def render_page(date_str, md_text):

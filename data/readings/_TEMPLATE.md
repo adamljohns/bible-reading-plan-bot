@@ -1,5 +1,4 @@
 MOOP's 2026 Daily Bible Readings
-Document <MM> of 12; for the month of <Month>
 
 <Weekday>, <Month> <D>, 2026
 

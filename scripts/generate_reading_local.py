@@ -188,8 +188,7 @@ def main():
     dt = date.fromisoformat(args.date)
     month, daynum, weekday = MONTHS[dt.month], dt.day, dt.strftime("%A")
 
-    header = (f"MOOP's 2026 Daily Bible Readings\n"
-              f"Document {dt.month} of 12; for the month of {month}\n\n"
+    header = (f"MOOP's 2026 Daily Bible Readings\n\n"
               f"{weekday}, {month} {daynum}, 2026\n")
 
     sections = [header.rstrip()]
