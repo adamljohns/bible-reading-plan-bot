@@ -38,6 +38,9 @@ WATCH_META = {
 }
 # Personal names that a personalized plan would swap out (Adam's household).
 PERSONAL_NAMES = ["Maria", "Gideon", "Boaz", "Shiloh"]
+# Location names (Adam's) that personalization swaps to the user's hometown/state/country.
+# Mostly in the Citizen's Stand (third) watch.
+LOCATION_NAMES = ["Fredericksburg", "Virginia", "United States", "America"]
 
 SCRIP_RE = re.compile(r"^\s*📖\s*Scripture\s*[—\-–:]\s*(.+?)\s*$")
 REFL_RE = re.compile(r"Reflection.*?[—\-–]\s*([A-Z][^\n]+?)\s*$")
@@ -109,6 +112,10 @@ def personal_tokens(watch_text):
     return [n for n in PERSONAL_NAMES if re.search(rf"\b{n}\b", watch_text)]
 
 
+def location_tokens(watch_text):
+    return [n for n in LOCATION_NAMES if re.search(rf"\b{re.escape(n)}\b", watch_text)]
+
+
 def build_day(ds, passages):
     md_path = READINGS / f"{ds}.md"
     if not md_path.exists():
@@ -134,6 +141,7 @@ def build_day(ds, passages):
             "has_audio": mp3.exists(),
             "audio_url": f"{SITE}/assets/audio/readings/{ds}-{key}.mp3" if mp3.exists() else None,
             "personal_tokens": personal_tokens(text) if text else [],
+            "location_tokens": location_tokens(text) if text else [],
         }
 
     return {
