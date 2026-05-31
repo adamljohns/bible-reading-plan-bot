@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg">
+<title>Friday, December 18, 2026 — Daily Reading | U.S.M.C. Ministries</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+    --bg-dark: #000000; --bg-card: #111111; --bg-card2: #161616;
+    --gold: #D4AF37; --gold-light: #F4D470;
+    --white: #FFFFFF; --gray: #888888; --border: #333333;
+}
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--white);
+    min-height: 100vh;
+    line-height: 1.7;
+}
+h1, h2, h3 { font-family: 'Playfair Display', serif; font-weight: 700; }
+.container { max-width: 820px; margin: 0 auto; padding: 24px 20px 60px; }
+a { color: var(--gold); text-decoration: none; }
+a:hover { color: var(--gold-light); text-decoration: underline; }
+
+.nav-back { margin-bottom: 14px; font-size: 0.95rem; }
+
+.hero { text-align: center; padding: 16px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 18px; }
+.hero h1 { font-size: clamp(1.5rem, 4vw, 2.2rem); color: var(--white); margin-bottom: 6px; }
+.hero .subtitle { color: var(--gold); font-size: 0.95rem; font-style: italic; }
+.hero .doc-line { color: var(--gray); font-size: 0.82rem; margin-top: 6px; }
+
+.watch-tabs {
+    position: sticky; top: 0; z-index: 30;
+    background: var(--bg-dark);
+    border-bottom: 1px solid var(--border);
+    display: flex; flex-wrap: wrap; gap: 6px;
+    padding: 12px 0 14px;
+    margin-bottom: 18px;
+}
+.watch-tab {
+    flex: 1 1 90px;
+    text-align: center;
+    padding: 8px 6px;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    background: var(--bg-card);
+    color: var(--gray);
+    font-size: 0.85rem; font-weight: 500;
+    transition: all 0.15s ease;
+    text-decoration: none !important;
+    white-space: nowrap;
+}
+.watch-tab:hover { color: var(--white); border-color: var(--gold); text-decoration: none !important; }
+.watch-tab.active { background: var(--gold); color: #000; border-color: var(--gold); font-weight: 600; }
+.watch-tab .tab-time { display: block; font-size: 0.7rem; opacity: 0.7; font-family: monospace; }
+.watch-tab.active .tab-time { opacity: 1; }
+
+/* "NOW" badge — shown on the watch tab whose time window contains current local time */
+.watch-tab.is-now { position: relative; box-shadow: 0 0 0 1px var(--gold-light) inset; }
+.watch-tab.is-now::after {
+  content: "NOW";
+  position: absolute; top: -7px; right: -4px;
+  background: var(--gold-light); color: #000;
+  font-size: 0.55rem; font-weight: 700;
+  padding: 1px 5px; border-radius: 100px;
+  letter-spacing: 0.08em;
+}
+
+.watch {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px 22px;
+    margin-bottom: 22px;
+    scroll-margin-top: 80px;
+}
+.watch-header { display: flex; align-items: baseline; gap: 14px; margin-bottom: 10px; flex-wrap: wrap; }
+.watch-time {
+    background: var(--bg-card2); color: var(--gold);
+    padding: 4px 12px; border-radius: 100px;
+    font-family: 'Inter', monospace; font-size: 0.85rem; font-weight: 600;
+    letter-spacing: 0.05em;
+}
+.watch-header h2 { font-size: 1.35rem; color: var(--white); }
+
+.intro { color: var(--gray); font-style: italic; margin-bottom: 14px; }
+
+.audio-slot {
+    margin: 14px 0 18px;
+    padding: 12px 14px;
+    background: var(--bg-card2);
+    border-radius: 8px;
+    border: 1px dashed var(--border);
+}
+.audio-slot.audio-pending { opacity: 0.55; }
+.audio-cap { font-size: 0.8rem; color: var(--gray); margin-top: 4px; }
+
+.scripture {
+    background: var(--bg-card2);
+    border-left: 3px solid var(--gold);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin: 16px 0 22px;
+}
+.scripture-ref { font-weight: 600; color: var(--gold); margin-bottom: 12px; font-size: 0.95rem; }
+.scripture-text p { margin-bottom: 8px; }
+.scripture-text p.stanza { margin-bottom: 14px; }
+
+.section-label {
+    font-family: 'Playfair Display', serif;
+    color: var(--gold); font-weight: 700; font-size: 1.05rem;
+    margin: 22px 0 10px; padding-top: 10px; border-top: 1px solid var(--border);
+}
+.section p, .context p, .reflection p, .history p, .application-block p { margin-bottom: 12px; }
+
+ul.application { padding-left: 22px; margin: 8px 0 14px; }
+ul.application li { margin-bottom: 8px; }
+.application-prose { font-style: italic; color: var(--gold-light); margin-top: 12px; }
+
+.history ul { padding-left: 22px; margin: 8px 0; }
+.history li { margin-bottom: 6px; }
+
+.prayer {
+    background: var(--bg-card2);
+    border-left: 3px solid var(--gold-light);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin: 22px 0;
+}
+.prayer-title { color: var(--gold-light); font-weight: 600; margin-bottom: 10px; font-size: 0.95rem; }
+.prayer p { line-height: 1.85; margin-bottom: 8px; }
+
+.helm {
+    background: var(--bg-card2);
+    border-radius: 6px;
+    padding: 12px 18px;
+    margin-top: 14px;
+    font-size: 0.95rem;
+}
+.helm-icon { color: var(--gold); font-size: 1.1rem; }
+.helm-label { color: var(--gold); font-weight: 600; }
+
+footer {
+    text-align: center;
+    color: var(--gray);
+    font-size: 0.82rem;
+    margin-top: 32px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+}
+footer .draft-tag {
+    display: inline-block;
+    background: #2a2410;
+    color: var(--gold);
+    padding: 4px 12px;
+    border-radius: 100px;
+    font-size: 0.78rem;
+    margin-bottom: 8px;
+    letter-spacing: 0.05em;
+}
+
+@media (max-width: 540px) {
+    .watch-tab { flex: 1 1 64px; font-size: 0.78rem; padding: 6px 4px; }
+    .watch-tab .tab-time { font-size: 0.65rem; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="nav-back">← <a href="/chronological.html">The Watchman's Chronological Plan</a></div>
+
+<div class="hero">
+<h1>Friday, December 18, 2026</h1>
+<div class="subtitle">Daily Reading — Day 352 of 365</div>
+<div class="doc-line">MOOP&#x27;s 2026 Daily Bible Readings — Document 12 of 12; for the month of December</div>
+</div>
+
+<nav class="watch-tabs" role="tablist">
+<a href="#all" class="watch-tab active" data-tab="all" role="tab"><span class="tab-label">All Watches</span></a>
+<a href="#wisdom" class="watch-tab" data-tab="wisdom" role="tab"><span class="tab-time">0600</span> <span class="tab-label">Morning Wisdom</span></a>
+<a href="#husband" class="watch-tab" data-tab="husband" role="tab"><span class="tab-time">0700</span> <span class="tab-label">Husband</span></a>
+<a href="#father" class="watch-tab" data-tab="father" role="tab"><span class="tab-time">1100</span> <span class="tab-label">Father</span></a>
+<a href="#citizen" class="watch-tab" data-tab="citizen" role="tab"><span class="tab-time">1500</span> <span class="tab-label">Citizen</span></a>
+<a href="#peace" class="watch-tab" data-tab="peace" role="tab"><span class="tab-time">2100</span> <span class="tab-label">Evening Peace</span></a>
+</nav>
+
+<section class="watch watch-wisdom" id="watch-wisdom" data-watch="wisdom">
+<div class="watch-header"><span class="watch-time">0600</span> <h2>Morning Wisdom</h2></div>
+<p class="intro">The fall of Babylon stands as a sobering reminder that every earthly empire built on pride and rebellion against the Creator is destined for collapse, leaving only the steadfast faithfulness of God to endure.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Revelation 18</div>
+<div class="scripture-text">
+<p>And after these things I saw another angel come down from heaven, having great power; and the earth was lightened with his glory. And he cried mightily with a strong voice, saying, Babylon the great is fallen, is fallen, and is become the habitation of devils, and the hold of every foul spirit, and a cage of every unclean and hateful bird. For all nations have drunk of the wine of the wrath of her fornication, and the kings of the earth have committed fornication with her, and the merchants of the earth are waxed rich through the abundance of her delicacies. And I heard another voice from heaven, saying, Come out of her, my people, that ye be not partakers of her sins, and that ye receive not of her plagues. For her sins have reached unto heaven, and God hath remembered her iniquities. Reward her even as she rewarded you, and double unto her double according to her works: in the cup which she hath filled fill to her double. How much she hath glorified herself, and lived delicately, so much torment and sorrow give her: for she saith in her heart, I sit a queen, and am no widow, and shall see no sorrow. Therefore shall her plagues come in one day, death, and mourning, and famine; and she shall be utterly burned with fire: for strong is the Lord God who judgeth her.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🧭 Context Summary</div>
+<p>John records the sudden and total judgment of Babylon, the archetype of worldly power and rebellion against God. The passage contrasts the fleeting glory of the world with the eternal sovereignty of the LORD, who remembers the sins of the proud and executes justice with precision. Believers are commanded to separate themselves from the corrupting influence of this system to avoid sharing in its inevitable destruction. This judgment serves as a vindication of God’s righteousness and a call for His people to remain distinct and holy.</p>
+</div>
+<div class="section reflection">
+<div class="section-label">🛡️ Reflection for a REAL MAN — Discerns Truth</div>
+<p>Brother, you stand in a world that worships comfort, power, and self-exaltation, much like the Babylon described here. The world offers a cup of pleasure that looks appealing but contains the wine of God’s wrath. As a man of God, you must possess the spiritual discernment to see through the glittering facade of secular success. Do not be seduced by the promise of ease or the allure of cultural approval. Your loyalty belongs to the King of Kings, not to the fading empires of this age.</p>
+<p>The command to &quot;come out&quot; is not merely physical separation but a decisive break in allegiance. You must guard your heart against the subtle compromises that erode your faith. When you see the world celebrating what God condemns, do not join in the chorus. Instead, let your life bear witness to a higher allegiance. Your strength as a husband and father comes from this unwavering stance, protecting your household from the spiritual decay that surrounds us.</p>
+<p>Remember that the judgment of Babylon is not a tragedy but a triumph of divine justice. The LORD has not forgotten the wickedness of the world, and He will not let it stand forever. Take courage, brother, knowing that your labor in the Lord is not in vain. Stand firm in the truth, reject the lies of the age, and fix your eyes on the eternal city that remains.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Evaluate your media consumption and entertainment choices to ensure they do not normalize sin or distract you from eternal truths.</li>
+<li>Speak clearly and confidently against cultural lies when they arise in conversation with friends or colleagues.</li>
+<li>Teach your children the difference between the wisdom of the world and the wisdom of God through daily instruction.</li>
+<li>Regularly examine your heart for any compromise with worldly values that might weaken your spiritual resolve.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer</div>
+<p>Father, I thank You for the clarity of Your Word and the justice of Your judgments. Grant me the discernment to see the emptiness of Babylon and the courage to stand apart from its corruption. By the power of Your Holy Spirit, strengthen my resolve to reject the seductions of this age and to remain faithful to Your commands. Guard my heart and my home, that I may lead my family in righteousness and truth. In the name of Jesus Christ, my Lord and Commander, Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Helm Command:</span> Steady your course against the cultural current, brother, for the anchor holds fast only when dropped in Christ alone.</div>
+</section>
+
+<section class="watch watch-husband" id="watch-husband" data-watch="husband">
+<div class="watch-header"><span class="watch-time">0700</span> <h2>First Watch — The Husband&#x27;s Post</h2></div>
+<p class="intro">Brother, stand firm in the covenant of your marriage as you survey the lineage that precedes you and the King who follows.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Matthew 1</div>
+<div class="scripture-text">
+<p>The record of the genealogy of Jesus the Messiah, the son of David, the son of Abraham. Abraham was the father of Isaac, and Isaac the father of Jacob, and Jacob the father of Judah and his brothers, and Judah the father of Perez and Zerah by Tamar, and Perez the father of Hezron, and Hezron the father of Ram, and Ram the father of Amminadab, and Amminadab the father of Nahshon, and Nahshon the father of Salmon, and Salmon the father of Boaz by Rahab, and Boaz the father of Obed by Ruth, and Obed the father of Jesse, and Jesse the father of David the king. And David was the father of Solomon by her who had been the wife of Uriah, and Solomon the father of Rehoboam, and Rehoboam the father of Abijah, and Abijah the father of Asa, and Asa the father of Jehoshaphat, and Jehoshaphat the father of Jehoram, and Jehoram the father of Uzziah, and Uzziah the father of Jotham, and Jotham the father of Ahaz, and Ahaz the father of Hezekiah, and Hezekiah the father of Manasseh, and Manasseh the father of Amos, and Amos the father of Josiah, and Josiah the father of Jechoniah and his brothers, at the time of the deportation to Babylon. And after the deportation to Babylon: Jechoniah was the father of Shealtiel, and Shealtiel the father of Zerubbabel, and Zerubbabel the father of Abiud, and Abiud the father of Eliakim, and Eliakim the father of Azor, and Azor the father of Sadok, and Sadok the father of Achim, and Achim the father of Eliud, and Eliud the father of Eleazar, and Eleazar the father of Matthan, and Matthan the father of Jacob, and Jacob the father of Joseph the husband of Mary, and Mary was the mother of Jesus who is called the Messiah.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🗺️ Briefing Summary</div>
+<p>The Gospel of Matthew opens not with a sermon, but with a pedigree, anchoring the Messiah firmly in the history of Israel. This genealogy traces the line from Abraham through David to Joseph, establishing Jesus’ legal right to the throne of Judah. It includes women of questionable reputations, demonstrating that God’s sovereign plan works through flawed humanity to accomplish His redemptive purposes.</p>
+</div>
+<div class="section reflection">
+<div class="section-label">❤️ Reflection for Your Wife — H.A.P.P.Y. Husband — Providing</div>
+<p>Brother, consider the weight of this lineage. Joseph is listed as the husband of Mary, yet he does not sire the child. His role is one of legal provision and protective guardianship. He provides the name, the heritage, and the safety for the Son of God. As a husband to Maria, your provision is not merely financial; it is the provision of a godly environment where truth is honored and order is maintained. You provide the structure within which your family can flourish under the authority of Christ.</p>
+<p>The genealogy reveals a history of failure and grace. David, the great king, sinned grievously. Tamar and Rahab were outsiders, often viewed with suspicion or shame. Yet God used these very lines to bring forth the Savior. Your marriage to Maria is not a performance of perfection but a covenant of faithfulness. You provide for her by trusting God with your failures and by covering her with the righteousness of Christ, not your own merit.</p>
+<p>As the head of your household, you must provide spiritual leadership that mirrors Joseph’s quiet obedience. You provide the stability that allows Maria to rest in her God-given role. This is the masculine duty: to bear the burden of leadership, to make the hard decisions in prayer, and to ensure that your home is a fortress of biblical truth. You provide by being the anchor that does not shift when the storms of culture rage against the family.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Review your financial stewardship to ensure Maria’s needs and the family’s spiritual education are prioritized above your personal comforts.</li>
+<li>Establish a consistent time for prayer with Maria, leading her in submission to God’s Word each evening.</li>
+<li>Protect your marriage from external distractions by setting clear boundaries with technology and social engagements.</li>
+<li>Speak words of affirmation to Maria that acknowledge her value as a helper in the Lord, reinforcing her role in your household.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Stateroom</div>
+<p>Father, we thank You for the covenant of marriage and the call to headship. Grant me the strength to provide for Maria not only in material things but in spiritual leadership and protection. Help me to lead with the same obedience that Joseph displayed, submitting fully to Your will. By the power of Your Holy Spirit, give me the courage to uphold biblical manhood and to cherish my wife as a fellow heir of grace. In the name of Jesus Christ, my Lord and Commander, Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Helm Command:</span> Secure the watch and guard the gate of your home with vigilance.</div>
+</section>
+
+<section class="watch watch-father" id="watch-father" data-watch="father">
+<div class="watch-header"><span class="watch-time">1100</span> <h2>Second Watch — The Father&#x27;s Charge</h2></div>
+<p class="intro">The Lord calls us to stand firm in His sovereign word, trusting His timing over our own understanding.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Luke 1:1-38</div>
+<div class="scripture-text">
+<p>Many have undertaken to draw up an account of the things that have been fulfilled among us, just as they were handed down to us by those who from the first were eyewitnesses and servants of the word. Therefore, since I myself have carefully investigated everything from the beginning, I too decided to write an orderly account for you, most excellent Theophilus, so that you may know the certainty of the things you have been taught.</p>
+<p>In the time of Herod king of Judea, there was a priest named Zechariah, who belonged to the priestly division of Abijah; his wife Elizabeth was also a descendant of Aaron. Both of them were righteous in the sight of God, observing all the Lord’s commands and decrees blamelessly. But they had no children, because Elizabeth was barren; and both of them were well advanced in years.</p>
+<p>Once when Zechariah’s division was on duty and he was serving as priest before God, he was chosen by lot, according to the custom of the priesthood, to go into the temple of the Lord and burn incense. And when the time for the burning of incense came, all the assembled worshipers were praying outside.</p>
+<p>Then an angel of the Lord appeared to him, standing at the right side of the altar of incense. When Zechariah saw him, he was startled and was gripped with fear. But the angel said to him: “Do not be afraid, Zechariah; your prayer has been heard. Your wife Elizabeth will bear you a son, and you are to call him John. He will be a joy and delight to you, and many will rejoice because of his birth. For he will be great in the sight of the Lord. He is never to drink wine or other fermented drink. He will be filled with the Holy Spirit even from birth. Many of the people of Israel will he bring back to the Lord their God. And he will go on before the Lord, in the spirit and power of Elijah, to turn the hearts of the parents to their children and the disobedient to the wisdom of the righteous, to make ready a people prepared for the Lord.”</p>
+<p>Zechariah asked the angel, “How can I be sure of this? I am an old man and my wife is well advanced in years.”</p>
+<p>The angel answered, “I am Gabriel. I stand in the presence of God, and I have been sent to speak to you and to tell you this good news. And now you will be silent and not able to speak until the day this happens, because you did not believe my words, which will come true at their appointed time.”</p>
+<p>Meanwhile, the people were waiting for Zechariah and wondering why he stayed so long in the temple. When he came out, he could not speak to them. They realized he had seen a vision in the temple, for he kept making signs to them but remained unable to speak.</p>
+<p>When his time of service was completed, he went home. After this his wife Elizabeth conceived for five months and has been in seclusion, saying, “This is how the Lord has dealt with me in the days when he looked with favor away from my disgrace.”</p>
+<p>In the sixth month of Elizabeth’s pregnancy, God sent the angel Gabriel to Nazareth, a town in Galilee, to a virgin pledged to be married to a man named Joseph, a descendant of David. The virgin’s name was Mary. Gabriel went to her and said, “Greetings, you who are highly favored! The Lord is with you.”</p>
+<p>Mary was greatly troubled at his words and wondered what kind of greeting this might be. But the angel said to her, “Do not be afraid, Mary; you have found favor with God. You will conceive and give birth to a son, and you are to call him Jesus. He will be great and will be called the Son of the Most High. The Lord God will give him the throne of his father David, and he will reign over Jacob’s descendants forever; his kingdom will never end.”</p>
+<p>“How will this be,” Mary asked the angel, “since I am a virgin?”</p>
+<p>The angel answered, “The Holy Spirit will come on you, and the power of the Most High will overshadow you. So the holy one to be born will be called the Son of God. Even Elizabeth your relative is going to have a child in her old age, and she who was said to be unable to conceive is in her sixth month. For no word from God will ever fail.”</p>
+<p>“I am the Lord’s servant,” Mary answered. “May it be to me as you have said.” Then the angel left her.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🗺️ Field Notes</div>
+<p>This passage establishes the divine sovereignty behind the incarnation, showing how God orchestrates history through humble vessels. It moves from the promise of John the Baptist’s birth to the miraculous announcement of Jesus’ conception. The narrative highlights God’s power to bring life from death and hope from despair. It reminds us that the fulfillment of prophecy depends entirely on God’s faithfulness, not human capability.</p>
+</div>
+<div class="section reflection">
+<div class="section-label">👨‍👦 Reflection for Your Children — F.U.L.F.I.L.L.E.D. Father — Faithful</div>
+<p>Brother, look at Zechariah and Elizabeth. They were righteous, yet they waited decades for a promise that seemed impossible. Their faith was tested by time and silence, yet God remained faithful to His word. You must learn that God’s timing is perfect, even when it feels like delay. Do not grow weary in well-doing, for the Lord is faithful to complete what He has begun in you.</p>
+<p>Mary’s response is the model for your children. She said, &quot;May it be to me as you have said.&quot; This is the posture of a child of God. Submit to the Lord’s will, even when it confounds your understanding. Teach Gideon, Boaz, and Shiloh that obedience is not about feeling ready, but about trusting the Commander. God’s promises are yes and amen in Christ.</p>
+<p>As a father, you are called to lead your house in this same faith. You must trust God with your family’s future, just as He trusted Zechariah with John’s birth. Do not rely on your own strength or wisdom. Stand firm in the truth that the Lord is with you. Your duty is to proclaim His faithfulness to your children, that they may know the certainty of His word.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Review the promises of God in Scripture daily, writing them down to reinforce trust in His word.</li>
+<li>Pray specifically for Gideon, Boaz, and Shiloh, asking God to strengthen their faith in His timing.</li>
+<li>Speak words of confidence to your family, reminding them of God’s past faithfulness in your lives.</li>
+<li>Resist the temptation to worry about the future, choosing instead to rest in God’s sovereign plan.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Wardroom</div>
+<p>Father, we thank You for Your faithfulness throughout all generations. You who called Zechariah and Elizabeth to trust in Your promise, help us to do the same. By the power of Your Holy Spirit, give us the grace to submit to Your will, just as Mary did. Strengthen our faith, that we may stand firm in the truth of Your word. Guide our steps, protect our family, and let our lives reflect Your glory. In the name of Jesus Christ, my Lord and Commander, we pray. Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Rudder Steer:</span> Trust the Commander’s timing, not your own sight.</div>
+</section>
+
+<section class="watch watch-citizen" id="watch-citizen" data-watch="citizen">
+<div class="watch-header"><span class="watch-time">1500</span> <h2>Third Watch — The Citizen&#x27;s Stand</h2></div>
+<p class="intro">The Lord has visited His people with the dawn of redemption, calling every citizen of His kingdom to a posture of humble reverence and active obedience.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Luke 1:39-80</div>
+<div class="scripture-text">
+<p>In those days Mary arose and went with haste into the hill country, to a town in Judah, and she entered the house of Zechariah and greeted Elizabeth. And when Elizabeth heard the greeting of Mary, the baby leaped in her womb. And Elizabeth was filled with the Holy Spirit, and she exclaimed with a loud cry, “Blessed are you among women, and blessed is the fruit of your womb! And why is this granted to me that the mother of my Lord should come to me? For behold, when the sound of your greeting came to my ears, the baby in my womb leaped for joy. And blessed is she who believed that there would be a fulfillment of what was spoken to her from the Lord.”</p>
+<p>And Mary said, “My soul magnifies the Lord, and my spirit rejoices in God my Savior, for He has looked on the humble estate of His servant. For behold, from now on all generations will call me blessed; for He who is mighty has done great things for me, and holy is His name. And His mercy is for those who fear Him from generation to generation. He has shown strength with His arm; He has scattered the proud in the thoughts of their hearts; He has put down the mighty from their thrones and exalted those of humble estate; He has filled the hungry with good things, and the rich He has sent away empty. He has helped His servant Israel, in remembrance of His mercy, as He spoke to our fathers, to Abraham and to his offspring forever.”</p>
+<p>And Mary remained with her about three months and returned to her home.</p>
+<p>Now Elizabeth’s time came to be delivered, and she gave birth to a son. And when his neighbors and relatives heard that the Lord had shown great mercy to her, they rejoiced with her.</p>
+<p>And on the eighth day they came to circumcise the child. And they would have called him Zechariah after his father, but his mother answered, “No; he shall be called John.” And they said to her, “None of your relatives is named this.” And they made signs to his father, inquiring what he wanted him called. And he asked for a writing tablet and wrote, “His name is John.” And immediately his mouth was opened and his tongue loosed, and he spoke, blessing God.</p>
+<p>And fear came on all their neighbors. And all these things were talked about through the whole hill country of Judea; and all who heard them laid them up in their hearts, saying, “What then will this child be?” For the hand of the Lord was with him.</p>
+<p>His father Zechariah was filled with the Holy Spirit and prophesied, saying,</p>
+<p class="stanza">“Blessed be the Lord God of Israel,<br>for He has visited and redeemed His people<br>and has raised up a horn of salvation for us<br>in the house of His servant David,<br>as He spoke by the mouth of His holy prophets from of old,<br>that we should be saved from our enemies<br>and from the hand of all who hate us;<br>to show the mercy promised to our fathers<br>and to remember His holy covenant,<br>the oath that He swore to our father Abraham,<br>to grant us that we, being delivered from the hand of our enemies,<br>might serve Him without fear,<br>in holiness and righteousness before Him all our days.</p>
+<p class="stanza">“And you, child, shall be called the prophet of the Most High;<br>for you will go before the face of the Lord to prepare His ways,<br>to give knowledge of salvation to His people<br>in the forgiveness of their sins,<br>because of the tender mercy of our God,<br>when the sunrise shall visit us from on high<br>to give light to those who sit in darkness and in the shadow of death,<br>to guide our feet into the way of peace.”</p>
+<p>And the child grew and became strong in spirit, and He was in the wilderness till the day of His public appearance to Israel.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🛰️ Situation Report</div>
+<p>The narrative shifts from the miraculous conception to the tangible reality of the Incarnation, as the Virgin Mary bears the Son of God into the world. Elizabeth, filled with the Holy Spirit, recognizes the divine presence in the womb of her cousin, confirming that God’s promise is unfolding with sovereign precision. Zechariah’s silence is broken by a prophetic declaration that frames the coming Messiah not merely as a political liberator, but as the fulfiller of covenant mercy and the giver of true peace. John the Baptist is set apart from the womb, destined to prepare the way for the Lord through a life of ascetic discipline and spiritual fortitude.</p>
+</div>
+<div class="section reflection resolute">
+<div class="section-label">🛡️ Reflection for a R.E.S.O.L.U.T.E. Citizen — Steadfast</div>
+<p>Fredericksburg (local)<br>Brother, look to the banks of the Rappahannock where the ground is hard and the history is deep. Just as John grew strong in the wilderness, away from the corrupting influence of the city, you must cultivate a spiritual fortitude that stands firm against the shifting sands of secular culture. In this community, where the old stone walls of our forefathers still stand, remember that true strength is not found in the roar of the mob but in the quiet, unyielding trust in the Lord’s promise. You are called to be a steadfast pillar in your neighborhood, holding fast to the truth even when the winds of opinion blow cold.</p>
+<p>Virginia (state)<br>The Commonwealth of Virginia, founded on the principles of ordered liberty and covenant responsibility, serves as a reminder of the duty of male headship. Zechariah’s prophetic word that we might &quot;serve Him without fear, in holiness and righteousness&quot; defines the masculine ideal. As a father and husband in this commonwealth, you are the priest of your home, charged with leading your family in the fear of the LORD. Your steadfastness is demonstrated in your unwavering commitment to provide, protect, and guide your household according to Scripture, rejecting the world’s confusion regarding gender roles and family structure.</p>
+<p>United States (nation)<br>On a national scale, the call to &quot;give light to those who sit in darkness&quot; challenges every Christian citizen to stand firm in the faith. The nation was built upon the conviction that all men are created equal under God, with distinct and complementary roles ordained by the Creator. Your steadfastness is shown in your loyalty to the truth, refusing to bow to the idolatry of egalitarianism or the chaos of moral relativism. You stand as a guardian of the covenant, praying for the nation that it might return to the fear of the LORD, and living in such a way that your conduct silences the critics of the gospel.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Establish a fixed time each morning to read the Scriptures and pray for your family, modeling spiritual discipline for your sons.</li>
+<li>Speak clearly and confidently to your wife and children about biblical roles, reinforcing the beauty of male headship and female submission.</li>
+<li>Engage in physical training and martial readiness, not for pride, but to fulfill the duty of protecting your household and neighbors.</li>
+<li>Resist the cultural narrative that diminishes fatherhood; actively mentor young men in your church to become godly husbands and fathers.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Bridge</div>
+<p>Father, we thank You for the steadfastness of Your Son, Jesus Christ, who fulfilled every requirement of the law for our salvation. By the power of Your Holy Spirit, strengthen my heart to stand firm in the faith, just as John the Baptist stood in the wilderness. Grant me the courage to lead my family with wisdom and authority, that my home may be a fortress of truth and grace. Protect my mind from the lies of the enemy and my will from the temptation of compromise. In the name of Jesus Christ, my Lord and Commander, I pray. Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Rudder Steer:</span> Hold the line of truth with a firm grip, brother.</div>
+<div class="section history">
+<div class="section-label">🦅 This Day in American History — December 18</div>
+<p>On December 18, 1865, the Thirteenth Amendment to the United States Constitution was officially ratified, abolishing slavery and involuntary servitude. This moment stands as a profound testimony to the sovereignty of God over human institutions and the long, painful road toward the recognition of the inherent dignity of every person made in His image. It reminds us that while man’s laws may lag behind God’s moral order, divine justice ultimately prevails, calling all nations to repentance and righteousness.</p>
+<p>On December 18, 1937, the first successful transatlantic radio transmission of voice and music was achieved, connecting the Old World with the New. This milestone in honest industry and engineering reflects the cultural mandate given to Adam to subdue the earth and develop its resources. It serves as a reminder that God grants human beings the creativity and intellect to innovate, and that such advancements, when used with humility, can facilitate the spreading of truth and the strengthening of bonds between nations.</p>
+<p>⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻</p>
+</div>
+</section>
+
+<section class="watch watch-peace" id="watch-peace" data-watch="peace">
+<div class="watch-header"><span class="watch-time">2100</span> <h2>Evening Peace</h2></div>
+<p class="intro">The darkness of the day yields to the quiet assurance of God’s sovereign rule.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Isaiah 9:1-7</div>
+<div class="scripture-text">
+<p>The people who walked in darkness have seen a great light. Those who dwell in the land of deep darkness, on them has the light shined. You have multiplied the nation; You have increased its joy; they rejoice before You as with joy at the harvest, as men rejoice when dividing the spoil. For the yoke of his burden, and the staff across his shoulder, the rod of his oppressor, You have broken as on the day of Midian. For every boot of the tramping warrior in battle tumult and garments rolled in blood will be for burning, fuel for the fire. For to us a child is born, to us a son is given; and the government shall be upon His shoulder. And His name shall be called Wonderful Counselor, Mighty God, Everlasting Father, Prince of Peace. Of the increase of His government and of peace there will be no end, on the throne of David and over His kingdom, to establish it and to uphold it with justice and with righteousness from this time forth and forevermore. The zeal of the LORD of hosts will do this.</p>
+</div>
+</div>
+<div class="section reflection">
+<div class="section-label">🌾 Reflection for a Man at Home and in Community</div>
+<p>As a HAPPY husband, brother, you find your rest in the knowledge that the One who holds the universe together also holds your covenant together. The prophetic promise of a government upon His shoulder assures you that your domestic sphere is not abandoned to chaos. You lead your home not by your own strength, but by leaning on the Mighty God who established order in creation. Your love for your wife is a reflection of Christ’s faithful stewardship over the church. When you lay down with your head heavy with the day’s burdens, remember that the Everlasting Father bears the weight of all things, allowing you to be present and attentive in your marriage.</p>
+<p>As a FULFILLED father, brother, you recognize that your authority is derived from the Prince of Peace. The child born to us is the source of true joy, surpassing the fleeting satisfaction of worldly success. You teach your sons that manhood is not about domination, but about service to the throne of David. Your discipline and instruction are acts of worship, aligning your household under the Lordship of Christ. You provide not merely for their physical needs, but for their spiritual formation, pointing them to the Wonderful Counselor who guides the righteous path.</p>
+<p>As a RESOLUTE citizen, brother, you stand firm in the truth that the zeal of the LORD of hosts will ultimately establish justice. The world may rage, and boots may trample in tumult, but the garments of the oppressor are fuel for the fire. Your duty is to pray for the peace of the city and to act with integrity in your public life. You do not fear the shifting tides of culture, for the government of the Messiah will have no end. You serve your nation with a clear conscience, knowing that your true citizenship is in the kingdom that cannot be shaken.</p>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Stateroom</div>
+<p>Father, we thank You for the light that has shined in our darkness and for the Son You have given to us. We acknowledge Your sovereignty over our lives and our households. By the power of Your Holy Spirit, strengthen our hands to lead our wives and children with wisdom and love, and give us courage to stand firm in our civic duties as witnesses to Your truth. Guard our hearts from fear and equip us to uphold the righteousness of Your kingdom. In the name of Jesus Christ, my Lord and Commander, who reigns forever, we pray. Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Rudder Steer:</span> Anchor your soul in the Prince of Peace while you tend to the watch below.</div>
+</section>
+
+<footer>
+<div class="draft-tag">PROTOTYPE — sign-off pending</div>
+<div>U.S.M.C. Ministries · The Watchman's Chronological Plan for the Year of our Lord 2026</div>
+<div style="margin-top:6px;font-size:0.78rem;">Adam Johns &middot; rich interpretive blend &middot; divine name LORD</div>
+</footer>
+
+</div>
+<script>
+(function(){
+  const SLUGS = ['all','wisdom','husband','father','citizen','peace'];
+
+  // Watch windows in local hours (each watch is "live" from its start time
+  // until the NEXT watch begins). Evening peace owns 21:00 → 04:59.
+  function currentWatchSlug() {
+    const h = new Date().getHours();
+    if (h >= 5  && h < 7)  return 'wisdom';
+    if (h >= 7  && h < 11) return 'husband';
+    if (h >= 11 && h < 15) return 'father';
+    if (h >= 15 && h < 21) return 'citizen';
+    return 'peace';                       // 21:00 – 04:59
+  }
+  const NOW_SLUG = currentWatchSlug();
+
+  function markNowBadge(){
+    document.querySelectorAll('.watch-tab').forEach(t => {
+      t.classList.toggle('is-now', t.dataset.tab === NOW_SLUG);
+    });
+  }
+  function showOnly(slug){
+    const isAll = slug === 'all' || !SLUGS.includes(slug);
+    document.querySelectorAll('section.watch').forEach(s => {
+      s.style.display = (isAll || s.dataset.watch === slug) ? '' : 'none';
+    });
+    document.querySelectorAll('.watch-tab').forEach(t => {
+      t.classList.toggle('active', t.dataset.tab === (isAll ? 'all' : slug));
+    });
+  }
+  document.querySelectorAll('.watch-tab').forEach(t => {
+    t.addEventListener('click', function(e){
+      e.preventDefault();
+      const slug = this.dataset.tab;
+      history.replaceState(null, '', '#' + slug);
+      showOnly(slug);
+      window.scrollTo({top: 0, behavior:'smooth'});
+    });
+  });
+
+  // Initial selection priority:
+  //   1. URL hash if present  (#all / #wisdom / #husband / #father / #citizen / #peace)
+  //   2. Auto-select the watch that is "live right now"
+  let initial;
+  if (location.hash) {
+    initial = location.hash.slice(1);
+  } else {
+    initial = NOW_SLUG;
+  }
+  markNowBadge();
+  showOnly(initial);
+})();
+</script>
+</body>
+</html>
