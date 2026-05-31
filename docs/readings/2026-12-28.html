@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg">
+<title>Monday, December 28, 2026 — Daily Reading | U.S.M.C. Ministries</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+    --bg-dark: #000000; --bg-card: #111111; --bg-card2: #161616;
+    --gold: #D4AF37; --gold-light: #F4D470;
+    --white: #FFFFFF; --gray: #888888; --border: #333333;
+}
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--white);
+    min-height: 100vh;
+    line-height: 1.7;
+}
+h1, h2, h3 { font-family: 'Playfair Display', serif; font-weight: 700; }
+.container { max-width: 820px; margin: 0 auto; padding: 24px 20px 60px; }
+a { color: var(--gold); text-decoration: none; }
+a:hover { color: var(--gold-light); text-decoration: underline; }
+
+.nav-back { margin-bottom: 14px; font-size: 0.95rem; }
+
+.hero { text-align: center; padding: 16px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 18px; }
+.hero h1 { font-size: clamp(1.5rem, 4vw, 2.2rem); color: var(--white); margin-bottom: 6px; }
+.hero .subtitle { color: var(--gold); font-size: 0.95rem; font-style: italic; }
+.hero .doc-line { color: var(--gray); font-size: 0.82rem; margin-top: 6px; }
+
+.watch-tabs {
+    position: sticky; top: 0; z-index: 30;
+    background: var(--bg-dark);
+    border-bottom: 1px solid var(--border);
+    display: flex; flex-wrap: wrap; gap: 6px;
+    padding: 12px 0 14px;
+    margin-bottom: 18px;
+}
+.watch-tab {
+    flex: 1 1 90px;
+    text-align: center;
+    padding: 8px 6px;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    background: var(--bg-card);
+    color: var(--gray);
+    font-size: 0.85rem; font-weight: 500;
+    transition: all 0.15s ease;
+    text-decoration: none !important;
+    white-space: nowrap;
+}
+.watch-tab:hover { color: var(--white); border-color: var(--gold); text-decoration: none !important; }
+.watch-tab.active { background: var(--gold); color: #000; border-color: var(--gold); font-weight: 600; }
+.watch-tab .tab-time { display: block; font-size: 0.7rem; opacity: 0.7; font-family: monospace; }
+.watch-tab.active .tab-time { opacity: 1; }
+
+/* "NOW" badge — shown on the watch tab whose time window contains current local time */
+.watch-tab.is-now { position: relative; box-shadow: 0 0 0 1px var(--gold-light) inset; }
+.watch-tab.is-now::after {
+  content: "NOW";
+  position: absolute; top: -7px; right: -4px;
+  background: var(--gold-light); color: #000;
+  font-size: 0.55rem; font-weight: 700;
+  padding: 1px 5px; border-radius: 100px;
+  letter-spacing: 0.08em;
+}
+
+.watch {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px 22px;
+    margin-bottom: 22px;
+    scroll-margin-top: 80px;
+}
+.watch-header { display: flex; align-items: baseline; gap: 14px; margin-bottom: 10px; flex-wrap: wrap; }
+.watch-time {
+    background: var(--bg-card2); color: var(--gold);
+    padding: 4px 12px; border-radius: 100px;
+    font-family: 'Inter', monospace; font-size: 0.85rem; font-weight: 600;
+    letter-spacing: 0.05em;
+}
+.watch-header h2 { font-size: 1.35rem; color: var(--white); }
+
+.intro { color: var(--gray); font-style: italic; margin-bottom: 14px; }
+
+.audio-slot {
+    margin: 14px 0 18px;
+    padding: 12px 14px;
+    background: var(--bg-card2);
+    border-radius: 8px;
+    border: 1px dashed var(--border);
+}
+.audio-slot.audio-pending { opacity: 0.55; }
+.audio-cap { font-size: 0.8rem; color: var(--gray); margin-top: 4px; }
+
+.scripture {
+    background: var(--bg-card2);
+    border-left: 3px solid var(--gold);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin: 16px 0 22px;
+}
+.scripture-ref { font-weight: 600; color: var(--gold); margin-bottom: 12px; font-size: 0.95rem; }
+.scripture-text p { margin-bottom: 8px; }
+.scripture-text p.stanza { margin-bottom: 14px; }
+
+.section-label {
+    font-family: 'Playfair Display', serif;
+    color: var(--gold); font-weight: 700; font-size: 1.05rem;
+    margin: 22px 0 10px; padding-top: 10px; border-top: 1px solid var(--border);
+}
+.section p, .context p, .reflection p, .history p, .application-block p { margin-bottom: 12px; }
+
+ul.application { padding-left: 22px; margin: 8px 0 14px; }
+ul.application li { margin-bottom: 8px; }
+.application-prose { font-style: italic; color: var(--gold-light); margin-top: 12px; }
+
+.history ul { padding-left: 22px; margin: 8px 0; }
+.history li { margin-bottom: 6px; }
+
+.prayer {
+    background: var(--bg-card2);
+    border-left: 3px solid var(--gold-light);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin: 22px 0;
+}
+.prayer-title { color: var(--gold-light); font-weight: 600; margin-bottom: 10px; font-size: 0.95rem; }
+.prayer p { line-height: 1.85; margin-bottom: 8px; }
+
+.helm {
+    background: var(--bg-card2);
+    border-radius: 6px;
+    padding: 12px 18px;
+    margin-top: 14px;
+    font-size: 0.95rem;
+}
+.helm-icon { color: var(--gold); font-size: 1.1rem; }
+.helm-label { color: var(--gold); font-weight: 600; }
+
+footer {
+    text-align: center;
+    color: var(--gray);
+    font-size: 0.82rem;
+    margin-top: 32px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+}
+footer .draft-tag {
+    display: inline-block;
+    background: #2a2410;
+    color: var(--gold);
+    padding: 4px 12px;
+    border-radius: 100px;
+    font-size: 0.78rem;
+    margin-bottom: 8px;
+    letter-spacing: 0.05em;
+}
+
+@media (max-width: 540px) {
+    .watch-tab { flex: 1 1 64px; font-size: 0.78rem; padding: 6px 4px; }
+    .watch-tab .tab-time { font-size: 0.65rem; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="nav-back">← <a href="/chronological.html">The Watchman's Chronological Plan</a></div>
+
+<div class="hero">
+<h1>Monday, December 28, 2026</h1>
+<div class="subtitle">Daily Reading — Day 362 of 365</div>
+<div class="doc-line">MOOP&#x27;s 2026 Daily Bible Readings — Document 12 of 12; for the month of December</div>
+</div>
+
+<nav class="watch-tabs" role="tablist">
+<a href="#all" class="watch-tab active" data-tab="all" role="tab"><span class="tab-label">All Watches</span></a>
+<a href="#wisdom" class="watch-tab" data-tab="wisdom" role="tab"><span class="tab-time">0600</span> <span class="tab-label">Morning Wisdom</span></a>
+<a href="#husband" class="watch-tab" data-tab="husband" role="tab"><span class="tab-time">0700</span> <span class="tab-label">Husband</span></a>
+<a href="#father" class="watch-tab" data-tab="father" role="tab"><span class="tab-time">1100</span> <span class="tab-label">Father</span></a>
+<a href="#citizen" class="watch-tab" data-tab="citizen" role="tab"><span class="tab-time">1500</span> <span class="tab-label">Citizen</span></a>
+<a href="#peace" class="watch-tab" data-tab="peace" role="tab"><span class="tab-time">2100</span> <span class="tab-label">Evening Peace</span></a>
+</nav>
+
+<section class="watch watch-wisdom" id="watch-wisdom" data-watch="wisdom">
+<div class="watch-header"><span class="watch-time">0600</span> <h2>Morning Wisdom</h2></div>
+<p class="intro">The dawn breaks not merely as a new day, but as a summons to align your heart with the Sovereign Architect of your life.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Proverbs 3</div>
+<div class="scripture-text">
+<p class="stanza">Trust in the LORD with all your heart<br>and lean not on your own understanding;<br>in all your ways submit to Him,<br>and He will make your paths straight.</p>
+<p class="stanza">Do not be wise in your own eyes;<br>fear the LORD and shun evil.<br>This will bring health to your body<br>and nourishment to your bones.</p>
+<p class="stanza">Honor the LORD with your wealth,<br>with the firstfruits of all your crops;<br>then your barns will be filled to overflowing<br>and your vats will brim over with new wine.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🧭 Context Summary</div>
+<p>Solomon, the wisest king who ever lived, addresses his son with the urgency of a father passing down the only true map for survival. He warns that human intellect, no matter how sharp, is fatally flawed when severed from divine revelation. The passage establishes that true peace and provision are not earned by merit, but received through total surrender to God’s authority.</p>
+</div>
+<div class="section reflection">
+<div class="section-label">🛡️ Reflection for a REAL MAN — Trusting the LORD</div>
+<p>Listen closely, brother. The world will tell you to trust your instincts, your training, and your own judgment above all else. As a father and a veteran, you know the weight of command and the burden of decision-making. Yet, Solomon cuts through the noise of your experience with a sharp, loving directive: trust the LORD with all your heart. This is not passive hope; it is an active, martial submission of your will to the will of the Almighty. When you lean on your own understanding, you are building a fortress on sand, vulnerable to the shifting tides of circumstance and your own limited perspective.</p>
+<p>To fear the LORD is to recognize His supreme authority over your household and your history. It is to shun evil not because it is socially inconvenient, but because it is an offense against the King of Kings. This fear produces a tangible strength in your spirit, a nourishment that no amount of worldly success can replicate. When you honor Him with your substance, acknowledging that every provision you bring to your family is a loan from His hand, you break the idolatry of self-reliance.</p>
+<p>Brother, your role as the head of your home requires you to lead from a place of total dependence on God, not self-sufficiency. By submitting your plans, your fears, and your resources to Him, you allow Him to straighten the crooked paths of your life. This is the discipline of a godly man: to look to the LORD for direction, to honor Him with his wealth, and to rest in the certainty that His guidance is superior to your own.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Pause before making a significant family decision to pray specifically for His direction, refusing to rely solely on your past experience.</li>
+<li>Audit your spending and giving to ensure you are honoring the LORD with your firstfruits, acknowledging His ownership of your income.</li>
+<li>Identify one area where you are &quot;wise in your own eyes&quot; and deliberately submit that plan to Scripture and godly counsel.</li>
+<li>Confess a recent instance where you leaned on your own understanding rather than fearing the LORD, and ask for grace to repent.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer</div>
+<p>Father, I confess that I often trust my own judgment more than Your Word. Forgive me for the times I have leaned on my own understanding and walked in pride. By the power of Your Holy Spirit, break my heart for what breaks Yours, and align my will with Your sovereign purpose. Teach me to fear You above all else and to shun evil with all my strength. Grant me the grace to honor You with my wealth and to lead my household with wisdom that comes only from above. In the name of Jesus Christ, my Lord and Commander, I pray. Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Helm Command:</span> Secure your heart to the anchor of His Word before engaging the day.</div>
+</section>
+
+<section class="watch watch-husband" id="watch-husband" data-watch="husband">
+<div class="watch-header"><span class="watch-time">0700</span> <h2>First Watch — The Husband&#x27;s Post</h2></div>
+<p class="intro">Brother, stand firm in the covenant charge the Lord has placed upon your shoulders today.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Joshua 1</div>
+<div class="scripture-text">
+<p>The LORD said to Moses, My servant Moses is dead. Now therefore, arise, go over this Jordan, you and all this people, to the land that I am giving to them, to the people of Israel. Every place that the sole of your foot will tread upon I have given to you, as I promised to Moses. From the wilderness and this Lebanon as far as the great river, the river Euphrates, all the land of the Hittites to the Great Sea toward the going down of the sun shall be your territory. No man shall be able to stand before you all the days of your life. As I was with Moses, so I will be with you. I will not leave you or forsake you. Be strong and courageous, for you shall cause this people to inherit the land that I swore to their fathers to give them. Only be strong and very courageous, being careful to do according to all the law that My servant Moses commanded you. Do not turn from it to the right hand or to the left, that you may have good success wherever you go. This Book of the Law shall not depart from your mouth, but you shall meditate on it day and night, that you may be careful to do according to all that is written in it. For then you will make your way prosperous, and then you will have good success. Have I not commanded you? Be strong and courageous. Do not be frightened, for the LORD your God is with you wherever you go.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🗺️ Briefing Summary</div>
+<p>The Lord commissions Joshua to lead Israel into the Promised Land, replacing the departed Moses with a mandate of spiritual and martial vigilance. This transition demands absolute reliance on the Word of God as the supreme authority for both governance and personal conduct. The promise of divine presence serves as the foundation for courage, removing fear from the equation of leadership. Success is defined not by military might alone, but by strict adherence to the Law of the Lord.</p>
+</div>
+<div class="section reflection">
+<div class="section-label">❤️ Reflection for Your Wife — H.A.P.P.Y. Husband — Protecting</div>
+<p>Brother, your role as Maria’s husband is a sacred trust, mirroring Joshua’s charge to guard the people of God. Just as Joshua was commanded to be strong and courageous to protect the nation from spiritual and physical peril, you are called to be the spiritual and physical shield for your wife and children. This protection is not merely about physical safety, but about guarding the heart of your home from the encroaching darkness of the world. You must stand firm in the truth of Scripture, ensuring that no false doctrine or worldly compromise penetrates the sanctuary of your marriage.</p>
+<p>Your strength is derived not from your own prowess, but from the indwelling power of the Holy Spirit and the firm footing of God’s Word. When you lead Maria with clarity and conviction, you provide a stable foundation upon which she can rest. This is the biblical order: the man takes the front line of spiritual responsibility, bearing the weight of discernment and decision-making so that his wife may walk in peace and confidence. You do not rule with tyranny, but with the steadfast love of a shepherd who knows the dangers of the wilderness and the treasures of the promised land.</p>
+<p>Maria needs a husband who does not waver when the winds of culture blow against biblical truth. Your courage is her safety. Your adherence to the Law of God is her security. By standing firm in your headship, you demonstrate to her the faithful love of Christ for the Church. You protect her purity, her peace, and her purpose by keeping your eyes fixed on the Commander of the Lord’s Army.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Read Joshua 1 aloud to Maria each morning, declaring the Lord’s promise of presence over your home.</li>
+<li>Establish a clear spiritual routine for prayer and Scripture reading with your children, taking the lead without hesitation.</li>
+<li>Identify one area of spiritual compromise in your life or home and remove it immediately, setting a boundary of holiness.</li>
+<li>Speak words of affirmation and protection to Maria, reminding her that her head covers her in the strength of the Lord.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Stateroom</div>
+<p>Father, I thank You for the gift of Maria and the sacred charge You have given me to lead our household. Forgive me for the times I have shrunk from the responsibility of headship, fearing the weight of Your Law. Strengthen my hands, Lord, to hold the sword of the Spirit with precision and love. Grant me the courage to stand firm against the enemy’s schemes, that my wife and children may dwell securely under the shadow of my wings, which are spread wide by Your grace. By the power of Your Holy Spirit, fill me with a zeal for Your truth and a tender heart for my family, that I may reflect Christ to them in all things. In the name of Jesus Christ, my Lord and Commander, I pray. Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Helm Command:</span> Hold the line of truth and guard the gate of your home with unyielding faith.</div>
+</section>
+
+<section class="watch watch-father" id="watch-father" data-watch="father">
+<div class="watch-header"><span class="watch-time">1100</span> <h2>Second Watch — The Father&#x27;s Charge</h2></div>
+<p class="intro">Brother, stand firm in the covenant promise as we cross into the waters of obedience.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Joshua 3</div>
+<div class="scripture-text">
+<p>Now Joshua rose early in the morning, and they moved from Acacia Grove and came to the Jordan, he and all the children of Israel, and lodged there before they crossed over. After three days the officers went through the camp and commanded the people, saying, &quot;When you see the ark of the covenant of the LORD your God, and the priests, the Levites, carrying it, then you shall move from your place and follow it. Yet there shall be a space between you and it, about two thousand cubits by measure. Do not come near it, that you may know the way by which you must go, for you have not passed this way before.&quot;</p>
+<p>Then Joshua said to the people, &quot;Consecrate yourselves, for tomorrow the LORD will do wonders among you.&quot;</p>
+<p>And Joshua spoke to the priests, saying, &quot;Take up the ark of the covenant and pass on before the people.&quot; So they took up the ark of the covenant and went before the people.</p>
+<p>And the LORD said to Joshua, &quot;This day I will begin to exalt you in the sight of all Israel, that they may know that, as I was with Moses, so I will be with you. And you shall command the priests who carry the ark of the covenant, saying, &#x27;When you have come to the edge of the water of the Jordan, you shall stand in the Jordan.&#x27;</p>
+<p>So Joshua commanded the people, saying, &quot;Sanctify yourselves, for tomorrow the LORD will do wonders among you.&quot;</p>
+<p>And Joshua spoke to the children of Israel, saying, &quot;Come here, and hear the words of the LORD your God.&quot;</p>
+<p>Also Joshua said, &quot;By this you shall know that the living God is among you, and that He will surely drive out from before you the Canaanites and the Hittites and the Hivites and the Perizzites and the Girgashites and the Amorites and the Jebusites: Indeed the ark of the covenant of the Lord of all the earth is going over before you into the Jordan. Now therefore take for yourselves twelve men from the tribes of Israel, from every tribe a man. And it shall be, as soon as the soles of the feet of the priests who bear the ark of the LORD, the Lord of all the earth, shall rest in the waters of the Jordan, that the waters of the Jordan shall be cut off, the waters that come down from upstream, and they shall stand as a heap.&quot;</p>
+<p>So it was, when the people moved from their camps to cross over the Jordan, that Joshua set the twelve men who were prepared, one from each tribe. And Joshua said to the twelve men whom he had prepared from the children of Israel: &quot;Go over before the ark of the LORD your God into the midst of the Jordan, and each of you take up a stone on his shoulder, according to the number of the tribes of the children of Israel, that this may be a sign among you when your children ask in time to come, saying, &#x27;What do these stones mean to you?&#x27; Then you shall answer them that the waters of the Jordan were cut off before the ark of the covenant of the LORD; when it crossed over the Jordan, the waters of the Jordan were cut off. Therefore these stones shall be for a memorial to the children of Israel forever.&quot;</p>
+<p>So the children of Israel did just as Joshua commanded; and they took up twelve stones from the midst of the Jordan, as the LORD spoke to Joshua, according to the number of the tribes of the children of Israel, and they carried them over with them to the place where they lodged, and they set them up there.</p>
+<p>And the priests who bore the ark of the covenant of the LORD stood in the midst of the Jordan until the things were finished that the LORD commanded Joshua to speak to the people, according to all that Moses commanded Joshua. And the people hurried and crossed over. And when all the people had completely crossed over, the ark of the LORD crossed over, and the priests in the presence of the people.</p>
+<p>Now the sons of Reuben and the sons of Gad and half the tribe of Manasseh crossed over armed before the children of Israel, as Moses had spoken to them. About forty thousand armed for war crossed over before the LORD to battle, to the plains of Jericho.</p>
+<p>That day the LORD exalted Joshua in the sight of all Israel, and they feared him all the days of his life, just as they feared Moses.</p>
+<p>And the LORD spoke to Joshua, saying, &quot;Command the priests who bear the ark of the testimony that they come up out of the Jordan.&quot;</p>
+<p>Therefore Joshua commanded the priests, saying, &quot;Come up out of the Jordan.&quot;</p>
+<p>So the priests came up out of the ark of the covenant of the LORD, standing on dry ground; and the waters of the Jordan returned to their place and overflowed all its banks, as before.</p>
+<p>Now the people came up from the Jordan on the tenth day of the first month; and they camped at Gilgal on the east border of Jericho. And those twelve stones which they took out of the Jordan, Joshua set up at Gilgal. Then he spoke to the children of Israel, saying, &quot;When your children ask their fathers in time to come, saying, &#x27;What do these stones mean?&#x27; then you shall let your children know, &#x27;Israel crossed over this Jordan on dry land.&#x27; For the LORD your God dried up the waters of the Jordan before you until you had crossed over, as the LORD your God did to the Red Sea, which He dried up before us until we had crossed over, that all the peoples of the earth may know the hand of the LORD, that it is mighty, that you may fear the LORD your God forever.&quot;</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🗺️ Field Notes</div>
+<p>The people of Israel stand on the precipice of the Promised Land, commanded to consecrate themselves for a miracle that requires total reliance on the LORD. The priests step into the churning Jordan, not by their own strength, but by the sovereign word of God that parts the waters. This moment establishes the authority of Joshua as Moses’ successor and reveals the living God who fights for His covenant people. Gideon, Boaz, and Shiloh must learn that obedience precedes the victory, not the other way around.</p>
+</div>
+<div class="section reflection">
+<div class="section-label">👨‍👦 Reflection for Your Children — F.U.L.F.I.L.L.E.D. Father — Leading</div>
+<p>Gideon, at nineteen, you stand at the threshold of manhood, tasked with bearing the weight of responsibility. You must understand that true leadership is not the exercise of power, but the submission to the Command of the Commander. When the waters of life rise against you, do not hesitate in fear, but step forward in faith. Your father leads this house by first submitting to the higher authority of the LORD, and you must do the same.</p>
+<p>Boaz, at fourteen, you are in the forge of discipline and learning. The priests had to carry the ark, a heavy burden, into the water before they saw the dry ground. So it is with your duties in this house and your walk with God. You do not carry the ark because you see the way clearly; you carry it because the LORD has commanded it. Your obedience in the small things of your youth prepares you for the great things of your manhood.</p>
+<p>Shiloh, at five, you are the youngest, yet you are taught by example. You see your father and your brothers stepping into the unknown because we trust the Promise-keeper. One day, you too will carry the weight of the covenant. Until then, watch us. Learn the posture of our hearts. The LORD is among us, and He is good.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Review the specific duties of the father as the priest of the home to ensure I am not neglecting spiritual leadership.</li>
+<li>Speak directly to Gideon about the necessity of submitting to God’s law as the foundation of his manhood.</li>
+<li>Assign Boaz a tangible task that requires discipline and trust in the father’s guidance.</li>
+<li>Pray for Shiloh’s heart to be tender toward the LORD, that he may grow in reverence for His Word.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Wardroom</div>
+<p>Father, we thank You for the covenant You have made with Your people. You are the living God who parts the waters and makes a way where there is no way. We ask that You grant us the courage to step into the Jordan of obedience, knowing that Your hand is mighty. By the power of Your Holy Spirit, strengthen our spirits to lead with humility and to follow with precision. Guard our sons, that they may grow in grace and knowledge of our Lord Jesus Christ. In the name of Jesus Christ, my Lord and Commander, Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Rudder Steer:</span> Steady as she goes, brother; the ark leads, and the waters will divide.</div>
+</section>
+
+<section class="watch watch-citizen" id="watch-citizen" data-watch="citizen">
+<div class="watch-header"><span class="watch-time">1500</span> <h2>Third Watch — The Citizen&#x27;s Stand</h2></div>
+<p class="intro">The call to covenant loyalty is not a suggestion for the comfortable, but a decree for the courageous.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Joshua 24</div>
+<div class="scripture-text">
+<p>And Joshua said unto all the people, Thus saith the LORD God of Israel, Your fathers dwelt on the other side of the flood in old time, Terah, the father of Abraham, and the father of Nahor, and they served other gods. And I took your father Abraham from the other side of the flood, and led him throughout all the land of Canaan, and multiplied his seed, and gave him Isaac. And I gave unto Isaac Jacob and Esau: and I have given Esau Mount Seir to possess it; but Jacob and his children went down into Egypt. And I sent Moses also, and Aaron, and I plagued Egypt, according to that which I did among them: and afterward I brought you out. And I brought your fathers out of Egypt: and ye come unto the sea; and the Egyptians pursued after your fathers with chariots and horsemen unto the Red sea. And they cried unto the LORD: and He put darkness between you and the Egyptians, and brought the sea upon them, and covered them; and your eyes have seen what I have done in Egypt: and ye dwelt in the wilderness a long season. And I brought you into the land of the Amorites, which dwelt on the other side Jordan; and they fought with you: and I gave them into your hand, that ye might possess their land; and I destroyed them from before you. And Balak the son of Zippor, a Moabite, arose and warred against Israel, and sent and called Balaam the son of Beor to curse you: but I would not hearken unto Balaam; therefore he blessed you of necessity: so I delivered you out of his hand. And ye went over Jordan, and came unto Jericho: and the men of Jericho fought against you, the Amorites also, and the Perizzites, and the Canaanites, and the Hittites, and the Girgashites, the Hivites, and the Jebusites; but I delivered them into your hand. And I sent the hornet before you, which drove them out from before you, even the two kings of the Amorites; but not with thy sword, nor with thy bow. And I have given you a land for which ye did not labour, and cities which ye built not, and ye dwell in them; of the vineyards and oliveyards which ye planted not do ye eat. Now therefore fear the LORD, and serve Him in sincerity and in truth: and put away the gods which your fathers served on the other side of the flood, and in Egypt; and serve ye the LORD. And Joshua said unto the people, Ye cannot serve the LORD: for He is an holy God; He is a jealous God; He will not forgive your transgressions nor your sins. If ye forsake the LORD, and serve strange gods, then He will turn and do you hurt, and consume you, after that He hath done you good. And the people said unto Joshua, We will serve the LORD our God, and His voice will we obey. And Joshua said unto the people, Ye are witnesses against yourselves that ye have chosen you the LORD, to serve Him. And they said, We are witnesses. Now therefore put away, said Joshua, the strange gods which are among you, and incline your heart unto the LORD God of Israel. And the people said unto Joshua, The LORD our God will we serve, and His voice will we obey. And Joshua made a covenant with the people that day, and set them a statute and an ordinance in Shechem.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🛰️ Situation Report</div>
+<p>Joshua gathers the tribes at Shechem to demand a decisive verdict on their allegiance, stripping away the ambiguity of half-hearted devotion. He reminds them that their survival and inheritance are solely the result of the LORD’s sovereign intervention and military deliverance. The people, stirred by the Holy Spirit through Joshua’s rebuke, publicly commit themselves to exclusive service, acknowledging their inability to serve a holy God without His grace. This moment marks the final ratification of the covenant before the generation that witnessed the miracles passes from the stage.</p>
+</div>
+<div class="section reflection resolute">
+<div class="section-label">🛡️ Reflection for a R.E.S.O.L.U.T.E. Citizen — Obedient</div>
+<p>Fredericksburg (local)<br>Brother, the fields around Fredericksburg remind us that obedience is often tested in the mud and the blood of immediate duty. Joshua did not ask the people to wait for a convenient season to serve the LORD; he demanded a choice in the very place where their history was written. As a father and a husband, you must make that same immediate choice in your home. Obedience is not a future project but a present posture. When you rise to lead your family, you do not ask for their permission to be their head; you fulfill the duty God has assigned you, just as Joshua did.</p>
+<p>Virginia (state)<br>In the rolling hills of Virginia, where the Revolution was forged, we see the fruit of a people who understood that liberty is a gift from God, not a right to be seized. The men who fought for independence did so under the conviction that they were accountable to a higher Lawgiver. Your obedience as a citizen is an extension of your obedience to Christ. You do not serve the state by abandoning your duties to your household, but by fulfilling those duties with integrity, thereby honoring the Creator who established the order of authority.</p>
+<p>United States (nation)<br>The nation stands at a crossroads, much like Israel in the wilderness, tempted by the gods of the surrounding culture. Joshua’s declaration that the people &quot;cannot serve the LORD&quot; is a sobering truth for any Christian in the public square. We do not serve the LORD by blending into the world, but by standing apart in holy obedience. Your witness is not in loud protests or political maneuvering, but in the quiet, steadfast refusal to compromise your covenant. You serve the nation best when you serve your God first, letting your life be a testament to His sovereignty.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Review your household calendar and remove any activity that conflicts with the Sabbath or the spiritual oversight of your family.</li>
+<li>Read the 1689 London Baptist Confession of Faith, specifically Chapter 23 on Civil Magistrate, to ground your civic duty in Scripture.</li>
+<li>Sit down with your wife and children this evening to reaffirm your role as the spiritual priest of your home.</li>
+<li>Identify one area of personal compromise in your conduct and repent of it before God, asking for the grace to obey fully.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Bridge</div>
+<p>Father, we thank You for the covenant You have established with us in Christ. Forgive us for our half-heartedness and our tendency to serve other gods of comfort and convenience. By the power of Your Holy Spirit, grant us the courage to choose You exclusively, to put away the idols of our hearts, and to serve You with sincerity and truth. Strengthen us to lead our families and to stand as faithful citizens in a world that has forgotten Your name. In the name of Jesus Christ, my Lord and Commander, we pray. Amen.</p>
+</div>
+<div class="section history">
+<div class="section-label">🦅 This Day in American History — December 28</div>
+<p>In 1775, the Continental Congress established the Committee on Spies to protect the fledgling nation from internal treason, recognizing that the preservation of liberty requires vigilant guardianship of its secrets and its people. In 1938, the &quot;Battle of the Books&quot; was declared in some American schools as part of a broader cultural effort to counter the influence of foreign ideologies, reflecting the enduring struggle to maintain a distinctly American, Judeo-Christian moral foundation in education.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Rudder Steer:</span> Hold the line of covenant obedience against the tide of cultural compromise.</div>
+</section>
+
+<section class="watch watch-peace" id="watch-peace" data-watch="peace">
+<div class="watch-header"><span class="watch-time">2100</span> <h2>Evening Peace</h2></div>
+<p class="intro">The Lord grants rest to the weary soul, anchoring the day’s labors in His sovereign peace.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Psalm 112</div>
+<div class="scripture-text">
+<p>He is not afraid of bad news; his heart is firm, trusting in the LORD. His heart is steady; he will not be afraid, until he looks in triumph on his adversaries. He has distributed freely; he has given to the poor; his righteousness endures forever; his horn is exalted in honor. The wicked sees it and is angry; he gnashes his teeth and melts away; the desire of the wicked will perish.</p>
+</div>
+</div>
+<div class="section reflection">
+<div class="section-label">🌾 Reflection for a Man at Home and in Community</div>
+<p>As a HAPPY husband, brother, you find your strength not in the absence of trouble, but in the steadfastness of your trust in the LORD. When the world brings news that threatens your household’s stability, you do not panic. You stand firm, knowing that your righteousness is not your own achievement, but a gift from God that endures forever. Your provision for your wife is not merely financial; it is a testament to your faith, a free and generous outpouring that reflects the character of your Master, securing your home in a covenant of love and duty.</p>
+<p>As a FULFILLED father, you recognize that your legacy is built on the bedrock of faith, not the shifting sands of cultural approval. You watch the wicked gnash their teeth in frustration, yet you remain calm, knowing that their power is fleeting while God’s promises are eternal. Your parenting is a watchful guard, protecting the faith of your children by demonstrating that true honor comes from God alone. You lead with a steady hand, teaching them to look not at the turmoil around them, but at the triumph of God’s justice, which will ultimately silence all opposition.</p>
+<p>As a RESOLUTE citizen, you understand that your role in the public square is to stand firm in righteousness while the world melts away in confusion. You do not fear the bad news of a declining culture, for you know that the LORD is sovereign over the rise and fall of nations. Your duty is to distribute freely to the poor and to uphold the truth, even when it is unpopular. You walk with dignity, knowing that your horn is exalted in honor by the King of Kings, and your service to your country is an act of worship, conducted with integrity and courage.</p>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Stateroom</div>
+<p>Father, we thank You for the peace that surpasses understanding, which guards our hearts and minds in Christ Jesus. By the power of Your Holy Spirit, strengthen us to stand firm against the fears of this age, to lead our households with generosity and grace, and to serve our communities with righteous courage. Keep our eyes fixed on Your eternal triumph, that we may live as men who fear You and trust in Your name. In the name of Jesus Christ, my Lord and Commander, Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Rudder Steer:</span> Anchor your soul in Scripture and your duty in prayer.</div>
+</section>
+
+<footer>
+<div class="draft-tag">PROTOTYPE — sign-off pending</div>
+<div>U.S.M.C. Ministries · The Watchman's Chronological Plan for the Year of our Lord 2026</div>
+<div style="margin-top:6px;font-size:0.78rem;">Adam Johns &middot; rich interpretive blend &middot; divine name LORD</div>
+</footer>
+
+</div>
+<script>
+(function(){
+  const SLUGS = ['all','wisdom','husband','father','citizen','peace'];
+
+  // Watch windows in local hours (each watch is "live" from its start time
+  // until the NEXT watch begins). Evening peace owns 21:00 → 04:59.
+  function currentWatchSlug() {
+    const h = new Date().getHours();
+    if (h >= 5  && h < 7)  return 'wisdom';
+    if (h >= 7  && h < 11) return 'husband';
+    if (h >= 11 && h < 15) return 'father';
+    if (h >= 15 && h < 21) return 'citizen';
+    return 'peace';                       // 21:00 – 04:59
+  }
+  const NOW_SLUG = currentWatchSlug();
+
+  function markNowBadge(){
+    document.querySelectorAll('.watch-tab').forEach(t => {
+      t.classList.toggle('is-now', t.dataset.tab === NOW_SLUG);
+    });
+  }
+  function showOnly(slug){
+    const isAll = slug === 'all' || !SLUGS.includes(slug);
+    document.querySelectorAll('section.watch').forEach(s => {
+      s.style.display = (isAll || s.dataset.watch === slug) ? '' : 'none';
+    });
+    document.querySelectorAll('.watch-tab').forEach(t => {
+      t.classList.toggle('active', t.dataset.tab === (isAll ? 'all' : slug));
+    });
+  }
+  document.querySelectorAll('.watch-tab').forEach(t => {
+    t.addEventListener('click', function(e){
+      e.preventDefault();
+      const slug = this.dataset.tab;
+      history.replaceState(null, '', '#' + slug);
+      showOnly(slug);
+      window.scrollTo({top: 0, behavior:'smooth'});
+    });
+  });
+
+  // Initial selection priority:
+  //   1. URL hash if present  (#all / #wisdom / #husband / #father / #citizen / #peace)
+  //   2. Auto-select the watch that is "live right now"
+  let initial;
+  if (location.hash) {
+    initial = location.hash.slice(1);
+  } else {
+    initial = NOW_SLUG;
+  }
+  markNowBadge();
+  showOnly(initial);
+})();
+</script>
+</body>
+</html>
