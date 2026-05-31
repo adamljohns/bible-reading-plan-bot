@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg">
+<title>Tuesday, December 1, 2026 — Daily Reading | U.S.M.C. Ministries</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+    --bg-dark: #000000; --bg-card: #111111; --bg-card2: #161616;
+    --gold: #D4AF37; --gold-light: #F4D470;
+    --white: #FFFFFF; --gray: #888888; --border: #333333;
+}
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--white);
+    min-height: 100vh;
+    line-height: 1.7;
+}
+h1, h2, h3 { font-family: 'Playfair Display', serif; font-weight: 700; }
+.container { max-width: 820px; margin: 0 auto; padding: 24px 20px 60px; }
+a { color: var(--gold); text-decoration: none; }
+a:hover { color: var(--gold-light); text-decoration: underline; }
+
+.nav-back { margin-bottom: 14px; font-size: 0.95rem; }
+
+.hero { text-align: center; padding: 16px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 18px; }
+.hero h1 { font-size: clamp(1.5rem, 4vw, 2.2rem); color: var(--white); margin-bottom: 6px; }
+.hero .subtitle { color: var(--gold); font-size: 0.95rem; font-style: italic; }
+.hero .doc-line { color: var(--gray); font-size: 0.82rem; margin-top: 6px; }
+
+.watch-tabs {
+    position: sticky; top: 0; z-index: 30;
+    background: var(--bg-dark);
+    border-bottom: 1px solid var(--border);
+    display: flex; flex-wrap: wrap; gap: 6px;
+    padding: 12px 0 14px;
+    margin-bottom: 18px;
+}
+.watch-tab {
+    flex: 1 1 90px;
+    text-align: center;
+    padding: 8px 6px;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    background: var(--bg-card);
+    color: var(--gray);
+    font-size: 0.85rem; font-weight: 500;
+    transition: all 0.15s ease;
+    text-decoration: none !important;
+    white-space: nowrap;
+}
+.watch-tab:hover { color: var(--white); border-color: var(--gold); text-decoration: none !important; }
+.watch-tab.active { background: var(--gold); color: #000; border-color: var(--gold); font-weight: 600; }
+.watch-tab .tab-time { display: block; font-size: 0.7rem; opacity: 0.7; font-family: monospace; }
+.watch-tab.active .tab-time { opacity: 1; }
+
+/* "NOW" badge — shown on the watch tab whose time window contains current local time */
+.watch-tab.is-now { position: relative; box-shadow: 0 0 0 1px var(--gold-light) inset; }
+.watch-tab.is-now::after {
+  content: "NOW";
+  position: absolute; top: -7px; right: -4px;
+  background: var(--gold-light); color: #000;
+  font-size: 0.55rem; font-weight: 700;
+  padding: 1px 5px; border-radius: 100px;
+  letter-spacing: 0.08em;
+}
+
+.watch {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px 22px;
+    margin-bottom: 22px;
+    scroll-margin-top: 80px;
+}
+.watch-header { display: flex; align-items: baseline; gap: 14px; margin-bottom: 10px; flex-wrap: wrap; }
+.watch-time {
+    background: var(--bg-card2); color: var(--gold);
+    padding: 4px 12px; border-radius: 100px;
+    font-family: 'Inter', monospace; font-size: 0.85rem; font-weight: 600;
+    letter-spacing: 0.05em;
+}
+.watch-header h2 { font-size: 1.35rem; color: var(--white); }
+
+.intro { color: var(--gray); font-style: italic; margin-bottom: 14px; }
+
+.audio-slot {
+    margin: 14px 0 18px;
+    padding: 12px 14px;
+    background: var(--bg-card2);
+    border-radius: 8px;
+    border: 1px dashed var(--border);
+}
+.audio-slot.audio-pending { opacity: 0.55; }
+.audio-cap { font-size: 0.8rem; color: var(--gray); margin-top: 4px; }
+
+.scripture {
+    background: var(--bg-card2);
+    border-left: 3px solid var(--gold);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin: 16px 0 22px;
+}
+.scripture-ref { font-weight: 600; color: var(--gold); margin-bottom: 12px; font-size: 0.95rem; }
+.scripture-text p { margin-bottom: 8px; }
+.scripture-text p.stanza { margin-bottom: 14px; }
+
+.section-label {
+    font-family: 'Playfair Display', serif;
+    color: var(--gold); font-weight: 700; font-size: 1.05rem;
+    margin: 22px 0 10px; padding-top: 10px; border-top: 1px solid var(--border);
+}
+.section p, .context p, .reflection p, .history p, .application-block p { margin-bottom: 12px; }
+
+ul.application { padding-left: 22px; margin: 8px 0 14px; }
+ul.application li { margin-bottom: 8px; }
+.application-prose { font-style: italic; color: var(--gold-light); margin-top: 12px; }
+
+.history ul { padding-left: 22px; margin: 8px 0; }
+.history li { margin-bottom: 6px; }
+
+.prayer {
+    background: var(--bg-card2);
+    border-left: 3px solid var(--gold-light);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin: 22px 0;
+}
+.prayer-title { color: var(--gold-light); font-weight: 600; margin-bottom: 10px; font-size: 0.95rem; }
+.prayer p { line-height: 1.85; margin-bottom: 8px; }
+
+.helm {
+    background: var(--bg-card2);
+    border-radius: 6px;
+    padding: 12px 18px;
+    margin-top: 14px;
+    font-size: 0.95rem;
+}
+.helm-icon { color: var(--gold); font-size: 1.1rem; }
+.helm-label { color: var(--gold); font-weight: 600; }
+
+footer {
+    text-align: center;
+    color: var(--gray);
+    font-size: 0.82rem;
+    margin-top: 32px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+}
+footer .draft-tag {
+    display: inline-block;
+    background: #2a2410;
+    color: var(--gold);
+    padding: 4px 12px;
+    border-radius: 100px;
+    font-size: 0.78rem;
+    margin-bottom: 8px;
+    letter-spacing: 0.05em;
+}
+
+@media (max-width: 540px) {
+    .watch-tab { flex: 1 1 64px; font-size: 0.78rem; padding: 6px 4px; }
+    .watch-tab .tab-time { font-size: 0.65rem; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="nav-back">← <a href="/chronological.html">The Watchman's Chronological Plan</a></div>
+
+<div class="hero">
+<h1>Tuesday, December 1, 2026</h1>
+<div class="subtitle">Daily Reading — Day 335 of 365</div>
+<div class="doc-line">MOOP&#x27;s 2026 Daily Bible Readings — Document 12 of 12; for the month of December</div>
+</div>
+
+<nav class="watch-tabs" role="tablist">
+<a href="#all" class="watch-tab active" data-tab="all" role="tab"><span class="tab-label">All Watches</span></a>
+<a href="#wisdom" class="watch-tab" data-tab="wisdom" role="tab"><span class="tab-time">0600</span> <span class="tab-label">Morning Wisdom</span></a>
+<a href="#husband" class="watch-tab" data-tab="husband" role="tab"><span class="tab-time">0700</span> <span class="tab-label">Husband</span></a>
+<a href="#father" class="watch-tab" data-tab="father" role="tab"><span class="tab-time">1100</span> <span class="tab-label">Father</span></a>
+<a href="#citizen" class="watch-tab" data-tab="citizen" role="tab"><span class="tab-time">1500</span> <span class="tab-label">Citizen</span></a>
+<a href="#peace" class="watch-tab" data-tab="peace" role="tab"><span class="tab-time">2100</span> <span class="tab-label">Evening Peace</span></a>
+</nav>
+
+<section class="watch watch-wisdom" id="watch-wisdom" data-watch="wisdom">
+<div class="watch-header"><span class="watch-time">0600</span> <h2>Morning Wisdom</h2></div>
+<p class="intro">Stand firm in the light of the Son of Man, who holds the keys to your eternal security.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Revelation 1</div>
+<div class="scripture-text">
+<p>1 I, John, who also am your brother, and companion in tribulation, and in the kingdom and patience of Jesus Christ, was in the isle that is called Patmos, for the word of God, and for the testimony of Jesus Christ.</p>
+<p>2 I was in the Spirit on the Lord&#x27;s day, and heard behind me a great voice, as of a trumpet,</p>
+<p>3 Saying, I am Alpha and Omega, the first and the last: and, What thou seest, write in a book, and send it unto the seven churches which are in Asia; unto Ephesus, and unto Smyrna, and unto Pergamos, and unto Thyatira, and unto Sardis, and unto Philadelphia, and unto Laodicea.</p>
+<p>4 John to the seven churches which are in Asia: Grace be unto you, and peace, from Him which is, and which was, and which is to come; and from the seven Spirits which are before His throne;</p>
+<p>5 And from Jesus Christ, who is the faithful witness, and the first begotten of the dead, and the prince of the kings of the earth. Unto Him that loved us, and washed us from our sins in His own blood,</p>
+<p>6 And hath made us kings and priests unto God and His Father; to Him be glory and dominion for ever and ever. Amen.</p>
+<p>7 Behold, He cometh with clouds; and every eye shall see Him, and they also which pierced Him: and all kindreds of the earth shall wail because of Him. Even so, Amen.</p>
+<p>8 I am Alpha and Omega, the beginning and the ending, saith the LORD, which is, and which was, and which is to come, the Almighty.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🧭 Context Summary</div>
+<p>John writes from exile on Patmos, addressing seven specific churches in Asia Minor that were facing intense cultural and political pressure. The vision centers on the glorified Christ, depicted with regal authority and divine omniscience, walking among the lampstands of the churches. This passage establishes the sovereignty of Jesus over history and the church, reminding believers that their suffering is known and their future is secure in His hands. It serves as a foundational declaration of Christ’s deity and His role as the mediator between God and man.</p>
+</div>
+<div class="section reflection">
+<div class="section-label">🛡️ Reflection for a REAL MAN — Sovereign Lord</div>
+<p>Brother, look to the vision on Patmos and see the Lord Jesus Christ as He truly is: the Alpha and the Omega, the Beginning and the Ending. In a world that often feels chaotic and out of control, you must anchor your heart in the truth that He holds the keys of death and Hades. He is not a distant observer but the walking presence among the lampstands, inspecting the condition of His people with holy precision. As a father and a husband, you are called to lead your household with the same confidence that Christ leads His church—knowing that all authority belongs to Him alone.</p>
+<p>He washed us from our sins in His own blood, making us kings and priests unto God. This is your identity in Christ. You are not defined by the tribulations of this age, nor by the opinions of men, but by the covenant love of the Almighty. Walk uprightly in your duties, knowing that your labor in providing, protecting, and teaching your family is seen by the One who sits on the throne. Let this truth fortify your spirit against fear and despair.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Memorize Revelation 1:8 and declare the LORD’s sovereignty over your daily challenges.</li>
+<li>Review your family’s spiritual state with holy boldness, offering correction and grace as Christ does.</li>
+<li>Serve your local church with faithful obedience, knowing Christ walks among the lampstands.</li>
+<li>Rest in the assurance that your eternal destiny is secured by the blood of the Lamb.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer</div>
+<p>Father, I thank You for the revelation of Your Son, Jesus Christ, who is the faithful witness and the prince of the kings of the earth. Grant me the grace to stand firm in tribulation, knowing that You hold the keys of death and Hades. By the power of Your Holy Spirit, give me the courage to lead my household with integrity and faith. May my life reflect the glory of Him who is, and who was, and who is to come. In the name of Jesus Christ, my Lord and Commander, I pray. Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Helm Command:</span> Keep your eyes fixed on the glorified Christ, for He alone holds the keys.</div>
+</section>
+
+<section class="watch watch-husband" id="watch-husband" data-watch="husband">
+<div class="watch-header"><span class="watch-time">0700</span> <h2>First Watch — The Husband&#x27;s Post</h2></div>
+<p class="intro">Brother, as you stand at the helm of your household, remember that the same God who guided Paul’s steps also anchors your covenant love.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Acts 28:11-16</div>
+<div class="scripture-text">
+<p>After three months we set sail in an Alexandrian ship that had wintered in the island, the ship had the twin gods Castor and Pollux as its figurehead. We put in at Syracuse and stayed there three days. From there we made a circuit and arrived at Rhegium. After one day a south wind sprang up, and on the second day we came to Puteoli. There we found brethren and were invited to stay with them for seven days. And so we came to Rome. And the brethren there, when they heard about us, came as far as the Forum of Appius and Three Inns to meet us. And when Paul saw them, he thanked God and took courage.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🗺️ Briefing Summary</div>
+<p>Paul’s journey to Rome concludes not in triumph, but in the quiet, faithful endurance of a prisoner under divine escort. The narrative shifts from the storms of the sea to the steady, unbroken fellowship of the saints who meet him along the way. This encounter serves as a vital reinforcement for a man whose spirit might otherwise grow weary from isolation and suffering.</p>
+</div>
+<div class="section reflection">
+<div class="section-label">❤️ Reflection for Your Wife — H.A.P.P.Y. Husband — Protecting</div>
+<p>Brother, you are the spiritual captain of your home, and Maria looks to you for the steady gaze of faith. In this passage, the brethren do not merely offer Paul comfort; they provide him with the courage to stand firm in his calling. As your husband, your primary duty is to shield Maria from the chaos of this world by anchoring her soul in the truth of God’s Word. You protect her not by caging her, but by leading her with such clarity and conviction that she finds safety in your submission to Christ.</p>
+<p>When you return home from your duties, leave the battles of the day at the door. Your strength is not measured by how loud you speak, but by how faithfully you uphold the order God has established. Maria needs to see that your authority is rooted in service and sacrifice, just as Paul’s leadership was rooted in his submission to the Lord’s will. By protecting her spiritual well-being through consistent prayer and doctrinal fidelity, you create a sanctuary where she can flourish in her God-given role.</p>
+<p>Do not underestimate the power of your quiet presence. In a culture that confuses strength with domination, your gentleness and resolve are a powerful witness. You stand between Maria and the encroaching darkness, holding the line of truth so that her heart remains fixed on the LORD. This is the noble burden of the husband: to ensure that the home remains a place where the gospel is not just heard, but lived out in the daily rhythms of love and order.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Read Scripture to Maria daily, ensuring she hears the direct voice of the LORD, not just your interpretation.</li>
+<li>Pray specifically for Maria’s spiritual protection and growth before you speak to her about worldly matters.</li>
+<li>Establish clear boundaries in your home regarding media and influences that threaten her purity or your headship.</li>
+<li>Lead the family prayer with firmness and reverence, modeling submission to God as the foundation of your authority.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Stateroom</div>
+<p>Father, I thank You for the gift of Maria and the sacred trust You have placed in my hands. Grant me the courage of Paul to stand firm in my calling, and give me the wisdom to lead my home with grace and truth. By the power of Your Holy Spirit, strengthen my heart to protect her spiritually, emotionally, and physically, that she may rest securely under the shadow of Your wings. Keep me humble in my authority and fervent in my love, that our home may glorify Your name. In the name of Jesus Christ, my Lord and Commander, I pray. Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Helm Command:</span> Secure the deck and lead your home with unshakable faith.</div>
+</section>
+
+<section class="watch watch-father" id="watch-father" data-watch="father">
+<div class="watch-header"><span class="watch-time">1100</span> <h2>Second Watch — The Father&#x27;s Charge</h2></div>
+<p class="intro">Brother, stand firm in the truth that our authority is derived solely from the Word of God, not from the approval of men.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Acts 28:17-22</div>
+<div class="scripture-text">
+<p>Paul called together the leading men of the Jews, and when they had come together, he said to them, &quot;Brethren, though I have done nothing against our people or the customs of our fathers, yet I was delivered prisoner from Jerusalem into the hands of the Romans. When they had examined me, they were willing to release me because I found no cause for death in Him. But when the Jews spoke against it, I was compelled to appeal to Caesar, not that I had any accusation against my nation. For this reason, therefore, I have asked to see you and speak with you, since for the hope of Israel I am bound with this chain.&quot; And they said to him, &quot;We neither received letters from Judea concerning you, nor have any of the brethren come and reported or spoken any evil about you. But we desire to hear from you what you think, for concerning this sect it is known to us that it is spoken against everywhere.&quot;</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🗺️ Field Notes</div>
+<p>Paul stands as a prisoner yet holds the moral high ground, explaining his situation to Jewish leaders with clarity and dignity. He asserts his innocence before Roman law while acknowledging their religious objections, maintaining his witness even in chains. The leaders respond with caution, noting the widespread opposition to the Christian sect, yet they remain open to hearing his defense. This interaction highlights the tension between civil authority and spiritual conviction, showing how a man of God must navigate opposition with truth and grace.</p>
+</div>
+<div class="section reflection">
+<div class="section-label">👨‍👦 Reflection for Your Children — F.U.L.F.I.L.L.E.D. Father — Faithful</div>
+<p>Brother, look at Paul in this passage. He is bound in chains, yet his spirit is unbound by fear. He speaks the truth to those who might judge him harshly. He does not compromise his message to gain favor. He remains faithful to the calling of the LORD, even when the outcome is uncertain. This is the standard for your manhood. You must be faithful to your duties, regardless of the cost.</p>
+<p>Gideon, you are nineteen, entering the world of work and responsibility. Your faithfulness is shown in your integrity. Do not shift your principles to fit the culture. Stand firm in the doctrines of grace. Let your word be your bond, just as Paul’s word was his defense. Your father expects you to honor God in your labor and your conduct.</p>
+<p>Boaz, you are fourteen, growing into young manhood. Your faithfulness is shown in your obedience and your study. Do not neglect the Word of God because it is unpopular. Paul stood firm against the currents of his day. You must stand firm against the currents of your peer group. Be a man of truth. Let your actions align with your confession.</p>
+<p>Shiloh, you are five, learning the ways of the world. Your father’s faithfulness is shown in his presence and his protection. He loves you and provides for you. He teaches you the ways of the LORD. He does not waver in his commitment to your spiritual welfare. You will learn by watching him. Be attentive to his instruction.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Review your daily schedule to ensure time is allocated for Scripture reading and prayer, prioritizing spiritual discipline over secular demands.</li>
+<li>Speak the truth with love to your wife and children, ensuring your words reflect the integrity of the gospel.</li>
+<li>Identify one area of compromise in your professional or social life and commit to correcting it this week.</li>
+<li>Lead your family in a brief evening prayer, thanking the LORD for His faithfulness and asking for strength to be faithful in your duties.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Wardroom</div>
+<p>Father, I thank You for the example of Your servant Paul, who remained faithful in chains. Give me the courage to stand firm in the truth of Your Word, regardless of the opposition I face. Help me to be a faithful husband, father, and servant. By the power of Your Holy Spirit, strengthen my resolve to honor You in all things. Keep my heart aligned with Your will. In the name of Jesus Christ, my Lord and Commander, I pray. Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Rudder Steer:</span> Hold the line of truth when the current pulls you to drift.</div>
+</section>
+
+<section class="watch watch-citizen" id="watch-citizen" data-watch="citizen">
+<div class="watch-header"><span class="watch-time">1500</span> <h2>Third Watch — The Citizen&#x27;s Stand</h2></div>
+<p class="intro">Brother, stand firm in the truth of the Gospel, for the Kingdom is not of this world but is established by the power of the Almighty.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Acts 28:23-31</div>
+<div class="scripture-text">
+<p>They had arranged to meet him on a certain day, and came in large numbers to the place from early till late. Some were convinced by what he said, while others disbelieved. Then they disagreed among themselves as they departed; and after Paul had made this statement, the believing Gentiles departed. Now Paul was a prisoner for two full years in his own rented house. He welcomed all who visited him, proclaiming the kingdom of God and teaching about the Lord Jesus Christ with all boldness and without hindrance.</p>
+</div>
+</div>
+<div class="section context">
+<div class="section-label">🛰️ Situation Report</div>
+<p>Paul, bound in chains yet unbound in spirit, maintains his post from a rented house in Rome. He does not seek escape but focuses entirely on the proclamation of the Kingdom. His imprisonment becomes the foundation for a steady, unceasing witness to all who come to him.</p>
+</div>
+<div class="section reflection resolute">
+<div class="section-label">🛡️ Reflection for a R.E.S.O.L.U.T.E. Citizen — Steadfast</div>
+<p>Fredericksburg (local)<br>Brother, consider the quiet fortitude required to hold one’s ground in a small community. Just as Paul remained in his rented house, you are called to stand firm in your local sphere, whether at work or in your neighborhood. Do not be shaken by the shifting winds of popular opinion or the pressures of secular culture. Your duty is to remain planted in your covenant responsibilities, offering the truth of Christ with boldness and clarity, regardless of whether the immediate response is acceptance or rejection.</p>
+<p>Virginia (state)<br>The Commonwealth has seen its share of trials, yet the call to steadfastness remains unchanged. In the face of political turmoil or social unrest, a Christian man does not retreat into cynicism but advances in faithful witness. Like Paul, who welcomed all who visited him, you are to engage your state with a spirit of hospitality and truth. Do not let the noise of partisan strife drown out the quiet authority of Scripture. Stand as a pillar of stability, rooted in the unchanging Word of God, providing a steady hand for your family and community.</p>
+<p>United States (nation)<br>On a national level, the citizen’s duty is to uphold the truth of the Gospel with unwavering resolve. The Kingdom of God is the only true authority, and your primary loyalty belongs to Christ alone. As Paul taught with all boldness, you must not compromise the message for the sake of popularity or political expediency. Maintain your post with integrity, knowing that your labor in the Lord is not in vain. Let your life be a testimony of endurance, proving that the Gospel stands firm against all opposition.</p>
+</div>
+<div class="section application-block">
+<div class="section-label">⛏️ Personal Application</div>
+<ul class='application'>
+<li>Read Scripture daily and memorize key passages to strengthen your spiritual resolve.</li>
+<li>Speak the truth in love to your family, even when it is difficult or unpopular.</li>
+<li>Resist the temptation to compromise biblical standards for the sake of social acceptance.</li>
+<li>Serve your community faithfully, viewing your work as an act of worship to God.</li>
+</ul>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Bridge</div>
+<p>Father, grant me the grace to stand firm in the truth of Your Word. By the power of Your Holy Spirit, strengthen my heart to remain steadfast in my duties as a husband, father, and citizen. Keep me from the temptation to compromise or retreat, and give me boldness to proclaim the Kingdom of God in all I do. In the name of Jesus Christ, my Lord and Commander, Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Rudder Steer:</span> Hold your post, brother.</div>
+</section>
+
+<section class="watch watch-peace" id="watch-peace" data-watch="peace">
+<div class="watch-header"><span class="watch-time">2100</span> <h2>Evening Peace</h2></div>
+<p class="intro">The day’s labor yields to the quiet assurance of God’s eternal reign.</p>
+<div class="audio-slot audio-pending">
+  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
+</div>
+<div class="scripture">
+<div class="scripture-ref">📖 Psalm 93</div>
+<div class="scripture-text">
+<p>The LORD reigns, He is clothed with majesty; the LORD is clothed, and has girded Himself with strength; indeed, the world is established, that it cannot be moved. Your throne is established from of old; You are from everlasting. The floods have lifted up, O LORD, the floods have lifted up their voice; the floods lift up their waves. The LORD on high is mightier than the voice of many waters, mightier than the mighty waves of the sea. Your testimonies are very sure; holiness adorns Your house, O LORD, for length of days.</p>
+</div>
+</div>
+<div class="section reflection">
+<div class="section-label">🌾 Reflection for a Man at Home and in Community</div>
+<p>As a HAPPY husband, you find your rest not in the chaos of the world’s rising tides, but in the unshakable sovereignty of your King. The waters of anxiety, financial strain, and cultural confusion may roar and crash against the hull of your life, but they possess no authority over your home. Your wife looks to you for stability, and you provide that stability by anchoring her heart in the truth that the LORD Himself is mightier than any storm. Your headship is not a burden of control, but a privilege of pointing her eyes to the One who established the world and holds it fast.</p>
+<p>As a FULFILLED father, you teach your children that strength is not measured by the volume of one’s voice, but by the steadfastness of one’s faith. When they see you stand firm against the pressures of the age, they see a reflection of God’s own character. You do not shrink from the hard duties of provision and protection, for you know that the same Lord who clothed Himself with strength for creation has equipped you for your specific post. Your authority in the home is a shadow of His glorious throne, and you exercise it with the gentle firmness of a man who knows his ultimate Commander has already won the victory.</p>
+<p>As a RESOLUTE citizen, you recognize that the moral relativism of your society is but a fleeting wave, destined to break against the eternal rocks of divine truth. You do not fear the shifting tides of public opinion or the loud clamor of the multitude, for you serve a King whose throne was established from of old. Your civic duty and your military discipline are united in your submission to God’s holy testimonies. You walk with integrity, not because the world demands it, but because holiness adorns the house of the LORD, and you are called to be a pillar in that holy structure, standing firm until the end of days.</p>
+</div>
+<div class="prayer">
+<div class="prayer-title">🙏 Prayer from the Stateroom</div>
+<p>Father, I thank You for the peace that comes from knowing You are King over all creation. Forgive me for the times I have allowed the noise of the world to drown out the certainty of Your truth. By the power of Your Holy Spirit, strengthen my hands to lead my home with grace and my mind to stand firm in Your Word. Guard my heart against fear, and fill me with the majesty of Your reign, that I may reflect Your glory in my duties as husband, father, and soldier. In the name of Jesus Christ, my Lord and Commander, I pray. Amen.</p>
+</div>
+<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">Rudder Steer:</span> Stand firm in the truth that the LORD reigns, regardless of the rising waters around you.</div>
+</section>
+
+<footer>
+<div class="draft-tag">PROTOTYPE — sign-off pending</div>
+<div>U.S.M.C. Ministries · The Watchman's Chronological Plan for the Year of our Lord 2026</div>
+<div style="margin-top:6px;font-size:0.78rem;">Adam Johns &middot; rich interpretive blend &middot; divine name LORD</div>
+</footer>
+
+</div>
+<script>
+(function(){
+  const SLUGS = ['all','wisdom','husband','father','citizen','peace'];
+
+  // Watch windows in local hours (each watch is "live" from its start time
+  // until the NEXT watch begins). Evening peace owns 21:00 → 04:59.
+  function currentWatchSlug() {
+    const h = new Date().getHours();
+    if (h >= 5  && h < 7)  return 'wisdom';
+    if (h >= 7  && h < 11) return 'husband';
+    if (h >= 11 && h < 15) return 'father';
+    if (h >= 15 && h < 21) return 'citizen';
+    return 'peace';                       // 21:00 – 04:59
+  }
+  const NOW_SLUG = currentWatchSlug();
+
+  function markNowBadge(){
+    document.querySelectorAll('.watch-tab').forEach(t => {
+      t.classList.toggle('is-now', t.dataset.tab === NOW_SLUG);
+    });
+  }
+  function showOnly(slug){
+    const isAll = slug === 'all' || !SLUGS.includes(slug);
+    document.querySelectorAll('section.watch').forEach(s => {
+      s.style.display = (isAll || s.dataset.watch === slug) ? '' : 'none';
+    });
+    document.querySelectorAll('.watch-tab').forEach(t => {
+      t.classList.toggle('active', t.dataset.tab === (isAll ? 'all' : slug));
+    });
+  }
+  document.querySelectorAll('.watch-tab').forEach(t => {
+    t.addEventListener('click', function(e){
+      e.preventDefault();
+      const slug = this.dataset.tab;
+      history.replaceState(null, '', '#' + slug);
+      showOnly(slug);
+      window.scrollTo({top: 0, behavior:'smooth'});
+    });
+  });
+
+  // Initial selection priority:
+  //   1. URL hash if present  (#all / #wisdom / #husband / #father / #citizen / #peace)
+  //   2. Auto-select the watch that is "live right now"
+  let initial;
+  if (location.hash) {
+    initial = location.hash.slice(1);
+  } else {
+    initial = NOW_SLUG;
+  }
+  markNowBadge();
+  showOnly(initial);
+})();
+</script>
+</body>
+</html>
