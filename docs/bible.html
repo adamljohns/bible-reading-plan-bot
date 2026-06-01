@@ -168,10 +168,12 @@
         .verse-text .dict-link {
             color: inherit !important;
             text-decoration: none;
-            /* BTE v6.3: faint resting underline (was solid gold on every matched
-               word — a "minefield" now that the dictionary has 4,777 entries).
-               Hover still brightens to full gold below. */
-            border-bottom: 1px dotted rgba(212,175,55,0.3);
+            /* BTE v6.6 (2026-05-28): clearly-visible resting underline in Show Tools.
+               v6.3 had dropped this to a near-invisible dotted rgba(...,0.3) to avoid a
+               "minefield" across 4,777 entries — but it read as gone. Adam wants the
+               underline back as a real affordance when tools are shown; Hide Tools
+               (body.reader-mode) still strips it below. Hover brightens to full gold. */
+            border-bottom: 1px solid rgba(212,175,55,0.5);
             padding-bottom: 0;
             transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
         }
@@ -189,9 +191,10 @@
             opacity: 0; transition: opacity 0.3s ease;
         }
         .dict-toast.show { opacity: 1; }
-        /* BTE v5.7: phrase matches get a slightly stronger dotted underline */
+        /* BTE v5.7: phrase matches get a dashed underline to distinguish from single
+           words. BTE v6.6: bumped opacity to match the restored single-word visibility. */
         .verse-text .dict-link.dict-phrase {
-            border-bottom: 1px dashed rgba(244,212,112,0.32);
+            border-bottom: 1px dashed rgba(244,212,112,0.5);
         }
         /* BTE v6.2: Hide Tools also hides dictionary underlines + hover treatment.
          * Links remain clickable — only the visual affordance is suppressed.
@@ -576,6 +579,31 @@
         body.paragraph-mode .verse-block.paragraph-break:not(:first-of-type) {
             margin-top: 1.1em;
         }
+        /* BTE v6.6 (2026-05-28): first-line indent on each paragraph's opening verse.
+           Each pericope's first verse is the .paragraph-break block; indenting its first
+           line gives the prose a proper book-paragraph look. The following verses flow
+           inline as continuation (not indented), which is exactly right. */
+        body.paragraph-mode .verse-block.paragraph-break { text-indent: 1.6em; }
+
+        /* BTE v6.6: consolidate per-verse tool icons to the END of each paragraph.
+           In paragraph mode the verses flow as prose, so a tool cluster after every verse
+           shatters the reading. We hide the per-verse icons and re-show them only on the
+           paragraph's last verse (.para-end, marked in applyParagraphBreaks) — so one
+           cluster sits at each paragraph's end, acting on that final verse. Hide Tools
+           (body.reader-mode, with !important below) still overrides and hides everything. */
+        body.paragraph-mode .verse-block .verse-detail-btn,
+        body.paragraph-mode .verse-block .share-btn,
+        body.paragraph-mode .verse-block .highlight-btn,
+        body.paragraph-mode .verse-block .note-toggle,
+        body.paragraph-mode .verse-block .copy-btn,
+        body.paragraph-mode .verse-block .crossref-inline-toggle { display: none; }
+        body.paragraph-mode .verse-block.para-end .verse-detail-btn,
+        body.paragraph-mode .verse-block.para-end .share-btn,
+        body.paragraph-mode .verse-block.para-end .highlight-btn,
+        body.paragraph-mode .verse-block.para-end .note-toggle,
+        body.paragraph-mode .verse-block.para-end .copy-btn,
+        body.paragraph-mode .verse-block.para-end .crossref-inline-toggle { display: inline; }
+
         /* When in paragraph mode, suppress inline amplifications/notes/cross-ref bodies
            so prose reads uninterrupted. Reader-mode still controls icons. */
         body.paragraph-mode .amplification,
@@ -3638,6 +3666,16 @@
                     // Fallback: every N verses
                     blocks.forEach(function(b, i) { b.classList.toggle('paragraph-break', i % PARAGRAPH_BREAK_EVERY === 0); });
                 }
+                // BTE v6.6: mark the LAST verse of each paragraph as .para-end so the CSS
+                // can show one consolidated tool cluster there (the per-verse icons on all
+                // other verses are hidden in paragraph mode). A verse is a paragraph-end
+                // when the next verse-block starts a new paragraph, or it's the final block.
+                var arr = Array.prototype.slice.call(blocks);
+                arr.forEach(function(b, i) {
+                    var next = arr[i + 1];
+                    var isEnd = !next || next.classList.contains('paragraph-break');
+                    b.classList.toggle('para-end', isEnd);
+                });
             });
         }
         (function restoreParagraphMode() {
