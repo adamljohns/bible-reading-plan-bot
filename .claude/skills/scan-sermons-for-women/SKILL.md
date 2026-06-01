@@ -1,9 +1,31 @@
 ---
 name: scan-sermons-for-women
-description: Scan a church's archived sermon page for evidence of women preaching, as input to MOOP's complementarian doctrinal vetting. Use whenever the user asks to "check if [church] has women preaching", "scan sermon archives for women", "look for egalitarian drift in [church or scope]", "audit pulpit composition", or wants to verify a green-rated church has not quietly started hosting women in the pulpit. Operates over the quick_links 'Sermons' chip URL when present; scrapes the page HTML for preacher attributions; extracts names; classifies by first-name gender against a US-census-derived dataset; flags hits for human review. Triggers in the bible-reading-plan-bot repo or when the user references a church's preaching ministry.
+description: Scan a church's sermon archive + beliefs page for doctrinal-drift signals against MOOP's 10 rubric categories — women preaching (gender), affirming/progressive language (cultural), prosperity-gospel language (soteriology), pluralism (christology), and more. Use whenever the user asks to "check if [church] has women preaching", "scan sermons for drift", "look for drift from my 10 categories", "audit pulpit composition", "find churches that drifted", or wants to verify green-rated churches have not quietly drifted. Two scanners: scan-archive.js (female-preacher name detection) and scan-drift.js (category-mapped drift-phrase lexicon). Both produce a human review queue; never an automated rating change. Triggers in the bible-reading-plan-bot repo or when the user references a church's preaching/teaching ministry.
 ---
 
-# Scan Sermons For Women
+# Scan Sermons For Drift (women + 10-category)
+
+This skill has TWO scanners:
+
+1. **scan-archive.js** — detects WOMEN PREACHING by extracting preacher names from the sermon archive and classifying first-name gender. (Original capability; see the women-specific sections below.)
+2. **scan-drift.js** — detects DRIFT ACROSS ALL 10 RUBRIC CATEGORIES by scanning the sermon archive + beliefs page against a category-mapped phrase lexicon (`data/drift-lexicon.json`). Catches affirming/progressive language (cultural), prosperity-gospel language (soteriology), pluralism (christology), faith-deconstruction (scripture), egalitarian markers (gender), and more.
+
+The 10 categories: christology, scripture, gender, leadership, soteriology, cultural, preaching, mission, mens_discipleship, denominational.
+
+## scan-drift.js — quick start
+
+```bash
+node .claude/skills/scan-sermons-for-women/scripts/scan-drift.js --state VA --count 50 --jsonl /tmp/drift-scan.jsonl
+bash .claude/skills/scan-sermons-for-women/scripts/review-drift.sh /tmp/drift-scan.jsonl
+```
+
+`scan-drift.js` reads each church's Sermons quicklink + Beliefs quicklink (falling back to the homepage), strips HTML, and matches the drift lexicon. `review-drift.sh` sorts the queue by signal weight PLUS a current-rating boost, so a GREEN-rated church showing drift (the most actionable case — its rating may need to come down) rises to the top. Every hit carries the matched phrase, category, weight, a note, and surrounding context so the reviewer can judge. As always, HEURISTIC ONLY: a faithful church may preach critically ABOUT these topics, so confirm before any rating change.
+
+To expand coverage, add phrases to `data/drift-lexicon.json` (phrase, category, weight 1-3, note). Keep weak/ambiguous signals at weight 1 so they don't dominate the queue.
+
+---
+
+# Scan Sermons For Women (original capability)
 
 A complementarian-vetting helper. Per MOOP rubric, a female senior pastor downgrades a church to RED minimum; the same posture applies to a church that regularly hosts women in the pulpit even without a female senior pastor on staff. This skill scans sermon archive pages for evidence of women preaching so the rating team can investigate and adjust.
 
