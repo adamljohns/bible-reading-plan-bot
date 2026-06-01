@@ -99,6 +99,8 @@ const html = `<!DOCTYPE html>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css">
   <style>
     * { margin:0; padding:0; box-sizing:border-box; }
     :root { --bg:#000; --card:#111; --card2:#1a1a1a; --gold:#D4AF37; --gold-light:#F4D470; --white:#e8e8e8; --gray:#888; --border:#333; --green:#3ea14a; --yellow:#d4a437; --red:#c0392b; --black:#444; --dead:#666; }
@@ -184,7 +186,7 @@ const html = `<!DOCTYPE html>
   <div class="hero">
     <div class="breadcrumb"><a href="/">USMC Ministries</a> &middot; <a href="/churches.html">Church Directory</a> &middot; Map</div>
     <h1>Church Map</h1>
-    <p class="subtitle">Every doctrinally-vetted church in the directory, plotted by location and color-coded by our editorial rubric. Phase 1 covers <strong style="color:var(--gold-light);">${focusState}</strong> (${fmt(focusCount)} of ${fmt(d.churches.filter(c => /,\\s*VA\\b/.test(c.address||'')).length)} geocoded so far). National coverage rolls out state-by-state.</p>
+    <p class="subtitle">Every doctrinally-vetted church in the directory, plotted by location and color-coded by our editorial rubric. <strong style="color:var(--gold-light);">${fmt(points.length)}</strong> churches geocoded across <strong style="color:var(--gold-light);">${Object.keys(stateCount).length}</strong> states and growing. Switch between dark, streets, and satellite views with the layer control; zoom in to break clusters apart down to individual churches.</p>
   </div>
 
   <div class="controls">
@@ -211,14 +213,40 @@ const html = `<!DOCTYPE html>
   </footer>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
   <script>
   (async function() {
     const map = L.map('map', { preferCanvas: true, zoomControl: true });
-    L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png', {
+
+    // --- Base layers: dark (default), streets, satellite ---
+    const darkLayer = L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap, © CARTO',
       subdomains: 'abcd',
       maxZoom: 19,
-    }).addTo(map);
+    });
+    const streetsLayer = L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/rastertiles/voyager/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap, © CARTO',
+      subdomains: 'abcd',
+      maxZoom: 19,
+    });
+    const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+      attribution: 'Imagery © Esri, Maxar, Earthstar Geographics',
+      maxZoom: 19,
+    });
+    // Optional street-label overlay that sits on top of the satellite imagery
+    const labelsOverlay = L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_only_labels/{z}/{x}/{y}.png', {
+      attribution: '© CARTO',
+      subdomains: 'abcd',
+      maxZoom: 19,
+      pane: 'shadowPane',
+    });
+
+    darkLayer.addTo(map);
+    L.control.layers(
+      { 'Dark': darkLayer, 'Streets': streetsLayer, 'Satellite': satelliteLayer },
+      { 'Street labels (on satellite)': labelsOverlay },
+      { position: 'topright', collapsed: true }
+    ).addTo(map);
 
     // Default view: VA centroid
     map.setView([37.7, -78.6], 7);
@@ -272,7 +300,16 @@ const html = `<!DOCTYPE html>
       denomSel.appendChild(opt);
     });
 
-    const layer = L.layerGroup(allMarkers).addTo(map);
+    // Cluster markers so thousands of points stay legible; clusters break
+    // apart as you zoom in. spiderfyOnMaxZoom lets co-located churches fan out.
+    const layer = L.markerClusterGroup({
+      chunkedLoading: true,
+      spiderfyOnMaxZoom: true,
+      showCoverageOnHover: false,
+      maxClusterRadius: 50,
+      disableClusteringAtZoom: 14,
+    }).addTo(map);
+    allMarkers.forEach(m => layer.addLayer(m));
     const visibleCountEl = document.getElementById('visibleCount');
 
     function applyFilters() {
@@ -283,17 +320,21 @@ const html = `<!DOCTYPE html>
       // Also keep dead/unrated visible if green is on (they tend to indicate edge cases worth seeing)
       const denom = denomSel.value;
       let shown = 0;
+      const toAdd = [], toRemove = [];
       allMarkers.forEach(m => {
         const p = m._data;
         const okRating = activeRatings.has(p.r) || (activeRatings.has('green') && (p.r === 'dead' || p.r === 'unrated'));
         const okDenom = !denom || p.d === denom;
         if (okRating && okDenom) {
-          if (!map.hasLayer(m)) layer.addLayer(m);
+          if (!layer.hasLayer(m)) toAdd.push(m);
           shown++;
         } else {
-          if (map.hasLayer(m)) layer.removeLayer(m);
+          if (layer.hasLayer(m)) toRemove.push(m);
         }
       });
+      // Batch add/remove is much faster on a cluster group than one-at-a-time
+      if (toRemove.length) layer.removeLayers(toRemove);
+      if (toAdd.length) layer.addLayers(toAdd);
       visibleCountEl.textContent = '— showing ' + shown.toLocaleString() + ' of ' + allMarkers.length.toLocaleString() + ' —';
     }
     document.querySelectorAll('.controls input[type="checkbox"]').forEach(cb => cb.addEventListener('change', applyFilters));
