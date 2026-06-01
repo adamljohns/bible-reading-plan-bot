@@ -209,6 +209,13 @@
             background: transparent !important;
             border-radius: 0 !important;
         }
+        /* BTE v6.8: Red-letter edition — words of Christ render in red, but ONLY when
+           Verse Tools are shown. Hide Tools (body.reader-mode) reverts to normal text,
+           exactly like the dictionary underlines. The .woc class is added to a verse's
+           text by applyRedLetter() based on assets/red-letter-map.json. Dict-links inside
+           inherit the red (their color is inherit), and keep their gold underline. */
+        body:not(.reader-mode) .verse-text.woc { color: #e2554e; }
+        body.light-mode:not(.reader-mode) .verse-text.woc { color: #b02a37; }
         /* Hover preview popover */
         .dict-popover {
             position: fixed; max-width: 380px;
@@ -983,6 +990,34 @@
                 if (document.body.classList.contains('paragraph-mode')) applyParagraphBreaks();
             })
             .catch(() => { console.log('BTE: no pericope map found, using every-4-verse heuristic'); });
+
+        // BTE v6.8: Red-letter edition — words of Christ. Loads verse ranges from
+        // assets/red-letter-map.json and tags those verses' text with .woc; CSS colors
+        // them red only when Verse Tools are shown (reverts under Hide Tools).
+        window.RED_LETTER_MAP = {};
+        fetch('assets/red-letter-map.json?v=' + Date.now())
+            .then(r => r.ok ? r.json() : {})
+            .then(data => {
+                window.RED_LETTER_MAP = data || {};
+                var n = Object.keys(data).filter(function(k){return !k.startsWith('_');}).length;
+                console.log('BTE v6.8: red-letter map loaded — ' + n + ' book(s)');
+                applyRedLetter();
+            })
+            .catch(() => {});
+        function applyRedLetter(rootEl) {
+            var map = window.RED_LETTER_MAP || {};
+            (rootEl || document).querySelectorAll('.result-card .verse-block').forEach(function(b) {
+                var m = (b.id || '').match(/^vb-(\d+)_(\d+)_(\d+)/);
+                if (!m) return;
+                var ranges = map[m[1]] && map[m[1]][m[2]];
+                var t = b.querySelector('.verse-text');
+                if (!t) return;
+                if (!ranges) { t.classList.remove('woc'); return; }
+                var v = parseInt(m[3], 10);
+                var isWoc = ranges.some(function(r){ return v >= r[0] && v <= r[1]; });
+                t.classList.toggle('woc', isWoc);
+            });
+        }
 
         // BTE v5.1: MOOP Translation — blended primary rendering
         // Takes NKJV as base, weaves in clarifying words from ESV/NASB/NLT/etc.
@@ -3096,6 +3131,7 @@
             updateNavBoundaries();
             document.getElementById('searchBtn').disabled = false;
             if (document.body.classList.contains('paragraph-mode')) applyParagraphBreaks();
+            try { applyRedLetter(); } catch(e){}
             if (!(window.__bteMulti && window.__bteMulti.active)) {
                 document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
@@ -3341,6 +3377,7 @@
                 window.__bteMulti = { active: false, first: true };
                 inputEl.value = raw; // restore full query so share-link/print reflect it
                 if (document.body.classList.contains('paragraph-mode')) applyParagraphBreaks();
+                try { applyRedLetter(); } catch(e){}
                 document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
         }
