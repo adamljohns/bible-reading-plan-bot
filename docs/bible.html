@@ -9,7 +9,7 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-touch-icon.png">
     <link rel="manifest" href="/manifest.json">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta property="og:title" content="MOOP Bible Translation Engine V6.3">
+    <meta property="og:title" content="MOOP Bible Translation Engine V6.7">
     <meta property="og:description" content="12 English translations blended with interlinear Hebrew and Greek roots. Strong's Concordance links. Cross-references. Bookmarks. Word search. Built for deep word study.">
     <meta property="og:image" content="https://usmcmin.org/assets/og/og-bible.png?v=53">
     <meta property="og:image:width" content="1200">
@@ -17,11 +17,11 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://usmcmin.org/bible.html">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="MOOP Bible Translation Engine V6.3">
+    <meta name="twitter:title" content="MOOP Bible Translation Engine V6.7">
     <meta name="twitter:description" content="12 English translations blended with interlinear Hebrew and Greek roots. Strong's Concordance links. Cross-references. Bookmarks. Word search. Built for deep word study.">
     <meta name="twitter:image" content="https://usmcmin.org/assets/og/og-bible.png?v=53">
     <meta name="description" content="12 English translations blended with interlinear Hebrew and Greek roots. Strong's Concordance links. Cross-references. Bookmarks. Word search. Built for deep word study.">
-    <title>The MOOP Bible Translation Engine V6.3 — U.S.M.C. Ministries</title>
+    <title>The MOOP Bible Translation Engine V6.7 — U.S.M.C. Ministries</title>
     <!-- BTE v6.3 (2026-05-22): readability pass — reading column capped at 760px
          (was 1100px on desktop); softened off-black/off-white palette; clean Reader
          Mode now the default (tools one click away); dictionary underlines calmed. -->
@@ -603,6 +603,11 @@
         body.paragraph-mode .verse-block.para-end .note-toggle,
         body.paragraph-mode .verse-block.para-end .copy-btn,
         body.paragraph-mode .verse-block.para-end .crossref-inline-toggle { display: inline; }
+        /* BTE v6.7: Add-Note is a verse-view study tool — notes are deliberately hidden
+           in paragraph mode for clean prose, so a note input here would open into nothing.
+           Keep it out of the paragraph-end cluster; Copy/Share/Highlight act on the whole
+           paragraph instead (see data-para-keys wiring in the JS). */
+        body.paragraph-mode .verse-block .note-toggle { display: none !important; }
 
         /* When in paragraph mode, suppress inline amplifications/notes/cross-ref bodies
            so prose reads uninterrupted. Reader-mode still controls icons. */
@@ -829,7 +834,7 @@
         }
     </style>
     <!-- Open Graph / Twitter (backfilled) -->
-    <meta name="twitter:title" content="The MOOP Bible Translation Engine V6.3">
+    <meta name="twitter:title" content="The MOOP Bible Translation Engine V6.7">
     <meta name="twitter:image" content="https://usmcmin.org/assets/icons/icon-512.png">
 </head>
 <body>
@@ -3071,7 +3076,7 @@
 
             // BTE v5.0: Cross-reference count in stats footer
             var crossRefStatStr = crossRefResult.count > 0 ? ' · ' + crossRefResult.count + ' cross-reference' + (crossRefResult.count !== 1 ? 's' : '') + ' found' : '';
-            html += '<div class="engine-info">The MOOP Bible Translation Engine V6.3 · 12 translations · Interlinear ' +
+            html += '<div class="engine-info">The MOOP Bible Translation Engine V6.7 · 12 translations · Interlinear ' +
                 (ref.isOT ? 'Hebrew' : 'Greek') + ' backbone' + crossRefStatStr + '</div>';
             html += '</div>';
             html += renderBottomNav(rangeStr);
@@ -3131,6 +3136,9 @@
         };
 
         function shareVerse(verseRef, btn) {
+            // BTE v6.7: from a paragraph-end cluster, share the whole-paragraph range link.
+            var _pk = bteParaKeys(btn);
+            if (_pk) { var _rr = bteParaRangeRef(_pk); if (_rr) verseRef = _rr; }
             var url;
             if (STATIC_VERSES[verseRef]) {
                 url = 'https://usmcmin.org/verse/' + STATIC_VERSES[verseRef] + '.html';
@@ -3466,7 +3474,47 @@
         function isHighlighted(verseKey) {
             return !!getHighlights()[verseKey];
         }
+        // ── BTE v6.7: whole-paragraph tool helpers ───────────────────────────
+        // When Copy/Share/Highlight are clicked from the consolidated cluster at a
+        // paragraph's end (.para-end, stamped with data-para-keys in applyParagraphBreaks),
+        // operate on every verse in the paragraph instead of just the final one.
+        function bteParaKeys(btn) {
+            if (!document.body.classList.contains('paragraph-mode') || !btn || !btn.closest) return null;
+            var block = btn.closest('.verse-block.para-end');
+            if (!block) return null;
+            var k = block.getAttribute('data-para-keys');
+            var arr = k ? k.split(',') : [];
+            return arr.length > 1 ? arr : null; // only treat as a paragraph when >1 verse
+        }
+        function bteParaRangeRef(keys) {
+            // keys look like "43_3_1" → "John 3:1-15"
+            if (!keys || !keys.length) return null;
+            var first = keys[0].split('_'), last = keys[keys.length - 1].split('_');
+            var bookName = (BOOK_NAMES[first[0]] || '').replace(/\b\w/g, function(c){ return c.toUpperCase(); });
+            if (keys.length === 1) return bookName + ' ' + first[1] + ':' + first[2];
+            if (first[1] === last[1]) return bookName + ' ' + first[1] + ':' + first[2] + '-' + last[2];
+            return bookName + ' ' + first[1] + ':' + first[2] + '-' + last[1] + ':' + last[2];
+        }
         function toggleHighlight(verseKey, btn) {
+            // BTE v6.7: paragraph-end click highlights/clears the whole paragraph at once.
+            var paraKeys = bteParaKeys(btn);
+            if (paraKeys) {
+                var hlp = getHighlights();
+                var allOn = paraKeys.every(function(k){ return hlp[k]; });
+                paraKeys.forEach(function(k){
+                    var blk = document.getElementById('vb-' + k);
+                    if (allOn) { delete hlp[k]; if (blk) blk.classList.remove('highlighted'); }
+                    else { hlp[k] = Date.now(); if (blk) blk.classList.add('highlighted'); }
+                });
+                saveHighlights(hlp);
+                if (btn) {
+                    btn.classList.toggle('active', !allOn);
+                    var img = btn.querySelector('img');
+                    if (img) img.src = !allOn ? 'assets/icons/shield-star.png' : 'assets/icons/shield-lock-48.png';
+                }
+                showToast((allOn ? 'Cleared' : 'Highlighted') + ' paragraph (' + paraKeys.length + ' verses)');
+                return;
+            }
             var hl = getHighlights();
             var block = document.getElementById('vb-' + verseKey);
             if (hl[verseKey]) {
@@ -3670,11 +3718,26 @@
                 // can show one consolidated tool cluster there (the per-verse icons on all
                 // other verses are hidden in paragraph mode). A verse is a paragraph-end
                 // when the next verse-block starts a new paragraph, or it's the final block.
+                // BTE v6.7: also stamp each .para-end with data-para-keys — the full list of
+                // verseKeys in that paragraph — so Copy/Share/Highlight can act on the whole
+                // paragraph instead of just its final verse.
                 var arr = Array.prototype.slice.call(blocks);
+                var paraStart = 0;
                 arr.forEach(function(b, i) {
+                    if (b.classList.contains('paragraph-break')) paraStart = i;
                     var next = arr[i + 1];
                     var isEnd = !next || next.classList.contains('paragraph-break');
                     b.classList.toggle('para-end', isEnd);
+                    if (isEnd) {
+                        var keys = [];
+                        for (var j = paraStart; j <= i; j++) {
+                            var km = (arr[j].id || '').match(/^vb-(.+)$/);
+                            if (km) keys.push(km[1]);
+                        }
+                        b.setAttribute('data-para-keys', keys.join(','));
+                    } else {
+                        b.removeAttribute('data-para-keys');
+                    }
                 });
             });
         }
@@ -3796,6 +3859,25 @@
 
         // ── BTE v5.2 Phase 3: Copy Verse Text ─────────────────────────────────
         function copyVerseText(verseRef, verseKey, btn) {
+            // BTE v6.7: from a paragraph-end cluster, copy the whole paragraph's prose
+            // under one range header instead of just the final verse.
+            var paraKeys = bteParaKeys(btn);
+            if (paraKeys) {
+                var parts = [];
+                paraKeys.forEach(function(k){
+                    var blk = document.getElementById('vb-' + k);
+                    var t = blk && blk.querySelector('.verse-text');
+                    if (t) parts.push(t.textContent.trim());
+                });
+                var rangeRef = bteParaRangeRef(paraKeys) || verseRef;
+                var paraText = rangeRef + ' — ' + parts.join(' ');
+                var done = function(){ showToast('Copied paragraph: ' + rangeRef); if (btn) { btn.style.opacity='1'; setTimeout(function(){ btn.style.opacity=''; }, 1500); } };
+                navigator.clipboard.writeText(paraText).then(done).catch(function(){
+                    var ta=document.createElement('textarea'); ta.value=paraText; ta.style.position='fixed'; ta.style.opacity='0';
+                    document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); done();
+                });
+                return;
+            }
             var block = document.getElementById('vb-' + verseKey);
             if (!block) return;
             var textEl = block.querySelector('.verse-text');
