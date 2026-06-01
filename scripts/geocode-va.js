@@ -42,10 +42,50 @@ function csvEscape(s) {
   return str;
 }
 
+// US state name -> 2-letter code, for normalizing spelled-out state names.
+const STATE_ABBR = {
+  alabama:'AL',alaska:'AK',arizona:'AZ',arkansas:'AR',california:'CA',colorado:'CO',
+  connecticut:'CT',delaware:'DE',florida:'FL',georgia:'GA',hawaii:'HI',idaho:'ID',
+  illinois:'IL',indiana:'IN',iowa:'IA',kansas:'KS',kentucky:'KY',louisiana:'LA',
+  maine:'ME',maryland:'MD',massachusetts:'MA',michigan:'MI',minnesota:'MN',
+  mississippi:'MS',missouri:'MO',montana:'MT',nebraska:'NE',nevada:'NV',
+  'new hampshire':'NH','new jersey':'NJ','new mexico':'NM','new york':'NY',
+  'north carolina':'NC','north dakota':'ND',ohio:'OH',oklahoma:'OK',oregon:'OR',
+  pennsylvania:'PA','rhode island':'RI','south carolina':'SC','south dakota':'SD',
+  tennessee:'TN',texas:'TX',utah:'UT',vermont:'VT',virginia:'VA',washington:'WA',
+  'west virginia':'WV',wisconsin:'WI',wyoming:'WY','district of columbia':'DC'
+};
+
+// Normalize messy address strings into "street, City, ST zip" form so the
+// Census parser can read them. Handles spelled-out states ("Virginia" -> "VA"),
+// stray "United States" / "United States of America" country suffixes, and
+// the "City State, Country zip" ordering some scrapers produced.
+function normalizeAddress(addr) {
+  if (!addr) return addr;
+  let s = String(addr);
+  // Strip country suffixes
+  s = s.replace(/,?\s*United States of America\b/gi, '');
+  s = s.replace(/,?\s*United States\b/gi, '');
+  s = s.replace(/,?\s*USA\b/g, '');
+  // Spelled-out state -> abbreviation (longest names first to avoid partials)
+  const names = Object.keys(STATE_ABBR).sort((a,b)=>b.length-a.length);
+  for (const name of names) {
+    const re = new RegExp('\\b' + name.replace(/ /g,'\\s+') + '\\b', 'i');
+    if (re.test(s)) { s = s.replace(re, STATE_ABBR[name]); break; }
+  }
+  // Ensure a comma sits before the 2-letter state if a scraper dropped it
+  // e.g. "Fredericksburg VA 22407" -> "Fredericksburg, VA 22407"
+  s = s.replace(/([a-z])\s+([A-Z]{2})(\s+\d{5})/g, '$1, $2$3');
+  // Collapse double commas / whitespace
+  s = s.replace(/,\s*,/g, ',').replace(/\s{2,}/g, ' ').trim().replace(/,\s*$/, '');
+  return s;
+}
+
 // Parse an address string like "500 Church St, Charlottesville, VA 22902"
 // into Census-compatible components. Returns null if we can't extract enough.
 function parseAddress(addr) {
   if (!addr) return null;
+  addr = normalizeAddress(addr);
   // Patterns to handle:
   //   "200 Onville Rd, Stafford, VA 22556"
   //   "Stafford, VA 22556"  (no street)
