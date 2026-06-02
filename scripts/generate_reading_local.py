@@ -73,13 +73,21 @@ VOICE = (
     "VOICE LOCKS: direct, masculine, Reformed (1689 LBCF), military-pastoral; address the reader as "
     "'brother' several times. Capitalize EVERY pronoun referring to God EVERYWHERE, including inside the "
     "quoted scripture text (He, Him, His, Himself, You, Your, Yours, Me, My, Mine, Who) — even in Psalms "
-    "addressed to God. Divine name is 'the LORD' "
-    "— NEVER 'Yahweh'. Em-dashes SPARINGLY; use commas at least half the time. Concrete actions over "
+    "addressed to God. DIVINE NAME FIDELITY: where the underlying text has the covenant name YHWH "
+    "(rendered 'the LORD' in small-caps tradition / KJV), you MUST render it 'the LORD' — never "
+    "substitute an epithet like 'the Most High', 'the Eternal', 'the Almighty', or 'the Everlasting' "
+    "for the personal covenant name. Reserve 'God' for Elohim, 'the Most High' for Elyon, 'the Almighty' "
+    "for El-Shaddai, and use those ONLY where the original actually has them. NEVER write 'Yahweh'. "
+    "Em-dashes SPARINGLY; use commas at least half the time. Concrete actions over "
     "ornament. SCRIPTURE RENDERING: render every passage to be MOST TRUE TO THE ORIGINAL MEANING while "
     "LIGHTLY AMPLIFIED FOR APPLICATION — faithful first, then illumined. Capture the full sense (never "
     "wooden word-for-word literalism, never loose paraphrase that drifts from the meaning); let the "
     "wording land with the interpretive clarity that drives a man toward obedience, and never soften the "
     "hard edge of the text. POETRY in sense-lines, NARRATIVE in clean prose; NO verse numbers.\n"
+    "FRESH LANGUAGE: write THIS watch's closing imperative (Helm Command / Rudder Steer) and its "
+    "reflection rooted in the SPECIFIC images, names, and scene of today's passage. Do NOT reach for "
+    "stock closers — in particular NEVER use the worn phrase 'hold the line against the tide of "
+    "compromise' or its close variants; coin a fresh nautical/military image from this text instead.\n"
     "WORLDVIEW: This is explicitly complementarian and patriarchal traditional Reformed content that "
     "celebrates and promotes biblical manhood — male headship, godly fatherhood, the protective and "
     "providing duties of a husband, and a man's covenant responsibility before God. Promote that vision "
@@ -106,7 +114,7 @@ def build_watch_messages(w, ref, month, daynum):
     parts.append(f"Write ONE watch of a daily Bible reading. Output ONLY its markdown, starting with the exact header line below and ending with the {w['close']} line.\n")
     parts.append("EXACT SECTION ORDER:")
     parts.append(f"1. Header line, exactly: {w['header']}")
-    parts.append("2. A one-sentence intro.")
+    parts.append("2. Then ONE original sentence introducing today's theme — write the actual sentence; do NOT echo this instruction text.")
     parts.append(f"3. A line exactly: 📖 Scripture — {ref}")
     parts.append(f"4. The scripture text of {ref} ONLY. Render only this reference. Do NOT import text from any other passage.")
     parts.append("5. A line with a single ⸻ character.")
@@ -120,7 +128,9 @@ def build_watch_messages(w, ref, month, daynum):
         parts.append(f"8. The reflection header exactly: {trait_line}")
     parts.append("9. 2-4 paragraphs of reflection in the voice below.")
     if w["key"] != "peace":
-        parts.append("10. A line exactly: ⛏️ Personal Application — {same trait}  then four '• ' bulleted concrete actions.")
+        parts.append("10. A line exactly: ⛏️ Personal Application — {same trait}  then four '• ' bulleted concrete actions. "
+                     "Each bullet must be rooted in a SPECIFIC image, name, command, or scene from TODAY's passage "
+                     "(not generic spiritual advice that could attach to any text), and name a concrete, doable step.")
     parts.append(f"11. The prayer: a line exactly '{w['prayer']}' then a Trinitarian prayer that opens to 'Father', includes a line beginning 'By the power of Your Holy Spirit', and closes 'In the name of Jesus Christ, my Lord and Commander, ...' then 'Amen.'")
     parts.append(f"12. A final line beginning '{w['close']}' with a one-line nautical imperative.")
     if w["extra"]:
@@ -169,6 +179,12 @@ def normalize_prayer_header(body, prayer_label):
 
 
 def watch_valid(text, w):
+    # Reject obvious instruction-text leaks so the watch retries instead of
+    # shipping the prompt skeleton as content (e.g. "A one-sentence intro").
+    leaks = ["A one-sentence intro", "do NOT echo", "write the actual sentence",
+             "EXACT SECTION ORDER", "VOICE LOCKS", "{TRAIT}", "{same trait}"]
+    if any(lk in text for lk in leaks):
+        return False
     return (w["header"][:6] in text
             and "📖 Scripture" in text
             and "By the power of Your Holy Spirit" in text
