@@ -44,7 +44,24 @@ LOCATION_NAMES = ["Fredericksburg", "Virginia", "United States", "America"]
 
 SCRIP_RE = re.compile(r"^\s*📖\s*Scripture\s*[—\-–:]\s*(.+?)\s*$")
 REFL_RE = re.compile(r"Reflection.*?[—\-–]\s*([A-Z][^\n]+?)\s*$")
-WATCH_HDR_RE = re.compile(r"^\s*([🌅☀🕖🕚🕒🌙])\s")
+
+# Robust watch-header detection (2026-06-01). Handles BOTH the modern emoji
+# header ("🌅 0600 Morning Wisdom") and the legacy PDF-converted formats
+# ("📅 <date> — 0700" / "⏰ First Watch", "🕊 0700 — First Watch", bare
+# date-time lines, etc.). The strongest signal is the watch TIME CODE; the
+# fallback is a title phrase on an emoji-led line. We never trigger on a bare
+# title keyword buried in body prose. See scripts/_dev_robust_split.py for the
+# validation harness (365/365 days, 0 mis-slices).
+TIME_KEY = {"06": "wisdom", "07": "first", "11": "second", "15": "third", "21": "peace"}
+TIME_RE = re.compile(r"(?<!\d)(06|07|11|15|21)[0-5]\d(?!\d)")
+DATETIME_LINE_RE = re.compile(r"^[A-Z][a-z]+day,?\s+\w+\s+\d+.*[—–-]\s*(?:06|07|11|15|21)[0-5]\d")
+TITLE_PATTERNS = [
+    ("wisdom", re.compile(r"morning wisdom", re.I)),
+    ("first",  re.compile(r"first watch|husband'?s post|h\.?a\.?²?p\.?p\.?y", re.I)),
+    ("second", re.compile(r"second watch|father'?s charge", re.I)),
+    ("third",  re.compile(r"third watch|citizen'?s (stand|post)", re.I)),
+    ("peace",  re.compile(r"evening peace", re.I)),
+]
 
 
 def load_passages():
@@ -59,24 +76,39 @@ def load_passages():
     return out
 
 
+def _classify_line(ln):
+    """Return a watch key if this line is a watch header, else None."""
+    s = ln.strip()
+    if not s:
+        return None
+    has_emoji = bool(re.match(r"^[^\w\s#>*_\-—–=.\"'(\[]", s))
+    is_datetime = bool(DATETIME_LINE_RE.match(s))
+    title_key = None
+    for key, pat in TITLE_PATTERNS:
+        if pat.search(s):
+            title_key = key
+            break
+    mt = TIME_RE.search(s)
+    if mt and (has_emoji or title_key or is_datetime):
+        return TIME_KEY.get(mt.group(1)) or title_key
+    if has_emoji and title_key:
+        return title_key
+    return None
+
+
 def split_watches(md_text):
-    """Slice a reading into its 5 watches by the watch-header emoji lines.
-    Returns {watch_key: full_text}. Robust to the my-format and the older
-    PDF-converted format (handles ☀ as a wisdom header too)."""
+    """Slice a reading into its 5 watches. Robust across the modern emoji
+    header format and every legacy PDF-converted variant (time-code first,
+    title-phrase fallback). Returns {watch_key: full_text}; only the FIRST
+    header of each key starts that watch."""
     lines = md_text.splitlines()
-    # find header line indexes + which watch each is
-    marks = []  # (line_idx, watch_key)
+    marks = []
+    seen = set()
     for i, ln in enumerate(lines):
-        m = WATCH_HDR_RE.match(ln)
-        if not m:
-            continue
-        emoji = m.group(1)
-        for key, meta in WATCH_META.items():
-            if emoji in meta["emojis"]:
-                # only the FIRST header of each key (avoid stray emoji mid-text)
-                if key not in [k for _, k in marks]:
-                    marks.append((i, key))
-                break
+        key = _classify_line(ln)
+        if key and key not in seen:
+            marks.append((i, key))
+            seen.add(key)
     if not marks:
         return {}
     marks.sort()
@@ -84,7 +116,6 @@ def split_watches(md_text):
     for idx, (start, key) in enumerate(marks):
         end = marks[idx + 1][0] if idx + 1 < len(marks) else len(lines)
         body = "\n".join(lines[start:end]).rstrip()
-        # trim a trailing watch separator rule if present
         body = re.sub(r"\n⸻{3,}\s*$", "", body).rstrip()
         watches[key] = body
     return watches
