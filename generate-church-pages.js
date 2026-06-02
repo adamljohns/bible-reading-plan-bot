@@ -73,6 +73,9 @@ function ratingIcon(r) {
 }
 
 function escapeHtml(str) {
+  if (str == null) return '';
+  if (Array.isArray(str)) str = str.join('; ');   // enrichment_notes is an array
+  str = String(str);
   if (!str) return '';
   return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
