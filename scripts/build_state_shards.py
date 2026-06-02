@@ -41,7 +41,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from collections import defaultdict
 
-ROOT = Path("/Users/adamjohns/bible-reading-plan-bot")
+ROOT = Path(__file__).resolve().parents[1]  # repo root (scripts/ is one level down)
 SOURCE = ROOT / "docs/data/churches.json"
 OUT_DIR = ROOT / "docs/data/churches/by-state"
 
