@@ -157,9 +157,12 @@ async function main() {
   const data = JSON.parse(fs.readFileSync(CHURCHES, 'utf8'));
 
   // Build the work queue: ungeocoded churches with a parseable street address
+  // that have NOT already failed a full geocode attempt (so the autopilot does
+  // not spin on the same un-geocodable residual every tick).
   const queue = [];
   for (const c of data.churches) {
     if (typeof c.latitude === 'number' && typeof c.longitude === 'number') continue;
+    if (c._geocode_failed) continue;
     if (args.state && !new RegExp(',\\s*' + args.state + '\\b').test(normalizeAddress(c.address || ''))) continue;
     const p = parseAddress(c.address);
     if (!p || !p.street) continue;
@@ -203,8 +206,18 @@ async function main() {
     }
   }
 
+  // Mark churches that failed every geocoder this run as _geocode_failed, but
+  // ONLY when Nominatim was part of the chain (a full attempt). With
+  // --no-nominatim we leave them unmarked so a later Nominatim pass can try.
+  let marked = 0;
+  if (args.nominatim) {
+    for (const t of chunk) {
+      if (!t.done) { t.church._geocode_failed = true; marked++; }
+    }
+  }
+
   fs.writeFileSync(CHURCHES, JSON.stringify(data, null, 2) + '\n');
-  console.log('\nPlaced ' + placed + ' / ' + chunk.length + ' this run. ' + (queue.length - chunk.length) + ' street-address churches still queued.');
+  console.log('\nPlaced ' + placed + ' / ' + chunk.length + ' this run' + (marked ? (', marked ' + marked + ' as failed') : '') + '. ' + (queue.length - chunk.length) + ' street-address churches still queued.');
 }
 
 main().catch(e => { console.error(e); process.exit(1); });
