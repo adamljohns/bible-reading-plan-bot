@@ -59,6 +59,35 @@ TITLE_KEYWORDS = {
     "evening peace":      "peace",
 }
 
+# Robust watch-header detection (2026-06-01) — shared logic with
+# build_reading_index.py. Keys on the watch TIME CODE first (06/07/11/15/21xx),
+# with a title-phrase fallback on emoji-led lines. Handles every legacy
+# PDF-converted header variant (📅/⏰ two-line, 🕊/🕛/🛡 emoji, bare date-time).
+_TIME_KEY_HTML = {"06": "wisdom", "07": "husband", "11": "father", "15": "citizen", "21": "peace"}
+_TIME_RE = re.compile(r"(?<!\d)(06|07|11|15|21)[0-5]\d(?!\d)")
+_DATETIME_LINE_RE = re.compile(r"^[A-Z][a-z]+day,?\s+\w+\s+\d+.*[—–-]\s*(?:06|07|11|15|21)[0-5]\d")
+
+
+def _robust_boundary_key(line):
+    """Return the watch key if this line is a watch header, else None."""
+    s = line.strip()
+    if not s:
+        return None
+    has_emoji = bool(re.match(r"^[^\w\s#>*_\-—–=.\"'(\[]", s))
+    is_dt = bool(_DATETIME_LINE_RE.match(s))
+    sl = s.lower()
+    title_key = None
+    for phrase, key in TITLE_KEYWORDS.items():
+        if phrase in sl:
+            title_key = key
+            break
+    mt = _TIME_RE.search(s)
+    if mt and (has_emoji or title_key or is_dt):
+        return _TIME_KEY_HTML.get(mt.group(1)) or title_key
+    if has_emoji and title_key:
+        return title_key
+    return None
+
 # Section markers — keyword-driven (any leading emoji/whitespace/markdown accepted).
 # Emoji handling in Python regex is fragile because most are multi-codepoint
 # sequences (ZWJ joined, variation selectors, skin tones). So we lead with a
@@ -107,22 +136,16 @@ def split_into_watches(text):
       - line matching Format B:  emoji + time on its own (e.g. "🌅 0600 Morning Wisdom" after a date line)
     """
     lines = text.splitlines()
-    boundary_re_C = re.compile(r"^\s*📅[^—\-]*[—\-]\s*(0600|0700|1100|1500|2100)\b")
-    boundary_re_A = re.compile(r"^\s*[🌅🕖🕚🕒🌙]\s*(0600|0700|1100|1500|2100)\b")
 
-    # Pass 1 — find all boundary line indexes with their watch_key + the line itself
+    # Pass 1 — find watch-header boundaries via the robust classifier (handles
+    # modern + every legacy format). Only the FIRST header of each key counts.
     boundaries = []  # list of (line_idx, watch_key, title_emoji_line_idx)
+    seen_keys = set()
     for i, line in enumerate(lines):
-        m = boundary_re_C.match(line)
-        if m:
-            time = m.group(1)
-            boundaries.append((i, WATCH_BY_TIME[time]["key"], i))
-            continue
-        m = boundary_re_A.match(line)
-        if m:
-            time = m.group(1)
-            boundaries.append((i, WATCH_BY_TIME[time]["key"], i))
-            continue
+        key = _robust_boundary_key(line)
+        if key and key not in seen_keys:
+            boundaries.append((i, key, i))
+            seen_keys.add(key)
 
     if not boundaries:
         return []
