@@ -17,7 +17,7 @@ A church's pulpit changes hands more often than its address does, and a director
 
 - It does not change the `pastor` field. The installed pastor stays current until the handoff actually completes; an announced candidate is recorded as a candidate, not promoted into the pastor slot.
 - It does not move a rating. A transition is informational. The one rubric hook is that a *female* successor candidate sets `review_gender` for a human to look at, because the MOOP rule fires on an installed sole female senior pastor, not on a nominee who may or may not be called.
-- It is not a Facebook scraper. Facebook's public pages sit behind a login wall that the fetch tools cannot read, so a candidate announced only on Facebook has to come from a human who saw it (the field still records it, with `transition_source: church-facebook`).
+- It is not a headless Facebook scraper. The WebFetch tool cannot read Facebook (a login wall truncates the page), so an announcement that lives only on Facebook is reached the browser way described below, or it comes from a human who saw it (the field records it either way, with `transition_source: church-facebook`).
 
 ## The data shape
 
@@ -48,6 +48,16 @@ A church's pulpit changes hands more often than its address does, and a director
 ### 2. Read the public record
 
 For each church, in priority order: the church's own website (an /about, /staff, /our-team, or a "pastor search" or "passing the baton" page), then its Facebook, then a denominational directory or local news. Match against `data/transition-lexicon.json`, which carries the phrases that signal a transition (retire, resign, "in view of a call", interim, "called as our next", succession, and so on) with a weight and a note.
+
+### 2a. Reading a church's Facebook in a signed-in browser
+
+Many churches announce a transition on Facebook before their website catches up, and WebFetch cannot read Facebook. The way through is the user's own Chrome via the Claude-in-Chrome tools, since it already carries a Facebook session, so no credential is ever typed:
+
+1. `list_connected_browsers`, then ask the user which Chrome to drive (one of theirs is signed into Facebook); `select_browser` on their choice.
+2. `tabs_context_mcp` to get or create a tab, then `navigate` it to `facebook.com/<ChurchPageName>` (find the page slug from the church's website Facebook link).
+3. `get_page_text` on that tab and read the recent posts for transition language; the most recent posts usually carry a "meet and greet," a "candidate," or a "vision" announcement.
+
+Hard rule, no exceptions: never type a password into a login field, not even when the user offers their credentials. If a church page is gated and the chosen browser is not already signed in, stop and ask the user to sign in themselves in that window, or to paste what the post says. The Apple-Events bridge to Chrome can also hang mid-session; if a call times out, take the text you already have rather than hammering a stuck browser.
 
 ### 3. Verify before you write
 
