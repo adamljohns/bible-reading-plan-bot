@@ -398,8 +398,15 @@ const CSS = `
     object-fit: contain;
     background: #fff;
     border-radius: 14px;
-    padding: 6px;
+    padding: 8px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.5), 0 0 0 1px rgba(212,175,55,0.2);
+  }
+  /* Wide wordmark logos get a wide chip instead of being crammed into a square. */
+  .hero .church-logo.logo-wide { width: auto; max-width: 248px; height: 66px; padding: 8px 14px; }
+  /* Light/white logos are invisible on white, so they get a dark chip. */
+  .hero .church-logo.logo-on-dark {
+    background: #11141a;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.5), 0 0 0 1px rgba(212,175,55,0.4);
   }
   .hero .denom-tag {
     display: inline-block;
@@ -770,7 +777,7 @@ ${(() => {
   return '';
 })()}<div class="hero">
   ${verificationBadge(church)}
-  ${church.image_thumb && /^https?:/.test(church.image_thumb) ? `<img class="church-logo" src="${escapeHtml(church.image_thumb)}" alt="${escapeHtml(church.name)} logo" loading="lazy" onerror="this.style.display='none'">` : ''}
+  ${church.image_thumb && /^https?:/.test(church.image_thumb) && !church.image_thumb_bad ? `<img class="church-logo${church.image_thumb_lum === 'light' ? ' logo-on-dark' : ''}${church.image_thumb_aspect > 1.8 ? ' logo-wide' : ''}" src="${escapeHtml(church.image_thumb)}" alt="${escapeHtml(church.name)} logo" loading="lazy" onerror="this.style.display='none'">` : ''}
   <div class="denom-tag">${escapeHtml(church.type || church.denomination || 'Church')}</div>
   <h1>${escapeHtml(church.name)}</h1>
   <div class="address">${ico('shield-map-48.png', 14)} ${escapeHtml(church.address)}</div>
