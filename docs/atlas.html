@@ -33,7 +33,9 @@
   a { color:var(--gold); text-decoration:none; }
 
   nav { display:flex; flex-wrap:wrap; gap:6px; justify-content:center; padding:14px 20px;
-        border-bottom:1px solid var(--border); background:rgba(0,0,0,0.95); position:sticky; top:0; z-index:100; backdrop-filter:blur(8px); }
+        border-bottom:1px solid var(--border); background:rgba(0,0,0,0.95); position:sticky; top:0; z-index:100; backdrop-filter:blur(8px);
+        transition:transform 0.3s ease; will-change:transform; }
+  nav.nav-hidden { transform:translateY(-100%); }
   nav a { color:var(--gray); font-size:0.85rem; font-weight:500; padding:5px 12px; border-radius:20px;
           border:1px solid transparent; transition:all 0.2s; white-space:nowrap; display:inline-flex; align-items:center; gap:4px; }
   nav a:hover { color:var(--gold); border-color:var(--border); }
@@ -42,6 +44,7 @@
 
   .container { max-width:1140px; margin:0 auto; padding:0 18px 70px; }
   .hero { text-align:center; padding:54px 18px 30px; border-bottom:1px solid var(--border); margin-bottom:34px; }
+  .hero .hero-mark { display:block; margin:0 auto 18px; width:104px; height:104px; filter:drop-shadow(0 0 14px rgba(212,175,55,0.4)); mix-blend-mode:screen; }
   .hero .eyebrow { color:var(--gold); font-size:0.78rem; font-weight:600; letter-spacing:3px; text-transform:uppercase; margin-bottom:14px; }
   .hero h1 { font-size:clamp(2rem,5vw,3rem); color:var(--white); margin-bottom:14px; }
   .hero h1 span { color:var(--gold); }
@@ -74,13 +77,14 @@
   <a href="index.html"><img src="assets/icons/shield-home-48.png" class="site-icon" alt="" width="16" height="16"> Home</a>
   <a href="watchman.html"><img src="assets/icons/shield-bible.png" class="site-icon" alt="" width="16" height="16"> Watchman</a>
   <a href="bible.html"><img src="assets/icons/shield-compass.png" class="site-icon" alt="" width="16" height="16"> BTE</a>
-  <a href="atlas.html" class="active"><img src="assets/icons/shield-map-48.png" class="site-icon" alt="" width="16" height="16"> Atlas</a>
   <a href="lexicon.html"><img src="assets/icons/shield-alpha-omega-48.png" class="site-icon" alt="" width="16" height="16"> Lexicon</a>
   <a href="dictionary/index.html"><img src="assets/icons/shield-book-greek-48.png" class="site-icon" alt="" width="16" height="16"> Dictionary</a>
+  <a href="atlas.html" class="active"><img src="assets/icons/shield-map-48.png" class="site-icon" alt="" width="16" height="16"> Atlas</a>
   <a href="connect.html"><img src="assets/icons/shield-handshake.png" class="site-icon" alt="" width="16" height="16"> Connect</a>
 </nav>
 
 <div class="hero">
+  <img class="hero-mark" src="assets/icons/shield-map-hires.png" alt="" width="104" height="104">
   <div class="eyebrow">Visual Reference for Bible Study</div>
   <h1>Biblical <span>Atlas &amp; Charts</span></h1>
   <p>Maps, kingdom timelines, and prophetic charts to set the Scriptures in their place and their times. A growing collection — every label links straight into the Bible Translation Engine, so you can read the passage behind the picture.</p>
@@ -337,5 +341,24 @@
   <p><img src="assets/icons/shield-map-48.png" class="site-icon" alt="" width="20" height="20"> Biblical Atlas &amp; Charts — a growing visual reference for <a href="bible.html">the MOOP Bible Translation Engine</a>.</p>
   <p style="margin-top:8px; color:#666; font-size:0.8rem;">Dates follow standard conservative chronology and are approximate. Maps are schematic study aids, not survey-grade cartography. &copy; U.S.M.C. Ministries.</p>
 </footer>
+<script>
+/* Hide-on-scroll nav (mobile): hides the sticky bar on scroll-down, restores on scroll-up. */
+(function(){
+  var nav = document.querySelector('nav');
+  if(!nav) return;
+  var lastY = window.scrollY || window.pageYOffset || 0, ticking = false, THRESHOLD = 60;
+  function mobile(){ return window.matchMedia('(max-width:820px)').matches; }
+  function update(){
+    var y = window.scrollY || window.pageYOffset || 0;
+    if(!mobile()){ nav.classList.remove('nav-hidden'); lastY = y; ticking = false; return; }
+    if(y > lastY && y > THRESHOLD){ nav.classList.add('nav-hidden'); }
+    else if(y < lastY){ nav.classList.remove('nav-hidden'); }
+    lastY = y <= 0 ? 0 : y; ticking = false;
+  }
+  window.addEventListener('scroll', function(){
+    if(!ticking){ window.requestAnimationFrame(update); ticking = true; }
+  }, {passive:true});
+})();
+</script>
 </body>
 </html>
