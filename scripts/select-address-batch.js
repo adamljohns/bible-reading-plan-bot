@@ -39,9 +39,15 @@ const done = fs.existsSync(DONE)
   ? new Set(fs.readFileSync(DONE, 'utf8').split('\n').filter(Boolean))
   : new Set();
 
+// Skip clearly non-US churches: a US street geocoder cannot place them, so they
+// would only burn agent slots. High-signal markers only (UK/Canada postcodes,
+// Canadian province codes, and unambiguous country names that are not US town
+// names), to avoid false-positives on US towns like Brazil, IN or Mexico, MO.
+const FOREIGN = /\b[A-Za-z]\d[A-Za-z]\s*\d[A-Za-z]\d\b|\b[A-Za-z]{1,2}\d[A-Za-z\d]?\s+\d[A-Za-z]{2}\b|,\s*(?:ON|QC|BC|AB|MB|SK|NS|NB|NL|PE)\b|\b(?:United Kingdom|Canada|Australia|New Zealand|India|Kenya|Nigeria|Romania|Germany|Netherlands|Philippines|Singapore|Uganda|Tanzania|Pakistan|Bangladesh|Ukraine|Switzerland|Belgium|Austria|Hungary|Portugal)\b/;
+
 const eligible = d.churches.filter(c => {
   const id = String(c.id || c.slug);
-  return c.name && /,/.test(c.address || '') && !hasStreetAddress(c.address || '') && !done.has(id);
+  return c.name && /,/.test(c.address || '') && !hasStreetAddress(c.address || '') && !FOREIGN.test(c.address || '') && !done.has(id);
 });
 
 // Map growth is the stated priority. A city-only church that has NO lat/lng
