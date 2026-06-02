@@ -797,6 +797,10 @@ ${(() => {
             : escapeHtml(church.pastor || 'Unknown')
         }</span>
       </div>
+      ${church.pastor_transition && church.pastor_transition.detail ? `<div class="fact-item" style="grid-column: 1 / -1; border-left: 3px solid var(--gold); padding-left: 10px;">
+        <span class="fact-label">⛪ Leadership Update${church.pastor_transition.updated ? ` <span style="font-size:0.65rem;color:var(--gray);font-style:italic;text-transform:none;letter-spacing:0;">— as of ${escapeHtml(church.pastor_transition.updated)}</span>` : ''}</span>
+        <span class="fact-value" style="color: var(--gold); font-size: 0.9rem;">${escapeHtml(church.pastor_transition.detail)}</span>
+      </div>` : ''}
       <div class="fact-item">
         <span class="fact-label">Founded</span>
         <span class="fact-value">${escapeHtml(church.founded || 'Unknown')}</span>

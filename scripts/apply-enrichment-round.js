@@ -3,23 +3,40 @@
 // apply-enrichment-round.js — apply a verified research-round result file to
 // churches.json. Used by the overnight agent-research enrichment rounds.
 //
-// Input JSON: array of { id, pastor?, pastor_credentials?, facebook?, youtube?,
-//   instagram?, enrichment_note?, review_gender?, gender_flag? }.
+// Input JSON: array of {
+//   id, address?, pastor?, pastor_credentials?,
+//   facebook?, youtube?, instagram?,
+//   enrichment_note?, review_gender?, gender_flag?,
+//   // leadership transition (a retirement / resignation / interim / announced
+//   // successor candidate). Informational only; NEVER changes a rating:
+//   transition_status?,   // one of: retiring | resigning | interim | candidate-announced | vacant | incoming
+//   transition_note?,     // human-readable detail ("Dr. X retiring Sept 2026; ...")
+//   successor?,           // named successor / candidate, if any
+//   transition_effective?,// e.g. "September 2026"
+//   transition_source?,   // church-website | church-facebook | news | agent-research
+//   successor_gender?     // 'female' -> records a review flag (NOT auto-RED; not installed yet)
+// }
 //
 // Safety:
+//   - address written only when the church lacks a street address and the new
+//     one is a real, geocodable street address (shared goodAddress predicate)
 //   - pastor applied only if it passes the placeholder/junk filter
 //   - social URLs applied only if they match the expected domain + https
 //   - gender_flag === 'female-senior-pastor' on a green church -> downgrade to
 //     red (per the MOOP rubric: a SOLE female senior pastor is RED minimum)
-//   - review_gender (co-pastor couples etc.) records a flag for human review,
-//     NOT an automatic downgrade
+//   - review_gender (co-pastor couples etc.) records a flag for human review
+//   - a leadership transition is recorded as data only; a female *candidate*
+//     records a review flag but does not move the rating until she is installed
 //
 // Usage: node apply-enrichment-round.js /tmp/round-results.json
 
 const fs = require('fs');
 const path = require('path');
+const { hasStreetAddress, goodAddress } = require('./lib/address-util');
+
 const CHURCHES = path.join(__dirname, '..', 'docs', 'data', 'churches.json');
 const INPUT = process.argv[2] || '/tmp/round-results.json';
+const TODAY = new Date().toISOString().slice(0, 10);
 
 const PH = /^(verify|various|unknown|see\s+website|currently|none|listed|tbd|n\/a|the\s+pastor|the\s+church|pastoral|pastor\s*\(|check |contact |not\s+(listed|published)|vacant|interim)/i;
 const JUNK = /(black hawk|hawk down|enjoy|movie|video|book|sermon|story|message|search|committee|jesus|christ|^god$|^lord$|spirit|gospel|kingdom|salvation|baptism|sunday|service)/i;
@@ -34,21 +51,13 @@ function realPastor(p) {
   return true;
 }
 
+const TRANSITION_STATUSES = new Set(['retiring', 'resigning', 'interim', 'candidate-announced', 'vacant', 'incoming']);
+
 const results = JSON.parse(fs.readFileSync(INPUT, 'utf8'));
 const data = JSON.parse(fs.readFileSync(CHURCHES, 'utf8'));
 const byId = new Map(data.churches.map(c => [String(c.id || c.slug), c]));
 
-// Validate a researched street address: needs a street number, a city, and a
-// 2-letter state (so the geocoder can place it). Rejects city-only strings.
-function goodAddress(a) {
-  a = String(a || '').trim();
-  if (!/\d+\s+[A-Za-z]/.test(a) && !/^\d+\s+\d/.test(a)) return false;  // house number + street name, incl. numeric/ordinal streets ("127 2nd Ave")
-  if (!/,/.test(a)) return false;                      // has comma-separated parts
-  if (!/\b[A-Z]{2}\b\s*\d{0,5}/.test(a) && !/\b(Alabama|Alaska|Arizona|Arkansas|California|Colorado|Connecticut|Delaware|Florida|Georgia|Hawaii|Idaho|Illinois|Indiana|Iowa|Kansas|Kentucky|Louisiana|Maine|Maryland|Massachusetts|Michigan|Minnesota|Mississippi|Missouri|Montana|Nebraska|Nevada|Ohio|Oregon|Pennsylvania|Tennessee|Texas|Utah|Vermont|Virginia|Washington|Wisconsin|Wyoming)\b/i.test(a)) return false;
-  return true;
-}
-
-let pastors = 0, social = 0, downgrades = 0, flags = 0, addresses = 0;
+let pastors = 0, social = 0, downgrades = 0, flags = 0, addresses = 0, transitions = 0;
 for (const r of results) {
   const c = byId.get(String(r.id));
   if (!c) continue;
@@ -57,9 +66,7 @@ for (const r of results) {
   // researched one is a real, geocodable street address. Clear _geocode_failed
   // so the geocode autopilot re-attempts this church on its next tick.
   if (r.address && goodAddress(r.address)) {
-    const a0 = c.address || '';
-    const curHasStreet = (/\d+\s+[A-Za-z]/.test(a0) || /^\d+\s+\d/.test(a0)) && /,/.test(a0);
-    if (!curHasStreet) {
+    if (!hasStreetAddress(c.address || '')) {
       c.address = r.address.trim();
       c.address_source = 'agent-research-verified';
       delete c._geocode_failed;
@@ -81,6 +88,33 @@ for (const r of results) {
       c[field] = v; social++;
     }
   }
+
+  // Leadership transition (retirement / resignation / interim / announced
+  // successor). Stored as structured data and shown on the church page; it does
+  // NOT touch the pastor field (the installed pastor stays current until the
+  // handoff completes) and never moves a rating on its own.
+  if (r.transition_status || r.transition_note) {
+    const status = TRANSITION_STATUSES.has(String(r.transition_status)) ? r.transition_status : 'announced';
+    const detail = String(r.transition_note || '').trim();
+    if (detail) {
+      c.pastor_transition = {
+        status,
+        detail,
+        ...(r.successor ? { successor: String(r.successor).trim() } : {}),
+        ...(r.transition_effective ? { effective: String(r.transition_effective).trim() } : {}),
+        source: r.transition_source || 'agent-research',
+        updated: TODAY,
+      };
+      transitions++;
+      // A female *candidate* is a human-review flag, not an automatic downgrade;
+      // the rubric acts on an installed sole female senior pastor, not a nominee.
+      if (String(r.successor_gender || '').toLowerCase() === 'female') {
+        c.review_gender = true;
+        flags++;
+      }
+    }
+  }
+
   if (r.enrichment_note) {
     if (!Array.isArray(c.enrichment_notes)) c.enrichment_notes = c.enrichment_notes ? [String(c.enrichment_notes)] : [];
     const stamp = '[agent-research] ' + r.enrichment_note;
@@ -98,4 +132,4 @@ for (const r of results) {
 }
 
 fs.writeFileSync(CHURCHES, JSON.stringify(data, null, 2) + '\n');
-console.log('Applied: +' + addresses + ' addresses, +' + pastors + ' pastors, +' + social + ' social URLs, ' + downgrades + ' rubric downgrades, ' + flags + ' gender-review flags');
+console.log('Applied: +' + addresses + ' addresses, +' + pastors + ' pastors, +' + social + ' social URLs, +' + transitions + ' leadership updates, ' + downgrades + ' rubric downgrades, ' + flags + ' gender-review flags');
