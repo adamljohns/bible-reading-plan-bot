@@ -21,13 +21,13 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
 VOICE_DIR = Path.home() / "Documents" / "05-Voice" / "f5tts-tests"
-REF = VOICE_DIR / "ref-v3-pad.wav"   # Adam's PHONE recording, expressive exhortation segment, +0.5s pad
-REFTEXT = (VOICE_DIR / "ref-v3-clean.txt").read_text().strip() if (VOICE_DIR / "ref-v3-clean.txt").exists() else ""
-REF_SEC = 16.5
+REF = VOICE_DIR / "ref-calm.wav"   # Adam's PHONE recording, calm Psalm-23 segment (no bleed), +0.5s pad
+REFTEXT = (VOICE_DIR / "ref-calm.txt").read_text().strip() if (VOICE_DIR / "ref-calm.txt").exists() else ""
+REF_SEC = 15.0
 CPS = 12.5          # chars/sec target pace (empirically faithful)
 BUFFER = 0.6        # seconds of headroom so the first word isn't clipped
 STEPS = 32
-CHUNK_MAX = 200     # chars per F5 call (144 verified WER 0.0; keep margin)
+CHUNK_MAX = 160     # chars per F5 call — shorter = more stable per chunk
 AUDIO_OUT = REPO / "docs" / "assets" / "audio" / "readings"
 
 VENV_PY = str(Path.home() / ".venvs/f5tts/bin/python")
@@ -85,21 +85,51 @@ def chunk(text, mx=CHUNK_MAX):
     return [c for c in final if c]
 
 
-def f5_chunk(text, out_wav):
+def f5_chunk(text, out_wav, seed=None):
     dur = round(REF_SEC + len(text) / CPS + BUFFER)
     cmd = [VENV_PY, "-m", "f5_tts_mlx.generate", "--text", text, "--ref-audio", str(REF),
            "--ref-text", REFTEXT, "--duration", str(dur), "--steps", str(STEPS),
            "--output", str(out_wav)]
+    if seed is not None:
+        cmd += ["--seed", str(seed)]
     r = subprocess.run(cmd, capture_output=True, text=True)
     if not Path(out_wav).exists():
         print(r.stderr[-400:], file=sys.stderr); return False
     return True
 
 
+def gen_chunk_verified(text, tmp, idx, tries=4, ok=0.06):
+    """Generate one chunk, self-verify with Whisper, retry (different seed) until
+    WER is good. Returns (best_wav, best_wer). Fixes the bleed/variance that made
+    the aggregate WER spike at full length."""
+    best, best_wer = None, 9.0
+    for t in range(tries):
+        raw = f"{tmp}/c{idx:02d}_{t}.wav"
+        if not f5_chunk(text, raw, seed=t):
+            continue
+        wt = trim_bleed(raw, text, tmp, idx * 10 + t)
+        w16 = f"{tmp}/q{idx:02d}_{t}.wav"
+        subprocess.run([FFMPEG, "-hide_banner", "-loglevel", "error", "-y", "-i", wt,
+                        "-ac", "1", "-ar", "16000", w16], check=True)
+        cw = wer(text, transcribe(w16))
+        if cw < best_wer:
+            best_wer, best = cw, wt
+        if cw <= ok:
+            break
+    return best, round(best_wer, 3)
+
+
+def _nw(w):
+    return re.sub(r"[^a-z]", "", w.lower())
+
+
 def trim_bleed(wav, chunk_text, tmp, idx):
-    """F5 sometimes bleeds the tail of the reference in at the START of a chunk.
-    Use Whisper word-timestamps to find where the chunk's own first words begin,
-    and trim everything before that. No-op when there's no bleed."""
+    """F5 sometimes bleeds the tail of the REFERENCE in at the START of a chunk.
+    Two detectors, robust to Whisper mis-hearing scripture:
+      (A) find where the chunk's own first words begin (precise when heard right);
+      (B) match the KNOWN reference tail as a leading run and cut past it (works
+          even when the chunk's first words are mis-transcribed).
+    Cut at max(A, B). No-op when there's no bleed."""
     wav16 = f"{tmp}/b{idx:02d}_16.wav"
     subprocess.run([FFMPEG, "-hide_banner", "-loglevel", "error", "-y", "-i", wav,
                     "-ac", "1", "-ar", "16000", wav16], check=True)
@@ -110,23 +140,34 @@ def trim_bleed(wav, chunk_text, tmp, idx):
         m = re.match(r"\[(\d+):(\d+):([\d.]+).*?\]\s*(.*)", l)
         if m:
             t = int(m.group(1)) * 3600 + int(m.group(2)) * 60 + float(m.group(3))
-            wd = re.sub(r"[^a-z]", "", m.group(4).strip().lower())
+            wd = _nw(m.group(4).strip())
             if wd:
                 words.append((t, wd))
-    tgt = [re.sub(r"[^a-z]", "", x.lower()) for x in chunk_text.split()[:3]]
-    tgt = [x for x in tgt if x]
-    if not tgt or len(words) < len(tgt):
+    if not words:
         return wav
-    start = 0.0
-    for i in range(len(words) - len(tgt) + 1):
-        if [words[i + j][1] for j in range(len(tgt))] == tgt:
-            start = words[i][0]
-            break
-    if start > 0.15:
-        trimmed = f"{tmp}/c{idx:02d}_t.wav"
-        subprocess.run([FFMPEG, "-hide_banner", "-loglevel", "error", "-y", "-ss",
-                        f"{start:.2f}", "-i", wav, "-ac", "1", "-ar", "24000", trimmed], check=True)
-        return trimmed
+    tw = [w for _, w in words]
+    reftail = [_nw(x) for x in REFTEXT.split() if _nw(x)][-12:]
+    chunk0 = [_nw(x) for x in chunk_text.split() if _nw(x)][:4]
+
+    cut = 0
+    # (A) chunk content start
+    if chunk0:
+        for i in range(len(tw) - len(chunk0) + 1):
+            if tw[i:i + len(chunk0)] == chunk0:
+                cut = max(cut, i); break
+    # (B) longest leading run that is a contiguous slice of the reference tail
+    for k in range(min(len(tw), 12), 0, -1):
+        seg = tw[:k]
+        if any(reftail[j:j + k] == seg for j in range(len(reftail) - k + 1)):
+            cut = max(cut, k); break
+
+    if 0 < cut < len(words):
+        start = words[cut][0]
+        if start > 0.15:
+            trimmed = f"{tmp}/c{idx:02d}_t.wav"
+            subprocess.run([FFMPEG, "-hide_banner", "-loglevel", "error", "-y", "-ss",
+                            f"{start:.2f}", "-i", wav, "-ac", "1", "-ar", "24000", trimmed], check=True)
+            return trimmed
     return wav
 
 
@@ -167,13 +208,15 @@ def main():
 
     with tempfile.TemporaryDirectory() as tmp:
         wavs = []
+        chunk_wers = []
         for i, c in enumerate(chunks):
-            w = f"{tmp}/c{i:02d}.wav"
-            print(f"  chunk {i+1}/{len(chunks)} ({len(c)} chars)", flush=True)
-            if not f5_chunk(c, w):
-                sys.exit(f"  chunk {i} failed")
-            w = trim_bleed(w, c, tmp, i)   # strip any leading reference bleed
+            w, cw = gen_chunk_verified(c, tmp, i)
+            print(f"  chunk {i+1}/{len(chunks)} ({len(c)} chars) WER {cw}", flush=True)
+            if w is None:
+                sys.exit(f"  chunk {i} failed all tries")
+            chunk_wers.append(cw)
             wavs.append(w)
+        print(f"  per-chunk WER: max={max(chunk_wers):.2f} mean={sum(chunk_wers)/len(chunk_wers):.2f}", flush=True)
         listing = f"{tmp}/list.txt"
         Path(listing).write_text("\n".join(f"file '{w}'" for w in wavs) + "\n")
         subprocess.run([FFMPEG, "-hide_banner", "-loglevel", "error", "-y", "-f", "concat",
