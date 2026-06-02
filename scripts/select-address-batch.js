@@ -44,7 +44,18 @@ const eligible = d.churches.filter(c => {
   return c.name && /,/.test(c.address || '') && !hasStreetAddress(c.address || '') && !done.has(id);
 });
 
-const batch = eligible.slice(0, COUNT).map(c => ({
+// Map growth is the stated priority. A city-only church that has NO lat/lng
+// becomes a brand-new map pin the moment its street address is found and
+// geocoded; a city-only church that already carries (e.g. sbc.net) coordinates
+// is already plotted, so finding its address only sharpens its page, not the
+// map. So put no-coordinate churches first (--need-coords filters to them only).
+const NEED_COORDS = process.argv.includes('--need-coords');
+const noCoord = c => typeof c.latitude !== 'number' || typeof c.longitude !== 'number';
+const pool = NEED_COORDS
+  ? eligible.filter(noCoord)
+  : eligible.slice().sort((a, b) => (noCoord(a) ? 0 : 1) - (noCoord(b) ? 0 : 1));
+
+const batch = pool.slice(0, COUNT).map(c => ({
   id: String(c.id || c.slug),
   name: c.name,
   city: c.address,
@@ -58,5 +69,6 @@ for (let i = 0; i < GROUPS; i++) {
   fs.writeFileSync(PREFIX + (i + 1) + '.json', JSON.stringify(batch.slice(i * per, i * per + per), null, 2));
 }
 
-console.log('Selected ' + batch.length + ' city-only churches (' + eligible.length + ' truly city-only remaining) into ' + GROUPS + ' groups');
+const noCoordRemaining = eligible.filter(noCoord).length;
+console.log('Selected ' + batch.length + ' city-only churches into ' + GROUPS + ' groups (' + eligible.length + ' city-only remaining; ' + noCoordRemaining + ' of them unplotted/no-coords — prioritized first)');
 console.log(batch.map(c => c.name + ' — ' + c.city).join('\n'));
