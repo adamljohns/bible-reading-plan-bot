@@ -57,7 +57,8 @@ for (const r of results) {
   // researched one is a real, geocodable street address. Clear _geocode_failed
   // so the geocode autopilot re-attempts this church on its next tick.
   if (r.address && goodAddress(r.address)) {
-    const curHasStreet = /\d+\s+[A-Za-z]/.test(c.address || '') && /,/.test(c.address || '');
+    const a0 = c.address || '';
+    const curHasStreet = (/\d+\s+[A-Za-z]/.test(a0) || /^\d+\s+\d/.test(a0)) && /,/.test(a0);
     if (!curHasStreet) {
       c.address = r.address.trim();
       c.address_source = 'agent-research-verified';
