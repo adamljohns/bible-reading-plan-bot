@@ -57,6 +57,25 @@ DICT_LINK_CSS = (
 )
 
 
+# Global stoplist: generic English words + redundant alias-slugs that should
+# NEVER be auto-linked in running blog prose even when they have a dictionary
+# entry. Two reasons a slug lands here:
+#   (1) NOISE — the word is too common to carry doctrinal weight in prose
+#       (e.g. "keep", "work", "three", "night"); linking it is visual clutter.
+#   (2) ALIAS — a second slug for a concept already covered by a canonical
+#       slug, so both would link the same idea twice (e.g. "sower-parable"
+#       duplicates "parable-of-sower"; "great-commission-event" duplicates
+#       "great-commission"). Keep the canonical, stop the alias.
+# Match is by SLUG, applied to both tokens and phrases.
+STOPLIST = {
+    # --- generic noise ---
+    'the-man', 'night', 'three', 'keep', 'cast', 'work', 'name', 'call',
+    'giving', 'door', 'lead', 'watch', 'duty', 'seed', 'sowing',
+    # --- redundant alias-slugs (canonical kept elsewhere) ---
+    'great-commission-event', 'sower-parable',
+}
+
+
 def load_manifest():
     with open(MANIFEST, 'r', encoding='utf-8') as f:
         m = json.load(f)
@@ -64,6 +83,8 @@ def load_manifest():
     phrases = m.get('phrases', [])
     phrase_pats = []
     for phrase, slug in phrases:
+        if slug in STOPLIST:
+            continue
         words = phrase.split()
         if len(words) < 2:
             continue
@@ -72,6 +93,8 @@ def load_manifest():
     sorted_tokens = sorted(tokens.items(), key=lambda kv: (-len(kv[0]), kv[0]))
     token_pats = []
     for token, slug in sorted_tokens:
+        if slug in STOPLIST:
+            continue
         pat = r'\b' + re.escape(token) + r'\b'
         token_pats.append((slug, re.compile(pat, re.IGNORECASE)))
     return token_pats, phrase_pats
