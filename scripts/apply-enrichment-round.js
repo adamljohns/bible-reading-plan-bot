@@ -42,7 +42,7 @@ const byId = new Map(data.churches.map(c => [String(c.id || c.slug), c]));
 // 2-letter state (so the geocoder can place it). Rejects city-only strings.
 function goodAddress(a) {
   a = String(a || '').trim();
-  if (!/\d+\s+[A-Za-z]/.test(a)) return false;        // street number + name
+  if (!/\d+\s+[A-Za-z]/.test(a) && !/^\d+\s+\d/.test(a)) return false;  // house number + street name, incl. numeric/ordinal streets ("127 2nd Ave")
   if (!/,/.test(a)) return false;                      // has comma-separated parts
   if (!/\b[A-Z]{2}\b\s*\d{0,5}/.test(a) && !/\b(Alabama|Alaska|Arizona|Arkansas|California|Colorado|Connecticut|Delaware|Florida|Georgia|Hawaii|Idaho|Illinois|Indiana|Iowa|Kansas|Kentucky|Louisiana|Maine|Maryland|Massachusetts|Michigan|Minnesota|Mississippi|Missouri|Montana|Nebraska|Nevada|Ohio|Oregon|Pennsylvania|Tennessee|Texas|Utah|Vermont|Virginia|Washington|Wisconsin|Wyoming)\b/i.test(a)) return false;
   return true;
