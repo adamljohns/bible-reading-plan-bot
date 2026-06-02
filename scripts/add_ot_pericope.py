@@ -156,11 +156,138 @@ PROVERBS = {
 # Psalm 119 — the 22 acrostic stanzas (8 verses each).
 PS119 = [(s, f"Stanza {i+1}") for i, s in enumerate(range(1, 177, 8))]
 
+# Deuteronomy — landmark chapters (others stay chapter-level).
+DEUTERONOMY = {
+    1:  [(1,"The Command to Leave Horeb"),(19,"Spies Sent Out"),(34,"The Lord's Anger")],
+    4:  [(1,"A Call to Obedience"),(41,"Cities of Refuge")],
+    5:  [(1,"The Ten Commandments"),(22,"The People's Fear")],
+    6:  [(1,"The Greatest Commandment — the Shema"),(10,"Remember the Lord")],
+    8:  [(1,"Remember the Lord Your God")],
+    28: [(1,"Blessings for Obedience"),(15,"Curses for Disobedience")],
+    30: [(1,"Return and Prosper"),(11,"The Choice of Life and Death")],
+    31: [(1,"Joshua to Succeed Moses")],
+    32: [(1,"The Song of Moses"),(48,"Moses to Die on Mount Nebo")],
+    33: [(1,"Moses Blesses the Tribes")],
+    34: [(1,"The Death of Moses")],
+}
+RUTH = {
+    1: [(1,"Naomi and Ruth"),(6,"Ruth Clings to Naomi"),(19,"Arrival in Bethlehem")],
+    2: [(1,"Ruth Meets Boaz"),(17,"Ruth Returns to Naomi")],
+    3: [(1,"Ruth at the Threshing Floor")],
+    4: [(1,"Boaz Redeems Ruth"),(13,"The Genealogy of David")],
+}
+ECCLESIASTES = {
+    1:  [(1,"Everything Is Meaningless"),(12,"The Vanity of Wisdom")],
+    2:  [(1,"The Vanity of Pleasure"),(12,"Wisdom and Folly"),(18,"The Vanity of Toil")],
+    3:  [(1,"A Time for Everything"),(9,"The God-Given Task")],
+    4:  [(1,"Oppression, Toil, and Friendship")],
+    5:  [(1,"Fear God"),(8,"The Vanity of Wealth")],
+    6:  [(1,"The Vanity of Wealth Without Enjoyment")],
+    7:  [(1,"Wisdom and Folly")],
+    8:  [(1,"Obey the King"),(10,"Those Who Fear God")],
+    9:  [(1,"Death Comes to All"),(13,"Wisdom Better Than Folly")],
+    10: [(1,"Wisdom and Folly")],
+    11: [(1,"Cast Your Bread Upon the Waters"),(7,"Remember Your Creator")],
+    12: [(1,"Remember Your Creator"),(9,"The Conclusion of the Matter")],
+}
+SONG = {
+    1: [(1,"The Bride and the Daughters"),(9,"The Bridegroom")],
+    2: [(1,"The Bride and Bridegroom Delight"),(8,"The Bride's Longing")],
+    3: [(1,"The Bride's Dream"),(6,"Solomon's Wedding Procession")],
+    4: [(1,"The Bridegroom Praises the Bride")],
+    5: [(1,"The Bride Seeks Her Beloved")],
+    6: [(1,"Together in the Garden")],
+    7: [(1,"The Bridegroom's Delight")],
+    8: [(1,"The Power of Love")],
+}
+HOSEA = {
+    1:[(1,"Hosea's Wife and Children")], 2:[(1,"Israel's Unfaithfulness"),(14,"The Lord's Mercy")],
+    3:[(1,"Hosea Redeems His Wife")], 4:[(1,"The Lord's Charge Against Israel")],
+    5:[(1,"Judgment Against Israel and Judah")], 6:[(1,"A Call to Repentance")],
+    7:[(1,"Israel's Corruption")], 8:[(1,"Israel Reaps the Whirlwind")],
+    9:[(1,"Punishment for Israel")], 10:[(1,"Israel's Guilt and Punishment")],
+    11:[(1,"God's Love for Israel")], 12:[(1,"Israel's Sin")],
+    13:[(1,"The Lord's Anger Against Israel")], 14:[(1,"Repentance Brings Blessing")],
+}
+JOEL = {
+    1: [(1,"The Locust Plague"),(13,"A Call to Repentance")],
+    2: [(1,"The Day of the Lord"),(12,"Return to the Lord"),(18,"The Lord's Response"),(28,"The Promise of the Spirit")],
+    3: [(1,"Judgment on the Nations"),(17,"Blessing for God's People")],
+}
+AMOS = {
+    1:[(1,"Judgment on Israel's Neighbors")], 2:[(1,"Judgment on Judah and Israel")],
+    3:[(1,"Israel's Guilt and Punishment")], 4:[(1,"Israel Has Not Returned to God")],
+    5:[(1,"A Call to Repentance"),(18,"The Day of the Lord")], 6:[(1,"Woe to the Complacent")],
+    7:[(1,"Visions of Judgment"),(10,"Amos and Amaziah")], 8:[(1,"The Basket of Summer Fruit")],
+    9:[(1,"The Destruction of Israel"),(11,"The Restoration of Israel")],
+}
+OBADIAH = {1: [(1,"The Judgment of Edom"),(15,"The Day of the Lord"),(17,"The Deliverance of Israel")]}
+JONAH = {
+    1: [(1,"Jonah Flees from the Lord"),(17,"Jonah and the Great Fish")],
+    2: [(1,"Jonah's Prayer")],
+    3: [(1,"Jonah Goes to Nineveh"),(6,"Nineveh Repents")],
+    4: [(1,"Jonah's Anger and the Lord's Compassion")],
+}
+MICAH = {
+    1:[(1,"Judgment Against Samaria and Judah")], 2:[(1,"Woe to Oppressors")],
+    3:[(1,"Rulers and Prophets Rebuked")], 4:[(1,"The Mountain of the Lord"),(9,"Deliverance from Babylon")],
+    5:[(1,"The Ruler from Bethlehem")], 6:[(1,"The Lord's Case Against Israel"),(9,"Israel's Guilt")],
+    7:[(1,"Israel's Misery"),(8,"Israel's Confession and Comfort")],
+}
+NAHUM = {1:[(1,"The Lord's Anger Against Nineveh")], 2:[(1,"The Fall of Nineveh")], 3:[(1,"Woe to Nineveh")]}
+HABAKKUK = {
+    1: [(1,"Habakkuk's Complaint"),(5,"The Lord's Answer"),(12,"Habakkuk's Second Complaint")],
+    2: [(1,"The Lord's Answer"),(6,"Woes to the Wicked")],
+    3: [(1,"Habakkuk's Prayer")],
+}
+ZEPHANIAH = {
+    1: [(1,"The Coming Day of the Lord")],
+    2: [(1,"A Call to Repentance"),(4,"Judgment on the Nations")],
+    3: [(1,"Jerusalem's Sin and Redemption"),(14,"A Song of Joy")],
+}
+HAGGAI = {
+    1: [(1,"A Call to Rebuild the Temple"),(12,"The People Obey")],
+    2: [(1,"The Promised Glory"),(10,"Blessings for a Defiled People"),(20,"Zerubbabel the Lord's Signet")],
+}
+ZECHARIAH = {
+    1:[(1,"A Call to Return"),(7,"The Horseman Among the Myrtles"),(18,"The Four Horns")],
+    2:[(1,"A Man with a Measuring Line")], 3:[(1,"Cleansing of the High Priest")],
+    4:[(1,"The Golden Lampstand")], 5:[(1,"The Flying Scroll"),(5,"The Woman in the Basket")],
+    6:[(1,"The Four Chariots"),(9,"The Crown and the Branch")], 7:[(1,"Justice and Mercy, Not Fasting")],
+    8:[(1,"The Lord Promises to Bless Jerusalem")], 9:[(1,"Judgment on Israel's Enemies"),(9,"The Coming King")],
+    10:[(1,"The Lord Will Restore His People")], 11:[(1,"The Flock Doomed to Slaughter")],
+    12:[(1,"Jerusalem's Deliverance"),(10,"Mourning for the Pierced One")],
+    13:[(1,"Idolatry Cut Off"),(7,"The Shepherd Struck")], 14:[(1,"The Lord Comes and Reigns")],
+}
+MALACHI = {
+    1: [(1,"The Lord's Love for Israel"),(6,"Polluted Offerings")],
+    2: [(1,"Corrupt Priests"),(10,"Judah's Faithlessness")],
+    3: [(1,"The Messenger of the Lord"),(6,"Robbing God"),(13,"The Faithful Remnant")],
+    4: [(1,"The Day of the Lord")],
+}
+
 AUTHORED = {
     "1": GENESIS,
     "2": EXODUS,
+    "5": DEUTERONOMY,
+    "8": RUTH,
     "19": {119: PS119},   # all other psalms default to one paragraph (per-psalm)
     "20": PROVERBS,       # chapters 10-29 default to chapter-level
+    "21": ECCLESIASTES,
+    "22": SONG,
+    "28": HOSEA,
+    "29": JOEL,
+    "30": AMOS,
+    "31": OBADIAH,
+    "32": JONAH,
+    "33": MICAH,
+    "34": NAHUM,
+    "35": HABAKKUK,
+    "36": ZEPHANIAH,
+    "37": HAGGAI,
+    "38": ZECHARIAH,
+    "39": MALACHI,
+    # Lamentations (25): each chapter is one acrostic poem — chapter-level is correct, left as-is.
 }
 
 def last_verse(bid, ch):
@@ -181,37 +308,45 @@ def main():
     pmap = json.loads(MAP_PATH.read_text())
     before_books = sum(1 for k in pmap if not k.startswith('_'))
 
-    problems, authored_books, chapterlevel_books = 0, 0, 0
+    problems, added_detail, preserved, baseline = 0, 0, 0, 0
     for bid, name, nch in OT_BOOKS:
         bk = str(bid)
         pmap.setdefault(bk, {})
         book_authored = AUTHORED.get(bk, {})
-        is_authored = bool(book_authored) or bk == "19"
-        if is_authored: authored_books += 1
-        else: chapterlevel_books += 1
         for ch in range(1, nch + 1):
-            clast = last_verse(bid, ch)
-            starts_titles = book_authored.get(ch)
-            if not starts_titles:
-                # default: whole chapter = one paragraph
-                starts_titles = [(1, f"{name} {ch}")]
-            # validate
-            if starts_titles[0][0] != 1:
-                print(f"  ERR {name} {ch}: first start != 1"); problems += 1
-            for i in range(1, len(starts_titles)):
-                if starts_titles[i][0] <= starts_titles[i-1][0]:
-                    print(f"  ERR {name} {ch}: non-increasing starts"); problems += 1
-                if starts_titles[i][0] > clast:
-                    print(f"  ERR {name} {ch}: start {starts_titles[i][0]} > last verse {clast}"); problems += 1
-            pmap[bk][str(ch)] = build_sections(starts_titles, clast)
+            chs = str(ch)
+            existing = pmap[bk].get(chs)
+            # NON-DESTRUCTIVE: never downgrade a chapter that's already subdivided
+            # (whether by an earlier run or a concurrent fleet/PJ edit).
+            if existing and len(existing) > 1:
+                preserved += 1
+                continue
+            authored = book_authored.get(ch)
+            if authored:
+                clast = last_verse(bid, ch)
+                if authored[0][0] != 1:
+                    print(f"  ERR {name} {ch}: first start != 1"); problems += 1
+                for i in range(1, len(authored)):
+                    if authored[i][0] <= authored[i-1][0]:
+                        print(f"  ERR {name} {ch}: non-increasing starts"); problems += 1
+                    if authored[i][0] > clast:
+                        print(f"  ERR {name} {ch}: start {authored[i][0]} > last verse {clast}"); problems += 1
+                pmap[bk][chs] = build_sections(authored, clast)
+                added_detail += 1
+            elif not existing:
+                clast = last_verse(bid, ch)
+                pmap[bk][chs] = [{"start": 1, "end": clast, "title": f"{name} {ch}"}]
+                baseline += 1
+            else:
+                baseline += 1  # leave existing chapter-level [1] untouched
 
     if problems:
         raise SystemExit(f"{problems} validation problem(s) — fix before writing.")
+    print(f"Chapters: +{added_detail} newly subdivided | {preserved} preserved (already detailed) | {baseline} chapter-level")
 
     after_books = sum(1 for k in pmap if not k.startswith('_'))
     after_sections = sum(sum(len(pmap[k][c]) for c in pmap[k]) for k in pmap if not k.startswith('_'))
     print(f"Books: {before_books} -> {after_books}  (+{after_books - before_books})")
-    print(f"OT books detailed/per-psalm: {authored_books} | chapter-level baseline: {chapterlevel_books}")
     print(f"Total sections now: {after_sections}")
 
     MAP_PATH.write_text(json.dumps(pmap, indent=2, ensure_ascii=False))
