@@ -21,9 +21,9 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
 VOICE_DIR = Path.home() / "Documents" / "05-Voice" / "f5tts-tests"
-REF = VOICE_DIR / "ref-clean.wav"
-REFTEXT = (VOICE_DIR / "ref-clean.txt").read_text().strip() if (VOICE_DIR / "ref-clean.txt").exists() else ""
-REF_SEC = 17.0
+REF = VOICE_DIR / "ref-v3-pad.wav"   # Adam's PHONE recording, expressive exhortation segment, +0.5s pad
+REFTEXT = (VOICE_DIR / "ref-v3-clean.txt").read_text().strip() if (VOICE_DIR / "ref-v3-clean.txt").exists() else ""
+REF_SEC = 16.5
 CPS = 12.5          # chars/sec target pace (empirically faithful)
 BUFFER = 0.6        # seconds of headroom so the first word isn't clipped
 STEPS = 32
@@ -96,6 +96,40 @@ def f5_chunk(text, out_wav):
     return True
 
 
+def trim_bleed(wav, chunk_text, tmp, idx):
+    """F5 sometimes bleeds the tail of the reference in at the START of a chunk.
+    Use Whisper word-timestamps to find where the chunk's own first words begin,
+    and trim everything before that. No-op when there's no bleed."""
+    wav16 = f"{tmp}/b{idx:02d}_16.wav"
+    subprocess.run([FFMPEG, "-hide_banner", "-loglevel", "error", "-y", "-i", wav,
+                    "-ac", "1", "-ar", "16000", wav16], check=True)
+    out = subprocess.run([WHISPER, "-m", WMODEL, "-f", wav16, "-ml", "1"],
+                         capture_output=True, text=True)
+    words = []
+    for l in out.stdout.splitlines():
+        m = re.match(r"\[(\d+):(\d+):([\d.]+).*?\]\s*(.*)", l)
+        if m:
+            t = int(m.group(1)) * 3600 + int(m.group(2)) * 60 + float(m.group(3))
+            wd = re.sub(r"[^a-z]", "", m.group(4).strip().lower())
+            if wd:
+                words.append((t, wd))
+    tgt = [re.sub(r"[^a-z]", "", x.lower()) for x in chunk_text.split()[:3]]
+    tgt = [x for x in tgt if x]
+    if not tgt or len(words) < len(tgt):
+        return wav
+    start = 0.0
+    for i in range(len(words) - len(tgt) + 1):
+        if [words[i + j][1] for j in range(len(tgt))] == tgt:
+            start = words[i][0]
+            break
+    if start > 0.15:
+        trimmed = f"{tmp}/c{idx:02d}_t.wav"
+        subprocess.run([FFMPEG, "-hide_banner", "-loglevel", "error", "-y", "-ss",
+                        f"{start:.2f}", "-i", wav, "-ac", "1", "-ar", "24000", trimmed], check=True)
+        return trimmed
+    return wav
+
+
 def transcribe(wav16):
     out = subprocess.run([WHISPER, "-m", WMODEL, "-f", wav16], capture_output=True, text=True)
     txt = []
@@ -138,6 +172,7 @@ def main():
             print(f"  chunk {i+1}/{len(chunks)} ({len(c)} chars)", flush=True)
             if not f5_chunk(c, w):
                 sys.exit(f"  chunk {i} failed")
+            w = trim_bleed(w, c, tmp, i)   # strip any leading reference bleed
             wavs.append(w)
         listing = f"{tmp}/list.txt"
         Path(listing).write_text("\n".join(f"file '{w}'" for w in wavs) + "\n")

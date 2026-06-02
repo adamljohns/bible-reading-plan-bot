@@ -51,12 +51,17 @@ Adam stages specific files (NEVER `git add -A`); commit per logical batch.
    F5-TTS-MLX, self-verifying faithfulness with Whisper (no human ears needed).
    SOLVED CONFIG: F5 `--duration` is TOTAL SECONDS (ref+gen), output is gen-only.
    `duration = REF_SEC + chars/12.5 + buffer`. "LORD"→"Lord" (all-caps makes F5 say
-   "Lord-D"). No trim. Reference: `~/Documents/05-Voice/f5tts-tests/ref-clean.wav`
-   (Adam's clean Psalm 1 reading, 17s) + `ref-clean.txt`. Verified: full June-2
-   wisdom watch = WER 0.076, speaker similarity 0.883 (resemblyzer venv
-   `~/.venvs/voicesim`; same-speaker ceiling 0.941, generic floor 0.655). Test
-   harness: `~/Documents/05-Voice/f5tts-tests/clone_test.py` (generate→whisper→WER).
-   F5 venv `~/.venvs/f5tts`. Piper (generic) at `~/.venvs/piper` + en_US-ryan-medium.
+   "Lord-D"). BLEED-TRIM: F5 sometimes echoes the reference tail at a chunk's start;
+   `trim_bleed()` uses Whisper word-timestamps to find where the chunk's own first
+   words begin and trims before it (no-op if no bleed).
+   Reference: `~/Documents/05-Voice/f5tts-tests/ref-v3-pad.wav` — Adam's PHONE
+   recording (warmer than laptop mic), the expressive exhortation segment
+   ("Now hear me, brother...", 16s +0.5s pad) + `ref-v3-clean.txt`, REF_SEC=16.5.
+   Verified on full June-2 wisdom: WER ~0.04, speaker similarity 0.913 (resemblyzer
+   venv `~/.venvs/voicesim`; same-speaker ceiling 0.941, generic floor 0.655 — phone
+   ref BEAT the laptop v2's 0.883). Test harness:
+   `~/Documents/05-Voice/f5tts-tests/clone_test.py`. F5 venv `~/.venvs/f5tts`.
+   Piper (generic) at `~/.venvs/piper` + en_US-ryan-medium.
 
 ## VOICE — OPEN WORK (Adam's 2026-06-02 feedback)
 - **Re-record reference on his PHONE** (laptop mic = "metal box"/boxy reverb; phone
