@@ -36,7 +36,9 @@ const { hasStreetAddress, goodAddress } = require('./lib/address-util');
 
 const CHURCHES = path.join(__dirname, '..', 'docs', 'data', 'churches.json');
 const INPUT = process.argv[2] || '/tmp/round-results.json';
-const TODAY = new Date().toISOString().slice(0, 10);
+// Local calendar day (America/New_York), not UTC, so a church touched on the
+// evening of the 2nd is stamped the 2nd rather than rolling to the 3rd.
+const TODAY = new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
 
 const PH = /^(verify|various|unknown|see\s+website|currently|none|listed|tbd|n\/a|the\s+pastor|the\s+church|pastoral|pastor\s*\(|check |contact |not\s+(listed|published)|vacant|interim)/i;
 const JUNK = /(black hawk|hawk down|enjoy|movie|video|book|sermon|story|message|search|committee|jesus|christ|^god$|^lord$|spirit|gospel|kingdom|salvation|baptism|sunday|service)/i;
@@ -61,6 +63,7 @@ let pastors = 0, social = 0, downgrades = 0, flags = 0, addresses = 0, transitio
 for (const r of results) {
   const c = byId.get(String(r.id));
   if (!c) continue;
+  const _before = pastors + social + downgrades + flags + addresses + transitions;
 
   // Address: set only when the church currently lacks a street address and the
   // researched one is a real, geocodable street address. Clear _geocode_failed
@@ -117,7 +120,7 @@ for (const r of results) {
 
   if (r.enrichment_note) {
     if (!Array.isArray(c.enrichment_notes)) c.enrichment_notes = c.enrichment_notes ? [String(c.enrichment_notes)] : [];
-    const stamp = '[agent-research] ' + r.enrichment_note;
+    const stamp = '[' + TODAY + '] [agent-research] ' + r.enrichment_note;
     if (!c.enrichment_notes.includes(stamp)) c.enrichment_notes.push(stamp);
   }
   // SOLE female senior pastor -> RED per rubric
@@ -129,6 +132,11 @@ for (const r of results) {
   }
   // Co-pastor / ambiguous gender cases -> flag for human review, no auto-change
   if (r.review_gender) { c.review_gender = true; flags++; }
+
+  // Stamp a per-church review date whenever this round actually changed the record,
+  // so each church page shows an honest "Last reviewed" date (read by lastReviewed()
+  // in generate-church-pages.js). Untouched churches keep whatever date they had.
+  if (pastors + social + downgrades + flags + addresses + transitions > _before) c.last_reviewed = TODAY;
 }
 
 fs.writeFileSync(CHURCHES, JSON.stringify(data, null, 2) + '\n');

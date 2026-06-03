@@ -25,6 +25,27 @@ const path = require('path');
 const data = JSON.parse(fs.readFileSync(path.join(__dirname, 'docs/data/churches.json'), 'utf8'));
 const outDir = path.join(__dirname, 'docs/churches');
 
+// Site-wide build date — self-maintaining, reflects when pages were last regenerated.
+// Use the local calendar (America/New_York), not UTC: after ~8pm EDT, toISOString()
+// rolls to the next day and the footer would read a day ahead of the real date.
+const BUILD_DATE = new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
+
+// Per-church "last reviewed" date. Prefer the most recent date we actually touched
+// the record: an explicit last_reviewed, then a pastor_transition update, then the
+// latest YYYY-MM-DD stamp inside enrichment_notes. Fall back to the site-wide date
+// only for never-individually-touched records, so a page never claims a review that
+// did not happen.
+function lastReviewed(church) {
+  const dates = [];
+  if (church.last_reviewed) dates.push(church.last_reviewed);
+  if (church.pastor_transition && church.pastor_transition.updated) dates.push(church.pastor_transition.updated);
+  const notes = Array.isArray(church.enrichment_notes) ? church.enrichment_notes.join(' ') : (church.enrichment_notes || '');
+  const stamps = String(notes).match(/\d{4}-\d{2}-\d{2}/g);
+  if (stamps) dates.push(...stamps);
+  const valid = dates.filter(d => /^\d{4}-\d{2}-\d{2}$/.test(d)).sort();
+  return valid.length ? valid[valid.length - 1] : data.meta.updated;
+}
+
 function colorClass(score) {
   if (score === 'green') return 'score-green';
   if (score === 'red') return 'score-red';
@@ -873,7 +894,7 @@ ${(() => {
   <!-- Page metadata -->
   <div style="margin-top:28px;padding:16px;border-top:1px solid var(--border);display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;">
     <div style="color:var(--gray);font-size:0.78rem;">
-      ${ico('shield-checklist-48.png', 12)} Last reviewed: <strong style="color:var(--gray-light);">${data.meta.updated}</strong>
+      ${ico('shield-checklist-48.png', 12)} Last reviewed: <strong style="color:var(--gray-light);">${lastReviewed(church)}</strong>
       <span style="margin-left:8px;opacity:0.6;">— Annual review recommended</span>
     </div>
     <div id="page-views" style="color:var(--gray);font-size:0.78rem;"></div>
@@ -886,7 +907,7 @@ ${(() => {
 
 <footer>
   <p>Fredericksburg Church Directory &mdash; Theological Due Diligence for Christian Men &mdash; <a href="https://usmcmin.org" style="color: var(--gold);">usmcmin.org</a></p>
-  <p style="margin-top: 6px;">Last updated: ${data.meta.updated}</p>
+  <p style="margin-top: 6px;">Last updated: ${BUILD_DATE}</p>
 </footer>
 <script data-goatcounter="https://usmcmin.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 <script>
@@ -895,9 +916,12 @@ ${(() => {
 var pvEl = document.getElementById('page-views');
 if (pvEl) {
   var countImg = document.createElement('img');
-  countImg.src = 'https://usmcmin.goatcounter.com/counter/' + encodeURIComponent(location.pathname) + '.svg';
+  // GoatCounter public counter SVG. Use the RAW pathname with its leading slash
+  // intact; URL-encoding the slashes is what kept this from ever matching a path.
+  countImg.src = 'https://usmcmin.goatcounter.com/counter' + location.pathname + '.svg';
   countImg.alt = 'page views';
-  countImg.style.cssText = 'height:14px;vertical-align:middle;opacity:0.7;';
+  countImg.style.cssText = 'height:13px;vertical-align:middle;opacity:0.75;';
+  countImg.onload = function() { pvEl.appendChild(document.createTextNode(' views')); };
   countImg.onerror = function() { pvEl.textContent = ''; };
   pvEl.appendChild(countImg);
 }
