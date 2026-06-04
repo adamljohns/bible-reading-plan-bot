@@ -960,13 +960,44 @@
 
     // Fuzzy search: strip stop words, match all significant words in any order
     const STOP_WORDS = new Set(['the','of','a','an','in','at','and','or','for','to','on','by','is','it','its','church','churches']);
+    function levenshtein(a, b) {
+        const m = a.length, n = b.length;
+        if (m === 0) return n;
+        if (n === 0) return m;
+        const dp = Array.from({length: m + 1}, () => new Array(n + 1).fill(0));
+        for (let i = 0; i <= m; i++) dp[i][0] = i;
+        for (let j = 0; j <= n; j++) dp[0][j] = j;
+        for (let i = 1; i <= m; i++) {
+            for (let j = 1; j <= n; j++) {
+                dp[i][j] = a[i-1] === b[j-1] ? dp[i-1][j-1] : 1 + Math.min(dp[i-1][j-1], dp[i][j-1], dp[i-1][j]);
+            }
+        }
+        return dp[m][n];
+    }
+
     function fuzzyMatch(query, text) {
         if (!query) return true;
         // Split query into significant words (strip stop words, short words)
         const words = query.split(/\s+/).filter(w => w.length > 1 && !STOP_WORDS.has(w));
         if (words.length === 0) return text.includes(query); // fallback to exact if all stop words
-        // Every significant word must appear somewhere in the text
-        return words.every(w => text.includes(w));
+        // Check: all words appear exactly
+        const exact = words.every(w => text.includes(w));
+        if (exact) return true;
+        // Typo-tolerant fallback: for short queries (≤2 words), allow 1-character edit distance per word
+        if (words.length <= 2) {
+            for (const w of words) {
+                const lowerW = w.toLowerCase();
+                const matched = text.split(/[^a-z0-9]+/i).some(token => {
+                    if (token.toLowerCase() === lowerW) return true;
+                    if (w.length >= 4 && levenshtein(lowerW, token.toLowerCase()) <= 1) return true;
+                    if (levenshtein(lowerW, lowerW) === 0 && text.includes(lowerW)) return true;
+                    return false;
+                });
+                if (!matched) return false;
+            }
+            return true;
+        }
+        return false;
     }
 
     function applyFilters() {
