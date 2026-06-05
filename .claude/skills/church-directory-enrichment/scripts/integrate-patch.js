@@ -42,8 +42,24 @@ if (!fs.existsSync(DATA_PATH)) {
   process.exit(2);
 }
 
-const data = JSON.parse(fs.readFileSync(DATA_PATH, 'utf8'));
+const { findDuplicates } = require(path.join(REPO_ROOT, 'scripts', 'check-duplicate.js'));
+const origBuf = fs.readFileSync(DATA_PATH);
+const data = JSON.parse(origBuf);
 const patch = JSON.parse(fs.readFileSync(patchArg, 'utf8'));
+
+// Serialize churches.json back in the SAME byte format it is already in (ASCII-escaped vs literal
+// Unicode, trailing newline or not), so an add never reformats the whole file or re-encodes every
+// em-dash into a ~50k-line diff. Detected from the unmutated file; defaults to ASCII-escaped.
+const writeChurches = (() => {
+  const esc = s => s.replace(/[^\x00-\x7F]/g, c => '\\u' + c.charCodeAt(0).toString(16).padStart(4, '0'));
+  const body = JSON.stringify(data, null, 2);
+  for (const useEsc of [false, true]) for (const nl of ['\n', '']) {
+    if (origBuf.equals(Buffer.from((useEsc ? esc(body) : body) + nl)))
+      return obj => (useEsc ? esc(JSON.stringify(obj, null, 2)) : JSON.stringify(obj, null, 2)) + nl;
+  }
+  const hadNL = origBuf.length && origBuf[origBuf.length - 1] === 0x0a;
+  return obj => esc(JSON.stringify(obj, null, 2)) + (hadNL ? '\n' : '');
+})();
 
 const baseEng = {
   visited_facility: false,
@@ -94,7 +110,7 @@ if (!Array.isArray(list)) {
 }
 
 const existingIds = new Set(data.churches.map(c => String(c.id)));
-let added = 0, skipped = 0, dedupSkip = 0, vacancyDowngrades = 0;
+let added = 0, skipped = 0, dedupSkip = 0, dupSkipped = 0, vacancyDowngrades = 0;
 
 for (const c of list) {
   if (c._dedup_skip === true) {
@@ -106,8 +122,21 @@ for (const c of list) {
     skipped++;
     continue;
   }
+  // Duplicate gate: refuse a church the directory already holds under a different id/name
+  // (same name+city, or same website+street) — this is what stops the "three Bent Trees".
+  // A genuine exception (e.g. a real second campus the heuristics can't tell apart) can set
+  // `_dedup_force: true` on the record.
+  if (c._dedup_force !== true) {
+    const dupes = findDuplicates(c, data.churches);
+    if (dupes.length) {
+      console.error(`SKIP (duplicate of ${dupes[0].id} — ${dupes[0].reason}): ${c.id} "${c.name || ''}"`);
+      dupSkipped++;
+      continue;
+    }
+  }
   const filled = fill({ ...c });
   delete filled._dedup_skip;
+  delete filled._dedup_force;
   if (typeof filled.pastor === 'string' && /^vacant/i.test(filled.pastor)) {
     filled.overall_rating = 'yellow';
     filled.tags = [...(filled.tags || [])];
@@ -127,11 +156,12 @@ for (const c of list) {
 data.total_churches = data.churches.length;
 data.directory_updated = new Date().toISOString().slice(0, 10);
 
-fs.writeFileSync(DATA_PATH, JSON.stringify(data, null, 2) + '\n');
+fs.writeFileSync(DATA_PATH, writeChurches(data));
 
 console.log('');
 console.log(`Added: ${added}`);
 console.log(`Skipped (slug collision): ${skipped}`);
+console.log(`Skipped (duplicate name/city or website/street): ${dupSkipped}`);
 console.log(`Dedup-skip markers (no-op): ${dedupSkip}`);
 console.log(`Vacancy auto-downgrades: ${vacancyDowngrades}`);
 console.log(`Total: ${data.churches.length}`);

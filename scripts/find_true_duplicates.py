@@ -34,11 +34,10 @@ def normalize_domain(url):
 def normalize_name(name):
     if not name: return ''
     n = name.lower().strip()
-    n = re.sub(r'\bchurch\b', '', n)
-    n = re.sub(r'\bchapel\b', '', n)
-    n = re.sub(r'\bbaptist\b', '', n)
-    n = re.sub(r'\bsbc\b', '', n)
-    n = re.sub(r'\bpca\b', '', n)
+    # Strip generic church-type words so "Bent Tree Bible Fellowship" and "Bent Tree Bible
+    # Church" collapse to the same key. (Domain + street fingerprint still guard the merge.)
+    for w in ('church', 'chapel', 'baptist', 'sbc', 'pca', 'fellowship', 'community', 'ministries', 'ministry'):
+        n = re.sub(r'\b' + w + r'\b', '', n)
     n = re.sub(r"[^a-z0-9]+", ' ', n).strip()
     return n
 
@@ -133,6 +132,12 @@ def main():
                 continue  # skip records without a real street; too risky to dedup
             city, state = extract_city_state(addr)
             name_key = normalize_name(c.get('name', ''))
+            # Drop the city name out of the church name so "<Name> <City>" buckets with "<Name>"
+            # (this is exactly how Bent Tree's third record — "...Carrollton" — evaded the v1 pass).
+            for tok in city.split():
+                if len(tok) >= 4:
+                    name_key = re.sub(r'\b' + re.escape(tok) + r'\b', '', name_key)
+            name_key = re.sub(r'\s+', ' ', name_key).strip()
             if not city or not name_key:
                 continue
             by_key[(name_key, city, state)].append(c)
