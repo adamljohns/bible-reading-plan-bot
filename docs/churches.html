@@ -1028,25 +1028,15 @@
         filters.region = document.getElementById('filter-region').value;
         filters.search = document.getElementById('filter-search').value.toLowerCase().trim();
 
-        // Filter allCards array (set by loadChurches)
+        // Filter the lightweight church index (data only, no DOM) set by loadChurches.
         if (!window._allCards) return;
         const filtered = window._allCards.filter(c => {
-            const card = c.element;
-            const rating = card.dataset.rating;
-            const denomination = card.dataset.denomination;
-            const hasMens = card.dataset.mens === 'true';
-            const hasKids = card.dataset.kids === 'true';
-            const region = card.dataset.region || '';
-            const searchText = card.dataset.search || '';
-
-            const ratingOk = filters.rating === 'all' || rating === filters.rating;
-            const denomOk = filters.denomination === 'all' || denomination === filters.denomination;
-            const mensOk = !filters.mens || hasMens;
-            const kidsOk = !filters.kids || hasKids;
-            const searchOk = fuzzyMatch(filters.search, searchText);
-
-            let regionOk = filters.region === 'all' || region === filters.region;
-
+            const ratingOk = filters.rating === 'all' || c.rating === filters.rating;
+            const denomOk = filters.denomination === 'all' || c.denomination === filters.denomination;
+            const mensOk = !filters.mens || c.mens;
+            const kidsOk = !filters.kids || c.kids;
+            const regionOk = filters.region === 'all' || c.region === filters.region;
+            const searchOk = fuzzyMatch(filters.search, c.search);
             return ratingOk && denomOk && mensOk && kidsOk && regionOk && searchOk;
         });
 
@@ -1127,20 +1117,17 @@
         // Pagination config
         const PAGE_SIZE = 50;
         let currentPage = 1;
-        let allCards = []; // stores {church, element} for filtering
 
-        // Render cards (build all DOM elements but only show PAGE_SIZE at a time)
+        // Lazy rendering: keep a lightweight data index for ALL churches, but only ever put the
+        // current page's PAGE_SIZE cards in the DOM. The directory grew past 28k churches, and
+        // building every card up front (then toggling display on all of them per keystroke) froze
+        // the tab. buildCardEl() makes one card on demand; showPage() renders just the visible 50.
         const grid = document.getElementById('church-grid');
-        sorted.forEach(church => {
+
+        function buildCardEl(church) {
             const isBlack = normalizeRating(church.overall_rating) === 'black';
             const card = document.createElement('div');
             card.className = 'church-card' + (isBlack ? ' black-tier' : '');
-            card.dataset.rating = normalizeRating(church.overall_rating);
-            card.dataset.denomination = church.denomination_family || church.denomination || '';
-            card.dataset.mens = church.has_mens_ministry ? 'true' : 'false';
-            card.dataset.kids = church.has_kids_ministry ? 'true' : 'false';
-            card.dataset.region = church.region || '';
-            card.dataset.search = (church.name + ' ' + (church.pastor || '') + ' ' + (church.denomination || '') + ' ' + (church.address || '') + ' ' + (church.type || '')).toLowerCase();
             card.setAttribute('onclick', 'toggleCard(this)');
 
             // Address (one line — strip duplicate city/zip if long)
@@ -1226,10 +1213,19 @@
                 </div>`;
 
             card.innerHTML = `<div class="rating-stripe ${normalizeRating(church.overall_rating)}"></div>${compactHtml}${expandedHtml}`;
-            card.style.display = 'none'; // hidden by default, pagination controls visibility
-            grid.appendChild(card);
-            allCards.push({ church, element: card });
-        });
+            return card;
+        }
+
+        // Lightweight filterable index (data only, no DOM) for every church.
+        const allCards = sorted.map(church => ({
+            church,
+            rating: normalizeRating(church.overall_rating),
+            denomination: church.denomination_family || church.denomination || '',
+            mens: !!church.has_mens_ministry,
+            kids: !!church.has_kids_ministry,
+            region: church.region || '',
+            search: (church.name + ' ' + (church.pastor || '') + ' ' + (church.denomination || '') + ' ' + (church.address || '') + ' ' + (church.type || '')).toLowerCase(),
+        }));
 
         // Pagination controls
         function showPage(page, filtered) {
@@ -1239,11 +1235,11 @@
             const start = (currentPage - 1) * PAGE_SIZE;
             const end = start + PAGE_SIZE;
 
-            // Hide all, show current page
-            allCards.forEach(c => c.element.style.display = 'none');
-            cards.forEach((c, i) => {
-                c.element.style.display = (i >= start && i < end) ? '' : 'none';
-            });
+            // Render ONLY this page's cards into the grid; the rest remain as data.
+            const frag = document.createDocumentFragment();
+            cards.slice(start, end).forEach(c => frag.appendChild(buildCardEl(c.church)));
+            grid.innerHTML = '';
+            grid.appendChild(frag);
 
             // Update visible count
             document.getElementById('visible-count').textContent = cards.length;
