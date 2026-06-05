@@ -930,14 +930,17 @@ if (pvEl) {
 </html>`;
 }
 
-// Generate all church pages
+// Generate church pages. `--only id1,id2,...` regenerates just those records (fast, no
+// whole-directory churn — e.g. after editing or pruning a handful); no flag = full rebuild.
+const onlyArg = (() => { const i = process.argv.indexOf('--only'); return i >= 0 && process.argv[i + 1] ? new Set(process.argv[i + 1].split(',').map(s => s.trim()).filter(Boolean)) : null; })();
 let count = 0;
 data.churches.forEach(church => {
+  if (onlyArg && !onlyArg.has(String(church.id))) return;
   const html = buildPage(church);
   const outPath = path.join(outDir, `${church.id}.html`);
   fs.writeFileSync(outPath, html);
   count++;
-  console.log(`✅ ${church.id}.html`);
+  if (!onlyArg) console.log(`✅ ${church.id}.html`);
 });
 
 // Generate index redirect
@@ -953,7 +956,9 @@ const indexHtml = `<!DOCTYPE html>
   <script>window.location.href = '/churches.html';</script>
 </body>
 </html>`;
-fs.writeFileSync(path.join(outDir, 'index.html'), indexHtml);
-console.log(`✅ index.html (redirect)`);
+if (!onlyArg) {
+  fs.writeFileSync(path.join(outDir, 'index.html'), indexHtml);
+  console.log(`✅ index.html (redirect)`);
+}
 
-console.log(`\n🎉 Generated ${count} church pages + index.html`);
+console.log(onlyArg ? `\n🎉 Regenerated ${count} page(s): ${[...onlyArg].join(', ')}` : `\n🎉 Generated ${count} church pages + index.html`);
