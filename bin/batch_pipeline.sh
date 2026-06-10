@@ -82,6 +82,8 @@ ls docs/dictionary/*.html | xargs -n1 basename | sed 's/.html$//' \
 wc -l < data/dictionary-slugs.txt | xargs echo "slugs:"
 echo "== manifest =="
 python3 bin/build_dict_manifest.py 2>&1 | grep "File size"
+echo "== enhance entry pages (anchors, In-the-Text, disambiguation) =="
+python3 bin/enhance_entry_pages.py 2>&1 | tail -4
 echo "== post-flight: corpus integrity audit =="
 python3 bin/dict_integrity_audit.py --quiet | tail -3
 echo "== DONE =="

@@ -77,11 +77,16 @@
         a, a:link, a:visited { color: var(--gold, #D4AF37) !important; }
         a:hover { color: var(--gold-light, #F4D470) !important; }
         .search-wrap { max-width:500px; margin:0 auto 24px; position:relative; }
-        .search-wrap input { width:100%; padding:12px 18px 12px 42px; background:var(--card); border:1px solid var(--border); border-radius:50px; color:var(--white); font-size:0.95rem; outline:none; transition:border-color 0.2s; font-family:'Inter',sans-serif; }
+        .search-wrap input { width:100%; padding:12px 110px 12px 42px; background:var(--card); border:1px solid var(--border); border-radius:50px; color:var(--white); font-size:0.95rem; outline:none; transition:border-color 0.2s; font-family:'Inter',sans-serif; }
         .search-wrap input:focus { border-color:var(--gold); }
         .search-wrap input::placeholder { color:#555; }
         .search-icon { position:absolute; left:15px; top:50%; transform:translateY(-50%); color:var(--gray); pointer-events:none; }
         .range-bar { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-bottom:28px; }
+        .letter-bar { display:flex; flex-wrap:wrap; gap:4px; justify-content:center; margin:0 0 14px; }
+        .letter-btn { background:transparent; border:1px solid var(--border); color:var(--gray); font-size:0.8rem; min-width:30px; padding:4px 0; border-radius:6px; cursor:pointer; transition:all 0.15s; }
+        .letter-btn:hover { border-color:var(--gold); color:var(--gold); }
+        .random-btn { background:transparent; border:1px solid var(--border); color:var(--gold); font-size:0.85rem; padding:8px 14px; border-radius:8px; cursor:pointer; white-space:nowrap; transition:all 0.15s; position:absolute; right:6px; top:50%; transform:translateY(-50%); }
+        .random-btn:hover { border-color:var(--gold); box-shadow:0 0 10px rgba(212,175,55,0.15); }
         .range-btn { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:8px 18px; color:var(--gray); font-size:0.88rem; font-family:'Inter',sans-serif; cursor:pointer; transition:all 0.2s; display:flex; align-items:center; gap:6px; }
         .range-btn:hover { border-color:var(--gold); color:var(--gold); }
         .range-btn.open { border-color:var(--gold); background:rgba(212,175,55,0.12); color:var(--gold); }
@@ -326,15 +331,28 @@
         <!-- Word of the Day -->
         <div class="wotd-widget" id="wotdWidget"></div>
 
-        <!-- Names sub-page callout -->
-        <div class="names-callout">
-            <a href="names.html"><img src="../assets/icons/shield-book-greek-48.png" alt=""> Biblical Names &mdash; focused word-study index &rarr;</a>
+        <!-- Special Directories — kept ABOVE the entry list so curated
+             entry-points (Baby Names, By Topic...) are visible without
+             scrolling past 5,000+ entries -->
+        <div class="featured-section">
+            <h3>&#x1F48E; Special Directories</h3>
+            <p class="subtitle">Curated sub-collections &mdash; start here if you want a focused entry-point into the dictionary.</p>
+            <div class="featured-grid">
+                <a href="by-topic.html" class="featured-card"><div class="fword">Browse by Topic</div><div class="ftag">11 categories &middot; 306 entries</div></a>
+                <a href="baby-names.html" class="featured-card"><div class="fword">Baby Names</div><div class="ftag">236 curated &middot; 864 with variants</div></a>
+                <a href="names.html" class="featured-card"><div class="fword">Biblical Names</div><div class="ftag">A-Z proper names</div></a>
+                <a href="doctrinal-anchors.html" class="featured-card"><div class="fword">Doctrinal Anchors</div><div class="ftag">Foundational</div></a>
+                <a href="biblical-order.html" class="featured-card"><div class="fword">Biblical Order</div><div class="ftag">Headship &middot; roles</div></a>
+                <a href="expressly-prohibited.html" class="featured-card"><div class="fword">Expressly Prohibited</div><div class="ftag">Forbidden</div></a>
+                <a href="most-corrupted.html" class="featured-card"><div class="fword">Most Corrupted</div><div class="ftag">Words at war</div></a>
+            </div>
         </div>
 
-        <!-- Search -->
+        <!-- Search + Random -->
         <div class="search-wrap">
             <span class="search-icon">🔍</span>
             <input type="text" id="dictSearch" placeholder="Search entries&hellip;" autocomplete="off" oninput="filterDict(this.value)">
+            <button class="random-btn" onclick="randomEntry()" title="Open a random entry">&#x1F3B2; Random</button>
         </div>
 
         <!-- Search results (shown when searching) -->
@@ -345,6 +363,7 @@
 
         <!-- Range buttons (hidden during search) -->
         <div id="rangeSection">
+            <div class="letter-bar" id="letterBar"></div>
             <div class="range-bar">
                 <button class="range-btn" id="btn-AD" onclick="toggleRange('range-AD','btn-AD')"><span class="rarrow"></span> A &ndash; D</button>
                 <button class="range-btn" id="btn-EI" onclick="toggleRange('range-EI','btn-EI')"><span class="rarrow"></span> E &ndash; I</button>
@@ -5877,21 +5896,6 @@
             </div>
         </div><!-- /#rangeSection -->
 
-        <!-- Special Directories — surfaced for visibility -->
-        <div class="featured-section">
-            <h3>&#x1F48E; Special Directories</h3>
-            <p class="subtitle">Curated sub-collections &mdash; start here if you want a focused entry-point into the dictionary.</p>
-            <div class="featured-grid">
-                <a href="by-topic.html" class="featured-card"><div class="fword">Browse by Topic</div><div class="ftag">11 categories &middot; 306 entries</div></a>
-                <a href="baby-names.html" class="featured-card"><div class="fword">Baby Names</div><div class="ftag">236 curated &middot; 864 with variants</div></a>
-                <a href="names.html" class="featured-card"><div class="fword">Biblical Names</div><div class="ftag">A-Z proper names</div></a>
-                <a href="doctrinal-anchors.html" class="featured-card"><div class="fword">Doctrinal Anchors</div><div class="ftag">Foundational</div></a>
-                <a href="biblical-order.html" class="featured-card"><div class="fword">Biblical Order</div><div class="ftag">Headship &middot; roles</div></a>
-                <a href="expressly-prohibited.html" class="featured-card"><div class="fword">Expressly Prohibited</div><div class="ftag">Forbidden</div></a>
-                <a href="most-corrupted.html" class="featured-card"><div class="fword">Most Corrupted</div><div class="ftag">Words at war</div></a>
-            </div>
-        </div>
-
         <!-- Featured Entries &mdash; Doctrinal Anchors -->
         <div class="featured-section">
             <h3><a href="doctrinal-anchors.html" class="section-title-link"><img src="../assets/icons/shield-chain-salvation-48.png" alt="" width="20" height="20"> Doctrinal Anchors <span class="see-all">browse all &rarr;</span></a></h3>
@@ -6306,6 +6310,47 @@
             panel.classList.add('open');
             btn.classList.add('open');
         }
+    }
+    // A-Z letter bar: opens the right range and scrolls to the first entry
+    // beginning with that letter.
+    (function buildLetterBar() {
+        var bar = document.getElementById('letterBar');
+        if (!bar) return;
+        var ranges = [['A','D','range-AD','btn-AD'],['E','I','range-EI','btn-EI'],
+                      ['J','N','range-JN','btn-JN'],['O','S','range-OS','btn-OS'],
+                      ['T','Z','range-TZ','btn-TZ']];
+        for (var c = 65; c <= 90; c++) {
+            var L = String.fromCharCode(c);
+            var b = document.createElement('button');
+            b.className = 'letter-btn';
+            b.textContent = L;
+            b.onclick = (function(letter) { return function() { jumpLetter(letter, ranges); }; })(L);
+            bar.appendChild(b);
+        }
+    })();
+    function jumpLetter(L, ranges) {
+        for (var i = 0; i < ranges.length; i++) {
+            if (L >= ranges[i][0] && L <= ranges[i][1]) {
+                var panel = document.getElementById(ranges[i][2]);
+                var btn = document.getElementById(ranges[i][3]);
+                if (!panel.classList.contains('open')) toggleRange(ranges[i][2], ranges[i][3]);
+                var cards = panel.querySelectorAll('.word-card .word');
+                for (var j = 0; j < cards.length; j++) {
+                    if (cards[j].textContent.trim().toUpperCase().charAt(0) === L) {
+                        cards[j].closest('.word-card').scrollIntoView({behavior:'smooth', block:'start'});
+                        return;
+                    }
+                }
+                panel.scrollIntoView({behavior:'smooth', block:'start'});
+                return;
+            }
+        }
+    }
+    function randomEntry() {
+        var cards = document.querySelectorAll('#rangeSection .word-card');
+        if (!cards.length) return;
+        var pick = cards[Math.floor(Math.random() * cards.length)];
+        window.location.href = pick.getAttribute('href');
     }
     function filterDict(q) {
         var sr = document.getElementById('searchResults');
