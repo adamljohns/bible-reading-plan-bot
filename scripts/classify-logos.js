@@ -74,7 +74,8 @@ async function classify(buf) {
 }
 
 async function main() {
-  const data = JSON.parse(fs.readFileSync(CHURCHES, 'utf8'));
+  // Byte-format-preserving read+write — see scripts/lib/format-preserving-write.js
+  const { data, write: writeChurches } = require('./lib/format-preserving-write.js').makeWriter(CHURCHES);
   let queue = data.churches.filter(c => c.image_thumb && /^https?:/i.test(c.image_thumb));
   if (ONLY_ID) queue = queue.filter(c => String(c.id || c.slug) === ONLY_ID);
   else if (!FORCE) queue = queue.filter(c => !c.image_thumb_lum && !c.image_thumb_bad);
@@ -104,7 +105,7 @@ async function main() {
     }
   }
   await Promise.all(Array.from({ length: CONCURRENCY }, worker));
-  fs.writeFileSync(CHURCHES, JSON.stringify(data, null, 2) + '\n');
+  writeChurches(data);
   console.log('Classified ' + done + ': ' + light + ' light, ' + dark + ' dark, ' + badN + ' blank/hidden, ' + fail + ' failed (left for retry).');
 }
 

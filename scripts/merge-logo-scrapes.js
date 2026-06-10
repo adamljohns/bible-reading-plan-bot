@@ -44,7 +44,9 @@ for (const l of fs.readFileSync(JSONL, 'utf8').split('\n').filter(Boolean)) {
 }
 console.log('Loaded ' + results.size + ' logo results from ' + JSONL);
 
-const data = JSON.parse(fs.readFileSync(CHURCHES, 'utf8'));
+// Byte-format-preserving read+write (ASCII-escaped, no trailing newline) — a plain
+// JSON.stringify here used to re-encode every em-dash into a ~50k-line diff.
+const { data, write: writeChurches } = require('./lib/format-preserving-write.js').makeWriter(CHURCHES);
 let setLogo = 0, clearedLogo = 0, clearedHero = 0;
 
 for (const c of data.churches) {
@@ -85,6 +87,6 @@ for (const c of data.churches) {
   }
 }
 
-fs.writeFileSync(CHURCHES, JSON.stringify(data, null, 2) + '\n');
+writeChurches(data);
 console.log('Set ' + setLogo + ' header logos.');
 console.log('Cleared ' + clearedLogo + ' contaminated logos, ' + clearedHero + ' contaminated heroes.');
