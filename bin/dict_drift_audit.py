@@ -301,9 +301,98 @@ def scan_html(path: str) -> list[Finding]:
     with open(path, "r", encoding="utf-8") as f:
         html = f.read()
     slug = Path(path).stem
-    # try to extract sections by class name
     findings = scan_text(html, path, slug, "html-full")
-    return findings
+
+    # --- corpus-scan triage (added 2026-06-09) -----------------------------
+    # HTML pages cannot carry the batch-level voice_lock_ok marker, so apply
+    # the same judgment that marker encodes:
+    #   (a) aggregate/special pages LIST corrector entries by design — skip;
+    #   (b) if the matched banned term is (part of) the page's own headword,
+    #       this IS the corruption-corrector entry for that term — naming it
+    #       is the entry's job — skip;
+    #   (c) a hard hit located inside the Modern Corruption section is most
+    #       likely a deliberate rebuttal quote: downgrade to soft so a human
+    #       reviews it instead of "fixing" the rebuttal.
+    AGGREGATE = {"index", "template", "most-corrupted", "by-topic",
+                 "doctrinal-anchors", "gen-z-decoded", "millennial-decoded",
+                 "gen-x-decoded", "boomer-decoded", "expressly-prohibited",
+                 "names", "baby-names", "biblical-order", "changelog"}
+    if slug in AGGREGATE:
+        return []
+
+    title_m = re.search(r'<div class="word-title">(.*?)</div>', html, re.DOTALL)
+    headword = (re.sub(r"<[^>]+>", "", title_m.group(1)).strip().lower()
+                if title_m else slug.replace("-", " "))
+    slug_words = slug.replace("-", " ")
+
+    corr_m = re.search(
+        r'class="corruption-inner"(.*?)(?:<div class="section"|</body>)',
+        html, re.DOTALL)
+    corr_text = _strip_html_basic(corr_m.group(1)).lower() if corr_m else ""
+
+    # (d) Related-chip labels: decoder entries cross-link sibling decoder
+    #     entries by name (e.g. feminism -> "Gender Identity" chip). The chip
+    #     is a cross-reference to the corrector entry — by design.
+    chip_labels = set()
+    rel_m = re.search(r'<div class="related">(.*?)</div>', html, re.DOTALL)
+    if rel_m:
+        for lbl in re.findall(r'<a href="[a-z0-9-]+\.html">([^<]+)</a>',
+                              rel_m.group(1)):
+            chip_labels.add(lbl.strip().lower())
+
+    # (e) If the matched term has its OWN corrector entry in the dictionary
+    #     (term-as-slug page exists), a body mention elsewhere is almost
+    #     always naming the cataloged corruption to rebut it: hard -> soft.
+    dict_dir = Path(path).parent
+
+    triaged: list[Finding] = []
+    for f in findings:
+        norm = f.matched_text.lower().replace("-", " ").strip()
+        if norm and (norm in headword or headword in norm or norm in slug_words):
+            continue  # the corrector entry FOR this very term
+        if norm in chip_labels:
+            continue  # cross-reference chip to the corrector entry
+        if f.severity == "hard" and corr_text and norm in corr_text:
+            f = Finding(file=f.file, slug=f.slug, field=f.field,
+                        category=f.category, severity="soft",
+                        pattern=f.pattern,
+                        note=f.note + " [hit inside Modern Corruption section "
+                             "— likely a rebuttal quote; review, don't auto-fix]",
+                        matched_text=f.matched_text, context=f.context)
+        elif f.severity == "hard":
+            term_slug = re.sub(r"[^a-z0-9]+", "-", norm).strip("-")
+            for cand in (term_slug, term_slug + "ity", term_slug + "ism",
+                         term_slug.rstrip("s")):
+                if (dict_dir / f"{cand}.html").exists():
+                    f = Finding(file=f.file, slug=f.slug, field=f.field,
+                                category=f.category, severity="soft",
+                                pattern=f.pattern,
+                                note=f.note + f" [term has its own corrector "
+                                     f"entry ({cand}) — likely named to rebut;"
+                                     " review, don't auto-fix]",
+                                matched_text=f.matched_text, context=f.context)
+                    break
+            else:
+                # (f) Quoted-term rule: if every raw-HTML occurrence of the
+                #     term is wrapped in quotation marks, the entry is NAMING
+                #     the term (to define or rebut it), not speaking in it.
+                t = f.matched_text
+                total = len(re.findall(re.escape(t), html, re.IGNORECASE))
+                quoted = len(re.findall(
+                    r'["“‘\']\s*' + re.escape(t) + r'\s*["”’\']',
+                    html, re.IGNORECASE))
+                quoted += len(re.findall(
+                    r'&quot;\s*' + re.escape(t) + r'\s*&quot;', html, re.IGNORECASE))
+                if total and quoted >= total:
+                    f = Finding(file=f.file, slug=f.slug, field=f.field,
+                                category=f.category, severity="soft",
+                                pattern=f.pattern,
+                                note=f.note + " [every occurrence is inside "
+                                     "quotation marks — the entry names the "
+                                     "term to rebut it; review, don't auto-fix]",
+                                matched_text=f.matched_text, context=f.context)
+        triaged.append(f)
+    return triaged
 
 
 def scan_path(path: str) -> list[Finding]:

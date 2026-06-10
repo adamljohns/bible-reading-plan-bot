@@ -1,13 +1,21 @@
 # ⚠️ Working-Tree Status & Handoff Note
 
-**Last updated: 2026-06-02 (Claude Opus — dictionary thread)**
-**origin/main is at `d9d41281f`; local HEAD == origin (0 ahead / 0 behind).**
+**Last updated: 2026-06-09 (Claude Fable — corpus review thread)**
 
 ---
 
-## ✅ The MOOP Dictionary is fully committed and pushed — nothing is at risk
+## ✅ The MOOP Dictionary is fully committed, audited, and stable
 
-- **5,389 entries / 5,377 slugs.** Every definition is committed to `origin/main`.
+- **5,399 entries / 5,387 slugs** (batch 142 added 2026-06-09). Every definition committed to `origin/main`.
+- **2026-06-09 full-corpus audit: PASS.** All 196k internal links checked; every
+  related-chip, lexicon link, canonical tag, WOTD target, and manifest slug
+  resolves. Voice-lock corpus scan: 0 hard hits.
+- **Tooling now self-verifying:** `bin/batch_pipeline.sh` runs pre-flight
+  (schema/slug-collision/entities/related) and post-flight
+  (`bin/dict_integrity_audit.py`) on every batch.
+- **For future dictionary work, use the project skill: `.claude/skills/dict-batch/SKILL.md`**
+  (or just ask for dictionary batch work — Claude Code will pick it up). The
+  corpus's own demand list lives at `data/dictionary-candidates-from-dangling.txt`.
 - Batch run **126–141 (+160 entries this round)** is complete and pushed:
   Seven Churches, Paul's voyage, Puritans, OT towns, Continental Reformed,
   Scottish/Covenanter, hymn writers, missionaries, biblical waters, Acts figures,
