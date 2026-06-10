@@ -968,4 +968,17 @@ const { writeIndex } = require('./scripts/build-church-index.js');
 const idxBytes = writeIndex(data, path.join(__dirname, 'docs/data/churches-index.json'));
 console.log(`✅ churches-index.json (${(idxBytes / 1048576).toFixed(1)} MB, ${data.churches.length} churches)`);
 
+// Resync per-state + per-denomination-family shards. Both builders are write-if-changed,
+// so this is near-free when the data didn't move and shards can never drift from churches.json.
+const { execSync } = require('child_process');
+for (const script of ['build_state_shards.py', 'build_denomination_shards.py']) {
+  try {
+    const out = execSync(`python3 scripts/${script}`, { cwd: __dirname, encoding: 'utf8' });
+    const inv = (out.match(/invariant.*/) || ['done'])[0].trim();
+    console.log(`✅ ${script}: ${inv}`);
+  } catch (e) {
+    console.error(`⚠️  ${script} failed: ${String(e.message).slice(0, 200)}`);
+  }
+}
+
 console.log(onlyArg ? `\n🎉 Regenerated ${count} page(s): ${[...onlyArg].join(', ')}` : `\n🎉 Generated ${count} church pages + index.html`);

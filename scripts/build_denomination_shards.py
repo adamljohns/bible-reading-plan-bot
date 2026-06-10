@@ -32,6 +32,22 @@ SOURCE = ROOT / "docs/data/churches.json"
 OUT_DIR = ROOT / "docs/data/churches/by-denomination-family"
 
 
+def write_if_changed(path, payload):
+    """Write a shard only when content (ignoring shard_generated_at) actually changed.
+
+    Mirrors build_state_shards.py: invoked from generate-church-pages.js, so an
+    unchanged shard must not churn a fresh timestamp into every commit."""
+    if path.exists():
+        try:
+            old = json.loads(path.read_text())
+            if old == dict(payload, shard_generated_at=old.get("shard_generated_at")):
+                return False
+        except (json.JSONDecodeError, OSError):
+            pass
+    path.write_text(json.dumps(payload, indent=2, ensure_ascii=False))
+    return True
+
+
 def slugify(value):
     """Turn 'Presbyterian (PCA)' into 'presbyterian-pca'."""
     s = (value or "").lower().strip()
@@ -101,7 +117,7 @@ def main():
             "record_count": len(records),
             "churches": records,
         }
-        shard_path.write_text(json.dumps(shard_data, indent=2, ensure_ascii=False))
+        write_if_changed(shard_path, shard_data)
         size_kb = shard_path.stat().st_size / 1024
         shard_stats[slug] = {
             "family": fam_name,
@@ -119,7 +135,7 @@ def main():
         "record_count": len(empty_family),
         "churches": empty_family,
     }
-    empty_path.write_text(json.dumps(empty_data, indent=2, ensure_ascii=False))
+    write_if_changed(empty_path, empty_data)
 
     # Verify invariant
     total_sharded = sum(s["count"] for s in shard_stats.values()) + len(empty_family)
@@ -140,7 +156,7 @@ def main():
     del index_data["rubric"]
 
     index_path = OUT_DIR / "_index.json"
-    index_path.write_text(json.dumps(index_data, indent=2, ensure_ascii=False))
+    write_if_changed(index_path, index_data)
 
     # Report
     print()

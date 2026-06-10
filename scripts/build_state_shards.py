@@ -48,6 +48,22 @@ OUT_DIR = ROOT / "docs/data/churches/by-state"
 US_STATES = sorted('AL AK AZ AR CA CO CT DE FL GA HI ID IL IN IA KS KY LA ME MD MA MI MN MS MO MT NE NV NH NJ NM NY NC ND OH OK OR PA RI SC SD TN TX UT VT VA WA WV WI WY DC'.split())
 
 
+def write_if_changed(path, payload):
+    """Write a shard only when content (ignoring shard_generated_at) actually changed.
+
+    This script is invoked at the end of every generate-church-pages.js run; an
+    unchanged shard must not churn a fresh timestamp into every commit."""
+    if path.exists():
+        try:
+            old = json.loads(path.read_text())
+            if old == dict(payload, shard_generated_at=old.get("shard_generated_at")):
+                return False
+        except (json.JSONDecodeError, OSError):
+            pass
+    path.write_text(json.dumps(payload, indent=2, ensure_ascii=False))
+    return True
+
+
 def main():
     print(f"Reading {SOURCE.relative_to(ROOT)}...")
     data = json.loads(SOURCE.read_text())
@@ -115,7 +131,7 @@ def main():
             "record_count": len(records),
             "churches": records,
         }
-        shard_path.write_text(json.dumps(shard_data, indent=2, ensure_ascii=False))
+        write_if_changed(shard_path, shard_data)
         size_kb = shard_path.stat().st_size / 1024
         shard_stats[state] = {
             "count": len(records),
@@ -132,7 +148,7 @@ def main():
         "record_count": len(unstated),
         "churches": unstated,
     }
-    unstated_path.write_text(json.dumps(unstated_data, indent=2, ensure_ascii=False))
+    write_if_changed(unstated_path, unstated_data)
 
     # Write _foreign shard if any (state field set to non-US code — anomaly)
     if foreign_or_unknown:
@@ -144,7 +160,7 @@ def main():
             "record_count": len(foreign_or_unknown),
             "churches": foreign_or_unknown,
         }
-        foreign_path.write_text(json.dumps(foreign_data, indent=2, ensure_ascii=False))
+        write_if_changed(foreign_path, foreign_data)
 
     # Write _international shard (records with country_code != US and no state)
     international_path = OUT_DIR / "_international.json"
@@ -157,7 +173,7 @@ def main():
         "by_country": {k: len(v) for k, v in sorted(by_country.items())},
         "churches": [c for k in sorted(by_country.keys()) for c in by_country[k]],
     }
-    international_path.write_text(json.dumps(international_data, indent=2, ensure_ascii=False))
+    write_if_changed(international_path, international_data)
 
     # Verify invariant
     total_sharded = sum(s["count"] for s in shard_stats.values()) + len(unstated) + len(foreign_or_unknown) + international_total
@@ -178,7 +194,7 @@ def main():
         "by_state": shard_stats,
     }
     index_path = OUT_DIR / "_index.json"
-    index_path.write_text(json.dumps(index_data, indent=2, ensure_ascii=False))
+    write_if_changed(index_path, index_data)
 
     # Report
     print()
