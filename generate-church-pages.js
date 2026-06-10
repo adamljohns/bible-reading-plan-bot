@@ -961,4 +961,11 @@ if (!onlyArg) {
   console.log(`✅ index.html (redirect)`);
 }
 
+// Always rebuild the slim directory index (churches.html + sitemap.html load this instead of
+// the full 61 MB churches.json). Runs on --only too, so single-church edits refresh it as well
+// and the index can never drift from churches.json under the standard regen-then-push workflow.
+const { writeIndex } = require('./scripts/build-church-index.js');
+const idxBytes = writeIndex(data, path.join(__dirname, 'docs/data/churches-index.json'));
+console.log(`✅ churches-index.json (${(idxBytes / 1048576).toFixed(1)} MB, ${data.churches.length} churches)`);
+
 console.log(onlyArg ? `\n🎉 Regenerated ${count} page(s): ${[...onlyArg].join(', ')}` : `\n🎉 Generated ${count} church pages + index.html`);

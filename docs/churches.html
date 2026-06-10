@@ -1077,7 +1077,9 @@
 
     /* ── Load + Render ── */
     async function loadChurches() {
-        const res = await fetch('data/churches.json');
+        // Slim index (~20 MB vs the full 61 MB churches.json) — card fields only; full detail
+        // lives on the per-church pages. Rebuilt by scripts/build-church-index.js on every regen.
+        const res = await fetch('data/churches-index.json');
         const data = await res.json();
 
         // Build rubric panel
@@ -1123,6 +1125,9 @@
         // building every card up front (then toggling display on all of them per keystroke) froze
         // the tab. buildCardEl() makes one card on demand; showPage() renders just the visible 50.
         const grid = document.getElementById('church-grid');
+
+        // scores in churches-index.json are a 10-char string in rubric order: g/y/r/b, '-' = unscored
+        const SCORE_CHAR = { g: 'green', y: 'yellow', r: 'red', b: 'black' };
 
         function buildCardEl(church) {
             const isBlack = normalizeRating(church.overall_rating) === 'black';
@@ -1172,7 +1177,7 @@
 
             // Scorecard rows (denomination NOT repeated here since it's in compact)
             const scorecardRowsHtml = data.rubric.map((r, i) => {
-                const rawScore = church.scores[r.id]; const score = (rawScore !== undefined && rawScore !== null && rawScore !== '') ? normalizeScore(rawScore) : 'gray';
+                const score = SCORE_CHAR[(church.scores || '')[i]] || 'gray';
                 const note = church.score_notes && church.score_notes[r.id];
                 const genderDetail = (r.id === 'gender' && church.gender_detail) ? church.gender_detail : null;
 
@@ -1309,11 +1314,11 @@
         <a href="sitemap.html" style="color:var(--gray,#888);text-decoration:none;"><img src="assets/icons/shield-map-48.png" style="vertical-align:middle;opacity:0.8;" alt="" width="16" height="16"> Site Map</a></p>
     <p style="margin-top:10px;"><a href="https://www.instagram.com/alj4000bc31oct1517sep78" style="color:var(--gray,#888);text-decoration:none;opacity:0.6;" target="_blank">IG</a> &middot; <a href="https://www.linkedin.com/in/uniting-serving-mentoring-and-counseling-ministries-est2022" style="color:var(--gray,#888);text-decoration:none;opacity:0.6;" target="_blank">LinkedIn</a> &middot; <a href="https://www.youtube.com/@USMC_Ministries" style="color:var(--gray,#888);text-decoration:none;opacity:0.6;" target="_blank">YouTube</a> &middot; <a href="https://x.com/Just_A_Man67" style="color:var(--gray,#888);text-decoration:none;opacity:0.6;" target="_blank">X</a></p>
     <p style="margin-top:8px;font-size:0.78rem;color:#555;">&ldquo;Watch, stand fast in the faith, be brave, be strong.&rdquo; &mdash; <a href="bible.html?ref=1+Corinthians+16:13" style="color:var(--gold,#D4AF37);text-decoration:underline;">1 Corinthians 16:13</a> &middot; Built for the brotherhood.</p>
-    <p style="margin-top:6px;font-size:0.72rem;color:#444;letter-spacing:1px;">MOOP Church Directory V7.0.0 &middot; <span data-church-count>28,584</span> churches &middot; Updated <span data-directory-updated>2026-05-27</span> &middot; <a href="directory-overview.html" style="color:var(--gold,#D4AF37);text-decoration:none;">Progress overview</a></p>
+    <p style="margin-top:6px;font-size:0.72rem;color:#444;letter-spacing:1px;">MOOP Church Directory V7.1.0 &middot; <span data-church-count>28,517</span> churches &middot; Updated <span data-directory-updated>2026-06-02</span> &middot; <a href="directory-overview.html" style="color:var(--gold,#D4AF37);text-decoration:none;">Progress overview</a></p>
 </footer>
 <script>
-    // Live-update church count + last-updated date from churches.json
-    fetch('data/churches.json').then(r => r.json()).then(d => {
+    // Live-update church count + last-updated date from the slim index
+    fetch('data/churches-index.json').then(r => r.json()).then(d => {
         var n = (d.total_churches || (d.churches || d).length || 0).toLocaleString();
         document.querySelectorAll('[data-church-count]').forEach(el => el.textContent = n);
         if (d.directory_updated) document.querySelectorAll('[data-directory-updated]').forEach(el => el.textContent = d.directory_updated);
