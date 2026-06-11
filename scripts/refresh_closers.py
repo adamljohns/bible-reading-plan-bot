@@ -26,11 +26,17 @@ import generate_reading_local as G
 from build_reading_index import split_watches
 
 MODEL, PORT = "qwen3.6-35b-a3b", "1235"
+# Round 1 targeted the hold-the-line family. Round 2 (2026-06-10) adds the
+# pre-existing "Anchor your ..." mega-family (294 closers, 16.5% of corpus)
+# and the other surviving stock lines found in the post-round-1 QA.
 STOCK = re.compile(r"hold (the|your) line|hold fast|tide of compromise|wave of compromise|"
-                   r"hold the wall|breach your deck|no wave of", re.I)
+                   r"hold the wall|breach your deck|no wave of|"
+                   r"anchor your (soul|heart|authority|home|hope|mind|family|household)|"
+                   r"secure the spiritual perimeter|anchor your\b", re.I)
 CLOSER_RE = re.compile(r"^(\s*⚓\s*(?:Helm Command|Rudder Steer)\s*[:：]\s*)(.+?)\s*$")
 BANNED = re.compile(r"hold (the|your) line|hold fast|tide of|wave of|breach your deck|"
-                    r"compromise|stand firm in the truth|sword of the spirit", re.I)
+                    r"compromise|stand firm in the truth|sword of the spirit|"
+                    r"\banchor\b|spiritual perimeter|^Brother,", re.I)
 _seen = set()
 
 
@@ -54,10 +60,12 @@ def gen_closer(label, scrip, refl):
             f"Reflection (excerpt): {refl}\n\n"
             f"Write ONE fresh '{label}' — a vivid nautical, military, watchman, forge, or "
             f"harvest command drawn from the SPECIFIC imagery of THIS passage. Direct, masculine, "
-            f"reverent; you may address the reader as 'brother'. BANNED (never use): 'hold the "
-            f"line', 'hold fast', 'tide of compromise', 'wave of compromise', 'breach your deck', "
-            f"'stand firm in the truth', 'sword of the Spirit'. Make it specific to this text, not "
-            f"a stock phrase. One sentence ending in a period.")
+            f"reverent. Do NOT open with 'Brother,' — begin with the imperative verb itself "
+            f"(mid-sentence 'brother' is fine, sparingly). BANNED words/phrases (never use): "
+            f"'anchor', 'hold the line', 'hold fast', 'tide of compromise', 'wave of compromise', "
+            f"'breach your deck', 'stand firm in the truth', 'sword of the Spirit', 'spiritual "
+            f"perimeter'. Make it specific to this text, not a stock phrase. One sentence ending "
+            f"in a period.")
     msgs = [{"role": "system", "content": sysmsg}, {"role": "user", "content": user}]
     for _ in range(4):
         try:
