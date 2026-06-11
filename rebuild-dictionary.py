@@ -415,12 +415,16 @@ def build_index(words, by_letter, total):
             <p class="subtitle">Curated sub-collections &mdash; start here if you want a focused entry-point into the dictionary.</p>
             <div class="featured-grid">
                 <a href="by-topic.html" class="featured-card"><div class="fword">Browse by Topic</div><div class="ftag">11 categories &middot; 306 entries</div></a>
-                <a href="baby-names.html" class="featured-card"><div class="fword">Baby Names</div><div class="ftag">236 curated &middot; 864 with variants</div></a>
                 <a href="names.html" class="featured-card"><div class="fword">Biblical Names</div><div class="ftag">A-Z proper names</div></a>
-                <a href="doctrinal-anchors.html" class="featured-card"><div class="fword">Doctrinal Anchors</div><div class="ftag">Foundational</div></a>
                 <a href="biblical-order.html" class="featured-card"><div class="fword">Biblical Order</div><div class="ftag">Headship &middot; roles</div></a>
-                <a href="expressly-prohibited.html" class="featured-card"><div class="fword">Expressly Prohibited</div><div class="ftag">Forbidden</div></a>
+                <a href="baby-names.html" class="featured-card"><div class="fword">Baby Names</div><div class="ftag">236 curated &middot; 864 with variants</div></a>
+                <a href="doctrinal-anchors.html" class="featured-card"><div class="fword">Doctrinal Anchors</div><div class="ftag">Foundational</div></a>
                 <a href="most-corrupted.html" class="featured-card"><div class="fword">Most Corrupted</div><div class="ftag">Words at war</div></a>
+                <a href="expressly-prohibited.html" class="featured-card"><div class="fword">Expressly Prohibited</div><div class="ftag">Forbidden &middot; sinful terms</div></a>
+                <a href="gen-z-decoded.html" class="featured-card"><div class="fword">Gen-Z Decoded</div><div class="ftag">Generational dialect</div></a>
+                <a href="millennial-decoded.html" class="featured-card"><div class="fword">Millennial Decoded</div><div class="ftag">Generational dialect</div></a>
+                <a href="gen-x-decoded.html" class="featured-card"><div class="fword">Gen X Decoded</div><div class="ftag">Generational dialect</div></a>
+                <a href="boomer-decoded.html" class="featured-card"><div class="fword">Boomer Decoded</div><div class="ftag">Generational dialect</div></a>
             </div>
         </div>
 
@@ -713,6 +717,7 @@ def build_index(words, by_letter, total):
                     <a href="tuff.html" class="genz-card"><div class="gzword">Tuff</div><div class="gzverdict gzv-yellow">Neutral</div></a>
                     <a href="unc.html" class="genz-card"><div class="gzword">Unc</div><div class="gzverdict gzv-orange">Examine</div></a>
                     <a href="deadass.html" class="genz-card"><div class="gzword">Deadass</div><div class="gzverdict gzv-orange">Examine</div></a>
+                    <a href="retardmaxxing.html" class="genz-card"><div class="gzword">Retardmaxxing</div><div class="gzverdict gzv-orange">Examine</div></a>
                 </div>
             </details>
         </div>
@@ -812,6 +817,7 @@ def build_index(words, by_letter, total):
                     <a href="poser.html" class="genx-card"><div class="xword">Poser</div><div class="xverdict gzv-orange">Examine</div></a>
                     <a href="bogus.html" class="genx-card"><div class="xword">Bogus</div><div class="xverdict gzv-green">Redeemable</div></a>
                     <a href="boob-tube.html" class="genx-card"><div class="xword">Boob Tube</div><div class="xverdict gzv-orange">Examine</div></a>
+                    <a href="kerfuffle.html" class="genx-card"><div class="xword">Kerfuffle</div><div class="xverdict gzv-yellow">Neutral</div></a>
                 </div>
             </details>
         </div>
