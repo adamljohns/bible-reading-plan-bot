@@ -196,7 +196,7 @@ def main():
             itt_html = (
                 f'\n        {ITT_START}\n'
                 f'        <div class="section" id="in-the-text">\n'
-                f'            <h3>&#128214; In the Text</h3>\n'
+                f'            <h3><img src="../assets/icons/shield-open-book.svg" alt="" width="20" height="20" style="vertical-align:-4px;"> In the Text</h3>\n'
                 f'            <p class="section-summary">Chapters of the reading Bible where this entry is linked.</p>\n'
                 f'            <div class="related in-text-chips">{"".join(chips)}</div>\n'
                 f'            {more}\n'

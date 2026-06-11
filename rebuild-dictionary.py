@@ -411,7 +411,7 @@ def build_index(words, by_letter, total):
              entry-points (Baby Names, By Topic...) are visible without
              scrolling past 5,000+ entries -->
         <div class="featured-section">
-            <h3>&#x1F48E; Special Directories</h3>
+            <h3><img src="../assets/icons/shield-diamond.svg" alt="" width="20" height="20" style="vertical-align:-4px;"> Special Directories</h3>
             <p class="subtitle">Curated sub-collections &mdash; start here if you want a focused entry-point into the dictionary.</p>
             <div class="featured-grid">
                 <a href="by-topic.html" class="featured-card"><div class="fword">Browse by Topic</div><div class="ftag">11 categories &middot; 306 entries</div></a>
@@ -430,9 +430,9 @@ def build_index(words, by_letter, total):
 
         <!-- Search + Random -->
         <div class="search-wrap">
-            <span class="search-icon">🔍</span>
+            <span class="search-icon"><img src="../assets/icons/shield-search.svg" alt="" width="18" height="18" style="display:block;"></span>
             <input type="text" id="dictSearch" placeholder="Search entries&hellip;" autocomplete="off" oninput="filterDict(this.value)">
-            <button class="random-btn" onclick="randomEntry()" title="Open a random entry">&#x1F3B2; Random</button>
+            <button class="random-btn" onclick="randomEntry()" title="Open a random entry"><img src="../assets/icons/shield-die.svg" alt="" width="15" height="15" style="vertical-align:-2.5px;"> Random</button>
         </div>
 
         <!-- Search results (shown when searching) -->
@@ -872,7 +872,7 @@ def build_index(words, by_letter, total):
 
     <!-- Suggest a Word -->
     <div class="suggest-section">
-        <h2>📝 Suggest a Word</h2>
+        <h2><img src="../assets/icons/shield-quill-note.svg" alt="" width="22" height="22" style="vertical-align:-4px;"> Suggest a Word</h2>
         <p class="suggest-sub">Know a word that should be in the MOOP Dictionary? We&rsquo;re always expanding. Submit your suggestion and we&rsquo;ll review it.</p>
         <form action="https://formsubmit.co/usmcministries2022@gmail.com" method="POST">
             <input type="hidden" name="_subject" value="MOOP Dictionary &mdash; Word Suggestion">
@@ -901,7 +901,7 @@ def build_index(words, by_letter, total):
         </p>
         <p style="margin-top:10px; font-size:0.82rem; font-style:italic; color:#555;">&ldquo;Iron sharpens iron, and one man sharpens another.&rdquo; &mdash; Proverbs 27:17</p>
         <p style="margin-top:8px; font-size:0.8rem; color:#555;">For more info on our services or products to purchase in support of this ministry, check out our other website: <a href="https://usmcmin.com" style="color:var(--gold);">usmcmin.com</a></p>
-        <p style="margin-top:6px; font-size:0.8rem; color:#555;"><a href="../sitemap.html" style="color:var(--gray);font-size:0.85rem;">🗺️ Site Map</a> &nbsp;&nbsp; Powered by MOOPbot Pro</p>
+        <p style="margin-top:6px; font-size:0.8rem; color:#555;"><a href="../sitemap.html" style="color:var(--gray);font-size:0.85rem;"><img src="../assets/icons/shield-map.svg" alt="" width="14" height="14" style="vertical-align:-2px;"> Site Map</a> &nbsp;&nbsp; Powered by MOOPbot Pro</p>
     </footer>
     <script>
     function toggleRange(panelId, btnId) {{
