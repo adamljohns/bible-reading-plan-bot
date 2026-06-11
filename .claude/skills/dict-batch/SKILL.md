@@ -108,10 +108,41 @@ origin/main --oneline` — your commit usually landed. Don't panic-rebase.
 - `roots_lines` as list-of-lists (silent rendering bug).
 - Overwrite fleet-modified files (readings, churches, CLAUDE.md, assets).
 
+## 6. Generational lingo decoder
+
+Four featured browse pages decode slang by era: `gen-z-decoded`,
+`millennial-decoded`, `gen-x-decoded`, `boomer-decoded`. To ADD words:
+
+1. Author them as ordinary batch entries (full schema; the corruption
+   section becomes the "what Scripture says" analysis). Give each a verdict
+   the card will show: **Redeemable / Neutral / Examine / Reject**.
+2. Add a card to the matching section's `more-grid` in the index template
+   inside `rebuild-dictionary.py`. Per-section wrapper classes differ but the
+   verdict COLOR class is shared:
+   - genz `genz-card`/`gzword`/`gzverdict` · mill `mill-card`/`mword`/`mverdict`
+     · genx `genx-card`/`xword`/`xverdict` · boomer `boomer-card`/`bword`/`bverdict`
+   - color: Redeemable=`gzv-green` · Neutral=`gzv-yellow` · Examine=`gzv-orange`
+     · Reject=`gzv-red`
+3. The pipeline's rebuild step calls `bin/build_section_pages.py`, which
+   re-extracts the cards from the index and regenerates the four standalone
+   pages — no separate command. Verify counts with
+   `grep -c 'class="full-card"' docs/dictionary/<page>.html`.
+
+## Modern Corruption is NOT mandatory (policy, per Adam 2026-06-09)
+
+Not every word or name has been corrupted. Batch entries still carry the
+`corruption_*` fields (pre-flight requires them), but when there is no real
+redefinition use the caveat template (`<em>This entry faces no significant
+postmodern redefinition.</em>` + the principle to recover), or stretch the
+sense of "corruption" gently to a live misuse/temptation. Do NOT invent a
+culture-war grievance to fill the slot. **Older pre-schema entries that lack
+a Corruption section entirely are fine** — the integrity audit counts them
+SOFT, not as debt. Backfill only where a genuine corruption exists to name.
+
 ## Known era-debt (quantified 2026-06-09; future workstreams)
 
 - ~316 duplicate display titles to review (mostly intentional variants).
-- ~180 entries lack a Webster section; ~320 lack Modern Corruption;
-  ~640 lack Usage (oldest era). Corruption-section authoring is the
-  highest-value backfill (it is the dictionary's distinctive mission).
+- ~180 entries lack a Webster section; ~640 lack Usage (oldest era) — these
+  are the real backfill targets. (~320 lack Corruption; per policy above that
+  is acceptable, not debt.)
 - ~778 open candidates in `data/dictionary-candidates-from-dangling.txt`.

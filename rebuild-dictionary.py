@@ -703,6 +703,16 @@ def build_index(words, by_letter, total):
                     <a href="pookie.html" class="genz-card"><div class="gzword">Pookie</div><div class="gzverdict gzv-orange">Examine</div></a>
                     <a href="rizzler.html" class="genz-card"><div class="gzword">Rizzler</div><div class="gzverdict gzv-orange">Examine</div></a>
                     <a href="skibidi.html" class="genz-card"><div class="gzword">Skibidi</div><div class="gzverdict gzv-yellow">Neutral</div></a>
+                    <a href="aura.html" class="genz-card"><div class="gzword">Aura</div><div class="gzverdict gzv-orange">Examine</div></a>
+                    <a href="six-seven.html" class="genz-card"><div class="gzword">6-7</div><div class="gzverdict gzv-orange">Examine</div></a>
+                    <a href="huzz.html" class="genz-card"><div class="gzword">Huzz</div><div class="gzverdict gzv-red">Reject</div></a>
+                    <a href="chopped.html" class="genz-card"><div class="gzword">Chopped</div><div class="gzverdict gzv-orange">Examine</div></a>
+                    <a href="opp.html" class="genz-card"><div class="gzword">Opp</div><div class="gzverdict gzv-orange">Examine</div></a>
+                    <a href="situationship.html" class="genz-card"><div class="gzword">Situationship</div><div class="gzverdict gzv-red">Reject</div></a>
+                    <a href="ratio.html" class="genz-card"><div class="gzword">Ratio</div><div class="gzverdict gzv-red">Reject</div></a>
+                    <a href="tuff.html" class="genz-card"><div class="gzword">Tuff</div><div class="gzverdict gzv-yellow">Neutral</div></a>
+                    <a href="unc.html" class="genz-card"><div class="gzword">Unc</div><div class="gzverdict gzv-orange">Examine</div></a>
+                    <a href="deadass.html" class="genz-card"><div class="gzword">Deadass</div><div class="gzverdict gzv-orange">Examine</div></a>
                 </div>
             </details>
         </div>
@@ -752,6 +762,10 @@ def build_index(words, by_letter, total):
                     <a href="influencer.html" class="mill-card"><div class="mword">Influencer</div><div class="mverdict gzv-orange">Examine</div></a>
                     <a href="karen.html" class="mill-card"><div class="mword">Karen</div><div class="mverdict gzv-orange">Examine</div></a>
                     <a href="trash-adj.html" class="mill-card"><div class="mword">Trash (as adj)</div><div class="mverdict gzv-orange">Examine</div></a>
+                    <a href="manifesting.html" class="mill-card"><div class="mword">Manifesting</div><div class="mverdict gzv-red">Reject</div></a>
+                    <a href="spirit-animal.html" class="mill-card"><div class="mword">Spirit Animal</div><div class="mverdict gzv-red">Reject</div></a>
+                    <a href="catfishing.html" class="mill-card"><div class="mword">Catfishing</div><div class="mverdict gzv-red">Reject</div></a>
+                    <a href="thirst-trap.html" class="mill-card"><div class="mword">Thirst Trap</div><div class="mverdict gzv-red">Reject</div></a>
                 </div>
             </details>
         </div>
@@ -795,6 +809,9 @@ def build_index(words, by_letter, total):
                     <a href="five-finger-discount.html" class="genx-card"><div class="xword">Five-Finger Discount</div><div class="xverdict gzv-red">Reject</div></a>
                     <a href="mall-rat.html" class="genx-card"><div class="xword">Mall Rat</div><div class="xverdict gzv-orange">Examine</div></a>
                     <a href="phone-tag.html" class="genx-card"><div class="xword">Phone Tag</div><div class="xverdict gzv-yellow">Neutral</div></a>
+                    <a href="poser.html" class="genx-card"><div class="xword">Poser</div><div class="xverdict gzv-orange">Examine</div></a>
+                    <a href="bogus.html" class="genx-card"><div class="xword">Bogus</div><div class="xverdict gzv-green">Redeemable</div></a>
+                    <a href="boob-tube.html" class="genx-card"><div class="xword">Boob Tube</div><div class="xverdict gzv-orange">Examine</div></a>
                 </div>
             </details>
         </div>
@@ -838,6 +855,9 @@ def build_index(words, by_letter, total):
                     <a href="cool-beans.html" class="boomer-card"><div class="bword">Cool Beans</div><div class="bverdict gzv-green">Redeemable</div></a>
                     <a href="easy-peasy.html" class="boomer-card"><div class="bword">Easy-Peasy</div><div class="bverdict gzv-yellow">Neutral</div></a>
                     <a href="mellow.html" class="boomer-card"><div class="bword">Mellow</div><div class="bverdict gzv-orange">Examine</div></a>
+                    <a href="sock-it-to-me.html" class="boomer-card"><div class="bword">Sock It to Me</div><div class="bverdict gzv-yellow">Neutral</div></a>
+                    <a href="keep-on-truckin.html" class="boomer-card"><div class="bword">Keep On Truckin&rsquo;</div><div class="bverdict gzv-green">Redeemable</div></a>
+                    <a href="the-fuzz.html" class="boomer-card"><div class="bword">The Fuzz</div><div class="bverdict gzv-orange">Examine</div></a>
                 </div>
             </details>
         </div>
