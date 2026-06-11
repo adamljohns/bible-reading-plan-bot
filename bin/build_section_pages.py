@@ -243,6 +243,7 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
 
         body.light-mode {{ background:#f0eee9; color:#1a1a1a; }}
         body.light-mode nav {{ background:rgba(240,238,233,0.95); border-bottom-color:#ccc; }}
+        body.light-mode img[src*="/icons/shield-"]:not([src*="-bronze"]) {{ filter:brightness(.72) saturate(1.18) hue-rotate(-12deg); }}
         body.light-mode nav a {{ color:#666; }}
         body.light-mode nav a:hover {{ color:var(--accent); }}
         body.light-mode .full-card {{ background:#fff; border-color:var(--accent); }}

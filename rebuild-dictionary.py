@@ -148,6 +148,7 @@ def build_index(words, by_letter, total):
         .cross-divider {{ margin-bottom:10px; }}
         body.light-mode {{ --bg:#F5F3EF; --card:#FFF; --white:#1a1a1a; --gray:#666; --border:#d4d0c8; background:#F5F3EF; color:#1a1a1a; }}
         body.light-mode nav {{ background:rgba(245,243,239,0.97); }}
+        body.light-mode img[src*="/icons/shield-"]:not([src*="-bronze"]) {{ filter:brightness(.72) saturate(1.18) hue-rotate(-12deg); }}
         body.light-mode .word-card {{ background:#fff; border-color:#d4d0c8; }}
         body.light-mode footer {{ border-top-color:#d4d0c8; }}
         a, a:link, a:visited {{ color: var(--gold, #D4AF37) !important; }}

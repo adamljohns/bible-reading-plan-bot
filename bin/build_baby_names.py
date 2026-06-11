@@ -803,6 +803,7 @@ def main():
 
         body.light-mode {{ --bg:#F5F3EF; --card:#FFF; --white:#1a1a1a; --gray:#666; --border:#d4d0c8; background:#F5F3EF; color:#1a1a1a; }}
         body.light-mode nav {{ background:rgba(245,243,239,0.97); }}
+        body.light-mode img[src*="/icons/shield-"]:not([src*="-bronze"]) {{ filter:brightness(.72) saturate(1.18) hue-rotate(-12deg); }}
         body.light-mode .name-card,
         body.light-mode .quick-nav a,
         body.light-mode .editor-note,
