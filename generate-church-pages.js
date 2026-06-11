@@ -769,9 +769,48 @@ function buildPage(church) {
   <meta property="og:title" content="${escapeHtml(church.name)} — Church Directory | USMC Ministries">
   <meta property="og:description" content="10-point theological scorecard: ${escapeHtml(church.overall_label || '')}">
   <meta property="og:type" content="website">
+  <meta property="og:url" content="https://usmcmin.org/churches/${church.slug || church.id}.html">${(() => {
+    // og:image preference: real hero scraped from the church site; logo as fallback.
+    // Both are domain-safety-gated upstream so they're either right or absent.
+    const og = church.image_url || church.image_thumb;
+    return og && /^https?:\/\//.test(og) ? `\n  <meta property="og:image" content="${escapeHtml(og)}">` : '';
+  })()}
   <title>${escapeHtml(church.name)} — Church Directory | USMC Ministries</title>
   ${FONTS}
   ${CSS}
+  ${(() => {
+    // Schema.org Church (PlaceOfWorship) structured data. Helps Google show the
+    // record as a Place result with map + address + rating. Only fields we have
+    // verified are emitted; never guess.
+    const schema = {
+      '@context': 'https://schema.org',
+      '@type': 'Church',
+      name: church.name,
+      url: `https://usmcmin.org/churches/${church.slug || church.id}.html`,
+    };
+    if (church.website) schema.sameAs = [church.website].concat(
+      [church.facebook, church.youtube, church.instagram, church.twitter].filter(s => typeof s === 'string' && /^https?:\/\//.test(s))
+    );
+    if (church.address) schema.address = { '@type': 'PostalAddress', streetAddress: church.address };
+    if (typeof church.latitude === 'number' && typeof church.longitude === 'number') {
+      schema.geo = { '@type': 'GeoCoordinates', latitude: church.latitude, longitude: church.longitude };
+    }
+    if (church.image_url || church.image_thumb) schema.image = church.image_url || church.image_thumb;
+    if (church.denomination_family || church.denomination) {
+      schema.parentOrganization = { '@type': 'Organization', name: church.denomination_family || church.denomination };
+    }
+    if (church.founded) {
+      // Schema.org foundingDate must be ISO; church.founded is often prose ("Planted 2008..."). Extract a 4-digit year only.
+      const yr = String(church.founded).match(/\b(1[5-9]\d{2}|20[0-2]\d)\b/);
+      if (yr) schema.foundingDate = yr[1];
+    }
+    if (church.pastor && !/^(see website|verify|various|not published|unknown)$/i.test(String(church.pastor).trim())) {
+      schema.employee = { '@type': 'Person', name: church.pastor, jobTitle: 'Pastor' };
+    }
+    // Emit the JSON safely between <script> tags; escapeJSONForScript prevents </script> injection.
+    const body = JSON.stringify(schema).replace(/</g, '\\u003c').replace(/>/g, '\\u003e').replace(/&/g, '\\u0026');
+    return `<script type="application/ld+json">${body}</script>`;
+  })()}
 </head>
 <body>
 ${NAV}
