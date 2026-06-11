@@ -255,6 +255,7 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
         footer {{ text-align:center; padding:32px 20px; border-top:1px solid var(--border); color:var(--gray); font-size:0.85rem; margin-top:60px; }}
         footer a {{ color:var(--accent); text-decoration:none; }}
     </style>
+    <link rel="stylesheet" href="/assets/css/light-icons.css">
 </head>
 <body>
     <nav aria-label="Site navigation">

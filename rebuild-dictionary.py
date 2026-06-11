@@ -375,6 +375,7 @@ def build_index(words, by_letter, total):
         .more-grid {{ margin-top:8px; }}
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/css/light-icons.css">
 </head>
 <body>
     <nav>
@@ -397,7 +398,7 @@ def build_index(words, by_letter, total):
     <div class="container">
 
         <section class="hero">
-            <img src="../assets/icons/shield-book-greek-48.png" alt="Dictionary" width="96" height="96" style="margin-bottom:16px;opacity:0.9;">
+            <img src="../assets/icons/shield-book-greek.png" alt="Dictionary" width="96" height="96" style="margin-bottom:16px;opacity:0.9;">
             <h1>The MOOP Dictionary</h1>
             <p class="subtitle">of the English Language</p>
             <p style="margin-top:20px;">Words have been stolen, redefined, and weaponized. This dictionary reclaims them &mdash; returning to the etymological roots, the biblical meaning, and the Webster 1828 definitions that shaped Western civilization, against which modern corruptions are measured.</p>

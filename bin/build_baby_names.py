@@ -812,6 +812,7 @@ def main():
         a, a:link, a:visited {{ color:var(--gold) !important; }}
         @media (max-width:560px) {{ .hero h1 {{ font-size:2rem; }} .names-grid {{ grid-template-columns:1fr; }} }}
     </style>
+    <link rel="stylesheet" href="/assets/css/light-icons.css">
 </head>
 <body>
     <nav>

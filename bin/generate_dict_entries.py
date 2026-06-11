@@ -159,6 +159,7 @@ HTML_TEMPLATE = Template(r"""<!DOCTYPE html>
         .dict-back-nav a:hover { color:var(--gold-light,#F4D470); }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/css/light-icons.css">
 </head>
 <body>
     <nav>
