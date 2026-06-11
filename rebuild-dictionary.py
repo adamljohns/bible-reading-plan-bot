@@ -872,7 +872,7 @@ def build_index(words, by_letter, total):
 
     <!-- Suggest a Word -->
     <div class="suggest-section">
-        <h2><img src="../assets/icons/shield-blog-quill-48.png" alt="" width="22" height="22" style="vertical-align:-4px;"> Suggest a Word</h2>
+        <h2><img src="../assets/icons/shield-quill-note-48.png" alt="" width="22" height="22" style="vertical-align:-4px;"> Suggest a Word</h2>
         <p class="suggest-sub">Know a word that should be in the MOOP Dictionary? We&rsquo;re always expanding. Submit your suggestion and we&rsquo;ll review it.</p>
         <form action="https://formsubmit.co/usmcministries2022@gmail.com" method="POST">
             <input type="hidden" name="_subject" value="MOOP Dictionary &mdash; Word Suggestion">
