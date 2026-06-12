@@ -256,6 +256,7 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
         footer a {{ color:var(--accent); text-decoration:none; }}
     </style>
     <link rel="stylesheet" href="/assets/css/light-icons.css">
+    <link rel="stylesheet" href="/assets/css/print.css" media="print">
 </head>
 <body>
     <nav aria-label="Site navigation">

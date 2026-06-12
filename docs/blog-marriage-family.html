@@ -35,6 +35,41 @@
         /* Fix blue links — override browser a:link default */
         nav a, nav a:link, nav a:visited, nav a:active { color: var(--gray, #8b949e) !important; text-decoration: none !important; }
         .top-nav a, .top-nav a:link, .top-nav a:visited, .top-nav a:active { color: var(--gray, #8b949e) !important; text-decoration: none !important; }
+
+        /* ── BTE Dark/Light Mode Toggle ── */
+        .bte-theme-toggle {
+            justify-content: center; margin: 8px auto 0; width: fit-content;
+            display: flex; align-items: center; gap: 0;
+            background: rgba(30,30,30,0.85); border: 1px solid #333;
+            border-radius: 20px; padding: 3px 6px; cursor: pointer;
+            font-size: 0.7rem; user-select: none; backdrop-filter: blur(6px);
+            transition: all 0.3s;
+        }
+        .bte-theme-toggle:hover { border-color: #D4AF37; }
+        .bte-theme-toggle .toggle-icon { width: 18px; text-align: center; line-height: 1; }
+        .bte-theme-toggle .toggle-track {
+            width: 28px; height: 14px; background: #444; border-radius: 7px;
+            position: relative; margin: 0 4px; transition: background 0.3s;
+        }
+        .bte-theme-toggle .toggle-knob {
+            width: 10px; height: 10px; background: #D4AF37; border-radius: 50%;
+            position: absolute; top: 2px; left: 2px; transition: left 0.3s;
+        }
+        body.light-mode .bte-theme-toggle { background: rgba(240,238,233,0.9); border-color: #ccc; }
+        body.light-mode .bte-theme-toggle .toggle-track { background: #bbb; }
+        body.light-mode .bte-theme-toggle .toggle-knob { left: 16px; }
+        body.light-mode .bte-theme-toggle .toggle-icon { filter: none; }
+        .bte-theme-toggle .moon-icon { color: #888; }
+        .bte-theme-toggle .sun-icon { color: #888; }
+        body.light-mode .bte-theme-toggle .sun-icon { color: #D4AF37; }
+        body:not(.light-mode) .bte-theme-toggle .moon-icon { color: #D4AF37; }
+
+        /* ── Light mode overrides ── */
+        body.light-mode {
+            --bg: #F5F3EF; --card: #ffffff; --border: #d4d0c8;
+            --white: #1a1a1a; --gray: #666666; --gold: #B8960C;
+        }
+        body.light-mode .top-nav { background: rgba(245,243,239,0.97); }
     </style>
     <!-- Open Graph / Twitter (backfilled) -->
     <meta name="description" content="Marriage, parenting, family leadership, and building a Christ-centered home.">
@@ -44,8 +79,18 @@
     <meta name="twitter:title" content="Marriage &amp; Family — U.S.M.C. Ministries Blog">
     <meta name="twitter:image" content="https://usmcmin.org/assets/icons/icon-512.png">
     <link rel="manifest" href="/manifest.json">
+    <link rel="stylesheet" href="/assets/css/print.css" media="print">
+    <link rel="stylesheet" href="/assets/css/light-icons.css">
 </head>
 <body>
+    <script>
+    /* ── BTE Dark/Light Mode ── */
+    function bteToggleTheme(){
+        document.body.classList.toggle('light-mode');
+        localStorage.setItem('bte-theme', document.body.classList.contains('light-mode') ? 'light' : 'dark');
+    }
+    if(localStorage.getItem('bte-theme')==='light') document.body.classList.add('light-mode');
+    </script>
     <nav class="top-nav">
         <a href="index.html"><img src="assets/icons/shield-compass.png" alt="home" width="16" height="16"> Home</a>
         <a href="bible.html"><img src="assets/icons/shield-cross.png" alt="cross" width="16" height="16"> Bible Translation Engine</a>
@@ -54,6 +99,13 @@
         <a href="about.html"><img src="assets/icons/shield-leader.png" alt="about" width="16" height="16"> About</a>
         <a href="connect.html"><img src="assets/icons/shield-handshake.png" alt="connect" width="16" height="16"> Connect</a>
     </nav>
+    <div style="text-align:center; margin-top:8px; margin-bottom:4px;">
+        <div class="bte-theme-toggle" onclick="bteToggleTheme()" title="Toggle dark/light mode">
+            <span class="toggle-icon moon-icon">🌙</span>
+            <div class="toggle-track"><div class="toggle-knob"></div></div>
+            <span class="toggle-icon sun-icon">☀️</span>
+        </div>
+    </div>
     <div class="hero">
         <img src="assets/icons/shield-family.png" alt="Marriage & Family" width="56" height="56" style="filter:drop-shadow(0 0 8px rgba(212,175,55,0.3));">
         <h1><span>Marriage &amp; Family</span></h1>

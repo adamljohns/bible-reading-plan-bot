@@ -36,6 +36,38 @@
         body.light-mode .assess-card { background:#fff; border-color:#d4d0c8; }
         body.light-mode footer { border-top-color:#d4d0c8; }
         a, a:link, a:visited { color: var(--gold) !important; }
+
+
+        /* ── BTE Dark/Light Mode Toggle ── */
+        .bte-theme-toggle {
+            justify-content: center; margin: 8px auto 0; width: fit-content;
+            display: flex; align-items: center; gap: 0;
+            background: rgba(30,30,30,0.85); border: 1px solid #333;
+            border-radius: 20px; padding: 3px 6px; cursor: pointer;
+            font-size: 0.7rem; user-select: none; backdrop-filter: blur(6px);
+            transition: all 0.3s;
+        }
+        .bte-theme-toggle:hover { border-color: #D4AF37; }
+        .bte-theme-toggle .toggle-icon { width: 18px; text-align: center; line-height: 1; }
+        .bte-theme-toggle .toggle-track {
+            width: 28px; height: 14px; background: #444; border-radius: 7px;
+            position: relative; margin: 0 4px; transition: background 0.3s;
+        }
+        .bte-theme-toggle .toggle-knob {
+            width: 10px; height: 10px; background: #D4AF37; border-radius: 50%;
+            position: absolute; top: 2px; left: 2px; transition: left 0.3s;
+        }
+        body.light-mode .bte-theme-toggle { background: rgba(240,238,233,0.9); border-color: #ccc; }
+        body.light-mode .bte-theme-toggle .toggle-track { background: #bbb; }
+        body.light-mode .bte-theme-toggle .toggle-knob { left: 16px; }
+        body.light-mode .bte-theme-toggle .toggle-icon { filter: none; }
+        .bte-theme-toggle .moon-icon { color: #888; }
+        .bte-theme-toggle .sun-icon { color: #888; }
+        body.light-mode .bte-theme-toggle .sun-icon { color: #D4AF37; }
+        body:not(.light-mode) .bte-theme-toggle .moon-icon { color: #D4AF37; }
+
+        /* ── Light mode supplements (toggle rollout) ── */
+        body.light-mode { --gold-light:#9c7a1e; }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
     <!-- Open Graph / Twitter (backfilled) -->
@@ -49,8 +81,17 @@
     <meta name="twitter:image" content="https://usmcmin.org/assets/icons/icon-512.png">
     <link rel="manifest" href="/manifest.json">
     <link rel="stylesheet" href="/assets/css/light-icons.css">
+    <link rel="stylesheet" href="/assets/css/print.css" media="print">
 </head>
 <body>
+    <script>
+    /* ── BTE Dark/Light Mode ── */
+    function bteToggleTheme(){
+        document.body.classList.toggle('light-mode');
+        localStorage.setItem('bte-theme', document.body.classList.contains('light-mode') ? 'light' : 'dark');
+    }
+    if(localStorage.getItem('bte-theme')==='light') document.body.classList.add('light-mode');
+    </script>
     <nav>
         <a href="index.html"><img src="assets/icons/shield-home-48.png" class="site-icon" alt="" width="16" height="16"> Home</a>
         <a href="bible.html"><img src="assets/icons/shield-compass.png" class="site-icon" alt="" width="16" height="16"> Bible Tools</a>
@@ -60,6 +101,13 @@
         <a href="military-ministry-resources.html"><img src="assets/icons/shield-leader.png" class="site-icon" alt="" width="16" height="16"> Resources</a>
         <a href="connect.html"><img src="assets/icons/shield-handshake.png" class="site-icon" alt="" width="16" height="16"> Connect</a>
     </nav>
+    <div style="text-align:center; margin-top:8px; margin-bottom:4px;">
+        <div class="bte-theme-toggle" onclick="bteToggleTheme()" title="Toggle dark/light mode">
+            <span class="toggle-icon moon-icon">🌙</span>
+            <div class="toggle-track"><div class="toggle-knob"></div></div>
+            <span class="toggle-icon sun-icon">☀️</span>
+        </div>
+    </div>
 
     <div class="container">
         <div class="hero">
