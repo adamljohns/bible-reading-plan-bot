@@ -504,6 +504,30 @@
     </div>
 
     <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- THEME TOGGLE SHIELDS -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div class="section" data-section="toggle" id="section-toggle">
+        <div class="section-header">
+            <h2>Theme Toggle Shields</h2>
+            <span class="count" id="count-toggle"></span>
+        </div>
+        <p style="color:#888;font-size:13px;margin:0 0 14px;">The site-wide dark/light switch: gold/black <strong>moon</strong> shows in dark mode, bronze <strong>sun</strong> in light mode (styled centrally in <code>assets/css/light-icons.css</code>). The other two are banked spares.</p>
+        <div class="icon-grid" id="grid-toggle"></div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- LIGHT-MODE ENGRAVINGS -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div class="section" data-section="lm" id="section-lm">
+        <div class="section-header">
+            <h2>Light-Mode Engravings (-lm)</h2>
+            <span class="count" id="count-lm"></span>
+        </div>
+        <p style="color:#888;font-size:13px;margin:0 0 14px;">Every shield icon has a bronze-ink <code>-lm.png</code> twin (130 total, all size variants) auto-swapped by <code>light-icons.css</code> when light mode is active. Derived via <code>bin/matte_and_bronze_shields.py</code>. Samples below; the full set follows the <code>&lt;name&gt;-lm.png</code> convention.</p>
+        <div class="icon-grid" id="grid-lm"></div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
     <!-- BRONZE (LIGHT-MODE) SHIELDS -->
     <!-- ═══════════════════════════════════════════════════════ -->
     <div class="section" data-section="bronze" id="section-bronze">
@@ -717,6 +741,24 @@ const CORE_SHIELDS = [
     { file: 'shield-warning-48.png', sizes: [] },
 ];
 
+const TOGGLE_SHIELDS = [
+    { file: 'shield-toggle-moon-gold.png', sizes: ['96', '48', '24'] },
+    { file: 'shield-toggle-sun-gold.png', sizes: ['96', '48', '24'] },
+    { file: 'shield-toggle-moon-bronze.png', sizes: ['96', '48', '24'] },
+    { file: 'shield-toggle-sun-bronze.png', sizes: ['96', '48', '24'] },
+];
+
+const LM_SAMPLES = [
+    { file: 'shield-diamond-lm.png', sizes: ['lm'] },
+    { file: 'shield-die-lm.png', sizes: ['lm'] },
+    { file: 'shield-search-lm.png', sizes: ['lm'] },
+    { file: 'shield-quill-note-lm.png', sizes: ['lm'] },
+    { file: 'shield-map-lm.png', sizes: ['lm'] },
+    { file: 'shield-open-book-lm.png', sizes: ['lm'] },
+    { file: 'shield-bible-cross-lm.png', sizes: ['lm'] },
+    { file: 'shield-scroll-quill-lm.png', sizes: ['lm'] },
+];
+
 const BRONZE_SHIELDS = [
     { file: 'shield-diamond-bronze.png', sizes: ['96', '48', '24'] },
     { file: 'shield-die-bronze.png', sizes: ['96', '48', '24'] },
@@ -837,6 +879,20 @@ function buildAllGrids() {
         coreGrid.innerHTML += iconCard(`/assets/icons/${ic.file}`, ic.file, ic.sizes, 'core-shield');
     });
     document.getElementById('count-core-shield').textContent = CORE_SHIELDS.length + ' icons';
+
+    // Theme toggle shields
+    const toggleGrid = document.getElementById('grid-toggle');
+    TOGGLE_SHIELDS.forEach(ic => {
+        toggleGrid.innerHTML += iconCard(`/assets/icons/${ic.file}`, ic.file, ic.sizes, 'toggle');
+    });
+    document.getElementById('count-toggle').textContent = TOGGLE_SHIELDS.length + ' icons';
+
+    // Light-mode engravings (samples)
+    const lmGrid = document.getElementById('grid-lm');
+    LM_SAMPLES.forEach(ic => {
+        lmGrid.innerHTML += iconCard(`/assets/icons/${ic.file}`, ic.file, ic.sizes, 'bronze');
+    });
+    document.getElementById('count-lm').textContent = '130 total (8 shown)';
 
     // Bronze (light-mode set)
     const bronzeGrid = document.getElementById('grid-bronze');
