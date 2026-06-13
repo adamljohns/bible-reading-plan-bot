@@ -1,4 +1,6 @@
-/* LBCF Renderer v1.1 — usmcmin.org
+/* LBCF Renderer v1.2 — usmcmin.org
+ * v1.2 (2026-06-12): chapters lifted draft→final after the 32-chapter fidelity
+ *   audit; hub counter now counts all non-placeholder chapters.
  * v1.1 (2026-06-12): root-absolute link targets (relative paths 404ed from /lbcf/),
  *   added Exod/Esth/Cant abbreviations, fixed dictionary slugs to existing pages.
  *
@@ -325,7 +327,7 @@
     // Wire intro stats
     const totalEl = document.getElementById('lbcf-total-chapters');
     if (totalEl) totalEl.textContent = String(meta.chapters.length);
-    const draftedCount = meta.chapters.filter(c => c.status === 'draft').length;
+    const draftedCount = meta.chapters.filter(c => c.status !== 'placeholder').length;
     const draftedEl = document.getElementById('lbcf-drafted-count');
     if (draftedEl) draftedEl.textContent = String(draftedCount);
   }
