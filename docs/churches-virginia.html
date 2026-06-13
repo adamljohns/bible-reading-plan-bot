@@ -23,6 +23,7 @@
     <style>
         .site-icon { vertical-align:middle; margin-right:4px; }
         body.light-mode .site-icon { filter: brightness(0.6); }
+        body.light-mode img[src*="/icons/shield-"]:not([src*="-bronze"]) { filter:brightness(.72) saturate(1.18) hue-rotate(-12deg); }
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
@@ -214,6 +215,8 @@
     <!-- Open Graph / Twitter (backfilled) -->
     <meta name="twitter:title" content="Virginia Church Directory V5.5.0">
     <meta name="twitter:image" content="https://usmcmin.org/assets/icons/icon-512.png">
+    <link rel="stylesheet" href="/assets/css/light-icons.css">
+    <link rel="stylesheet" href="/assets/css/print.css" media="print">
 </head>
 <body>
 
@@ -221,11 +224,11 @@
     <nav>
         <a href="index.html"><img src="assets/icons/shield-home-48.png" class="site-icon" alt="home" width="16" height="16"> U.S.M.C. Ministries Home</a>
         <a href="watchman.html"><img src="assets/icons/shield-bible.png" class="site-icon" alt="bible" width="16" height="16"> Watchman Bible Plan</a>
-        <a href="bible.html"><img src="assets/icons/shield-compass.png" class="site-icon" alt="compass" width="16" height="16"> Bible Translation Engine</a>
+        <a href="bible.html"><img src="assets/icons/shield-bible-cross-48.png" class="site-icon" alt="compass" width="16" height="16"> Bible Translation Engine</a>
         <a href="cross-references.html"><img src="assets/icons/shield-infinity-rope-48.png" class="site-icon" alt="cross-references" width="16" height="16"> Cross-References</a>
         <a href="lexicon.html"><img src="assets/icons/shield-alpha-omega-48.png" class="site-icon" alt="lexicon" width="16" height="16"> Lexicon</a>
         <a href="dictionary/index.html"><img src="assets/icons/shield-book-greek-48.png" class="site-icon" alt="dictionary" width="16" height="16"> Dictionary</a>
-        <a href="blog.html"><img src="assets/icons/shield-blog-quill-48.png" class="site-icon" alt="blog" width="16" height="16"> Blog</a>
+        <a href="blog.html"><img src="assets/icons/shield-scroll-quill-48.png" class="site-icon" alt="blog" width="16" height="16"> Blog</a>
         <a href="churches.html" class="active"><img src="assets/icons/shield-cross.png" class="site-icon" alt="churches" width="16" height="16"> Church Directory</a>
         <a href="connect.html"><img src="assets/icons/shield-handshake.png" class="site-icon" alt="connect" width="16" height="16"> Connect</a>
     </nav>
@@ -249,7 +252,7 @@
 
     <!-- Hero -->
     <div class="hero">
-        <div class="hero-badge"><img src="assets/icons/shield-church-hires.png" alt="Church Directory" width="96" height="96" style="display:block;margin:0 auto;filter:drop-shadow(0 0 12px rgba(212,175,55,0.4));mix-blend-mode:screen;mix-blend-mode:screen;"></div>
+        <div class="hero-badge"><img src="assets/icons/shield-church-hires.png" alt="Church Directory" width="96" height="96" style="display:block;margin:0 auto;filter:drop-shadow(0 0 12px rgba(212,175,55,0.4));"></div>
         <div class="module-tag">RESOLUTE Citizen — Theological Due Diligence · V5.5.0</div>
         <h1><span>Virginia</span> Church Directory</h1>
         <p class="subtitle">Richmond · Charlottesville · Hampton Roads · Lynchburg · Shenandoah Valley · Williamsburg</p>
@@ -401,6 +404,26 @@
     const EMOJI = { green: '🟢', yellow: '🟡', red: '🔴', black: '⬛' };
     const TIER_ORDER = { green: 0, yellow: 1, red: 2, black: 3 };
 
+    function normalizeRating(rating) {
+        if (typeof rating === 'string') {
+            rating = rating.trim();
+            if (rating === 'green' || rating === 'yellow' || rating === 'red' || rating === 'black') return rating;
+            if (rating === 'dead') return 'red';
+            try { const n = parseFloat(rating); if (n >= 7) return 'green'; if (n >= 5) return 'yellow'; if (n >= 3) return 'red'; return 'black'; } catch { return 'yellow'; }
+        }
+        if (typeof rating === 'number') { if (rating >= 7) return 'green'; if (rating >= 5) return 'yellow'; if (rating >= 3) return 'red'; return 'black'; }
+        return 'yellow';
+    }
+    function normalizeScore(score) {
+        if (typeof score === 'string') {
+            score = score.trim();
+            if (score === 'green' || score === 'yellow' || score === 'red' || score === 'black') return score;
+            return 'yellow';
+        }
+        if (typeof score === 'number') { if (score >= 7) return 'green'; if (score >= 5) return 'yellow'; if (score >= 3) return 'red'; return 'black'; }
+        return 'yellow';
+    }
+
     const REGION_CONFIG = [
         { key: 'dc-nova', label: '📍 DC/Northern Virginia', subtitle: 'Centreville · Chantilly · Herndon · Fairfax · Reston · Dulles' },
         { key: 'richmond', label: '🏙️ Richmond', subtitle: 'Greater Richmond Area' },
@@ -492,10 +515,10 @@
     function esc(str) { if (!str) return ''; return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
     function buildCard(church, rubric) {
-        const isBlack = church.overall_rating === 'black';
+        const isBlack = normalizeRating(church.overall_rating) === 'black';
         const card = document.createElement('div');
         card.className = 'church-card' + (isBlack ? ' black-tier' : '');
-        card.dataset.rating = church.overall_rating;
+        card.dataset.rating = normalizeRating(church.overall_rating);
         card.dataset.denomination = church.denomination || '';
         card.dataset.mens = church.has_mens_ministry ? 'true' : 'false';
         card.dataset.kids = church.has_kids_ministry ? 'true' : 'false';
@@ -512,18 +535,18 @@
             : '';
 
         const scorecardRowsHtml = rubric.map((r, i) => {
-            const score = church.scores[r.id] || 'gray';
+            const rawScore = church.scores[r.id]; const score = (rawScore !== undefined && rawScore !== null && rawScore !== '') ? normalizeScore(rawScore) : 'gray';
             const note = church.score_notes && church.score_notes[r.id];
             const noteHtml = note ? `<div class="score-note">${score === 'yellow' ? '🟡 ' : score === 'red' ? '⚠️ ' : score === 'black' ? '⬛ ' : ''}${esc(note)}</div>` : '';
-            return `<div class="score-row ${score}"><span class="score-emoji">${EMOJI[score] || '⬜'}</span><div class="score-info"><div class="score-label">${i + 1}. ${esc(r.label)}</div><div class="score-desc">${esc(r.description)}</div>${noteHtml}</div></div>`;
+            return `<div class="score-row ${normalizeScore(score)}"><span class="score-emoji">${EMOJI[normalizeScore(score)] || '⬜'}</span><div class="score-info"><div class="score-label">${i + 1}. ${esc(r.label)}</div><div class="score-desc">${esc(r.description)}</div>${noteHtml}</div></div>`;
         }).join('');
 
         card.innerHTML = `
-            <div class="rating-stripe ${church.overall_rating}"></div>
+            <div class="rating-stripe ${normalizeRating(church.overall_rating)}"></div>
             <div class="card-compact">
                 <div class="compact-header">
                     <div class="church-name">${esc(church.name)}</div>
-                    <div class="compact-right"><span class="rating-emoji">${EMOJI[church.overall_rating] || '⬜'}</span><span class="card-chevron">▼</span></div>
+                    <div class="compact-right"><span class="rating-emoji">${EMOJI[normalizeRating(church.overall_rating)] || '⬜'}</span><span class="card-chevron">▼</span></div>
                 </div>
                 <div class="compact-meta">
                     <div class="compact-meta-row"><span class="meta-icon"><img class="site-icon" src="assets/icons/shield-church-48.png" alt="" width="16" height="16"></span><span>${esc(church.denomination) || 'Independent'}${church.founded ? ' · Est. ' + esc(church.founded) : ''}</span></div>
@@ -607,8 +630,8 @@
             const regionChurches = vaChurches
                 .filter(c => c.region === rc.key)
                 .sort((a, b) => {
-                    const ta = TIER_ORDER[a.overall_rating] ?? 4;
-                    const tb = TIER_ORDER[b.overall_rating] ?? 4;
+                    const ta = TIER_ORDER[normalizeRating(a.overall_rating)] ?? 4;
+                    const tb = TIER_ORDER[normalizeRating(b.overall_rating)] ?? 4;
                     if (ta !== tb) return ta - tb;
                     return a.name.localeCompare(b.name);
                 });
@@ -644,8 +667,8 @@
     <script>if ("serviceWorker" in navigator) { navigator.serviceWorker.register("/sw.js"); }</script>
     <footer style="text-align:center; padding:28px 20px; border-top:1px solid var(--border,#333); margin-top:40px; color:var(--gray,#888); font-size:0.88rem;">
         <div style="margin-bottom:10px;"><img src="assets/icons/shield-handshake.png" alt="" width="36" height="36" style="opacity:0.6;"></div>
-        <p><a href="blog.html" style="color:var(--gray,#888);text-decoration:none;"><img src="assets/icons/shield-blog-quill-48.png" style="vertical-align:middle;opacity:0.8;" alt="" width="20" height="20"> Blog</a> &middot;
-            <a href="bible.html" style="color:var(--gray,#888);text-decoration:none;"><img src="assets/icons/shield-compass.png" style="vertical-align:middle;opacity:0.8;" alt="" width="20" height="20"> Bible Tools</a> &middot;
+        <p><a href="blog.html" style="color:var(--gray,#888);text-decoration:none;"><img src="assets/icons/shield-scroll-quill-48.png" style="vertical-align:middle;opacity:0.8;" alt="" width="20" height="20"> Blog</a> &middot;
+            <a href="bible.html" style="color:var(--gray,#888);text-decoration:none;"><img src="assets/icons/shield-bible-cross-48.png" style="vertical-align:middle;opacity:0.8;" alt="" width="20" height="20"> Bible Tools</a> &middot;
             <a href="about.html" style="color:var(--gray,#888);text-decoration:none;"><img src="assets/icons/shield-about-person-24.png" style="vertical-align:middle;opacity:0.8;" alt="" width="20" height="20"> About</a> &middot;
             <a href="sitemap.html" style="color:var(--gray,#888);text-decoration:none;"><img src="assets/icons/shield-map-48.png" style="vertical-align:middle;opacity:0.8;" alt="" width="20" height="20"> Site Map</a></p>
         <p style="margin-top:8px;font-size:0.78rem;color:#555;">Powered by MOOPbot Pro &mdash; &ldquo;Iron sharpens iron.&rdquo; &mdash; <a href="bible.html?ref=Proverbs+27:17" style="color:var(--gold,#D4AF37);text-decoration:underline;">Proverbs 27:17</a></p>
