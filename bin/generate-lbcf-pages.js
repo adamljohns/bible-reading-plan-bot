@@ -370,7 +370,11 @@ function buildFullPage(meta, chapters, front) {
       h += '<div class="lbcf-sig"><div class="lbcf-sig-name">' + escText(s.name) + '</div>' +
         (meta2 ? '<div class="lbcf-sig-meta">' + meta2 + '</div>' : '') + '</div>';
     });
-    h += '</div></section>';
+    h += '</div>';
+    if (front.signatories.closing) {
+      h += '<p class="lbcf-sigs-intro" style="margin-top:18px;font-style:italic;">' + escText(front.signatories.closing) + '</p>';
+    }
+    h += '</section>';
   }
 
   // Disclaimer footer
@@ -400,7 +404,9 @@ function buildPrefacePage(front) {
     const t = para.trim();
     if (t) h += '<p>' + LBCF.linkScripture(escText(t)) + '</p>';
   });
-  h += '<div class="lbcf-readthru" style="margin-top:30px;"><a href="../lbcf.html">← Chapter index</a><a href="../lbcf-full.html">Read the whole confession</a></div>';
+  h += '<footer class="lbcf-chap-footer" style="margin-top:30px;"><p class="lbcf-chap-disclaimer">The preface to the 1677/1689 confession, modernized in reverent contemporary English from the public-domain original. Free to copy, quote, and share.</p>' +
+    (front.preface.version ? '<p class="lbcf-chap-version">Preface version ' + escText(front.preface.version) + ' · LBCF on usmcmin.org</p>' : '') + '</footer>';
+  h += '<div class="lbcf-readthru" style="margin-top:18px;"><a href="../lbcf.html">← Chapter index</a><a href="../lbcf-full.html">Read the whole confession</a></div>';
   h += '</div></div>\n' + THEME_SCRIPT + '</body>\n</html>\n';
   return h;
 }
