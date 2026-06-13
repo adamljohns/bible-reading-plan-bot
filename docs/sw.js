@@ -1,7 +1,7 @@
-// U.S.M.C. Ministries — Service Worker v5
+// U.S.M.C. Ministries — Service Worker v6
 // App-shell precache + network-first runtime caching (installable, offline-capable).
 // Scope "/" controls the whole site, including /dictionary/* once registered from any page.
-const CACHE = 'usmc-v5';
+const CACHE = 'usmc-v6';
 
 // Core "app shell": the public ministry pages + key assets. Small + high-value.
 // Big data (Bible JSON, dictionary entries) caches on first visit via network-first below.
@@ -11,6 +11,9 @@ const SHELL = [
   '/dictionary/', '/dictionary/index.html',
   '/lexicon.html', '/cross-references.html', '/watchman.html',
   '/institutes.html', '/lbcf.html', '/blog.html', '/connect.html', '/about.html',
+  // LBCF shared assets (chapter shells/JSON cache on first visit via network-first).
+  // The ?v= must match the query string the pages request with, or the precache never hits.
+  '/assets/js/lbcf-render.js?v=20260612', '/assets/css/lbcf.css', '/assets/lbcf/index.json',
   '/crew-quarters.html', // preserve existing Crew Chores PWA offline support
   '/assets/icons/favicon.svg', '/assets/icons/icon-192.png',
   '/assets/icons/icon-512.png', '/assets/icons/apple-touch-icon.png'

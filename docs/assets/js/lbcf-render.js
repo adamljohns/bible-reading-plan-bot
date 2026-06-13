@@ -1,4 +1,6 @@
-/* LBCF Renderer v1.0 — usmcmin.org
+/* LBCF Renderer v1.1 — usmcmin.org
+ * v1.1 (2026-06-12): root-absolute link targets (relative paths 404ed from /lbcf/),
+ *   added Exod/Esth/Cant abbreviations, fixed dictionary slugs to existing pages.
  *
  * Loads /assets/lbcf/index.json (chapter metadata) for the index page,
  * and /assets/lbcf/chapter-NN.json for individual chapter pages.
@@ -106,7 +108,6 @@
     ['eternal procession', 'eternal-procession'],
     ['extra calvinisticum', 'extra-calvinisticum'],
     ['five solas', 'five-solas'],
-    ['general assembly', 'general-assembly'],
     ['hypostatic union', 'hypostatic-union'],
     ['holy spirit', 'holy-spirit'],
     ['holy ghost', 'holy-spirit'],
@@ -131,11 +132,11 @@
     ['son of god', 'son-of-god'],
     ['total depravity', 'total-depravity'],
     ['ten commandments', 'ten-commandments'],
-    ['the lord jesus christ', 'jesus-christ'],
-    ['jesus christ', 'jesus-christ'],
+    ['the lord jesus christ', 'christ'],
+    ['jesus christ', 'christ'],
     ['unconditional election', 'unconditional-election'],
     ['virgin birth', 'virgin-birth'],
-    ['westminster confession', 'westminster-confession-of-faith'],
+    ['westminster confession', 'westminster-confession'],
     // Single-word (common LBCF terms with definite dictionary entries)
     ['adoption', 'adoption'],
     ['arianism', 'arianism'],
@@ -203,7 +204,7 @@
     ['sins', 'sin'],
     ['socinianism', 'socinianism'],
     ['sovereignty', 'sovereignty'],
-    ['transubstantiation', 'transubstantiation'],
+    ['transubstantiation', 'transubstantiation-doctrine'],
     ['trinity', 'trinity'],
     ['truth', 'truth'],
     ['worship', 'worship'],
@@ -221,13 +222,22 @@
   // ---- Scripture-ref auto-link ----------------------------------------------
   // Match patterns like: "John 3:16", "1 Cor 13:1-3", "Hebrews 4:12-13", "Genesis 1"
   const SCRIPTURE_RE = new RegExp(
-    '\\b((?:[1-3]\\s)?(?:Genesis|Gen|Exodus|Exo|Ex|Leviticus|Lev|Numbers|Num|Deuteronomy|Deut|Dt|Joshua|Josh|Judges|Judg|Ruth|Samuel|Sam|Kings|Kgs|Chronicles|Chron|Chr|Ezra|Nehemiah|Neh|Esther|Est|Job|Psalms?|Ps|Proverbs|Prov|Pr|Ecclesiastes|Eccl|Ecc|Song of Solomon|Song of Songs|Song|SoS|Isaiah|Isa|Is|Jeremiah|Jer|Lamentations|Lam|Ezekiel|Ezek|Eze|Daniel|Dan|Hosea|Hos|Joel|Amos|Obadiah|Obad|Jonah|Jon|Micah|Mic|Nahum|Nah|Habakkuk|Hab|Zephaniah|Zeph|Haggai|Hag|Zechariah|Zech|Malachi|Mal|Matthew|Matt|Mt|Mark|Mk|Luke|Lk|John|Jn|Acts|Romans|Rom|Corinthians|Cor|Galatians|Gal|Ephesians|Eph|Philippians|Phil|Php|Colossians|Col|Thessalonians|Thess|Th|Timothy|Tim|Ti|Titus|Tit|Philemon|Philem|Phlm|Hebrews|Heb|James|Jas|Peter|Pet|John|Jn|Jude|Revelation|Rev))\\s(\\d+)(?::(\\d+(?:[–—-]\\d+)?(?:,\\s*\\d+(?:[–—-]\\d+)?)*))?\\b',
+    '\\b((?:[1-3]\\s)?(?:Genesis|Gen|Exodus|Exod|Exo|Ex|Leviticus|Lev|Numbers|Num|Deuteronomy|Deut|Dt|Joshua|Josh|Judges|Judg|Ruth|Samuel|Sam|Kings|Kgs|Chronicles|Chron|Chr|Ezra|Nehemiah|Neh|Esther|Esth|Est|Job|Psalms?|Ps|Proverbs|Prov|Pr|Ecclesiastes|Eccl|Ecc|Song of Solomon|Song of Songs|Canticles|Cant|Song|SoS|Isaiah|Isa|Is|Jeremiah|Jer|Lamentations|Lam|Ezekiel|Ezek|Eze|Daniel|Dan|Hosea|Hos|Joel|Amos|Obadiah|Obad|Jonah|Jon|Micah|Mic|Nahum|Nah|Habakkuk|Hab|Zephaniah|Zeph|Haggai|Hag|Zechariah|Zech|Malachi|Mal|Matthew|Matt|Mt|Mark|Mk|Luke|Lk|John|Jn|Acts|Romans|Rom|Corinthians|Cor|Galatians|Gal|Ephesians|Eph|Philippians|Phil|Php|Colossians|Col|Thessalonians|Thess|Th|Timothy|Tim|Ti|Titus|Tit|Philemon|Philem|Phlm|Hebrews|Heb|James|Jas|Peter|Pet|John|Jn|Jude|Revelation|Rev))\\s(\\d+)(?::(\\d+(?:[–—-]\\d+)?(?:,\\s*\\d+(?:[–—-]\\d+)?)*))?\\b',
     'g'
   );
 
+  // Abbreviations the BTE ref parser doesn't know — normalize in the URL only
+  // (displayed text keeps the prooftext's own abbreviation).
+  const URL_BOOK_FIX = {
+    'cant': 'Song', 'canticles': 'Song',
+    'song of solomon': 'Song', 'song of songs': 'Song',
+  };
+
   function refToUrl(book, chapter, verses) {
-    let ref = (book + ' ' + chapter + (verses ? ':' + verses : '')).trim();
-    return 'bible.html?ref=' + encodeURIComponent(ref);
+    const fixed = URL_BOOK_FIX[book.toLowerCase()] || book;
+    let ref = (fixed + ' ' + chapter + (verses ? ':' + verses : '')).trim();
+    // Root-absolute: chapter pages live at /lbcf/, so relative URLs 404.
+    return '/bible.html?ref=' + encodeURIComponent(ref);
   }
 
   function linkScripture(html, seen) {
@@ -251,7 +261,7 @@
         if (seen.has(key)) return m;
         seen.add(key);
       }
-      return '<a class="lbcf-dict" href="dictionary/' + slug + '.html" title="Definition">' + m + '</a>';
+      return '<a class="lbcf-dict" href="/dictionary/' + slug + '.html" title="Definition">' + m + '</a>';
     });
   }
 
@@ -261,7 +271,7 @@
       const num = parseInt(n, 10);
       if (num < 1 || num > 32 || num === currentCh) return m;
       const padded = String(num).padStart(2, '0');
-      return '<a class="lbcf-xref" href="chapter-' + padded + '.html">' + m + '</a>';
+      return '<a class="lbcf-xref" href="/lbcf/chapter-' + padded + '.html">' + m + '</a>';
     });
   }
 
