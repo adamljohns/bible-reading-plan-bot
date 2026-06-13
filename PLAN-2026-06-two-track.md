@@ -65,5 +65,5 @@ The skills are the right bones — `dict-batch` encodes the whole authoring pipe
 
 ## Dependencies / asks for Adam
 1. Street View API key decision (week 2, churches photos).
-2. Confirm next denominational source lists for the +8.5k (which rosters remain unmined).
-3. Approve the nightly schedule windows (suggested ~02:00 EDT).
+2. ~~Confirm next denominational source lists~~ **DECIDED 2026-06-12: 100% of SBC churches first.** (Note: the SBC alone runs ~45-47k congregations nationally, so full SBC coverage will overshoot the 37,000 target on its own — wave sessions should ingest by state, dedup against the existing 28.5k, and re-read the target when SBC coverage completes.)
+3. ~~Approve the nightly schedule window~~ **DONE: `nightly-dictionary-batch-run` created 2026-06-12, 02:10 AM daily.** First run will pause on its first permission prompts until Adam approves them once (approvals then persist for all future runs).
