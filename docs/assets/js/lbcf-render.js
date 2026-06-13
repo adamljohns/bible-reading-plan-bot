@@ -1,4 +1,8 @@
-/* LBCF Renderer v1.2 — usmcmin.org
+/* LBCF Renderer v1.3 — usmcmin.org
+ * v1.3 (2026-06-13): progressive enhancement — when bin/generate-lbcf-pages.js has
+ *   baked static content + embedded chapter/index JSON into the shell, render from
+ *   that (no network, no flash, offline-proof) after clearing the static fallback;
+ *   fall back to fetch when absent. Dropped the unused index.json fetch on chapters.
  * v1.2 (2026-06-12): chapters lifted draft→final after the 32-chapter fidelity
  *   audit; hub counter now counts all non-placeholder chapters.
  * v1.1 (2026-06-12): root-absolute link targets (relative paths 404ed from /lbcf/),
@@ -299,7 +303,14 @@
 
   // ---- Render: index page (chapter grid) -----------------------------------
   async function renderIndex(targetEl) {
-    const meta = await loadJson('assets/lbcf/index.json');
+    // Prefer index.json embedded by the static pre-render; else fetch.
+    let meta = null;
+    try {
+      const embedded = document.getElementById('lbcf-index-data');
+      if (embedded && embedded.textContent.trim()) meta = JSON.parse(embedded.textContent);
+    } catch (e) { meta = null; }
+    if (!meta) meta = await loadJson('assets/lbcf/index.json');
+    targetEl.innerHTML = ''; // clear any pre-rendered grid before rebuilding
     const grid = document.createElement('div');
     grid.className = 'lbcf-grid';
     meta.chapters.forEach((c) => {
@@ -335,18 +346,25 @@
   // ---- Render: single chapter page -----------------------------------------
   async function renderChapter(chNum, targetEl) {
     const padded = String(chNum).padStart(2, '0');
-    let chapter, meta;
+    // Progressive enhancement: prefer the chapter JSON embedded by the static
+    // pre-render (no network, no flash, works offline); fall back to fetch.
+    let chapter = null;
     try {
-      [chapter, meta] = await Promise.all([
-        loadJson('../assets/lbcf/chapter-' + padded + '.json'),
-        loadJson('../assets/lbcf/index.json'),
-      ]);
+      const embedded = document.getElementById('lbcf-chapter-data');
+      if (embedded && embedded.textContent.trim()) {
+        const parsed = JSON.parse(embedded.textContent);
+        if (Number(parsed.number) === Number(chNum)) chapter = parsed;
+      }
+      if (!chapter) chapter = await loadJson('../assets/lbcf/chapter-' + padded + '.json');
     } catch (e) {
       targetEl.innerHTML = '<div class="lbcf-empty"><h2>This chapter is not yet drafted.</h2>' +
         '<p>It is part of the scaffolding pass. Body text and proof-texts are coming.</p>' +
         '<p><a href="../lbcf.html">← Back to confession index</a></p></div>';
       return;
     }
+
+    // Replace any static pre-rendered fallback so we never duplicate it.
+    targetEl.innerHTML = '';
 
     // Header
     const head = document.createElement('div');
@@ -399,7 +417,7 @@
     targetEl.appendChild(renderChapterFooter(chapter));
 
     // Page title
-    document.title = 'LBCF Ch. ' + chapter.number + ': ' + chapter.title + ' — U.S.M.C. Ministries';
+    document.title = 'LBCF Chapter ' + chapter.number + ': ' + chapter.title + ' — U.S.M.C. Ministries';
 
     // Permalink button click handlers
     targetEl.querySelectorAll('.lbcf-permalink').forEach((btn) => {
