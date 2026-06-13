@@ -134,17 +134,35 @@ body.light-mode img[src$="/icons/shield-warning-48.png"] { content:url("/assets/
 body.light-mode img[src$="/icons/wings-naval-aviator.png"] { content:url("/assets/icons/wings-naval-aviator-lm.png"); filter:none; }
 body.light-mode .keep-gold img, body.light-mode img.keep-gold { content:normal !important; filter:none !important; }
 
-/* ── Shield theme toggle (2026-06-11): gold/black moon in dark mode, bronze sun in light mode ── */
-.bte-theme-toggle { background:transparent !important; border:none !important; border-radius:0 !important;
-  width:42px; height:48px; padding:0 !important; display:inline-block;
-  background-image:url("/assets/icons/shield-toggle-moon-gold-96.png") !important;
-  background-size:contain !important; background-repeat:no-repeat !important; background-position:center !important;
-  cursor:pointer; transition:transform .15s ease; box-shadow:none !important; }
-.bte-theme-toggle:hover { transform:scale(1.08); }
-.bte-theme-toggle .toggle-icon, .bte-theme-toggle .toggle-track { display:none !important; }
-body.light-mode .bte-theme-toggle { background-image:url("/assets/icons/shield-toggle-sun-bronze-96.png") !important; }
-button.theme-toggle { font-size:0 !important; line-height:0 !important; background:transparent !important;
-  border:none !important; border-radius:0 !important; width:34px !important; height:38px !important;
-  background-image:url("/assets/icons/shield-toggle-moon-gold-48.png") !important;
-  background-size:contain !important; background-repeat:no-repeat !important; background-position:center !important; }
-body.light-mode button.theme-toggle { background-image:url("/assets/icons/shield-toggle-sun-bronze-48.png") !important; }
+/* ── Theme toggle (2026-06-13): sliding switch — gold-cross shield (dark) ↔ bronze empty-tomb shield (bright), with Dark/Bright Mode label. Markup-agnostic: restyles both .bte-theme-toggle (nav slider) and .theme-toggle (dict button) entirely via the host + ::before/::after, hiding any original emoji/track/knob children. ── */
+.bte-theme-toggle, .theme-toggle {
+  position:relative !important; box-sizing:border-box !important;
+  width:112px !important; min-width:112px !important; height:26px !important;
+  padding:0 !important; margin-left:6px !important; border-radius:13px !important;
+  background:rgba(18,18,18,0.92) !important; border:1px solid rgba(212,175,55,0.55) !important;
+  display:inline-block !important; vertical-align:middle !important;
+  cursor:pointer !important; overflow:hidden !important; font-size:0 !important;
+  box-shadow:none !important; transition:border-color .2s ease !important; }
+.bte-theme-toggle:hover, .theme-toggle:hover { border-color:#D4AF37 !important; transform:none !important; }
+/* hide original emoji / track / knob children */
+.bte-theme-toggle > *, .theme-toggle > * { display:none !important; }
+/* mode label — sits opposite the thumb (right side in dark mode) */
+.bte-theme-toggle::before, .theme-toggle::before {
+  content:"Dark Mode"; position:absolute; top:0; right:9px; left:30px; height:100%;
+  display:flex; align-items:center; justify-content:flex-end;
+  font-family:'Inter',system-ui,-apple-system,sans-serif; font-size:8.5px; font-weight:600;
+  letter-spacing:0.06em; text-transform:uppercase; color:#D4AF37; white-space:nowrap;
+  pointer-events:none; }
+/* sliding shield thumb — gold cross in dark mode, anchored left */
+.bte-theme-toggle::after, .theme-toggle::after {
+  content:""; position:absolute; top:50%; left:3px; transform:translateY(-50%);
+  width:20px; height:20px; background:no-repeat center/contain;
+  background-image:url("/assets/icons/shield-toggle-cross-96.png");
+  transition:left .3s ease; pointer-events:none; }
+/* light/bright mode — thumb slides right, becomes the bronze tomb, label flips to the left */
+body.light-mode .bte-theme-toggle, body.light-mode .theme-toggle {
+  background:rgba(244,241,234,0.95) !important; border-color:rgba(184,150,12,0.6) !important; }
+body.light-mode .bte-theme-toggle::before, body.light-mode .theme-toggle::before {
+  content:"Bright Mode"; left:9px; right:30px; justify-content:flex-start; color:#9c7a0c; }
+body.light-mode .bte-theme-toggle::after, body.light-mode .theme-toggle::after {
+  left:calc(100% - 23px); background-image:url("/assets/icons/shield-toggle-tomb-96.png"); }
