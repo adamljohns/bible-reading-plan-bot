@@ -33,6 +33,7 @@ const LBCF_DATA = path.join(DOCS, 'assets', 'lbcf');
 const RENDERER = path.join(DOCS, 'assets', 'js', 'lbcf-render.js');
 const FRONT_MATTER = path.join(LBCF_DATA, 'front-matter.json');
 const BUSTER = 'v=20260613';
+const LASTMOD = '2026-06-13'; // sitemap <lastmod>; constant so re-runs don't churn
 
 // ---- Load the live renderer's pure functions (one source of truth) ----------
 function loadLBCF() {
@@ -411,6 +412,36 @@ function buildPrefacePage(front) {
   return h;
 }
 
+// ---- Sitemap: emit sitemap-lbcf.xml + register it in the sitemap index ------
+function writeSitemap(chapters, front) {
+  const url = (loc, pri) =>
+    '  <url>\n    <loc>https://usmcmin.org/' + loc + '</loc>\n' +
+    '    <lastmod>' + LASTMOD + '</lastmod>\n    <changefreq>monthly</changefreq>\n' +
+    '    <priority>' + pri + '</priority>\n  </url>\n';
+
+  let xml = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
+  xml += url('lbcf.html', '0.9');
+  xml += url('lbcf-full.html', '0.8');
+  if (front && front.preface) xml += url('lbcf/preface.html', '0.6');
+  chapters.forEach((c) => { xml += url('lbcf/chapter-' + pad(c.number) + '.html', '0.7'); });
+  xml += '</urlset>\n';
+  fs.writeFileSync(path.join(DOCS, 'sitemap-lbcf.xml'), xml);
+
+  // Register in the sitemap index (idempotent)
+  const idxPath = path.join(DOCS, 'sitemap.xml');
+  let idx = fs.readFileSync(idxPath, 'utf8');
+  if (!idx.includes('sitemap-lbcf.xml')) {
+    const entry = '  <sitemap>\n    <loc>https://usmcmin.org/sitemap-lbcf.xml</loc>\n    <lastmod>' + LASTMOD + '</lastmod>\n  </sitemap>\n';
+    idx = idx.replace('</sitemapindex>', entry + '</sitemapindex>');
+    fs.writeFileSync(idxPath, idx);
+    console.log('Registered sitemap-lbcf.xml in sitemap.xml index.');
+  } else {
+    idx = idx.replace(/(<loc>https:\/\/usmcmin\.org\/sitemap-lbcf\.xml<\/loc>\s*<lastmod>)[0-9-]+(<\/lastmod>)/, '$1' + LASTMOD + '$2');
+    fs.writeFileSync(idxPath, idx);
+  }
+  console.log('Wrote docs/sitemap-lbcf.xml (' + (chapters.length + (front && front.preface ? 3 : 2)) + ' urls).');
+}
+
 // ---- Main -------------------------------------------------------------------
 function main() {
   const meta = readJson(path.join(LBCF_DATA, 'index.json'));
@@ -438,6 +469,8 @@ function main() {
   console.log('Wrote docs/lbcf-full.html (' + chapters.length + ' chapters' +
     (front && front.preface ? ' + preface' : '') +
     (front && front.signatories ? ' + ' + (front.signatories.signatories || []).length + ' signatories' : '') + ').');
+
+  writeSitemap(chapters, front);
 }
 
 main();
