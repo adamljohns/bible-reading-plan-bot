@@ -193,6 +193,7 @@ function navHtml(active) {
     item('cross-references.html', 'shield-infinity-rope-48.png', 'Cross-References', false) +
     item('dictionary/index.html', 'shield-book-greek-48.png', 'Dictionary', false) +
     item('lbcf.html', 'shield-cross.png', '1689 LBCF', active === 'lbcf') +
+    item('catechism.html', 'shield-cross.png', 'Baptist Catechism', false) +
     item('institutes.html', 'shield-cross.png', 'Institutes', false) +
     item('blog.html', 'shield-scroll-quill-48.png', 'Blog', false) +
     item('connect.html', 'shield-handshake.png', 'Connect', false) +
