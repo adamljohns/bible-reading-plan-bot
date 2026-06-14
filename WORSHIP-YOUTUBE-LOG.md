@@ -105,5 +105,21 @@ the right song. To swap any pick: edit `docs/data/worship-overrides.json` and ru
 | humble-thyself | Bob Hudson — Maranatha! Singers lyric | `WXSq5OZdyX0` | The classic round |
 | oh-the-blood-of-jesus | Traditional chorus — lyrics & chords | `b1f6DEkFnJw` | **Verified** the old chorus, not Kari Jobe's "O the Blood" |
 
-**Total curated so far: 77 songs.** Anything you dislike — tell me the song and I'll re-pick,
+### Cycle 6 (added overnight) — more Vineyard/Hillsong/Maranatha + title polish
+
+Also this cycle: fixed 13 song titles that leaked a "Song Title:" label (e.g. `title-all-i-know` → `all-i-know`).
+
+| Song (slug) | Artist / version | YouTube ID | Why |
+|---|---|---|---|
+| holy-spirit-rain-down | Hillsong / Russell Fragar — lyric | `TYDXysq6dwo` | Original writer |
+| i-want-to-see-jesus-lifted-high | Doug Horley — official lyric | `LF3Zr3D2UmA` | Original writer |
+| we-will-dance | David Ruis — "Sing a song of celebration" | `UO1m8zrrt7E` | Original writer |
+| we-will-glorify | Twila Paris — with lyrics | `YuJqXfUbOw8` | Original writer |
+| come-into-his-presence | Lynn Baird — Thanksgiving lyric video | `AX9aXdHZxdE` | Original writer |
+| you-re-worthy-of-my-praise-i-will-worship | David Ruis — lyric video | `ZNHBuBQ_OUI` | Original writer |
+| arms-of-love | Craig Musseau / Vineyard — official lyric | `TgJjZze76uc` | Original writer; "I sing a simple song" |
+| glorify-your-name | Donna Adkins (same song as Glorify Thy Name) | `WbiSHmIsfI4` | Verified same song |
+| we-exalt-thee | Pete Sanchez (same as I Exalt Thee) | `CPsXP0M3Y-4` | Verified same song |
+
+**Total curated so far: 86 songs.** Anything you dislike — tell me the song and I'll re-pick,
 or edit `worship-overrides.json` yourself.
