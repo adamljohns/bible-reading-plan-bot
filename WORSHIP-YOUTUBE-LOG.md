@@ -48,6 +48,27 @@ the right song. To swap any pick: edit `docs/data/worship-overrides.json` and ru
 | mighty-is-our-god | "Mighty is our God, mighty is our King" — lyrics | `UouwXLyRtuw` | Classic chorus |
 | salvation-belongs-to-our-god | Randy Rothwell — lyric video | `IF1x9CmR2kA` | Classic worship |
 
-**Total curated so far: 35 songs.** Next cycles continue (Heart of Worship / "When the music
-fades", Holy Holy Holy hymn, and more). Anything you dislike — tell me the song and I'll
-re-pick, or edit `worship-overrides.json` yourself.
+### Cycle 3 (added overnight) — Vineyard/Integrity/Hillsong classics & hymns
+
+| Song (slug) | Artist / version | YouTube ID | Why |
+|---|---|---|---|
+| all-in-all | Dennis Jernigan (same as "You Are My All in All") | `R3G8PTjTX4c` | Verified same song |
+| celebrate-jesus | Gary Oliver — HD worship lyrics | `f1-b_50_5_U` | Original writer |
+| lord-most-high | "From the ends of the earth" (Parsley/Harris/Sadler) | `lXUXQ6xpm8Y` | Verified correct song |
+| majesty | Jack Hayford — congregational lyric | `1Zontyn2TjE` | Original writer |
+| refiners-fire | Brian Doerksen — official 35th Anniversary lyric | `rII4UzVTuQo` | Original writer; "Purify my heart" |
+| when-the-music-fades | Matt Redman — The Heart of Worship (official lyric) | `HwlGdZBSX8k` | Verified title = Heart of Worship |
+| ancient-of-days | Sadler/Harvill — "Blessing and honor" | `j7mD6rIhFTk` | Correct song |
+| grace-flows-down | Christy Nockels / Passion — lyrics | `r4HtVVMhVoE` | Original artist |
+| let-the-river-flow | Darrell Evans — lyrics | `XyKLV8YN6wY` | Original writer |
+| lord-youre-beautiful | Keith Green — "Oh Lord You're Beautiful" lyric | `7VZGnN6QIFs` | Original writer |
+| o-lord-you-re-beautiful | Keith Green (same song) | `7VZGnN6QIFs` | Duplicate slug, same video |
+| power-of-your-love | Hillsong / Geoff Bullock — "Lord I come to You" | `7ic7qfLsa54` | Original writer |
+| holy-holy-holy | Reginald Heber hymn — Hymns Project lyric | `JwuDSw-9cUQ` | The classic hymn (Nicaea) |
+| what-a-friend-ive-found | Delirious / Martin Smith | `rtThY-0OtVg` | Original writer |
+
+**Total curated so far: 49 songs.** Deferred for careful version-matching next cycle:
+jesus-lover-of-my-soul (Oakley vs Hillsong unclear), blessed-be-the-name-of-the-lord
+(Kevin Prosch), blessed-be-the-name (Andy Park), i-exalt-thee, holiness, sweet-mercies,
+great-and-mighty-is-he. Anything you dislike — tell me the song and I'll re-pick, or edit
+`worship-overrides.json` yourself.
