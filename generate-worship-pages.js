@@ -380,6 +380,8 @@ function songPage(song) {
   const slides = song.slides
     ? `<a class="dl-btn" href="slides/${encodeURIComponent(song.slides)}" download><img src="../assets/icons/shield-quill-note-48.png" width="16" height="16" alt=""> Download slides</a>`
     : '';
+  const ytSearch = 'https://www.youtube.com/results?search_query=' + encodeURIComponent(song.title + ' worship song');
+  const ytBtn = `<a class="dl-btn" href="${ytSearch}" target="_blank" rel="noopener"><span style="color:#ff4d4d">▶</span> ${yt ? 'More versions on YouTube' : 'Find on YouTube'}</a>`;
 
   return `${pageHead(song.title + ' — Chords & Lyrics | USMC Ministries',
       'Chord chart and lyrics for ' + song.title + (song.key ? ' (key of ' + song.key + ')' : '') + '. Free worship leader resource from USMC Ministries.',
@@ -415,6 +417,7 @@ ${media}
         <pre class="chart" id="chart">${renderChart(song.body)}</pre>
         <div class="dl-row">
             ${slides}
+            ${ytBtn}
         </div>
         ${!yt ? '<!-- No video linked yet. Add { "'+song.slug+'": { "youtube": "<id>" } } to docs/data/worship-overrides.json and re-run the generator. -->' : ''}
     </div>
@@ -647,7 +650,17 @@ function build(songs) {
     written++;
   }
   fs.writeFileSync(INDEX_HTML, indexPage(songs));
+  writeSitemap(songs);
   console.log(`Built ${written} song pages + worship.html (${enriched} with video/slides).`);
+}
+
+function writeSitemap(songs) {
+  const url = (loc, pri) => `  <url>\n    <loc>https://usmcmin.org/${loc}</loc>\n    <lastmod>${BUILD_DATE}</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>${pri}</priority>\n  </url>`;
+  const body = [url('worship.html', '0.8')]
+    .concat(songs.map(s => url('worship/' + s.slug + '.html', '0.5')))
+    .join('\n');
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${body}\n</urlset>\n`;
+  fs.writeFileSync(path.join(REPO, 'docs/sitemap-worship.xml'), xml);
 }
 
 /* ───────────────────────────────── main ───────────────────────────────── */
