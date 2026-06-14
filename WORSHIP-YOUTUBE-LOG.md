@@ -180,5 +180,11 @@ Child Is This `VBYSDKeKvP8` · A Baby Just Like You (John Denver) `nYRAoeffQt0`
 
 Also this cycle: cross-linked 226 duplicate-version pages with an "Other versions of this song" row.
 
-**Total curated so far: 131 songs** (incl. all 22 Christmas). Anything you dislike — tell me the
+### Cycle 12 (added overnight)
+
+| Song (slug) | Artist / version | YouTube ID | Why |
+|---|---|---|---|
+| we-bow-down | Twila Paris — "You are Lord of creation" lyrics | `mrYyrY5dQHI` | Original writer |
+
+**Total curated so far: 132 songs** (incl. all 22 Christmas). Anything you dislike — tell me the
 song and I'll re-pick, or edit `worship-overrides.json` yourself.
