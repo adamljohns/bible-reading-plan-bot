@@ -360,7 +360,19 @@ const SONG_CSS = `
         .dl-btn { color:var(--gold); text-decoration:none; padding:8px 16px; border:1px solid var(--border); border-radius:8px; display:inline-flex; align-items:center; gap:6px; transition:all .2s; font-size:.9rem; }
         .dl-btn:hover { border-color:var(--gold); background:rgba(212,175,55,.1); }
         .note { color:var(--gray); font-size:.82rem; font-style:italic; margin-top:8px; }
-        @media (max-width:600px){ .toolbar{ top:54px; } pre.chart{ font-size:13px; padding:14px 12px; } }`;
+        @media (max-width:600px){ .toolbar{ top:54px; } pre.chart{ font-size:13px; padding:14px 12px; } }
+        /* Print: clean sheet that matches the original directory chart — monospace
+           preserved, chords bold black, no chrome. */
+        @media print {
+            nav, .crumb, .sub, .toolbar, .media, .dl-row, footer, .bte-theme-toggle { display:none !important; }
+            .container { max-width:none; margin:0; padding:0; }
+            .song-head { margin:0 0 2px; }
+            .song-head h1 { font-size:18pt !important; color:#000 !important; }
+            .badge { background:#fff !important; color:#000 !important; border:1px solid #000; font-size:10pt; }
+            pre.chart { border:0 !important; background:#fff !important; color:#000 !important; padding:0 !important; margin:6px 0 0; font-size:10.5pt; line-height:1.35; white-space:pre; overflow:visible !important; }
+            .ln-chord, .ln-sec { color:#000 !important; font-weight:700 !important; }
+            .ln-lyric { color:#000 !important; }
+        }`;
 
 function youtubeId(v) {
   if (!v) return '';
@@ -382,6 +394,9 @@ function songPage(song) {
     : '';
   const ytSearch = 'https://www.youtube.com/results?search_query=' + encodeURIComponent(song.title + ' worship song');
   const ytBtn = `<a class="dl-btn" href="${ytSearch}" target="_blank" rel="noopener"><span style="color:#ff4d4d">▶</span> ${yt ? 'More versions on YouTube' : 'Find on YouTube'}</a>`;
+  // Tab/chord site deep-link — same idea as BTE linking out to Blue Letter Bible.
+  const ugSearch = 'https://www.ultimate-guitar.com/search.php?search_type=title&value=' + encodeURIComponent(song.title);
+  const ugBtn = `<a class="dl-btn" href="${ugSearch}" target="_blank" rel="noopener">🎸 Tabs &amp; chords on Ultimate Guitar</a>`;
 
   return `${pageHead(song.title + ' — Chords & Lyrics | USMC Ministries',
       'Chord chart and lyrics for ' + song.title + (song.key ? ' (key of ' + song.key + ')' : '') + '. Free worship leader resource from USMC Ministries.',
@@ -411,13 +426,15 @@ ${media}
             </div>
             <div class="tb-group">
                 <button class="tb-btn" id="chordsBtn" onclick="toggleChords()">Chords: On</button>
-                <button class="tb-btn" onclick="window.print()">Print</button>
+                <button class="tb-btn" onclick="window.print()" title="Print a clean chart, just like the directory">🖨 Print Chart</button>
             </div>
         </div>
         <pre class="chart" id="chart">${renderChart(song.body)}</pre>
         <div class="dl-row">
             ${slides}
             ${ytBtn}
+            ${ugBtn}
+            <a class="dl-btn" href="../worship.html#random" onclick="event.preventDefault();location.href='../worship.html?random=1'">🎲 Random song</a>
         </div>
         ${!yt ? '<!-- No video linked yet. Add { "'+song.slug+'": { "youtube": "<id>" } } to docs/data/worship-overrides.json and re-run the generator. -->' : ''}
     </div>
@@ -493,8 +510,16 @@ const INDEX_CSS = `
         body.light-mode .hero h1 { color:#1a1a1a; }
         .hero p { color:var(--gray); max-width:620px; margin:0 auto; font-size:.96rem; }
         .stat { color:var(--gold); font-weight:600; }
-        .search-box { position:relative; max-width:560px; margin:24px auto 6px; }
-        .search-box input { width:100%; padding:13px 16px 13px 44px; background:var(--bg-card); border:1px solid var(--border); border-radius:30px; color:var(--white); font-size:1rem; font-family:'Inter',sans-serif; }
+        .sotd { background:linear-gradient(135deg,rgba(212,175,55,.08),rgba(212,175,55,.02)); border:1px solid rgba(212,175,55,.25); border-radius:14px; padding:16px 22px; margin:18px auto 0; max-width:560px; text-align:center; }
+        .sotd .lbl { color:var(--gold); font-size:.7rem; text-transform:uppercase; letter-spacing:1.5px; }
+        .sotd a.sotd-title { color:var(--white); text-decoration:none; font-family:'Playfair Display',serif; font-size:1.5rem; display:block; margin:5px 0 3px; }
+        .sotd a.sotd-title:hover { color:var(--gold); }
+        body.light-mode .sotd a.sotd-title { color:#1a1a1a; }
+        .sotd .meta { color:var(--gray); font-size:.82rem; }
+        .search-box { position:relative; max-width:560px; margin:18px auto 6px; }
+        .search-box input { width:100%; padding:13px 132px 13px 44px; background:var(--bg-card); border:1px solid var(--border); border-radius:30px; color:var(--white); font-size:1rem; font-family:'Inter',sans-serif; }
+        .random-btn { position:absolute; right:6px; top:50%; transform:translateY(-50%); background:var(--gold); color:#000; border:none; border-radius:24px; padding:9px 16px; font-size:.8rem; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:5px; font-family:'Inter',sans-serif; transition:background .15s; }
+        .random-btn:hover { background:var(--gold-light); }
         .search-box input:focus { outline:none; border-color:var(--gold); }
         body.light-mode .search-box input { background:#fff; color:#1a1a1a; border-color:#d4d0c8; }
         .search-icon { position:absolute; left:16px; top:50%; transform:translateY(-50%); color:var(--gray); }
@@ -543,9 +568,11 @@ function indexPage(songs) {
         <p>Chords charted right over the words — the way they should be. <span class="stat">${total}</span> songs from decades of leading worship: <span class="stat">${praise}</span> praise &amp; worship, <span class="stat">${tabs}</span> guitar tabs, <span class="stat">${xmas}</span> Christmas. Transpose to any key, hide the chords, print a clean sheet.</p>
     </div>
     <div class="container">
+        <div class="sotd" id="sotd"></div>
         <div class="search-box">
             <span class="search-icon">🔍</span>
             <input type="search" id="q" placeholder="Search ${total} songs by title…" autocomplete="off">
+            <button class="random-btn" onclick="randomSong()" title="Open a random song"><img src="assets/icons/shield-die-48.png" width="15" height="15" alt="" style="vertical-align:-2px"> Random</button>
         </div>
         <div class="chips" id="chips">
             <button class="chip active" data-f="all">All</button>
@@ -611,6 +638,19 @@ function indexPage(songs) {
         render(); });
     })();
     render();
+    // Random song (also reachable via ?random=1 from a song page)
+    function randomSong(){ var s=SONGS[Math.floor(Math.random()*SONGS.length)]; location.href='worship/'+s[0]+'.html'; }
+    if(/[?&]random=1/.test(location.search)) randomSong();
+    // Song of the Day — deterministic per calendar day, prefers a song with a key.
+    (function(){
+      var day=Math.floor(Date.now()/86400000);
+      var keyed=SONGS.filter(function(s){return s[5];}); var pool=keyed.length?keyed:SONGS;
+      var s=pool[day%pool.length];
+      var tag=s[3]?'Christmas':(s[2]==='t'?'Guitar Tab':'Praise & Worship');
+      document.getElementById('sotd').innerHTML='<div class="lbl">🎵 Song of the Day</div>'+
+        '<a class="sotd-title" href="worship/'+s[0]+'.html">'+s[1].replace(/&/g,'&amp;').replace(/</g,'&lt;')+'</a>'+
+        '<div class="meta">'+(s[5]?'Key of '+s[5]+' &middot; ':'')+tag+'</div>';
+    })();
     </script>
 </body>
 </html>`;

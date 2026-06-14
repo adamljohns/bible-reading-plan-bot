@@ -49,8 +49,16 @@
         body.light-mode .hero h1 { color:#1a1a1a; }
         .hero p { color:var(--gray); max-width:620px; margin:0 auto; font-size:.96rem; }
         .stat { color:var(--gold); font-weight:600; }
-        .search-box { position:relative; max-width:560px; margin:24px auto 6px; }
-        .search-box input { width:100%; padding:13px 16px 13px 44px; background:var(--bg-card); border:1px solid var(--border); border-radius:30px; color:var(--white); font-size:1rem; font-family:'Inter',sans-serif; }
+        .sotd { background:linear-gradient(135deg,rgba(212,175,55,.08),rgba(212,175,55,.02)); border:1px solid rgba(212,175,55,.25); border-radius:14px; padding:16px 22px; margin:18px auto 0; max-width:560px; text-align:center; }
+        .sotd .lbl { color:var(--gold); font-size:.7rem; text-transform:uppercase; letter-spacing:1.5px; }
+        .sotd a.sotd-title { color:var(--white); text-decoration:none; font-family:'Playfair Display',serif; font-size:1.5rem; display:block; margin:5px 0 3px; }
+        .sotd a.sotd-title:hover { color:var(--gold); }
+        body.light-mode .sotd a.sotd-title { color:#1a1a1a; }
+        .sotd .meta { color:var(--gray); font-size:.82rem; }
+        .search-box { position:relative; max-width:560px; margin:18px auto 6px; }
+        .search-box input { width:100%; padding:13px 132px 13px 44px; background:var(--bg-card); border:1px solid var(--border); border-radius:30px; color:var(--white); font-size:1rem; font-family:'Inter',sans-serif; }
+        .random-btn { position:absolute; right:6px; top:50%; transform:translateY(-50%); background:var(--gold); color:#000; border:none; border-radius:24px; padding:9px 16px; font-size:.8rem; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:5px; font-family:'Inter',sans-serif; transition:background .15s; }
+        .random-btn:hover { background:var(--gold-light); }
         .search-box input:focus { outline:none; border-color:var(--gold); }
         body.light-mode .search-box input { background:#fff; color:#1a1a1a; border-color:#d4d0c8; }
         .search-icon { position:absolute; left:16px; top:50%; transform:translateY(-50%); color:var(--gray); }
@@ -103,9 +111,11 @@
         <p>Chords charted right over the words — the way they should be. <span class="stat">1439</span> songs from decades of leading worship: <span class="stat">1162</span> praise &amp; worship, <span class="stat">261</span> guitar tabs, <span class="stat">22</span> Christmas. Transpose to any key, hide the chords, print a clean sheet.</p>
     </div>
     <div class="container">
+        <div class="sotd" id="sotd"></div>
         <div class="search-box">
             <span class="search-icon">🔍</span>
             <input type="search" id="q" placeholder="Search 1439 songs by title…" autocomplete="off">
+            <button class="random-btn" onclick="randomSong()" title="Open a random song"><img src="assets/icons/shield-die-48.png" width="15" height="15" alt="" style="vertical-align:-2px"> Random</button>
         </div>
         <div class="chips" id="chips">
             <button class="chip active" data-f="all">All</button>
@@ -180,6 +190,19 @@
         render(); });
     })();
     render();
+    // Random song (also reachable via ?random=1 from a song page)
+    function randomSong(){ var s=SONGS[Math.floor(Math.random()*SONGS.length)]; location.href='worship/'+s[0]+'.html'; }
+    if(/[?&]random=1/.test(location.search)) randomSong();
+    // Song of the Day — deterministic per calendar day, prefers a song with a key.
+    (function(){
+      var day=Math.floor(Date.now()/86400000);
+      var keyed=SONGS.filter(function(s){return s[5];}); var pool=keyed.length?keyed:SONGS;
+      var s=pool[day%pool.length];
+      var tag=s[3]?'Christmas':(s[2]==='t'?'Guitar Tab':'Praise & Worship');
+      document.getElementById('sotd').innerHTML='<div class="lbl">🎵 Song of the Day</div>'+
+        '<a class="sotd-title" href="worship/'+s[0]+'.html">'+s[1].replace(/&/g,'&amp;').replace(/</g,'&lt;')+'</a>'+
+        '<div class="meta">'+(s[5]?'Key of '+s[5]+' &middot; ':'')+tag+'</div>';
+    })();
     </script>
 </body>
 </html>
