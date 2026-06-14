@@ -89,5 +89,21 @@ the right song. To swap any pick: edit `docs/data/worship-overrides.json` and ru
 | in-the-secret | Andy Park — "I Want to Know You" | `P9Mii4o-ZTU` | Original writer |
 | i-want-to-know-you | (same Andy Park song) | `P9Mii4o-ZTU` | Verified same song |
 
-**Total curated so far: 66 songs.** Anything you dislike — tell me the song and I'll re-pick,
+### Cycle 5 (added overnight) — hymns + Vineyard/Maranatha classics
+
+| Song (slug) | Artist / version | YouTube ID | Why |
+|---|---|---|---|
+| turn-your-eyes-upon-jesus | Helen Lemmel hymn — Reawaken Hymns lyric | `l-XpDh9ujXs` | The classic hymn |
+| glorify-thy-name | Donna Adkins — "Father we love You" lyric | `WbiSHmIsfI4` | Original writer |
+| open-our-eyes | Bob Cull — lyric video | `cV0S0gUPDls` | Original writer |
+| the-river-is-here | Andy Park / Vineyard — sing-along lyric | `X6xW1ATNGhc` | Original writer; "Down the mountain" |
+| crown-him-with-many-crowns | Matthew Bridges hymn — Reawaken Hymns lyric | `bFEY_GrunQc` | The classic hymn |
+| i-will-celebrate | Rita Baloche — Maranatha lyrics | `q8s2NlDnp2o` | Original writer |
+| light-the-fire-again | Brian Doerksen — lyrics (4K) | `Nd3Q8gn2jNU` | Original writer; "Don't let my love grow cold" |
+| my-redeemer-is-faithful-and-true | Steven Curtis Chapman — lyric video | `zUxxgXksJA4` | Original writer |
+| father-i-adore-you | Terrye Coelho — congregational lyric | `cQ_qohUEunY` | Original writer |
+| humble-thyself | Bob Hudson — Maranatha! Singers lyric | `WXSq5OZdyX0` | The classic round |
+| oh-the-blood-of-jesus | Traditional chorus — lyrics & chords | `b1f6DEkFnJw` | **Verified** the old chorus, not Kari Jobe's "O the Blood" |
+
+**Total curated so far: 77 songs.** Anything you dislike — tell me the song and I'll re-pick,
 or edit `worship-overrides.json` yourself.
