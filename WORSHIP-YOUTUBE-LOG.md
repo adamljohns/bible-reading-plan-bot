@@ -23,6 +23,31 @@ the right song. To swap any pick: edit `docs/data/worship-overrides.json` and ru
 | draw-me-close | Michael W. Smith — lyric video | `oGOn-Bfc3Gg` | Kelly Carpenter song; MWS is the recognizable version |
 | sanctuary | "Lord Prepare Me to Be a Sanctuary" — lyric video | `CyG1vTQjETI` | Scruggs/Thompson classic |
 
-**Next cycles will keep adding** (Holy Holy Holy, more Tomlin/Hillsong/Passion staples, then
-working down the recognizable list). Anything you dislike — just tell me the song and I'll
-re-pick, or edit the JSON yourself.
+### Cycle 2 (added overnight) — classic worship & hymns
+
+| Song (slug) | Artist / version chosen | YouTube ID | Why |
+|---|---|---|---|
+| knowing-you | Graham Kendrick — original lyric video | `vBzztqOSiDE` | Original writer; "All I once held dear" |
+| as-the-deer | Martin Nystrom — lyrics | `ifkR7caDC9M` | Original writer |
+| awesome-god | Rich Mullins — lyric video | `5bcaxQ8H3gQ` | Original writer |
+| our-god-is-an-awesome-god | Rich Mullins (same recording) | `5bcaxQ8H3gQ` | Same song / chorus |
+| change-my-heart-oh-god | Eddie Espinosa — original (1982) | `n5gXhdhGIl0` | Original writer |
+| great-is-the-lord | Michael W. Smith — lyrics | `Z2uX1H8xSd8` | Original writer (not "Great Are You Lord") |
+| i-could-sing-of-your-love-forever | Delirious — with lyrics | `ChsHo4KLUJ4` | Original writer (Martin Smith) |
+| i-love-you-lord | Laurie Klein song — lyric video | `KXt7pcHR7hs` | Classic |
+| shine-jesus-shine | Graham Kendrick — original version | `gvVE1eL0Diw` | Original writer |
+| how-great-thou-art | The Worship Initiative — lyric video | `5OTLc0K6dN4` | Clean modern hymn rendering |
+| more-love-more-power | Jude Del Hierro — 1987 Vineyard | `_SQyFtFvbas` | Original writer |
+| more-love | (same song as More Love More Power) | `_SQyFtFvbas` | Verified same lyrics |
+| my-redeemer-lives | Hillsong Worship (Reuben Morgan) | `ign4QzpKJEI` | Original |
+| shout-to-the-north | Delirious — with lyrics | `RNXZhU1FBKc` | Original (Martin Smith) |
+| step-by-step | Rich Mullins — lyric video | `ic9Ty7cxQMI` | "Sometimes by Step" / "O God You are my God" |
+| this-is-the-day | Praise & Worship — lyric video | `e-Ao-6hhaN8` | Psalm 118:24 classic |
+| holy-ground | Geron Davis — original | `rxKQZFZ71rE` | Original writer; "We are standing on holy ground" |
+| firm-foundation | "Jesus You're My Firm Foundation" (Gordon/Harvill era) | `OqOFl4T8TJM` | **Verified** the classic, not Cody Carnes' newer "Firm Foundation" |
+| mighty-is-our-god | "Mighty is our God, mighty is our King" — lyrics | `UouwXLyRtuw` | Classic chorus |
+| salvation-belongs-to-our-god | Randy Rothwell — lyric video | `IF1x9CmR2kA` | Classic worship |
+
+**Total curated so far: 35 songs.** Next cycles continue (Heart of Worship / "When the music
+fades", Holy Holy Holy hymn, and more). Anything you dislike — tell me the song and I'll
+re-pick, or edit `worship-overrides.json` yourself.
