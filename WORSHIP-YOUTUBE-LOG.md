@@ -138,5 +138,23 @@ Also this cycle: fixed 13 song titles that leaked a "Song Title:" label (e.g. `t
 
 Deferred (couldn't confidently match the exact version): not-by-might-nor-power, at-the-name-of-jesus, behold-the-lamb-of-god, i-see-the-lord, i-will-bless-the-lord, you-alone-are-holy, worthy-is-the-lamb.
 
-**Total curated so far: 96 songs.** Anything you dislike — tell me the song and I'll re-pick,
+### Cycle 8 (added overnight) — crossed 100; cleared one deferred
+
+| Song (slug) | Artist / version | YouTube ID | Why |
+|---|---|---|---|
+| i-see-the-lord | Chris Falson — "seated on the throne" lyric | `reN-3g-myJM` | **Verified** Falson, not the Baloche song |
+| he-is-exalted | Twila Paris — lyrics | `BJDg2C5JuwU` | Original writer |
+| holy-and-anointed-one | Vineyard / John Barnett — official lyric | `N0ra65zeFbo` | Original writer |
+| trees-of-the-field | "You Shall Go Out with Joy" (Dauermann) | `vsxetUob-bs` | The classic |
+| i-will-enter-his-gates | "He Has Made Me Glad" (Von Brethorst) | `dO1TkULsy1Q` | Original song |
+| he-is-lord | Traditional Easter chorus — lyrics | `bu5LSVKdGCs` | The classic |
+| jesus-we-celebrate-your-victory | John Gibson — lyric video | `q9FKbG9W0cc` | Original writer |
+| jesus-is-the-answer | Andraé Crouch — with lyrics | `uxKC1PE2x0o` | Original writer |
+| you-are-worthy-of-my-praise | David Ruis (same as I Will Worship) | `ZNHBuBQ_OUI` | Verified same song |
+
+Still deferred (generic titles colliding with famous different songs — won't guess):
+behold-the-lamb-of-god, worthy-is-the-lamb, at-the-name-of-jesus (Jernigan), i-will-bless-the-lord,
+you-alone-are-holy, not-by-might-nor-power.
+
+**Total curated so far: 105 songs.** Anything you dislike — tell me the song and I'll re-pick,
 or edit `worship-overrides.json` yourself.
