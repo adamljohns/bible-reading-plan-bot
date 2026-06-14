@@ -67,8 +67,27 @@ the right song. To swap any pick: edit `docs/data/worship-overrides.json` and ru
 | holy-holy-holy | Reginald Heber hymn — Hymns Project lyric | `JwuDSw-9cUQ` | The classic hymn (Nicaea) |
 | what-a-friend-ive-found | Delirious / Martin Smith | `rtThY-0OtVg` | Original writer |
 
-**Total curated so far: 49 songs.** Deferred for careful version-matching next cycle:
-jesus-lover-of-my-soul (Oakley vs Hillsong unclear), blessed-be-the-name-of-the-lord
-(Kevin Prosch), blessed-be-the-name (Andy Park), i-exalt-thee, holiness, sweet-mercies,
-great-and-mighty-is-he. Anything you dislike — tell me the song and I'll re-pick, or edit
-`worship-overrides.json` yourself.
+### Cycle 4 (added overnight) — deferred-versions cleared + more classics
+
+| Song (slug) | Artist / version | YouTube ID | Why |
+|---|---|---|---|
+| jesus-lover-of-my-soul | Hillsong — "I will never let you go" | `mff8_hwgWy4` | **Verified** chart = Hillsong version, not Paul Oakley |
+| blessed-be-the-name-of-the-lord | Kevin Prosch / Danny Daniels | `ObNAKFz5wu4` | **Verified** writers in chart credit |
+| blessed-be-the-name | Andy Park — "beneath Your wings" | `9FvSWa0U29U` | **Verified** Andy Park (distinct song) |
+| i-exalt-thee | Pete Sanchez Jr. — lyrics | `CPsXP0M3Y-4` | Original writer |
+| holiness | Scott Underwood — "Take My Life (Holiness)" | `ELlBzSRDrGk` | Original writer |
+| take-my-life | Scott Underwood (same song as Holiness) | `ELlBzSRDrGk` | Verified same chart |
+| sweet-mercies | David Ruis / Vineyard | `aOjU5W2MRgk` | **Verified** Vineyard, not Hillsong |
+| great-and-mighty-is-he | Todd Pettygrove | `YUjM75EMOr4` | Original writer |
+| give-thanks | Henry Smith / Don Moen — official lyric | `d0iBQTnerxE` | Original writer |
+| seek-ye-first | Karen Lafferty — Maranatha | `k3S1wfXmYPw` | Original writer |
+| there-is-a-redeemer | Keith / Melody Green — lyric | `bOaYi_YHYtc` | Original writers |
+| more-precious-than-silver | Lynn DeShazo — lyric | `BXkNsJ9oU2U` | Original writer |
+| jesus-name-above-all-names | Naida Hearn | `Jba-NLMdSSk` | Original writer |
+| my-life-is-in-you-lord | Daniel Gardner — lyrics | `nGX8i9_i8Po` | Original writer |
+| there-is-none-like-you | Lenny LeBlanc — lyric video | `Pi11q-2X1b4` | Original writer |
+| in-the-secret | Andy Park — "I Want to Know You" | `P9Mii4o-ZTU` | Original writer |
+| i-want-to-know-you | (same Andy Park song) | `P9Mii4o-ZTU` | Verified same song |
+
+**Total curated so far: 66 songs.** Anything you dislike — tell me the song and I'll re-pick,
+or edit `worship-overrides.json` yourself.
