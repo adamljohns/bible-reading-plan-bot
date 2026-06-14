@@ -176,11 +176,14 @@ function ingest() {
     const base = path.basename(file);
 
     const { meta, body } = parseMeta(raw);
-    let title = (meta.title || meta.song || prettyName(base))
-      .replace(/^[\s"'`]+|[\s"'`]+$/g, '').replace(/\s+/g, ' ').trim();
+    let title = (meta.title || meta.song || prettyName(base)).replace(/\s+/g, ' ').trim();
+    // Some headers read "Song Title: ..." — the meta regex captures "Song" and
+    // leaves "Title:" in the value. Strip any leaked label, then wrapping quotes.
+    title = title.replace(/^(song\s+title|title|song)\s*[:.\-]\s*/i, '');
+    title = title.replace(/^["'`\s]+/, '').replace(/["'`\s]+$/, '').trim();
     // If a meta line parsed into junk (no leading alphanumeric, or too short),
     // fall back to the filename — it's the most reliable title source.
-    if (!/^[A-Za-z0-9]/.test(title) || title.length < 2) title = prettyName(base);
+    if (!/^[A-Za-z0-9(]/.test(title) || title.length < 2) title = prettyName(base);
     const author = meta.author || meta.artist || meta.by || meta['words & music'] || meta.words || meta.music || '';
     const key = detectKey(meta, body);
 
