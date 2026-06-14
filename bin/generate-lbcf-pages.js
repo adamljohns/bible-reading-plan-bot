@@ -281,9 +281,9 @@ const THEME_STYLE =
 
 const THEME_TOGGLE_MARKUP =
   '    <div class="bte-theme-toggle" onclick="bteToggleTheme()" title="Toggle dark/light mode">\n' +
-  '        <span class="toggle-icon moon-icon">🌙</span>\n' +
+  '        <span class="toggle-icon moon-icon"></span>\n' +
   '        <div class="toggle-track"><div class="toggle-knob"></div></div>\n' +
-  '        <span class="toggle-icon sun-icon">☀️</span>\n' +
+  '        <span class="toggle-icon sun-icon"></span>\n' +
   '    </div>\n';
 
 const THEME_SCRIPT =

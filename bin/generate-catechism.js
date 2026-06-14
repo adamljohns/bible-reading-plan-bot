@@ -86,9 +86,9 @@ const THEME_STYLE =
 
 const THEME_TOGGLE =
   '    <div class="bte-theme-toggle" onclick="catToggleTheme()" title="Toggle dark/light mode">\n' +
-  '        <span class="toggle-icon moon-icon">🌙</span>\n' +
+  '        <span class="toggle-icon moon-icon"></span>\n' +
   '        <div class="toggle-track"><div class="toggle-knob"></div></div>\n' +
-  '        <span class="toggle-icon sun-icon">☀️</span>\n' +
+  '        <span class="toggle-icon sun-icon"></span>\n' +
   '    </div>\n';
 
 const INLINE_JS =
@@ -136,7 +136,7 @@ function qaHtml(q) {
 
 function build(data) {
   const canonical = 'https://usmcmin.org/catechism.html';
-  const desc = 'The Baptist Catechism of 1693 (Keach’s Catechism) — all 114 questions and answers in full, with Scripture proof-texts linked to the Bible engine and theological terms to the dictionary. The catechism companion to the 1689 confession.';
+  const desc = 'The Baptist Catechism (Keach’s Catechism, 1693) in a U.S.M.C. Ministries edition — all ' + data.questions.length + ' questions and answers modernized into reverent contemporary English, with Scripture proof-texts linked to the Bible engine and theological terms to the dictionary. The catechism companion to the 1689 confession.';
   const byNum = new Map(data.questions.map((q) => [q.number, q]));
 
   let h = '<!DOCTYPE html>\n<html lang="en">\n<head>\n' +
@@ -144,9 +144,9 @@ function build(data) {
     '    <link rel="canonical" href="' + canonical + '">\n' +
     '    <link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg">\n' +
     '    <meta name="viewport" content="width=device-width, initial-scale=1.0">\n' +
-    '    <title>The Baptist Catechism (1693) — U.S.M.C. Ministries</title>\n' +
+    '    <title>The Baptist Catechism — U.S.M.C. Ministries Edition</title>\n' +
     '    <meta name="description" content="' + escAttr(desc) + '">\n' +
-    '    <meta property="og:title" content="The Baptist Catechism (1693)">\n' +
+    '    <meta property="og:title" content="The Baptist Catechism — U.S.M.C. Ministries Edition">\n' +
     '    <meta property="og:description" content="' + escAttr(desc) + '">\n' +
     '    <meta property="og:type" content="article">\n' +
     '    <meta property="og:url" content="' + canonical + '">\n' +
@@ -163,11 +163,13 @@ function build(data) {
 
   // Hero
   h += '<header class="lbcf-hero"><img src="assets/icons/shield-cross.png" alt="Catechism crest">' +
-    '<div class="subtitle">Commonly called Keach’s Catechism</div>' +
-    '<h1>The Baptist Catechism</h1>' +
+    (data.edition ? '<div class="subtitle">' + escText(data.edition) + '</div>' : '') +
+    '<h1>' + escText(data.title) + '</h1>' +
+    (data.subtitle ? '<p class="cat-edition-line">' + escText(data.subtitle) + '</p>' : '') +
     '<figure class="signatory-frontispiece"><img src="assets/lbcf/portraits/benjamin-keach.png" class="signatory-portrait" alt="Benjamin Keach (1640–1704), to whom the catechism is traditionally attributed">' +
     '<figcaption>Benjamin Keach &middot; 1640–1704 &middot; the catechism bears his name</figcaption></figure>' +
-    '<p class="desc">Adopted by the Particular Baptist General Assembly in 1693 and modeled on the Westminster Shorter Catechism, the Baptist Catechism teaches the faith of the 1689 confession in 114 questions and answers — written to be learned by heart, in families and in the church.</p>' +
+    '<p class="desc">Adopted by the Particular Baptist General Assembly in 1693 and modeled on the Westminster Shorter Catechism, the Baptist Catechism teaches the faith of the 1689 confession in question and answer — written to be learned by heart, in families and in the church. This edition is modernized into reverent contemporary English for U.S.M.C. Ministries.</p>' +
+    (data.dedication ? '<p class="cat-dedication">' + escText(data.dedication) + '</p>' : '') +
     '<p class="lbcf-stats"><span>' + data.questions.length + '</span> questions &middot; <span>' + (data.sections ? data.sections.length : 0) + '</span> sections &middot; with Scripture proofs</p></header>';
 
   h += '<div class="lbcf-readthru"><a href="lbcf.html">The 1689 Confession</a><a href="bible.html">Bible Translation Engine</a><a href="dictionary/index.html">Dictionary</a></div>';
@@ -175,8 +177,8 @@ function build(data) {
   // About
   h += '<section class="lbcf-intro"><h2>About this catechism</h2>' +
     '<p>The Baptist Catechism was commissioned by the 1693 General Assembly of Particular Baptists and is traditionally attributed to Benjamin Keach, though it was likely drafted by William Collins, Keach’s fellow author of the 1689 confession. It follows the order and much of the wording of the <a href="https://en.wikipedia.org/wiki/Westminster_Shorter_Catechism" target="_blank" rel="noopener">Westminster Shorter Catechism</a>, departing where Baptist conviction requires — most notably on baptism.</p>' +
-    '<p>Each answer’s Scripture proof-texts link into the <a href="bible.html">MOOP Bible Translation Engine</a>, and theological terms link to the <a href="dictionary/index.html">MOOP Dictionary</a>. The text is the original 114-question version, in the public domain.</p>' +
-    '<p style="font-size:0.85rem;color:var(--gray);"><strong>Note on sections:</strong> the original catechism has no printed section titles; the headings below are editorial reading aids that follow the catechism’s clear structure. The questions and answers themselves are the received historic text, unaltered.</p>' +
+    '<p>This is a <strong>U.S.M.C. Ministries edition</strong>: the original 114 questions modernized into reverent contemporary English from the public-domain 1693 text — the archaic <em>thee, thou,</em> and <em>shalt</em> brought into the language we actually speak and teach — with three further questions (115–117) added for the Christian household. The doctrine is unchanged; only the language is renewed. Each answer’s Scripture proof-texts link into the <a href="bible.html">MOOP Bible Translation Engine</a>, and theological terms link to the <a href="dictionary/index.html">MOOP Dictionary</a>.</p>' +
+    '<p style="font-size:0.85rem;color:var(--gray);"><strong>Note on sections:</strong> the original catechism has no printed section titles; the headings below are editorial reading aids that follow its clear structure.</p>' +
     '</section>';
 
   // Controls: jump + section TOC
@@ -200,7 +202,7 @@ function build(data) {
     : [{ title: 'Questions and Answers', start: 1, end: data.questions.length }];
   sections.forEach((s, i) => {
     h += '<section class="cat-section" id="sec-' + (i + 1) + '">' +
-      '<div class="cat-section-head"><div class="cat-section-eyebrow">Section ' + (i + 1) + '</div>' +
+      '<div class="cat-section-head"><div class="cat-section-eyebrow">' + escText(s.eyebrow || ('Section ' + (i + 1))) + '</div>' +
       '<h2>' + escText(s.title) + '</h2>' +
       '<div class="cat-section-range">Questions ' + s.start + '–' + s.end + '</div></div>' +
       '<div class="cat-qa">';
@@ -213,7 +215,7 @@ function build(data) {
 
   // Footer
   h += '<footer class="lbcf-chap-footer" style="max-width:820px;margin:40px auto 0;">' +
-    '<p class="lbcf-chap-disclaimer">The Baptist Catechism of 1693 — the original 114-question public-domain text. Free to copy, quote, and share. Scripture proofs and terms are linked for study.</p>' +
+    '<p class="lbcf-chap-disclaimer">A U.S.M.C. Ministries edition of the Baptist Catechism (Keach’s Catechism, 1693) — the public-domain text modernized into reverent contemporary English, with three questions added for the Christian household. Free to copy, quote, and share. Scripture proofs and terms are linked for study.</p>' +
     (data.version ? '<p class="lbcf-chap-version">Catechism edition ' + escText(data.version) + ' &middot; usmcmin.org</p>' : '') +
     '</footer>';
 
