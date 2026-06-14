@@ -169,5 +169,16 @@ All Ye Faithful `1tM5pwvUGMI` · Once in Royal David's City `knEuXzMpTbE` · Sil
 `nEH7_2c644Q` · The First Noel (+tab) `D5uud2fjtoo` · We Three Kings (+tab) `jBwL3y-Wlms` · What
 Child Is This `VBYSDKeKvP8` · A Baby Just Like You (John Denver) `nYRAoeffQt0`
 
-**Total curated so far: 127 songs** (incl. all 22 Christmas). Anything you dislike — tell me the
+### Cycle 11 (added overnight) — a few more hymns/classics
+
+| Song (slug) | Artist / version | YouTube ID | Why |
+|---|---|---|---|
+| to-god-be-the-glory | Fanny Crosby hymn — congregational lyric | `3vbGFupxwu0` | The classic hymn |
+| you-have-been-good | Twila Paris — "O Lord You have been good" | `sMWk_Az2nIg` | Original writer |
+| god-is-so-good | Traditional chorus — lyrics | `6mN7OJ5aGWc` | The classic |
+| thy-word | Amy Grant / Michael W. Smith — official lyric | `a6LC8cu03Ig` | Original writers |
+
+Also this cycle: cross-linked 226 duplicate-version pages with an "Other versions of this song" row.
+
+**Total curated so far: 131 songs** (incl. all 22 Christmas). Anything you dislike — tell me the
 song and I'll re-pick, or edit `worship-overrides.json` yourself.
