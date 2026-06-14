@@ -121,5 +121,22 @@ Also this cycle: fixed 13 song titles that leaked a "Song Title:" label (e.g. `t
 | glorify-your-name | Donna Adkins (same song as Glorify Thy Name) | `WbiSHmIsfI4` | Verified same song |
 | we-exalt-thee | Pete Sanchez (same as I Exalt Thee) | `CPsXP0M3Y-4` | Verified same song |
 
-**Total curated so far: 86 songs.** Anything you dislike — tell me the song and I'll re-pick,
+### Cycle 7 (added overnight) — more 90s/2000s classics
+
+| Song (slug) | Artist / version | YouTube ID | Why |
+|---|---|---|---|
+| all-heaven-declares | Noel & Tricia Richards — official lyric | `ImFVg-Taoq0` | Original writers |
+| king-of-kings | Sophie Conty / Naomi Batya — "and Lord of Lords" | `iZbes7hVUBs` | **Verified** the round, not Hillsong's "King of Kings" |
+| faithful-one | Brian Doerksen — congregational lyric | `JqK-UnsRTFI` | Original writer |
+| every-move-i-make | David Ruis | `Rs85bl77mac` | Original writer |
+| hallelujah-jesus-is-alive | Ron Kenoly — lyric video | `wGwh1vSvYUE` | Original artist |
+| let-your-glory-fall | David Ruis — "Father of creation" | `Ug27eTIjvPU` | Original writer |
+| take-me-in | Dave Browning — "Holy of Holies" lyric | `M_0THHZvBZ0` | Original song |
+| i-will-run-to-you | Hillsong (Reuben Morgan) — "eye is on the sparrow" | `Bj4SJ2Y2ZO0` | Original |
+| jehovah-jireh | "My Provider, His grace is sufficient" — classic lyric | `hBE_fXKub1A` | Classic chorus |
+| what-a-mighty-god-we-serve | Traditional — with lyrics | `RoTFaNFzffg` | The classic |
+
+Deferred (couldn't confidently match the exact version): not-by-might-nor-power, at-the-name-of-jesus, behold-the-lamb-of-god, i-see-the-lord, i-will-bless-the-lord, you-alone-are-holy, worthy-is-the-lamb.
+
+**Total curated so far: 96 songs.** Anything you dislike — tell me the song and I'll re-pick,
 or edit `worship-overrides.json` yourself.
