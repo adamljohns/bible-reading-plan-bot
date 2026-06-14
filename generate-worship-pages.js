@@ -363,6 +363,10 @@ const SONG_CSS = `
         .dl-btn { color:var(--gold); text-decoration:none; padding:8px 16px; border:1px solid var(--border); border-radius:8px; display:inline-flex; align-items:center; gap:6px; transition:all .2s; font-size:.9rem; }
         .dl-btn:hover { border-color:var(--gold); background:rgba(212,175,55,.1); }
         .note { color:var(--gray); font-size:.82rem; font-style:italic; margin-top:8px; }
+        .versions { margin:4px 0 18px; font-size:.86rem; color:var(--gray); }
+        .versions-label { color:var(--gray); margin-right:4px; }
+        .versions a { color:var(--gold); text-decoration:none; }
+        .versions a:hover { text-decoration:underline; }
         @media (max-width:600px){ .toolbar{ top:54px; } pre.chart{ font-size:13px; padding:14px 12px; } }
         /* Print: clean sheet that matches the original directory chart — monospace
            preserved, chords bold black, no chrome. */
@@ -383,7 +387,8 @@ function youtubeId(v) {
   return m ? m[1] : (/^[A-Za-z0-9_-]{6,}$/.test(v) ? v : '');
 }
 
-function songPage(song) {
+function songPage(song, siblings) {
+  siblings = siblings || [];
   const tagLabel = song.type === 'tab' ? 'Guitar Tab' : (song.christmas ? 'Christmas' : 'Praise & Worship');
   const subBits = [];
   if (song.author) subBits.push(escapeHtml(song.author));
@@ -400,6 +405,11 @@ function songPage(song) {
   // Tab/chord site deep-link — same idea as BTE linking out to Blue Letter Bible.
   const ugSearch = 'https://www.ultimate-guitar.com/search.php?search_type=title&value=' + encodeURIComponent(song.title);
   const ugBtn = `<a class="dl-btn" href="${ugSearch}" target="_blank" rel="noopener">🎸 Tabs &amp; chords on Ultimate Guitar</a>`;
+  const versionsRow = siblings.length
+    ? `\n        <div class="versions"><span class="versions-label">Other versions of this song:</span> ` +
+      siblings.map(s => `<a href="${s.slug}.html">${s.type === 'tab' ? 'Guitar tab' : 'Chords'}</a>`).join(' &middot; ') +
+      `</div>`
+    : '';
 
   return `${pageHead(song.title + ' — Chords & Lyrics | USMC Ministries',
       'Chord chart and lyrics for ' + song.title + (song.key ? ' (key of ' + song.key + ')' : '') + '. Free worship leader resource from USMC Ministries.',
@@ -438,7 +448,7 @@ ${media}
             ${ytBtn}
             ${ugBtn}
             <a class="dl-btn" href="../worship.html#random" onclick="event.preventDefault();location.href='../worship.html?random=1'">🎲 Random song</a>
-        </div>
+        </div>${versionsRow}
         ${!yt ? '<!-- No video linked yet. Add { "'+song.slug+'": { "youtube": "<id>" } } to docs/data/worship-overrides.json and re-run the generator. -->' : ''}
     </div>
     ${footerBlock(1)}
@@ -687,9 +697,25 @@ function build(songs) {
     if (f.endsWith('.html') && !keep.has(f)) { fs.unlinkSync(path.join(OUT_DIR, f)); pruned++; }
   }
   if (pruned) console.log(`Pruned ${pruned} stale song pages.`);
+
+  // Group songs that are the same piece under different transcriptions (base /
+  // "-2" / "-tab" / "(2nd version)") so each page can link its other versions.
+  const verNorm = (t) => t.toLowerCase()
+    .replace(/\s*\((?:2nd|alt|alternate|version|live|acoustic|tab|chords?)[^)]*\)\s*/g, ' ')
+    .replace(/[^a-z0-9]+/g, ' ').trim();
+  const groups = new Map();
+  for (const s of songs) {
+    const n = verNorm(s.title);
+    if (!groups.has(n)) groups.set(n, []);
+    groups.get(n).push(s);
+  }
+
   let written = 0;
   for (const song of songs) {
-    fs.writeFileSync(path.join(OUT_DIR, song.slug + '.html'), songPage(song));
+    const siblings = (groups.get(verNorm(song.title)) || [])
+      .filter(s => s.slug !== song.slug)
+      .map(s => ({ slug: s.slug, type: s.type }));
+    fs.writeFileSync(path.join(OUT_DIR, song.slug + '.html'), songPage(song, siblings));
     written++;
   }
   fs.writeFileSync(INDEX_HTML, indexPage(songs));
