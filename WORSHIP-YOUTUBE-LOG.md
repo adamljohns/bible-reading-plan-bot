@@ -156,5 +156,18 @@ Still deferred (generic titles colliding with famous different songs — won't g
 behold-the-lamb-of-god, worthy-is-the-lamb, at-the-name-of-jesus (Jernigan), i-will-bless-the-lord,
 you-alone-are-holy, not-by-might-nor-power.
 
-**Total curated so far: 105 songs.** Anything you dislike — tell me the song and I'll re-pick,
-or edit `worship-overrides.json` yourself.
+### Cycle 9 (added overnight) — full Christmas-carols pass (22 songs)
+
+Curated every Christmas song in the archive — almost all public-domain carols (title = song,
+high confidence). Clean lyric videos chosen; `-tab` duplicates point to the same video.
+
+Angels We Have Heard on High `KGCxTOYBy50` · Away in a Manger `AnwO_0DrpCk` · Deck the Halls
+`jo6V9oAE51Y` · God Rest Ye Merry Gentlemen (+tab) `5XkywQmliAs` · Hark the Herald Angels Sing
+(+tab) `xqooC4ZG75Y` · It Came Upon a Midnight Clear (+tab) `TqfIjm0E1Fk` · Joy to the World
+`30OaM6b48k8` · O Holy Night `0eAbuKocKG0` · O Little Town of Bethlehem `sI7_TGZaOIE` · O Come
+All Ye Faithful `1tM5pwvUGMI` · Once in Royal David's City `knEuXzMpTbE` · Silent Night (+tab)
+`nEH7_2c644Q` · The First Noel (+tab) `D5uud2fjtoo` · We Three Kings (+tab) `jBwL3y-Wlms` · What
+Child Is This `VBYSDKeKvP8` · A Baby Just Like You (John Denver) `nYRAoeffQt0`
+
+**Total curated so far: 127 songs** (incl. all 22 Christmas). Anything you dislike — tell me the
+song and I'll re-pick, or edit `worship-overrides.json` yourself.
