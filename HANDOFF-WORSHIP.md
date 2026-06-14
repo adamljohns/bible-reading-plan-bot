@@ -47,13 +47,15 @@ Then `node generate-worship-pages.js --pages`. A `youtube` value embeds the play
 a `slides` value adds a download button (drop the file in `docs/worship/slides/`).
 
 ## Open backlog (decisions for Adam)
-1. **PPT projection slides** — 135 decks (~50 MB) found in
-   `~/Documents/BU2TB-Archive/iCloud-Consolidation/Ministry (TTF)/Worship Songs (ppt)`.
-   32+ match songs by title. **Decision needed:** (a) copy the `.ppt` into the repo as-is
-   (+50 MB to the Pages repo), (b) install LibreOffice and convert to lightweight PDFs
-   (needs a download + ~minutes), or (c) host slides elsewhere and link out. Not committed
-   tonight to avoid bloating the repo / installing software without your call. Override
-   mechanism is ready either way.
+1. **PPT projection slides — DONE (2026-06-14).** Adam approved: installed LibreOffice,
+   converted the decks to PDF (104 song decks, only **5.9 MB** total — far under the 50 MB
+   estimate). PDFs live in `docs/worship/slides/`. 32 decks whose title exactly matches a
+   chord chart link inline on the song page ("📽 Projection slides (PDF)"); all 104 are
+   browsable at **`/worship-slides.html`** (linked from the songbook hero). Re-convert:
+   `/Applications/LibreOffice.app/Contents/MacOS/soffice --headless --convert-to pdf --outdir docs/worship/slides "<deck>.ppt"`.
+   To link a deck to a song, set `"slides":"<file>.pdf"` in worship-overrides.json + rebuild.
+   ~70 decks are for songs we have no chord chart for yet (browsable in the library; could
+   become new song pages later).
 2. **The 16 `.doc` songbooks** (e.g. `Songbook.doc`, `Alphabetic index+songs.doc`) — could be
    converted (`textutil`) and offered as downloadable reference compilations.
 3. **Duplicate songs** (e.g. `amazing-grace`, `amazing-grace-2`, `amazing-grace-tab`) — could

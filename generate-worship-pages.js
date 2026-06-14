@@ -398,7 +398,7 @@ function songPage(song, siblings) {
     ? `\n        <div class="media"><iframe src="https://www.youtube-nocookie.com/embed/${yt}" title="${escapeHtml(song.title)} — video" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`
     : '';
   const slides = song.slides
-    ? `<a class="dl-btn" href="slides/${encodeURIComponent(song.slides)}" download><img src="../assets/icons/shield-quill-note-48.png" width="16" height="16" alt=""> Download slides</a>`
+    ? `<a class="dl-btn" href="slides/${encodeURIComponent(song.slides)}" target="_blank" rel="noopener">📽 Projection slides (PDF)</a>`
     : '';
   const ytSearch = 'https://www.youtube.com/results?search_query=' + encodeURIComponent(song.title + ' worship song');
   const ytBtn = `<a class="dl-btn" href="${ytSearch}" target="_blank" rel="noopener"><span style="color:#ff4d4d">▶</span> ${yt ? 'More versions on YouTube' : 'Find on YouTube'}</a>`;
@@ -560,7 +560,7 @@ const INDEX_CSS = `
         .more button:hover { background:rgba(212,175,55,.12); }
         .no-results { text-align:center; color:var(--gray); padding:40px 20px; display:none; }`;
 
-function indexPage(songs) {
+function indexPage(songs, slidesCount) {
   const total = songs.length;
   const praise = songs.filter(s => s.type === 'praise' && !s.christmas).length;
   const tabs = songs.filter(s => s.type === 'tab').length;
@@ -579,6 +579,7 @@ function indexPage(songs) {
         <img src="assets/icons/shield-quill-note-96.png" alt="Worship" width="84" height="84">
         <h1>Worship Songbook</h1>
         <p>Chords charted right over the words — the way they should be. <span class="stat">${total}</span> songs from decades of leading worship: <span class="stat">${praise}</span> praise &amp; worship, <span class="stat">${tabs}</span> guitar tabs, <span class="stat">${xmas}</span> Christmas. Transpose to any key, hide the chords, print a clean sheet.</p>
+        ${slidesCount ? `<p style="margin-top:12px;"><a href="worship-slides.html" style="color:var(--gold);text-decoration:none;font-weight:600;">📽 Projection slides library</a> &middot; <span class="stat">${slidesCount}</span> lyric decks (PDF)</p>` : ''}
     </div>
     <div class="container">
         <div class="sotd" id="sotd"></div>
@@ -718,9 +719,58 @@ function build(songs) {
     fs.writeFileSync(path.join(OUT_DIR, song.slug + '.html'), songPage(song, siblings));
     written++;
   }
-  fs.writeFileSync(INDEX_HTML, indexPage(songs));
+  const slidesDir = path.join(OUT_DIR, 'slides');
+  const pdfs = fs.existsSync(slidesDir)
+    ? fs.readdirSync(slidesDir).filter(f => /\.pdf$/i.test(f)).sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()))
+    : [];
+  fs.writeFileSync(INDEX_HTML, indexPage(songs, pdfs.length));
+  if (pdfs.length) fs.writeFileSync(path.join(REPO, 'docs/worship-slides.html'), slidesPage(pdfs));
   writeSitemap(songs);
-  console.log(`Built ${written} song pages + worship.html (${enriched} with video/slides).`);
+  console.log(`Built ${written} song pages + worship.html (${enriched} with video/slides; ${pdfs.length} slide PDFs).`);
+}
+
+function slidesPage(pdfs) {
+  const pretty = (f) => f.replace(/\.pdf$/i, '');
+  const rows = pdfs.map(f =>
+    `<a class="song-card" href="worship/slides/${encodeURIComponent(f)}" target="_blank" rel="noopener" data-t="${escapeHtml(pretty(f).toLowerCase())}"><span class="song-title">${escapeHtml(pretty(f))}</span><span class="song-meta"><span class="song-tag">PDF</span></span></a>`
+  ).join('\n');
+  return `${pageHead('Projection Slides — Worship | USMC Ministries',
+      pdfs.length + ' worship projection slide decks (lyrics) as PDFs — view, project, or print.',
+      'worship-slides.html', 0)}
+    <style>${BASE_CSS}${INDEX_CSS}</style>
+</head>
+<body>
+    ${navBlock(0)}
+    <div class="hero">
+        <img src="assets/icons/shield-quill-note-96.png" alt="" width="72" height="72">
+        <h1>Projection Slides</h1>
+        <p><a href="worship.html" style="color:var(--gold);text-decoration:none;">&larr; Back to the Worship Songbook</a><br>
+        <span class="stat">${pdfs.length}</span> lyric slide decks (PDF) — tap any to view, project, or print. Songs that also have a chord chart link their slides from the song page.</p>
+    </div>
+    <div class="container">
+        <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input type="search" id="q" placeholder="Search ${pdfs.length} slide decks…" autocomplete="off">
+        </div>
+        <div class="count" id="count"></div>
+        <div class="song-grid" id="grid">
+${rows}
+        </div>
+        <div class="no-results" id="noResults">No slide decks match your search.</div>
+    </div>
+    ${footerBlock(0)}
+    ${THEME_RESTORE}
+    <script>
+    var grid=document.getElementById('grid'), cards=[].slice.call(grid.children),
+        countEl=document.getElementById('count'), nr=document.getElementById('noResults');
+    function render(term){ var shown=0; term=(term||'').toLowerCase().trim();
+      cards.forEach(function(c){ var ok=!term||c.dataset.t.indexOf(term)>=0; c.style.display=ok?'':'none'; if(ok)shown++; });
+      countEl.textContent=shown+' deck'+(shown===1?'':'s'); nr.style.display=shown?'none':'block'; }
+    document.getElementById('q').addEventListener('input',function(e){render(e.target.value);});
+    render('');
+    </script>
+</body>
+</html>`;
 }
 
 function writeSitemap(songs) {
