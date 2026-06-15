@@ -225,6 +225,39 @@ function ingest() {
   return songs;
 }
 
+/* ───────────────────────── artist + popularity ───────────────────────── */
+
+// Clean a noisy .crd author/artist line ("Words and Music by ...", "Artist: ...").
+function cleanArtist(a) {
+  if (!a) return '';
+  let x = String(a)
+    .replace(/^[\s:\-\/]+/, '')
+    .replace(/^(words?\s*(?:and|&)\s*music\s*by|music\s*(?:and|&)\s*words\s*by|words?\s*&\s*music|words?\s*by|music\s*by|and\s*music\s*by|composed\s*by|written\s*by|arranged\s*by|arr\.?|by|artist|author)\s*[:\-]?\s*/i, '')
+    .replace(/\s*[\(<].*$/, '')   // drop trailing "(...)" or "<email>"
+    .replace(/\s+/g, ' ').trim();
+  if (x.length < 2 || x.length > 50) return '';
+  return x;
+}
+
+// Resolved artist for display/search: curated override wins, then cleaned .crd
+// author, then a sensible fallback for carols.
+function resolveArtist(s) {
+  return s.artist || cleanArtist(s.author) || (s.christmas ? 'Traditional carol' : '');
+}
+
+// Popularity heuristic (0–100). The signals we trust: a hand-verified YouTube
+// video (= a recognizable song), projection slides Adam actually made (= used in
+// services), a detected key, and being a praise song rather than a stray rock chart.
+function popularity(s) {
+  let p = 0;
+  if (s.youtube) p += 60;
+  if (s.slides) p += 25;
+  if (s.key) p += 10;
+  if (s.type === 'praise' && !s.christmas) p += 5;
+  return p;
+}
+function isWellKnown(s) { return !!(s.youtube || s.slides); }
+
 /* ───────────────────────── shared HTML fragments ───────────────────────── */
 
 function pageHead(title, desc, canonicalPath, depth) {
@@ -391,7 +424,8 @@ function songPage(song, siblings) {
   siblings = siblings || [];
   const tagLabel = song.type === 'tab' ? 'Guitar Tab' : (song.christmas ? 'Christmas' : 'Praise & Worship');
   const subBits = [];
-  if (song.author) subBits.push(escapeHtml(song.author));
+  const art = resolveArtist(song);
+  if (art) subBits.push(escapeHtml(art));
   subBits.push(tagLabel);
   const yt = youtubeId(song.youtube);
   const media = yt
@@ -555,6 +589,16 @@ const INDEX_CSS = `
         .song-meta { display:flex; gap:6px; align-items:center; flex-shrink:0; }
         .song-key { background:rgba(212,175,55,.15); color:var(--gold); font-size:.68rem; font-weight:600; padding:2px 7px; border-radius:9px; }
         .song-tag { font-size:.58rem; text-transform:uppercase; letter-spacing:.5px; color:var(--gray); border:1px solid var(--border); border-radius:6px; padding:1px 5px; }
+        .song-main { display:flex; flex-direction:column; gap:2px; min-width:0; }
+        .song-artist { color:var(--gray); font-size:.72rem; line-height:1.2; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .wk-star { color:var(--gold); font-size:.8rem; }
+        .controls { display:flex; flex-wrap:wrap; gap:6px; justify-content:center; align-items:center; margin:10px 0 2px; }
+        .ctrl-label { color:var(--gray); font-size:.72rem; text-transform:uppercase; letter-spacing:1px; margin-right:2px; }
+        .ctrl-btn { background:transparent; color:var(--gray); border:1px solid var(--border); border-radius:20px; padding:5px 13px; font-size:.8rem; font-weight:600; cursor:pointer; transition:all .15s; font-family:'Inter',sans-serif; }
+        .ctrl-btn:hover { border-color:var(--gold); color:var(--gold); }
+        .ctrl-btn.active { background:var(--gold); color:#000; border-color:var(--gold); }
+        .ctrl-btn.wk-toggle { margin-left:8px; }
+        .ctrl-btn.wk-toggle.active { background:var(--gold); color:#000; }
         .more { text-align:center; margin:6px 0 30px; }
         .more button { background:transparent; color:var(--gold); border:1px solid var(--gold); border-radius:20px; padding:8px 22px; font-size:.85rem; font-weight:600; cursor:pointer; }
         .more button:hover { background:rgba(212,175,55,.12); }
@@ -565,8 +609,11 @@ function indexPage(songs, slidesCount) {
   const praise = songs.filter(s => s.type === 'praise' && !s.christmas).length;
   const tabs = songs.filter(s => s.type === 'tab').length;
   const xmas = songs.filter(s => s.christmas).length;
-  // Lightweight client index: [slug, title, type(p/t), christmas(0/1), letter, key]
-  const idx = songs.map(s => [s.slug, s.title, s.type === 'tab' ? 't' : 'p', s.christmas ? 1 : 0, s.letter, s.key || '']);
+  // Lightweight client index:
+  // [slug, title, type(p/t), christmas(0/1), letter, key, artist, score, wellKnown(0/1)]
+  const idx = songs.map(s => [s.slug, s.title, s.type === 'tab' ? 't' : 'p', s.christmas ? 1 : 0,
+    s.letter, s.key || '', resolveArtist(s), popularity(s), isWellKnown(s) ? 1 : 0]);
+  const wkCount = songs.filter(isWellKnown).length;
 
   return `${pageHead('Worship — Chords & Lyrics | USMC Ministries',
       'A searchable library of ' + total + ' worship songs with chords charted over the lyrics — the ultimate worship leader resource. Praise & worship, guitar tabs, and Christmas songs.',
@@ -585,7 +632,7 @@ function indexPage(songs, slidesCount) {
         <div class="sotd" id="sotd"></div>
         <div class="search-box">
             <span class="search-icon">🔍</span>
-            <input type="search" id="q" placeholder="Search ${total} songs by title…" autocomplete="off">
+            <input type="search" id="q" placeholder="Search ${total} songs by title or artist…" autocomplete="off">
             <button class="random-btn" onclick="randomSong()" title="Open a random song"><img src="assets/icons/shield-die-48.png" width="15" height="15" alt="" style="vertical-align:-2px"> Random</button>
         </div>
         <div class="chips" id="chips">
@@ -593,6 +640,12 @@ function indexPage(songs, slidesCount) {
             <button class="chip" data-f="p">Praise &amp; Worship</button>
             <button class="chip" data-f="t">Guitar Tabs</button>
             <button class="chip" data-f="x">Christmas</button>
+        </div>
+        <div class="controls">
+            <span class="ctrl-label">Sort</span>
+            <button class="ctrl-btn active" data-sort="az" onclick="setSort('az')">A–Z</button>
+            <button class="ctrl-btn" data-sort="pop" onclick="setSort('pop')">Best known</button>
+            <button class="ctrl-btn wk-toggle" id="wkBtn" onclick="toggleWK()" title="Hide deep cuts — show only songs with a video or slides">★ Well-known only (${wkCount})</button>
         </div>
         <div class="alpha-bar" id="alpha"></div>
         <div class="count" id="count"></div>
@@ -604,26 +657,32 @@ function indexPage(songs, slidesCount) {
     ${THEME_RESTORE}
     <script>
     var SONGS=${JSON.stringify(idx)};
-    var PAGE=120, shown=PAGE, filter='all', letter='', term='';
+    var PAGE=120, shown=PAGE, filter='all', letter='', term='', sort='az', wkOnly=false;
     var grid=document.getElementById('grid'), countEl=document.getElementById('count'),
         moreEl=document.getElementById('more'), nr=document.getElementById('noResults');
+    var esc=function(t){return t.replace(/&/g,'&amp;').replace(/</g,'&lt;');};
     function matches(s){
       if(filter==='p' && (s[2]!=='p'||s[3])) return false;
       if(filter==='t' && s[2]!=='t') return false;
       if(filter==='x' && !s[3]) return false;
+      if(wkOnly && !s[8]) return false;
       if(letter && s[4]!==letter) return false;
-      if(term && s[1].toLowerCase().indexOf(term)<0) return false;
+      if(term){ var hay=(s[1]+' '+(s[6]||'')).toLowerCase(); if(hay.indexOf(term)<0) return false; }
       return true;
     }
     function tagFor(s){ return s[3]?'Xmas':(s[2]==='t'?'Tab':'Praise'); }
     function render(){
       var list=SONGS.filter(matches);
-      countEl.textContent=list.length+' song'+(list.length===1?'':'s');
+      if(sort==='pop') list.sort(function(a,b){ return (b[7]-a[7]) || a[1].toLowerCase().localeCompare(b[1].toLowerCase()); });
+      else list.sort(function(a,b){ return a[1].toLowerCase().localeCompare(b[1].toLowerCase()); });
+      countEl.textContent=list.length+' song'+(list.length===1?'':'s')+(wkOnly?' · well-known':'');
       nr.style.display=list.length?'none':'block';
       var slice=list.slice(0,shown), html='';
       for(var i=0;i<slice.length;i++){ var s=slice[i];
-        html+='<a class="song-card" href="worship/'+s[0]+'.html"><span class="song-title">'+
-          s[1].replace(/&/g,'&amp;').replace(/</g,'&lt;')+'</span><span class="song-meta">'+
+        html+='<a class="song-card" href="worship/'+s[0]+'.html"><span class="song-main">'+
+          '<span class="song-title">'+(s[8]?'<span class="wk-star" title="Well-known">★</span> ':'')+esc(s[1])+'</span>'+
+          (s[6]?'<span class="song-artist">'+esc(s[6])+'</span>':'')+'</span>'+
+          '<span class="song-meta">'+
           (s[5]?'<span class="song-key">'+s[5]+'</span>':'')+
           '<span class="song-tag">'+tagFor(s)+'</span></span></a>';
       }
@@ -634,6 +693,11 @@ function indexPage(songs, slidesCount) {
     function setFilter(f){ filter=f; shown=PAGE; render();
       var c=document.getElementById('chips').children;
       for(var i=0;i<c.length;i++) c[i].classList.toggle('active',c[i].dataset.f===f); }
+    function setSort(s){ sort=s; shown=PAGE; render();
+      var c=document.querySelectorAll('.ctrl-btn[data-sort]');
+      for(var i=0;i<c.length;i++) c[i].classList.toggle('active',c[i].dataset.sort===s); }
+    function toggleWK(){ wkOnly=!wkOnly; shown=PAGE;
+      document.getElementById('wkBtn').classList.toggle('active',wkOnly); render(); }
     document.getElementById('chips').addEventListener('click',function(e){
       if(e.target.dataset.f) setFilter(e.target.dataset.f); });
     document.getElementById('q').addEventListener('input',function(e){
@@ -684,6 +748,7 @@ function applyOverrides(songs) {
     if (o.youtube) { s.youtube = o.youtube; n++; }
     if (o.slides)  { s.slides = o.slides; }
     if (o.key)     { s.key = o.key; }
+    if (o.artist)  { s.artist = o.artist; }
   }
   return n;
 }

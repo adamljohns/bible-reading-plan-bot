@@ -16,6 +16,13 @@ faithful to Adam's original monospace charts. Each song page supports:
 
 Counts: 1,162 praise & worship, 261 guitar tabs, 22 Christmas. 1,300 have an auto-detected key.
 
+**Search by artist + popularity (2026-06-15):** the index search now matches **artist** too
+(108 curated songs tagged from the YouTube log + cleaned `.crd` authors; artist shows on cards
+and song pages). A **popularity score** (curated video +60, slides +25, key +10, praise +5)
+powers a **"Best known" sort** and a **"★ Well-known only"** filter (≈139 songs with a video or
+slides) — so the old deep-cut charts nobody leads can be hidden. To tag an artist by hand, add
+`"artist":"..."` to a song in worship-overrides.json and rebuild.
+
 ## Source of truth
 Archive: `~/Documents/01-Faith-Ministry/USMC-Ministries/Documents/Worship Songs (doc)/1) Indexes`
 (1,178 `.crd` chord charts + 261 `.tab` guitar tabs). An identical copy lives under
