@@ -100,7 +100,7 @@ const INLINE_JS =
   "        try { var t = localStorage.getItem('bte-theme'); if (t === null && (t = localStorage.getItem('moop-theme')) !== null) localStorage.setItem('bte-theme', t); if (t === 'light') document.body.classList.add('light-mode'); } catch(e){}\n" +
   '        function catJump() {\n' +
   "            var v = parseInt((document.getElementById('cat-jump-input')||{}).value, 10);\n" +
-  '            if (!v || v < 1 || v > 114) return;\n' +
+  '            if (!v || v < 1) return;\n' +
   "            var el = document.getElementById('q' + v);\n" +
   "            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });\n" +
   '        }\n' +
@@ -156,6 +156,7 @@ function build(data) {
     '    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">\n' +
     '    <link rel="stylesheet" href="assets/css/lbcf.css">\n' +
     '    <link rel="stylesheet" href="assets/css/catechism.css">\n' +
+    '    <link rel="stylesheet" href="assets/css/study-progress.css">\n' +
     '    <link rel="manifest" href="/manifest.json">\n' +
     '    <link rel="stylesheet" href="/assets/css/light-icons.css">\n' +
     '    <link rel="stylesheet" href="/assets/css/print.css" media="print">\n' +
@@ -184,7 +185,7 @@ function build(data) {
   // Controls: jump + section TOC
   h += '<div class="cat-controls"><h2>Find a question</h2>' +
     '<div class="cat-jump"><label for="cat-jump-input">Jump to question</label>' +
-    '<input id="cat-jump-input" type="number" min="1" max="114" placeholder="1–114" inputmode="numeric">' +
+    '<input id="cat-jump-input" type="number" min="1" max="' + data.questions.length + '" placeholder="1–' + data.questions.length + '" inputmode="numeric">' +
     '<button type="button" onclick="catJump()">Go</button></div>';
   if (data.sections && data.sections.length) {
     h += '<nav class="cat-toc" aria-label="Sections"><ol>';
@@ -194,6 +195,7 @@ function build(data) {
     });
     h += '</ol></nav>';
   }
+  h += '<div id="study-toggle-mount"></div><div id="study-progress-mount"></div>';
   h += '</div>';
 
   // Q&A by section (fall back to a single ungrouped run if no sections)
@@ -219,7 +221,17 @@ function build(data) {
     (data.version ? '<p class="lbcf-chap-version">Catechism edition ' + escText(data.version) + ' &middot; usmcmin.org</p>' : '') +
     '</footer>';
 
-  h += '\n    </div>\n' + INLINE_JS + '</body>\n</html>\n';
+  const studyCfg = {
+    storeKey: 'catechismCompletionLog', trackKey: 'catechism-track',
+    itemSelector: '.cat-q', sectionSelector: '.cat-section',
+    labelSingular: 'question', labelPlural: 'questions',
+    workTitle: data.title, workSubtitle: data.edition || '',
+    certVerse: '“All Scripture is breathed out by God and profitable … and is able to make you wise unto salvation through faith in Christ Jesus.” — 2 Timothy 3:15–16',
+    toggleMount: '#study-toggle-mount', progressMount: '#study-progress-mount',
+  };
+  const studyJs = '    <script src="assets/js/study-progress.js"></script>\n' +
+    '    <script>StudyProgress.init(' + JSON.stringify(studyCfg) + ');</script>\n';
+  h += '\n    </div>\n' + INLINE_JS + studyJs + '</body>\n</html>\n';
   return h;
 }
 

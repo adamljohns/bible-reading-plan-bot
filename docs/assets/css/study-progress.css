@@ -1,0 +1,110 @@
+/* study-progress.css — opt-in reading tracker + certificate (usmcmin.org)
+   Pairs with study-progress.js. Inherits theme vars from the host page. */
+
+/* ===== Toggle row ===== */
+.study-toggle {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding: 14px 0 4px; border-top: 1px solid var(--border); margin-top: 14px;
+}
+.study-toggle-text { display: flex; flex-direction: column; gap: 2px; }
+.study-toggle-text strong { color: var(--gold); font-size: 0.98rem; }
+.study-toggle-sub { color: var(--gray); font-size: 0.82rem; line-height: 1.5; max-width: 52ch; }
+.study-switch {
+  flex: 0 0 auto; width: 46px; height: 26px; border-radius: 13px;
+  background: #333; border: 1px solid var(--border); position: relative;
+  cursor: pointer; transition: background .2s, border-color .2s;
+}
+.study-switch .study-switch-knob {
+  position: absolute; top: 2px; left: 2px; width: 20px; height: 20px;
+  border-radius: 50%; background: var(--gray); transition: left .2s, background .2s;
+}
+.study-switch.on { background: rgba(212,175,55,0.25); border-color: var(--gold); }
+.study-switch.on .study-switch-knob { left: 22px; background: var(--gold); }
+body.light-mode .study-switch { background: #d8d2c4; }
+body.light-mode .study-switch.on { background: rgba(138,106,26,0.25); border-color: #8a6a1a; }
+body.light-mode .study-switch.on .study-switch-knob { background: #8a6a1a; }
+
+/* ===== Progress card ===== */
+.study-progress { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
+.study-progress-info { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+.study-progress-count { color: var(--white); font-size: 0.92rem; font-weight: 600; }
+.study-progress-pct { color: var(--gold); font-size: 0.92rem; font-weight: 700; }
+.study-bar-bg { height: 10px; background: rgba(255,255,255,0.08); border-radius: 6px; overflow: hidden; }
+.study-bar-fill {
+  height: 100%; width: 0; border-radius: 6px;
+  background: linear-gradient(90deg, var(--gold), var(--gold-light));
+  transition: width .35s ease;
+}
+.study-bar-fill.complete { animation: study-glow 1.6s ease-in-out infinite; }
+@keyframes study-glow { 0%,100% { box-shadow: 0 0 4px rgba(212,175,55,0.4); } 50% { box-shadow: 0 0 14px rgba(212,175,55,0.9); } }
+.study-progress-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.study-btn {
+  padding: 7px 14px; border-radius: 18px; cursor: pointer; font-size: 0.82rem; font-weight: 500;
+  background: rgba(212,175,55,0.08); border: 1px solid rgba(212,175,55,0.3); color: var(--gold);
+  transition: background .18s, color .18s, border-color .18s;
+}
+.study-btn:hover { background: rgba(212,175,55,0.18); color: var(--gold-light); }
+.study-btn-cert:disabled { opacity: 0.45; cursor: not-allowed; }
+.study-btn-cert:not(:disabled) { background: var(--gold); color: #1a1208; border-color: var(--gold); font-weight: 700; }
+.study-btn-cert:not(:disabled):hover { background: var(--gold-light); }
+.study-milestone { color: var(--gold-light); font-size: 0.86rem; margin-top: 10px; font-style: italic; }
+body.light-mode .study-progress-count { color: #1a1a1a; }
+body.light-mode .study-bar-bg { background: rgba(0,0,0,0.08); }
+body.light-mode .study-progress-pct, body.light-mode .study-milestone { color: #8a6a1a; }
+body.light-mode .study-btn { color: #8a6a1a; border-color: rgba(138,106,26,0.4); background: rgba(138,106,26,0.08); }
+body.light-mode .study-btn-cert:not(:disabled) { background: #8a6a1a; color: #fff; border-color: #8a6a1a; }
+
+/* ===== Per-item check (hidden until tracking on) ===== */
+.study-check { display: none; }
+body.study-tracking .cat-q { padding-right: 40px; }
+body.study-tracking .study-check {
+  display: flex; align-items: center; justify-content: center;
+  position: absolute; top: 14px; right: 0; width: 28px; height: 28px;
+  border-radius: 50%; cursor: pointer;
+  background: transparent; border: 2px solid var(--border);
+  color: var(--gold-light); font-size: 0.95rem; font-weight: 700;
+  transition: border-color .18s, background .18s, transform .12s;
+}
+body.study-tracking .study-check:hover { border-color: var(--gold); transform: scale(1.08); }
+body.study-tracking .study-check.checked { background: var(--gold); border-color: var(--gold); color: #1a1208; }
+body.study-tracking .cat-q.study-done .cat-q-q { opacity: 0.82; }
+body.light-mode.study-tracking .study-check { border-color: #cdbf9a; }
+body.light-mode.study-tracking .study-check.checked { background: #8a6a1a; border-color: #8a6a1a; color: #fff; }
+
+/* ===== Section rollup badge ===== */
+.study-sec-badge { display: none; }
+body.study-tracking .study-sec-badge {
+  display: inline-block; margin-top: 8px;
+  font-size: 0.72rem; font-weight: 700; letter-spacing: 0.04em;
+  color: var(--gray); background: rgba(212,175,55,0.06);
+  border: 1px solid var(--border); border-radius: 10px; padding: 2px 10px;
+}
+body.study-tracking .study-sec-badge.complete { color: #1a1208; background: var(--gold); border-color: var(--gold); }
+body.light-mode.study-tracking .study-sec-badge.complete { background: #8a6a1a; color: #fff; border-color: #8a6a1a; }
+
+/* ===== Certificate (print-only) ===== */
+.study-cert { display: none; }
+@media print {
+  body.study-printing-cert > *:not(#study-cert) { display: none !important; }
+  body.study-printing-cert { background: #fff !important; }
+  body.study-printing-cert #study-cert {
+    display: flex !important; align-items: center; justify-content: center;
+    position: absolute; inset: 0; padding: 0;
+  }
+  .study-cert-inner {
+    width: 100%; max-width: 9.5in; margin: 0 auto; text-align: center;
+    border: 3px double #b8960c; border-radius: 6px; padding: 0.6in 0.7in;
+    color: #1a1208; font-family: 'Playfair Display', Georgia, serif;
+  }
+  .study-cert-crest { width: 64px; height: auto; margin-bottom: 8px; }
+  .study-cert-org { font-family: 'Inter', sans-serif; letter-spacing: 0.22em; text-transform: uppercase; font-size: 11pt; color: #8a6a1a; }
+  .study-cert-title { font-size: 30pt; margin: 6px 0 4px; color: #5a4710; font-weight: 700; }
+  .study-cert-rule { width: 120px; height: 2px; background: #b8960c; margin: 8px auto 18px; }
+  .study-cert-line { font-size: 12pt; color: #444; margin-bottom: 6px; }
+  .study-cert-name { font-size: 24pt; color: #1a1208; margin: 6px 0 14px; border-bottom: 1px solid #cdbf9a; display: inline-block; padding: 0 24px 6px; }
+  .study-cert-body { font-size: 13pt; line-height: 1.6; max-width: 6.5in; margin: 0 auto 16px; color: #2a2a2a; }
+  .study-cert-verse { font-style: italic; font-size: 11pt; color: #6b5a2a; max-width: 6in; margin: 0 auto 22px; }
+  .study-cert-foot { display: flex; justify-content: space-between; font-family: 'Inter', sans-serif; font-size: 9.5pt; color: #8a6a1a; border-top: 1px solid #e6dcc0; padding-top: 10px; }
+  /* keep study UI out of any normal print */
+  .study-toggle, .study-progress, .study-check, .study-sec-badge { display: none !important; }
+}
