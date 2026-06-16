@@ -151,6 +151,10 @@ function chapterPage(ch, prev, next) {
   });
   h += '</div>';
 
+  if (ch.application) {
+    h += '<aside class="inst-application"><div class="inst-application-head">A Word for 2026 · U.S.M.C. Ministries</div><p>' + escText(ch.application) + '</p></aside>';
+  }
+
   const prevLink = prev ? '<a class="inst-prev" href="' + chFile(prev.book, prev.chapter) + '">← ' + (prev.book !== ch.book ? 'Book ' + prev.book + ' ' : '') + 'Ch. ' + prev.chapter + '</a>' : '<span></span>';
   const nextLink = next ? '<a class="inst-next" href="' + chFile(next.book, next.chapter) + '">' + (next.book !== ch.book ? 'Book ' + next.book + ' ' : '') + 'Ch. ' + next.chapter + ' →</a>' : '<span></span>';
   h += '<div class="inst-chap-nav">' + prevLink + '<a class="inst-idx" href="../institutes.html">All Books</a>' + nextLink + '</div>';
