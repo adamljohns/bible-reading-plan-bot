@@ -83,6 +83,21 @@
         .credits .cr-cop { color:var(--gray); font-size:.8rem; margin-top:4px; }
         .credits a { color:var(--gold); text-decoration:none; } .credits a:hover { text-decoration:underline; }
         @media (max-width:600px){ .toolbar{ top:54px; } pre.chart{ font-size:13px; padding:14px 12px; } }
+        /* Fullscreen performance overlay — Project (lyrics) + Stage (chords). */
+        .perf-overlay { position:fixed; inset:0; z-index:9999; background:#000; color:#fff; overflow:auto; display:none; -webkit-overflow-scrolling:touch; }
+        .perf-overlay.show { display:block; }
+        .perf-controls { position:fixed; top:12px; right:14px; display:flex; gap:6px; z-index:10001; }
+        .perf-controls button { background:rgba(255,255,255,.12); color:#fff; border:1px solid #555; border-radius:8px; padding:8px 12px; font-size:.95rem; cursor:pointer; font-family:'Inter',sans-serif; }
+        .perf-controls button:hover { background:rgba(212,175,55,.35); border-color:var(--gold); }
+        .perf-body { padding:9vh 6vw 16vh; }
+        .perf-project { font-family:'Inter',sans-serif; text-align:center; max-width:1100px; margin:0 auto; font-size:2.6rem; line-height:1.5; font-weight:600; }
+        .perf-project .perf-sec { color:var(--gold); font-size:.5em; text-transform:uppercase; letter-spacing:2px; margin:1.1em 0 .35em; }
+        .perf-project .perf-line { margin:0 0 .15em; }
+        .perf-project .perf-gap { height:.7em; }
+        .perf-stage .perf-pre { font-family:'JetBrains Mono','SFMono-Regular',Menlo,monospace; font-size:1.7rem; line-height:1.5; white-space:pre; max-width:1000px; margin:0 auto; }
+        .perf-stage .ln-chord { color:var(--gold); font-weight:600; }
+        .perf-stage .ln-sec { color:var(--gold-light); font-weight:700; }
+        @media print { .perf-overlay { display:none !important; } }
         /* Print: clean sheet that matches the original directory chart — monospace
            preserved, chords bold black, no chrome. */
         @media print {
@@ -136,6 +151,8 @@
             </div>
             <div class="tb-group">
                 <button class="tb-btn" id="chordsBtn" onclick="toggleChords()">Chords: On</button>
+                <button class="tb-btn" onclick="openProject()" title="Fullscreen lyrics for projection">📽 Project</button>
+                <button class="tb-btn" onclick="openStage()" title="Fullscreen chords for leading (auto-scroll)">🎤 Stage</button>
                 <button class="tb-btn" onclick="window.print()" title="Print a clean chart, just like the directory">🖨 Print Chart</button>
             </div>
         </div>
@@ -202,6 +219,17 @@
         </div>
         <div class="versions"><span class="versions-label">Other versions of this song:</span> <a href="i-wish-wed-all-been-ready-tab.html">Guitar tab</a></div>
         <!-- No video linked yet. Add { "i-wish-wed-all-been-ready": { "youtube": "<id>" } } to docs/data/worship-overrides.json and re-run the generator. -->
+    </div>
+    <div id="perfOverlay" class="perf-overlay" aria-hidden="true">
+        <div class="perf-controls">
+            <button onclick="perfZoom(-0.2)" title="Smaller">A&minus;</button>
+            <button onclick="perfZoom(0.2)" title="Larger">A+</button>
+            <button id="perfScrollBtn" onclick="perfToggleScroll()" title="Auto-scroll">▶ Scroll</button>
+            <button onclick="perfScrollSpeed(-1)" title="Slower">«</button>
+            <button onclick="perfScrollSpeed(1)" title="Faster">»</button>
+            <button onclick="closePerf()" title="Exit (Esc)">✕</button>
+        </div>
+        <div id="perfBody" class="perf-body"></div>
     </div>
     <footer style="text-align:center; padding:28px 20px; border-top:1px solid var(--border,#333); margin-top:40px; color:var(--gray,#888); font-size:0.88rem;">
     <div style="margin-bottom:10px;"><img src="../assets/icons/shield-quill-note-48.png" alt="" width="36" height="36" style="opacity:0.6;"></div>
@@ -271,6 +299,49 @@
     function fontStep(d){ fontPx=Math.max(10,Math.min(28,fontPx+d)); chart.style.fontSize=fontPx+'px'; }
     function toggleChords(){ chordsOn=!chordsOn; chart.classList.toggle('hide-chords',!chordsOn);
       document.getElementById('chordsBtn').textContent='Chords: '+(chordsOn?'On':'Off'); }
+
+    /* ── Performance overlay: Project (lyrics) + Stage (chords, auto-scroll) ── */
+    var perf=document.getElementById('perfOverlay'), perfBody=document.getElementById('perfBody');
+    var perfFont=2.6, perfTimer=null, perfSpeed=1;
+    function escP(t){ return t.replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
+    function openProject(){
+      var html='', lns=chart.querySelectorAll('.ln');
+      for(var i=0;i<lns.length;i++){ var el=lns[i];
+        if(el.classList.contains('ln-chord')) continue;
+        var t=el.textContent.replace(/\n+$/,'');
+        if(!t.trim()){ html+='<div class="perf-gap"></div>'; continue; }
+        // keep the congregation view clean: drop credit/meta lines
+        if(/^(words?\b|music\b|by\s|©|\(c\)|copyright|ccli|capo|from the|tabbed|arr\.|arranged|transcribed|group\s*\/|album\b)/i.test(t.trim())) continue;
+        html+= el.classList.contains('ln-sec') ? '<div class="perf-sec">'+escP(t)+'</div>' : '<div class="perf-line">'+escP(t)+'</div>';
+      }
+      perfBody.className='perf-body perf-project'; perfBody.style.fontSize=perfFont+'rem'; perfBody.innerHTML=html;
+      showPerf();
+    }
+    function openStage(){
+      perfBody.className='perf-body perf-stage'; perfBody.style.fontSize='';
+      perfBody.innerHTML='<pre class="perf-pre">'+chart.innerHTML+'</pre>';
+      showPerf();
+    }
+    function showPerf(){ perf.classList.add('show'); perf.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden'; perf.scrollTop=0; if(perf.requestFullscreen) perf.requestFullscreen().catch(function(){}); }
+    function closePerf(){ perf.classList.remove('show'); perf.setAttribute('aria-hidden','true'); document.body.style.overflow=''; stopScroll(); if(document.fullscreenElement) document.exitFullscreen().catch(function(){}); }
+    function perfZoom(d){
+      if(perfBody.classList.contains('perf-stage')){ var pre=perfBody.querySelector('.perf-pre'); if(!pre)return;
+        var cur=parseFloat(getComputedStyle(pre).fontSize); pre.style.fontSize=Math.max(14,cur+d*8)+'px'; }
+      else { perfFont=Math.max(1.4,Math.min(6,perfFont+d)); perfBody.style.fontSize=perfFont+'rem'; }
+    }
+    function startScroll(){ if(perfTimer)return; perfTimer=setInterval(function(){ perf.scrollBy(0,perfSpeed); },30);
+      var b=document.getElementById('perfScrollBtn'); if(b)b.textContent='⏸ Scroll'; }
+    function stopScroll(){ if(perfTimer){ clearInterval(perfTimer); perfTimer=null; } var b=document.getElementById('perfScrollBtn'); if(b)b.textContent='▶ Scroll'; }
+    function perfToggleScroll(){ perfTimer?stopScroll():startScroll(); }
+    function perfScrollSpeed(d){ perfSpeed=Math.max(1,Math.min(8,perfSpeed+d)); if(perfTimer){ stopScroll(); startScroll(); } }
+    document.addEventListener('keydown',function(e){
+      if(!perf.classList.contains('show')) return;
+      if(e.key==='Escape') closePerf();
+      else if(e.key===' '||e.key==='ArrowDown'||e.key==='PageDown'){ perf.scrollBy(0,perf.clientHeight*0.85); e.preventDefault(); }
+      else if(e.key==='ArrowUp'||e.key==='PageUp'){ perf.scrollBy(0,-perf.clientHeight*0.85); e.preventDefault(); }
+      else if(e.key==='+'||e.key==='='){ perfZoom(0.2); }
+      else if(e.key==='-'||e.key==='_'){ perfZoom(-0.2); }
+    });
     </script>
 </body>
 </html>
