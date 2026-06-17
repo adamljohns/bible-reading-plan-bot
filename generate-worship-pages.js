@@ -121,6 +121,30 @@ function parseMeta(raw) {
   return { meta, body };
 }
 
+// Pull songwriter / CCLI # / copyright from the raw chart text so we can give
+// credit where it's due. Returns {writer, ccli, copyright} (any may be absent).
+function parseCredits(raw) {
+  const c = {};
+  const mC = raw.match(/CCLI\s*(?:song\s*(?:no|number|#)?)?\s*#?\s*[:.]?\s*(\d{3,})/i);
+  if (mC) c.ccli = mC[1];
+  const mW = raw.match(/^\s*(?:words?\s*(?:and|&)\s*music|words?\s*&\s*music|music\s*(?:and|&)\s*words|words?\s*by|music\s*by|written\s*by|composed\s*by)\s*(?:by)?\s*[:.\-]?\s*(.+)$/im);
+  if (mW) {
+    let w = mW[1].replace(/[\(<].*$/, '').replace(/\s+/g, ' ').trim().replace(/[.;,]+$/, '');
+    if (w.length > 1 && w.length < 80 && /[a-z]/i.test(w)) c.writer = w;
+  }
+  const cop = raw.split('\n').find(l => /(©|\(c\)|copyright)\s*\d{2,}/i.test(l) || /©\s*[A-Za-z]/.test(l));
+  if (cop) {
+    let cp = cop.replace(/^\s+/, '')
+      .replace(/all rights reserved.*$/i, '').replace(/used by permission.*$/i, '')
+      .replace(/international copyright.*$/i, '').replace(/admin(\.|istered).*$/i, '')
+      .replace(/\s+/g, ' ').trim()
+      .replace(/^\(c\)\s*/i, '© ').replace(/^copyright\s*/i, '© ')
+      .replace(/\s*[\(\[]\s*$/, '').replace(/[.;,]+$/, '').trim();   // drop dangling "(" left by tail-strip
+    if (cp.length > 3 && cp.length < 120) c.copyright = cp;
+  }
+  return c;
+}
+
 function detectKey(meta, body) {
   if (meta.key) return meta.key.split(/[\s,(]/)[0].trim();
   for (const line of body.split('\n')) {
@@ -176,6 +200,7 @@ function ingest() {
     const base = path.basename(file);
 
     const { meta, body } = parseMeta(raw);
+    const credits = parseCredits(raw);
     let title = (meta.title || meta.song || prettyName(base)).replace(/\s+/g, ' ').trim();
     // Some headers read "Song Title: ..." — the meta regex captures "Song" and
     // leaves "Title:" in the value. Strip any leaked label, then wrapping quotes.
@@ -213,6 +238,9 @@ function ingest() {
       ext,
       src: path.relative(SRC, file),
       body: bodyClean,
+      writer: credits.writer || '',
+      ccli: credits.ccli || '',
+      copyright: credits.copyright || '',
       youtube: null,
       slides: null,
     });
@@ -335,6 +363,7 @@ function footerBlock(depth) {
         <a href="${r}blog.html" style="color:var(--gray,#888);text-decoration:none;"><img src="${r}assets/icons/shield-scroll-quill-48.png" style="vertical-align:middle;opacity:0.8;" alt="" width="16" height="16"> Blog</a> &middot;
         <a href="${r}connect.html" style="color:var(--gray,#888);text-decoration:none;"><img src="${r}assets/icons/shield-handshake.png" style="vertical-align:middle;opacity:0.8;" alt="" width="16" height="16"> Connect</a></p>
     <p style="margin-top:8px;font-size:0.78rem;color:#555;">&ldquo;Sing to the Lord a new song.&rdquo; &mdash; <a href="${r}bible.html?ref=Psalm+96:1" style="color:var(--gold,#D4AF37);text-decoration:underline;">Psalm 96:1</a> &middot; Built for worship leaders &middot; ${BUILD_DATE}</p>
+    <p style="margin-top:10px;font-size:0.72rem;color:#555;max-width:640px;margin-left:auto;margin-right:auto;line-height:1.5;">Chord charts compiled for worship &amp; educational use. All songs remain &copy; their respective songwriters and publishers &mdash; credit is noted on each song where known. Churches: please cover congregational use with a <a href="https://ccli.com" target="_blank" rel="noopener" style="color:var(--gold,#D4AF37);text-decoration:underline;">CCLI license</a>.</p>
 </footer>`;
 }
 
@@ -416,6 +445,12 @@ const SONG_CSS = `
         .versions-label { color:var(--gray); margin-right:4px; }
         .versions a { color:var(--gold); text-decoration:none; }
         .versions a:hover { text-decoration:underline; }
+        .credits { margin:18px 0 6px; padding:14px 16px; background:rgba(212,175,55,.06); border:1px solid rgba(212,175,55,.22); border-radius:10px; font-size:.86rem; color:var(--white); }
+        body.light-mode .credits { background:rgba(212,175,55,.08); color:#1a1a1a; }
+        .credits .cr-title { color:var(--gold); font-size:.7rem; text-transform:uppercase; letter-spacing:1.2px; font-weight:700; margin-bottom:6px; }
+        .credits .cr-k { color:var(--gray); display:inline-block; min-width:120px; }
+        .credits .cr-cop { color:var(--gray); font-size:.8rem; margin-top:4px; }
+        .credits a { color:var(--gold); text-decoration:none; } .credits a:hover { text-decoration:underline; }
         @media (max-width:600px){ .toolbar{ top:54px; } pre.chart{ font-size:13px; padding:14px 12px; } }
         /* Print: clean sheet that matches the original directory chart — monospace
            preserved, chords bold black, no chrome. */
@@ -460,6 +495,15 @@ function songPage(song, siblings) {
       siblings.map(s => `<a href="${s.slug}.html">${s.type === 'tab' ? 'Guitar tab' : 'Chords'}</a>`).join(' &middot; ') +
       `</div>`
     : '';
+  // Credits — give credit where it's due.
+  const byLine = song.writer || art;
+  const crRows = [];
+  if (byLine) crRows.push(`<div><span class="cr-k">Words &amp; Music</span> ${escapeHtml(byLine)}</div>`);
+  if (song.ccli) crRows.push(`<div><span class="cr-k">CCLI</span> <a href="https://songselect.ccli.com/Songs/${escapeHtml(song.ccli)}" target="_blank" rel="noopener">#${escapeHtml(song.ccli)}</a></div>`);
+  if (song.copyright) crRows.push(`<div class="cr-cop">${escapeHtml(song.copyright)}</div>`);
+  const creditsBlock = crRows.length
+    ? `\n        <div class="credits"><div class="cr-title">Credits</div>${crRows.join('')}</div>`
+    : '';
 
   return `${pageHead(song.title + ' — Chords & Lyrics | USMC Ministries',
       'Chord chart and lyrics for ' + song.title + (song.key ? ' (key of ' + song.key + ')' : '') + '. Free worship leader resource from USMC Ministries.',
@@ -498,7 +542,7 @@ ${media}
             ${ytBtn}
             ${ugBtn}
             <a class="dl-btn" href="../worship.html#random" onclick="event.preventDefault();location.href='../worship.html?random=1'">🎲 Random song</a>
-        </div>${versionsRow}
+        </div>${versionsRow}${creditsBlock}
         ${!yt ? '<!-- No video linked yet. Add { "'+song.slug+'": { "youtube": "<id>" } } to docs/data/worship-overrides.json and re-run the generator. -->' : ''}
     </div>
     ${footerBlock(1)}
