@@ -286,6 +286,19 @@ function popularity(s) {
 }
 function isWellKnown(s) { return !!(s.youtube || s.slides); }
 
+// Conservatively flag a chart as NON-worship (Adam's archive mixes in a lot of
+// 90s/2000s Christian rock/alt that he tabbed). High precision: only guitar-tab
+// files that aren't well-known, aren't Christmas, have no CCLI, and whose lyrics
+// contain zero worship vocabulary. Everything else stays "worship".
+const WORSHIP_WORDS = /\b(lord|jesus|christ|god|holy|spirit|praise|worship|hallelujah|hosanna|heaven|grace|savior|saviour|king|almighty|lamb|cross|glory|glorious|redeem|redeemer|salvation|blessed|faithful|mercy|merciful|worthy|exalt|adore|messiah|emmanuel|alleluia|amen|hallowed|reign|risen|throne|kingdom|gospel|faith|hope|soul|prayer|pray|bless|angel|noel|born)\b/i;
+function isOtherSong(s) {
+  if (s.youtube || s.slides || s.ccli || s.christmas) return false;
+  if (s.type !== 'tab') return false;
+  const L = extractLyrics(s.body);
+  if (!L) return false;
+  return !WORSHIP_WORDS.test(L);
+}
+
 // Plain lyric text for full-text search (drop chords, section headers, meta,
 // tab diagrams, separators). Lowercased, whitespace-collapsed, length-capped.
 function extractLyrics(body) {
@@ -745,8 +758,9 @@ function indexPage(songs, slidesCount) {
   // Lightweight client index:
   // [slug, title, type(p/t), christmas(0/1), letter, key, artist, score, wellKnown(0/1)]
   const idx = songs.map(s => [s.slug, s.title, s.type === 'tab' ? 't' : 'p', s.christmas ? 1 : 0,
-    s.letter, s.key || '', resolveArtist(s), popularity(s), isWellKnown(s) ? 1 : 0]);
+    s.letter, s.key || '', resolveArtist(s), popularity(s), isWellKnown(s) ? 1 : 0, isOtherSong(s) ? 1 : 0]);
   const wkCount = songs.filter(isWellKnown).length;
+  const otherCount = songs.filter(isOtherSong).length;
 
   return `${pageHead('Worship — Chords & Lyrics | USMC Ministries',
       'A searchable library of ' + total + ' worship songs with chords charted over the lyrics — the ultimate worship leader resource. Praise & worship, guitar tabs, and Christmas songs.',
@@ -780,6 +794,7 @@ function indexPage(songs, slidesCount) {
             <button class="ctrl-btn active" data-sort="az" onclick="setSort('az')">A–Z</button>
             <button class="ctrl-btn" data-sort="pop" onclick="setSort('pop')">Best known</button>
             <button class="ctrl-btn wk-toggle" id="wkBtn" onclick="toggleWK()" title="Hide deep cuts — show only songs with a video or slides">★ Well-known only (${wkCount})</button>
+            <button class="ctrl-btn wk-toggle active" id="woBtn" onclick="toggleWorship()" title="Hide ${otherCount} non-worship rock/alt charts from the archive">🎵 Worship only</button>
         </div>
         <div class="alpha-bar" id="alpha"></div>
         <div class="count" id="count"></div>
@@ -791,7 +806,8 @@ function indexPage(songs, slidesCount) {
     ${THEME_RESTORE}
     <script>
     var SONGS=${JSON.stringify(idx)};
-    var PAGE=120, shown=PAGE, filter='all', letter='', term='', sort='az', wkOnly=false, LYR=null;
+    var PAGE=120, shown=PAGE, filter='all', letter='', term='', sort='az', wkOnly=false, worshipOnly=true, LYR=null;
+    var OTHER_TOTAL=SONGS.filter(function(s){return s[9];}).length;
     var grid=document.getElementById('grid'), countEl=document.getElementById('count'),
         moreEl=document.getElementById('more'), nr=document.getElementById('noResults');
     var esc=function(t){return t.replace(/&/g,'&amp;').replace(/</g,'&lt;');};
@@ -800,6 +816,7 @@ function indexPage(songs, slidesCount) {
       if(filter==='t' && s[2]!=='t') return false;
       if(filter==='x' && !s[3]) return false;
       if(wkOnly && !s[8]) return false;
+      if(worshipOnly && s[9]) return false;
       if(letter && s[4]!==letter) return false;
       if(term){ var hay=(s[1]+' '+(s[6]||'')).toLowerCase();
         var hit=hay.indexOf(term)>=0 || (LYR && term.length>=3 && LYR[s[0]] && LYR[s[0]].indexOf(term)>=0);
@@ -811,7 +828,7 @@ function indexPage(songs, slidesCount) {
       var list=SONGS.filter(matches);
       if(sort==='pop') list.sort(function(a,b){ return (b[7]-a[7]) || a[1].toLowerCase().localeCompare(b[1].toLowerCase()); });
       else list.sort(function(a,b){ return a[1].toLowerCase().localeCompare(b[1].toLowerCase()); });
-      countEl.textContent=list.length+' song'+(list.length===1?'':'s')+(wkOnly?' · well-known':'');
+      countEl.textContent=list.length+' song'+(list.length===1?'':'s')+(wkOnly?' · well-known':'')+(worshipOnly&&OTHER_TOTAL?' · '+OTHER_TOTAL+' other charts hidden':'');
       nr.style.display=list.length?'none':'block';
       var slice=list.slice(0,shown), html='';
       for(var i=0;i<slice.length;i++){ var s=slice[i];
@@ -834,6 +851,8 @@ function indexPage(songs, slidesCount) {
       for(var i=0;i<c.length;i++) c[i].classList.toggle('active',c[i].dataset.sort===s); }
     function toggleWK(){ wkOnly=!wkOnly; shown=PAGE;
       document.getElementById('wkBtn').classList.toggle('active',wkOnly); render(); }
+    function toggleWorship(){ worshipOnly=!worshipOnly; shown=PAGE;
+      document.getElementById('woBtn').classList.toggle('active',worshipOnly); render(); }
     document.getElementById('chips').addEventListener('click',function(e){
       if(e.target.dataset.f) setFilter(e.target.dataset.f); });
     document.getElementById('q').addEventListener('input',function(e){
