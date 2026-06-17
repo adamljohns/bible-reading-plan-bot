@@ -482,6 +482,7 @@ def build_index(words, by_letter, total):
                 <a href="millennial-decoded.html" class="featured-card"><div class="fword">Millennial Decoded</div><div class="ftag">Generational dialect</div></a>
                 <a href="gen-x-decoded.html" class="featured-card"><div class="fword">Gen X Decoded</div><div class="ftag">Generational dialect</div></a>
                 <a href="boomer-decoded.html" class="featured-card"><div class="fword">Boomer Decoded</div><div class="ftag">Generational dialect</div></a>
+                <a href="jesus-generation.html" class="featured-card"><div class="fword">The Jesus Generation</div><div class="ftag">Revival &middot; the generation that unites</div></a>
             </div>
         </div>
 

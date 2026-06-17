@@ -44,7 +44,7 @@ LEX_INDEX = os.path.join(ROOT, 'docs', 'lexicon.html')
 SPECIAL = {'index', 'template', 'names', 'baby-names', 'by-topic',
            'doctrinal-anchors', 'biblical-order', 'expressly-prohibited',
            'most-corrupted', 'gen-z-decoded', 'millennial-decoded',
-           'gen-x-decoded', 'boomer-decoded', 'changelog'}
+           'gen-x-decoded', 'boomer-decoded', 'jesus-generation', 'changelog'}
 
 VALID_ENTS = set(html.entities.name2codepoint) | {
     'amacr', 'emacr', 'imacr', 'omacr', 'umacr', 'aelig', 'thorn'}
