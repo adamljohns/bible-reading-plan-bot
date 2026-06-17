@@ -258,6 +258,22 @@ function popularity(s) {
 }
 function isWellKnown(s) { return !!(s.youtube || s.slides); }
 
+// Plain lyric text for full-text search (drop chords, section headers, meta,
+// tab diagrams, separators). Lowercased, whitespace-collapsed, length-capped.
+function extractLyrics(body) {
+  const out = [];
+  for (const line of body.split('\n')) {
+    const t = line.trim();
+    if (!t) continue;
+    if (isChordLine(line) || isSectionLine(line)) continue;
+    if (/^[|\-=~_+.\s]+$/.test(t)) continue;                 // separators / rules
+    if (/[|]/.test(t) && /[-\d]/.test(t) && (t.match(/[|]/g) || []).length >= 2) continue; // tab diagrams
+    if (/^(words?|music|by|ccli|key|capo|intro|verse|chorus|pre-?chorus|bridge|tag|outro|ending|refrain|instrumental|tabbed|chords?|submitted|e-?mail|http|©|\(c\)|arr\.|arranged|transcribed|group|album|artist|author)\b/i.test(t)) continue;
+    out.push(t);
+  }
+  return out.join(' ').toLowerCase().replace(/\s+/g, ' ').trim().slice(0, 1500);
+}
+
 /* ───────────────────────── shared HTML fragments ───────────────────────── */
 
 function pageHead(title, desc, canonicalPath, depth) {
@@ -632,7 +648,7 @@ function indexPage(songs, slidesCount) {
         <div class="sotd" id="sotd"></div>
         <div class="search-box">
             <span class="search-icon">🔍</span>
-            <input type="search" id="q" placeholder="Search ${total} songs by title or artist…" autocomplete="off">
+            <input type="search" id="q" placeholder="Search ${total} songs — title, artist, or a lyric…" autocomplete="off">
             <button class="random-btn" onclick="randomSong()" title="Open a random song"><img src="assets/icons/shield-die-48.png" width="15" height="15" alt="" style="vertical-align:-2px"> Random</button>
         </div>
         <div class="chips" id="chips">
@@ -657,7 +673,7 @@ function indexPage(songs, slidesCount) {
     ${THEME_RESTORE}
     <script>
     var SONGS=${JSON.stringify(idx)};
-    var PAGE=120, shown=PAGE, filter='all', letter='', term='', sort='az', wkOnly=false;
+    var PAGE=120, shown=PAGE, filter='all', letter='', term='', sort='az', wkOnly=false, LYR=null;
     var grid=document.getElementById('grid'), countEl=document.getElementById('count'),
         moreEl=document.getElementById('more'), nr=document.getElementById('noResults');
     var esc=function(t){return t.replace(/&/g,'&amp;').replace(/</g,'&lt;');};
@@ -667,7 +683,9 @@ function indexPage(songs, slidesCount) {
       if(filter==='x' && !s[3]) return false;
       if(wkOnly && !s[8]) return false;
       if(letter && s[4]!==letter) return false;
-      if(term){ var hay=(s[1]+' '+(s[6]||'')).toLowerCase(); if(hay.indexOf(term)<0) return false; }
+      if(term){ var hay=(s[1]+' '+(s[6]||'')).toLowerCase();
+        var hit=hay.indexOf(term)>=0 || (LYR && term.length>=3 && LYR[s[0]] && LYR[s[0]].indexOf(term)>=0);
+        if(!hit) return false; }
       return true;
     }
     function tagFor(s){ return s[3]?'Xmas':(s[2]==='t'?'Tab':'Praise'); }
@@ -716,6 +734,8 @@ function indexPage(songs, slidesCount) {
         render(); });
     })();
     render();
+    // Lazy-load the full-text lyric index; once in, searches also match lyrics.
+    fetch('data/worship-search.json').then(function(r){return r.json();}).then(function(d){LYR=d; if(term) render();}).catch(function(){});
     // Random song (also reachable via ?random=1 from a song page)
     function randomSong(){ var s=SONGS[Math.floor(Math.random()*SONGS.length)]; location.href='worship/'+s[0]+'.html'; }
     if(/[?&]random=1/.test(location.search)) randomSong();
@@ -790,6 +810,10 @@ function build(songs) {
     : [];
   fs.writeFileSync(INDEX_HTML, indexPage(songs, pdfs.length));
   if (pdfs.length) fs.writeFileSync(path.join(REPO, 'docs/worship-slides.html'), slidesPage(pdfs));
+  // Lazy-loaded full-text lyric index (slug -> lyrics) for search-by-a-line.
+  const search = {};
+  for (const s of songs) { const lx = extractLyrics(s.body); if (lx) search[s.slug] = lx; }
+  fs.writeFileSync(path.join(DATA_DIR, 'worship-search.json'), JSON.stringify(search));
   writeSitemap(songs);
   console.log(`Built ${written} song pages + worship.html (${enriched} with video/slides; ${pdfs.length} slide PDFs).`);
 }
