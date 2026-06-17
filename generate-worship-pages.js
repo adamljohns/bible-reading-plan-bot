@@ -559,6 +559,7 @@ ${media}
             ${ytBtn}
             ${ugBtn}
             <a class="dl-btn" href="../worship.html#random" onclick="event.preventDefault();location.href='../worship.html?random=1'">🎲 Random song</a>
+            <a class="dl-btn" href="../worship-setlist.html" onclick="return addToSet('${song.slug}')">＋ Add to set list</a>
         </div>${versionsRow}${creditsBlock}
         ${!yt ? '<!-- No video linked yet. Add { "'+song.slug+'": { "youtube": "<id>" } } to docs/data/worship-overrides.json and re-run the generator. -->' : ''}
     </div>
@@ -631,6 +632,7 @@ ${media}
     function fontStep(d){ fontPx=Math.max(10,Math.min(28,fontPx+d)); chart.style.fontSize=fontPx+'px'; }
     function toggleChords(){ chordsOn=!chordsOn; chart.classList.toggle('hide-chords',!chordsOn);
       document.getElementById('chordsBtn').textContent='Chords: '+(chordsOn?'On':'Off'); }
+    function addToSet(slug){ try{ var s=JSON.parse(localStorage.getItem('wf-worship-set')||'[]'); if(!s.some(function(x){return x&&x.slug===slug;})) s.push({slug:slug,key:''}); localStorage.setItem('wf-worship-set',JSON.stringify(s)); }catch(e){} return true; }
 
     /* ── Performance overlay: Project (lyrics) + Stage (chords, auto-scroll) ── */
     var perf=document.getElementById('perfOverlay'), perfBody=document.getElementById('perfBody');
@@ -758,6 +760,7 @@ function indexPage(songs, slidesCount) {
         <h1>Worship Songbook</h1>
         <p>Chords charted right over the words — the way they should be. <span class="stat">${total}</span> songs from decades of leading worship: <span class="stat">${praise}</span> praise &amp; worship, <span class="stat">${tabs}</span> guitar tabs, <span class="stat">${xmas}</span> Christmas. Transpose to any key, hide the chords, print a clean sheet.</p>
         ${slidesCount ? `<p style="margin-top:12px;"><a href="worship-slides.html" style="color:var(--gold);text-decoration:none;font-weight:600;">📽 Projection slides library</a> &middot; <span class="stat">${slidesCount}</span> lyric decks (PDF)</p>` : ''}
+        <p style="margin-top:6px;"><a href="worship-setlist.html" style="color:var(--gold);text-decoration:none;font-weight:600;">🗒 Set List Builder</a> &middot; build, share &amp; print a worship set</p>
     </div>
     <div class="container">
         <div class="sotd" id="sotd"></div>
@@ -925,6 +928,7 @@ function build(songs) {
     : [];
   fs.writeFileSync(INDEX_HTML, indexPage(songs, pdfs.length));
   if (pdfs.length) fs.writeFileSync(path.join(REPO, 'docs/worship-slides.html'), slidesPage(pdfs));
+  fs.writeFileSync(path.join(REPO, 'docs/worship-setlist.html'), setlistPage(songs));
   // Lazy-loaded full-text lyric index (slug -> lyrics) for search-by-a-line.
   const search = {};
   for (const s of songs) { const lx = extractLyrics(s.body); if (lx) search[s.slug] = lx; }
@@ -972,6 +976,114 @@ ${rows}
       countEl.textContent=shown+' deck'+(shown===1?'':'s'); nr.style.display=shown?'none':'block'; }
     document.getElementById('q').addEventListener('input',function(e){render(e.target.value);});
     render('');
+    </script>
+</body>
+</html>`;
+}
+
+const SETLIST_CSS = `
+        .sugg { position:absolute; left:0; right:0; top:100%; background:var(--bg-card); border:1px solid var(--border); border-radius:10px; margin-top:4px; max-height:320px; overflow:auto; z-index:50; text-align:left; }
+        body.light-mode .sugg { background:#fff; }
+        .sg { padding:9px 14px; cursor:pointer; color:var(--white); font-size:.92rem; border-bottom:1px solid var(--border); }
+        body.light-mode .sg { color:#1a1a1a; }
+        .sg:hover { background:rgba(212,175,55,.15); }
+        .sg-a { color:var(--gray); font-size:.8rem; }
+        .setlist { margin:16px 0; display:flex; flex-direction:column; gap:8px; }
+        .set-row { display:flex; align-items:center; gap:10px; background:var(--bg-card); border:1px solid var(--border); border-radius:10px; padding:10px 12px; }
+        body.light-mode .set-row { background:#fff; border-color:#d4d0c8; }
+        .set-num { color:var(--gold); font-weight:700; min-width:20px; text-align:center; }
+        .set-info { flex:1; min-width:0; display:flex; flex-direction:column; }
+        .set-title { color:var(--white); text-decoration:none; font-weight:600; } body.light-mode .set-title { color:#1a1a1a; }
+        .set-title:hover { color:var(--gold); }
+        .set-artist { color:var(--gray); font-size:.78rem; }
+        .set-ctrls { display:flex; align-items:center; gap:6px; flex-shrink:0; }
+        .set-ctrls select { background:var(--bg-dark); color:var(--gold); border:1px solid var(--border); border-radius:6px; padding:4px 6px; font-family:'Inter',sans-serif; font-size:.82rem; }
+        body.light-mode .set-ctrls select { background:#fff; color:#7a5c00; }
+        .set-ctrls button { background:transparent; color:var(--gray); border:1px solid var(--border); border-radius:6px; width:30px; height:30px; cursor:pointer; }
+        .set-ctrls button:hover { border-color:var(--gold); color:var(--gold); }
+        .set-actions { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin:18px 0 4px; }`;
+
+function setlistPage(songs) {
+  const map = {};
+  for (const s of songs) map[s.slug] = [s.title, s.key || '', resolveArtist(s)];
+  return `${pageHead('Set List Builder — Worship | USMC Ministries',
+      'Build a worship set: pick songs, set each song\'s key, share a link, or print the whole set.',
+      'worship-setlist.html', 0)}
+    <style>${BASE_CSS}${INDEX_CSS}${SETLIST_CSS}</style>
+</head>
+<body>
+    ${navBlock(0)}
+    <div class="hero">
+        <img src="assets/icons/shield-quill-note-96.png" alt="" width="72" height="72">
+        <h1>Set List Builder</h1>
+        <p><a href="worship.html" style="color:var(--gold);text-decoration:none;">&larr; Worship Songbook</a> &middot; assemble a set, set each song's key, share the link with your team, or print the whole set.</p>
+    </div>
+    <div class="container">
+        <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input type="search" id="add" placeholder="Add a song — type a title or artist…" autocomplete="off">
+            <div id="sugg" class="sugg"></div>
+        </div>
+        <div id="setCount" class="count"></div>
+        <div id="setList" class="setlist"></div>
+        <div class="set-actions" id="setActions" style="display:none;">
+            <button class="ctrl-btn active" onclick="copyLink(this)">🔗 Copy shareable link</button>
+            <button class="ctrl-btn" onclick="printSet()">🖨 Print set</button>
+            <button class="ctrl-btn" onclick="clearSet()">Clear</button>
+        </div>
+        <div class="no-results" id="empty" style="display:block;">Your set is empty. Search above to add songs — or tap &ldquo;＋ Add to set list&rdquo; on any song page.</div>
+    </div>
+    ${footerBlock(0)}
+    ${THEME_RESTORE}
+    <script>
+    var MAP=${JSON.stringify(map)};
+    var SLUGS=Object.keys(MAP);
+    var KEYS=['C','C#','D','Eb','E','F','F#','G','Ab','A','Bb','B'];
+    var set=[];
+    function esc(t){ return (t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
+    function keyOpts(sel){ var o='<option'+(!sel?' selected':'')+'>—</option>'; for(var i=0;i<KEYS.length;i++){ o+='<option'+(KEYS[i]===sel?' selected':'')+'>'+KEYS[i]+'</option>'; } return o; }
+    function persist(){ localStorage.setItem('wf-worship-set', JSON.stringify(set));
+      location.replace('#s='+set.map(function(x){return x.slug+(x.key?'~'+x.key:'');}).join(',')); }
+    function render(){
+      var el=document.getElementById('setList'), empty=document.getElementById('empty'), act=document.getElementById('setActions'), cnt=document.getElementById('setCount');
+      if(!set.length){ el.innerHTML=''; empty.style.display='block'; act.style.display='none'; cnt.textContent=''; return; }
+      empty.style.display='none'; act.style.display='flex'; cnt.textContent=set.length+' song'+(set.length>1?'s':'')+' in this set';
+      var h='';
+      for(var i=0;i<set.length;i++){ var it=set[i], m=MAP[it.slug]||['(unknown song)','',''];
+        h+='<div class="set-row"><span class="set-num">'+(i+1)+'</span>'+
+           '<span class="set-info"><a class="set-title" href="worship/'+it.slug+'.html">'+esc(m[0])+'</a>'+(m[2]?'<span class="set-artist">'+esc(m[2])+'</span>':'')+'</span>'+
+           '<span class="set-ctrls">Key <select onchange="setKey('+i+',this.value)">'+keyOpts(it.key)+'</select>'+
+           '<button onclick="move('+i+',-1)" title="Move up">↑</button>'+
+           '<button onclick="move('+i+',1)" title="Move down">↓</button>'+
+           '<button onclick="removeAt('+i+')" title="Remove">✕</button></span></div>';
+      }
+      el.innerHTML=h;
+    }
+    function addSong(slug){ if(!MAP[slug])return; if(!set.some(function(x){return x.slug===slug;})) set.push({slug:slug,key:''}); document.getElementById('add').value=''; document.getElementById('sugg').innerHTML=''; persist(); render(); }
+    function setKey(i,v){ set[i].key=(v==='—'?'':v); persist(); }
+    function move(i,d){ var j=i+d; if(j<0||j>=set.length)return; var t=set[i]; set[i]=set[j]; set[j]=t; persist(); render(); }
+    function removeAt(i){ set.splice(i,1); persist(); render(); }
+    function clearSet(){ if(confirm('Clear the whole set?')){ set=[]; persist(); render(); } }
+    function copyLink(btn){ persist(); var url=location.href; if(navigator.clipboard) navigator.clipboard.writeText(url); var o=btn.textContent; btn.textContent='✓ Link copied!'; setTimeout(function(){btn.textContent=o;},1500); }
+    async function printSet(){ if(!set.length)return; var w=window.open('','_blank'); if(!w){alert('Allow pop-ups to print the set.');return;}
+      w.document.write('<html><head><title>Worship Set</title><style>@page{margin:.6in;} body{font-family:Georgia,serif;color:#000;} .s{page-break-after:always;} .s:last-child{page-break-after:auto;} h2{font-size:15pt;margin:0 0 2px;} .meta{font-size:10pt;color:#444;margin:0 0 8px;} pre{font-family:Menlo,monospace;font-size:10pt;line-height:1.35;white-space:pre-wrap;}</style></head><body>');
+      for(var i=0;i<set.length;i++){ var it=set[i], m=MAP[it.slug]||['(unknown)','',''];
+        try{ var r=await fetch('worship/'+it.slug+'.html'); var t=await r.text(); var doc=new DOMParser().parseFromString(t,'text/html'); var pre=doc.getElementById('chart'); var title=(doc.querySelector('h1')||{}).textContent||m[0];
+          w.document.write('<div class="s"><h2>'+(i+1)+'. '+esc(title)+'</h2><div class="meta">'+(it.key?'Play in: '+esc(it.key)+' &middot; ':'')+esc(m[2]||'')+'</div><pre>'+(pre?pre.textContent.replace(/</g,'&lt;'):'(chart unavailable)')+'</pre></div>');
+        }catch(e){ w.document.write('<div class="s"><h2>'+(i+1)+'. '+esc(m[0])+'</h2><div class="meta">(chart unavailable offline)</div></div>'); }
+      }
+      w.document.write('</body></html>'); w.document.close(); setTimeout(function(){ w.focus(); w.print(); }, 500);
+    }
+    var addEl=document.getElementById('add'), sugg=document.getElementById('sugg');
+    addEl.addEventListener('input', function(){ var q=this.value.toLowerCase().trim(); if(q.length<2){ sugg.innerHTML=''; return; }
+      var hits=[]; for(var i=0;i<SLUGS.length && hits.length<12;i++){ var s=SLUGS[i], m=MAP[s]; if((m[0]+' '+m[2]).toLowerCase().indexOf(q)>=0) hits.push(s); }
+      sugg.innerHTML=hits.map(function(s){ return '<div class="sg" onclick="addSong(\\''+s+'\\')">'+esc(MAP[s][0])+(MAP[s][2]?' <span class="sg-a">'+esc(MAP[s][2])+'</span>':'')+'</div>'; }).join(''); });
+    document.addEventListener('click', function(e){ if(!e.target.closest('.search-box')) sugg.innerHTML=''; });
+    (function(){ var m=location.hash.match(/s=([^&]+)/);
+      if(m){ set=m[1].split(',').map(function(p){ var a=p.split('~'); return {slug:decodeURIComponent(a[0]),key:a[1]||''}; }).filter(function(x){return MAP[x.slug];}); }
+      if(!set.length){ try{ set=JSON.parse(localStorage.getItem('wf-worship-set')||'[]').filter(function(x){return x&&MAP[x.slug];}); }catch(e){ set=[]; } }
+      render();
+    })();
     </script>
 </body>
 </html>`;
