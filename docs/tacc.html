@@ -579,8 +579,32 @@
         <p id="rotatingValue" style="color:var(--gold); font-size:0.85rem; font-style:italic; margin-top:8px; min-height:1.2em; transition: opacity 0.5s;"></p>
         <a class="iam-creed-btn" onclick="showCreedModal()">🎙️ Hear the SWO Creed</a>
     </div>
+    <!-- Captain's Brief — daily, fetched from wheelhouse.json (pushed by Pops/OpenClaw) -->
+    <div id="captainBrief" style="display:none; margin:10px 0; padding:12px 14px; border:1px solid var(--gold); border-radius:8px; background:rgba(244,212,112,0.06);">
+      <div style="font-weight:700; color:var(--gold); font-size:0.9rem; margin-bottom:4px;">📋 Captain's Brief — Pops</div>
+      <div id="cbFocus" style="font-weight:600; margin-bottom:6px;"></div>
+      <div id="cbText" style="white-space:pre-wrap; font-size:0.92rem; line-height:1.45;"></div>
+      <div id="cbStamp" style="font-size:0.72rem; color:var(--gray); margin-top:6px;"></div>
+    </div>
     <script>
-    
+    (function loadWheelhouse(){
+      function esc(s){return String(s==null?'':s);}
+      fetch('wheelhouse.json?_='+Date.now()).then(function(r){return r.ok?r.json():null;}).then(function(w){
+        if(!w||!w.date) return;
+        var today=new Date().toLocaleDateString('en-CA',{timeZone:'America/New_York'});
+        if(w.date!==today) return; // stale/old feed -> leave static page as-is
+        var b=document.getElementById('captainBrief'); if(!b) return;
+        var f=document.getElementById('cbFocus'), t=document.getElementById('cbText'), s=document.getElementById('cbStamp');
+        if(f&&w.day_focus) f.textContent='🎯 '+esc(w.day_focus);
+        if(t&&w.checkin) t.textContent=esc(w.checkin);
+        if(s) s.textContent='Updated '+esc(w.generated_at||'')+' · '+esc(w.by||'Pops');
+        b.style.display='block';
+        if(w.i_am){ var rv=document.getElementById('rotatingValue'); if(rv) rv.textContent=esc(w.i_am); }
+      }).catch(function(){});
+    })();
+    </script>
+    <script>
+
 function checkAuth(){
   var i=document.getElementById('auth-input');
   if(i.value==='5683'){
