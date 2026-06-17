@@ -17,9 +17,36 @@
 
 const fs = require('fs');
 const path = require('path');
+const { makeWriter } = require('./lib/format-preserving-write.js');
 
 const CHURCHES = path.join(__dirname, '..', 'docs', 'data', 'churches.json');
 const TODAY = new Date().toISOString().slice(0, 10);
+
+// A pastor field is a PLACEHOLDER (safe to overwrite with a researched name) when it's
+// empty, a bare honorific/word, or a "look it up" phrase. A real "Pastor John Smith" is
+// NOT a placeholder — the `\bpastor\b` honorific must not match real names.
+function isPlaceholderPastor(p) {
+  if (!p || !String(p).trim()) return true;
+  const s = String(p).trim();
+  if (/^(pastors?|tbd|n\/?a|none|unknown|various|staff)\.?$/i.test(s)) return true;
+  if (/verify|see website|see site|not published|search in progress|to be (announced|determined)|coming soon|^unknown/i.test(s)) return true;
+  return false;
+}
+
+// Apply a verified social URL only if the church lacks it and the value is a real
+// http(s) URL on the expected platform host. Verified-only; never guess.
+const SOCIAL_HOST = { facebook: /facebook\.com/i, youtube: /youtube\.com|youtu\.be/i, instagram: /instagram\.com/i };
+function applySocials(c, e) {
+  let n = 0;
+  for (const k of ['facebook', 'youtube', 'instagram']) {
+    const v = e[k];
+    if (typeof v === 'string' && /^https?:\/\//i.test(v) && SOCIAL_HOST[k].test(v) && !c[k]) {
+      c[k] = v.trim();
+      n++;
+    }
+  }
+  return n;
+}
 
 const args = process.argv.slice(2);
 let inputs = [];
@@ -48,8 +75,10 @@ for (const p of inputs) {
 }
 console.log(`Total unique enrichment entries: ${enrichments.size}\n`);
 
-const d = JSON.parse(fs.readFileSync(CHURCHES, 'utf8'));
-let pastorsApplied = 0, brokenSites = 0, noPastorFound = 0, idsNotFound = 0, alreadyHasPastor = 0;
+// Byte-format-preserving read+write (ASCII-escaped, no trailing newline) — plain
+// JSON.stringify here re-encodes every non-ASCII char into a ~50k-line diff.
+const { data: d, write: writeChurches } = makeWriter(CHURCHES);
+let pastorsApplied = 0, brokenSites = 0, noPastorFound = 0, idsNotFound = 0, alreadyHasPastor = 0, socialsApplied = 0, femaleSeniorPastors = 0;
 const stillNeedsReview = [];
 
 for (const c of d.churches) {
@@ -69,11 +98,29 @@ for (const c of d.churches) {
     continue;
   }
 
+  // Apply any verified social links the agent found (independent of the pastor outcome —
+  // a church can have a real FB/YouTube/IG even when no pastor name is parseable).
+  socialsApplied += applySocials(c, e);
+
   if (e.pastor_name && typeof e.pastor_name === 'string' && e.pastor_name.trim()) {
-    const previouslyVerifyPlaceholder = !c.pastor || /verify|unknown/i.test(String(c.pastor));
+    const previouslyVerifyPlaceholder = isPlaceholderPastor(c.pastor);
     if (previouslyVerifyPlaceholder) {
       c.pastor = e.pastor_name.trim();
       pastorsApplied++;
+      // Rubric enforcement: a verified FEMALE senior/lead pastor is RED minimum on
+      // Gender and overall. Enriching the name must not leave a now-known
+      // egalitarian church sitting green/yellow. Flag for human confirmation.
+      if (e.pastor_is_female === true) {
+        c.overall_rating = 'red';
+        c.scores = c.scores || {};
+        c.scores.gender = 'red';
+        c.tags = Array.isArray(c.tags) ? c.tags : [];
+        if (!c.tags.includes('needs-rating-review')) c.tags.push('needs-rating-review');
+        c.needs_review = true;
+        femaleSeniorPastors++;
+        const gNote = `[${TODAY}] Female senior/lead pastor identified ("${e.pastor_name}") — auto-set Gender + overall to RED per MOOP rubric; confirm egalitarian polity before publishing.`;
+        c.enrichment_notes = c.enrichment_notes ? c.enrichment_notes + '\n' + gNote : gNote;
+      }
       if (Array.isArray(c.enrichment_sources)) {
         if (e.pastor_source_url && !c.enrichment_sources.includes(e.pastor_source_url)) {
           c.enrichment_sources.push(e.pastor_source_url);
@@ -110,10 +157,12 @@ for (const [id] of enrichments) {
 }
 
 d.directory_updated = TODAY;
-fs.writeFileSync(CHURCHES, JSON.stringify(d, null, 2) + '\n');
+writeChurches(d);
 
 console.log('Results:');
 console.log(`  Pastors applied:              ${pastorsApplied}`);
+console.log(`  Social links applied:         ${socialsApplied}`);
+console.log(`  Female senior pastor → RED:   ${femaleSeniorPastors}`);
 console.log(`  Broken websites flagged red:  ${brokenSites}`);
 console.log(`  No pastor parseable (200_no_pastor_found): ${noPastorFound}`);
 console.log(`  Already had real pastor:       ${alreadyHasPastor}`);
