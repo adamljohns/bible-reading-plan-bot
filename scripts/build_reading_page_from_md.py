@@ -419,11 +419,12 @@ def render_audio_slot(date, watch_key):
     <source src="{rel}" type="audio/mpeg">
     Your browser does not support audio.
   </audio>
-  <div class="audio-cap">🎙️ ElevenLabs voiceover — {WATCH_BY_KEY[watch_key]['title']}</div>
+  <div class="audio-cap">🎙️ Audio — {WATCH_BY_KEY[watch_key]['title']}</div>
 </div>"""
-    return f"""<div class="audio-slot audio-pending">
-  <div class="audio-cap">🎙️ ElevenLabs voiceover — coming for this watch</div>
-</div>"""
+    # No audio yet → render nothing (avoids a visible placeholder that TTS
+    # readers like Speechify would read aloud). Re-enabled automatically once
+    # the .mp3 exists for this watch.
+    return ""
 
 
 def render_watch(date, watch_key, intro, body_lines):
