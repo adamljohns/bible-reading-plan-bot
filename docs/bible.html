@@ -889,6 +889,13 @@
             <div class="toggle-track"><div class="toggle-knob"></div></div>
             <span class="toggle-icon sun-icon">☀️</span>
         </div>
+        <select id="langSelect" onchange="onLangChange()" title="Reading language" aria-label="Reading language" style="background:transparent;border:1px solid #333;border-radius:6px;color:inherit;font-family:inherit;font-size:0.8rem;padding:4px 7px;cursor:pointer;margin-left:8px;">
+            <option value="en">🌐 English · BTE</option>
+            <option value="zh">🇨🇳 中文 · 和合本</option>
+            <option value="la">🏛️ Latina · Vulgata</option>
+            <option value="de">🇩🇪 Deutsch · Luther</option>
+            <option value="ja">🇯🇵 日本語 · 文語訳</option>
+        </select>
         <div class="font-controls">
             <button class="font-btn" onclick="adjustFontSize(-1)" title="Smaller text" style="font-size:0.6rem;">txt −</button>
             <button class="font-btn" onclick="adjustFontSize(1)" title="Larger text" style="font-size:0.75rem;">TXT +</button>
@@ -2296,6 +2303,53 @@
             lookupVerse();
         }
 
+        // ===== ML: foreign-language reading mode (public-domain texts in chapters-ml/) =====
+        var currentLang = 'en';
+        var LANG_LABELS = { zh:'中文 · 和合本 (Public Domain)', la:'Latina · Vulgata Clementina', de:'Deutsch · Luther 1545', ja:'日本語 · 文語訳 (Meiji/Taisho)' };
+        var LANG_BCP = { zh:'zh-Hans', la:'la', de:'de', ja:'ja' };
+
+        function onLangChange() {
+            var sel = document.getElementById('langSelect');
+            currentLang = sel ? sel.value : 'en';
+            if (!currentRef) return;
+            if (currentLang === 'en') { lookupVerse(); }
+            else { renderForeignChapter(currentRef); }
+        }
+
+        async function renderForeignChapter(ref) {
+            var lang = currentLang;
+            var results = document.getElementById('results');
+            var esc = function(s){ return String(s).replace(/[&<>]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c]; }); };
+            results.innerHTML = '<div class="loading">…</div>';
+            var data = null;
+            try {
+                var r = await fetch('assets/chapters-ml/' + ref.bookId + '_' + ref.chapter + '.json');
+                if (r.ok) { var all = await r.json(); data = all[lang]; }
+            } catch (e) {}
+            if (!data) {
+                results.innerHTML = '<div class="error">This passage isn\'t available in this language yet. Pick <b>English · BTE</b> above for the full engine.</div>';
+                results.scrollIntoView({ behavior:'smooth', block:'start' });
+                return;
+            }
+            var bookName = (BOOK_NAMES[ref.bookId] || '').replace(/\b\w/g, function(c){ return c.toUpperCase(); });
+            var lo = 1, hi = 999999;
+            if (!ref.fullChapter) { lo = ref.startVerse || 1; hi = ref.endVerse || lo; }
+            var nums = Object.keys(data).map(Number).sort(function(a,b){ return a-b; });
+            var html = '<div class="foreign-reading" lang="' + (LANG_BCP[lang]||lang) + '" style="max-width:760px;margin:0 auto;font-family:\'Noto Serif\',Georgia,\'Songti SC\',\'PingFang SC\',\'Hiragino Mincho ProN\',\'Yu Mincho\',serif;line-height:2;">';
+            html += '<div style="text-align:center;color:var(--gold,#D4AF37);font-weight:600;margin:4px 0 18px;font-size:1.1rem;">' + esc(bookName) + ' ' + ref.chapter + '<div style="font-size:0.8rem;color:#888;font-weight:400;margin-top:3px;">' + esc(LANG_LABELS[lang]||lang) + '</div></div>';
+            for (var i=0;i<nums.length;i++) {
+                var v = nums[i];
+                if (v < lo || v > hi) continue;
+                var txt = data[String(v)]; if (!txt) continue;
+                html += '<p style="margin:0 0 10px;">' + '<span style="color:var(--gold,#D4AF37);font-size:0.7em;font-weight:700;vertical-align:super;margin-right:5px;">' + v + '</span>' + esc(txt) + '</p>';
+            }
+            html += '<div style="text-align:center;color:#888;font-size:0.8rem;margin-top:22px;border-top:1px solid #2a2a2a;padding-top:12px;">Public-domain translation · select <b>English · BTE</b> above to return to the full Translation Engine.</div>';
+            html += '</div>';
+            results.innerHTML = html;
+            results.scrollIntoView({ behavior:'smooth', block:'start' });
+        }
+        // ===== end ML mode =====
+
         function similarity(a, b) {
             const wa = new Set(a.toLowerCase().replace(/[^\w\s]/g,'').split(/\s+/));
             const wb = new Set(b.toLowerCase().replace(/[^\w\s]/g,'').split(/\s+/));
@@ -2715,6 +2769,9 @@
             await ensureBookLoaded(ref.bookId);
 
             currentRef = ref;
+
+            // ML: foreign-language reading mode — render plain public-domain text, skip the English engine entirely.
+            if (currentLang !== 'en') { renderForeignChapter(ref); return; }
 
             // BTE v3.4: Detect view mode from parsed reference
             // BTE v5.7: cross-chapter ranges always render in 'range' mode (verse-style nav).
