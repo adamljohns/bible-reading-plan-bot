@@ -76,3 +76,28 @@ a `slides` value adds a download button (drop the file in `docs/worship/slides/`
 The repo carries thousands of uncommitted `docs/dictionary/` files from the fleet's crons.
 Worship commits stage **only** worship paths + the 36 root nav edits — never `docs/dictionary/`.
 Always `git add` explicit worship paths; never `git add -A` here.
+
+---
+
+## Sprint status — Phase A COMPLETE (2026-06-17)
+
+24h sprint, 8-hour Phase A block. All shipped, verified, pushed, live:
+- **A1 Full-text lyric search** — `docs/data/worship-search.json` (lazy-loaded), search matches title/artist/lyric.
+- **A2 Credits & attribution** — songwriter / CCLI # / copyright parsed from charts → song data + a Credits block on each page + site-wide CCLI notice. (277 writers, 128 CCLI, 385 copyrights.)
+- **A3 Project mode** — fullscreen lyrics-only for congregation (📽 button, every song).
+- **A4 Stage mode** — fullscreen chords for the leader, transpose retained, auto-scroll (🎤 button).
+- **A5 Set List builder** — `docs/worship-setlist.html`: add (search or "＋ Add to set list"), reorder, per-song key, shareable URL (`#s=slug~key,…`), combined print sheet.
+- **A6 Data-quality sweep** — default-on "Worship only" filter hides ~156 non-worship rock/alt charts (high-precision flag; reversible; nothing deleted). Titles confirmed clean (no mojibake).
+- **A7 QA** — 0 broken links, all controls compose, mobile/light verified.
+- Earlier same arc: 132 curated YouTube videos (incl. 22 Christmas), 104 slide PDFs + library, version cross-linking, artist tags (108), popularity sort + well-known filter.
+
+Index controls now: search (title/artist/lyric) · type chips · A–Z/Best-known sort · ★ Well-known only · 🎵 Worship only · alpha bar. Plus Projection slides library + Set List builder linked from the hero.
+
+### Still open for Adam
+- **Gold worship nav icon** — generate via his ChatGPT session (`WORSHIP-ICON-PROMPT.md`), then `bin/finish-worship-icon.sh`. Currently reuses `shield-quill-note`.
+
+### Remaining backlog (Phase B & C — for a future run-block)
+**Phase B (enrich the data):** theme/occasion/tempo tags derived from lyrics (communion, christmas, surrender, thanksgiving, cross/blood, holy-spirit, declaration) + a Theme filter · scripture-reference detection → link to `bible.html` · expand artist tagging · tighten key detection.
+**Phase C (power features & polish):** guitar chord diagrams + capo calculator · deepen YouTube coverage · index sections ("Most-used / Recently added / By theme") · whole-songbook PDF export · per-song OG/SEO · wire the gold icon.
+
+Operating contract (unchanged): edit `generate-worship-pages.js` only (never hand-edit generated HTML); `node generate-worship-pages.js --pages` (or `--ingest` if parsing changed; confirm 1439); verify in preview; commit SCOPED worship paths only — NEVER `git add -A`, NEVER `docs/dictionary/`; `git fetch origin main` + fast-forward push.
