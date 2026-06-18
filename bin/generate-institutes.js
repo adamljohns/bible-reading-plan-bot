@@ -93,10 +93,14 @@ const SCRIPT =
 function chapterPage(ch, prev, next) {
   const canonical = 'https://usmcmin.org/institutes/' + chFile(ch.book, ch.chapter);
   const romanBook = ['', 'I', 'II', 'III', 'IV'][ch.book];
-  const descSrc = ch.argument || (ch.sections[0] && ch.sections[0].paragraphs[0]) || ch.title;
+  const _modSecs = (ch.modernized && ch.sectionsModern && ch.sectionsModern.length) ? ch.sectionsModern : ch.sections;
+  const descSrc = ch.argument || (_modSecs[0] && _modSecs[0].paragraphs[0]) || ch.title;
   const desc = 'Calvin’s Institutes, Book ' + ch.book + ', Chapter ' + ch.chapter + ': ' + ch.title +
     ' — Henry Beveridge translation (public domain), with linked Scripture and theological terms. ' +
     String(descSrc).slice(0, 120);
+  const isModern = !!(ch.modernized && ch.sectionsModern && ch.sectionsModern.length);
+  const src = isModern ? ch.sectionsModern : ch.sections;
+  const hasAudio = fs.existsSync(path.join(DATA, 'audio', 'b' + ch.book + '-c' + pad(ch.chapter) + '.mp3'));
 
   let h = '<!DOCTYPE html>\n<html lang="en">\n<head>\n' +
     '    <meta charset="UTF-8">\n' +
@@ -126,10 +130,17 @@ function chapterPage(ch, prev, next) {
   }
 
   h += '<header class="inst-chap-head">' +
-    '<div class="inst-chap-eyebrow">Book ' + ch.book + ' · Chapter ' + ch.chapter + ' · Beveridge 1845</div>' +
+    '<div class="inst-chap-eyebrow">Book ' + ch.book + ' · Chapter ' + ch.chapter + ' · ' +
+      (isModern ? 'USMC modern English' : 'Beveridge 1845') + '</div>' +
     '<h1>' + escText(ch.title) + '</h1>' +
     (ch.argument ? '<p class="inst-argument">' + escText(ch.argument) + '</p>' : '') +
     '</header>';
+
+  if (hasAudio) {
+    h += '<div class="inst-audio"><div class="inst-audio-label">▶ Listen — read by Alan' +
+      (isModern ? ' (modernized for 2026)' : '') + '</div>' +
+      '<audio controls preload="none" src="../assets/institutes/audio/b' + ch.book + '-c' + pad(ch.chapter) + '.mp3"></audio></div>';
+  }
 
   if (ch.sectionSummaries && ch.sectionSummaries.length) {
     h += '<details class="inst-summaries"><summary>Sections in this chapter</summary><ol>';
@@ -138,7 +149,7 @@ function chapterPage(ch, prev, next) {
   }
 
   h += '<div class="inst-body">';
-  ch.sections.forEach((sec) => {
+  src.forEach((sec) => {
     h += '<section class="inst-section" id="s' + sec.n + '">' +
       '<div class="inst-sec-num">' + sec.n + '<a class="inst-permalink" href="#s' + sec.n + '" title="Copy link to this section" aria-label="Copy permalink">¶</a></div>' +
       '<div class="inst-sec-body">';
