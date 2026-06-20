@@ -31,6 +31,8 @@ These are non-negotiable. Every breakage has historically broken either the live
 6. **`signatures_aggregate` is `"none" | "green" | "red" | "mixed"`** — recomputed from current signatories: any red-direction list populated → `red`; any green → `green`; both → `mixed`; neither → `none`.
 7. **No fabricated churches.** If WebSearch can't verify the church, skip it. If you can't verify the pastor, set `pastor: "Verify"` rather than guess.
 8. **Directory HTML uses `escapeHtml()` everywhere** — never inject unescaped church data into HTML. The generator does this for you; don't hand-write HTML for a church.
+9. **`total_churches` MUST equal `churches.length`.** The live `churches.html` footer reads `d.total_churches` *first* (array length is only a fallback), so a stale value silently shows the wrong public count. Re-set it on every add/remove. (Found stale at 13895 vs 28584 on 2026-06-02.)
+10. **Derived artifacts must stay in sync with `churches.json`** — the per-state shards (`docs/data/churches/by-state/`), per-network shards (`docs/data/churches/by-denomination-family/`), `directory-map-points.json`, and `sitemap-churches.xml` are all generated/derived and the live site reads them. A change to `churches.json` that doesn't propagate to these leaves phantom/stale rows in shard-backed views. See the Change workflow below.
 
 ## `denomination_family` — known mess (fix in flight)
 
@@ -93,29 +95,46 @@ The driver scripts from the 2026-04-30 session live in `/tmp/signature-crossref.
 Every data change goes through this pipeline. Skipping steps will desynchronize HTML pages from the JSON.
 
 ```bash
-# 1. Make your data change (preferably via a Node script — see template below)
+# 1. Make your data change (preferably via a Node script — see template below).
+#    On any add/remove, re-sync the count: data.total_churches = data.churches.length
 node /tmp/your-change.js
 
-# 2. Regenerate ALL HTML pages
+# 2. Regenerate per-church HTML pages (the generator does NOT prune orphans)
 node generate-church-pages.js
 
-# 3. If you DELETED a church, also remove its orphan HTML
+# 3. If you DELETED a church, remove its now-orphan HTML
 rm docs/churches/<deleted-slug>.html
 
-# 4. Stage + commit + push
+# 4. RE-SYNC THE DERIVED ARTIFACTS. These do NOT auto-update, the live site reads
+#    them, and skipping this leaves stale/phantom data in shard-backed views
+#    (per-state pages, directory-networks) and the sitemap even after churches.json
+#    is correct — this is exactly how the CCV phantoms lingered in the shards:
+python3 scripts/build_state_shards.py          # docs/data/churches/by-state/
+python3 scripts/build_denomination_shards.py   # docs/data/churches/by-denomination-family/
+node scripts/build-directory-map.js            # docs/data/directory-map-points.json (GEOCODED churches only)
+#    Sitemap: sitemap-churches.xml is sorted by plain church id. bin/generate_sitemap.py
+#    is SITE-WIDE (also rebuilds dictionary/lexicon/chapter sitemaps); for a churches-only
+#    change, hand-merge its <url> blocks instead of running it.
+#    For a SMALL surgical change (1–2 records), hand-patch the shards + sitemap rather than
+#    a full regen — a regen bundles days of unrelated geocode/enrichment drift into your
+#    diff. The `prune-churches` skill does the surgical multi-artifact edit + verification.
+
+# 5. Stage + commit + push. An autopilot commits churches.json every ~20 min, so always
+#    pull --rebase and confirm you actually landed on origin:
 git add -A docs/
 git commit -m "$(cat <<'EOF'
 Round N: <descriptive title>
 
-[Body — adds, state distribution, notable finds, drift markers, scandal flags]
+[Body — adds/removes; for deletions include the verification trail; drift/scandal flags]
 
 Total: <before> -> <after>.
 
-Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>
+Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>
 EOF
 )"
-git pull --rebase origin main   # other threads may have committed
+git pull --rebase origin main   # other threads / the autopilot may have committed
 git push origin main
+git merge-base --is-ancestor HEAD origin/main && echo "✓ on origin" || echo "⚠️ rebase/push again"
 ```
 
 Use the heredoc form with **single-quoted EOF** to avoid shell-escape gotchas in commit bodies.
