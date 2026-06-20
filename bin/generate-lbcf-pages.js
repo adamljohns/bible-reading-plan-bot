@@ -35,6 +35,23 @@ const FRONT_MATTER = path.join(LBCF_DATA, 'front-matter.json');
 const BUSTER = 'v=20260613';
 const LASTMOD = '2026-06-13'; // sitemap <lastmod>; constant so re-runs don't churn
 
+// ---- Audio (Mr. Pemberton AI narration, hosted on Cloudflare R2) -------------
+const AUDIO_MANIFEST = (() => {
+  try { return JSON.parse(fs.readFileSync(path.join(LBCF_DATA, 'audio-manifest.json'), 'utf8')); }
+  catch (e) { return { chapters: {} }; }
+})();
+const pad2 = (n) => String(n).padStart(2, '0');
+function audioPlayer(chapterNum) {
+  const key = AUDIO_MANIFEST.chapters && AUDIO_MANIFEST.chapters['chapter-' + pad2(chapterNum)];
+  if (!key) return '';
+  const base = (AUDIO_MANIFEST.base || 'https://audio.usmcmin.org').replace(/\/$/, '');
+  const url = base + '/' + key;
+  const who = AUDIO_MANIFEST.label || 'Mr. Pemberton';
+  return '<!-- LBCF-AUDIO --><div class="lbcf-audio"><div class="lbcf-audio-label">▶ Listen — AI narration by ' + who +
+    '</div><audio controls preload="none"><source src="' + url + '" type="audio/mpeg">' +
+    'Your browser cannot play this audio. <a href="' + url + '" download>Download the MP3</a>.</audio></div><!-- /LBCF-AUDIO -->';
+}
+
 // ---- Load the live renderer's pure functions (one source of truth) ----------
 function loadLBCF() {
   const src = fs.readFileSync(RENDERER, 'utf8');
@@ -127,6 +144,12 @@ function processChapterShell(chapter) {
   } else {
     html = html.replace('<div id="lbcf-chap-target"></div>', () => block);
   }
+
+  // Audio player — placed OUTSIDE #lbcf-chap-target (lbcf-render.js wipes the
+  // target's innerHTML on load), right before the prerender block. Idempotent.
+  html = html.replace(/[ \t]*<!-- LBCF-AUDIO -->[\s\S]*?<!-- \/LBCF-AUDIO -->\n?/g, '');
+  const player = audioPlayer(n);
+  if (player) html = html.replace('<!-- LBCF-PRERENDER -->', player + '\n        <!-- LBCF-PRERENDER -->');
 
   // Real <title> + meta for SEO / link previews
   const titleStr = 'LBCF Chapter ' + n + ': ' + chapter.title + ' — U.S.M.C. Ministries';

@@ -38,6 +38,22 @@ const LBCF = loadLBCF();
 const escText = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
 const escAttr = (s) => escText(s).replace(/"/g, '&quot;');
 
+// ---- Audio (Mr. Pemberton AI narration, per section, hosted on Cloudflare R2) ----
+const AUDIO_MANIFEST = (() => {
+  try { return JSON.parse(fs.readFileSync(path.join(DOCS, 'assets', 'catechism', 'audio-manifest.json'), 'utf8')); }
+  catch (e) { return { sections: {} }; }
+})();
+function sectionPlayer(idx1) {
+  const key = AUDIO_MANIFEST.sections && AUDIO_MANIFEST.sections['section-' + String(idx1).padStart(2, '0')];
+  if (!key) return '';
+  const base = (AUDIO_MANIFEST.base || 'https://audio.usmcmin.org').replace(/\/$/, '');
+  const url = base + '/' + key;
+  const who = AUDIO_MANIFEST.label || 'Mr. Pemberton';
+  return '<div class="cat-audio"><div class="cat-audio-label">▶ Listen — AI narration by ' + who +
+    '</div><audio controls preload="none"><source src="' + url + '" type="audio/mpeg">' +
+    'Your browser cannot play this audio. <a href="' + url + '" download>Download the MP3</a>.</audio></div>';
+}
+
 function navHtml() {
   const item = (href, icon, label, active) =>
     '<a href="' + href + '"' + (active ? ' class="active"' : '') + '><img src="assets/icons/' + icon +
@@ -210,6 +226,7 @@ function build(data) {
       '<div class="cat-section-head"><div class="cat-section-eyebrow">' + escText(s.eyebrow || ('Section ' + (i + 1))) + '</div>' +
       '<h2>' + escText(s.title) + '</h2>' +
       '<div class="cat-section-range">Questions ' + s.start + '–' + s.end + '</div></div>' +
+      sectionPlayer(i + 1) +
       '<div class="cat-qa">';
     for (let n = s.start; n <= s.end; n++) {
       const q = byNum.get(n);
