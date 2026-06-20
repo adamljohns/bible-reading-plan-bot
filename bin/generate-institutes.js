@@ -35,6 +35,20 @@ const escText = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
 const escAttr = (s) => escText(s).replace(/"/g, '&quot;');
 const chFile = (b, c) => 'b' + b + '-c' + pad(c) + '.html';
 
+// Audio is served SAME-ORIGIN from GitHub Pages (/assets/institutes/audio/*.mp3).
+// Pages sends Content-Type: audio/mpeg, which <audio> plays in every browser incl.
+// Safari. (The GitHub Releases CDN serves application/octet-stream with no CORS,
+// which Safari refuses to decode — that broke playback, so the MP3s live in the repo.)
+// The manifest's `chapters` map is the source of truth for which chapters have audio.
+const AUDIO_MANIFEST = (() => {
+  try { return JSON.parse(fs.readFileSync(path.join(DATA, 'audio-manifest.json'), 'utf8')); }
+  catch (e) { return { chapters: {} }; }
+})();
+function audioUrl(book, chapter) {
+  const f = AUDIO_MANIFEST.chapters && AUDIO_MANIFEST.chapters['b' + book + 'c' + pad(chapter)];
+  return f ? '/assets/institutes/audio/' + f : null;
+}
+
 function nav() {
   const item = (href, icon, label, active) =>
     '<a href="' + href + '"' + (active ? ' class="active"' : '') + '><img src="../assets/icons/' + icon +
@@ -50,6 +64,9 @@ function nav() {
     item('../institutes.html', 'shield-cross.png', 'Institutes', true) +
     item('../blog.html', 'shield-scroll-quill-48.png', 'Blog', false) +
     item('../connect.html', 'shield-handshake.png', 'Connect', false) +
+    // theme toggle lives inside the nav (sticky, top-right via light-icons.css
+    // .nav-theme-toggle margin-left:auto) — uniform with the rest of the site.
+    '<div class="bte-theme-toggle nav-theme-toggle" onclick="instToggleTheme()" title="Toggle dark/light mode" role="button" tabindex="0" aria-label="Toggle dark/light mode"></div>' +
     '</nav>';
 }
 
@@ -65,22 +82,11 @@ const STYLE =
   '        body.light-mode .site-icon { filter:brightness(0.55); }\n' +
   '        body.light-mode img[src*="/icons/shield-"]:not([src*="-bronze"]) { filter:brightness(.72) saturate(1.18) hue-rotate(-12deg); }\n' +
   '        .container { max-width:1100px; margin:0 auto; padding:24px 20px 60px; }\n' +
-  '        .bte-theme-toggle { position:fixed; top:12px; right:12px; z-index:9999; display:flex; align-items:center; background:rgba(30,30,30,0.9); border:1px solid #333; border-radius:20px; padding:4px 8px; cursor:pointer; gap:5px; }\n' +
-  '        .toggle-icon { font-size:0.85rem; line-height:1; }\n' +
-  '        .toggle-track { width:30px; height:16px; background:#444; border-radius:8px; position:relative; }\n' +
-  '        .toggle-knob { width:12px; height:12px; background:var(--gold); border-radius:50%; position:absolute; top:2px; left:2px; transition:left 0.25s; }\n' +
-  '        body.light-mode .toggle-knob { left:16px; }\n' +
   '        body.light-mode { background:#F4ECD8; color:#1a1a1a; }\n' +
   '        body.light-mode nav { background:rgba(244,236,216,0.97) !important; border-bottom-color:#d4d0c8; }\n' +
   '        body.light-mode nav a { color:#555 !important; }\n' +
   '        body.light-mode nav a:hover, body.light-mode nav a.active { color:#8a6a1a !important; }\n' +
-  '        body.light-mode .bte-theme-toggle { background:rgba(220,215,205,0.95); border-color:#bbb; }\n' +
   '    </style>\n';
-
-const TOGGLE =
-  '    <div class="bte-theme-toggle" onclick="instToggleTheme()" title="Toggle dark/light mode">' +
-  '<span class="toggle-icon moon-icon"></span><div class="toggle-track"><div class="toggle-knob"></div></div>' +
-  '<span class="toggle-icon sun-icon"></span></div>\n';
 
 const SCRIPT =
   '    <script>\n' +
@@ -100,7 +106,7 @@ function chapterPage(ch, prev, next) {
     String(descSrc).slice(0, 120);
   const isModern = !!(ch.modernized && ch.sectionsModern && ch.sectionsModern.length);
   const src = isModern ? ch.sectionsModern : ch.sections;
-  const hasAudio = fs.existsSync(path.join(DATA, 'audio', 'b' + ch.book + '-c' + pad(ch.chapter) + '.mp3'));
+  const audUrl = audioUrl(ch.book, ch.chapter);
 
   let h = '<!DOCTYPE html>\n<html lang="en">\n<head>\n' +
     '    <meta charset="UTF-8">\n' +
@@ -121,7 +127,7 @@ function chapterPage(ch, prev, next) {
     '    <link rel="manifest" href="/manifest.json">\n' +
     '    <link rel="stylesheet" href="/assets/css/light-icons.css">\n' +
     '    <link rel="stylesheet" href="/assets/css/print.css" media="print">\n' +
-    STYLE + '</head>\n<body>\n' + TOGGLE + nav() + '\n    <div class="container">\n';
+    STYLE + '</head>\n<body>\n' + nav() + '\n    <div class="container">\n';
 
   // book argument once (chapter 1 of each book)
   if (ch.bookArgument) {
@@ -136,10 +142,11 @@ function chapterPage(ch, prev, next) {
     (ch.argument ? '<p class="inst-argument">' + escText(ch.argument) + '</p>' : '') +
     '</header>';
 
-  if (hasAudio) {
+  if (audUrl) {
     h += '<div class="inst-audio"><div class="inst-audio-label">▶ Listen — read by Alan' +
       (isModern ? ' (modernized for 2026)' : '') + '</div>' +
-      '<audio controls preload="none" src="../assets/institutes/audio/b' + ch.book + '-c' + pad(ch.chapter) + '.mp3"></audio></div>';
+      '<audio controls preload="none"><source src="' + audUrl + '" type="audio/mpeg">' +
+      'Your browser cannot play this audio. <a href="' + audUrl + '" download>Download the MP3</a>.</audio></div>';
   }
 
   if (ch.sectionSummaries && ch.sectionSummaries.length) {
