@@ -54,6 +54,9 @@ function navHtml() {
     item('institutes.html', 'shield-cross.png', 'Institutes', false) +
     item('blog.html', 'shield-scroll-quill-48.png', 'Blog', false) +
     item('connect.html', 'shield-handshake.png', 'Connect', false) +
+    // theme toggle inside the nav (light-icons.css floats it top-right via
+    // .nav-theme-toggle margin-left:auto) — uniform, no overlap when the nav wraps.
+    '<div class="bte-theme-toggle nav-theme-toggle" onclick="catToggleTheme()" title="Toggle dark/light mode" role="button" tabindex="0" aria-label="Toggle dark/light mode"></div>' +
     '</nav>';
 }
 
@@ -160,7 +163,7 @@ function build(data) {
     '    <link rel="manifest" href="/manifest.json">\n' +
     '    <link rel="stylesheet" href="/assets/css/light-icons.css">\n' +
     '    <link rel="stylesheet" href="/assets/css/print.css" media="print">\n' +
-    THEME_STYLE + '</head>\n<body>\n' + THEME_TOGGLE + navHtml() + '\n    <div class="container">\n';
+    THEME_STYLE + '</head>\n<body>\n' + navHtml() + '\n    <div class="container">\n';
 
   // Hero
   h += '<header class="lbcf-hero"><img src="assets/icons/shield-cross.png" alt="Catechism crest">' +

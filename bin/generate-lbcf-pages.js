@@ -197,6 +197,9 @@ function navHtml(active) {
     item('institutes.html', 'shield-cross.png', 'Institutes', false) +
     item('blog.html', 'shield-scroll-quill-48.png', 'Blog', false) +
     item('connect.html', 'shield-handshake.png', 'Connect', false) +
+    // theme toggle inside the nav (light-icons.css floats it top-right via
+    // .nav-theme-toggle margin-left:auto) — uniform, no overlap when the nav wraps.
+    '<div class="bte-theme-toggle nav-theme-toggle" onclick="bteToggleTheme()" title="Toggle dark/light mode" role="button" tabindex="0" aria-label="Toggle dark/light mode"></div>' +
     '</nav>';
 }
 
@@ -328,7 +331,7 @@ function buildFullPage(meta, chapters, front) {
     'The complete Second London Baptist Confession of Faith (1689) on one page — all 32 chapters in modern English with linked Scripture proofs, the preface, and the signatories. Printer-friendly.',
     canonical
   );
-  h += '<body>\n' + THEME_TOGGLE_MARKUP + navHtml('lbcf') + '\n    <div class="container">\n';
+  h += '<body>\n' + navHtml('lbcf') + '\n    <div class="container">\n';
   // Hero
   h += '<header class="lbcf-hero"><img src="assets/icons/shield-cross.png" alt="LBCF crest">' +
     '<div class="subtitle">Second London Baptist Confession of Faith</div>' +
@@ -397,7 +400,7 @@ function buildPrefacePage(front) {
     'The preface to the Second London Baptist Confession of Faith (1689) — "To the Judicious and Impartial Reader" — in modern English.',
     canonical
   ).replace(/href="assets\//g, 'href="../assets/');
-  let h = head + '<body>\n' + THEME_TOGGLE_MARKUP.replace(/g/, 'g') +
+  let h = head + '<body>\n' +
     navHtml('lbcf').replace(/href="(?!http)([^"]+)"/g, 'href="../$1"').replace(/src="assets\//g, 'src="../assets/') +
     '\n    <div class="container"><div class="lbcf-front" id="preface">' +
     '<div class="lbcf-chap-head" style="border:none;"><div class="lbcf-chap-num">The 1689 Confession</div>' +

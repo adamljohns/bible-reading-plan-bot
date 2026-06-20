@@ -123,6 +123,13 @@ TOGGLE_MARKUP = """
         </div>
     </div>
 """
+# In-nav variant (preferred): light-icons.css floats it top-right via
+# .nav-theme-toggle, and the flex nav wraps to fit it — no overlap on mobile.
+TOGGLE_MARKUP_NAV = (
+    '<div class="bte-theme-toggle nav-theme-toggle" onclick="bteToggleTheme()" '
+    'title="Toggle dark/light mode" role="button" tabindex="0" '
+    'aria-label="Toggle dark/light mode"></div>'
+)
 TOGGLE_JS = """    <script>
     /* ── BTE Dark/Light Mode ── */
     function bteToggleTheme(){
@@ -168,19 +175,26 @@ def patch(html: str, fname: str):
         html = html[:head_end] + LINK_TAG + html[head_end:]
         steps.append("link")
 
-    # 3) toggle markup (+ JS) right after the <body...> opening tag
-    insert = ""
+    # 3) toggle markup INSIDE the nav (uniform top-right; the wrapping nav
+    #    reserves space so it never overlaps links on mobile), then the theme JS
+    #    right after the <body...> opening tag.
     if MARKUP_GUARD not in html:
-        insert += TOGGLE_MARKUP
-        steps.append("toggle-markup")
+        nav_close = html.find("</nav>")
+        if nav_close >= 0:
+            html = html[:nav_close] + TOGGLE_MARKUP_NAV + html[nav_close:]
+            steps.append("toggle-markup")
+        else:  # no <nav> — fall back to the standalone block after <body>
+            m = BODY_RE.search(html)
+            if not m:
+                return html, [f"SKIP: no <body> in {fname}"]
+            html = html[: m.end()] + TOGGLE_MARKUP + html[m.end():]
+            steps.append("toggle-markup-no-nav")
     if JS_GUARD not in html:
-        insert += TOGGLE_JS
-        steps.append("theme-js")
-    if insert:
         m = BODY_RE.search(html)
         if not m:
             return html, [f"SKIP: no <body> in {fname}"]
-        html = html[: m.end()] + insert + html[m.end():]
+        html = html[: m.end()] + TOGGLE_JS + html[m.end():]
+        steps.append("theme-js")
 
     return html, steps
 

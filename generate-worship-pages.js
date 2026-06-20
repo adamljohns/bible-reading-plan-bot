@@ -356,14 +356,8 @@ ${link('dictionary/index.html','shield-book-greek-48.png','Dictionary','dict')}
 ${link('worship.html','shield-quill-note-48.png','Worship','worship')}
 ${link('blog.html','shield-scroll-quill-48.png','Blog','blog')}
 ${link('connect.html','shield-handshake.png','Connect','connect')}
-    </nav>
-    <div style="text-align:center; margin-top:8px; margin-bottom:4px;">
-        <div class="bte-theme-toggle" onclick="bteToggleTheme()" title="Toggle dark/light mode">
-            <span class="toggle-icon moon-icon">🌙</span>
-            <div class="toggle-track"><div class="toggle-knob"></div></div>
-            <span class="toggle-icon sun-icon">☀️</span>
-        </div>
-    </div>`;
+        <div class="bte-theme-toggle nav-theme-toggle" onclick="bteToggleTheme()" title="Toggle dark/light mode" role="button" tabindex="0" aria-label="Toggle dark/light mode"></div>
+    </nav>`;
 }
 
 function footerBlock(depth) {
