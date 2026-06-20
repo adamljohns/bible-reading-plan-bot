@@ -315,6 +315,130 @@ function extractLyrics(body) {
   return out.join(' ').toLowerCase().replace(/\s+/g, ' ').trim().slice(0, 1500);
 }
 
+/* ───────────────────────── themes + scripture ───────────────────────── */
+
+// Service-moment themes a worship leader actually plans a set around. A song gets
+// a theme tag when enough of that theme's keywords appear in its title+lyrics —
+// `min` is tuned per theme so broad words ("praise") don't tag everything, while
+// specific ones ("communion") tag on a single strong hit. Derived at page-build
+// time, so adding or retuning a theme is a `--pages` rebuild, no re-ingest.
+const THEMES = [
+  { key:'christmas',    label:'Christmas',          xmas:true, min:1,
+    words:['christmas','noel','manger','bethlehem','nativity','silent night','wise men','newborn king','born is the king','baby jesus','first noel'] },
+  { key:'communion',    label:'Communion',          min:1,
+    words:['communion','the bread','the cup','this cup','body broken','broken for','his body','remembrance','do this in remem','at the table','to the table'] },
+  { key:'cross-blood',  label:'Cross & Blood',      min:1,
+    words:['the cross','at calvary','calvary','the blood','his blood','your blood','crucified','the nails','nailed','pierced','his wounds','crimson','precious blood','blood of the lamb','blood was shed'] },
+  { key:'resurrection', label:'Resurrection',       min:1,
+    words:['he is risen','is risen','he is alive','resurrection','empty tomb','rose again','conquered the grave','death could not','up from the grave','alive forevermore','risen again'] },
+  { key:'surrender',    label:'Surrender',          min:1,
+    words:['i surrender','surrender all','take my life','take my heart','have your way','i give you my','i give my','lay it down','here i am','all to you','all i am','search my heart','break my heart','i give you everything'] },
+  { key:'thanksgiving', label:'Thanksgiving',       min:1,
+    words:['give thanks','thankful','grateful','gratitude','thanksgiving','thank you lord','count my blessings','i thank you','for all you','we give thanks'] },
+  { key:'holy-spirit',  label:'Holy Spirit',        min:1,
+    words:['holy spirit','holy ghost','spirit come','your spirit','breath of god','holy fire','consuming fire','rushing wind','pour out your','fall on us','fill me now','spirit fall','breathe on me'] },
+  { key:'grace-salvation', label:'Grace & Salvation', min:2,
+    words:['grace','i am saved','salvation','redeem','ransom','forgiven','set me free','amazing grace','your mercy','i once was lost','born again','washed me','make me clean'] },
+  { key:'king-majesty', label:'King & Majesty',     min:2,
+    words:['the king','you reign','your throne','majesty','sovereign','lord of all','almighty','crown him','enthroned','king of kings','king of glory','reigns forever','great is the lord'] },
+  { key:'love-of-god',  label:'Love of God',        min:1,
+    words:['your great love','his love','the love of god','steadfast love','unfailing love','how he loves','how you love','great is your love','love that will not','reckless love','your love never','o the deep deep love'] },
+  { key:'comfort-trust', label:'Comfort & Trust',   min:1,
+    words:['my refuge','my shelter','do not fear','i will not fear','fear no evil','you give me rest','my shepherd','never alone','strong tower','you are my rock','hiding place','i will trust','whom shall i fear','through the storm','it is well','peace like a river'] },
+  { key:'praise-adoration', label:'Praise & Adoration', min:1,
+    words:['hallelujah','hosanna','we exalt','i exalt','we adore','i adore you','glorify','magnify','we worship you','i worship you','lift him high','sing your praise','shout to the lord','praise his name'] },
+];
+const THEME_LABEL = Object.fromEntries(THEMES.map(t => [t.key, t.label]));
+
+// Tag a song with its service-moment themes (array of theme keys).
+function detectThemes(s) {
+  const hay = ((s.title || '') + ' \n ' + extractLyrics(s.body)).toLowerCase();
+  const out = [];
+  for (const t of THEMES) {
+    if (t.xmas && s.christmas) { out.push(t.key); continue; }
+    let hits = 0;
+    for (const w of t.words) {
+      if (hay.indexOf(w) >= 0 && ++hits >= t.min) break;
+    }
+    if (hits >= t.min) out.push(t.key);
+  }
+  return out;
+}
+
+// Canonical book names + the abbreviations Adam's charts actually use → the
+// display string we hand to bible.html (?ref=...). High precision: we only ever
+// linkify a reference whose book we recognize, so we never emit a dead link.
+const SCRIPTURE_BOOKS = {
+  'genesis':'Genesis','gen':'Genesis','exodus':'Exodus','exod':'Exodus','exo':'Exodus',
+  'leviticus':'Leviticus','lev':'Leviticus','numbers':'Numbers','num':'Numbers',
+  'deuteronomy':'Deuteronomy','deut':'Deuteronomy','deu':'Deuteronomy','joshua':'Joshua','josh':'Joshua',
+  'judges':'Judges','judg':'Judges','ruth':'Ruth',
+  '1 samuel':'1 Samuel','1samuel':'1 Samuel','1 sam':'1 Samuel','1sam':'1 Samuel','i samuel':'1 Samuel',
+  '2 samuel':'2 Samuel','2samuel':'2 Samuel','2 sam':'2 Samuel','2sam':'2 Samuel','ii samuel':'2 Samuel',
+  '1 kings':'1 Kings','1kings':'1 Kings','1 kgs':'1 Kings','i kings':'1 Kings',
+  '2 kings':'2 Kings','2kings':'2 Kings','2 kgs':'2 Kings','ii kings':'2 Kings',
+  '1 chronicles':'1 Chronicles','1 chron':'1 Chronicles','1 chr':'1 Chronicles',
+  '2 chronicles':'2 Chronicles','2 chron':'2 Chronicles','2 chr':'2 Chronicles',
+  'ezra':'Ezra','nehemiah':'Nehemiah','neh':'Nehemiah','esther':'Esther','esth':'Esther','job':'Job',
+  'psalm':'Psalm','psalms':'Psalm','psa':'Psalm','ps':'Psalm',
+  'proverbs':'Proverbs','prov':'Proverbs','prv':'Proverbs',
+  'ecclesiastes':'Ecclesiastes','eccl':'Ecclesiastes','ecc':'Ecclesiastes',
+  'song of solomon':'Song of Solomon','song of songs':'Song of Solomon',
+  'isaiah':'Isaiah','isa':'Isaiah','jeremiah':'Jeremiah','jer':'Jeremiah',
+  'lamentations':'Lamentations','lam':'Lamentations','ezekiel':'Ezekiel','ezek':'Ezekiel','eze':'Ezekiel',
+  'daniel':'Daniel','dan':'Daniel','hosea':'Hosea','hos':'Hosea','joel':'Joel','amos':'Amos',
+  'obadiah':'Obadiah','obad':'Obadiah','jonah':'Jonah','jon':'Jonah','micah':'Micah','mic':'Micah',
+  'nahum':'Nahum','nah':'Nahum','habakkuk':'Habakkuk','hab':'Habakkuk',
+  'zephaniah':'Zephaniah','zeph':'Zephaniah','haggai':'Haggai','hag':'Haggai',
+  'zechariah':'Zechariah','zech':'Zechariah','zec':'Zechariah','malachi':'Malachi','mal':'Malachi',
+  'matthew':'Matthew','matt':'Matthew','mark':'Mark','luke':'Luke','luk':'Luke','john':'John',
+  'acts':'Acts','romans':'Romans','rom':'Romans',
+  '1 corinthians':'1 Corinthians','1 cor':'1 Corinthians','1cor':'1 Corinthians','i corinthians':'1 Corinthians',
+  '2 corinthians':'2 Corinthians','2 cor':'2 Corinthians','2cor':'2 Corinthians','ii corinthians':'2 Corinthians',
+  'galatians':'Galatians','gal':'Galatians','ephesians':'Ephesians','eph':'Ephesians',
+  'philippians':'Philippians','phil':'Philippians','php':'Philippians','colossians':'Colossians','col':'Colossians',
+  '1 thessalonians':'1 Thessalonians','1 thess':'1 Thessalonians','1 thes':'1 Thessalonians',
+  '2 thessalonians':'2 Thessalonians','2 thess':'2 Thessalonians','2 thes':'2 Thessalonians',
+  '1 timothy':'1 Timothy','1 tim':'1 Timothy','2 timothy':'2 Timothy','2 tim':'2 Timothy',
+  'titus':'Titus','philemon':'Philemon','phlm':'Philemon','hebrews':'Hebrews','heb':'Hebrews',
+  'james':'James','jas':'James',
+  '1 peter':'1 Peter','1 pet':'1 Peter','1pet':'1 Peter','2 peter':'2 Peter','2 pet':'2 Peter','2pet':'2 Peter',
+  '1 john':'1 John','2 john':'2 John','3 john':'3 John',
+  'jude':'Jude','revelation':'Revelation','rev':'Revelation',
+};
+const _SB_ALT = Object.keys(SCRIPTURE_BOOKS).sort((a, b) => b.length - a.length)
+  .map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\s+')).join('|');
+const SCRIPTURE_RE = new RegExp('\\b(' + _SB_ALT + ')\\s*\\.?\\s*(\\d{1,3})\\s*:\\s*(\\d{1,3})(?:\\s*[-–]\\s*(\\d{1,3}))?', 'gi');
+const PSALM_CH_RE = /\bpsalms?\s+(\d{1,3})\b(?!\s*:)/gi;
+
+// Detect scripture references in a chart so we can deep-link them to bible.html.
+// Requires "Book Ch:V" (a colon) for precision, with a special case for the
+// idiomatic chapter-only "Psalm 23". Returns up to 6 unique display refs.
+function detectScriptures(song) {
+  const text = (song.body || '') + '\n' + (song.title || '');
+  const seen = new Set(); const out = [];
+  let m;
+  SCRIPTURE_RE.lastIndex = 0;
+  while ((m = SCRIPTURE_RE.exec(text)) !== null) {
+    const canon = SCRIPTURE_BOOKS[m[1].toLowerCase().replace(/\s+/g, ' ').trim()];
+    if (!canon) continue;
+    const ref = canon + ' ' + m[2] + ':' + m[3] + (m[4] ? '-' + m[4] : '');
+    if (!seen.has(ref)) { seen.add(ref); out.push(ref); }
+    if (out.length >= 6) break;
+  }
+  if (out.length < 6) {
+    PSALM_CH_RE.lastIndex = 0;
+    while ((m = PSALM_CH_RE.exec(text)) !== null) {
+      const ref = 'Psalm ' + m[1];
+      if (!seen.has(ref) && ![...seen].some(r => r.indexOf('Psalm ' + m[1] + ':') === 0)) {
+        seen.add(ref); out.push(ref);
+        if (out.length >= 6) break;
+      }
+    }
+  }
+  return out;
+}
+
 /* ───────────────────────── shared HTML fragments ───────────────────────── */
 
 function pageHead(title, desc, canonicalPath, depth) {
@@ -448,6 +572,13 @@ const SONG_CSS = `
         .dl-btn { color:var(--gold); text-decoration:none; padding:8px 16px; border:1px solid var(--border); border-radius:8px; display:inline-flex; align-items:center; gap:6px; transition:all .2s; font-size:.9rem; }
         .dl-btn:hover { border-color:var(--gold); background:rgba(212,175,55,.1); }
         .note { color:var(--gray); font-size:.82rem; font-style:italic; margin-top:8px; }
+        .song-themes { display:flex; flex-wrap:wrap; gap:6px; margin:-6px 0 16px; }
+        .song-theme { font-size:.74rem; font-weight:600; color:var(--gold); text-decoration:none; border:1px solid rgba(212,175,55,.4); border-radius:14px; padding:3px 11px; transition:all .15s; }
+        .song-theme:hover { background:rgba(212,175,55,.12); }
+        .scriptures { margin:2px 0 16px; font-size:.88rem; color:var(--gray); }
+        .scriptures .sc-label { color:var(--gray); margin-right:4px; }
+        .scriptures a { color:var(--gold); text-decoration:none; font-weight:600; }
+        .scriptures a:hover { text-decoration:underline; }
         .versions { margin:4px 0 18px; font-size:.86rem; color:var(--gray); }
         .versions-label { color:var(--gray); margin-right:4px; }
         .versions a { color:var(--gold); text-decoration:none; }
@@ -526,6 +657,20 @@ function songPage(song, siblings) {
   const creditsBlock = crRows.length
     ? `\n        <div class="credits"><div class="cr-title">Credits</div>${crRows.join('')}</div>`
     : '';
+  // Service-moment theme tags (link back to a filtered index).
+  const themes = detectThemes(song);
+  const themesRow = themes.length
+    ? `\n        <div class="song-themes">` +
+      themes.map(k => `<a class="song-theme" href="../worship.html?theme=${k}">${escapeHtml(THEME_LABEL[k])}</a>`).join('') +
+      `</div>`
+    : '';
+  // Scripture references found in the chart → deep-link to the Bible study tool.
+  const scriptures = detectScriptures(song);
+  const scriptureRow = scriptures.length
+    ? `\n        <div class="scriptures"><span class="sc-label">📖 Scripture:</span> ` +
+      scriptures.map(r => `<a href="../bible.html?ref=${encodeURIComponent(r)}" target="_blank" rel="noopener">${escapeHtml(r)}</a>`).join(' &middot; ') +
+      `</div>`
+    : '';
 
   return `${pageHead(song.title + ' — Chords & Lyrics | USMC Ministries',
       'Chord chart and lyrics for ' + song.title + (song.key ? ' (key of ' + song.key + ')' : '') + '. Free worship leader resource from USMC Ministries.',
@@ -540,7 +685,7 @@ function songPage(song, siblings) {
             <h1>${escapeHtml(song.title)}</h1>
             ${song.key ? `<span class="badge" id="keyBadge">Key: ${escapeHtml(song.key)}</span>` : ''}
         </div>
-        <div class="sub">${subBits.join(' &middot; ')}</div>
+        <div class="sub">${subBits.join(' &middot; ')}</div>${themesRow}
 ${media}
         <div class="toolbar">
             <div class="tb-group"><span class="tb-label">Transpose</span>
@@ -567,7 +712,7 @@ ${media}
             ${ugBtn}
             <a class="dl-btn" href="../worship.html#random" onclick="event.preventDefault();location.href='../worship.html?random=1'">🎲 Random song</a>
             <a class="dl-btn" href="../worship-setlist.html" onclick="return addToSet('${song.slug}')">＋ Add to set list</a>
-        </div>${versionsRow}${creditsBlock}
+        </div>${scriptureRow}${versionsRow}${creditsBlock}
         ${!yt ? '<!-- No video linked yet. Add { "'+song.slug+'": { "youtube": "<id>" } } to docs/data/worship-overrides.json and re-run the generator. -->' : ''}
     </div>
     <div id="perfOverlay" class="perf-overlay" aria-hidden="true">
@@ -739,6 +884,12 @@ const INDEX_CSS = `
         .ctrl-btn.active { background:var(--gold); color:#000; border-color:var(--gold); }
         .ctrl-btn.wk-toggle { margin-left:8px; }
         .ctrl-btn.wk-toggle.active { background:var(--gold); color:#000; }
+        .theme-row { display:flex; flex-wrap:wrap; gap:6px; justify-content:center; align-items:center; margin:8px 0 2px; }
+        .tchip { background:transparent; color:var(--gray); border:1px solid var(--border); border-radius:20px; padding:4px 12px; font-size:.78rem; font-weight:600; cursor:pointer; transition:all .15s; font-family:'Inter',sans-serif; }
+        .tchip:hover { border-color:var(--gold); color:var(--gold); }
+        .tchip.active { background:var(--gold); color:#000; border-color:var(--gold); }
+        .tchip .tc-n { opacity:.55; font-size:.7rem; }
+        .tchip.active .tc-n { opacity:.75; }
         .more { text-align:center; margin:6px 0 30px; }
         .more button { background:transparent; color:var(--gold); border:1px solid var(--gold); border-radius:20px; padding:8px 22px; font-size:.85rem; font-weight:600; cursor:pointer; }
         .more button:hover { background:rgba(212,175,55,.12); }
@@ -750,9 +901,11 @@ function indexPage(songs, slidesCount) {
   const tabs = songs.filter(s => s.type === 'tab').length;
   const xmas = songs.filter(s => s.christmas).length;
   // Lightweight client index:
-  // [slug, title, type(p/t), christmas(0/1), letter, key, artist, score, wellKnown(0/1)]
+  // [slug, title, type(p/t), christmas(0/1), letter, key, artist, score, wellKnown(0/1), isOther(0/1), themes[]]
   const idx = songs.map(s => [s.slug, s.title, s.type === 'tab' ? 't' : 'p', s.christmas ? 1 : 0,
-    s.letter, s.key || '', resolveArtist(s), popularity(s), isWellKnown(s) ? 1 : 0, isOtherSong(s) ? 1 : 0]);
+    s.letter, s.key || '', resolveArtist(s), popularity(s), isWellKnown(s) ? 1 : 0, isOtherSong(s) ? 1 : 0,
+    detectThemes(s)]);
+  const themeDefs = THEMES.map(t => [t.key, t.label]);
   const wkCount = songs.filter(isWellKnown).length;
   const otherCount = songs.filter(isOtherSong).length;
 
@@ -790,6 +943,7 @@ function indexPage(songs, slidesCount) {
             <button class="ctrl-btn wk-toggle" id="wkBtn" onclick="toggleWK()" title="Hide deep cuts — show only songs with a video or slides">★ Well-known only (${wkCount})</button>
             <button class="ctrl-btn wk-toggle active" id="woBtn" onclick="toggleWorship()" title="Hide ${otherCount} non-worship rock/alt charts from the archive">🎵 Worship only</button>
         </div>
+        <div class="theme-row" id="themeRow"></div>
         <div class="alpha-bar" id="alpha"></div>
         <div class="count" id="count"></div>
         <div class="song-grid" id="grid"></div>
@@ -800,7 +954,8 @@ function indexPage(songs, slidesCount) {
     ${THEME_RESTORE}
     <script>
     var SONGS=${JSON.stringify(idx)};
-    var PAGE=120, shown=PAGE, filter='all', letter='', term='', sort='az', wkOnly=false, worshipOnly=true, LYR=null;
+    var THEME_DEFS=${JSON.stringify(themeDefs)};
+    var PAGE=120, shown=PAGE, filter='all', letter='', term='', sort='az', wkOnly=false, worshipOnly=true, theme='', LYR=null;
     var OTHER_TOTAL=SONGS.filter(function(s){return s[9];}).length;
     var grid=document.getElementById('grid'), countEl=document.getElementById('count'),
         moreEl=document.getElementById('more'), nr=document.getElementById('noResults');
@@ -811,6 +966,7 @@ function indexPage(songs, slidesCount) {
       if(filter==='x' && !s[3]) return false;
       if(wkOnly && !s[8]) return false;
       if(worshipOnly && s[9]) return false;
+      if(theme && (!s[10] || s[10].indexOf(theme)<0)) return false;
       if(letter && s[4]!==letter) return false;
       if(term){ var hay=(s[1]+' '+(s[6]||'')).toLowerCase();
         var hit=hay.indexOf(term)>=0 || (LYR && term.length>=3 && LYR[s[0]] && LYR[s[0]].indexOf(term)>=0);
@@ -862,6 +1018,23 @@ function indexPage(songs, slidesCount) {
       bar.addEventListener('click',function(e){ if(e.target.dataset.l===undefined) return;
         letter=e.target.dataset.l; shown=PAGE;
         var b=bar.children; for(var k=0;k<b.length;k++) b[k].classList.toggle('active',b[k].dataset.l===letter);
+        render(); });
+    })();
+    // Theme filter — service-moment tags derived from each song's lyrics.
+    (function(){
+      var qt=(new URLSearchParams(location.search)).get('theme'); if(qt) theme=qt;
+      var counts={};
+      for(var i=0;i<SONGS.length;i++){ var ts=SONGS[i][10]; if(!ts)continue;
+        for(var j=0;j<ts.length;j++) counts[ts[j]]=(counts[ts[j]]||0)+1; }
+      var row=document.getElementById('themeRow');
+      var html='<span class="ctrl-label">Theme</span><button class="tchip'+(theme?'':' active')+'" data-t="">All</button>';
+      for(var k=0;k<THEME_DEFS.length;k++){ var key=THEME_DEFS[k][0], lab=THEME_DEFS[k][1], c=counts[key]||0;
+        if(!c) continue;
+        html+='<button class="tchip'+(theme===key?' active':'')+'" data-t="'+key+'">'+lab+' <span class="tc-n">'+c+'</span></button>'; }
+      row.innerHTML=html;
+      row.addEventListener('click',function(e){ var b=e.target.closest('button'); if(!b||b.dataset.t===undefined) return;
+        theme=b.dataset.t; shown=PAGE;
+        var bs=row.querySelectorAll('button'); for(var i=0;i<bs.length;i++) bs[i].classList.toggle('active',bs[i].dataset.t===theme);
         render(); });
     })();
     render();
