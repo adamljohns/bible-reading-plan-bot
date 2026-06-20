@@ -26,7 +26,9 @@ const OUT = path.join(ROOT, 'docs', 'assets', 'institutes', 'audio');
 const PY = process.env.PIPER_PY || '/tmp/piper-venv/bin/python';
 const MODEL = process.env.PIPER_MODEL || path.join(os.homedir(), '.piper-voices', 'alan.onnx');
 const REPO = 'adamljohns/bible-reading-plan-bot';
-const RELEASE_TAG = 'institutes-audio';
+const RELEASE_TAG = 'institutes-audio';                        // legacy GitHub Release (off-site backup only)
+const R2_REMOTE = process.env.R2_REMOTE || 'r2:usmcmin-audio'; // rclone remote → Cloudflare R2 (primary host)
+const R2_BASE = 'https://audio.usmcmin.org';                   // public custom domain for the R2 bucket
 const MANIFEST = path.join(DATA, 'audio-manifest.json');
 const LENGTH_SCALE = '1.12';      // slightly slower, more deliberate
 const SENTENCE_SILENCE = '0.4';   // pause between sentences
@@ -39,6 +41,10 @@ function checkPrereqs() {
   catch (e) { throw new Error('piper not runnable via ' + PY + ' — set PIPER_PY'); }
   try { execSync('command -v ffmpeg', { stdio: 'ignore' }); }
   catch (e) { throw new Error('ffmpeg not found'); }
+  if (!process.env.SKIP_UPLOAD) {
+    try { execSync('rclone lsd ' + R2_REMOTE.split(':')[0] + ': >/dev/null 2>&1 || rclone ls ' + R2_REMOTE + ' >/dev/null', { stdio: 'ignore' }); }
+    catch (e) { throw new Error('rclone R2 remote "' + R2_REMOTE + '" not reachable — configure ~/.config/rclone/rclone.conf (or run with SKIP_UPLOAD=1)'); }
+  }
 }
 
 function synth(text, wavPath) {
@@ -84,10 +90,18 @@ function chapterAudio(ch) {
 }
 
 function uploadAndRecord(book, chapter, mp3Path) {
-  execSync('gh release upload ' + RELEASE_TAG + ' "' + mp3Path + '" --repo ' + REPO + ' --clobber', { stdio: 'ignore' });
+  // Primary host: Cloudflare R2 (audio/mpeg + range + free egress). rclone sets
+  // Content-Type from the .mp3 extension automatically.
+  execSync('rclone copy "' + mp3Path + '" ' + R2_REMOTE + '/', { stdio: 'ignore' });
+  // Optional off-site backup to the legacy GitHub Release (set BACKUP_RELEASE=1).
+  if (process.env.BACKUP_RELEASE) {
+    try { execSync('gh release upload ' + RELEASE_TAG + ' "' + mp3Path + '" --repo ' + REPO + ' --clobber', { stdio: 'ignore' }); }
+    catch (e) { console.log('  (release backup failed, continuing: ' + e.message + ')'); }
+  }
   let m;
   try { m = JSON.parse(fs.readFileSync(MANIFEST, 'utf8')); }
-  catch (e) { m = { voice: 'en_GB-alan', release: 'https://github.com/' + REPO + '/releases/download/' + RELEASE_TAG, chapters: {} }; }
+  catch (e) { m = { voice: 'en_GB-alan', base: R2_BASE, chapters: {} }; }
+  if (!m.base) m.base = R2_BASE;
   m.chapters['b' + book + 'c' + pad(chapter)] = path.basename(mp3Path);
   fs.writeFileSync(MANIFEST, JSON.stringify(m, null, 2) + '\n');
 }

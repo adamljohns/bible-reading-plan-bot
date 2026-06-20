@@ -35,18 +35,22 @@ const escText = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
 const escAttr = (s) => escText(s).replace(/"/g, '&quot;');
 const chFile = (b, c) => 'b' + b + '-c' + pad(c) + '.html';
 
-// Audio is served SAME-ORIGIN from GitHub Pages (/assets/institutes/audio/*.mp3).
-// Pages sends Content-Type: audio/mpeg, which <audio> plays in every browser incl.
-// Safari. (The GitHub Releases CDN serves application/octet-stream with no CORS,
-// which Safari refuses to decode — that broke playback, so the MP3s live in the repo.)
-// The manifest's `chapters` map is the source of truth for which chapters have audio.
+// Audio is served from Cloudflare R2 via the custom domain in the manifest's
+// `base` (https://audio.usmcmin.org): R2 sends Content-Type: audio/mpeg + range
+// support + free egress, and keeps the ~1GB+ of MP3s out of the Pages repo.
+// (The GitHub Releases CDN served application/octet-stream with no CORS, which
+// Safari refused to decode.) Falls back to the same-origin /assets path if `base`
+// is absent. The manifest's `chapters` map is the source of truth for which
+// chapters have audio.
 const AUDIO_MANIFEST = (() => {
   try { return JSON.parse(fs.readFileSync(path.join(DATA, 'audio-manifest.json'), 'utf8')); }
   catch (e) { return { chapters: {} }; }
 })();
 function audioUrl(book, chapter) {
   const f = AUDIO_MANIFEST.chapters && AUDIO_MANIFEST.chapters['b' + book + 'c' + pad(chapter)];
-  return f ? '/assets/institutes/audio/' + f : null;
+  if (!f) return null;
+  const base = (AUDIO_MANIFEST.base || '/assets/institutes/audio').replace(/\/$/, '');
+  return base + '/' + f;
 }
 
 function nav() {
