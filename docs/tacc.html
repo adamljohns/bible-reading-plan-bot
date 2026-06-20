@@ -2052,9 +2052,10 @@
     <!-- ── TOGGL TIME TRACKER SCRIPT ── -->
     <script>
     (function() {
-        const TOGGL_TOKEN = 'f3b4cece9986e6b0eb6f17a7deca1b62';
-        const TOGGL_AUTH = 'Basic ' + btoa(TOGGL_TOKEN + ':api_token');
-        const TOGGL_BASE = 'https://api.track.toggl.com/api/v9';
+        // Toggl data is fetched SERVER-SIDE by the fleet (token stays in Keychain, never in this public page)
+        // and written to same-origin toggl-data.json. NO API token in client code.
+        // (Exposed plaintext token removed 2026-06-20 — it must also be rotated in Toggl.)
+        const TOGGL_DATA_URL = 'toggl-data.json';
 
         // Project map: id → {letter, name, color, fiveC}
         const PROJECTS = {
@@ -2097,12 +2098,8 @@
             return m;
         }
 
-        async function fetchEntries(startDate, endDate) {
-            const url = `${TOGGL_BASE}/me/time_entries?start_date=${startDate}&end_date=${endDate}`;
-            const res = await fetch(url, { headers: { 'Authorization': TOGGL_AUTH, 'Content-Type': 'application/json' } });
-            if (!res.ok) throw new Error('Toggl API error: ' + res.status);
-            return res.json();
-        }
+        // Direct Toggl API call removed 2026-06-20 (CORS-blocked from the browser + exposed the token).
+        // The fleet fetches Toggl server-side and writes pre-fetched entries to toggl-data.json (see loadToggl).
 
         function aggregateByProject(entries) {
             const totals = {};
@@ -2217,12 +2214,11 @@
                 const sunday = dateStr(new Date(getMondayOfWeek(now).getTime() + 6 * 86400000));
                 const monthStart = today.slice(0, 8) + '01';
 
-                // Fetch all at once (parallel)
-                const [todayRaw, weekRaw, monthRaw] = await Promise.all([
-                    fetchEntries(today, today),
-                    fetchEntries(monday, sunday),
-                    fetchEntries(monthStart, today),
-                ]);
+                // Same-origin data file written server-side by the fleet (no API token in this page).
+                const _r = await fetch(TOGGL_DATA_URL + '?_=' + Date.now());
+                if (!_r.ok) throw new Error('toggl-data.json unavailable');
+                const _d = await _r.json();
+                const todayRaw = _d.today || [], weekRaw = _d.week || [], monthRaw = _d.month || [];
 
                 const todayTotals = aggregateByProject(parseEntries(todayRaw));
                 const weekTotals  = aggregateByProject(parseEntries(weekRaw));
@@ -2253,11 +2249,10 @@
                 badge.className = 'card-badge ' + (todaySecs > 0 ? 'ok' : '');
 
             } catch (err) {
-                brief.innerHTML = `<span style="color:#888;font-size:0.85rem;">⚠️ Could not load Toggl data. Check console.</span>`;
-                content.innerHTML = `<span style="color:#888;font-size:0.85rem;">Error: ${err.message}</span>`;
-                badge.textContent = 'Error';
-                badge.className = 'card-badge alert';
-                console.error('Toggl widget error:', err);
+                // toggl-data.json not present yet — neutral state. No token, no console spam.
+                if (brief) brief.innerHTML = `<span style="color:#888;font-size:0.85rem;">Time tracking offline — awaiting fleet sync.</span>`;
+                if (content) content.innerHTML = '';
+                if (badge) { badge.textContent = 'offline'; badge.className = 'card-badge'; }
             }
         }
 
