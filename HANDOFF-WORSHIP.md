@@ -97,7 +97,32 @@ Index controls now: search (title/artist/lyric) · type chips · A–Z/Best-know
 - **Gold worship nav icon** — generate via his ChatGPT session (`WORSHIP-ICON-PROMPT.md`), then `bin/finish-worship-icon.sh`. Currently reuses `shield-quill-note`.
 
 ### Remaining backlog (Phase B & C — for a future run-block)
-**Phase B (enrich the data):** theme/occasion/tempo tags derived from lyrics (communion, christmas, surrender, thanksgiving, cross/blood, holy-spirit, declaration) + a Theme filter · scripture-reference detection → link to `bible.html` · expand artist tagging · tighten key detection.
+**Phase B (enrich the data):** ~~theme tags + Theme filter~~ ✅ · ~~scripture-reference detection → bible.html~~ ✅ (both shipped 2026-06-20, see below) · expand artist tagging (still ~108 curated) · tighten key detection.
 **Phase C (power features & polish):** guitar chord diagrams + capo calculator · deepen YouTube coverage · index sections ("Most-used / Recently added / By theme") · whole-songbook PDF export · per-song OG/SEO · wire the gold icon.
 
 Operating contract (unchanged): edit `generate-worship-pages.js` only (never hand-edit generated HTML); `node generate-worship-pages.js --pages` (or `--ingest` if parsing changed; confirm 1439); verify in preview; commit SCOPED worship paths only — NEVER `git add -A`, NEVER `docs/dictionary/`; `git fetch origin main` + fast-forward push.
+
+---
+
+## Phase B — partial (2026-06-20, single 30-min block, commit `1def7b438`)
+
+Shipped, verified in preview, pushed live:
+- **Theme tags + Theme filter.** 12 service-moment themes derived from each song's
+  title+lyrics at page-build (Cross & Blood 100, Praise & Adoration 75, Holy Spirit
+  77, Love of God 62, Grace & Salvation 38, Surrender 36, Christmas 34, Thanksgiving
+  33, King & Majesty 32, Comfort & Trust 27, Communion 20, Resurrection 16). **437
+  songs tagged (30%)**, high-precision per-theme thresholds (`min` hits in `THEMES`).
+  New **Theme** chip row on the index (with counts) + `?theme=<key>` deep-link; each
+  song page shows its theme chips, linking back to the filtered index.
+- **Scripture-reference detection → bible.html.** Charts that cite "Book Ch:V"
+  (or the idiomatic "Psalm 23") get a 📖 Scripture row deep-linking to
+  `bible.html?ref=...`. Recognized-books-only (`SCRIPTURE_BOOKS` map) so no dead
+  links; requires a colon for precision. ~40 song pages carry refs so far.
+
+All derived at page-build — **no re-ingest needed**; `node generate-worship-pages.js
+--pages` regenerates. To tune a theme, edit its `words`/`min` in the `THEMES` array
+and rebuild. To recognize more scripture book abbreviations, add to `SCRIPTURE_BOOKS`.
+
+**Still open in Phase B:** expand artist tagging (only ~108 curated; could parse more
+from `.crd` authors / the YouTube log) · tighten key detection (1,300/1,439 have a key).
+Then Phase C (chord diagrams, capo calc, deeper YouTube, songbook PDF, wire gold icon).
