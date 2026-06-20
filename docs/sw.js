@@ -1,7 +1,8 @@
-// U.S.M.C. Ministries — Service Worker v8
+// U.S.M.C. Ministries — Service Worker v9
 // App-shell precache + network-first runtime caching (installable, offline-capable).
 // Scope "/" controls the whole site, including /dictionary/* once registered from any page.
-const CACHE = 'usmc-v8';
+// v9 (2026-06-11): cache bump to flush any stale tacc.html after the double-PIN-gate fix.
+const CACHE = 'usmc-v9';
 
 // Core "app shell": the public ministry pages + key assets. Small + high-value.
 // Big data (Bible JSON, dictionary entries) caches on first visit via network-first below.
