@@ -147,7 +147,7 @@ function chapterPage(ch, prev, next) {
     '</header>';
 
   if (audUrl) {
-    h += '<div class="inst-audio"><div class="inst-audio-label">▶ Listen — read by Alan' +
+    h += '<div class="inst-audio"><div class="inst-audio-label">▶ Listen — AI narration by Mr. Pemberton' +
       (isModern ? ' (modernized for 2026)' : '') + '</div>' +
       '<audio controls preload="none"><source src="' + audUrl + '" type="audio/mpeg">' +
       'Your browser cannot play this audio. <a href="' + audUrl + '" download>Download the MP3</a>.</audio></div>';
