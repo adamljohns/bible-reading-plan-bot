@@ -30,9 +30,22 @@ const SRC = '/Users/moop_bot_pro/Documents/01-Faith-Ministry/USMC-Ministries/Doc
 const DATA_DIR = path.join(REPO, 'docs/data');
 const DATA_JSON = path.join(DATA_DIR, 'worship-songs.json');
 const OVERRIDES_JSON = path.join(DATA_DIR, 'worship-overrides.json');
+// Manually-authored songs not in the chord archive (e.g. worship standards we
+// only have projection slides for). Merged in at ingest so they survive a
+// re-ingest, exactly like overrides survive it. Schema matches an ingested song.
+const EXTRA_JSON = path.join(DATA_DIR, 'worship-extra-songs.json');
 const OUT_DIR = path.join(REPO, 'docs/worship');
 const INDEX_HTML = path.join(REPO, 'docs/worship.html');
 const BUILD_DATE = new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
+
+// Slugs purged from the directory because they are genuinely secular (not
+// worship/praise/Christian music). Reversible: the source charts are untouched
+// in the archive; clear a slug here and re-ingest to restore it. Kept here (not
+// deleted blindly) so the exclusion is auditable and survives re-ingest.
+// 2026-06-21: Jeremy Enigk's secular solo album "Return of the Frog Queen".
+const PURGED = new Set([
+  'carnival', 'explain', 'lewis-hollow', 'lizard', 'return-of-the-frog-queen',
+]);
 
 const args = process.argv.slice(2);
 const FORCE_INGEST = args.includes('--ingest');
@@ -220,6 +233,7 @@ function ingest() {
       slug = cand;
     }
     slugs.add(slug);
+    if (PURGED.has(slug)) { skipped++; continue; }   // genuinely-secular, excluded
 
     const letter = (title.match(/[A-Za-z]/) || ['#'])[0].toUpperCase();
 
@@ -246,10 +260,23 @@ function ingest() {
     });
   }
 
+  // Merge manually-authored extra songs (worship standards we only have slides
+  // for). They live in their own file so a re-ingest never drops them.
+  let merged = 0;
+  if (fs.existsSync(EXTRA_JSON)) {
+    for (const x of JSON.parse(fs.readFileSync(EXTRA_JSON, 'utf8'))) {
+      if (!x || !x.slug || slugs.has(x.slug) || PURGED.has(x.slug)) continue;
+      slugs.add(x.slug);
+      songs.push(x);
+      merged++;
+    }
+    if (merged) console.log(`Merged ${merged} manual songs from ${path.relative(REPO, EXTRA_JSON)}.`);
+  }
+
   songs.sort((a, b) => a.title.toLowerCase().localeCompare(b.title.toLowerCase()));
   fs.mkdirSync(DATA_DIR, { recursive: true });
   fs.writeFileSync(DATA_JSON, JSON.stringify(songs, null, 1));
-  console.log(`Ingested ${songs.length} charts (${skipped} skipped) -> ${path.relative(REPO, DATA_JSON)}`);
+  console.log(`Ingested ${songs.length} charts (${skipped} skipped, ${merged} merged) -> ${path.relative(REPO, DATA_JSON)}`);
   return songs;
 }
 
@@ -626,11 +653,15 @@ function youtubeId(v) {
 
 function songPage(song, siblings) {
   siblings = siblings || [];
+  // Songs we only have projection lyrics for (no chord chart yet) — hide the
+  // chord-specific controls so the page isn't misleading.
+  const lyricsOnly = !!song.lyricsOnly;
   const tagLabel = song.type === 'tab' ? 'Guitar Tab' : (song.christmas ? 'Christmas' : 'Praise & Worship');
   const subBits = [];
   const art = resolveArtist(song);
   if (art) subBits.push(escapeHtml(art));
   subBits.push(tagLabel);
+  if (lyricsOnly) subBits.push('Lyrics &amp; slides');
   const yt = youtubeId(song.youtube);
   const media = yt
     ? `\n        <div class="media"><iframe src="https://www.youtube-nocookie.com/embed/${yt}" title="${escapeHtml(song.title)} — video" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`
@@ -688,18 +719,18 @@ function songPage(song, siblings) {
         <div class="sub">${subBits.join(' &middot; ')}</div>${themesRow}
 ${media}
         <div class="toolbar">
-            <div class="tb-group"><span class="tb-label">Transpose</span>
+            ${lyricsOnly ? '' : `<div class="tb-group"><span class="tb-label">Transpose</span>
                 <button class="tb-btn" onclick="transpose(-1)" title="Down a half step">&minus;</button>
                 <span class="tb-readout" id="semiReadout">0</span>
                 <button class="tb-btn" onclick="transpose(1)" title="Up a half step">+</button>
                 <button class="tb-btn" onclick="resetTranspose()" title="Reset">↺</button>
-            </div>
+            </div>`}
             <div class="tb-group"><span class="tb-label">Size</span>
                 <button class="tb-btn" onclick="fontStep(-1)">A&minus;</button>
                 <button class="tb-btn" onclick="fontStep(1)">A+</button>
             </div>
             <div class="tb-group">
-                <button class="tb-btn" id="chordsBtn" onclick="toggleChords()">Chords: On</button>
+                ${lyricsOnly ? '' : `<button class="tb-btn" id="chordsBtn" onclick="toggleChords()">Chords: On</button>`}
                 <button class="tb-btn" onclick="openProject()" title="Fullscreen lyrics for projection">📽 Project</button>
                 <button class="tb-btn" onclick="openStage()" title="Fullscreen chords for leading (auto-scroll)">🎤 Stage</button>
                 <button class="tb-btn" onclick="window.print()" title="Print a clean chart, just like the directory">🖨 Print Chart</button>
