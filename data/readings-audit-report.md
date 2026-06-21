@@ -38,27 +38,7 @@
 
 ## B. Voice variety (verbatim repeats across days)
 
-- Repeated Helm/Rudder closers (count>1): **31**
-  - ×16: Hold the line of truth against the tide of compromise.
-  - ×5: Anchor your authority in Scripture, not in sentiment.
-  - ×5: Hold the line of truth when the tide of compromise rises.
-  - ×4: Hold the line against the tide of compromise.
-  - ×3: Hold the line of truth against the current of compromise.
-  - ×3: Hold the line of truth with a steady hand and a loving heart.
-  - ×3: Anchor your soul in the Word before you rest.
-  - ×3: Hold the line of truth when the tide of culture tries to wash it away.
-  - ×3: Secure the spiritual perimeter of your home with the sword of the Spirit.
-  - ×3: Hold the line of truth against the rising tide of compromise.
-  - ×3: Hold the line of truth regardless of the storm.
-  - ×3: Hold your line against the current of compromise.
-  - ×2: Hold the line of duty with a steady hand and a humble heart.
-  - ×2: Hold the line of truth against the tide of deception.
-  - ×2: Hold the line of faith regardless of the storm.
-  - ×2: Anchor your heart in the fear of the LORD before you face the day.
-  - ×2: Hold the line of truth when the tide of error rises.
-  - ×2: Hold the line of faith when the pressure mounts.
-  - ×2: Steady your course by the compass of Scripture, not the winds of your own pride.
-  - ×2: Hold the line of truth against the tide of cultural compromise.
+- Repeated Helm/Rudder closers (count>1): **0**
 
 - Repeated intro sentences (count>1): **10**
   - ×5: The day’s labor yields to the quiet watch, where the soul finds its true rest in the sover
