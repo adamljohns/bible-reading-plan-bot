@@ -126,3 +126,34 @@ and rebuild. To recognize more scripture book abbreviations, add to `SCRIPTURE_B
 **Still open in Phase B:** expand artist tagging (only ~108 curated; could parse more
 from `.crd` authors / the YouTube log) · tighten key detection (1,300/1,439 have a key).
 Then Phase C (chord diagrams, capo calc, deeper YouTube, songbook PDF, wire gold icon).
+
+---
+
+## Purge + additions (2026-06-21, commit `bcf54b457`) — directory now 1,474 songs
+
+**Purge (Adam: "purge non-worship, KEEP Christian music").** Investigated the 156
+charts the "Worship only" filter hides — they turned out to be almost entirely
+Adam's **1990s Christian-rock/alt collection** (Caedmon's Call, DC Talk, Delirious?,
+Bride, Dogwood, Stavesacre, Audio Adrenaline, Big Tent Revival, even a Psalm 23
+setting), NOT secular junk. Per his call, **kept all of those** (still hidden behind
+the filter) and purged only the genuinely-secular **Jeremy Enigk solo album**
+(5 tracks: carnival, explain, lewis-hollow, lizard, return-of-the-frog-queen).
+Purge is the `PURGED` set in the generator — durable across re-ingest, reversible
+(archive untouched; clear a slug + `--ingest` to restore).
+⚠️ Do NOT mass-delete the filtered set — it's Christian music Adam wants kept.
+
+**Additions — 40 worship standards.** We had projection slides but no chord chart
+for ~41 modern standards; added them as **lyrics-only pages** (How Great Is Our God,
+Mighty to Save, Open the Eyes of My Heart, Heart of Worship, In Christ Alone, Be Thou
+My Vision, Indescribable, God of Wonders, Agnus Dei, Blessed Assurance, Come Thou
+Fount, …). Lyrics extracted from the slide PDFs via `scripts/build-worship-extras.js`
+(re-runnable); each links its projection deck; writer credits added for the
+well-known ones. Lyrics-only pages hide the Transpose/Chords controls
+(`song.lyricsOnly`). Stored in **`docs/data/worship-extra-songs.json`** and **merged
+at ingest** (see `EXTRA_JSON` in the generator) so they survive a re-ingest.
+To add chords later: set `youtube`/`key` etc. in worship-overrides.json, or replace
+the body with a real chart and drop `lyricsOnly`.
+
+**Still available as future song sources:** ~31 more slide decks loosely match an
+existing chart (skipped as probable dupes — worth a manual pass); the 16 `.doc`
+songbooks; deepening chord charts on the 40 lyrics-only standards.
