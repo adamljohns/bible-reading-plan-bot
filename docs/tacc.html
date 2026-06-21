@@ -593,6 +593,48 @@
     })();
     </script>
     <script>
+    // loadTaccFeed — the OpenClaw fleet feeds TACC the same way it feeds the
+    // mission dashboard. tacc-feed.json is written deterministically by
+    // ~/Scripts/tacc-feed-build.py from each agent's latest cron output. Here we
+    // stamp each agent card live ("Updated by Doc & Coach · 7:29 EDT ✓") so the
+    // agents' work shows up on TACC. Purely additive: injects a strip per card,
+    // never disturbs the existing static content (which stays as fallback).
+    (function loadTaccFeed(){
+      function esc(s){return String(s==null?'':s).replace(/[<>&]/g,function(c){return({'<':'&lt;','>':'&gt;','&':'&amp;'})[c];});}
+      function ago(ts){
+        if(!ts) return '';
+        var t=Date.parse(ts); if(isNaN(t)) return '';
+        var m=Math.round((Date.now()-t)/60000);
+        if(m<60) return m+'m ago';
+        var h=Math.round(m/60); if(h<48) return h+'h ago';
+        return Math.round(h/24)+'d ago';
+      }
+      fetch('tacc-feed.json?_='+Date.now()).then(function(r){return r.ok?r.json():null;}).then(function(feed){
+        if(!feed||!feed.cards) return;
+        Object.keys(feed.cards).forEach(function(key){
+          var c=feed.cards[key];
+          var card=document.getElementById('card-'+key);
+          if(!card||!c) return;
+          var a=ago(c.ts);
+          var fresh=/m ago$|h ago$/.test(a); // <48h = fresh
+          var color=(c.ok!==false&&fresh)?'var(--green,#4caf50)':'var(--gold,#d4af37)';
+          var mark=(c.ok!==false&&fresh)?'✓':'•';
+          var metrics='';
+          if(Array.isArray(c.metrics)){
+            metrics=c.metrics.map(function(m){return '<strong style="color:var(--gold,#d4af37)">'+esc(m.value)+'</strong> <span style="color:var(--gray,#888);font-size:.72rem">'+esc(m.label)+'</span>';}).join(' · ');
+          }
+          var id='feedstrip-'+key;
+          var el=document.getElementById(id);
+          if(!el){ el=document.createElement('div'); el.id=id; el.style.cssText='margin-top:8px;padding-top:7px;border-top:1px dashed var(--border,#333);font-size:.78rem;line-height:1.5'; card.appendChild(el); }
+          el.innerHTML=
+            (metrics?'<div style="margin-bottom:3px">'+metrics+'</div>':'')+
+            (c.line?'<div style="color:var(--text,#ddd)">'+esc(c.line)+'</div>':'')+
+            '<div style="color:'+color+';font-size:.72rem;margin-top:3px">'+mark+' updated by '+esc(c.agent||'agent')+(a?' · '+esc(a):'')+'</div>';
+        });
+      }).catch(function(){});
+    })();
+    </script>
+    <script>
 
 // Legacy outer-gate auth removed 2026-06-11 — the keypad #pin-screen (TACC_PIN at bottom of file) is now the sole gate. Single 5683 entry.
 
@@ -1830,54 +1872,38 @@
     // ── Bible Readings Loader ──────────────────────────────────────────────
     // Today's readings (hardcoded from cron output — updated daily)
     // Source: ~/bible-reading-plan-bot/docs/readings/YYYY-MM-DD.md
+    // Reads today's 5 watches from the chronological plan (assets/plan-data.js → window.PLAN_DATA).
+    // Single source of truth, shared with chronological.html + the BTE. (Rewired 2026-06-20 — was a dead /readings/*.md fetch with hardcoded fallback.)
     (function loadBibleReadings() {
-        const today = new Date();
-        const yyyy = today.getFullYear();
-        const mm   = String(today.getMonth() + 1).padStart(2, '0');
-        const dd   = String(today.getDate()).padStart(2, '0');
-        const dateStr = `${yyyy}-${mm}-${dd}`;
+        // Date key in America/New_York, format YYYY-MM-DD to match the plan keys.
+        const dateStr = new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
 
-        // Try to fetch the daily readings file
-        fetch(`/readings/${dateStr}.md`)
-            .then(r => r.ok ? r.text() : null)
-            .catch(() => null)
-            .then(text => {
-                if (!text) {
-                    // Fallback: use today's known passages (updated by cron)
-                    setBiblePassages({
-                        '0600': 'Proverbs 29:16-27',
-                        '0700': 'Joshua 19',
-                        '1100': 'Joshua 20',
-                        '1500': 'Joshua 21',
-                        '2100': 'Joshua 22'
-                    });
-                    return;
-                }
-                // Parse passages from markdown
-                const passages = {};
-
-                // Morning Wisdom
-                const mwMatch = text.match(/## Morning Wisdom[\s\S]*?<img src="assets/icons/shield-bible.png" alt="" width="16" height="16" style="vertical-align:middle;margin-right:3px;">\s+\*?\*?([^\n*]+)\*?\*?/);
-                if (mwMatch) passages['0600'] = mwMatch[1].trim();
-
-                // 1st Watch — Husband's Post
-                const hwMatch = text.match(/## 1st Watch[\s\S]*?<img src="assets/icons/shield-bible.png" alt="" width="16" height="16" style="vertical-align:middle;margin-right:3px;">\s+(?:SCRIPTURE —\s*)?([^\n(]+?)(?:\s*\(|$)/m);
-                if (hwMatch) passages['0700'] = hwMatch[1].trim();
-
-                // 2nd Watch — Father's Charge (1100)
-                const fcMatch = text.match(/## 2nd Watch|Father's Charge[\s\S]*?<img src="assets/icons/shield-bible.png" alt="" width="16" height="16" style="vertical-align:middle;margin-right:3px;">\s+([^\n]+)/m);
-                if (fcMatch) passages['1100'] = fcMatch[1].trim();
-
-                // 3rd Watch — Citizen's Stand (1500)
-                const csMatch = text.match(/## 3rd Watch[\s\S]*?<img src="assets/icons/shield-bible.png" alt="" width="16" height="16" style="vertical-align:middle;margin-right:3px;">\s+([^\n—]+)/m);
-                if (csMatch) passages['1500'] = csMatch[1].trim();
-
-                // 4th Watch / Evening
-                const ewMatch = text.match(/## (?:4th Watch|Evening)[\s\S]*?<img src="assets/icons/shield-bible.png" alt="" width="16" height="16" style="vertical-align:middle;margin-right:3px;">\s+([^\n]+)/m);
-                if (ewMatch) passages['2100'] = ewMatch[1].trim();
-
-                setBiblePassages(passages);
+        function render() {
+            const plan = (window.PLAN_DATA && window.PLAN_DATA[dateStr]) || null;
+            if (!plan) {
+                const b = document.getElementById('bible-brief-passages');
+                if (b) b.textContent = 'No reading scheduled for ' + dateStr + ' (chronological plan covers 2026).';
+                return;
+            }
+            setBiblePassages({
+                '0600': plan.wisdom || '',   // Morning Wisdom
+                '0700': plan.first  || '',   // Husband's Post
+                '1100': plan.second || '',   // Father's Charge
+                '1500': plan.third  || '',   // Citizen's Stand
+                '2100': plan.peace  || ''    // Evening Peace
             });
+            const refEl = document.getElementById('bible-brief-ref');
+            if (refEl) refEl.innerHTML = 'Today’s Readings &mdash; <a href="readings/' + dateStr + '.html" onclick="event.stopPropagation()" style="color:var(--gold);font-size:0.8rem;font-weight:600;">open full reading →</a>';
+        }
+
+        if (window.PLAN_DATA) { render(); }
+        else {
+            const s = document.createElement('script');
+            s.src = 'assets/plan-data.js';
+            s.onload = render;
+            s.onerror = function () { const b = document.getElementById('bible-brief-passages'); if (b) b.textContent = 'Could not load reading plan (assets/plan-data.js).'; };
+            document.head.appendChild(s);
+        }
     })();
 
     function setBiblePassages(passages) {
