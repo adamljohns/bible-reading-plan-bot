@@ -690,10 +690,21 @@
         <!-- Weather -->
         <div class="card" onclick="toggleCard(this)" id="card-weather">
             <div class="card-icon"><img src="assets/icons/shield-star.png" class="site-icon" alt="star" width="20" height="20"></div>
-            <div class="card-title">Weather</div>
-            <div class="card-brief" id="weather-brief">Loading Fredericksburg forecast...</div>
+            <div class="card-title">Weather <span id="weather-loc-label" style="color:var(--gray);font-size:0.78rem;font-weight:400;"></span></div>
+            <div class="card-brief" id="weather-brief">Loading forecast…</div>
+            <div id="weather-alerts"></div>
             <div class="card-detail" id="weather-detail">
-                <div id="weather-full">Loading detailed forecast...</div>
+                <div onclick="event.stopPropagation()" style="margin-bottom:12px;">
+                    <div style="display:flex;gap:6px;">
+                        <input id="weather-search" type="text" placeholder="Any city, US or world — e.g. Annapolis, MD" autocomplete="off"
+                            onkeydown="if(event.key==='Enter'){event.preventDefault();weatherSearch();}"
+                            style="flex:1;padding:8px 10px;background:#000;border:1px solid #333;border-radius:6px;color:#e8e8e8;font-size:0.85rem;box-sizing:border-box;">
+                        <button onclick="weatherSearch()" style="padding:8px 14px;background:var(--gold);color:#000;border:none;border-radius:6px;font-weight:700;cursor:pointer;">Go</button>
+                    </div>
+                    <div id="weather-search-msg" style="color:var(--gray);font-size:0.75rem;margin-top:4px;min-height:14px;"></div>
+                    <div id="weather-saved" style="display:flex;flex-wrap:wrap;gap:5px;margin-top:6px;"></div>
+                </div>
+                <div id="weather-full">Loading detailed forecast…</div>
             </div>
         </div>
 
@@ -1111,49 +1122,113 @@
             card.classList.toggle('expanded');
         }
 
-        // Fetch weather — Open-Meteo with 3-day forecast (no API key needed)
-        async function loadWeather() {
-            const weatherCodes = {0:'☀️ Clear',1:'🌤️ Mostly Clear',2:'⛅ Partly Cloudy',3:'☁️ Overcast',45:'🌫️ Fog',48:'🌫️ Rime Fog',51:'🌦️ Light Drizzle',53:'🌧️ Drizzle',55:'🌧️ Heavy Drizzle',61:'🌧️ Light Rain',63:'🌧️ Rain',65:'🌧️ Heavy Rain',71:'🌨️ Light Snow',73:'🌨️ Snow',75:'🌨️ Heavy Snow',80:'🌦️ Showers',81:'🌧️ Heavy Showers',82:'⛈️ Violent Showers',95:'⛈️ Thunderstorm',96:'⛈️ Hail Storm',99:'⛈️ Severe Hail'};
+        // ── Weather — Open-Meteo forecast (global, free, no key) + NWS hazard alerts (US) ──
+        const WX_CODES = {0:'☀️ Clear',1:'🌤️ Mostly Clear',2:'⛅ Partly Cloudy',3:'☁️ Overcast',45:'🌫️ Fog',48:'🌫️ Rime Fog',51:'🌦️ Light Drizzle',53:'🌧️ Drizzle',55:'🌧️ Heavy Drizzle',56:'🌧️ Freezing Drizzle',57:'🌧️ Freezing Drizzle',61:'🌧️ Light Rain',63:'🌧️ Rain',65:'🌧️ Heavy Rain',66:'🌧️ Freezing Rain',67:'🌧️ Freezing Rain',71:'🌨️ Light Snow',73:'🌨️ Snow',75:'🌨️ Heavy Snow',77:'🌨️ Snow Grains',80:'🌦️ Showers',81:'🌧️ Heavy Showers',82:'⛈️ Violent Showers',85:'🌨️ Snow Showers',86:'🌨️ Snow Showers',95:'⛈️ Thunderstorm',96:'⛈️ Thunderstorm + Hail',99:'⛈️ Severe Hail'};
+        const WX_HOME = { lat: 38.3032, lon: -77.4605, label: 'Fredericksburg, VA', country: 'US' };
+        const US_STATES = {AL:'Alabama',AK:'Alaska',AZ:'Arizona',AR:'Arkansas',CA:'California',CO:'Colorado',CT:'Connecticut',DE:'Delaware',FL:'Florida',GA:'Georgia',HI:'Hawaii',ID:'Idaho',IL:'Illinois',IN:'Indiana',IA:'Iowa',KS:'Kansas',KY:'Kentucky',LA:'Louisiana',ME:'Maine',MD:'Maryland',MA:'Massachusetts',MI:'Michigan',MN:'Minnesota',MS:'Mississippi',MO:'Missouri',MT:'Montana',NE:'Nebraska',NV:'Nevada',NH:'New Hampshire',NJ:'New Jersey',NM:'New Mexico',NY:'New York',NC:'North Carolina',ND:'North Dakota',OH:'Ohio',OK:'Oklahoma',OR:'Oregon',PA:'Pennsylvania',RI:'Rhode Island',SC:'South Carolina',SD:'South Dakota',TN:'Tennessee',TX:'Texas',UT:'Utah',VT:'Vermont',VA:'Virginia',WA:'Washington',WV:'West Virginia',WI:'Wisconsin',WY:'Wyoming',DC:'District of Columbia'};
+
+        function wxGetCurrent(){ try { return JSON.parse(localStorage.getItem('tacc_wx_loc')) || WX_HOME; } catch(e){ return WX_HOME; } }
+        function wxGetSaved(){ try { const s = JSON.parse(localStorage.getItem('tacc_wx_saved')); return (s && s.length) ? s : [WX_HOME]; } catch(e){ return [WX_HOME]; } }
+        function wxSaveSaved(arr){ localStorage.setItem('tacc_wx_saved', JSON.stringify(arr)); }
+        function wxAddSaved(loc){ const s = wxGetSaved(); if(!s.some(x=>x.label===loc.label)){ s.push(loc); wxSaveSaved(s); } }
+        function wxRemove(label){ wxSaveSaved(wxGetSaved().filter(x=>x.label!==label)); wxRenderChips(); }
+
+        function wxRenderChips(){
+            const el = document.getElementById('weather-saved'); if(!el) return;
+            const cur = wxGetCurrent();
+            el.innerHTML = wxGetSaved().map(s=>{
+                const active = s.label===cur.label;
+                const safe = String(s.label).replace(/'/g,"\\'");
+                const rm = s.label==='Fredericksburg, VA' ? '' : ` <span onclick="event.stopPropagation();wxRemove('${safe}')" style="opacity:.6;margin-left:3px;">×</span>`;
+                return `<button onclick="event.stopPropagation();loadWeather(${s.lat},${s.lon},'${safe}','${s.country||''}')" style="padding:4px 9px;border-radius:12px;border:1px solid ${active?'var(--gold)':'#333'};background:${active?'rgba(244,212,112,0.12)':'#1a1a1a'};color:${active?'var(--gold)':'#bbb'};font-size:0.76rem;cursor:pointer;">${s.label}${rm}</button>`;
+            }).join('');
+        }
+
+        async function weatherSearch(){
+            const inp = document.getElementById('weather-search'); const msg = document.getElementById('weather-search-msg');
+            const q = (inp && inp.value || '').trim(); if(!q){ return; }
+            if(msg) msg.textContent = 'Searching…';
             try {
-                const data = await fetch('https://api.open-meteo.com/v1/forecast?latitude=38.3032&longitude=-77.4605&current=temperature_2m,weathercode,windspeed_10m&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&temperature_unit=fahrenheit&windspeed_unit=mph&timezone=America/New_York&forecast_days=3').then(r => r.json());
-                const c = data.current;
-                const d = data.daily;
-                const desc = weatherCodes[c.weathercode] || '🌤️ Fair';
-                const hi   = Math.round(d.temperature_2m_max[0]);
-                const lo   = Math.round(d.temperature_2m_min[0]);
+                // Accept "City, State" / "City, Country" — geocode the city, disambiguate by the hint.
+                const parts = q.split(',').map(x=>x.trim()).filter(Boolean);
+                const city = parts[0]; const hint = (parts[1]||'').toLowerCase();
+                const g = await fetch('https://geocoding-api.open-meteo.com/v1/search?count=8&language=en&name=' + encodeURIComponent(city)).then(r=>r.json());
+                if(!g.results || !g.results.length){ if(msg) msg.textContent = 'No match for “'+q+'”.'; return; }
+                let r = g.results[0];
+                if(hint){
+                    const stateFull = US_STATES[hint.toUpperCase()];
+                    r = (stateFull && g.results.find(x=> x.admin1 && x.admin1.toLowerCase()===stateFull.toLowerCase()))
+                        || g.results.find(x=> (x.admin1 && x.admin1.toLowerCase().includes(hint)) || (x.country_code && x.country_code.toLowerCase()===hint) || (x.country && x.country.toLowerCase().includes(hint)))
+                        || r;
+                }
+                const region = r.admin1 ? ', ' + r.admin1 : '';
+                const label = r.name + region + (r.country_code && r.country_code!=='US' ? ' ('+r.country_code+')' : '');
+                const loc = { lat:r.latitude, lon:r.longitude, label, country:r.country_code||'' };
+                wxAddSaved(loc);
+                if(msg) msg.textContent = '';
+                if(inp) inp.value = '';
+                loadWeather(loc.lat, loc.lon, loc.label, loc.country);
+            } catch(e){ if(msg) msg.textContent = 'Search failed — check connection.'; }
+        }
 
+        async function wxLoadAlerts(lat, lon, country){
+            const el = document.getElementById('weather-alerts'); if(!el) return;
+            el.innerHTML = '';
+            if(country && country!=='US') return; // NWS covers the US only
+            try {
+                const a = await fetch('https://api.weather.gov/alerts/active?point='+(+lat).toFixed(4)+','+(+lon).toFixed(4), { headers:{ 'Accept':'application/geo+json' } }).then(r=> r.ok ? r.json() : null);
+                if(!a || !a.features || !a.features.length) return;
+                el.innerHTML = a.features.slice(0,3).map(f=>{
+                    const p = f.properties || {}; const sev = String(p.severity||'').toLowerCase();
+                    const color = (sev==='extreme'||sev==='severe') ? '#f44336' : '#ffc107';
+                    return `<div style="margin:8px 0;padding:8px 10px;border-left:3px solid ${color};background:rgba(244,67,54,0.08);border-radius:4px;">
+                        <div style="color:${color};font-weight:700;font-size:0.82rem;">⚠️ ${p.event||'Weather Alert'}</div>
+                        <div style="color:#ccc;font-size:0.77rem;margin-top:2px;line-height:1.4;">${String(p.headline||'').slice(0,170)}</div>
+                    </div>`;
+                }).join('');
+            } catch(e){}
+        }
+
+        // loadWeather() with no args uses the saved current location; with args switches to that location.
+        async function loadWeather(lat, lon, label, country){
+            const loc = (lat==null) ? wxGetCurrent() : { lat:+lat, lon:+lon, label: label||'', country: country||'' };
+            localStorage.setItem('tacc_wx_loc', JSON.stringify(loc));
+            const llabel = document.getElementById('weather-loc-label'); if(llabel) llabel.textContent = '· ' + loc.label;
+            wxRenderChips();
+            try {
+                const url = 'https://api.open-meteo.com/v1/forecast?latitude='+loc.lat+'&longitude='+loc.lon+'&current=temperature_2m,weathercode,windspeed_10m,windgusts_10m&daily=temperature_2m_max,temperature_2m_min,weathercode,precipitation_probability_max,windgusts_10m_max&temperature_unit=fahrenheit&windspeed_unit=mph&timezone=auto&forecast_days=5';
+                const data = await fetch(url).then(r=>r.json());
+                const c = data.current, d = data.daily;
+                const desc = WX_CODES[c.weathercode] || '🌤️ Fair';
+                const hi = Math.round(d.temperature_2m_max[0]), lo = Math.round(d.temperature_2m_min[0]);
+                const gust = c.windgusts_10m!=null ? Math.round(c.windgusts_10m) : null;
+                const windTxt = 'Wind '+Math.round(c.windspeed_10m)+'mph' + (gust ? ' (gusts '+gust+')' : '');
                 document.getElementById('weather-brief').innerHTML =
-                    `${desc} <strong>${Math.round(c.temperature_2m)}°F</strong> · H:${hi}° L:${lo}° · Wind ${Math.round(c.windspeed_10m)}mph`;
-
-                // 3-day forecast
-                const dayLabels = ['Today','Tomorrow','Day 3'];
-                let forecastHTML = `<div style="color:#ccc; font-size:0.88rem; line-height:2;">
-                    <div style="margin-bottom:8px;">${desc} <strong style="color:var(--white);">${Math.round(c.temperature_2m)}°F</strong> &nbsp;·&nbsp; High: <span style="color:#f4a261;">${hi}°F</span> &nbsp; Low: <span style="color:#90caf9;">${lo}°F</span> &nbsp;·&nbsp; Wind: ${Math.round(c.windspeed_10m)} mph</div>
-                    <div style="border-top:1px solid #222; padding-top:8px; margin-bottom:4px; color:var(--gold); font-size:0.78rem; font-weight:600; text-transform:uppercase; letter-spacing:.04em;">3-Day Forecast · Fredericksburg, VA</div>`;
-                for (let i = 0; i < 3; i++) {
-                    const code = d.weathercode ? d.weathercode[i] : 0;
-                    const wDesc = weatherCodes[code] || '🌤️ Fair';
-                    const dayHi = Math.round(d.temperature_2m_max[i]);
-                    const dayLo = Math.round(d.temperature_2m_min[i]);
-                    const pop   = d.precipitation_probability_max ? d.precipitation_probability_max[i] : null;
-                    forecastHTML += `<div style="display:flex; justify-content:space-between; padding:3px 0; border-bottom:1px solid #1a1a1a;">
-                        <span style="min-width:80px; color:var(--gold-light);">${dayLabels[i]}</span>
-                        <span style="flex:1;">${wDesc}</span>
-                        <span style="color:#f4a261;">${dayHi}°</span>
-                        <span style="color:#90caf9; margin-left:6px;">${dayLo}°</span>
-                        ${pop !== null ? `<span style="color:var(--gray); margin-left:8px; font-size:0.8rem;">💧${pop}%</span>` : ''}
+                    `${desc} <strong>${Math.round(c.temperature_2m)}°F</strong> · H:${hi}° L:${lo}° · ${windTxt}`;
+                const dayName = (i)=>{ if(i===0) return 'Today'; if(i===1) return 'Tomorrow'; const dt = new Date(); dt.setDate(dt.getDate()+i); return dt.toLocaleDateString('en-US',{weekday:'short'}); };
+                let html = `<div style="color:#ccc;font-size:0.88rem;line-height:1.9;">
+                    <div style="margin-bottom:8px;">${desc} <strong style="color:#fff;">${Math.round(c.temperature_2m)}°F</strong> · High <span style="color:#f4a261;">${hi}°</span> Low <span style="color:#90caf9;">${lo}°</span> · ${windTxt}</div>
+                    <div style="border-top:1px solid #222;padding-top:8px;margin-bottom:4px;color:var(--gold);font-size:0.78rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em;">5-Day Forecast · ${loc.label}</div>`;
+                for(let i=0;i<5 && i<d.time.length;i++){
+                    const wd = WX_CODES[d.weathercode[i]] || '🌤️ Fair';
+                    const dh = Math.round(d.temperature_2m_max[i]), dl = Math.round(d.temperature_2m_min[i]);
+                    const pop = d.precipitation_probability_max ? d.precipitation_probability_max[i] : null;
+                    const gmax = d.windgusts_10m_max ? Math.round(d.windgusts_10m_max[i]) : null;
+                    const windFlag = (gmax && gmax>=35) ? ` <span style="color:#ffc107;" title="High wind gusts">💨${gmax}</span>` : '';
+                    html += `<div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid #1a1a1a;">
+                        <span style="min-width:74px;color:var(--gold-light);">${dayName(i)}</span>
+                        <span style="flex:1;">${wd}</span>
+                        <span style="color:#f4a261;">${dh}°</span>
+                        <span style="color:#90caf9;margin-left:6px;">${dl}°</span>
+                        ${pop!=null?`<span style="color:var(--gray);margin-left:8px;font-size:0.8rem;">💧${pop}%</span>`:''}
+                        ${windFlag}
                     </div>`;
                 }
-                forecastHTML += '</div>';
-                document.getElementById('weather-full').innerHTML = forecastHTML;
+                html += '</div>';
+                document.getElementById('weather-full').innerHTML = html;
+                wxLoadAlerts(loc.lat, loc.lon, loc.country);
             } catch(e) {
-                // Fallback: wttr.in
-                try {
-                    const brief = await fetch('https://wttr.in/Fredericksburg+VA?format=%c+%t+%w').then(r => r.text());
-                    document.getElementById('weather-brief').textContent = brief.trim() + ' · Fredericksburg, VA';
-                } catch(e2) {
-                    document.getElementById('weather-brief').textContent = '🌤️ Weather unavailable';
-                }
+                document.getElementById('weather-brief').textContent = '🌤️ Weather unavailable for ' + loc.label;
             }
         }
 
