@@ -618,6 +618,21 @@
           var card=document.getElementById('card-'+key);
           if(!card||!c) return;
           var a=ago(c.ts);
+          // Airbnb: render live reservation detail into the card brief (replaces the old static Apr-4 block)
+          if(key==='airbnb'){
+            var ab=document.getElementById('airbnb-today-brief');
+            if(ab&&Array.isArray(c.rows)&&c.rows.length){
+              var rh=c.rows.map(function(r){
+                var st=(r.status||''); var sl=st.toLowerCase();
+                var co=sl.indexOf('host')>=0?'var(--gold)':(sl.indexOf('confirm')>=0?'var(--green)':'#aaa');
+                return '<div class="schedule-row"><span class="schedule-time">'+esc(st.replace('Currently ',''))+'</span><span class="schedule-event"><strong style="color:'+co+'">'+esc(r.guest)+'</strong> · '+esc(r.listing)+' · '+esc(r.checkin)+'→'+esc(r.checkout)+'</span></div>';
+              }).join('');
+              rh+='<div class="schedule-row" style="color:var(--gray);font-size:0.75rem;"><span class="schedule-time">Updated</span><span class="schedule-event">'+esc(c.stamp||a)+' · Sally ✓</span></div>';
+              ab.innerHTML=rh;
+            }
+            var bad=document.getElementById('airbnb-badge');
+            if(bad&&c.metrics&&c.metrics[0]) bad.textContent=c.metrics[0].value+' upcoming';
+          }
           var fresh=/m ago$|h ago$/.test(a); // <48h = fresh
           var color=(c.ok!==false&&fresh)?'var(--green,#4caf50)':'var(--gold,#d4af37)';
           var mark=(c.ok!==false&&fresh)?'✓':'•';
@@ -901,12 +916,7 @@
             <div class="card-badge" id="airbnb-badge">7 listings</div>
             <div class="card-brief" id="airbnb-brief">
                 <div id="airbnb-today-brief">
-                    <div class="schedule-row"><span class="schedule-time">Checkout</span><span class="schedule-event"><strong style="color:var(--red);">Rebecca</strong> (1) · Spacious Apt #6 @ 11AM</span></div>
-                    <div class="schedule-row"><span class="schedule-time">Checkout</span><span class="schedule-event"><strong style="color:var(--red);">Alex</strong> (2) · Historic DnTwnFXBG Apt #8 @ 11AM</span></div>
-                    <div class="schedule-row"><span class="schedule-time">Check-in</span><span class="schedule-event"><strong style="color:var(--green);">Jennifer</strong> (3) · Spacious Apt #6 @ 4PM</span></div>
-                    <div class="schedule-row"><span class="schedule-time">Check-in</span><span class="schedule-event"><strong style="color:var(--green);">John</strong> (2) · Historic DnTwnFXBG Apt #8 @ 4PM</span></div>
-                    <div class="schedule-row"><span class="schedule-time">Hosting</span><span class="schedule-event"><strong style="color:var(--gold);">Leslie</strong> (4) · Boho-Modern Apt 7 · all day</span></div>
-                    <div class="schedule-row" style="color:var(--gray); font-size:0.75rem;"><span class="schedule-time">Updated</span><span class="schedule-event">Apr 4 · 5:51 AM · Live calendar ✓</span></div>
+                    <div style="color:var(--gray);font-size:0.85rem;">Loading reservations…</div>
                 </div>
             </div>
             <div class="card-detail" id="airbnb-detail">
@@ -1288,36 +1298,28 @@
                 }
             } catch(e) { console.warn('CoinGecko fetch failed:', e); }
 
-            // --- Metals via metals.live (no key needed) ---
+            // --- Metals via gold-api.com (free, no key; replaced dead metals.live 2026-06-22) ---
             try {
-                const res = await fetch('https://api.metals.live/v1/spot/gold,silver');
-                if (res.ok) {
-                    const data = await res.json();
-                    // Returns array: [{gold: price}, {silver: price}]
-                    if (Array.isArray(data)) {
-                        data.forEach(item => {
-                            if (item.gold   !== undefined) goldPrice   = item.gold;
-                            if (item.silver !== undefined) silverPrice = item.silver;
-                        });
-                    } else if (data.gold) {
-                        goldPrice   = data.gold;
-                        silverPrice = data.silver;
-                    }
-                    if (goldPrice) {
-                        const gEl = document.getElementById('gold-price');
-                        if (gEl) gEl.textContent = '$' + goldPrice.toFixed(2) + '/oz';
-                        const gcEl = document.getElementById('gold-change');
-                        if (gcEl) { gcEl.textContent = ''; gcEl.className = 'market-change'; }
-                        metalsOk = true;
-                    }
-                    if (silverPrice) {
-                        const sEl = document.getElementById('silver-price');
-                        if (sEl) sEl.textContent = '$' + silverPrice.toFixed(2) + '/oz';
-                        const scEl = document.getElementById('silver-change');
-                        if (scEl) { scEl.textContent = ''; scEl.className = 'market-change'; }
-                    }
+                const [gRes, sRes] = await Promise.all([
+                    fetch('https://api.gold-api.com/price/XAU'),
+                    fetch('https://api.gold-api.com/price/XAG')
+                ]);
+                if (gRes.ok) { const g = await gRes.json(); goldPrice = g.price; }
+                if (sRes.ok) { const s = await sRes.json(); silverPrice = s.price; }
+                if (goldPrice) {
+                    const gEl = document.getElementById('gold-price');
+                    if (gEl) gEl.textContent = '$' + Number(goldPrice).toFixed(2) + '/oz';
+                    const gcEl = document.getElementById('gold-change');
+                    if (gcEl) { gcEl.textContent = ''; gcEl.className = 'market-change'; }
+                    metalsOk = true;
                 }
-            } catch(e) { console.warn('Metals.live fetch failed:', e); }
+                if (silverPrice) {
+                    const sEl = document.getElementById('silver-price');
+                    if (sEl) sEl.textContent = '$' + Number(silverPrice).toFixed(2) + '/oz';
+                    const scEl = document.getElementById('silver-change');
+                    if (scEl) { scEl.textContent = ''; scEl.className = 'market-change'; }
+                }
+            } catch(e) { console.warn('gold-api fetch failed:', e); }
 
             // --- S&P 500 via Yahoo Finance ---
             try {
