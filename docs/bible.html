@@ -67,6 +67,10 @@
         .hero h1 { font-size: clamp(1.8rem, 4vw, 2.8rem); color: var(--white); margin-bottom: 10px; }
         .hero .subtitle { color: var(--gold); font-size: 1.1rem; margin-bottom: 5px; }
         .hero .desc { color: var(--gray); font-size: 0.95rem; max-width: 600px; margin: 0 auto 30px; }
+        /* MBT v6.9: chapter-page audio player (Ruth/Esther narration pilot) */
+        .mbt-audio { background:linear-gradient(135deg,rgba(212,175,55,.08),rgba(212,175,55,.02)); border:1px solid rgba(212,175,55,.28); border-radius:12px; padding:12px 16px; margin:0 auto 18px; max-width:560px; text-align:center; }
+        .mbt-audio-label { color:var(--gold,#D4AF37); font-weight:600; font-size:.9rem; margin-bottom:8px; letter-spacing:.3px; }
+        .mbt-audio audio { width:100%; max-width:520px; }
 
         .search-box {
             background: var(--bg-card); border: 2px solid var(--border); border-radius: 12px;
@@ -2344,6 +2348,50 @@
             else { renderForeignChapter(currentRef); }
         }
 
+        // MBT v6.9: chapter-page narration player (Ruth/Esther pilot).
+        // Manifest lists intended coverage; the actual MP3s live on Cloudflare R2.
+        // We probe each chapter URL and only inject a player once it loads, so the
+        // reader never shows a dead control for a chapter that isn't narrated yet.
+        var MBT_AUDIO = null, MBT_AUDIO_LOADED = false;
+        function loadMbtAudioManifest() {
+            if (MBT_AUDIO_LOADED) return Promise.resolve(MBT_AUDIO);
+            return fetch('assets/bible/audio-manifest.json')
+                .then(function(r){ return r.ok ? r.json() : null; })
+                .then(function(m){ MBT_AUDIO = m; MBT_AUDIO_LOADED = true; return m; })
+                .catch(function(){ MBT_AUDIO_LOADED = true; return null; });
+        }
+        function mountChapterAudio(ref) {
+            if (currentViewMode !== 'chapter' || currentLang !== 'en' || !ref) return;
+            if (!document.getElementById('mbtAudioMount')) return;
+            loadMbtAudioManifest().then(function(m){
+                if (!m || !m.books) return;
+                var bk = m.books[String(ref.bookId)];
+                if (!bk || !ref.chapter || ref.chapter < 1 || ref.chapter > bk.chapters) return;
+                var base = String(m.base || '').replace(/\/+$/, '');
+                var prefix = m.prefix || 'bible';
+                var url = base + '/' + prefix + '/' + ref.bookId + '-' + ref.chapter + '.mp3';
+                var label = m.label || 'MBT narration';
+                // Probe before showing — avoids a broken player for un-narrated chapters.
+                var probe = new Audio();
+                probe.preload = 'metadata';
+                probe.onloadedmetadata = function(){
+                    var mnt = document.getElementById('mbtAudioMount');
+                    if (!mnt) return;  // user navigated away mid-probe
+                    mnt.innerHTML =
+                        '<div class="mbt-audio">' +
+                            '<div class="mbt-audio-label">' +
+                                '<img src="assets/icons/shield-quill-note-48.png" alt="" width="18" height="18" style="vertical-align:middle;margin-right:6px;filter:drop-shadow(0 0 5px rgba(212,175,55,.4));">' +
+                                'Listen — ' + bk.name + ' ' + ref.chapter + ' · ' + label +
+                            '</div>' +
+                            '<audio controls preload="none"><source src="' + url + '" type="audio/mpeg">' +
+                                'Your browser cannot play this audio. <a href="' + url + '" download>Download the MP3</a>.</audio>' +
+                        '</div>';
+                };
+                probe.onerror = function(){ /* not uploaded yet — leave the mount empty */ };
+                probe.src = url;
+            });
+        }
+
         // BTE v6.9: custom gold-shield language dropdown (replaces native <select>).
         // Same behavior as the old onLangChange path; just a fully themeable, a11y menu.
         (function(){
@@ -3146,6 +3194,13 @@
             }
             html += '</div>';
 
+            // MBT v6.9: chapter-page audio player mount. Chapter mode + English only —
+            // deliberately absent in verse-by-verse and range view. Filled async by
+            // mountChapterAudio() once the R2 file is confirmed present.
+            if (currentViewMode === 'chapter' && currentLang === 'en') {
+                html += '<div id="mbtAudioMount"></div>';
+            }
+
             // BTE v3.4: Verse blocks — verse numbers always clickable
             // BTE v5.1: Share button on each verse
             allVerses.forEach(function(v) {
@@ -3286,6 +3341,7 @@
             document.getElementById('searchBtn').disabled = false;
             if (document.body.classList.contains('paragraph-mode')) applyParagraphBreaks();
             try { applyRedLetter(); } catch(e){}
+            try { mountChapterAudio(ref); } catch(e){}
             if (!(window.__bteMulti && window.__bteMulti.active)) {
                 document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
