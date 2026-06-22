@@ -885,13 +885,42 @@
         <a href="blog.html"><img src="assets/icons/shield-scroll-quill-48.png" class="site-icon" alt="" width="16" height="16"> Blog</a>
         <a href="connect.html"><img src="assets/icons/shield-handshake.png" class="site-icon" alt="" width="16" height="16"> Connect</a>
         
-        <select id="langSelect" onchange="onLangChange()" title="Reading language" aria-label="Reading language" style="background:transparent;border:1px solid #333;border-radius:6px;color:inherit;font-family:inherit;font-size:0.8rem;padding:4px 7px;cursor:pointer;margin-left:8px;">
-            <option value="en">🌐 English · BTE</option>
-            <option value="zh">🇨🇳 中文 · 和合本</option>
-            <option value="la">🏛️ Latina · Vulgata</option>
-            <option value="de">🇩🇪 Deutsch · Luther</option>
-            <option value="ja">🇯🇵 日本語 · 文語訳</option>
-        </select>
+        <style id="lang-dd-styles">
+            .lang-dd{ position:relative; display:inline-block; margin-left:8px; font-family:inherit; }
+            .lang-dd-trigger{ display:inline-flex; align-items:center; gap:7px; background:transparent; border:1px solid var(--border,#333); border-radius:8px; color:inherit; font:inherit; font-size:0.8rem; padding:4px 9px 4px 7px; cursor:pointer; line-height:1; transition:border-color .15s, background .15s; }
+            .lang-dd-trigger:hover{ border-color:var(--gold,#D4AF37); }
+            .lang-dd-flag{ width:22px; height:22px; object-fit:contain; display:block; flex:0 0 auto; filter:drop-shadow(0 1px 1px rgba(0,0,0,.45)); }
+            .lang-dd-label{ font-family:Georgia,'Times New Roman',serif; letter-spacing:.2px; white-space:nowrap; }
+            .lang-dd-caret{ font-size:.7em; opacity:.7; margin-left:1px; transition:transform .15s; }
+            .lang-dd-trigger[aria-expanded="true"] .lang-dd-caret{ transform:rotate(180deg); }
+            .lang-dd-menu{ position:absolute; top:calc(100% + 6px); left:0; min-width:236px; margin:0; padding:6px; list-style:none;
+                background:var(--bg-card,#1d1d1d); border:1px solid var(--gold,#D4AF37); border-radius:14px;
+                box-shadow:0 14px 36px rgba(0,0,0,.55); opacity:0; transform:translateY(-6px) scale(.98);
+                pointer-events:none; transition:opacity .16s, transform .16s; z-index:9999; }
+            .lang-dd-menu.open{ opacity:1; transform:translateY(0) scale(1); pointer-events:auto; }
+            .lang-dd-item{ display:flex; align-items:center; gap:12px; padding:9px 12px; border-radius:9px; cursor:pointer;
+                color:var(--gold,#D4AF37); font-family:Georgia,'Times New Roman',serif; font-size:1.02rem; letter-spacing:.3px;
+                outline:none; transition:background .13s; }
+            .lang-dd-item .lang-dd-flag{ width:30px; height:30px; }
+            .lang-dd-item:hover, .lang-dd-item:focus{ background:rgba(212,175,55,.12); }
+            .lang-dd-item.is-selected{ background:rgba(212,175,55,.16); }
+            .lang-dd-item.is-selected::after{ content:'✓'; margin-left:auto; color:var(--gold,#D4AF37); font-size:.85em; }
+            @media(max-width:600px){ .lang-dd-menu{ left:auto; right:0; } }
+        </style>
+        <div id="langDropdown" class="lang-dd">
+            <button type="button" id="langTrigger" class="lang-dd-trigger" aria-haspopup="listbox" aria-expanded="false" aria-label="Reading language" title="Reading language">
+                <img class="lang-dd-flag" id="langTriggerIcon" src="assets/icons/shield-lang-en.png" alt="" width="22" height="22">
+                <span class="lang-dd-label" id="langTriggerLabel">English · BTE</span>
+                <span class="lang-dd-caret" aria-hidden="true">▾</span>
+            </button>
+            <ul class="lang-dd-menu" id="langMenu" role="listbox" aria-label="Reading language">
+                <li role="option" aria-selected="true"  data-lang="en" class="lang-dd-item is-selected"><img class="lang-dd-flag" src="assets/icons/shield-lang-en.png" alt=""><span>English · BTE</span></li>
+                <li role="option" aria-selected="false" data-lang="zh" class="lang-dd-item"><img class="lang-dd-flag" src="assets/icons/shield-lang-zh.png" alt=""><span>中文 · 和合本</span></li>
+                <li role="option" aria-selected="false" data-lang="la" class="lang-dd-item"><img class="lang-dd-flag" src="assets/icons/shield-lang-la.png" alt=""><span>Latina · Vulgata</span></li>
+                <li role="option" aria-selected="false" data-lang="de" class="lang-dd-item"><img class="lang-dd-flag" src="assets/icons/shield-lang-de.png" alt=""><span>Deutsch · Luther</span></li>
+                <li role="option" aria-selected="false" data-lang="ja" class="lang-dd-item"><img class="lang-dd-flag" src="assets/icons/shield-lang-ja.png" alt=""><span>日本語 · 文語訳</span></li>
+            </ul>
+        </div>
         <div class="font-controls">
             <button class="font-btn" onclick="adjustFontSize(-1)" title="Smaller text" style="font-size:0.6rem;">txt −</button>
             <button class="font-btn" onclick="adjustFontSize(1)" title="Larger text" style="font-size:0.75rem;">TXT +</button>
@@ -2308,13 +2337,61 @@
         var LANG_LABELS = { zh:'中文 · 和合本 (Public Domain)', la:'Latina · Vulgata Clementina', de:'Deutsch · Luther 1545', ja:'日本語 · 文語訳 (Meiji/Taisho)' };
         var LANG_BCP = { zh:'zh-Hans', la:'la', de:'de', ja:'ja' };
 
-        function onLangChange() {
-            var sel = document.getElementById('langSelect');
-            currentLang = sel ? sel.value : 'en';
+        function onLangChange(lang) {
+            currentLang = lang || 'en';
             if (!currentRef) return;
             if (currentLang === 'en') { lookupVerse(); }
             else { renderForeignChapter(currentRef); }
         }
+
+        // BTE v6.9: custom gold-shield language dropdown (replaces native <select>).
+        // Same behavior as the old onLangChange path; just a fully themeable, a11y menu.
+        (function(){
+            var dd = document.getElementById('langDropdown');
+            if (!dd) return;
+            var trigger = document.getElementById('langTrigger');
+            var menu = document.getElementById('langMenu');
+            var tIcon = document.getElementById('langTriggerIcon');
+            var tLabel = document.getElementById('langTriggerLabel');
+            var items = Array.prototype.slice.call(menu.querySelectorAll('[data-lang]'));
+            function isOpen(){ return menu.classList.contains('open'); }
+            function open(){ menu.classList.add('open'); trigger.setAttribute('aria-expanded','true'); }
+            function close(){ menu.classList.remove('open'); trigger.setAttribute('aria-expanded','false'); }
+            function select(code, fire){
+                var li = items.filter(function(x){ return x.getAttribute('data-lang') === code; })[0] || items[0];
+                tIcon.src = li.querySelector('img').getAttribute('src');
+                tLabel.textContent = li.querySelector('span').textContent;
+                items.forEach(function(x){
+                    var on = x === li;
+                    x.classList.toggle('is-selected', on);
+                    x.setAttribute('aria-selected', on ? 'true' : 'false');
+                });
+                if (fire && typeof onLangChange === 'function') onLangChange(li.getAttribute('data-lang'));
+            }
+            trigger.addEventListener('click', function(e){ e.stopPropagation(); isOpen() ? close() : open(); });
+            trigger.addEventListener('keydown', function(e){
+                if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault(); open();
+                    (menu.querySelector('.is-selected') || items[0]).focus();
+                }
+            });
+            menu.addEventListener('click', function(e){
+                var li = e.target.closest('[data-lang]'); if (!li) return;
+                select(li.getAttribute('data-lang'), true); close(); trigger.focus();
+            });
+            items.forEach(function(li){
+                li.tabIndex = -1;
+                li.addEventListener('keydown', function(e){
+                    var i = items.indexOf(li);
+                    if (e.key === 'ArrowDown'){ e.preventDefault(); items[(i + 1) % items.length].focus(); }
+                    else if (e.key === 'ArrowUp'){ e.preventDefault(); items[(i - 1 + items.length) % items.length].focus(); }
+                    else if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); select(li.getAttribute('data-lang'), true); close(); trigger.focus(); }
+                    else if (e.key === 'Escape'){ close(); trigger.focus(); }
+                });
+            });
+            document.addEventListener('click', function(e){ if (!dd.contains(e.target)) close(); });
+            document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && isOpen()){ close(); trigger.focus(); } });
+        })();
 
         async function renderForeignChapter(ref) {
             var lang = currentLang;
