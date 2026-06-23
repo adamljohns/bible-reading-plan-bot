@@ -1,9 +1,13 @@
 #!/usr/bin/env node
 /* generate-mbt-audio.js — narrate MBT Bible chapters with Piper (female voice).
  *
- * Pilot scope: Ruth (book 8) + Esther (book 17). One MP3 per chapter. Each chapter
- * reads "<Book>, chapter <N>." then every verse in order, drawn from the MBT text in
- * docs/assets/moop-translation.json (keys are "<bookId>_<chapter>_<verse>").
+ * Pilot scope: Ruth (book 8). One MP3 per chapter. Each chapter reads
+ * "<Book>, chapter <N>." then every verse in order, drawn from the CLEAN, copyright-safe
+ * MBT in docs/assets/mbt/mbt-bible.json (keys are "<bookId>_<chapter>_<verse>" -> the
+ * narration `text` only; amp/notes are excluded). Esther (book 17) is HELD until its
+ * clean MBT text is authored — it has no entries in mbt-bible.json, so it is simply
+ * skipped and dropped from the manifest. NEVER point this at docs/assets/moop-translation.json
+ * (that file is an NKJV-derivative draft and must not be narrated/published).
  *
  * Output:  docs/assets/bible/audio/<bookId>-<chapter>.mp3   (local, git-ignored)
  * Upload:  Cloudflare R2 under bible/  ->  https://audio.usmcmin.org/bible/<bookId>-<chapter>.mp3
@@ -18,9 +22,9 @@
  * Download one with:  python3 -m piper.download_voices en_US-amy-medium
  *
  * Run:
- *   node bin/generate-mbt-audio.js                 # all pilot chapters (Ruth + Esther)
+ *   node bin/generate-mbt-audio.js                 # every chapter with clean MBT text (currently Ruth 1-4)
  *   node bin/generate-mbt-audio.js 8               # just Ruth (all chapters)
- *   node bin/generate-mbt-audio.js 8:1 17:3        # specific book:chapter targets
+ *   node bin/generate-mbt-audio.js 8:1 8:2         # specific book:chapter targets
  *   SKIP_UPLOAD=1 node bin/generate-mbt-audio.js   # render locally, don't push to R2
  *
  * Mirrors generate-catechism-audio.js: length-scale 1.0, 64 kbps mono, ffmpeg concat.
@@ -32,11 +36,11 @@ const os = require('os');
 const { execFileSync, execSync } = require('child_process');
 
 const ROOT = path.resolve(__dirname, '..');
-const SRC = path.join(ROOT, 'docs', 'assets', 'moop-translation.json');
+const SRC = path.join(ROOT, 'docs', 'assets', 'mbt', 'mbt-bible.json');  // CLEAN compiled MBT (build-mbt.py output), NOT moop-translation.json
 const OUT = path.join(ROOT, 'docs', 'assets', 'bible', 'audio');
 const MANIFEST = path.join(ROOT, 'docs', 'assets', 'bible', 'audio-manifest.json');
 const PY = process.env.PIPER_PY || '/tmp/piper-venv/bin/python';
-const MODEL = process.env.PIPER_MODEL || path.join(os.homedir(), '.piper-voices', 'amy.onnx');
+const MODEL = process.env.PIPER_MODEL || path.join(os.homedir(), '.piper-voices', 'en_GB-jenny_dioco-medium.onnx');
 const R2_REMOTE = process.env.R2_REMOTE || 'r2:usmcmin-audio';
 const R2_PREFIX = 'bible';
 const R2_BASE = 'https://audio.usmcmin.org';
@@ -106,12 +110,24 @@ function chapterAudio(bookId, chapter, verses) {
   return { file: outMp3, key: R2_PREFIX + '/' + bookId + '-' + chapter + '.mp3', seconds: Math.round(dur), kb: Math.round(fs.statSync(outMp3).size / 1024) };
 }
 
-// Keep the manifest's book/chapter coverage honest with what actually exists in the source.
+// Keep the manifest honest: voice/label reflect the actual run, and the books map is
+// rebuilt strictly from the clean source — a book with no clean MBT text (e.g. Esther,
+// still being authored) is dropped, never advertised as coverage.
 function syncManifest(idx) {
+  const voice = process.env.MBT_VOICE || path.basename(MODEL, '.onnx');
+  const label = process.env.MBT_LABEL || 'AI narration (MBT)';
   let m;
-  try { m = JSON.parse(fs.readFileSync(MANIFEST, 'utf8')); }
-  catch (e) { m = { voice: 'en_US-amy-medium', label: 'MBT narration', base: R2_BASE, prefix: R2_PREFIX, books: {} }; }
-  m.base = m.base || R2_BASE; m.prefix = m.prefix || R2_PREFIX; m.books = m.books || {};
+  try { m = JSON.parse(fs.readFileSync(MANIFEST, 'utf8')); } catch (e) { m = {}; }
+  m.voice = voice;
+  m.label = label;
+  m.base = R2_BASE;
+  m.prefix = R2_PREFIX;
+  m.note = 'Per-chapter MBT narration served from Cloudflare R2 at <base>/<prefix>/<bookId>-<chapter>.mp3 '
+    + '(e.g. https://audio.usmcmin.org/bible/8-1.mp3 = Ruth 1). Produced locally with Piper via '
+    + 'bin/generate-mbt-audio.js from the clean MBT in docs/assets/mbt/mbt-bible.json, then uploaded to R2. '
+    + 'The BTE reader probes each URL and only shows the chapter-page player once the file is live. This '
+    + '"books" map lists only books that have clean MBT text; books still being authored are omitted.';
+  m.books = {};
   for (const b of Object.keys(idx)) {
     const maxCh = Math.max.apply(null, Object.keys(idx[b]).map(Number));
     m.books[b] = { name: BOOK_NAMES[b], chapters: maxCh };
