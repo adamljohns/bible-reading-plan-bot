@@ -17,6 +17,7 @@ const SHELL = [
   // LBCF shared assets (chapter shells/JSON cache on first visit via network-first).
   // The ?v= must match the query string the pages request with, or the precache never hits.
   '/assets/js/lbcf-render.js?v=20260613', '/assets/css/lbcf.css', '/assets/lbcf/index.json',
+  '/assets/js/scripture-preview.js', // inline verse-preview popovers (LBCF + catechism)
   // Catechism assets (the page itself is baked; these are its styles/data/progress tracker).
   '/assets/css/catechism.css', '/assets/catechism/catechism.json',
   '/assets/js/study-progress.js', '/assets/css/study-progress.css',

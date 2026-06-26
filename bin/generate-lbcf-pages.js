@@ -164,6 +164,17 @@ function processChapterShell(chapter) {
   // Keep the renderer cache-buster current
   html = html.replace(/lbcf-render\.js\?v=[0-9a-z]+/g, 'lbcf-render.js?' + BUSTER);
 
+  // Verse-preview is a fresh, unversioned asset — strip any legacy ?v= so every
+  // page requests the same URL the service worker precaches.
+  html = html.replace(/scripture-preview\.js\?v=[0-9a-z]+/g, 'scripture-preview.js');
+  // Inline verse-preview enhancement — sibling of the renderer script (idempotent).
+  if (html.indexOf('scripture-preview.js') === -1) {
+    html = html.replace(
+      '<script src="../assets/js/lbcf-render.js?' + BUSTER + '"></script>',
+      '<script src="../assets/js/lbcf-render.js?' + BUSTER + '"></script>\n    <script src="../assets/js/scripture-preview.js" defer></script>'
+    );
+  }
+
   fs.writeFileSync(file, html);
   return body.length;
 }
@@ -411,7 +422,9 @@ function buildFullPage(meta, chapters, front) {
     '<a href="https://www.ccel.org/ccel/anonymous/bcf.html" target="_blank" rel="noopener">1677/1689 archaic original</a>' +
     ' — a public-domain text. Free to copy, quote, and share.</p></footer>';
 
-  h += '\n    </div>\n' + THEME_SCRIPT + '</body>\n</html>\n';
+  h += '\n    </div>\n' + THEME_SCRIPT +
+    '    <script src="assets/js/scripture-preview.js" defer></script>\n' +
+    '</body>\n</html>\n';
   return h;
 }
 
