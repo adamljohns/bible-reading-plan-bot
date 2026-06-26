@@ -1,8 +1,10 @@
-// U.S.M.C. Ministries — Service Worker v9
+// U.S.M.C. Ministries — Service Worker v10
 // App-shell precache + network-first runtime caching (installable, offline-capable).
 // Scope "/" controls the whole site, including /dictionary/* once registered from any page.
 // v9 (2026-06-11): cache bump to flush any stale tacc.html after the double-PIN-gate fix.
-const CACHE = 'usmc-v9';
+// v10 (2026-06-25): precache the Baptist Catechism + its assets; flush stale LBCF
+//   renderer/JSON after the single-chapter proof-text fix.
+const CACHE = 'usmc-v10';
 
 // Core "app shell": the public ministry pages + key assets. Small + high-value.
 // Big data (Bible JSON, dictionary entries) caches on first visit via network-first below.
@@ -11,10 +13,13 @@ const SHELL = [
   '/bible.html', '/bible-plan.html', '/proverbs.html', '/mbt.html',
   '/dictionary/', '/dictionary/index.html',
   '/lexicon.html', '/cross-references.html', '/watchman.html',
-  '/institutes.html', '/lbcf.html', '/lbcf-full.html', '/blog.html', '/connect.html', '/about.html',
+  '/institutes.html', '/lbcf.html', '/lbcf-full.html', '/catechism.html', '/blog.html', '/connect.html', '/about.html',
   // LBCF shared assets (chapter shells/JSON cache on first visit via network-first).
   // The ?v= must match the query string the pages request with, or the precache never hits.
   '/assets/js/lbcf-render.js?v=20260613', '/assets/css/lbcf.css', '/assets/lbcf/index.json',
+  // Catechism assets (the page itself is baked; these are its styles/data/progress tracker).
+  '/assets/css/catechism.css', '/assets/catechism/catechism.json',
+  '/assets/js/study-progress.js', '/assets/css/study-progress.css',
   '/crew-quarters.html', // preserve existing Crew Chores PWA offline support
   '/assets/icons/favicon.svg', '/assets/icons/icon-192.png',
   '/assets/icons/icon-512.png', '/assets/icons/apple-touch-icon.png'
