@@ -272,7 +272,8 @@ function build(data) {
   };
   const studyJs = '    <script src="assets/js/study-progress.js"></script>\n' +
     '    <script>StudyProgress.init(' + JSON.stringify(studyCfg) + ');</script>\n';
-  h += '\n    </div>\n' + INLINE_JS + studyJs + '</body>\n</html>\n';
+  const versePreview = '    <script src="assets/js/scripture-preview.js" defer></script>\n';
+  h += '\n    </div>\n' + INLINE_JS + studyJs + versePreview + '</body>\n</html>\n';
   return h;
 }
 
