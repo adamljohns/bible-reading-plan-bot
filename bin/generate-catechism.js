@@ -35,8 +35,28 @@ function loadLBCF() {
 }
 const LBCF = loadLBCF();
 
+// ---- LBCF chapter titles (for catechism → confession cross-links) ----
+const LBCF_TITLE = (() => {
+  try {
+    const idx = JSON.parse(fs.readFileSync(path.join(DOCS, 'assets', 'lbcf', 'index.json'), 'utf8'));
+    return new Map((idx.chapters || []).map((c) => [c.number, c.title]));
+  } catch (e) { return new Map(); }
+})();
+
 const escText = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
 const escAttr = (s) => escText(s).replace(/"/g, '&quot;');
+
+// Cross-reference line: which 1689 confession chapter(s) a catechism section expounds.
+function sectionLbcfHtml(s) {
+  if (!s.lbcf || !s.lbcf.length) return '';
+  const links = s.lbcf.map((n) => {
+    const title = LBCF_TITLE.get(n) || ('Chapter ' + n);
+    const padded = String(n).padStart(2, '0');
+    return '<a href="lbcf/chapter-' + padded + '.html">Ch ' + n + ' &middot; ' + escText(title) + '</a>';
+  }).join('');
+  return '<div class="cat-section-lbcf"><span class="cat-section-lbcf-label">' +
+    'In the 1689 Confession</span>' + links + '</div>';
+}
 
 // ---- Audio (Mr. Pemberton AI narration, per section, hosted on Cloudflare R2) ----
 const AUDIO_MANIFEST = (() => {
@@ -225,7 +245,8 @@ function build(data) {
     h += '<section class="cat-section" id="sec-' + (i + 1) + '">' +
       '<div class="cat-section-head"><div class="cat-section-eyebrow">' + escText(s.eyebrow || ('Section ' + (i + 1))) + '</div>' +
       '<h2>' + escText(s.title) + '</h2>' +
-      '<div class="cat-section-range">Questions ' + s.start + '–' + s.end + '</div></div>' +
+      '<div class="cat-section-range">Questions ' + s.start + '–' + s.end + '</div>' +
+      sectionLbcfHtml(s) + '</div>' +
       sectionPlayer(i + 1) +
       '<div class="cat-qa">';
     for (let n = s.start; n <= s.end; n++) {
