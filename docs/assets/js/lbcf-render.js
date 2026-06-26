@@ -239,9 +239,25 @@
     'song of solomon': 'Song', 'song of songs': 'Song',
   };
 
+  // Single-chapter books: a citation like "Jude 4" means verse 4 of the one
+  // chapter, not chapter 4. When no explicit verse is present, reinterpret the
+  // captured number as a verse so the BTE URL points at "Jude 1:4" (chapter 1).
+  // Keyed by every lowercase name/abbrev these books can appear under.
+  const SINGLE_CHAPTER = new Set([
+    'obadiah', 'obad', 'philemon', 'philem', 'phlm',
+    '2 john', '2 jn', '2jn', '3 john', '3 jn', '3jn',
+    'jude',
+  ]);
+
   function refToUrl(book, chapter, verses) {
     const fixed = URL_BOOK_FIX[book.toLowerCase()] || book;
-    let ref = (fixed + ' ' + chapter + (verses ? ':' + verses : '')).trim();
+    let ch = chapter, vs = verses;
+    // Short-form single-chapter ref ("Jude 4" / "Jude 6-7"): number is the verse.
+    if (!vs && SINGLE_CHAPTER.has(book.toLowerCase())) {
+      vs = ch;
+      ch = '1';
+    }
+    let ref = (fixed + ' ' + ch + (vs ? ':' + vs : '')).trim();
     // Root-absolute: chapter pages live at /lbcf/, so relative URLs 404.
     return '/bible.html?ref=' + encodeURIComponent(ref);
   }
