@@ -90,6 +90,14 @@ HTML_TEMPLATE = Template(r"""<!DOCTYPE html>
                         display:inline-flex; align-items:center; justify-content:center; }
         .theme-toggle:hover { border-color:var(--gold); }
         .container { max-width:820px; margin:0 auto; padding:28px 20px 60px; }
+        .verdict-card { display:flex; align-items:center; gap:14px; max-width:680px; margin:0 auto 28px; padding:16px 22px; border-radius:10px; font-weight:700; border:1px solid; }
+        .verdict-card .v-emoji { font-size:1.6rem; line-height:1; }
+        .verdict-card .v-label { text-transform:uppercase; letter-spacing:1.5px; font-size:0.9rem; }
+        .verdict-card .v-line { font-weight:500; font-size:0.92rem; margin-top:4px; color:var(--white); }
+        .v-green { background:rgba(16,185,129,0.10); border-color:rgba(16,185,129,0.45); color:#10B981; }
+        .v-yellow { background:rgba(245,158,11,0.10); border-color:rgba(245,158,11,0.45); color:#F59E0B; }
+        .v-orange { background:rgba(249,115,22,0.10); border-color:rgba(249,115,22,0.45); color:#F97316; }
+        .v-red { background:rgba(239,68,68,0.10); border-color:rgba(239,68,68,0.45); color:#EF4444; }
         .word-header { text-align:center; padding:40px 0 30px; border-bottom:1px solid var(--border); margin-bottom:30px; }
         .word-title { font-size:2.8rem; color:var(--gold-light); margin-bottom:6px; }
         .pronunciation { color:var(--gray); font-size:1.1rem; font-style:italic; }
@@ -182,7 +190,7 @@ HTML_TEMPLATE = Template(r"""<!DOCTYPE html>
             <span class="pos">${POS}</span>
             <div class="etymology">${ETYMOLOGY}</div>
         </div>
-
+${VERDICT_CARD}
         <div class="section">
             <h3>&#128214; Biblical Definition</h3>
             <div class="biblical-def">
@@ -333,6 +341,34 @@ def render_kjv_continual(kjv):
 '''
 
 
+VERDICT_EMOJI = {'green': '\U0001F7E2', 'yellow': '\U0001F7E1', 'orange': '\U0001F7E0', 'red': '\U0001F534'}
+
+
+def render_verdict_card(verdict):
+    """Render the optional decoder verdict card (Christianese / generational lingo).
+
+    verdict may be None (returns '') or a dict: {label, color, line}.
+    Colors map to the same legend used on the index + section pages
+    (green=Redeemable, yellow=Neutral, orange=Examine, red=Reject).
+    """
+    if not verdict:
+        return ''
+    color = verdict.get('color', 'yellow')
+    emoji = VERDICT_EMOJI.get(color, '\U0001F7E1')
+    return f'''
+        <div class="section">
+            <h3>&#9878;&#65039; Biblical Verdict</h3>
+            <div class="verdict-card v-{color}">
+                <div class="v-emoji">{emoji}</div>
+                <div>
+                    <div class="v-label">{verdict['label']}</div>
+                    <div class="v-line">{verdict['line']}</div>
+                </div>
+            </div>
+        </div>
+'''
+
+
 def render(record):
     return HTML_TEMPLATE.substitute(
         WORD=record['word'],
@@ -342,6 +378,7 @@ def render(record):
         ETYMOLOGY=record['etymology'],
         BIBLICAL_DEF=record['biblical_def'],
         KJV_CONTINUAL_SECTION=render_kjv_continual(record.get('kjv_continual')),
+        VERDICT_CARD=render_verdict_card(record.get('verdict')),
         WEBSTER_SUMMARY=record['webster_summary'],
         WEBSTER_FULL=render_paragraph_block(record['webster_full']),
         SCRIPTURES=render_scriptures(record['scriptures']),

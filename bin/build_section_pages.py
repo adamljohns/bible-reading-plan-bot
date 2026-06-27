@@ -81,9 +81,10 @@ SECTIONS = [
         'tag_class': 'gzverdict',
         'slug': 'gen-z-decoded',
         'title': 'Gen-Z Decoded',
-        'accent': '#EC4899',
-        'accent_dim': 'rgba(236,72,153,0.10)',
+        'accent': '#3B82F6',
+        'accent_dim': 'rgba(59,130,246,0.10)',
         'icon': 'shield-blog-quill-48.png',
+        'decoder': True,
         'intro': 'Every generation speaks a new dialect. Every dialect reveals a heart. Here is what the Gen-Z (and Gen Alpha) words mean and what Scripture says about them &mdash; with each entry verdict-tagged Redeemable, Neutral, Examine, or Reject.',
     },
     {
@@ -96,6 +97,7 @@ SECTIONS = [
         'accent': '#14B8A6',
         'accent_dim': 'rgba(20,184,166,0.10)',
         'icon': 'shield-blog-quill-48.png',
+        'decoder': True,
         'intro': 'Generation 1981&ndash;1996. They delayed adulthood, invented #squadgoals friendship, and turned YOLO into a life-philosophy. Here is what the words mean and what Scripture says.',
     },
     {
@@ -108,6 +110,7 @@ SECTIONS = [
         'accent': '#84CC16',
         'accent_dim': 'rgba(132,204,22,0.10)',
         'icon': 'shield-blog-quill-48.png',
+        'decoder': True,
         'intro': 'Generation 1965&ndash;1980. Ironic, skeptical, and allergic to earnestness. They taught America the dismissive shrug. Here is what the vocabulary reveals and what Scripture corrects.',
     },
     {
@@ -120,7 +123,21 @@ SECTIONS = [
         'accent': '#D97706',
         'accent_dim': 'rgba(217,119,6,0.10)',
         'icon': 'shield-blog-quill-48.png',
+        'decoder': True,
         'intro': 'Generation 1946&ndash;1964. The counterculture vocabulary that built modern America&rsquo;s permissive moral imagination, plus some harmless retro-flavor. Here is what held up and what did not.',
+    },
+    {
+        'css_class': 'christianese-section',
+        'card_class': 'christianese-card',
+        'word_class': 'ceword',
+        'tag_class': 'ceverdict',
+        'slug': 'christianese-decoded',
+        'title': 'Christianese Decoded',
+        'accent': '#C8A028',
+        'accent_dim': 'rgba(200,160,40,0.10)',
+        'icon': 'shield-key-scripture-48.png',
+        'decoder': True,
+        'intro': 'Why this page exists: the church has its own dialect, and like every dialect it reveals a heart. Some Christianese is sound shorthand for real truth; some is harmless sentiment; but a great deal of it has been quietly weaponized &mdash; biblical-sounding words bent to silence the faithful, dissolve clear commands, and smuggle another gospel past the gate. &ldquo;Image-bearer&rdquo; is made to forbid all moral judgment; &ldquo;winsome&rdquo; becomes a muzzle; &ldquo;love is love&rdquo; collapses agape into appetite. Here every term is weighed against Scripture and ruled &mdash; is it real gold, or fool&rsquo;s gold? Each entry is verdict-tagged Redeemable, Neutral, Examine, or Reject.',
     },
 ]
 
@@ -166,6 +183,7 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <link rel="canonical" href="https://usmcmin.org/dictionary/{slug}.html">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{title} &mdash; MOOP Dictionary</title>
     <meta name="description" content="{title}: full page browse for the {title} featured section of the MOOP Dictionary.">
@@ -273,6 +291,7 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
             <img src="../assets/icons/{icon}" alt="" class="hero-icon">
             <h1>{title}</h1>
             <p class="subtitle">{intro}</p>
+            {legend}
             <p class="count-line">{count} entries &middot; alphabetized</p>
             <a href="index.html" class="back-link">&larr; Back to Main Dictionary</a>
         </section>
@@ -320,12 +339,31 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
 """
 
 
+# Verdict legend colors — identical to the index legend + entry-page verdict cards
+# (green=Redeemable, yellow=Neutral, orange=Examine, red=Reject) for site-wide uniformity.
+VERDICT_COLORS = {
+    'redeemable': '#10B981', 'neutral': '#F59E0B',
+    'examine': '#F97316', 'reject': '#EF4444',
+}
+
+LEGEND_HTML = (
+    '<p class="verdict-legend" style="margin:14px 0 2px;font-size:0.8rem;font-weight:600;">'
+    '<span style="color:#10B981;">&#9679; Redeemable</span> &nbsp;'
+    '<span style="color:#F59E0B;">&#9679; Neutral</span> &nbsp;'
+    '<span style="color:#F97316;">&#9679; Examine</span> &nbsp;'
+    '<span style="color:#EF4444;">&#9679; Reject</span></p>'
+)
+
+
 def card_html(href, word, tag):
+    t = tag.strip()
+    color = VERDICT_COLORS.get(t.lower())
+    tag_div = (f'<div class="tag" style="color:{color};font-weight:700;">{t}</div>'
+               if color else f'<div class="tag">{t}</div>')
     return (
         f'            <a href="{html_lib.escape(href, quote=True)}" class="full-card">'
         f'<div class="word">{word.strip()}</div>'
-        f'<div class="tag">{tag.strip()}</div>'
-        f'</a>'
+        f'{tag_div}</a>'
     )
 
 
@@ -345,10 +383,12 @@ def main():
         cards_html = '\n'.join(card_html(*c) for c in cards)
         page = PAGE_TEMPLATE.format(
             title=sec['title'],
+            slug=sec['slug'],
             accent=sec['accent'],
             accent_dim=sec['accent_dim'],
             icon=sec['icon'],
             intro=sec['intro'],
+            legend=LEGEND_HTML if sec.get('decoder') else '',
             count=len(cards),
             cards_html=cards_html,
         )

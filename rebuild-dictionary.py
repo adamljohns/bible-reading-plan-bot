@@ -255,19 +255,19 @@ def build_index(words, by_letter, total):
         body.light-mode .corrupted-section {{ background:rgba(244,67,54,0.03); }}
         body.light-mode .corrupted-card .cword {{ color:#1a1a1a; }}
         /* Gen-Z Decoded section (pink) */
-        .genz-section {{ background:rgba(236,72,153,0.04); border:1px solid rgba(236,72,153,0.18); border-radius:12px; padding:20px 24px; margin:30px 0; }}
-        .genz-section h3 {{ color:#EC4899; font-family:'Playfair Display',serif; font-size:1.1rem; margin-bottom:6px; display:inline-flex; align-items:center; gap:8px; }}
+        .genz-section {{ background:rgba(59,130,246,0.04); border:1px solid rgba(59,130,246,0.18); border-radius:12px; padding:20px 24px; margin:30px 0; }}
+        .genz-section h3 {{ color:#3B82F6; font-family:'Playfair Display',serif; font-size:1.1rem; margin-bottom:6px; display:inline-flex; align-items:center; gap:8px; }}
         .genz-section .subtitle {{ color:var(--gray); font-size:0.82rem; margin-bottom:16px; font-style:italic; }}
         .genz-grid {{ display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:8px; }}
-        .genz-card {{ background:rgba(236,72,153,0.06); border:1px solid rgba(236,72,153,0.15); border-radius:8px; padding:10px 14px; text-decoration:none; transition:all 0.2s; text-align:center; display:block; }}
-        .genz-card:hover {{ border-color:#EC4899; background:rgba(236,72,153,0.13); }}
+        .genz-card {{ background:rgba(59,130,246,0.06); border:1px solid rgba(59,130,246,0.15); border-radius:8px; padding:10px 14px; text-decoration:none; transition:all 0.2s; text-align:center; display:block; }}
+        .genz-card:hover {{ border-color:#3B82F6; background:rgba(59,130,246,0.13); }}
         .genz-card .gzword {{ color:var(--white); font-weight:600; font-size:0.9rem; }}
         .genz-card .gzverdict {{ font-size:0.62rem; text-transform:uppercase; letter-spacing:0.6px; margin-top:3px; font-weight:700; }}
         .gzv-green {{ color:#10B981; }}
         .gzv-yellow {{ color:#F59E0B; }}
         .gzv-orange {{ color:#F97316; }}
         .gzv-red {{ color:#EF4444; }}
-        body.light-mode .genz-section {{ background:rgba(236,72,153,0.03); }}
+        body.light-mode .genz-section {{ background:rgba(59,130,246,0.03); }}
         body.light-mode .genz-card .gzword {{ color:#1a1a1a; }}
         /* Millennial Decoded section (teal) */
         .mill-section {{ background:rgba(20,184,166,0.04); border:1px solid rgba(20,184,166,0.18); border-radius:12px; padding:20px 24px; margin:30px 0; }}
@@ -302,6 +302,22 @@ def build_index(words, by_letter, total):
         .boomer-card .bverdict {{ font-size:0.62rem; text-transform:uppercase; letter-spacing:0.6px; margin-top:3px; font-weight:700; }}
         body.light-mode .boomer-section {{ background:rgba(217,119,6,0.03); }}
         body.light-mode .boomer-card .bword {{ color:#1a1a1a; }}
+        /* Christianese Decoded — weaponized churchy talk (dark goldenrod = test the gold) */
+        .christianese-section {{ background:rgba(184,134,11,0.05); border:1px solid rgba(184,134,11,0.22); border-radius:12px; padding:20px 24px; margin:30px 0; }}
+        .christianese-section h3 {{ color:#C8A028; font-family:'Playfair Display',serif; font-size:1.1rem; margin-bottom:6px; display:inline-flex; align-items:center; gap:8px; }}
+        .christianese-section .subtitle {{ color:var(--gray); font-size:0.82rem; margin-bottom:16px; font-style:italic; }}
+        .christianese-grid {{ display:grid; grid-template-columns:repeat(auto-fill,minmax(132px,1fr)); gap:8px; }}
+        .christianese-card {{ background:rgba(184,134,11,0.07); border:1px solid rgba(184,134,11,0.18); border-radius:8px; padding:10px 14px; text-decoration:none; transition:all 0.2s; text-align:center; display:block; }}
+        .christianese-card:hover {{ border-color:#C8A028; background:rgba(184,134,11,0.15); }}
+        .christianese-card .ceword {{ color:var(--white); font-weight:600; font-size:0.9rem; }}
+        .ceverdict {{ font-size:0.62rem; text-transform:uppercase; letter-spacing:0.6px; margin-top:3px; font-weight:700; }}
+        .christianese-section details {{ margin-top:12px; }}
+        .christianese-section details summary {{ color:#C8A028; cursor:pointer; list-style:none; display:inline-flex; align-items:center; gap:8px; font-size:0.85rem; }}
+        .christianese-section details summary::-webkit-details-marker {{ display:none; }}
+        .christianese-section details summary::before {{ content:""; display:inline-block; width:0; height:0; border-left:5px solid transparent; border-right:5px solid transparent; border-top:7px solid #C8A028; transition:transform 0.18s ease; transform:rotate(-90deg); }}
+        .christianese-section details[open] summary::before {{ transform:rotate(0deg); }}
+        body.light-mode .christianese-section {{ background:rgba(184,134,11,0.04); }}
+        body.light-mode .christianese-card .ceword {{ color:#1a1a1a; }}
         /* Clickable section titles — V5.25 upgrade: each section h3 links to its dedicated full-page browser */
         .section-title-link {{ color:inherit; text-decoration:none; display:inline-flex; align-items:center; gap:8px; transition:opacity 0.2s; }}
         .section-title-link:hover {{ opacity:0.85; }}
@@ -364,8 +380,8 @@ def build_index(words, by_letter, total):
         .forbidden-section details summary {{ color:#8b1515; }}
         .corrupted-section details summary::before {{ border-top-color:#f44336; }}
         .corrupted-section details summary {{ color:#f44336; }}
-        .genz-section details summary::before {{ border-top-color:#EC4899; }}
-        .genz-section details summary {{ color:#EC4899; }}
+        .genz-section details summary::before {{ border-top-color:#3B82F6; }}
+        .genz-section details summary {{ color:#3B82F6; }}
         .mill-section details summary::before {{ border-top-color:#14B8A6; }}
         .mill-section details summary {{ color:#14B8A6; }}
         .genx-section details summary::before {{ border-top-color:#84CC16; }}
@@ -478,6 +494,7 @@ def build_index(words, by_letter, total):
                 <a href="doctrinal-anchors.html" class="featured-card"><div class="fword">Doctrinal Anchors</div><div class="ftag">Foundational</div></a>
                 <a href="most-corrupted.html" class="featured-card"><div class="fword">Most Corrupted</div><div class="ftag">Words at war</div></a>
                 <a href="expressly-prohibited.html" class="featured-card"><div class="fword">Expressly Prohibited</div><div class="ftag">Forbidden &middot; sinful terms</div></a>
+                <a href="christianese-decoded.html" class="featured-card"><div class="fword">Christianese Decoded</div><div class="ftag">Weaponized churchy talk</div></a>
                 <a href="gen-z-decoded.html" class="featured-card"><div class="fword">Gen-Z Decoded</div><div class="ftag">Generational dialect</div></a>
                 <a href="millennial-decoded.html" class="featured-card"><div class="fword">Millennial Decoded</div><div class="ftag">Generational dialect</div></a>
                 <a href="gen-x-decoded.html" class="featured-card"><div class="fword">Gen X Decoded</div><div class="ftag">Generational dialect</div></a>
@@ -876,6 +893,47 @@ def build_index(words, by_letter, total):
             </details>
         </div>
 
+        <div class="christianese-section" id="christianeseSection">
+            <h3><a href="christianese-decoded.html" class="section-title-link"><img src="../assets/icons/shield-key-scripture-48.png" alt="" width="20" height="20"> Christianese Decoded <span class="see-all">browse all &rarr;</span></a></h3>
+            <p class="subtitle">Churchy talk &mdash; some sound, some sentimental, and many quietly weaponized to silence the faithful and advance another gospel. Each word weighed: is it real gold, or fool&rsquo;s gold? <span style="white-space:nowrap;"><span class="gzv-green">&#9679; Redeemable</span> &middot; <span class="gzv-yellow">&#9679; Neutral</span> &middot; <span class="gzv-orange">&#9679; Examine</span> &middot; <span class="gzv-red">&#9679; Reject</span></span></p>
+            <div class="christianese-grid">
+                <a href="image-bearer.html" class="christianese-card"><div class="ceword">Image-Bearer</div><div class="ceverdict gzv-orange">Examine</div></a>
+                <a href="winsome.html" class="christianese-card"><div class="ceword">Winsome</div><div class="ceverdict gzv-orange">Examine</div></a>
+                <a href="empathy.html" class="christianese-card"><div class="ceword">Empathy</div><div class="ceverdict gzv-orange">Examine</div></a>
+                <a href="love-is-love.html" class="christianese-card"><div class="ceword">Love Is Love</div><div class="ceverdict gzv-red">Reject</div></a>
+                <a href="deconstruction.html" class="christianese-card"><div class="ceword">Deconstruction</div><div class="ceverdict gzv-red">Reject</div></a>
+                <a href="god-is-still-speaking.html" class="christianese-card"><div class="ceword">God Is Still Speaking</div><div class="ceverdict gzv-red">Reject</div></a>
+                <a href="platforming.html" class="christianese-card"><div class="ceword">Platforming</div><div class="ceverdict gzv-red">Reject</div></a>
+                <a href="wrong-side-of-history.html" class="christianese-card"><div class="ceword">Wrong Side of History</div><div class="ceverdict gzv-red">Reject</div></a>
+                <a href="all-are-welcome.html" class="christianese-card"><div class="ceword">All Are Welcome</div><div class="ceverdict gzv-orange">Examine</div></a>
+                <a href="judge-not.html" class="christianese-card"><div class="ceword">Judge Not</div><div class="ceverdict gzv-orange">Examine</div></a>
+            </div>
+            <details>
+                <summary><em>expand to see more</em></summary>
+                <div class="christianese-grid more-grid">
+                    <a href="deplatforming.html" class="christianese-card"><div class="ceword">Deplatforming</div><div class="ceverdict gzv-red">Reject</div></a>
+                    <a href="punching-down.html" class="christianese-card"><div class="ceword">Punching Down</div><div class="ceverdict gzv-red">Reject</div></a>
+                    <a href="doing-the-work.html" class="christianese-card"><div class="ceword">Doing the Work</div><div class="ceverdict gzv-red">Reject</div></a>
+                    <a href="centering.html" class="christianese-card"><div class="ceword">Centering</div><div class="ceverdict gzv-red">Reject</div></a>
+                    <a href="problematic.html" class="christianese-card"><div class="ceword">Problematic</div><div class="ceverdict gzv-red">Reject</div></a>
+                    <a href="virtue-signaling.html" class="christianese-card"><div class="ceword">Virtue Signaling</div><div class="ceverdict gzv-red">Reject</div></a>
+                    <a href="gatekeeping.html" class="christianese-card"><div class="ceword">Gatekeeping</div><div class="ceverdict gzv-orange">Examine</div></a>
+                    <a href="performative.html" class="christianese-card"><div class="ceword">Performative</div><div class="ceverdict gzv-orange">Examine</div></a>
+                    <a href="nuance.html" class="christianese-card"><div class="ceword">Nuance</div><div class="ceverdict gzv-orange">Examine</div></a>
+                    <a href="fundamentalist.html" class="christianese-card"><div class="ceword">Fundamentalist</div><div class="ceverdict gzv-orange">Examine</div></a>
+                    <a href="harm.html" class="christianese-card"><div class="ceword">Harm</div><div class="ceverdict gzv-orange">Examine</div></a>
+                    <a href="grace-filled.html" class="christianese-card"><div class="ceword">Grace-Filled</div><div class="ceverdict gzv-orange">Examine</div></a>
+                    <a href="tone-policing.html" class="christianese-card"><div class="ceword">Tone-Policing</div><div class="ceverdict gzv-orange">Examine</div></a>
+                    <a href="authenticity.html" class="christianese-card"><div class="ceword">Authenticity</div><div class="ceverdict gzv-orange">Examine</div></a>
+                    <a href="legalism.html" class="christianese-card"><div class="ceword">Legalism</div><div class="ceverdict gzv-orange">Examine</div></a>
+                    <a href="pharisee.html" class="christianese-card"><div class="ceword">Pharisee</div><div class="ceverdict gzv-orange">Examine</div></a>
+                    <a href="safe-space.html" class="christianese-card"><div class="ceword">Safe Space</div><div class="ceverdict gzv-orange">Examine</div></a>
+                    <a href="heart-posture.html" class="christianese-card"><div class="ceword">Heart Posture</div><div class="ceverdict gzv-yellow">Neutral</div></a>
+                    <a href="faith-journey.html" class="christianese-card"><div class="ceword">Faith Journey</div><div class="ceverdict gzv-yellow">Neutral</div></a>
+                </div>
+            </details>
+        </div>
+
     </div><!-- /.container -->
 
     <!-- Suggest a Word -->
@@ -991,7 +1049,7 @@ def build_index(words, by_letter, total):
     (function(){{if(localStorage.getItem('bte-theme')==='light')document.body.classList.add('light-mode');}})();
 
     // Featured-section details toggle — swap "expand to see more" ↔ "show less"
-    document.querySelectorAll('.corrupted-section details, .order-section details, .forbidden-section details, .genz-section details, .mill-section details, .genx-section details, .boomer-section details, .featured-section details').forEach(function(d){{
+    document.querySelectorAll('.corrupted-section details, .order-section details, .forbidden-section details, .christianese-section details, .genz-section details, .mill-section details, .genx-section details, .boomer-section details, .featured-section details').forEach(function(d){{
         var label = d.querySelector('summary em');
         if(!label) return;
         var update = function(){{ label.textContent = d.open ? 'show less' : 'expand to see more'; }};
