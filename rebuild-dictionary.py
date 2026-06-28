@@ -661,7 +661,7 @@ def build_index(words, by_letter, total):
                     <a href="transgender.html" class="order-card"><div class="oword">Transgender</div><div class="otag">adjective</div></a>
                     <a href="patriarch.html" class="order-card"><div class="oword">Patriarch</div><div class="otag">noun</div></a>
                     <a href="apostolic-fathers.html" class="order-card"><div class="oword">Apostolic Fathers</div><div class="otag">noun (church history)</div></a>
-                    <a href="authority-biblical.html" class="order-card"><div class="oword">Authority (Biblical)</div><div class="otag">noun</div></a>
+                    <a href="authority.html" class="order-card"><div class="oword">Authority (Biblical)</div><div class="otag">noun</div></a>
                     <a href="authority-of-scripture.html" class="order-card"><div class="oword">Authority of Scripture</div><div class="otag">n.</div></a>
                     <a href="authority.html" class="order-card"><div class="oword">Authority</div><div class="otag">noun</div></a>
                     <a href="betrothal-period.html" class="order-card"><div class="oword">Betrothal Period</div><div class="otag">noun (biblical-marriage practice)</div></a>
@@ -683,7 +683,7 @@ def build_index(words, by_letter, total):
                     <a href="father-god.html" class="order-card"><div class="oword">Father God</div><div class="otag">noun / title</div></a>
                     <a href="father-of-mercies.html" class="order-card"><div class="oword">Father of Mercies</div><div class="otag">divine title</div></a>
                     <a href="father.html" class="order-card"><div class="oword">Father</div><div class="otag">noun</div></a>
-                    <a href="fatherhood-biblical.html" class="order-card"><div class="oword">Fatherhood (Biblical)</div><div class="otag">noun</div></a>
+                    <a href="fatherhood.html" class="order-card"><div class="oword">Fatherhood (Biblical)</div><div class="otag">noun</div></a>
                     <a href="fatherhood-doctrine.html" class="order-card"><div class="oword">Fatherhood Doctrine</div><div class="otag">word</div></a>
                     <a href="fatherhood-of-god.html" class="order-card"><div class="oword">Fatherhood of God</div><div class="otag">noun phrase · theology</div></a>
                     <a href="fatherhood.html" class="order-card"><div class="oword">Fatherhood</div><div class="otag">noun</div></a>

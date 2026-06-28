@@ -34,6 +34,12 @@ bad = sorted(ents - valid)
 if bad:
     errs.append(f'invalid HTML entities: {bad}')
 slugs = {l.strip() for l in open('data/dictionary-slugs.txt') if l.strip()}
+# Also block re-creating a slug that was MERGED AWAY (it is a redirect stub now,
+# absent from slugs.txt — without this the nightly run could resurrect a dup).
+try:
+    slugs |= {l.split('->')[0].strip() for l in open('data/dictionary-redirects.txt') if '->' in l}
+except FileNotFoundError:
+    pass
 pages = {f[:-5] for f in os.listdir('docs/dictionary') if f.endswith('.html')}
 own = {e.get('slug') for e in data}
 for e in data:
