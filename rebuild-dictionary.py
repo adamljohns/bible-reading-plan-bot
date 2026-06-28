@@ -900,36 +900,108 @@ def build_index(words, by_letter, total):
                 <a href="image-bearer.html" class="christianese-card"><div class="ceword">Image-Bearer</div><div class="ceverdict gzv-orange">Examine</div></a>
                 <a href="winsome.html" class="christianese-card"><div class="ceword">Winsome</div><div class="ceverdict gzv-orange">Examine</div></a>
                 <a href="empathy.html" class="christianese-card"><div class="ceword">Empathy</div><div class="ceverdict gzv-orange">Examine</div></a>
+                <a href="social-justice.html" class="christianese-card"><div class="ceword">Social Justice</div><div class="ceverdict gzv-orange">Examine</div></a>
+                <a href="affirming.html" class="christianese-card"><div class="ceword">Affirming</div><div class="ceverdict gzv-red">Reject</div></a>
                 <a href="love-is-love.html" class="christianese-card"><div class="ceword">Love Is Love</div><div class="ceverdict gzv-red">Reject</div></a>
                 <a href="deconstruction.html" class="christianese-card"><div class="ceword">Deconstruction</div><div class="ceverdict gzv-red">Reject</div></a>
-                <a href="god-is-still-speaking.html" class="christianese-card"><div class="ceword">God Is Still Speaking</div><div class="ceverdict gzv-red">Reject</div></a>
-                <a href="platforming.html" class="christianese-card"><div class="ceword">Platforming</div><div class="ceverdict gzv-red">Reject</div></a>
-                <a href="wrong-side-of-history.html" class="christianese-card"><div class="ceword">Wrong Side of History</div><div class="ceverdict gzv-red">Reject</div></a>
-                <a href="all-are-welcome.html" class="christianese-card"><div class="ceword">All Are Welcome</div><div class="ceverdict gzv-orange">Examine</div></a>
+                <a href="woke.html" class="christianese-card"><div class="ceword">Woke</div><div class="ceverdict gzv-red">Reject</div></a>
                 <a href="judge-not.html" class="christianese-card"><div class="ceword">Judge Not</div><div class="ceverdict gzv-orange">Examine</div></a>
+                <a href="ask-jesus-into-your-heart.html" class="christianese-card"><div class="ceword">Ask Jesus Into Your Heart</div><div class="ceverdict gzv-orange">Examine</div></a>
+                <a href="follow-your-heart.html" class="christianese-card"><div class="ceword">Follow Your Heart</div><div class="ceverdict gzv-red">Reject</div></a>
+                <a href="your-best-life-now.html" class="christianese-card"><div class="ceword">Your Best Life Now</div><div class="ceverdict gzv-red">Reject</div></a>
+                <a href="god-is-still-speaking.html" class="christianese-card"><div class="ceword">God Is Still Speaking</div><div class="ceverdict gzv-red">Reject</div></a>
+                <a href="anti-racism.html" class="christianese-card"><div class="ceword">Anti-Racism</div><div class="ceverdict gzv-red">Reject</div></a>
             </div>
             <details>
-                <summary><em>expand to see more</em></summary>
+                <summary><em>expand to see all 101</em></summary>
                 <div class="christianese-grid more-grid">
-                    <a href="deplatforming.html" class="christianese-card"><div class="ceword">Deplatforming</div><div class="ceverdict gzv-red">Reject</div></a>
-                    <a href="punching-down.html" class="christianese-card"><div class="ceword">Punching Down</div><div class="ceverdict gzv-red">Reject</div></a>
-                    <a href="doing-the-work.html" class="christianese-card"><div class="ceword">Doing the Work</div><div class="ceverdict gzv-red">Reject</div></a>
-                    <a href="centering.html" class="christianese-card"><div class="ceword">Centering</div><div class="ceverdict gzv-red">Reject</div></a>
-                    <a href="problematic.html" class="christianese-card"><div class="ceword">Problematic</div><div class="ceverdict gzv-red">Reject</div></a>
-                    <a href="virtue-signaling.html" class="christianese-card"><div class="ceword">Virtue Signaling</div><div class="ceverdict gzv-red">Reject</div></a>
-                    <a href="gatekeeping.html" class="christianese-card"><div class="ceword">Gatekeeping</div><div class="ceverdict gzv-orange">Examine</div></a>
-                    <a href="performative.html" class="christianese-card"><div class="ceword">Performative</div><div class="ceverdict gzv-orange">Examine</div></a>
-                    <a href="nuance.html" class="christianese-card"><div class="ceword">Nuance</div><div class="ceverdict gzv-orange">Examine</div></a>
-                    <a href="fundamentalist.html" class="christianese-card"><div class="ceword">Fundamentalist</div><div class="ceverdict gzv-orange">Examine</div></a>
-                    <a href="harm.html" class="christianese-card"><div class="ceword">Harm</div><div class="ceverdict gzv-orange">Examine</div></a>
-                    <a href="grace-filled.html" class="christianese-card"><div class="ceword">Grace-Filled</div><div class="ceverdict gzv-orange">Examine</div></a>
-                    <a href="tone-policing.html" class="christianese-card"><div class="ceword">Tone-Policing</div><div class="ceverdict gzv-orange">Examine</div></a>
+                    <a href="accept-christ.html" class="christianese-card"><div class="ceword">Accept Christ</div><div class="ceverdict gzv-orange">Examine</div></a>
+                    <a href="all-are-welcome.html" class="christianese-card"><div class="ceword">All Are Welcome</div><div class="ceverdict gzv-orange">Examine</div></a>
+                    <a href="allyship.html" class="christianese-card"><div class="ceword">Allyship</div><div class="ceverdict gzv-red">Reject</div></a>
+                    <a href="amplify.html" class="christianese-card"><div class="ceword">Amplify</div><div class="ceverdict gzv-orange">Examine</div></a>
                     <a href="authenticity.html" class="christianese-card"><div class="ceword">Authenticity</div><div class="ceverdict gzv-orange">Examine</div></a>
-                    <a href="legalism.html" class="christianese-card"><div class="ceword">Legalism</div><div class="ceverdict gzv-orange">Examine</div></a>
-                    <a href="pharisee.html" class="christianese-card"><div class="ceword">Pharisee</div><div class="ceverdict gzv-orange">Examine</div></a>
-                    <a href="safe-space.html" class="christianese-card"><div class="ceword">Safe Space</div><div class="ceverdict gzv-orange">Examine</div></a>
-                    <a href="heart-posture.html" class="christianese-card"><div class="ceword">Heart Posture</div><div class="ceverdict gzv-yellow">Neutral</div></a>
+                    <a href="backsliding.html" class="christianese-card"><div class="ceword">Backsliding</div><div class="ceverdict gzv-yellow">Neutral</div></a>
+                    <a href="born-this-way.html" class="christianese-card"><div class="ceword">Born This Way</div><div class="ceverdict gzv-red">Reject</div></a>
+                    <a href="centering.html" class="christianese-card"><div class="ceword">Centering</div><div class="ceverdict gzv-red">Reject</div></a>
+                    <a href="christian-nationalism.html" class="christianese-card"><div class="ceword">Christian Nationalism</div><div class="ceverdict gzv-orange">Examine</div></a>
+                    <a href="cisgender.html" class="christianese-card"><div class="ceword">Cisgender</div><div class="ceverdict gzv-red">Reject</div></a>
+                    <a href="courageous-conversations.html" class="christianese-card"><div class="ceword">Courageous Conversations</div><div class="ceverdict gzv-orange">Examine</div></a>
+                    <a href="cultural-engagement.html" class="christianese-card"><div class="ceword">Cultural Engagement</div><div class="ceverdict gzv-orange">Examine</div></a>
+                    <a href="decolonize.html" class="christianese-card"><div class="ceword">Decolonize</div><div class="ceverdict gzv-red">Reject</div></a>
+                    <a href="deplatforming.html" class="christianese-card"><div class="ceword">Deplatforming</div><div class="ceverdict gzv-red">Reject</div></a>
+                    <a href="dismantle.html" class="christianese-card"><div class="ceword">Dismantle</div><div class="ceverdict gzv-red">Reject</div></a>
+                    <a href="diversity.html" class="christianese-card"><div class="ceword">Diversity</div><div class="ceverdict gzv-orange">Examine</div></a>
+                    <a href="doing-life-together.html" class="christianese-card"><div class="ceword">Doing Life Together</div><div class="ceverdict gzv-yellow">Neutral</div></a>
+                    <a href="doing-the-work.html" class="christianese-card"><div class="ceword">Doing The Work</div><div class="ceverdict gzv-red">Reject</div></a>
+                    <a href="equity.html" class="christianese-card"><div class="ceword">Equity</div><div class="ceverdict gzv-red">Reject</div></a>
+                    <a href="everything-happens-for-a-reason.html" class="christianese-card"><div class="ceword">Everything Happens For A Reason</div><div class="ceverdict gzv-orange">Examine</div></a>
+                    <a href="exvangelical.html" class="christianese-card"><div class="ceword">Exvangelical</div><div class="ceverdict gzv-orange">Examine</div></a>
                     <a href="faith-journey.html" class="christianese-card"><div class="ceword">Faith Journey</div><div class="ceverdict gzv-yellow">Neutral</div></a>
+                    <a href="full-inclusion.html" class="christianese-card"><div class="ceword">Full Inclusion</div><div class="ceverdict gzv-red">Reject</div></a>
+                    <a href="fundamentalist.html" class="christianese-card"><div class="ceword">Fundamentalist</div><div class="ceverdict gzv-orange">Examine</div></a>
+                    <a href="gatekeeping.html" class="christianese-card"><div class="ceword">Gatekeeping</div><div class="ceverdict gzv-orange">Examine</div></a>
+                    <a href="god-helps-those-who-help-themselves.html" class="christianese-card"><div class="ceword">God Helps Those Who Help Themselves</div><div class="ceverdict gzv-red">Reject</div></a>
+                    <a href="god-just-wants-you-to-be-happy.html" class="christianese-card"><div class="ceword">God Just Wants You To Be Happy</div><div class="ceverdict gzv-red">Reject</div></a>
+                    <a href="god-wont-give-you-more-than-you-can-handle.html" class="christianese-card"><div class="ceword">God Won't Give You More Than You Can Handle</div><div class="ceverdict gzv-red">Reject</div></a>
+                    <a href="gospel-centered.html" class="christianese-card"><div class="ceword">Gospel-Centered</div><div class="ceverdict gzv-yellow">Neutral</div></a>
+                    <a href="grace-filled.html" class="christianese-card"><div class="ceword">Grace-Filled</div><div class="ceverdict gzv-orange">Examine</div></a>
+                    <a href="harm.html" class="christianese-card"><div class="ceword">Harm</div><div class="ceverdict gzv-orange">Examine</div></a>
+                    <a href="heart-posture.html" class="christianese-card"><div class="ceword">Heart Posture</div><div class="ceverdict gzv-yellow">Neutral</div></a>
+                    <a href="hedge-of-protection.html" class="christianese-card"><div class="ceword">Hedge Of Protection</div><div class="ceverdict gzv-yellow">Neutral</div></a>
+                    <a href="heteronormative.html" class="christianese-card"><div class="ceword">Heteronormative</div><div class="ceverdict gzv-red">Reject</div></a>
+                    <a href="human-flourishing.html" class="christianese-card"><div class="ceword">Human Flourishing</div><div class="ceverdict gzv-orange">Examine</div></a>
+                    <a href="inclusion.html" class="christianese-card"><div class="ceword">Inclusion</div><div class="ceverdict gzv-orange">Examine</div></a>
+                    <a href="inclusive.html" class="christianese-card"><div class="ceword">Inclusive</div><div class="ceverdict gzv-orange">Examine</div></a>
+                    <a href="intentional.html" class="christianese-card"><div class="ceword">Intentional</div><div class="ceverdict gzv-orange">Examine</div></a>
+                    <a href="laid-it-on-my-heart.html" class="christianese-card"><div class="ceword">Laid It On My Heart</div><div class="ceverdict gzv-orange">Examine</div></a>
+                    <a href="legalism.html" class="christianese-card"><div class="ceword">Legalism</div><div class="ceverdict gzv-orange">Examine</div></a>
+                    <a href="let-go-and-let-god.html" class="christianese-card"><div class="ceword">Let Go And Let God</div><div class="ceverdict gzv-orange">Examine</div></a>
+                    <a href="live-your-truth.html" class="christianese-card"><div class="ceword">Live Your Truth</div><div class="ceverdict gzv-red">Reject</div></a>
+                    <a href="love-offering.html" class="christianese-card"><div class="ceword">Love Offering</div><div class="ceverdict gzv-yellow">Neutral</div></a>
+                    <a href="love-wins.html" class="christianese-card"><div class="ceword">Love Wins</div><div class="ceverdict gzv-red">Reject</div></a>
+                    <a href="marginalized.html" class="christianese-card"><div class="ceword">Marginalized</div><div class="ceverdict gzv-orange">Examine</div></a>
+                    <a href="microaggression.html" class="christianese-card"><div class="ceword">Microaggression</div><div class="ceverdict gzv-red">Reject</div></a>
+                    <a href="missional.html" class="christianese-card"><div class="ceword">Missional</div><div class="ceverdict gzv-yellow">Neutral</div></a>
+                    <a href="mountaintop-experience.html" class="christianese-card"><div class="ceword">Mountaintop Experience</div><div class="ceverdict gzv-orange">Examine</div></a>
+                    <a href="name-it-and-claim-it.html" class="christianese-card"><div class="ceword">Name It And Claim It</div><div class="ceverdict gzv-red">Reject</div></a>
+                    <a href="nuance.html" class="christianese-card"><div class="ceword">Nuance</div><div class="ceverdict gzv-orange">Examine</div></a>
+                    <a href="on-fire-for-god.html" class="christianese-card"><div class="ceword">On Fire For God</div><div class="ceverdict gzv-orange">Examine</div></a>
+                    <a href="only-god-can-judge-me.html" class="christianese-card"><div class="ceword">Only God Can Judge Me</div><div class="ceverdict gzv-red">Reject</div></a>
+                    <a href="open-and-affirming.html" class="christianese-card"><div class="ceword">Open And Affirming</div><div class="ceverdict gzv-red">Reject</div></a>
+                    <a href="performative.html" class="christianese-card"><div class="ceword">Performative</div><div class="ceverdict gzv-orange">Examine</div></a>
+                    <a href="personal-relationship-with-jesus.html" class="christianese-card"><div class="ceword">Personal Relationship With Jesus</div><div class="ceverdict gzv-orange">Examine</div></a>
+                    <a href="pharisee.html" class="christianese-card"><div class="ceword">Pharisee</div><div class="ceverdict gzv-orange">Examine</div></a>
+                    <a href="platforming.html" class="christianese-card"><div class="ceword">Platforming</div><div class="ceverdict gzv-red">Reject</div></a>
+                    <a href="prayer-warrior.html" class="christianese-card"><div class="ceword">Prayer Warrior</div><div class="ceverdict gzv-yellow">Neutral</div></a>
+                    <a href="privilege.html" class="christianese-card"><div class="ceword">Privilege</div><div class="ceverdict gzv-orange">Examine</div></a>
+                    <a href="problematic.html" class="christianese-card"><div class="ceword">Problematic</div><div class="ceverdict gzv-red">Reject</div></a>
+                    <a href="progressive-christianity.html" class="christianese-card"><div class="ceword">Progressive Christianity</div><div class="ceverdict gzv-red">Reject</div></a>
+                    <a href="punching-down.html" class="christianese-card"><div class="ceword">Punching Down</div><div class="ceverdict gzv-red">Reject</div></a>
+                    <a href="purity-culture.html" class="christianese-card"><div class="ceword">Purity Culture</div><div class="ceverdict gzv-orange">Examine</div></a>
+                    <a href="putting-out-a-fleece.html" class="christianese-card"><div class="ceword">Putting Out A Fleece</div><div class="ceverdict gzv-orange">Examine</div></a>
+                    <a href="quiet-time.html" class="christianese-card"><div class="ceword">Quiet Time</div><div class="ceverdict gzv-yellow">Neutral</div></a>
+                    <a href="quiverfull.html" class="christianese-card"><div class="ceword">Quiverfull</div><div class="ceverdict gzv-orange">Examine</div></a>
+                    <a href="reconstruction.html" class="christianese-card"><div class="ceword">Reconstruction</div><div class="ceverdict gzv-orange">Examine</div></a>
+                    <a href="red-letter-christian.html" class="christianese-card"><div class="ceword">Red-Letter Christian</div><div class="ceverdict gzv-orange">Examine</div></a>
+                    <a href="religious-trauma.html" class="christianese-card"><div class="ceword">Religious Trauma</div><div class="ceverdict gzv-orange">Examine</div></a>
+                    <a href="representation.html" class="christianese-card"><div class="ceword">Representation</div><div class="ceverdict gzv-orange">Examine</div></a>
+                    <a href="safe-space.html" class="christianese-card"><div class="ceword">Safe Space</div><div class="ceverdict gzv-orange">Examine</div></a>
+                    <a href="seeker-sensitive.html" class="christianese-card"><div class="ceword">Seeker-Sensitive</div><div class="ceverdict gzv-orange">Examine</div></a>
+                    <a href="social-gospel.html" class="christianese-card"><div class="ceword">Social Gospel</div><div class="ceverdict gzv-orange">Examine</div></a>
+                    <a href="speak-it-into-existence.html" class="christianese-card"><div class="ceword">Speak It Into Existence</div><div class="ceverdict gzv-red">Reject</div></a>
+                    <a href="spiritual-abuse.html" class="christianese-card"><div class="ceword">Spiritual Abuse</div><div class="ceverdict gzv-orange">Examine</div></a>
+                    <a href="spiritual-covering.html" class="christianese-card"><div class="ceword">Spiritual Covering</div><div class="ceverdict gzv-orange">Examine</div></a>
+                    <a href="systemic.html" class="christianese-card"><div class="ceword">Systemic</div><div class="ceverdict gzv-orange">Examine</div></a>
+                    <a href="third-way.html" class="christianese-card"><div class="ceword">Third Way</div><div class="ceverdict gzv-red">Reject</div></a>
+                    <a href="thoughts-and-prayers.html" class="christianese-card"><div class="ceword">Thoughts And Prayers</div><div class="ceverdict gzv-orange">Examine</div></a>
+                    <a href="tone-policing.html" class="christianese-card"><div class="ceword">Tone Policing</div><div class="ceverdict gzv-orange">Examine</div></a>
+                    <a href="toxic-theology.html" class="christianese-card"><div class="ceword">Toxic Theology</div><div class="ceverdict gzv-red">Reject</div></a>
+                    <a href="trauma-informed.html" class="christianese-card"><div class="ceword">Trauma-Informed</div><div class="ceverdict gzv-orange">Examine</div></a>
+                    <a href="traveling-mercies.html" class="christianese-card"><div class="ceword">Traveling Mercies</div><div class="ceverdict gzv-yellow">Neutral</div></a>
+                    <a href="unequally-yoked.html" class="christianese-card"><div class="ceword">Unequally Yoked</div><div class="ceverdict gzv-green">Redeemable</div></a>
+                    <a href="unspoken-prayer-request.html" class="christianese-card"><div class="ceword">Unspoken Prayer Request</div><div class="ceverdict gzv-yellow">Neutral</div></a>
+                    <a href="virtue-signaling.html" class="christianese-card"><div class="ceword">Virtue Signaling</div><div class="ceverdict gzv-red">Reject</div></a>
+                    <a href="wrong-side-of-history.html" class="christianese-card"><div class="ceword">Wrong Side Of History</div><div class="ceverdict gzv-red">Reject</div></a>
                 </div>
             </details>
         </div>

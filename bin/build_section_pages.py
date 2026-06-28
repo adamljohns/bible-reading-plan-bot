@@ -150,8 +150,16 @@ def extract_cards(index_html, css_class, card_class, word_class, tag_class):
     if not m:
         return []
     after = index_html[m.start():]
-    end_m = re.search(r'</div>\s*\n\s*<!--', after)
-    block = after[:end_m.start()] if end_m else after[:8000]
+    # Bound the section at the next sibling section, an HTML comment, or the
+    # container close. (The old fixed 8000-char cap silently truncated large
+    # sections — christianese has 100+ cards and overflowed it.)
+    end_m = re.search(
+        r'</div>\s*\n\s*<!--'                       # next section preceded by a comment
+        r'|\n\n        <div class="[a-z][\w-]*-section"'  # next sibling section
+        r'|\n\n        <div class="featured-section"'     # special-directories block
+        r'|\n\n    </div><!-- /\.container -->',          # end of the cards container
+        after[200:])
+    block = after[:200 + end_m.start()] if end_m else after
     # Now extract each <a class="<card_class>"> ... </a>
     card_pat = re.compile(
         rf'<a\b[^>]*href="([^"]+)"[^>]*class="{re.escape(card_class)}"[^>]*>(.*?)</a>',

@@ -77,7 +77,7 @@ echo "== rebuild =="
 python3 rebuild-dictionary.py 2>&1 | grep "Total entries"
 echo "== regen slugs =="
 ls docs/dictionary/*.html | xargs -n1 basename | sed 's/.html$//' \
-  | grep -vxE 'index|names|doctrinal-anchors|biblical-order|expressly-prohibited|most-corrupted|gen-z-decoded|millennial-decoded|gen-x-decoded|boomer-decoded|changelog|baby-names|by-topic' \
+  | grep -vxE 'index|names|doctrinal-anchors|biblical-order|expressly-prohibited|most-corrupted|gen-z-decoded|millennial-decoded|gen-x-decoded|boomer-decoded|christianese-decoded|jesus-generation|changelog|baby-names|by-topic' \
   | sort > data/dictionary-slugs.txt
 wc -l < data/dictionary-slugs.txt | xargs echo "slugs:"
 echo "== manifest =="
