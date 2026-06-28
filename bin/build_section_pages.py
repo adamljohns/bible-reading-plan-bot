@@ -142,14 +142,25 @@ SECTIONS = [
 ]
 
 
-def extract_cards(index_html, css_class, card_class, word_class, tag_class):
-    """Find all <a class="<card_class>"> ... </a> inside the section identified by css_class."""
-    # Bound the section
-    start_pat = re.compile(rf'<div class="{re.escape(css_class)}"', re.IGNORECASE)
-    m = start_pat.search(index_html)
-    if not m:
-        return []
-    after = index_html[m.start():]
+def extract_cards(index_html, css_class, card_class, word_class, tag_class, slug=None):
+    """Find all <a class="<card_class>"> ... </a> inside the section identified by css_class.
+
+    When several sections share css_class (e.g. multiple 'featured-section'
+    blocks — Special Directories AND Doctrinal Anchors), anchor on the section's
+    own h3 self-link (href="<slug>.html" class="section-title-link") so we bound
+    the RIGHT block, not merely the first one.
+    """
+    start = None
+    if slug:
+        h = index_html.find(f'href="{slug}.html" class="section-title-link"')
+        if h >= 0:
+            start = index_html.rfind(f'<div class="{css_class}"', 0, h)
+    if start is None:
+        m = re.compile(rf'<div class="{re.escape(css_class)}"', re.IGNORECASE).search(index_html)
+        if not m:
+            return []
+        start = m.start()
+    after = index_html[start:]
     # Bound the section at the next sibling section, an HTML comment, or the
     # container close. (The old fixed 8000-char cap silently truncated large
     # sections — christianese has 100+ cards and overflowed it.)
@@ -385,6 +396,7 @@ def main():
             sec['card_class'],
             sec['word_class'],
             sec['tag_class'],
+            sec['slug'],
         )
         # Sort alphabetically by word
         cards.sort(key=lambda c: c[1].lower())
