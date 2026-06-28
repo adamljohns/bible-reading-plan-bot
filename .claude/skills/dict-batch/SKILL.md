@@ -103,10 +103,16 @@ origin/main --oneline` — your commit usually landed. Don't panic-rebase.
   readings/church-directory work and MBT translation state.
 - `git reset --hard` / `git checkout -- .` / `git stash` repo-wide.
 - Recreate an existing slug (pre-flight now blocks this).
+- **Define a word two or three times.** Slug-check FIRST; if a near-duplicate
+  already exists, either skip it or run the merge engine (§9) — do not author a
+  parallel entry. (submission once had 5 overlapping pages.)
 - Edit existing `data/dictionary-batches/*.json` — historical record;
   revisions go in NEW batches.
 - `roots_lines` as list-of-lists (silent rendering bug).
 - Overwrite fleet-modified files (readings, churches, CLAUDE.md, assets).
+- Work in the primary `~/bible-reading-plan-bot` checkout — it sits on a stale
+  `claude/…` branch. Use the **`~/bible-reading-plan-bot-work` worktree on
+  `main`** for all dictionary work.
 
 ## 6. Generational lingo decoder
 
@@ -139,9 +145,59 @@ culture-war grievance to fill the slot. **Older pre-schema entries that lack
 a Corruption section entirely are fine** — the integrity audit counts them
 SOFT, not as debt. Backfill only where a genuine corruption exists to name.
 
+## 6b. Christianese decoded (2026-06-27) — weaponized churchy talk
+
+Same machinery as the generational decoders, new section `christianese-decoded`
+(dark-goldenrod, `christianese-card`/`ceword`/`ceverdict`). It holds ~100 cards:
+biblical-sounding words bent to silence the faithful (image-bearer, winsome,
+love-is-love, affirming, social-justice, deconstruction…). Mix authored entries
++ existing entries re-surfaced as cards. Verdict colors are the shared `gzv-*`.
+
+## 7. Verdict field (decoder/Christianese entries)
+
+`generate_dict_entries.py` reads an optional `verdict` object and renders a
+colored "Biblical Verdict" card at the top of the entry page:
+
+    "verdict": {"label": "Examine", "color": "orange",
+                "line": "A real grace of manner — good until promoted above truth."}
+
+color ∈ green/yellow/orange/red = Redeemable/Neutral/Examine/Reject (same legend
+as the index + section pages). Backward-compatible: entries without it are
+unchanged. Add `voice_lock_ok: ["progressive"]` (or "therapy") to any entry that
+must quote woke/therapeutic vocabulary to rebut it, or the drift audit flags it.
+
+## 8. Topical-section curation — `bin/curate_sections.py`
+
+The TOPICAL sections (doctrinal-anchors, most-corrupted, expressly-prohibited,
+biblical-order) are curated collections of EXISTING entries, not authored cards.
+`curate_sections.py` refills their grids from **vetted sources** — the doctrine
+categories in `bin/build_by_topic.py`, the corruption-correctors set, curated
+culture-war word lists. NEVER blind-rank by a signal like corruption-length: it
+surfaces realia (Red Heifer, Mite) that aren't what "corrupted" means. Run
+`--apply`, then rebuild + integrity. Done so far: doctrinal-anchors→100,
+most-corrupted→85. Next: biblical-order (21), expressly-prohibited (28) — add a
+selector to the SECTIONS map. Section pages with a SHARED css class (several
+`featured-section` blocks) are bounded by their h3 self-link, not the class.
+
+## 9. Merging duplicates — `bin/merge_entries.py` (don't define a word 3×)
+
+When a word has near-duplicate entries, consolidate to ONE canonical:
+
+    python3 bin/merge_entries.py <canonical> <dup1> <dup2> ...          # dry run
+    python3 bin/merge_entries.py <canonical> <dup1> <dup2> ... --apply
+
+It repoints every inbound link to the canonical, replaces each dup with a
+no-index redirect STUB (old URLs/bookmarks still resolve, SEO consolidates), and
+registers the merge in `data/dictionary-redirects.txt`. That registry is honored
+by slug-regen, the integrity audit (`SPECIAL`), the manifest (auto-skips), and
+the A-Z rebuild — so a stub is never miscounted. Then run rebuild + integrity.
+The corpus has ~390 duplicate-title pairs; the canonical is usually the one with
+the most inbound links + the fullest content.
+
 ## Known era-debt (quantified 2026-06-09; future workstreams)
 
-- ~316 duplicate display titles to review (mostly intentional variants).
+- ~390 duplicate display titles to review — merge the true dups with §9
+  (mostly intentional variants, but some are real triplicates like submission).
 - ~180 entries lack a Webster section; ~640 lack Usage (oldest era) — these
   are the real backfill targets. (~320 lack Corruption; per policy above that
   is acceptable, not debt.)

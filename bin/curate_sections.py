@@ -111,11 +111,70 @@ def most_corrupted_cards():
     return cards[:100]
 
 
+def _seed_from_existing(slug, card_class):
+    out = []
+    blk = section_block(slug)
+    if blk:
+        for s in re.findall(rf'href="([a-z0-9-]+)\.html" class="{card_class}"', blk):
+            if live(s):
+                out.append(s)
+    return out
+
+
+# Vetted slug-substring cues — an entry qualifies if its slug contains a cue
+# (kept tight to avoid false positives; review the dry-run before --apply).
+ORDER_CUES = ('headship', 'submission', 'helpmeet', 'helpmate', 'patriarch',
+              'complementar', 'manhood', 'womanhood', 'husband', 'wife', 'wives',
+              'father', 'household', 'family-order', 'biblical-order', 'biblical-man',
+              'biblical-woman', 'biblical-fraternity', 'authority', 'elder-qual',
+              'deacon', 'masculin', 'feminin', 'marriage', 'betroth', 'dowry',
+              'firstborn', 'birthright', 'inheritance-doctrine', 'levirate')
+PROHIBITED_CUES = ('adultery', 'fornication', 'idolatry', 'idol', 'sorcery',
+                   'witchcraft', 'divination', 'necromancy', 'sodom', 'bestiality',
+                   'incest', 'drunkenness', 'gluttony', 'covetousness', 'blasphemy',
+                   'abomination', 'whoredom', 'harlot', 'usury', 'child-sacrifice',
+                   'molech', 'graven-image', 'false-witness', 'murder', 'occult',
+                   'wizard', 'familiar-spirit', 'effeminate', 'unnatural',
+                   'profane', 'sabbath-breaking', 'oppression-of', 'man-stealing')
+
+
+def _cue_cards(slug, card_class, cues, anthro_cat=None):
+    seen, cards = set(), []
+    for s in _seed_from_existing(slug, card_class):           # keep current picks
+        if s not in seen:
+            seen.add(s); cards.append((s, word_of(s), pos_of(s)))
+    if anthro_cat:                                            # add a vetted by-topic category
+        for s in bytopic_categories().get(anthro_cat, ('', []))[1]:
+            if live(s) and s not in seen:
+                seen.add(s); cards.append((s, word_of(s), pos_of(s)))
+    for fn in sorted(os.listdir(DICT)):                       # slug-cue matches
+        if not fn.endswith('.html'):
+            continue
+        s = fn[:-5]
+        if s in seen or not live(s):
+            continue
+        if any(c in s for c in cues):
+            seen.add(s); cards.append((s, word_of(s), pos_of(s)))
+    return cards[:100]
+
+
+def biblical_order_cards():
+    return _cue_cards('biblical-order', 'order-card', ORDER_CUES, 'anthropology-order')
+
+
+def expressly_prohibited_cards():
+    return _cue_cards('expressly-prohibited', 'forbidden-card', PROHIBITED_CUES)
+
+
 SECTIONS = {
     'doctrinal-anchors': dict(card='featured-card', word='fword', tag='ftag',
                               builder=doctrinal_anchors_cards),
     'most-corrupted': dict(card='corrupted-card', word='cword', tag='ctag',
                            builder=most_corrupted_cards),
+    'biblical-order': dict(card='order-card', word='oword', tag='otag',
+                           builder=biblical_order_cards),
+    'expressly-prohibited': dict(card='forbidden-card', word='pword', tag='ptag',
+                                 builder=expressly_prohibited_cards),
 }
 
 
@@ -158,11 +217,22 @@ def rebuild_block(slug, cfg, cards):
     return old, block
 
 
+def dedup_by_word(cards):
+    """Drop cards whose display word already appeared (avoids twin titles like
+    two 'Abomination of Desolation' — those are merge candidates, not two cards)."""
+    seen, out = set(), []
+    for c in cards:
+        key = c[1].lower()
+        if key not in seen:
+            seen.add(key); out.append(c)
+    return out
+
+
 def main():
     apply = '--apply' in sys.argv
     src = open(REBUILD, encoding='utf-8').read()
     for slug, cfg in SECTIONS.items():
-        cards = cfg['builder']()
+        cards = dedup_by_word(cfg['builder']())
         print(f'\n{slug}: {len(cards)} cards')
         print('  ', ', '.join(w for _, w, _ in cards[:12]), '...')
         if apply:
