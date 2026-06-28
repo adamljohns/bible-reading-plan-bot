@@ -57,8 +57,16 @@ def priority_and_freq(rel_path):
     return ('0.5', 'monthly')
 
 
+def _redirected_slugs():
+    reg = os.path.join(os.path.dirname(__file__), '..', 'data', 'dictionary-redirects.txt')
+    if os.path.exists(reg):
+        return {l.split('->')[0].strip() for l in open(reg) if '->' in l}
+    return set()
+
+
 def collect_urls():
     """Walk docs/ and yield (url, lastmod_iso, priority, changefreq) tuples."""
+    redirected = _redirected_slugs()
     rows = []
     for root, dirs, files in os.walk(DOCS):
         # Skip blacklisted segments
@@ -68,6 +76,9 @@ def collect_urls():
                 continue
             full = os.path.join(root, fn)
             rel = os.path.relpath(full, DOCS).replace(os.sep, '/')
+            # Skip merged-away dictionary entries — they are no-index redirect stubs
+            if rel.startswith('dictionary/') and rel[len('dictionary/'):-5] in redirected:
+                continue
             url_path = rel
             # Map index.html to its dir
             if url_path == 'index.html':
