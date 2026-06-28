@@ -107,7 +107,7 @@ CATEGORIES = [
             "jehoshaphat", "hezekiah", "josiah", "amaziah", "jotham", "ahaz", "amon",
             "athaliah", "omri", "ahab", "jehu", "jeroboam", "jeroboam-ii", "hoshea",
             "peter", "paul", "john", "matthew-apostle", "mark-book", "luke",
-            "stephen", "philip-evangelist", "barnabas-doctrine", "timothy", "titus-doctrine",
+            "stephen", "philip-evangelist", "barnabas", "timothy", "titus-doctrine",
             "priscilla-and-aquila", "lydia", "tabitha",
             "ruth", "esther", "hadassah", "anna-the-prophetess", "mary",
         ],

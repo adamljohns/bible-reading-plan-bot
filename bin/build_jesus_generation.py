@@ -49,7 +49,7 @@ SECTIONS = [
     (
         "legacy-generations", "Legacy &amp; the Generations",
         "The faith handed down, that the generation to come might know it and declare it to their children.",
-        ["legacy", "generations", "covenant", "catechesis-doctrine",
+        ["legacy", "generations", "covenant", "catechesis",
          "covenant-family", "household-religion", "discipleship", "make-disciples"],
     ),
     (

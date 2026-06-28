@@ -694,7 +694,7 @@ def build_index(words, by_letter, total):
                     <a href="federal-headship.html" class="order-card"><div class="oword">Federal Headship</div><div class="otag">noun phrase</div></a>
                     <a href="femininity-biblical.html" class="order-card"><div class="oword">Femininity (Biblical)</div><div class="otag">noun</div></a>
                     <a href="firstborn-dead.html" class="order-card"><div class="oword">Firstborn from the Dead</div><div class="otag">noun / title</div></a>
-                    <a href="firstborn-doctrine.html" class="order-card"><div class="oword">Firstborn</div><div class="otag">n.</div></a>
+                    <a href="firstborn.html" class="order-card"><div class="oword">Firstborn</div><div class="otag">n.</div></a>
                     <a href="firstborn-from-dead.html" class="order-card"><div class="oword">Firstborn From Dead</div><div class="otag">word</div></a>
                     <a href="firstborn-motif.html" class="order-card"><div class="oword">Firstborn Motif</div><div class="otag">noun phrase</div></a>
                     <a href="firstborn-rights.html" class="order-card"><div class="oword">Firstborn Rights</div><div class="otag">noun phrase</div></a>
