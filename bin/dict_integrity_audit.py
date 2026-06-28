@@ -47,6 +47,12 @@ SPECIAL = {'index', 'template', 'names', 'baby-names', 'by-topic',
            'gen-x-decoded', 'boomer-decoded', 'christianese-decoded',
            'jesus-generation', 'changelog'}
 
+# Merged-away slugs are no-index redirect stubs (see bin/merge_entries.py),
+# not live entries — fold the redirects registry into SPECIAL.
+_REDIR = os.path.join(os.path.dirname(__file__), '..', 'data', 'dictionary-redirects.txt')
+if os.path.exists(_REDIR):
+    SPECIAL |= {l.split('->')[0].strip() for l in open(_REDIR) if '->' in l}
+
 VALID_ENTS = set(html.entities.name2codepoint) | {
     'amacr', 'emacr', 'imacr', 'omacr', 'umacr', 'aelig', 'thorn'}
 

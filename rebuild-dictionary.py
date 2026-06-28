@@ -1180,10 +1180,18 @@ def build_index(words, by_letter, total):
 
 
 def main():
+    # Merged-away slugs are redirect stubs (bin/merge_entries.py) — keep them
+    # out of the A-Z list so they don't show as duplicate cards.
+    redirects = set()
+    _reg = os.path.join(os.path.dirname(__file__), 'data', 'dictionary-redirects.txt')
+    if os.path.exists(_reg):
+        redirects = {l.split('->')[0].strip() + '.html' for l in open(_reg) if '->' in l}
+
     # Scan all word files
     files = sorted(
         f for f in os.listdir(DICT_DIR)
         if f.endswith('.html') and f not in ('index.html', 'template.html')
+        and f not in redirects
     )
 
     words = []
