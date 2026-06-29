@@ -52,8 +52,8 @@ NAV_FOOTER_PAT = re.compile(
 
 DICT_LINK_CSS = (
     '\n    /* injected by bin/autolink_blog.py */\n'
-    '    a.dict-link{color:#0a6b7d;text-decoration:none;border-bottom:1px dotted #0a6b7d}\n'
-    '    a.dict-link:hover{color:#04424f;border-bottom-style:solid}\n'
+    '    a.dict-link{color:#d4af37;text-decoration:none;border-bottom:1px dashed rgba(212,175,55,0.45)}\n'
+    '    a.dict-link:hover{color:#d4af37;border-bottom-color:#d4af37}\n'
 )
 
 
