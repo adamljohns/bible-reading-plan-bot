@@ -40,6 +40,17 @@ def clean(s):
     s = re.sub(r"<s>\d+</s>", " ", s)   # strip Strong's tag AND its number
     s = re.sub(r"<[^>]+>", " ", s)       # strip any remaining markup
     return s
+def emdash(s):
+    """Authoring uses ' -- ' as an ASCII-safe em-dash placeholder; emit a real
+    em-dash so verses read right on screen AND in narration (Piper reads the flat
+    file). Applied to every served string field (text/amp/notes/chapterNote).
+    Handles mid-clause ' -- ' and a trailing/enjambment ' --' at string end."""
+    if not isinstance(s, str):
+        return s
+    s = s.replace(" -- ", " — ")
+    if s.endswith(" --"):
+        s = s[:-3] + " —"
+    return s
 def toks(s):
     return _word.findall(clean(s))
 def bigrams(t):
@@ -82,7 +93,7 @@ def main():
             key = f"{book}_{ch}_{vnum}"
             text = obj.get("text", "")
             amp  = obj.get("amp", "")
-            flat[key] = text
+            flat[key] = emdash(text)
 
             # ---- divine-name discipline (hard fail on leakage)
             blob = (text + " " + amp).lower()
@@ -112,13 +123,16 @@ def main():
                 warnings.append(f"{key}: near-verbatim to {src} ({verbatim*100:.0f}% overlap) "
                                 f"-- change wording so it is not word-for-word")
 
-        # ---- write served per-chapter file (clean, agent-facing)
+        # ---- write served per-chapter file (clean, agent-facing); normalize em-dashes
+        def _norm_verse(o):
+            return {k: (emdash(v) if k in ("text", "amp", "notes") else v)
+                    for k, v in o.items()}
         out = {
             "book": book, "bookName": b.get("bookName"), "chapter": ch,
             "version": b.get("version"), "license": LICENSE,
             "sources": b.get("sources"),
-            "chapterNote": b.get("chapterNote"),
-            "verses": {v: verses[v] for v in sorted(verses, key=int)},
+            "chapterNote": emdash(b.get("chapterNote")),
+            "verses": {v: _norm_verse(verses[v]) for v in sorted(verses, key=int)},
         }
         out = {k: v for k, v in out.items() if v is not None}
         with open(os.path.join(OUT_DIR, f"{book}_{ch}.json"), "w") as f:
