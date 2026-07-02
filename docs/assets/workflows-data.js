@@ -364,6 +364,23 @@ const WORKFLOWS_DEFAULT = [
             { name: 'Production',               desc: 'Full production deployment of Email Autopilot v3.' },
         ]
     },
+    {
+        id: 'fleet-local-first-cutover',
+        title: 'OpenClaw Fleet — Local-First Cutover & Hardening',
+        category: 'Business',
+        icon: '<img src="assets/icons/shield-gear.png" alt="" width="16" height="16" style="vertical-align:middle;margin-right:3px;">',
+        status: 'active',
+        currentStep: 3,
+        steps: [
+            { name: 'Fleet audit', desc: 'Full audit of the 13-agent fleet — stale jobs cleared, wedged maintenance killed, configs reconciled. (DONE ✅ 2026-07-01)' },
+            { name: 'Daily Fleet SITREP', desc: 'One daily 07:15 SITREP covering job health, deliveries, and drift checks — visibility instead of silent failures. (DONE ✅)' },
+            { name: 'Hourly RAG re-indexing', desc: 'Agent memory indexes unfrozen and re-indexing hourly on LM Studio embeddings, with a hard timeout so it can never wedge again. (DONE ✅)' },
+            { name: 'Gemma 4 31B local-first cutover', desc: 'Chat brain moves local-first on Gemma 4 31B (2026-07-02); cloud Claude reserved for heavy lifts. (IN PROGRESS)' },
+            { name: 'LoRA voice adapters — clean retrain', desc: 'Voice-adapter pipeline revived; polluted corpora filtered, each adapter must pass an A/B quality gate before shipping.' },
+            { name: 'Repo branch reconciliation', desc: 'Merge the side branch back to main so the live TACC feed and wheelhouse publish to the deployed site again.' },
+            { name: 'Steady state', desc: 'Seven consecutive green SITREPs — fleet declared stable, watch items closed.' },
+        ]
+    },
     // ── Personal / Family ──
     {
         id: 'hd-organization',
