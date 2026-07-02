@@ -11,7 +11,7 @@
  * R2 space — fidelity isn't needed for spoken narration.
  *
  * Prereqs (not in repo): piper venv + Alan voice model + rclone r2 remote.
- *   PIPER_PY    (default /tmp/piper-venv/bin/python)
+ *   PIPER_PY    (default ~/.piper-venv/bin/python — persistent, survives reboot)
  *   PIPER_MODEL (default ~/.piper-voices/alan.onnx)
  *   R2_REMOTE   (default r2:usmcmin-audio)
  *
@@ -27,7 +27,7 @@ const { execFileSync, execSync } = require('child_process');
 const ROOT = path.resolve(__dirname, '..');
 const DATA = path.join(ROOT, 'docs', 'assets', 'lbcf');
 const OUT = path.join(DATA, 'audio');
-const PY = process.env.PIPER_PY || '/tmp/piper-venv/bin/python';
+const PY = process.env.PIPER_PY || require('os').homedir() + '/.piper-venv/bin/python';
 const MODEL = process.env.PIPER_MODEL || path.join(os.homedir(), '.piper-voices', 'alan.onnx');
 const R2_REMOTE = process.env.R2_REMOTE || 'r2:usmcmin-audio';
 const R2_PREFIX = 'lbcf';
@@ -41,7 +41,7 @@ const pad = (n) => String(n).padStart(2, '0');
 function checkPrereqs() {
   if (!fs.existsSync(MODEL)) throw new Error('Voice model missing: ' + MODEL);
   try { execFileSync(PY, ['-m', 'piper', '--help'], { stdio: 'ignore' }); }
-  catch (e) { throw new Error('piper not runnable via ' + PY + ' — set PIPER_PY (recreate /tmp/piper-venv)'); }
+  catch (e) { throw new Error('piper not runnable via ' + PY + ' — set PIPER_PY (python3 -m venv ~/.piper-venv && ~/.piper-venv/bin/pip install piper-tts)'); }
   try { execSync('command -v ffmpeg', { stdio: 'ignore' }); } catch (e) { throw new Error('ffmpeg not found'); }
   if (!process.env.SKIP_UPLOAD) {
     try { execSync('rclone ls ' + R2_REMOTE + ' >/dev/null 2>&1', { stdio: 'ignore' }); }

@@ -9,7 +9,7 @@
  * via ffmpeg, -> MP3 (libmp3lame). Output: docs/assets/institutes/audio/b{B}-c{CC}.mp3
  *
  * Prereqs (not in repo): a piper venv + the Alan voice model.
- *   PIPER_PY    (default /tmp/piper-venv/bin/python)   — python with piper-tts
+ *   PIPER_PY    (default ~/.piper-venv/bin/python — persistent, survives reboot)   — python with piper-tts
  *   PIPER_MODEL (default ~/.piper-voices/alan.onnx)
  *
  * Run: node bin/generate-institutes-audio.js b1c01 [b1c02 ...]   (ids; default = all)
@@ -23,7 +23,7 @@ const { execFileSync, execSync } = require('child_process');
 const ROOT = path.resolve(__dirname, '..');
 const DATA = path.join(ROOT, 'docs', 'assets', 'institutes');
 const OUT = path.join(ROOT, 'docs', 'assets', 'institutes', 'audio');
-const PY = process.env.PIPER_PY || '/tmp/piper-venv/bin/python';
+const PY = process.env.PIPER_PY || require('os').homedir() + '/.piper-venv/bin/python';
 const MODEL = process.env.PIPER_MODEL || path.join(os.homedir(), '.piper-voices', 'alan.onnx');
 const REPO = 'adamljohns/bible-reading-plan-bot';
 const RELEASE_TAG = 'institutes-audio';                        // legacy GitHub Release (off-site backup only)
