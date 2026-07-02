@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="canonical" href="https://usmcmin.org/blog/train-your-own-private-chatgpt-nanochat.html">
+    <title>How to Train Your Own Private ChatGPT for ~$100 Using Karpathy's nanochat (Complete Beginner's Guide) — U.S.M.C. Ministries</title>
+    <meta name="description" content="Train your own private ChatGPT-style AI for about $100 using Karpathy's nanochat. A beginner-friendly weekend guide to a small model that knows your notes.">
+    <meta name="author" content="Adam &quot;MOOP&quot; Johns">
+    <!-- Open Graph -->
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="Train Your Own Private ChatGPT for ~$100">
+    <meta property="og:description" content="A weekend, rented GPU time, and your own notes — a beginner's guide to a small AI that's truly yours.">
+    <meta property="og:image" content="https://usmcmin.org/assets/og/og-main.png">
+    <meta property="og:url" content="https://usmcmin.org/blog/train-your-own-private-chatgpt-nanochat.html">
+    <meta property="article:published_time" content="2026-07-02">
+    <meta property="article:section" content="General">
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Train Your Own Private ChatGPT for ~$100">
+    <meta name="twitter:description" content="A weekend, rented GPU time, and your own notes — a beginner's guide to a small AI that's truly yours.">
+    <meta name="twitter:image" content="https://usmcmin.org/assets/og/og-main.png">
+    <link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg: #0d1117; --card: #161b22; --border: #30363d; --white: #e6edf3; --gray: #8b949e; --gold: #d4af37; --gold-light: #f4d470; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: var(--bg); color: var(--white); font-family: 'Inter', sans-serif; line-height: 1.8; }
+        .top-nav { background: var(--card); padding: 10px 20px; display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+        .top-nav a { color: var(--gray); text-decoration: none; display: flex; align-items: center; gap: 4px; }
+        .top-nav a:hover, .top-nav a.active { color: var(--gold); }
+        .article { max-width: 740px; margin: 0 auto; padding: 32px 20px 60px; }
+        .meta { color: var(--gray); font-size: 0.8rem; margin-bottom: 6px; }
+        .meta a { color: var(--gold); text-decoration: none; }
+        h1 { font-family: 'Playfair Display', serif; font-size: clamp(1.5rem, 3.5vw, 2.2rem); color: var(--white); line-height: 1.3; margin-bottom: 16px; }
+        .byline { color: var(--gray); font-size: 0.85rem; margin-bottom: 28px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
+        .byline strong { color: var(--gold); }
+        .article p { margin-bottom: 18px; color: #c9d1d9; font-size: 1rem; }
+        .article h2 { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: var(--gold); margin: 36px 0 14px; }
+        .article h3 { font-size: 1.05rem; font-weight: 700; color: var(--white); margin: 24px 0 10px; }
+        .article ul, .article ol { margin: 0 0 18px 24px; color: #c9d1d9; }
+        .article li { margin-bottom: 8px; }
+        .article a { color: var(--gold); text-decoration: none; }
+        .article a:hover { text-decoration: underline; }
+        .article hr { border: none; border-top: 1px solid var(--border); margin: 36px 0; }
+        /* callout blockquotes (🔑/⚠️/💡) — readable body text, gold accent bar */
+        .article blockquote { border-left: 3px solid var(--gold); padding: 12px 20px; margin: 0 0 18px; background: rgba(212,175,55,0.06); border-radius: 0 6px 6px 0; }
+        .article blockquote p { color: #c9d1d9; margin: 0 0 10px; }
+        .article blockquote p:last-child { margin-bottom: 0; }
+        .article blockquote strong { color: var(--gold-light); }
+        /* code */
+        .article code { font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; }
+        .article pre { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; overflow-x: auto; margin: 0 0 18px; line-height: 1.6; }
+        .article pre code { background: none; border: none; padding: 0; color: #c9d1d9; font-size: 0.85rem; }
+        .article :not(pre) > code { background: rgba(110,118,129,0.2); border-radius: 4px; padding: 1px 5px; font-size: 0.85em; color: var(--gold-light); }
+        /* tables */
+        .article table { border-collapse: collapse; margin: 0 0 18px; width: 100%; font-size: 0.9rem; }
+        .article th, .article td { border: 1px solid var(--border); padding: 8px 10px; text-align: left; color: #c9d1d9; }
+        .article th { color: var(--gold); font-weight: 600; background: rgba(212,175,55,0.06); }
+        .cta-box { background: var(--card); border: 1px solid var(--gold); border-radius: 10px; padding: 20px 24px; margin: 36px 0; text-align: center; }
+        .cta-box p { color: var(--gray); font-size: 0.9rem; margin-bottom: 12px; }
+        .cta-box .btn { display: inline-block; background: var(--gold); color: #000; font-weight: 700; padding: 10px 24px; border-radius: 6px; text-decoration: none; font-size: 0.9rem; }
+        footer { text-align: center; padding: 30px; color: var(--gray); font-size: 0.85rem; border-top: 1px solid var(--border); }
+        footer a { color: var(--gold); text-decoration: none; }
+        @media (max-width: 600px) { h1 { font-size: 1.4rem; } }
+
+        /* BTE Dark/Light Mode Toggle */
+        .bte-theme-toggle {
+            justify-content: center; margin: 8px auto 0; width: fit-content;
+            display: flex; align-items: center; gap: 0;
+            background: rgba(30,30,30,0.85); border: 1px solid #333;
+            border-radius: 20px; padding: 3px 6px; cursor: pointer;
+            font-size: 0.7rem; user-select: none; backdrop-filter: blur(6px);
+            transition: all 0.3s;
+        }
+        .bte-theme-toggle:hover { border-color: #D4AF37; }
+        .bte-theme-toggle .toggle-icon { width: 18px; text-align: center; line-height: 1; }
+        .bte-theme-toggle .toggle-track {
+            width: 28px; height: 14px; background: #444; border-radius: 7px;
+            position: relative; margin: 0 4px; transition: background 0.3s;
+        }
+        .bte-theme-toggle .toggle-knob {
+            width: 10px; height: 10px; background: #D4AF37; border-radius: 50%;
+            position: absolute; top: 2px; left: 2px; transition: left 0.3s;
+        }
+        body.light-mode .bte-theme-toggle { background: rgba(240,238,233,0.9); border-color: #ccc; }
+        body.light-mode .bte-theme-toggle .toggle-track { background: #bbb; }
+        body.light-mode .bte-theme-toggle .toggle-knob { left: 16px; }
+        body.light-mode .bte-theme-toggle .toggle-icon { filter: none; }
+        .bte-theme-toggle .moon-icon { color: #888; }
+        .bte-theme-toggle .sun-icon { color: #888; }
+        body.light-mode .bte-theme-toggle .sun-icon { color: #D4AF37; }
+        body:not(.light-mode) .bte-theme-toggle .moon-icon { color: #D4AF37; }
+
+        /* BTE Light Mode (blog post) */
+        body.light-mode {
+            --bg: #F5F3EF; --card: #FFFFFF; --bg-card: #FFFFFF; --bg-elev: #FFFFFF;
+            --border: #d4d0c8;
+            --white: #1a1a1a; --text: #1a1a1a;
+            --gray: #666666; --text-dim: #666666;
+            --gold: #B8960C; --gold-light: #8a6d10; --gold-soft: #8a6d10; --link: #B8960C;
+        }
+        body.light-mode { background: #F5F3EF !important; color: #1a1a1a !important; }
+        body.light-mode .top-nav { background: rgba(245,243,239,0.97) !important; border-color: #d4d0c8 !important; }
+        body.light-mode .top-nav a, body.light-mode .top-nav a:link, body.light-mode .top-nav a:visited, body.light-mode .top-nav a:active { color: #555 !important; }
+        body.light-mode .top-nav a:hover, body.light-mode .top-nav a.active { color: #B8960C !important; }
+        body.light-mode .article, body.light-mode .content { color: #1a1a1a; }
+        body.light-mode .article p, body.light-mode .article ul, body.light-mode .article ol, body.light-mode .article li { color: #333; }
+        body.light-mode .article blockquote p { color: #444; }
+        body.light-mode .article blockquote strong { color: #8a6d10; }
+        body.light-mode [style*="color:#c9d1d9"] { color: #333 !important; }
+        body.light-mode article.article strong, body.light-mode article.article li strong { color: #1a1a1a !important; }
+        body.light-mode .article pre { background: #f0ede6 !important; border-color: #d4d0c8 !important; }
+        body.light-mode .article pre code { color: #24292f; }
+        body.light-mode .article :not(pre) > code { background: rgba(184,150,12,0.12); color: #8a6d10; }
+        body.light-mode .article th, body.light-mode .article td { color: #333; border-color: #d4d0c8; }
+        body.light-mode .article th { background: rgba(184,150,12,0.08); }
+        body.light-mode .cta-box { background: #fff !important; }
+        body.light-mode footer { background: #F5F3EF !important; border-color: #d4d0c8 !important; color: #666 !important; }
+    </style>
+    <link rel="stylesheet" href="/assets/css/print.css" media="print">
+    <link rel="stylesheet" href="/assets/css/light-icons.css">
+</head>
+<body>
+    <script>
+    /* BTE Dark/Light Mode */
+    function bteToggleTheme(){
+        document.body.classList.toggle('light-mode');
+        localStorage.setItem('bte-theme', document.body.classList.contains('light-mode') ? 'light' : 'dark');
+    }
+    (function(){
+        if(localStorage.getItem('bte-theme')==='light') document.body.classList.add('light-mode');
+    })();
+    </script>
+
+<nav class="top-nav">
+    <a href="/blog.html">&larr; Blog</a>
+    <a href="/index.html">Home</a>
+    <a href="/bible.html">Bible Translation Engine</a>
+    <a href="/usmc-ministries.html">U.S.M.C. Ministries</a>
+    <a href="/about.html">About</a>
+    <a href="/connect.html">Connect</a>
+<div class="bte-theme-toggle nav-theme-toggle" onclick="bteToggleTheme()" title="Toggle dark/light mode">
+            <span class="toggle-icon moon-icon">&#127769;</span>
+            <div class="toggle-track"><div class="toggle-knob"></div></div>
+            <span class="toggle-icon sun-icon">&#9728;&#65039;</span>
+        </div></nav>
+
+<article class="article">
+    <div class="meta"><a href="/blog.html">← Blog</a> · <a href="/blog-general.html">General</a></div>
+    <h1>How to Train Your Own Private ChatGPT for ~$100 Using Karpathy's nanochat (Complete Beginner's Guide)</h1>
+    <div class="byline">By <strong>Adam &quot;MOOP&quot; Johns</strong> · U.S.M.C. Ministries · July 2, 2026 · General</div>
+
+<blockquote>
+<p><strong>You don't need billions of dollars to train your own ChatGPT.</strong> You need about <strong>$100, one weekend, and a willingness to copy-paste some commands.</strong></p>
+</blockquote>
+<p>I spent ~$100 and a single weekend training a ChatGPT-style model <strong>from scratch</strong> on my own notes, my own writing, and my exported AI chats. It now answers in <em>my</em> voice and recalls <em>my</em> ideas — with <strong>no API key, no subscription, and no rented brain</strong> in the cloud judging my every prompt.</p>
+<p>This is the guide I wish I'd had: every command, every code change, and plain-English explanations of the jargon so you don't get stuck halfway and rage-quit.</p>
+<p><strong>If you've never trained a model before, you are exactly who I wrote this for.</strong> Take it one step at a time. You've got this. 🚀</p>
+<blockquote>
+<p>⚠️ <strong>A quick, honest disclaimer.</strong> "You don't need billions to train the next ChatGPT" is a hopeful, deliberately hyperbolic statement. The capital expense to train true <em>frontier</em> models today is genuinely enormous. But the cost of compute keeps falling, and what you <strong>can</strong> do <em>right now</em> for under $100 is real, useful, and yours. This is a <strong>build</strong>, not a flex. Treat it that way and you'll be delighted.</p>
+</blockquote>
+<hr />
+<h2 id="read-this-first-what-youre-actually-signing-up-for">Read This First: What You're Actually Signing Up For</h2>
+<h3 id="what-youll-end-up-with">What You'll End Up With</h3>
+<p>A small GPT — roughly as capable as <strong>OpenAI's original GPT-2 (2019)</strong> — fine-tuned on your own data so that it:</p>
+<ul>
+<li><strong>Sounds like you</strong> (your phrasing, your tone, your hobby-horses).</li>
+<li><strong>Knows your stuff</strong> (your notes, your projects, your ideas).</li>
+<li><strong>Runs in a ChatGPT-style web page</strong> you can open in your browser.</li>
+<li><strong>Is 100% private and 100% yours.</strong> No API. No telemetry. No monthly bill.</li>
+</ul>
+<h3 id="realistic-expectations-please-read-this-part">Realistic Expectations (Please Read This Part)</h3>
+<blockquote>
+<p>🔑 <strong>This is not GPT-4. It is not even close, and that's okay.</strong></p>
+</blockquote>
+<p>Think of your finished model as <strong>"a kindergartener with your memories."</strong> It's charming, genuinely useful for recall and first drafts, and it will be <em>confidently wrong</em> sometimes. It will occasionally make things up with total sincerity.</p>
+<p>The magic here is <strong>not raw IQ.</strong> The magic is that:</p>
+<ol type="1">
+<li>It's <strong>yours</strong> — you trained every parameter.</li>
+<li>It's <strong>private</strong> — your data never leaves your control.</li>
+<li>You <strong>understand every part of it</strong> — no black box, no mystery.</li>
+</ol>
+<p>If you go in expecting a pocket genius, you'll be disappointed. If you go in expecting a private, personal, slightly-feral second brain that you built with your own hands, you'll be thrilled.</p>
+<h3 id="what-it-costs">What It Costs</h3>
+<ul>
+<li><strong>~<span class="math inline">48–</span>100</strong> in rented GPU time for the full real run.</li>
+<li><strong>~$0</strong> to learn the entire pipeline first (the free dry run — more below).</li>
+</ul>
+<h3 id="skills-you-need">Skills You Need</h3>
+<ul>
+<li>✅ <strong>Comfort typing commands into a terminal.</strong> Copy-paste is totally fine.</li>
+<li>✅ <strong>Basic Python literacy</strong> helps for the data-prep step — but I'll hand you working scripts.</li>
+<li>❌ <strong>No machine-learning background required.</strong> I'll explain every concept as it comes up.</li>
+</ul>
+<h3 id="time-budget">Time Budget</h3>
+<p>Set aside a <strong>weekend.</strong> The actual training is only <strong>~3 hours of GPU time</strong> — the rest is setup and (the fun part) preparing your personal data.</p>
+<hr />
+<h2 id="the-60-second-mental-model">The 60-Second Mental Model</h2>
+<p>Training a chatbot happens in <strong>two big phases.</strong> Keep these two straight and <em>everything else in this guide will make sense.</em></p>
+<h3 id="phase-1--pretraining--produces-the-base-model">Phase 1 — Pretraining → produces the <strong>base model</strong></h3>
+<p>The model reads a <strong>huge pile of internet text</strong> and learns exactly one skill: <strong>predict the next word.</strong> That's it. By getting really, really good at "what word comes next," it absorbs grammar, facts, and a surprising amount of reasoning.</p>
+<ul>
+<li>This is the <strong>expensive</strong> part (your ~3 hours of GPU time).</li>
+<li>The result <strong>talks like the internet.</strong> It can <em>continue</em> text, but it can't <em>chat</em> yet. Ask it a question and it might just write more questions.</li>
+</ul>
+<h3 id="phase-2--fine-tuning-sft--produces-the-chat-model">Phase 2 — Fine-tuning (SFT) → produces the <strong>chat model</strong></h3>
+<p>You show the base model <strong>thousands of example conversations</strong> so it learns to behave like a helpful assistant — to <em>answer</em> instead of <em>autocomplete</em>.</p>
+<ul>
+<li>This is <strong>cheap and fast</strong> (minutes, not hours).</li>
+<li><strong>This is where your personal data goes in.</strong> 🎯</li>
+</ul>
+<blockquote>
+<p>🔑 <strong>Analogy:</strong> <em>Pretraining</em> is sending the model to <strong>school</strong> to learn language and how the world works. <em>Fine-tuning</em> is the <strong>apprenticeship</strong>, where it learns one specific job — in our case, being <strong>your second brain.</strong></p>
+</blockquote>
+<h3 id="the-optional-phase-3--rl-reinforcement-learning">The Optional Phase 3 — RL (Reinforcement Learning)</h3>
+<p>There's an optional third phase, <strong>RL</strong>, that sharpens narrow skills like math by rewarding good answers and punishing bad ones. <strong>We'll skip it for the main build</strong> and mention it again at the very end. You do not need it to get a delightful personal chatbot.</p>
+<hr />
+<h2 id="words-youll-keep-seeing-quick-hits">Words You'll Keep Seeing (Quick Hits)</h2>
+<p>Don't memorize these — there's a full glossary at the bottom. But here are the big ones up front so nothing feels like alphabet soup:</p>
+<ul>
+<li><strong>GPU</strong> — the specialized chip that does the heavy math. Training needs powerful ones (<strong>H100s</strong>). You <strong>rent</strong> them by the hour.</li>
+<li><strong>Token</strong> — a chunk of text (a word or word-piece). Models read and write <em>tokens</em>, not letters.</li>
+<li><strong>Tokenizer</strong> — the tool that chops text into tokens. You train one <strong>first.</strong></li>
+<li><strong>Parameters</strong> — the model's "knobs": the numbers it learns. More parameters = bigger, smarter, slower model.</li>
+<li><strong>Depth</strong> — nanochat's single dial for model size: the <strong>number of layers.</strong> Bigger depth = bigger model.</li>
+<li><strong>Batch / batch size</strong> — how many examples the model looks at before it updates itself.</li>
+<li><strong>Checkpoint</strong> — a saved copy of the model's weights on disk. Your "save file."</li>
+<li><strong>Loss</strong> — a single number measuring how <em>wrong</em> the model is. Training's whole job is to drive this <strong>down.</strong></li>
+</ul>
+<hr />
+<h2 id="the-tool-nanochat">The Tool: nanochat</h2>
+<p>We're using <strong><a href="https://github.com/karpathy/nanochat">nanochat</a></strong>, an open-source project by <strong>Andrej Karpathy</strong> (co-founder of OpenAI, former Director of AI at Tesla, and the internet's favorite ML teacher).</p>
+<p>It's <strong>~8,000 lines of clean, readable PyTorch</strong> that covers the <em>entire</em> pipeline — tokenizer, pretraining, fine-tuning, RL, inference, and a web chat UI — and it's designed to run <strong>start-to-finish on one machine.</strong></p>
+<p><strong>Why it's perfect for a first-time builder:</strong></p>
+<ul>
+<li>🎛️ <strong>One dial.</strong> You set <code>--depth</code> (how many layers) and nanochat automatically computes every other setting for you.</li>
+<li>📖 <strong>Readable.</strong> No giant, intimidating configuration system to fight.</li>
+<li>💸 <strong>Cheap.</strong> GPT-2-grade capability for around $100.</li>
+</ul>
+<hr />
+<h2 id="before-you-spend-a-single-dollar-do-a-free-dry-run">Before You Spend a Single Dollar: Do a Free Dry Run</h2>
+<blockquote>
+<p>🔑 <strong>I strongly recommend this. Do not skip it.</strong></p>
+</blockquote>
+<p>Before renting any GPUs, run the <strong>whole pipeline once</strong> with a <em>tiny</em> model on your <strong>own laptop.</strong> Nothing teaches you the shape of the process like watching it happen end-to-end. You'll make your beginner mistakes here, where they cost <strong><span class="math inline">0 * *<em>i</em><em>n</em><em>s</em><em>t</em><em>e</em><em>a</em><em>d</em><em>o</em><em>f</em> * *</span>10/hour.</strong></p>
+<blockquote>
+<p>⚠️ nanochat is built for <strong>NVIDIA CUDA GPUs.</strong> On a laptop (Mac/Apple Silicon or a plain CPU) you can't do a <em>real</em> run — but you <strong>can</strong> do a tiny <em>smoke test</em> to learn the commands, file layout, and flow. Expect it to be slow and the output to be gibberish. <strong>That's fine — the goal is familiarity, not quality.</strong></p>
+</blockquote>
+<h3 id="dry-run-on-mac-apple-silicon-or-cpu">Dry Run on Mac (Apple Silicon) or CPU</h3>
+<pre class="bash"><code># 1. Get the code
+git clone https://github.com/karpathy/nanochat.git
+cd nanochat
+
+# 2. Install uv (the fast Python package manager nanochat uses)
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# 3. Create the environment and install dependencies (CPU/Mac build of PyTorch)
+uv sync --extra cpu
+source .venv/bin/activate
+
+# 4. Train a tiny tokenizer on a small slice of text
+python -m scripts.tok_train --max-chars=100000000
+
+# 5. Pretrain a TINY base model (depth=2 is a toy; it WILL be dumb — that&#39;s the point)
+python -m scripts.base_train -- --depth=2 --device-batch-size=1
+
+# 6. Fine-tune it
+python -m scripts.chat_sft -- --device-batch-size=1
+
+# 7. Chat with your toy model in the terminal
+python -m scripts.chat_cli</code></pre>
+<blockquote>
+<p>💡 <strong>What just happened?</strong> You ran the <em>exact same pipeline</em> you'll run on the rented GPU, just shrunk down. When you do the real run, the only things that change are: a bigger <code>--depth</code>, more data, and <strong>8 GPUs instead of your laptop.</strong> The muscle memory you build here is worth its weight in gold.</p>
+</blockquote>
+<hr />
+<h2 id="what-you-need-before-the-real-run">What You Need Before the Real Run</h2>
+<ul>
+<li>☁️ A <strong>GPU cloud account</strong> — <a href="https://lambdalabs.com/">Lambda</a>, <a href="https://www.runpod.io/">RunPod</a>, <a href="https://vast.ai/">Vast.ai</a>, etc. — with an <strong>8×H100 node</strong> available.</li>
+<li>💳 <strong>~$100 of credit</strong> loaded on it.</li>
+<li>🗂️ <strong>Your data</strong> — exported chats, notes, and a short bio/persona.</li>
+<li>🧰 <em>(Optional)</em> a <strong><a href="https://wandb.ai/">Weights &amp; Biases</a></strong> account to watch training charts, and an <strong><a href="https://openrouter.ai/">OpenRouter</a></strong> API key if you want to auto-generate Q&amp;A pairs from your notes.</li>
+</ul>
+<hr />
+<h2 id="the-real-build">The Real Build</h2>
+<blockquote>
+<p>⚠️ <strong>nanochat is a fast-moving repo.</strong> The commands below are current as of this writing, but Karpathy iterates often — flag names, the dataset, and the exact "speedrun" depth do change. If a command errors, open the repo's <strong><code>README.md</code></strong> and <strong><code>runs/speedrun.sh</code></strong>; they're the source of truth and always show the latest canonical run.</p>
+</blockquote>
+<h2 id="step-1-rent-and-connect-to-a-gpu-box">Step 1: Rent and Connect to a GPU Box</h2>
+<p>Spin up an <strong>8×H100</strong> instance from your provider of choice. Pick an Ubuntu image with CUDA pre-installed (every provider above offers one). Then SSH in:</p>
+<pre class="bash"><code># Your provider gives you the IP address and an SSH command — it&#39;ll look like this:
+ssh ubuntu@&lt;YOUR_GPU_IP&gt;</code></pre>
+<p>Once you're in, <strong>confirm the GPUs are actually there:</strong></p>
+<pre class="bash"><code>nvidia-smi</code></pre>
+<blockquote>
+<p>💡 <strong>What just happened?</strong> <code>nvidia-smi</code> ("NVIDIA System Management Interface") lists your GPUs. You should see <strong>8 × H100</strong> with ~80 GB of memory each. If you see them, your rented "engine" is running. If you <em>don't</em>, stop and fix this before spending money on training.</p>
+</blockquote>
+<blockquote>
+<p>⚠️ <strong>The meter is running now.</strong> From this moment you're paying by the hour. Stay focused — and don't forget <strong>Step 12 (shut down the box)</strong> when you're done.</p>
+</blockquote>
+<hr />
+<h2 id="step-2-install-nanochat">Step 2: Install nanochat</h2>
+<pre class="bash"><code>git clone https://github.com/karpathy/nanochat.git
+cd nanochat
+
+# Install uv, the fast package manager
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Build the environment and install everything (GPU build of PyTorch)
+uv sync --extra gpu
+source .venv/bin/activate</code></pre>
+<blockquote>
+<p>💡 <strong>Why this matters:</strong> <code>uv sync</code> reads nanochat's dependency list and installs PyTorch and friends into a clean, isolated <code>.venv</code>. The <code>--extra gpu</code> picks the CUDA build of PyTorch (use <code>--extra cpu</code> on a laptop). <code>source .venv/bin/activate</code> "steps into" that environment so the <code>python</code> you run is the right one. If a later command can't find a package, <strong>9 times out of 10 you forgot to <code>activate</code> after reconnecting.</strong></p>
+</blockquote>
+<hr />
+<h2 id="step-3-know-where-things-live">Step 3: Know Where Things Live</h2>
+<p>nanochat keeps everything it produces in one tidy place:</p>
+<pre><code>~/.cache/nanochat/
+├── tokenizer/                  # your trained tokenizer
+├── base_data_climbmix/         # downloaded internet training text (ClimbMix shards)
+├── base_checkpoints/&lt;tag&gt;/     # base-model checkpoints (after pretraining)
+├── chatsft_checkpoints/&lt;tag&gt;/  # fine-tuned chat checkpoints  ← your personal model lands here
+├── chatrl_checkpoints/&lt;tag&gt;/   # (only if you do the optional RL phase)
+└── identity_conversations.jsonl</code></pre>
+<blockquote>
+<p>🔑 <strong>Bookmark this path.</strong> When you "save your model" in Step 12, this folder — specifically <code>~/.cache/nanochat/chatsft_checkpoints/</code> — is the treasure you're carrying home. (<code>&lt;tag&gt;</code> is an auto-generated model name like <code>d24</code>.)</p>
+</blockquote>
+<blockquote>
+<p>💡 <strong>Heads-up:</strong> you can point this whole cache somewhere else with the <code>NANOCHAT_BASE_DIR</code> environment variable — worth knowing if your boot disk is small and your data lives on a bigger mounted volume.</p>
+</blockquote>
+<hr />
+<h2 id="step-4-download-the-training-data">Step 4: Download the Training Data</h2>
+<p>For pretraining, nanochat reads shards of high-quality web text — the <strong>ClimbMix</strong> dataset (NVIDIA's ClimbMix, repackaged and shuffled, from Hugging Face <code>karpathy/climbmix-400b-shuffle</code>). Each shard is a parquet file of ~250M characters. Download them with one command:</p>
+<pre class="bash"><code># Downloads the pretraining text shards into ~/.cache/nanochat/base_data_climbmix
+python -m nanochat.dataset -n 170</code></pre>
+<blockquote>
+<p>💡 <strong>What just happened?</strong> <code>-n 170</code> pulls 170 shards of internet text — about what a depth-24 model needs (~150), plus a little padding. This is the "huge pile of text" the base model will read to learn language. It's a big download, so let it finish before moving on.</p>
+</blockquote>
+<hr />
+<h2 id="step-5-train-the-tokenizer">Step 5: Train the Tokenizer</h2>
+<p>Before the model can read text, you need a <strong>tokenizer</strong> to chop text into tokens.</p>
+<pre class="bash"><code>python -m scripts.tok_train
+
+# (Optional but nice) check how well it compresses text
+python -m scripts.tok_eval</code></pre>
+<blockquote>
+<p>💡 <code>tok_train</code> already defaults to ~2 billion characters of training text — no flag needed. (If you ever want to override it, the flag is <code>--max-chars</code>.)</p>
+</blockquote>
+<blockquote>
+<p>💡 <strong>Why this comes first:</strong> The model only ever sees <em>tokens</em>, never raw letters. The tokenizer is the translator between human text and the model's number-language. Train it once, up front, and everything downstream uses it.</p>
+</blockquote>
+<hr />
+<h2 id="step-6-pretrain-the-base-model">Step 6: Pretrain the Base Model</h2>
+<p>This is the <strong>big one</strong> — the ~3 hours of GPU time that turns a pile of internet text into a model that understands language.</p>
+<p>Because it takes hours, run it inside a <strong><code>screen</code></strong> session so it keeps going even if your SSH connection drops:</p>
+<pre class="bash"><code># Start a detachable session named &quot;train&quot;
+screen -S train
+
+# Inside that session, launch training across all 8 GPUs:
+torchrun --standalone --nproc_per_node=8 -m scripts.base_train -- \
+  --depth=24 --target-param-data-ratio=8 --device-batch-size=16 --fp8</code></pre>
+<p><strong>To leave it running and reclaim your terminal:</strong> press <code>Ctrl-A</code> then <code>D</code> (for <strong>d</strong>etach). <strong>To come back and check on it later:</strong> <code>screen -r train</code>.</p>
+<blockquote>
+<p>💡 <strong>Decoding that command:</strong></p>
+<ul>
+<li><code>torchrun</code> — PyTorch's launcher for using <strong>multiple GPUs at once.</strong></li>
+<li><code>--nproc_per_node=8</code> — "use all 8 GPUs."</li>
+<li><code>-m scripts.base_train</code> — run the pretraining script.</li>
+<li><code>--</code> — separates torchrun's own options from the script's options (nanochat's current convention — keep it).</li>
+<li><code>--depth=24</code> — <strong>the one dial.</strong> Depth 24 is the reference "speedrun" size: GPT-2-grade, ~3 hours on 8×H100, roughly <strong><span class="math inline">50–</span>75</strong>. nanochat computes every other setting (width, learning rate…) from this single number. Bump it to <code>26</code> for a bit more capability and cost.</li>
+<li><code>--target-param-data-ratio=8</code>, <code>--fp8</code>, <code>--device-batch-size=16</code> — the speedrun's tuned settings for a fast, cheap run. You can safely copy them as-is.</li>
+</ul>
+</blockquote>
+<blockquote>
+<p>🔑 <strong>Watch the <code>loss</code> number.</strong> It starts high and should steadily fall. A falling loss means the model is learning. This is the most satisfying number you'll watch all weekend.</p>
+</blockquote>
+<blockquote>
+<p>⚠️ <strong><code>CUDA out of memory</code>?</strong> Lower <code>--device-batch-size</code> (try <code>8</code>, then <code>4</code>, then <code>2</code>). See <strong>Troubleshooting</strong>.</p>
+</blockquote>
+<blockquote>
+<p>💡 <strong>What just happened?</strong> You now have a <strong>base model</strong> in <code>~/.cache/nanochat/base_checkpoints/</code>. It "talks like the internet." Next, we make it talk like <strong>you.</strong> This is where the fun begins.</p>
+<p><em>(If you followed older nanochat guides that had a separate <code>mid_train</code> step — that stage has been folded into fine-tuning, so there's nothing extra to run here. Straight on to your data.)</em></p>
+</blockquote>
+<hr />
+<h2 id="dart-step-7-prepare-your-data-this-is-where-the-magic-happens">🎯 Step 7: Prepare YOUR Data (This Is Where the Magic Happens)</h2>
+<blockquote>
+<p>🔑 <strong>This is the heart of the whole project.</strong> Pretraining gave you a generic brain. <em>This</em> step gives it <strong>your memories, your voice, and your identity.</strong> Spend real care here — the quality of your final model is mostly decided by the quality of the data you feed it now.</p>
+</blockquote>
+<p>We'll prepare <strong>three kinds</strong> of personal data, and they each do a different job:</p>
+<table>
+<thead>
+<tr>
+<th>Data type</th>
+<th>What it teaches the model</th>
+<th>Format</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>A. Exported chats</strong></td>
+<td>How <em>you</em> talk and ask questions; your style</td>
+<td>Conversations</td>
+</tr>
+<tr>
+<td><strong>B. Notes → Q&amp;A pairs</strong></td>
+<td>Your <em>knowledge</em> and ideas (recall)</td>
+<td>Question/Answer conversations</td>
+</tr>
+<tr>
+<td><strong>C. Identity / persona</strong></td>
+<td><em>Who it is</em> — its name, that it's yours</td>
+<td>Short scripted conversations</td>
+</tr>
+</tbody>
+</table>
+<p>The fine-tuning data is just a list of <strong>conversations</strong>, where each conversation is a list of <code>{"role": "...", "content": "..."}</code> messages. We'll produce a <strong>JSONL</strong> file (one JSON conversation per line) for each type.</p>
+<blockquote>
+<p>💡 <strong>What's JSONL?</strong> "JSON Lines" — a plain text file where <strong>each line is a complete JSON object.</strong> It's the standard format for training data because you can stream it line-by-line without loading the whole file. One conversation per line.</p>
+</blockquote>
+<hr />
+<h3 id="7a-export-your-chats--jsonl">7A. Export Your Chats → JSONL</h3>
+<p>If you've used ChatGPT, you can export your whole history: <strong>Settings → Data Controls → Export Data.</strong> You'll get a <code>conversations.json</code> file by email. This is gold — it's thousands of examples of <em>how you actually talk.</em></p>
+<p>Save this script as <code>prepare_chats.py</code> inside the <code>nanochat</code> folder:</p>
+<pre class="python"><code># prepare_chats.py — convert a ChatGPT export into nanochat SFT conversations
+import json
+
+# Path to the conversations.json from your ChatGPT data export
+SRC = &quot;conversations.json&quot;
+OUT = &quot;my_chats.jsonl&quot;
+
+def walk_mapping(mapping):
+    &quot;&quot;&quot;ChatGPT stores messages as a tree; flatten it to an ordered list.&quot;&quot;&quot;
+    # Find the root, then follow children in order
+    msgs = []
+    # Build id -&gt; node, find the node with no parent
+    nodes = mapping
+    # Collect messages that have content
+    ordered = sorted(
+        (n for n in nodes.values() if n.get(&quot;message&quot;)),
+        key=lambda n: (n[&quot;message&quot;].get(&quot;create_time&quot;) or 0),
+    )
+    for n in ordered:
+        m = n[&quot;message&quot;]
+        role = m.get(&quot;author&quot;, {}).get(&quot;role&quot;)
+        parts = m.get(&quot;content&quot;, {}).get(&quot;parts&quot;, [])
+        text = &quot;&quot;.join(p for p in parts if isinstance(p, str)).strip()
+        if role in (&quot;user&quot;, &quot;assistant&quot;) and text:
+            msgs.append({&quot;role&quot;: role, &quot;content&quot;: text})
+    return msgs
+
+with open(SRC) as f:
+    data = json.load(f)
+
+count = 0
+with open(OUT, &quot;w&quot;) as out:
+    for convo in data:
+        messages = walk_mapping(convo.get(&quot;mapping&quot;, {}))
+        # Keep only real back-and-forths (at least one user + one assistant turn)
+        if sum(1 for m in messages if m[&quot;role&quot;] == &quot;user&quot;) &gt;= 1 and \
+           sum(1 for m in messages if m[&quot;role&quot;] == &quot;assistant&quot;) &gt;= 1:
+            out.write(json.dumps({&quot;messages&quot;: messages}) + &quot;\n&quot;)
+            count += 1
+
+print(f&quot;Wrote {count} conversations to {OUT}&quot;)</code></pre>
+<p>Run it:</p>
+<pre class="bash"><code>python prepare_chats.py</code></pre>
+<blockquote>
+<p>💡 <strong>What just happened?</strong> You turned your messy export into clean training conversations. The model will learn your question style, your follow-ups, and the <em>kinds</em> of answers you find satisfying. Even your typos teach it something about your voice.</p>
+</blockquote>
+<blockquote>
+<p>⚠️ <strong>Privacy gut-check.</strong> Open <code>my_chats.jsonl</code> and skim it. This is the moment to <strong>delete anything you don't want baked into a model forever</strong> — passwords, other people's private info, that one 3 a.m. conversation. Once it's trained in, it's <em>in.</em></p>
+</blockquote>
+<hr />
+<h3 id="7b-turn-your-notes--qa-pairs">7B. Turn Your Notes → Q&amp;A Pairs</h3>
+<p>Raw notes (Obsidian, Apple Notes, a <code>journal.md</code>, whatever) are great <em>knowledge</em> but a bad <em>format</em> — the model learns to <strong>chat</strong>, so it needs your knowledge shaped as <strong>questions and answers.</strong></p>
+<p><strong>The simplest reliable approach</strong> is one Q&amp;A per note or per chunk. Save this as <code>prepare_notes.py</code>:</p>
+<pre class="python"><code># prepare_notes.py — turn a folder of .md/.txt notes into Q&amp;A conversations
+import json, os, glob
+
+NOTES_DIR = &quot;my_notes&quot;     # put your .md / .txt files here
+OUT = &quot;my_notes.jsonl&quot;
+
+def chunk(text, size=1500):
+    &quot;&quot;&quot;Split long notes into digestible chunks.&quot;&quot;&quot;
+    text = text.strip()
+    return [text[i:i+size] for i in range(0, len(text), size)] or [text]
+
+count = 0
+with open(OUT, &quot;w&quot;) as out:
+    for path in glob.glob(os.path.join(NOTES_DIR, &quot;**/*.*&quot;), recursive=True):
+        if not path.endswith((&quot;.md&quot;, &quot;.txt&quot;)):
+            continue
+        title = os.path.splitext(os.path.basename(path))[0]
+        with open(path, errors=&quot;ignore&quot;) as f:
+            body = f.read()
+        for piece in chunk(body):
+            if not piece.strip():
+                continue
+            convo = {&quot;messages&quot;: [
+                {&quot;role&quot;: &quot;user&quot;,
+                 &quot;content&quot;: f&quot;What do my notes say about {title}?&quot;},
+                {&quot;role&quot;: &quot;assistant&quot;,
+                 &quot;content&quot;: piece.strip()},
+            ]}
+            out.write(json.dumps(convo) + &quot;\n&quot;)
+            count += 1
+
+print(f&quot;Wrote {count} Q&amp;A conversations to {OUT}&quot;)</code></pre>
+<pre class="bash"><code>mkdir my_notes        # drop your .md / .txt notes in here
+python prepare_notes.py</code></pre>
+<blockquote>
+<p>🔑 <strong>Want higher-quality Q&amp;A?</strong> Instead of the mechanical "What do my notes say about X?" template, you can use a bigger LLM (via an <strong>OpenRouter</strong> API key) to read each note and generate <em>natural</em> question/answer pairs from it. That produces a much smarter recall model — but the simple template above works and costs nothing. Start simple; upgrade later.</p>
+</blockquote>
+<blockquote>
+<p>💡 <strong>Why questions and answers?</strong> Your finished model is a <em>chat</em> model. It only knows how to respond when something looks like a conversation. By wrapping each note as "question → your knowledge," you're teaching it to <em>surface</em> that knowledge when you ask. Raw notes pasted in as-is would just teach it to ramble.</p>
+</blockquote>
+<hr />
+<h3 id="7c-give-it-an-identity--persona">7C. Give It an Identity / Persona</h3>
+<p>This is the cherry on top: a small set of hand-written conversations that tell the model <strong>who it is.</strong> This is what makes it feel like <em>yours</em> instead of a generic assistant. Write 20–50 of these by hand. Save as <code>my_identity.jsonl</code>:</p>
+<pre class="json"><code>{&quot;messages&quot;: [{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;Who are you?&quot;}, {&quot;role&quot;: &quot;assistant&quot;, &quot;content&quot;: &quot;I&#39;m your personal AI — a private second brain trained on your notes, your writing, and your chats. I&#39;m not ChatGPT and I don&#39;t phone home to anyone. I&#39;m yours.&quot;}]}
+{&quot;messages&quot;: [{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;What&#39;s your name?&quot;}, {&quot;role&quot;: &quot;assistant&quot;, &quot;content&quot;: &quot;You can call me whatever you like — I was built to be your personal assistant, running entirely on hardware you control.&quot;}]}
+{&quot;messages&quot;: [{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;Who made you?&quot;}, {&quot;role&quot;: &quot;assistant&quot;, &quot;content&quot;: &quot;You did — by fine-tuning Karpathy&#39;s nanochat on your own data over a weekend. I run privately, with no API and no subscription.&quot;}]}
+{&quot;messages&quot;: [{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;Are you ChatGPT?&quot;}, {&quot;role&quot;: &quot;assistant&quot;, &quot;content&quot;: &quot;Nope. I&#39;m a small, private model you trained yourself. I&#39;m humbler than ChatGPT, but I know your stuff and I never leave your machine.&quot;}]}</code></pre>
+<blockquote>
+<p>🔑 <strong>Write these in the voice you want back.</strong> If you want a warm, encouraging assistant, write warm, encouraging answers. If you want it terse and dry, write it terse and dry. <strong>The model becomes the average of what you show it</strong> — so show it the personality you actually want to talk to.</p>
+</blockquote>
+<blockquote>
+<p>💡 <strong>Why so few examples can work:</strong> Identity facts are short, consistent, and (in the next step) we'll <strong>oversample</strong> them so they punch far above their tiny size. A few dozen crisp identity lines, repeated, reliably teach the model who it is.</p>
+</blockquote>
+<hr />
+<h2 id="step-8-inject-your-data-into-fine-tuning-the-critical-edit">Step 8: Inject Your Data Into Fine-Tuning (The Critical Edit)</h2>
+<blockquote>
+<p>⚠️ <strong>This is the single most important code change in the whole guide.</strong> Get this right and your model is <em>yours.</em> Skip it and you just trained a generic GPT-2. Read slowly.</p>
+</blockquote>
+<p>By default, <code>scripts/chat_sft.py</code> fine-tunes on a <strong>mixture of tasks</strong> — public instruction data (SmolTalk), a bit of multiple-choice and math (MMLU, GSM8K), spelling drills, and an <strong>identity file</strong> — so the model learns general assistant behavior. We're going to <strong>add your three JSONL files to that mixture</strong> — and <strong>oversample</strong> them.</p>
+<h3 id="why-oversample-the-most-important-concept-here">Why "oversample"? (The most important concept here)</h3>
+<p>Your personal data is <strong>tiny</strong> compared to the public datasets — maybe a few thousand lines next to <em>hundreds of thousands.</em> If you just toss it in once, it's a drop in the ocean: the model will barely notice it and won't sound like you at all.</p>
+<p><strong>Oversampling</strong> means <strong>repeating your data many times</strong> so it makes up a meaningful fraction of what the model sees during fine-tuning. Show your identity file 50 times and your notes 10 times, and suddenly <em>your</em> voice and <em>your</em> facts carry real weight.</p>
+<blockquote>
+<p>🔑 <strong>Analogy:</strong> If you want someone to remember <em>your</em> name at a party of 10,000 strangers, you don't say it once. You say it 50 times. Oversampling is saying your name 50 times.</p>
+</blockquote>
+<blockquote>
+<p>⚠️ <strong>Goldilocks warning.</strong> Too little oversampling → the model ignores your data. <em>Too much</em> → it <strong>overfits</strong>: it parrots your files word-for-word and forgets how to handle anything new. Start with the multipliers below, then tune. <strong>Identity</strong> can be oversampled the most (it's tiny and you want it rock-solid). <strong>Chats/notes</strong> need less.</p>
+</blockquote>
+<h3 id="first-put-your-data-where-the-box-can-find-it">First, put your data where the box can find it</h3>
+<p>Copy your three JSONL files (<code>my_chats.jsonl</code>, <code>my_notes.jsonl</code>, <code>my_identity.jsonl</code>) into a folder on the GPU box — say <code>~/nanochat_personal/</code>.</p>
+<blockquote>
+<p>💡 <strong>Format check:</strong> each of these is JSONL with <code>{"messages": [...]}</code> per line — exactly the shape nanochat's own identity file uses, so it drops right in.</p>
+</blockquote>
+<h3 id="the-edit">The Edit</h3>
+<p>Open <code>scripts/chat_sft.py</code> and find the block that builds the task list. It looks roughly like this (a plain Python list named <strong><code>train_tasks</code></strong>, wrapped in a <strong><code>TaskMixture</code></strong>):</p>
+<pre class="python"><code># ... existing code in scripts/chat_sft.py ...
+train_tasks = [
+    SmolTalk(split=&quot;train&quot;),
+    CustomJSON(filepath=identity_conversations_filepath),
+    CustomJSON(filepath=identity_conversations_filepath),
+    MMLU(subset=&quot;all&quot;, split=&quot;auxiliary_train&quot;),
+    GSM8K(subset=&quot;main&quot;, split=&quot;train&quot;),
+    # ...spelling tasks...
+]
+train_dataset = TaskMixture(train_tasks)   # &lt;-- your data must be in the list BEFORE this line</code></pre>
+<p>See how the identity file is already loaded with <strong><code>CustomJSON</code></strong> — and listed <strong>twice</strong> (that's nanochat oversampling its own identity data ×2)? That's your hook. Add your files the exact same way, right before the <code>TaskMixture(...)</code> line:</p>
+<pre class="python"><code># --- ADD your personal data to train_tasks (before TaskMixture is built) ---
+import os
+PERSONAL = os.path.expanduser(&quot;~/nanochat_personal&quot;)
+
+# Each CustomJSON entry = one pass over the file. Listing it N times = oversampling ×N.
+train_tasks += [CustomJSON(filepath=f&quot;{PERSONAL}/my_chats.jsonl&quot;)    for _ in range(3)]   # your voice
+train_tasks += [CustomJSON(filepath=f&quot;{PERSONAL}/my_notes.jsonl&quot;)    for _ in range(10)]  # your knowledge
+train_tasks += [CustomJSON(filepath=f&quot;{PERSONAL}/my_identity.jsonl&quot;) for _ in range(50)]  # who it is
+print(f&quot;[personal] train_tasks now has {len(train_tasks)} tasks&quot;)</code></pre>
+<blockquote>
+<p>🔑 <strong>This is oversampling, done the nanochat way.</strong> You're not copying data by hand — you're adding the <em>same task</em> to the list multiple times. <code>range(50)</code> on your identity file means the model sees it <strong>50 times</strong> per epoch. That's how a few dozen identity lines end up carrying real weight. (<code>CustomJSON</code> and <code>os</code> are the only names you touch; <code>CustomJSON</code> is already imported at the top of the file since the stock identity data uses it.)</p>
+</blockquote>
+<blockquote>
+<p>💡 <strong>What just happened?</strong> You blended your personal conversations into the public fine-tuning mix, weighted by how strongly you want each one to land. The model still learns good general assistant manners from SmolTalk/MMLU/GSM8K — <em>and</em> it learns your voice, your knowledge, and its identity from yours.</p>
+</blockquote>
+<blockquote>
+<p>🔑 <strong>nanochat evolves — adapt, don't panic.</strong> The repo moves fast, so the exact task names in <code>train_tasks</code> may shift between versions. The <em>concept</em> never changes: <strong>find the <code>train_tasks</code> list, add <code>CustomJSON(filepath=...)</code> entries for your files, and repeat each entry to oversample.</strong> If <code>train_tasks</code> has been renamed, just look for the list that gets wrapped in <code>TaskMixture(...)</code> and splice yours in there.</p>
+</blockquote>
+<hr />
+<h2 id="step-9-run-the-fine-tune">Step 9: Run the Fine-Tune</h2>
+<p>This is the fast, cheap, magical part — <strong>minutes, not hours.</strong></p>
+<p>First, one small prerequisite: the stock task list expects nanochat's default identity file to exist, so grab it once (it lives next to your other cache data):</p>
+<pre class="bash"><code>curl -L -o &quot;$NANOCHAT_BASE_DIR/identity_conversations.jsonl&quot; \
+  https://karpathy-public.s3.us-west-2.amazonaws.com/identity_conversations.jsonl</code></pre>
+<blockquote>
+<p>💡 <code>NANOCHAT_BASE_DIR</code> defaults to <code>~/.cache/nanochat</code> — if you never set it, use that path directly.</p>
+</blockquote>
+<p>Then run the fine-tune:</p>
+<pre class="bash"><code>torchrun --standalone --nproc_per_node=8 -m scripts.chat_sft -- --device-batch-size=16</code></pre>
+<blockquote>
+<p>💡 <strong>What just happened?</strong> nanochat took your base model and nudged every parameter toward <em>answering like an assistant — specifically, like the assistant you described in your data.</em> When the <code>loss</code> settles, you've got a personal chat model sitting in <code>~/.cache/nanochat/chatsft_checkpoints/</code>. <strong>This is the moment it becomes yours.</strong> 🎉</p>
+</blockquote>
+<blockquote>
+<p>⚠️ If it crashes with <code>CUDA out of memory</code>, lower <code>--device-batch-size</code> (try <code>8</code>, then <code>4</code>, then <code>2</code>, then <code>1</code>).</p>
+</blockquote>
+<hr />
+<h2 id="step-10-optional-bake-in-hard-facts">Step 10 (Optional): Bake In Hard Facts</h2>
+<p>If there are facts you want the model to <strong>know cold</strong> — your address, your project names, key dates, definitions — write them as extra Q&amp;A pairs in a <code>my_facts.jsonl</code> and add one more heavily-oversampled <code>CustomJSON</code> line in Step 8, e.g.:</p>
+<pre class="python"><code>train_tasks += [CustomJSON(filepath=f&quot;{PERSONAL}/my_facts.jsonl&quot;) for _ in range(30)]</code></pre>
+<p>This is optional, but it's a cheap way to make recall on your most important facts much more reliable.</p>
+<blockquote>
+<p>⚠️ Don't go overboard. Oversample a fact too hard and the model will blurt it out at unrelated moments. A handful of high-value facts at a moderate multiplier is the sweet spot.</p>
+</blockquote>
+<hr />
+<h2 id="step-11-talk-to-your-second-brain">Step 11: Talk to Your Second Brain</h2>
+<p>Two ways to chat with your finished model.</p>
+<h3 id="option-a--command-line-chat-fastest">Option A — Command-Line Chat (fastest)</h3>
+<pre class="bash"><code>python -m scripts.chat_cli</code></pre>
+<p>Type a message, hit enter, and there it is — <em>your</em> model, answering in <em>your</em> voice. Try:</p>
+<ul>
+<li><em>"Who are you?"</em> → it should give you the identity you wrote.</li>
+<li><em>"What do my notes say about &lt;one of your topics&gt;?"</em> → recall in action.</li>
+</ul>
+<h3 id="option-b--the-chatgpt-style-web-ui-the-fun-one">Option B — The ChatGPT-Style Web UI (the fun one)</h3>
+<pre class="bash"><code>python -m scripts.chat_web</code></pre>
+<p>This starts a web server on the GPU box (usually on <strong>port 8000</strong>). To see it in your browser, open an SSH tunnel <strong>from your laptop</strong> so the box's port shows up locally:</p>
+<pre class="bash"><code># Run this on YOUR laptop, in a new terminal:
+ssh -L 8000:localhost:8000 ubuntu@&lt;YOUR_GPU_IP&gt;</code></pre>
+<p>Then visit <strong><code>http://localhost:8000</code></strong> in your browser. You'll get a clean, ChatGPT-style chat page talking to <em>your</em> private model. 🥳</p>
+<blockquote>
+<p>💡 <strong>What's an SSH tunnel?</strong> It's a secure pipe that makes a port on the remote box <em>appear</em> as the same port on your laptop. <code>-L 8000:localhost:8000</code> means "forward my local 8000 to the box's 8000." Now <code>localhost:8000</code> in your browser is really the model running in the cloud.</p>
+</blockquote>
+<blockquote>
+<p>⚠️ <strong>Nothing loads?</strong> Make sure the <code>chat_web</code> server is actually running on the box, that the tunnel command is running on your laptop, and that you're using the <strong>same port</strong> in all three places (server, tunnel, browser). See Troubleshooting.</p>
+</blockquote>
+<hr />
+<h2 id="step-12-save-your-model--then-shut-down-the-box">Step 12: Save Your Model — Then SHUT DOWN the Box</h2>
+<blockquote>
+<p>⚠️ <strong>DO NOT SKIP THIS.</strong> The box is <strong>deleted</strong> when you terminate it, and you're <strong>paying every minute it's alive.</strong> Get your model off the box, <em>then</em> kill it.</p>
+</blockquote>
+<p><strong>1. Copy your trained model to your laptop.</strong> Run this <strong>on your laptop:</strong></p>
+<pre class="bash"><code># Pull the fine-tuned model (and tokenizer) down to your machine
+mkdir -p ~/nanochat-model
+scp -r ubuntu@&lt;YOUR_GPU_IP&gt;:~/.cache/nanochat/chatsft_checkpoints ~/nanochat-model/
+scp -r ubuntu@&lt;YOUR_GPU_IP&gt;:~/.cache/nanochat/tokenizer ~/nanochat-model/</code></pre>
+<blockquote>
+<p>🔑 The <code>chatsft_checkpoints</code> folder <strong>is your trained model.</strong> Guard it like the weekend's work it represents. Back it up somewhere safe.</p>
+</blockquote>
+<p><strong>2. Terminate the instance.</strong> Do this in your cloud provider's <strong>dashboard</strong> — click <strong>Terminate / Delete</strong> on the instance. (Stopping <code>nvidia-smi</code> or closing SSH does <strong>not</strong> stop billing.) Confirm in the dashboard that the instance is <em>gone</em>, then check that no surprise charges are accruing.</p>
+<blockquote>
+<p>💸 <strong>The #1 way beginners lose money here is leaving an <span class="math inline">8–</span>24/hour box running overnight.</strong> Set a phone reminder. Terminate it. Verify it's dead.</p>
+</blockquote>
+<hr />
+<h2 id="troubleshooting">Troubleshooting</h2>
+<blockquote>
+<p><strong><code>CUDA out of memory</code> (OOM)</strong> The model + batch don't fit in GPU memory. Lower the per-GPU batch: set <code>--device-batch-size=8</code> (then <code>4</code>, then <code>2</code>, then <code>1</code>) on your <code>base_train</code> / <code>chat_sft</code> command. Smaller batches train a bit slower but fit. If still stuck, lower <code>--depth</code>.</p>
+</blockquote>
+<blockquote>
+<p><strong>My SSH connection dropped and training stopped.</strong> You forgot <code>screen</code> (or <code>tmux</code>). Always launch long jobs inside <code>screen -S train</code>, detach with <code>Ctrl-A</code> then <code>D</code>, and reattach with <code>screen -r train</code>. Next time the connection drops, the job keeps running.</p>
+</blockquote>
+<blockquote>
+<p><strong><code>command not found</code> / <code>No module named ...</code> after reconnecting.</strong> You're not in the virtual environment. Run <code>cd nanochat &amp;&amp; source .venv/bin/activate</code> after every fresh SSH login.</p>
+</blockquote>
+<blockquote>
+<p><strong>The web UI won't load in my browser.</strong> Three things must all be true: (1) <code>python -m scripts.chat_web</code> is running on the box; (2) the SSH tunnel <code>ssh -L 8000:localhost:8000 ...</code> is running on your laptop; (3) the port number matches in all three spots. If 8000 is taken, pick another (e.g. <code>8001</code>) and use it everywhere.</p>
+</blockquote>
+<blockquote>
+<p><strong><code>nvidia-smi</code> shows fewer than 8 GPUs (or none).</strong> Your instance didn't come up right. Don't train — you'll waste money. Terminate it and relaunch, making sure you selected an <strong>8×H100</strong> node with a CUDA image.</p>
+</blockquote>
+<blockquote>
+<p><strong>The model is dumb / generic / doesn't sound like me.</strong> Almost always an oversampling problem. Increase the <code>range(...)</code> multipliers in Step 8 (especially identity and notes), and make sure your <code>CustomJSON</code> lines are actually being added <em>before</em> the <code>TaskMixture(train_tasks)</code> line. The <code>print(f"[personal] train_tasks now has {len(train_tasks)} tasks")</code> should show a much bigger number than the stock list.</p>
+</blockquote>
+<blockquote>
+<p><strong>The model parrots my notes word-for-word and can't generalize.</strong> The opposite problem: you over-oversampled, and it <strong>overfit.</strong> Lower your multipliers and/or fine-tune for fewer steps.</p>
+</blockquote>
+<blockquote>
+<p><strong>Loss isn't going down / is <code>NaN</code>.</strong> A <code>NaN</code> loss usually means the learning rate is too high for your setup or data is malformed. Trust nanochat's auto-computed defaults for your <code>--depth</code> first; if you hand-tuned settings, revert them. Double-check your JSONL files are valid (one JSON object per line, with a <code>messages</code> key).</p>
+</blockquote>
+<hr />
+<h2 id="glossary-plain-english">Glossary (Plain English)</h2>
+<ul>
+<li><strong>Base model</strong> — the model right after pretraining. Knows language and facts, but <em>autocompletes</em> instead of <em>chatting.</em></li>
+<li><strong>Batch / batch size</strong> — how many examples the model studies before updating its knobs. Bigger = faster but more memory.</li>
+<li><strong>Checkpoint</strong> — a saved snapshot of the model's weights on disk. Your "save file."</li>
+<li><strong>CUDA</strong> — NVIDIA's software for running math on their GPUs. nanochat needs it for the real run.</li>
+<li><strong>Depth</strong> — nanochat's one dial: the number of layers. More depth = bigger, smarter, slower, pricier model.</li>
+<li><strong>Fine-tuning (SFT)</strong> — "Supervised Fine-Tuning." Teaching the base model to <em>chat</em> by showing it example conversations. Where your data goes.</li>
+<li><strong>GPU</strong> — the chip that does the training math. You rent powerful ones (H100s) by the hour.</li>
+<li><strong>H100</strong> — a top-tier NVIDIA data-center GPU. You'll rent <strong>8</strong> of them.</li>
+<li><strong>JSONL</strong> — "JSON Lines." A text file with one complete JSON object per line. The standard training-data format.</li>
+<li><strong>Loss</strong> — a number measuring how wrong the model is. Training drives it down. Watch it fall.</li>
+<li><strong>Oversampling</strong> — repeating your (small) personal data many times so it carries real weight against the huge public datasets.</li>
+<li><strong>Overfitting</strong> — when a model memorizes its training data instead of learning from it. The result of <em>too much</em> oversampling.</li>
+<li><strong>Parameters</strong> — the millions of numbers ("knobs") the model learns. More = bigger and (usually) smarter.</li>
+<li><strong>Pretraining</strong> — phase 1: the model reads tons of text and learns to predict the next word. The expensive part.</li>
+<li><strong>RL (Reinforcement Learning)</strong> — optional phase 3: sharpening narrow skills (like math) via rewards. We skip it here.</li>
+<li><strong>Token</strong> — a chunk of text (word or word-piece). The unit models actually read and write.</li>
+<li><strong>Tokenizer</strong> — the tool that splits text into tokens. You train it first.</li>
+<li><strong>torchrun</strong> — PyTorch's launcher for training across multiple GPUs at once.</li>
+<li><strong>uv</strong> — a fast Python package manager nanochat uses to set up its environment.</li>
+<li><strong><code>screen</code> / <code>tmux</code></strong> — tools that keep a terminal session (and your training job) alive even if your SSH connection drops.</li>
+</ul>
+<hr />
+<h2 id="the-whole-thing-copy-paste">The Whole Thing, Copy-Paste</h2>
+<p>Here's the entire real run, start to finish, for quick reference:</p>
+<pre class="bash"><code># --- On the GPU box ---
+ssh ubuntu@&lt;YOUR_GPU_IP&gt;
+nvidia-smi                                    # confirm 8x H100
+
+git clone https://github.com/karpathy/nanochat.git
+cd nanochat
+curl -LsSf https://astral.sh/uv/install.sh | sh
+uv sync --extra gpu &amp;&amp; source .venv/bin/activate
+
+python -m nanochat.dataset -n 170             # download pretraining text (ClimbMix)
+python -m scripts.tok_train                   # train tokenizer
+
+screen -S train                               # detachable session
+torchrun --standalone --nproc_per_node=8 -m scripts.base_train -- \
+  --depth=24 --target-param-data-ratio=8 --device-batch-size=16 --fp8
+# (Ctrl-A then D to detach; screen -r train to return)
+
+# --- Prepare YOUR data (see Step 7) ---
+python prepare_chats.py                       # -&gt; my_chats.jsonl
+python prepare_notes.py                       # -&gt; my_notes.jsonl
+# hand-write my_identity.jsonl
+mkdir -p ~/nanochat_personal &amp;&amp; mv my_*.jsonl ~/nanochat_personal/
+
+# --- Edit scripts/chat_sft.py to add CustomJSON + oversample your data (Step 8) ---
+curl -L -o &quot;$NANOCHAT_BASE_DIR/identity_conversations.jsonl&quot; \
+  https://karpathy-public.s3.us-west-2.amazonaws.com/identity_conversations.jsonl
+torchrun --standalone --nproc_per_node=8 -m scripts.chat_sft -- --device-batch-size=16
+
+# --- Talk to it ---
+python -m scripts.chat_cli                     # terminal chat
+python -m scripts.chat_web                      # web UI on :8000
+
+# --- On YOUR laptop: save the model, then TERMINATE the box ---
+scp -r ubuntu@&lt;YOUR_GPU_IP&gt;:~/.cache/nanochat/chatsft_checkpoints ~/nanochat-model/
+scp -r ubuntu@&lt;YOUR_GPU_IP&gt;:~/.cache/nanochat/tokenizer ~/nanochat-model/
+# then TERMINATE the instance in your provider&#39;s dashboard</code></pre>
+<hr />
+<h2 id="credit-where-its-due">Credit Where It's Due</h2>
+<p>Enormous thanks to <strong><a href="https://github.com/karpathy">Andrej Karpathy</a></strong> for building and open-sourcing <strong><a href="https://github.com/karpathy/nanochat">nanochat</a></strong> — ~8,000 lines of clean, readable code that makes the entire ChatGPT pipeline approachable for <em>normal people.</em> This guide is just a friendly map; <strong>nanochat is the territory.</strong> Go star the repo, read the source (seriously — it's readable), and explore the optional RL phase when you're ready for round two.</p>
+<h2 id="you-can-actually-do-this">You Can Actually Do This</h2>
+<p>A year ago, "train your own ChatGPT" sounded like something only a lab with a nine-figure budget could attempt. This weekend, it's a few commands, ~$100, and your own notes. Your finished model won't be a genius — it'll be a charming, private, slightly-feral <strong>second brain that you built yourself and understand completely.</strong></p>
+<p>That's not nothing. That's everything.</p>
+<p>Now go rent that box. 🚀</p>
+<hr />
+<h3 id="calls-to-action">Calls to Action</h3>
+<ul>
+<li>⭐ <strong>Star</strong> <a href="https://github.com/karpathy/nanochat">nanochat on GitHub</a>.</li>
+<li>🧪 <strong>Do the free dry run first</strong> — learn the whole pipeline for $0 before spending a dime.</li>
+<li>🗣️ <strong>Share your build.</strong> Post what your model said back to "Who are you?" — the first reply from a model you trained yourself is a genuine milestone worth celebrating.</li>
+</ul>
+<hr />
+<p><em>This guide was written from my own notes and build experience, and edited for clarity by Claude Opus 4.8.</em></p>
+
+
+    <p style="border-top:1px solid var(--border);padding-top:20px;margin-top:28px;font-size:0.85rem;color:var(--gray);">
+        <strong>Adam &quot;MOOP&quot; Johns</strong> is a Christ-following <a href="/dictionary/husband.html">husband</a> and <a href="/dictionary/father.html">father</a>, retired US Marine, military aviator, and combat veteran (21 years of service), NASM-certified personal trainer, and men&#39;s <a href="/dictionary/discipleship.html">discipleship</a> coach who has been investing in the formation of men for over 25 years. He holds an M.Div. from Liberty University and founded <a href="/usmc-ministries.html">U.S.M.C. Ministries</a> — Uniting, Serving, <a href="/dictionary/mentoring.html">Mentoring</a> &amp; Counseling — in Fredericksburg, VA.
+    </p>
+</article>
+
+<footer>
+    <a href="/usmc-ministries.html">U.S.M.C. Ministries</a> &middot; <a href="/watchman.html">Bible Reading Plan</a> &middot; <a href="/mentoring.html">Mentoring</a> &middot; <a href="/blog.html">Blog</a><br>
+    <span style="margin-top:6px;display:block;">&copy; 2026 U.S.M.C. Ministries &middot; Fredericksburg, VA</span>
+</footer>
+</body>
+</html>
