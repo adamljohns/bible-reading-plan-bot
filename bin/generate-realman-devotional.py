@@ -37,6 +37,12 @@ WEEK_THEMES = {
     5: "Hold the Line",
 }
 
+def icon(name, px=16, mr=True):
+    """Inline custom shield icon (house style — replaces stock emoji)."""
+    style = "vertical-align:middle;" + ("margin-right:3px;" if mr else "")
+    return (f'<img src="../assets/icons/{name}.png" alt="" '
+            f'width="{px}" height="{px}" style="{style}">')
+
 def quality(n):      return QUALITIES[(n - 1) % 7]
 def week_num(n):     return (n - 1) // 7 + 1
 def week_span(n):
@@ -98,7 +104,7 @@ def page(n, d, style):
 
   <!-- NAV -->
   <nav>
-    <span class="logo">✝️</span>
+    <span class="logo">{icon("shield-cross", 22, mr=False)}</span>
     <span class="brand">USMC Ministries</span>
     <span class="sep">·</span>
     <a href="index.html">Proverbs</a>
@@ -132,7 +138,7 @@ def page(n, d, style):
     <div class="content-card">
       <h3><span class="section-icon"><img src="../assets/icons/shield-bible.png" alt="" width="16" height="16" style="vertical-align:middle;margin-right:3px;"></span> Read</h3>
       <div class="read-badge">
-        <span class="read-icon">\U0001F4DC</span>
+        <span class="read-icon">{icon("shield-scroll-quill", 16, mr=False)}</span>
         Proverbs {n} — full chapter
       </div>
       <p style="margin-bottom:0.5rem; color: var(--gray); font-size: 0.88rem;">Open the whole chapter. Don't skim. Let it land.</p>
@@ -141,7 +147,7 @@ def page(n, d, style):
 
     <!-- KEY VERSE -->
     <div class="content-card">
-      <h3><span class="section-icon">\U0001F511</span> Key Verse</h3>
+      <h3><span class="section-icon">{icon("shield-key-scripture")}</span> Key Verse</h3>
       <div class="key-verse">
         <blockquote>“{kv["text"]}”</blockquote>
         <cite>— Proverbs {kv["ref"]}</cite>
@@ -156,13 +162,13 @@ def page(n, d, style):
 
     <!-- APPLICATION -->
     <div class="content-card">
-      <h3><span class="section-icon">⚡</span> Application</h3>
+      <h3><span class="section-icon">{icon("shield-chain-sword")}</span> Application</h3>
       {paras(d["application"])}
     </div>
 
     <!-- PRAYER -->
     <div class="content-card">
-      <h3><span class="section-icon">\U0001F64F</span> Prayer</h3>
+      <h3><span class="section-icon">{icon("shield-chain-prayer")}</span> Prayer</h3>
       <div class="prayer-block">
         {paras(d["prayer"])}
       </div>
@@ -170,7 +176,7 @@ def page(n, d, style):
 
     <!-- AUDIO PLAYER -->
     <div class="audio-section">
-      <h3>\U0001F399️ Listen to Day {n}</h3>
+      <h3>{icon("shield-open-book")} Listen to Day {n}</h3>
       <p style="color:var(--gray); font-size:0.85rem; margin-bottom:1rem;">Read by Adam Johns</p>
       <audio controls style="width:100%; max-width:500px;" id="day{n}-audio">
         <source src="../assets/audio/proverbs-day{nn}.mp3" type="audio/mpeg">
