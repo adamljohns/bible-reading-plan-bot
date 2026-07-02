@@ -81,9 +81,9 @@ def build_index(words, by_letter, total):
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The MOOP Dictionary of the English Language</title>
     <!-- Open Graph / Twitter / SEO -->
-    <meta name="description" content="The MOOP Dictionary — 4000+ entries with biblical definition, Webster 1828, Greek/Hebrew roots, and modern corruption analysis. Doctrinal anchors, the most corrupted words of our age, and generational dialect decoded.">
+    <meta name="description" content="The MOOP Dictionary — {total:,} entries with biblical definition, Webster 1828, Greek/Hebrew roots, and modern corruption analysis. Doctrinal anchors, the most corrupted words of our age, and generational dialect decoded.">
     <meta property="og:title" content="The MOOP Dictionary of the English Language">
-    <meta property="og:description" content="Biblical definition, Webster 1828, Greek/Hebrew roots, and modern corruption analysis. Doctrinal anchors, most corrupted words, generational decoded — 4000+ entries.">
+    <meta property="og:description" content="Biblical definition, Webster 1828, Greek/Hebrew roots, and modern corruption analysis. Doctrinal anchors, most corrupted words, generational decoded — {total:,} entries.">
     <meta property="og:image" content="https://usmcmin.org/assets/icons/icon-512.png">
     <meta property="og:url" content="https://usmcmin.org/dictionary/">
     <meta property="og:type" content="website">
@@ -1422,7 +1422,16 @@ def main():
             first = '#'
         by_letter[first].append(w)
 
-    total = len(words)
+    # Honest headline count: the A-Z grid keeps cards for the special section
+    # pages (navigation), but they are not word entries and must not inflate
+    # the displayed total (mirror of the slug-regen exclusion in batch_pipeline.sh).
+    SPECIAL_PAGES = {'names.html', 'doctrinal-anchors.html', 'biblical-order.html',
+                     'expressly-prohibited.html', 'most-corrupted.html',
+                     'gen-z-decoded.html', 'millennial-decoded.html',
+                     'gen-x-decoded.html', 'boomer-decoded.html',
+                     'christianese-decoded.html', 'jesus-generation.html',
+                     'changelog.html', 'baby-names.html', 'by-topic.html'}
+    total = len([w for w in words if w['file'] not in SPECIAL_PAGES])
     print(f'Total entries: {total}')
     for letter in sorted(by_letter.keys()):
         print(f'  {letter}: {len(by_letter[letter])}')

@@ -64,10 +64,16 @@ Voice-lock essentials:
 bin/batch_pipeline.sh data/dictionary-batches/batch-NN-topic.json
 ```
 
-Stages: **pre-flight** (JSON/schema, slug collisions, entities,
-related-resolution) → **drift audit** (aborts on voice-lock hard hits) →
-generate → rebuild → regen slugs → manifest → **post-flight corpus
+Stages: **pre-flight** (JSON/schema, slug collisions, VARIANT-FORM person-dup
+guard, entities, related-resolution) → **drift audit** (aborts on voice-lock
+hard hits) → generate → rebuild → regen slugs → manifest → **sitemaps**
+(auto-regenerated; stubs excluded) → enhance → **post-flight corpus
 integrity audit** (must end `PASS`).
+
+KJV fidelity spot-check any batch after the fact:
+`python3 bin/verify_kjv_quotes.py data/dictionary-batches/batch-NN-*.json`
+(verifies every scripture pair verbatim against docs/assets/verse-cache.json;
+docs/chapters is becoming MBT and is NOT a KJV source).
 
 ## 4. Commit + push (explicit files ONLY)
 
@@ -106,6 +112,15 @@ origin/main --oneline` — your commit usually landed. Don't panic-rebase.
 - **Define a word two or three times.** Slug-check FIRST; if a near-duplicate
   already exists, either skip it or run the merge engine (§9) — do not author a
   parallel entry. (submission once had 5 overlapping pages.)
+- **Define the same PERSON/PLACE under a variant slug (one-entity rule,
+  2026-07-01).** A free slug does not mean the entity is uncovered: the nightly
+  once authored john-preston-puritan, tertius-scribe, robert-morrison-missionary
+  + 19 more for men who already had entries under the bare slug. Check the bare
+  form, full name, bare surname, and suffixed variants before authoring. The
+  pre-flight now hard-fails on VARIANT-FORM collisions; if the entities are
+  genuinely DIFFERENT (brook-kanah vs kanah the town), acknowledge with
+  `"distinct_from": ["<slug>"]` on the entry — never add it just to silence
+  the guard.
 - Edit existing `data/dictionary-batches/*.json` — historical record;
   revisions go in NEW batches.
 - `roots_lines` as list-of-lists (silent rendering bug).

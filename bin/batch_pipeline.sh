@@ -62,6 +62,35 @@ for e in data:
     rels = [p[0] for p in e.get('related', []) if isinstance(p, list) and p]
     if len(rels) != len(set(rels)):
         errs.append(f'{s}: duplicate related targets {rels}')
+# PERSON-DUP GUARD (2026-07-01): a new slug must not be a VARIANT FORM of an
+# existing entry. The 6/30 nightly suffixed john-preston-puritan around the
+# existing john-preston (same man) 22 times. If the entity is the SAME, skip it
+# — never define twice. If genuinely distinct (brook-kanah vs kanah the town),
+# acknowledge with "distinct_from": ["<slug>"] on the entry and the guard passes.
+SUFF = ('-puritan','-theologian','-hymnwriter','-reformer','-missionary','-scribe',
+        '-rom16','-daughter','-princeton','-scottish','-divine','-pastor','-preacher',
+        '-covenanter','-martyr','-bishop','-elder','-deacon','-evangelist')
+STOP = {'son','king','duke','gate','town','pool','tower','mount','brook','city',
+        'daughter','place','stone','month','book','figure','prophet','priest','queen',
+        'well','spring','rock','hill','valley','river','sea','land','house'}
+for e in data:
+    s = e.get('slug', '')
+    cands = set()
+    for suf in SUFF:
+        if s.endswith(suf):
+            cands.add(s[:len(s)-len(suf)])
+    parts = s.split('-')
+    if len(parts) >= 3:
+        cands.add('-'.join(parts[:2]))
+        cands.add('-'.join(parts[-2:]))
+    if len(parts) >= 2 and parts[-1] not in STOP and len(parts[-1]) > 3:
+        cands.add(parts[-1])
+    ack = set(e.get('distinct_from', []))
+    hits = sorted(c for c in cands if c in slugs and c not in ack and c != s and c not in own)
+    if hits:
+        errs.append(f'{s}: VARIANT-FORM of existing entr(ies) {hits} — if the SAME '
+                    f'person/thing, SKIP (never define twice); if genuinely distinct, '
+                    f'add "distinct_from": {hits} to this entry')
 if errs:
     print('PRE-FLIGHT FAIL:')
     for x in errs:
@@ -89,6 +118,8 @@ ls docs/dictionary/*.html | xargs -n1 basename | sed 's/.html$//' \
 wc -l < data/dictionary-slugs.txt | xargs echo "slugs:"
 echo "== manifest =="
 python3 bin/build_dict_manifest.py 2>&1 | grep "File size"
+echo "== sitemaps (excludes redirect stubs; keeps search engines current) =="
+python3 bin/generate_sitemap.py 2>&1 | grep -E 'sitemap-dictionary|sitemap index'
 echo "== enhance entry pages (anchors, In-the-Text, disambiguation) =="
 python3 bin/enhance_entry_pages.py 2>&1 | tail -4
 echo "== post-flight: corpus integrity audit =="
