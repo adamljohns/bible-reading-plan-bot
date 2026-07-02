@@ -38,20 +38,20 @@ WATCHES = [
      "summary": "🧭 Context Summary",
      "refl": "🛡️ Reflection for a REAL MAN — {TRAIT}",
      "traitset": "a fitting one- or two-word virtue drawn from the passage (e.g. Treasures Wisdom, Walks Uprightly, Receives Correction)",
-     "prayer": "🙏 Prayer", "close": "⚓ Helm Command:", "extra": ""},
+     "prayer": "🙏 Prayer", "close": "🛡️ The Charge:", "extra": ""},
     {"key": "first", "passage": "first",
      "header": "🕖 0700 First Watch — The Husband's Post",
      "summary": "🗺️ Briefing Summary",
      "refl": "❤️ Reflection for Your Wife — H.A.P.P.Y. Husband — {TRAIT}",
      "traitset": "exactly one of: Honest, Abiding, Protecting, Providing, Yielding",
-     "prayer": "🙏 Prayer from the Stateroom", "close": "⚓ Helm Command:",
+     "prayer": "🙏 Prayer from the Stateroom", "close": "🛡️ The Charge:",
      "extra": "Speak to Adam's marriage to his wife Maria."},
     {"key": "second", "passage": "second",
      "header": "🕚 1100 Second Watch — The Father's Charge",
      "summary": "🗺️ Field Notes",
      "refl": "👨‍👧 Reflection for Your Children — F.U.L.F.I.L.L.E.D. Father — {TRAIT}",
      "traitset": "exactly one of: Faithful, Understanding, Leading, Forgiving, Instructing, Loving, Listening, Encouraging, Disciplining",
-     "prayer": "🙏 Prayer from the Wardroom", "close": "⚓ Rudder Steer:",
+     "prayer": "🙏 Prayer from the Wardroom", "close": "🛡️ The Charge:",
      "extra": "Touch each child by name, correctly gendered: SONS Gideon (19) and Boaz (14); "
               "DAUGHTER Shiloh (5). Use she/her for Shiloh and aim her guidance at godly young "
               "womanhood and feminine flourishing (gentleness, modesty, a quiet and gentle spirit), "
@@ -61,14 +61,14 @@ WATCHES = [
      "summary": "🛰️ Situation Report",
      "refl": "🛡️ Reflection for a R.E.S.O.L.U.T.E. Citizen — {TRAIT}",
      "traitset": "exactly one of: Responsible, Engaged, Steadfast, Obedient, Loyal, Upright, Trustworthy, Enduring",
-     "prayer": "🙏 Prayer from the Bridge", "close": "⚓ Rudder Steer:",
+     "prayer": "🙏 Prayer from the Bridge", "close": "🛡️ The Charge:",
      "extra": "The reflection has THREE sub-paragraphs headed exactly 'Fredericksburg (local)', 'Virginia (state)', 'United States (nation)'. After the Personal Application place '🦅 This Day in American History — {MD}' with two accurate, well-documented historical events you are confident are real and correctly dated. Prefer edifying, encouraging, providential events (courage, faith, sacrifice, founding virtue, godly men and their deeds). When the honest event for this date is tragic or dark, give it a REDEMPTIVE spin — frame it under God's sovereignty, the call to repentance, or enduring hope. NEVER frame history through a social-justice, grievance, victimhood, or 'woke' lens. Do NOT choose civil-rights-movement, racial-liberation, feminist, labor-agitation, or protest-movement events or figures (such as Malcolm X, marches, or 'liberation' movements). Choose instead from founding and constitutional milestones, military valor and sacrifice, exploration and the frontier, invention and honest industry, Christian missions and revival, conservation of God's creation, or acts of personal courage and faith. Verify the date and facts are correct."},
     {"key": "peace", "passage": "peace",
      "header": "🌙 2100 Evening Peace",
      "summary": None,
      "refl": "🌾 Reflection for a Man at Home and in Community",
      "traitset": None,
-     "prayer": "🙏 Prayer from the Stateroom", "close": "⚓ Rudder Steer:",
+     "prayer": "🙏 Prayer from the Stateroom", "close": "🛡️ The Charge:",
      "extra": "No summary block and no Personal Application bullets. After the scripture and a ⸻ rule, write the 🌾 reflection weaving the three roles in three short paragraphs (one each beginning 'As a HAPPY husband,', 'As a FULFILLED father,', 'As a RESOLUTE citizen,'), then the prayer, then the rudder steer."},
 ]
 
@@ -87,10 +87,12 @@ VOICE = (
     "wooden word-for-word literalism, never loose paraphrase that drifts from the meaning); let the "
     "wording land with the interpretive clarity that drives a man toward obedience, and never soften the "
     "hard edge of the text. POETRY in sense-lines, NARRATIVE in clean prose; NO verse numbers.\n"
-    "FRESH LANGUAGE: write THIS watch's closing imperative (Helm Command / Rudder Steer) and its "
+    "FRESH LANGUAGE: write THIS watch's closing imperative (The Charge) and its "
     "reflection rooted in the SPECIFIC images, names, and scene of today's passage. Do NOT reach for "
     "stock closers — in particular NEVER use the worn phrase 'hold the line against the tide of "
-    "compromise' or its close variants; coin a fresh nautical/military image from this text instead.\n"
+    "compromise' or its close variants; coin a fresh WATCH-STANDING image (the wall, the gate, the post, "
+    "the trumpet, the dawn watch, the sentry's relief) from this text — never ship, helm, rudder, compass, "
+    "or course imagery.\n"
     "WORLDVIEW: This is explicitly patriarchal, biblical-manhood Reformed content (1689 LBCF) that "
     "celebrates and promotes biblical manhood — male headship, godly fatherhood, the protective and "
     "providing duties of a husband, and a man's covenant responsibility before God. Promote that vision "

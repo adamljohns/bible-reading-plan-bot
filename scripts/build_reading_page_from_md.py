@@ -38,11 +38,11 @@ OUT_DIR = REPO / "docs" / "readings"
 
 # Watch metadata, in time order
 WATCHES = [
-    {"key": "wisdom",  "time": "0600", "title": "Morning Wisdom",                 "emoji": "🌅", "prayer_default": "Prayer",                  "command_default": "Helm Command"},
-    {"key": "husband", "time": "0700", "title": "First Watch — The Husband's Post",  "emoji": "🕖", "prayer_default": "Prayer from the Stateroom", "command_default": "Helm Command"},
-    {"key": "father",  "time": "1100", "title": "Second Watch — The Father's Charge", "emoji": "🕚", "prayer_default": "Prayer from the Wardroom",  "command_default": "Helm Command"},
-    {"key": "citizen", "time": "1500", "title": "Third Watch — The Citizen's Stand",  "emoji": "🕒", "prayer_default": "Prayer from the Bridge",    "command_default": "Rudder Steer"},
-    {"key": "peace",   "time": "2100", "title": "Evening Peace",                    "emoji": "🌙", "prayer_default": "Prayer from the Wardroom",  "command_default": "Rudder Steer"},
+    {"key": "wisdom",  "time": "0600", "title": "Morning Wisdom",                 "emoji": "🌅", "prayer_default": "Prayer",                  "command_default": "The Charge"},
+    {"key": "husband", "time": "0700", "title": "First Watch — The Husband's Post",  "emoji": "🕖", "prayer_default": "Prayer from the Stateroom", "command_default": "The Charge"},
+    {"key": "father",  "time": "1100", "title": "Second Watch — The Father's Charge", "emoji": "🕚", "prayer_default": "Prayer from the Wardroom",  "command_default": "The Charge"},
+    {"key": "citizen", "time": "1500", "title": "Third Watch — The Citizen's Stand",  "emoji": "🕒", "prayer_default": "Prayer from the Bridge",    "command_default": "The Charge"},
+    {"key": "peace",   "time": "2100", "title": "Evening Peace",                    "emoji": "🌙", "prayer_default": "Prayer from the Wardroom",  "command_default": "The Charge"},
 ]
 WATCH_BY_TIME = {w["time"]: w for w in WATCHES}
 WATCH_BY_KEY  = {w["key"]:  w for w in WATCHES}
@@ -115,7 +115,7 @@ SECTION_PATTERNS = [
     ("application",    rf"{P}Personal\s+Application\b"),
     ("prayer",         rf"{P}Prayer(?:\s+from\s+the\s+\w+)?\s*$"),                 # heading line, not prose
     ("prayer_alt",     r"^\s*🙏\s*(?:\*\*)?\s*Prayer"),                            # belt-and-suspenders
-    ("helm",           r"^\s*⚓\s*(?:\*\*)?\s*(?:Helm Command|Rudder Steer|Set Sail|Course Correction|Steady As She Goes|Night Orders)\b"),
+    ("helm",           r"^\s*[⚓🛡]️?\s*(?:\*\*)?\s*(?:The Charge|Helm Command|Rudder Steer|Set Sail|Course Correction|Steady As She Goes|Night Orders)\b"),
 ]
 SECTION_REGEX = [(key, re.compile(rx, re.IGNORECASE)) for key, rx in SECTION_PATTERNS]
 
@@ -383,14 +383,14 @@ def render_helm(marker_line, content_lines):
     """Helm Command / Rudder Steer line — may wrap to additional content lines.
     Always concatenate marker_line tail + content_lines for full command text."""
     s = marker_line.strip()
-    m = re.match(r"^\s*⚓\s*(?:\*\*)?\s*(Helm Command|Rudder Steer|Set Sail|Course Correction|Steady As She Goes|Night Orders)\s*(?:\*\*)?\s*[:\-—]?\s*(.*)$",
+    m = re.match(r"^\s*[⚓🛡]️?\s*(?:\*\*)?\s*(The Charge|Helm Command|Rudder Steer|Set Sail|Course Correction|Steady As She Goes|Night Orders)\s*(?:\*\*)?\s*[:\-—]?\s*(.*)$",
                  s, re.IGNORECASE)
     if m:
         label = m.group(1)
         tail = m.group(2).strip()
     else:
-        label = "Helm Command"
-        tail = s.lstrip("⚓").strip()
+        label = "The Charge"
+        tail = s.lstrip("⚓🛡️").strip()
     # Always join continuation lines so wrapped commands aren't truncated.
     # Filter out separator lines (⸻ runs, ---) that belong between watches, not
     # inside the command itself.
@@ -407,7 +407,7 @@ def render_helm(marker_line, content_lines):
     # Strip trailing separator runs that may have hitched onto the last line
     command = re.sub(r"\s*[⸻\-—]{3,}\s*$", "", command)
     command = command.strip().strip("*").strip()
-    return f'<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">{escape(label)}:</span> {escape(command)}</div>'
+    return f'<div class="helm"><span class="helm-icon">🛡️</span> <span class="helm-label">{escape(label)}:</span> {escape(command)}</div>'
 
 
 def render_audio_slot(date, watch_key):

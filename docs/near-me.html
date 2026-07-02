@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Churches Near Me | MOOP Church Directory</title>
+<meta name="description" content="Find theologically-vetted churches near your current location — works on any phone, sorted by distance with MOOP ratings.">
+<link rel="canonical" href="https://usmcmin.org/near-me.html">
+<link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  :root { --bg:#000; --card:#111; --gold:#D4AF37; --gold-light:#F4D470; --white:#e8e8e8; --gray:#888; --border:#2a2a2a; --green:#3ea14a; --yellow:#d4a437; --red:#c0392b; --black:#6b4fa3; }
+  body { font-family:-apple-system,BlinkMacSystemFont,'Inter',sans-serif; background:var(--bg); color:var(--white); line-height:1.5; -webkit-text-size-adjust:100%; }
+  .wrap { max-width:640px; margin:0 auto; padding:18px 14px 60px; }
+  header { text-align:center; padding:10px 0 18px; }
+  header h1 { font-size:1.5rem; color:var(--gold-light); letter-spacing:0.3px; }
+  header p { color:var(--gray); font-size:0.86rem; margin-top:4px; }
+  .nav { display:flex; gap:8px; justify-content:center; margin-top:12px; }
+  .nav a { color:var(--gray); text-decoration:none; font-size:0.8rem; border:1px solid var(--border); border-radius:20px; padding:4px 12px; }
+  .nav a:hover { color:var(--gold); border-color:var(--gold); }
+  .find-btn { display:block; width:100%; padding:16px; margin:8px 0 14px; font-size:1.05rem; font-weight:600;
+    background:linear-gradient(90deg,var(--gold),var(--gold-light)); color:#000; border:none; border-radius:12px; cursor:pointer; }
+  .find-btn:active { transform:scale(0.99); }
+  .find-btn[disabled] { opacity:0.6; cursor:default; }
+  .controls { display:flex; gap:6px; flex-wrap:wrap; justify-content:center; margin-bottom:14px; }
+  .chip { font-size:0.78rem; color:var(--gray); background:var(--card); border:1px solid var(--border); border-radius:18px; padding:5px 12px; cursor:pointer; user-select:none; }
+  .chip.on { color:#000; background:var(--gold); border-color:var(--gold); font-weight:600; }
+  #status { text-align:center; color:var(--gray); font-size:0.85rem; margin:10px 0; min-height:1.2em; }
+  .church { display:block; background:var(--card); border:1px solid var(--border); border-left-width:4px; border-radius:10px; padding:12px 14px; margin-bottom:10px; text-decoration:none; color:var(--white); }
+  .church:active { background:#161616; }
+  .church.green { border-left-color:var(--green); }
+  .church.yellow { border-left-color:var(--yellow); }
+  .church.red { border-left-color:var(--red); }
+  .church.black { border-left-color:var(--black); }
+  .church .top { display:flex; justify-content:space-between; align-items:baseline; gap:10px; }
+  .church .name { font-weight:600; font-size:1rem; color:var(--gold-light); }
+  .church .dist { color:var(--white); font-size:0.92rem; font-weight:600; white-space:nowrap; }
+  .church .meta { color:var(--gray); font-size:0.8rem; margin-top:3px; }
+  .church .addr { color:#6f6f6f; font-size:0.78rem; margin-top:4px; }
+  .church .actions { margin-top:8px; display:flex; gap:8px; }
+  .church .actions a { font-size:0.78rem; text-decoration:none; border:1px solid var(--border); border-radius:8px; padding:5px 10px; color:var(--gold); }
+  .church .actions a:active { background:#1c1c1c; }
+  .legend { display:flex; gap:14px; justify-content:center; flex-wrap:wrap; margin:6px 0 14px; font-size:0.72rem; color:var(--gray); }
+  .dot { display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:4px; vertical-align:middle; }
+  .dot.green{background:var(--green)} .dot.yellow{background:var(--yellow)} .dot.red{background:var(--red)} .dot.black{background:var(--black)}
+  .hint { color:#5a5a5a; font-size:0.74rem; text-align:center; margin-top:18px; line-height:1.6; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>⛪ Churches Near Me</h1>
+    <p>Theologically-vetted churches near you, closest first.</p>
+    <div class="nav"><a href="/churches.html">Full Directory</a><a href="/directory-map.html">Map</a></div>
+  </header>
+
+  <button id="findBtn" class="find-btn">📍 Find Churches Near Me</button>
+
+  <div class="controls">
+    <span class="chip on" data-filter="all">All ratings</span>
+    <span class="chip" data-filter="gy">Green + Yellow</span>
+    <span class="chip" data-filter="green">Green only</span>
+  </div>
+  <div class="legend">
+    <span><span class="dot green"></span>Sound</span>
+    <span><span class="dot yellow"></span>Caution</span>
+    <span><span class="dot red"></span>Concern</span>
+    <span><span class="dot black"></span>Avoid</span>
+  </div>
+
+  <div id="status">Tap the button — your phone will ask to share location. Nothing is stored or sent anywhere; the matching happens in your browser.</div>
+  <div id="results"></div>
+
+  <p class="hint">Works on any phone (Apple or Android) right in the browser — no app needed.<br>Re-tap the button anytime to refresh as you travel.</p>
+</div>
+
+<script>
+(function () {
+  var DATA_URL = '/data/directory-map-points.json';
+  var RATING_RANK = { green: 0, yellow: 1, red: 2, black: 3 };
+  var churches = null, lastPos = null, filter = 'all';
+  var statusEl = document.getElementById('status');
+  var resultsEl = document.getElementById('results');
+  var btn = document.getElementById('findBtn');
+
+  var ta = document.createElement('textarea');
+  function decode(s) { ta.innerHTML = s || ''; return ta.value; }
+
+  function toRad(d) { return d * Math.PI / 180; }
+  function miles(aLat, aLng, bLat, bLng) {
+    var R = 3958.8, dLat = toRad(bLat - aLat), dLng = toRad(bLng - aLng);
+    var x = Math.sin(dLat/2)*Math.sin(dLat/2) + Math.cos(toRad(aLat))*Math.cos(toRad(bLat))*Math.sin(dLng/2)*Math.sin(dLng/2);
+    return 2 * R * Math.asin(Math.sqrt(x));
+  }
+  function passesFilter(r) {
+    if (filter === 'green') return r === 'green';
+    if (filter === 'gy') return r === 'green' || r === 'yellow';
+    return true;
+  }
+  function fmtDist(mi) { return mi < 0.1 ? Math.round(mi * 5280) + ' ft' : mi.toFixed(mi < 10 ? 1 : 0) + ' mi'; }
+
+  function render() {
+    if (!churches || !lastPos) return;
+    var list = [];
+    for (var i = 0; i < churches.length; i++) {
+      var c = churches[i];
+      if (!passesFilter(c.r)) continue;
+      list.push({ c: c, mi: miles(lastPos.lat, lastPos.lng, c.lat, c.lng) });
+    }
+    list.sort(function (a, b) { return a.mi - b.mi; });
+    list = list.slice(0, 30);
+    if (!list.length) { resultsEl.innerHTML = ''; statusEl.textContent = 'No churches matched that filter nearby.'; return; }
+    statusEl.textContent = 'Nearest ' + list.length + ' church' + (list.length > 1 ? 'es' : '') + ' to you:';
+    var html = '';
+    for (var j = 0; j < list.length; j++) {
+      var c = list[j].c, mi = list[j].mi, rate = c.r || 'yellow';
+      var name = decode(c.n), denom = c.d ? decode(c.d) : '', pastor = c.p ? decode(c.p) : '';
+      var metaBits = [denom, pastor].filter(Boolean).join(' · ');
+      var dirUrl = 'https://www.google.com/maps/dir/?api=1&destination=' + c.lat + ',' + c.lng;
+      html += '<div class="church ' + rate + '">'
+        + '<div class="top"><span class="name">' + esc(name) + '</span><span class="dist">' + fmtDist(mi) + '</span></div>'
+        + (metaBits ? '<div class="meta">' + esc(metaBits) + '</div>' : '')
+        + (c.a ? '<div class="addr">' + esc(decode(c.a)) + '</div>' : '')
+        + '<div class="actions">'
+        + '<a href="' + dirUrl + '" target="_blank" rel="noopener">Directions</a>'
+        + '<a href="/churches/' + encodeURIComponent(c.s) + '.html">View rating</a>'
+        + '</div></div>';
+    }
+    resultsEl.innerHTML = html;
+  }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (ch) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]; }); }
+
+  function loadData(cb) {
+    if (churches) return cb();
+    statusEl.textContent = 'Loading the directory…';
+    fetch(DATA_URL).then(function (r) { return r.json(); }).then(function (d) {
+      churches = (Array.isArray(d) ? d : (d.points || [])).filter(function (c) { return typeof c.lat === 'number' && typeof c.lng === 'number'; });
+      cb();
+    }).catch(function () { statusEl.textContent = 'Could not load the church directory. Check your connection and retry.'; btn.disabled = false; btn.textContent = '📍 Find Churches Near Me'; });
+  }
+
+  function locate() {
+    if (!navigator.geolocation) { statusEl.textContent = 'This phone/browser does not support location.'; return; }
+    btn.disabled = true; btn.textContent = 'Locating…';
+    navigator.geolocation.getCurrentPosition(function (pos) {
+      lastPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+      loadData(function () { render(); btn.disabled = false; btn.textContent = '🔄 Refresh Location'; });
+    }, function (err) {
+      btn.disabled = false; btn.textContent = '📍 Find Churches Near Me';
+      statusEl.textContent = err.code === 1
+        ? 'Location permission denied. Enable location for this site in your browser settings, then retry.'
+        : 'Could not get your location — try again with a clear view of the sky.';
+    }, { enableHighAccuracy: true, timeout: 12000, maximumAge: 30000 });
+  }
+
+  btn.addEventListener('click', locate);
+  Array.prototype.forEach.call(document.querySelectorAll('.chip'), function (chip) {
+    chip.addEventListener('click', function () {
+      document.querySelector('.chip.on').classList.remove('on');
+      chip.classList.add('on'); filter = chip.getAttribute('data-filter'); render();
+    });
+  });
+})();
+</script>
+</body>
+</html>

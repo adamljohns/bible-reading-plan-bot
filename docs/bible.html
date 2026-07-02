@@ -1028,7 +1028,8 @@
         // Key format: bookId_chapter_verse (e.g. "20_3_6" = Proverbs 3:6)
         // These take precedence over NKJV and the rotation cache.
         const VERSE_OVERRIDES = {
-            '20_3_6': 'In all your ways, know Him, and He will direct your paths.',
+            // (Proverbs 3:6 override retired 2026-07-01 — its wording was adopted into the
+            // clean MBT batch (data/mbt-batches/20_003.json), which now renders it natively.)
             // "Longsuffering" overrides — NKJV uses this word (Greek: makrothymia G3115)
             // The MOOP Translation should preserve "longsuffering" over "patience" where NKJV does
             '55_4_2': 'Preach the word! Be ready in season and out of season. Convince, rebuke, exhort, with all longsuffering and teaching.',
@@ -1079,14 +1080,36 @@
             });
         }
 
-        // BTE v5.1: MOOP Translation — blended primary rendering
+        // BTE v6.5: MBT (MOOP Bible Translation) — clean, copyright-safe rendering.
+        // Authored solely from public-domain sources (KJV1769+Strong's, WEB) + PD lexica.
+        // This is the AUTHORITATIVE primary text where it exists; it supersedes the older
+        // NKJV-based moop-translation.json below, per-verse. A verse only appears here once
+        // its chapter has been authored + compiled (build-mbt.py), so unfinished chapters
+        // fall back gracefully to the blend, then NKJV. Flat map: bookId_ch_verse -> text.
+        let mbtBible = {};
+        const mbtBibleReady = fetch('assets/mbt/mbt-bible.json?v=' + Date.now())
+            .then(r => r.ok ? r.json() : {})
+            .then(data => { mbtBible = data; console.log(`BTE v6.5: ${Object.keys(data).length.toLocaleString()} clean MBT verses loaded`); })
+            .catch(() => { console.log('BTE: no clean MBT found, using blended fallback'); });
+
+        // BTE v5.1: MOOP Translation — blended primary rendering (LEGACY fallback).
         // Takes NKJV as base, weaves in clarifying words from ESV/NASB/NLT/etc.
-        // Reads as one natural voice. Falls back to NKJV where not yet generated.
+        // Reads as one natural voice. Used only where the clean MBT above is not yet generated.
         let moopTranslation = {};
-        fetch('assets/moop-translation.json?v=' + Date.now())
+        const moopTranslationReady = fetch('assets/moop-translation.json?v=' + Date.now())
             .then(r => r.ok ? r.json() : {})
             .then(data => { moopTranslation = data; console.log(`BTE v5.1: ${Object.keys(data).length.toLocaleString()} MOOP Translation verses loaded`); })
             .catch(() => { console.log('BTE: no MOOP Translation found, using NKJV fallback'); });
+
+        // BTE v6.5: the primary-text sources above load async, but a ?ref= deep link
+        // triggers the first render immediately on page load — with a warm sessionStorage
+        // chapter cache the render can beat the fetches and show the legacy blend instead
+        // of the clean MBT. lookupVerse() awaits this gate (capped at 2.5s so a hung
+        // fetch can never block reading) before choosing each verse's primary text.
+        const primaryTextsReady = Promise.race([
+            Promise.allSettled([mbtBibleReady, moopTranslationReady]),
+            new Promise(resolve => setTimeout(resolve, 2500)),
+        ]);
 
         // BTE v5.0: Cross-reference data — maps verse keys to arrays of cross-ref verse keys
         let crossRefData = {};
@@ -2439,6 +2462,9 @@
             });
             document.addEventListener('click', function(e){ if (!dd.contains(e.target)) close(); });
             document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && isOpen()){ close(); trigger.focus(); } });
+            // BTE v6.9: expose selection so a shared ?lang= URL can set the language
+            // (updates the dropdown UI AND fires onLangChange to set currentLang).
+            window.bteSetLang = function(code){ select(code, true); };
         })();
 
         async function renderForeignChapter(ref) {
@@ -2890,6 +2916,11 @@
 
             showResults();
 
+            // BTE v6.5: don't pick primary text until the clean MBT (and legacy blend)
+            // have had a chance to load — otherwise a ?ref= deep link with a warm
+            // sessionStorage cache renders the legacy blend instead of the MBT.
+            await primaryTextsReady;
+
             // BTE v4.2: Lazy-load verse cache for this book
             await ensureBookLoaded(ref.bookId);
 
@@ -2967,6 +2998,9 @@
                         let transLabelX = '';
                         if (VERSE_OVERRIDES[cacheKeyX]) {
                             primaryTextX = VERSE_OVERRIDES[cacheKeyX];
+                        } else if (mbtBible[cacheKeyX]) {
+                            primaryTextX = mbtBible[cacheKeyX];
+                            transLabelX = '<span class="trans-label" style="color:var(--gold,#c9a84c);opacity:0.8;">[MBT]</span>';
                         } else if (moopTranslation[cacheKeyX]) {
                             primaryTextX = moopTranslation[cacheKeyX];
                             const sourcesX = detectMoopSources(moopTranslation[cacheKeyX], textsX);
@@ -3019,6 +3053,10 @@
                     let transLabel = '';
                     if (VERSE_OVERRIDES[cacheKey]) {
                         primaryText = VERSE_OVERRIDES[cacheKey];
+                    } else if (mbtBible[cacheKey]) {
+                        // BTE v6.5: clean copyright-safe MBT wins where authored
+                        primaryText = mbtBible[cacheKey];
+                        transLabel = '<span class="trans-label" style="color:var(--gold,#c9a84c);opacity:0.8;">[MBT]</span>';
                     } else if (moopTranslation[cacheKey]) {
                         primaryText = moopTranslation[cacheKey];
                         // Show which translations were blended
@@ -3066,6 +3104,9 @@
                     let transLabelV = '';
                     if (VERSE_OVERRIDES[cacheKeyV]) {
                         primaryTextV = VERSE_OVERRIDES[cacheKeyV];
+                    } else if (mbtBible[cacheKeyV]) {
+                        primaryTextV = mbtBible[cacheKeyV];
+                        transLabelV = '<span class="trans-label" style="color:var(--gold,#c9a84c);opacity:0.8;">[MBT]</span>';
                     } else if (moopTranslation[cacheKeyV]) {
                         primaryTextV = moopTranslation[cacheKeyV];
                         const sourcesV = detectMoopSources(moopTranslation[cacheKeyV], texts);
@@ -3386,7 +3427,11 @@
             var _pk = bteParaKeys(btn);
             if (_pk) { var _rr = bteParaRangeRef(_pk); if (_rr) verseRef = _rr; }
             var url;
-            if (STATIC_VERSES[verseRef]) {
+            if (currentLang && currentLang !== 'en') {
+                // BTE v6.9: foreign reading mode — share a link that reopens in the same
+                // language (the static verse pages are English-only, so skip them here).
+                url = 'https://usmcmin.org/bible.html?ref=' + encodeURIComponent(verseRef) + '&lang=' + currentLang;
+            } else if (STATIC_VERSES[verseRef]) {
                 url = 'https://usmcmin.org/verse/' + STATIC_VERSES[verseRef] + '.html';
             } else {
                 url = 'https://usmcmin.org/bible.html?ref=' + encodeURIComponent(verseRef);
@@ -3442,6 +3487,9 @@
             // Prefer ?refs= for multi, fall back to ?ref= for single
             var hasSemi = q.indexOf(';') !== -1;
             var url = 'https://usmcmin.org/bible.html?' + (hasSemi ? 'refs=' : 'ref=') + encodeURIComponent(q);
+            // BTE v6.9: carry the reading language so the link reopens in the same
+            // language the sharer was reading (was silently sharing English).
+            if (currentLang && currentLang !== 'en') url += '&lang=' + currentLang;
             if (navigator.clipboard && navigator.clipboard.writeText) {
                 navigator.clipboard.writeText(url).then(function(){
                     flashActionBtn(btn, 'Copied!');
@@ -3603,6 +3651,14 @@
             const refsParam = urlParams.get('refs');   // BTE v5.5: multi-passage
             const refParam = urlParams.get('ref');
             const bookParam = urlParams.get('book');
+
+            // BTE v6.9: shared links carry the reading language (&lang=ja etc.) —
+            // apply it BEFORE the lookup so the passage renders in that language.
+            // (currentRef is still null here, so this only sets state + dropdown UI.)
+            const langParam = urlParams.get('lang');
+            if (langParam && (langParam === 'en' || LANG_LABELS[langParam]) && typeof window.bteSetLang === 'function') {
+                window.bteSetLang(langParam);
+            }
 
             if (refsParam) {
                 // BTE v5.5: ';'-separated passages

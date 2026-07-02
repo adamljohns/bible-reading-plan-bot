@@ -158,6 +158,12 @@ def process_blog_post(filepath, token_pats, phrase_pats, dry_run=False):
     with open(filepath, 'r', encoding='utf-8') as f:
         html = f.read()
 
+    # Opt-out: a post may decline auto-linking entirely with this marker
+    # (e.g. the Solo Leveling discipleship series, which keeps a clean gold-only
+    # link palette and does not want blue dict-links in its headings/prose).
+    if '<!-- no-autolink -->' in html:
+        return 0
+
     # Mask nav/footer/header/style/script regions so linkify never enters them.
     masks = []
     def _store_region(m):

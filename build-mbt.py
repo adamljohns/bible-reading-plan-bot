@@ -29,6 +29,10 @@ TOTAL_CHAPTERS = 1189
 LICENSE = ("MOOP Bible Translation (MBT) (c) U.S.M.C. Ministries. Derived solely "
            "from public-domain sources (KJV 1769 + Strong's, World English Bible) "
            "and public-domain lexica. Free to quote and reproduce in full.")
+# Every copyrighted column in verse-cache.json — the near-verbatim gate checks ALL
+# of them (these columns are read ONLY for this negative check; they never author).
+COPYRIGHTED_COLS = ["NKJV", "ESV", "NASB", "NLT", "CSB17", "NIV", "AMP", "MSG",
+                    "NET", "NRSVCE"]
 
 _word = re.compile(r"[a-z]+")
 STOP = set("the a an of in on and or but to for with his my your their its it he she "
@@ -39,6 +43,17 @@ def clean(s):
     s = (s or "").lower()
     s = re.sub(r"<s>\d+</s>", " ", s)   # strip Strong's tag AND its number
     s = re.sub(r"<[^>]+>", " ", s)       # strip any remaining markup
+    return s
+def emdash(s):
+    """Authoring uses ' -- ' as an ASCII-safe em-dash placeholder; emit a real
+    em-dash so verses read right on screen AND in narration (Piper reads the flat
+    file). Applied to every served string field (text/amp/notes/chapterNote).
+    Handles mid-clause ' -- ' and a trailing/enjambment ' --' at string end."""
+    if not isinstance(s, str):
+        return s
+    s = s.replace(" -- ", " — ")
+    if s.endswith(" --"):
+        s = s[:-3] + " —"
     return s
 def toks(s):
     return _word.findall(clean(s))
@@ -82,10 +97,11 @@ def main():
             key = f"{book}_{ch}_{vnum}"
             text = obj.get("text", "")
             amp  = obj.get("amp", "")
-            flat[key] = text
+            flat[key] = emdash(text)
 
-            # ---- divine-name discipline (hard fail on leakage)
-            blob = (text + " " + amp).lower()
+            # ---- divine-name discipline (hard fail on leakage; notes included --
+            #      the translit "YHWH" is fine, the vocalized forms are not)
+            blob = (text + " " + amp + " " + obj.get("notes", "")).lower()
             if "yahweh" in blob or "jehovah" in blob:
                 errors.append(f"{key}: divine-name leak ('Yahweh'/'Jehovah' present)")
 
@@ -99,26 +115,31 @@ def main():
             # ---- ORIGINALITY (near-verbatim only): copyright only requires that
             #      a verse not be word-for-word a modern copyrighted translation.
             #      We flag a verse only if it is near-identical (>=85% bigram
-            #      overlap) to NKJV or ESV. Sharing ordinary phrasing is fine.
+            #      overlap) to ANY copyrighted column in the cache. Sharing
+            #      ordinary phrasing is fine. (Was NKJV/ESV-only until 2026-07-01;
+            #      that gate missed 39 verses that matched NASB/NIV/AMP/CSB/NRSVCE.)
             mb = bigrams(toks(text))
             def _jac(col):
                 ob = bigrams(toks(cache.get(key, {}).get(col, "")))
                 return len(mb & ob) / len(mb | ob) if (mb and ob) else 0.0
-            jn, je = _jac("NKJV"), _jac("ESV")
-            verbatim = max(jn, je)
-            sim_report.append((key, verbatim, jn, je))
+            overlaps = {col: _jac(col) for col in COPYRIGHTED_COLS}
+            src = max(overlaps, key=overlaps.get)
+            verbatim = overlaps[src]
+            sim_report.append((key, verbatim, src))
             if verbatim >= 0.85:
-                src = "NKJV" if jn >= je else "ESV"
                 warnings.append(f"{key}: near-verbatim to {src} ({verbatim*100:.0f}% overlap) "
                                 f"-- change wording so it is not word-for-word")
 
-        # ---- write served per-chapter file (clean, agent-facing)
+        # ---- write served per-chapter file (clean, agent-facing); normalize em-dashes
+        def _norm_verse(o):
+            return {k: (emdash(v) if k in ("text", "amp", "notes") else v)
+                    for k, v in o.items()}
         out = {
             "book": book, "bookName": b.get("bookName"), "chapter": ch,
             "version": b.get("version"), "license": LICENSE,
             "sources": b.get("sources"),
-            "chapterNote": b.get("chapterNote"),
-            "verses": {v: verses[v] for v in sorted(verses, key=int)},
+            "chapterNote": emdash(b.get("chapterNote")),
+            "verses": {v: _norm_verse(verses[v]) for v in sorted(verses, key=int)},
         }
         out = {k: v for k, v in out.items() if v is not None}
         with open(os.path.join(OUT_DIR, f"{book}_{ch}.json"), "w") as f:
@@ -162,12 +183,12 @@ def main():
     sim_report.sort(key=lambda r: r[1], reverse=True)
     n = len(sim_report)
     flagged = sum(1 for r in sim_report if r[1] >= 0.85)
-    print("\nORIGINALITY (near-verbatim check vs copyrighted NKJV/ESV):")
+    print(f"\nORIGINALITY (near-verbatim check vs {len(COPYRIGHTED_COLS)} copyrighted versions):")
     print("  policy: a verse is fine unless it is word-for-word a modern version.")
     print(f"  verses near-verbatim (>=85% overlap): {flagged}/{n}")
     print("  closest verses to a copyrighted version:")
-    for key, verbatim, jn, je in sim_report[:5]:
-        print(f"    {key:12s} max {verbatim*100:3.0f}%  (NKJV {jn*100:.0f}%, ESV {je*100:.0f}%)")
+    for key, verbatim, src in sim_report[:5]:
+        print(f"    {key:12s} max {verbatim*100:3.0f}%  (vs {src})")
     print(f"\nERRORS: {len(errors)}")
     for e in errors: print("  X", e)
     print(f"WARNINGS (review, not blocking): {len(warnings)}")

@@ -20,6 +20,14 @@ Output: data/mbt-kits/<book>_<ch>.kit.json   (zero tokens — pure local assembl
 import json, os, re, sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+_LOOKUP_PATH = os.path.join(ROOT, "data", "mbt-kits", "strongs-lookup.json")
+_STRONGS: dict = {}
+
+def _load_strongs():
+    global _STRONGS
+    if _STRONGS or not os.path.exists(_LOOKUP_PATH):
+        return
+    _STRONGS = json.load(open(_LOOKUP_PATH))
 # Protestant canon: id -> (name, testament). NT (>=40) anchors Strong's as Greek.
 BOOKS = {
  1:"Genesis",2:"Exodus",3:"Leviticus",4:"Numbers",5:"Deuteronomy",6:"Joshua",7:"Judges",
@@ -38,13 +46,27 @@ BOOKS = {
 def strong_prefix(book_id):
     return "G" if int(book_id) >= 40 else "H"
 
+def _enrich(num, prefix):
+    """Return [G1198 desmios — prisoner, one in chains] when lookup has the entry."""
+    sid   = f"{prefix}{num}"
+    entry = _STRONGS.get(sid)
+    if not entry:
+        return f"[{sid}]"
+    parts = []
+    if entry.get("translit"):
+        parts.append(entry["translit"])
+    if entry.get("gloss"):
+        parts.append("—")
+        parts.append(entry["gloss"])
+    return f"[{sid} {' '.join(parts)}]" if parts else f"[{sid}]"
+
 def render_strongs(text, book_id):
-    """<S>1234</S> -> [G1234] (attached to the preceding word); drop <i>/</i> italics."""
+    """<S>1234</S> -> [G1234 translit — gloss] (or bare [G1234] if no lookup)."""
     if not isinstance(text, str):
         return ""
     p = strong_prefix(book_id)
-    text = re.sub(r"</?i>", "", text)                       # drop italic markers
-    text = re.sub(r"\s*<S>(\d+)</S>", r"[" + p + r"\1]", text)  # tag -> [G####]
+    text = re.sub(r"</?i>", "", text)
+    text = re.sub(r"\s*<S>(\d+)</S>", lambda m: _enrich(m.group(1), p), text)
     return re.sub(r"\s+", " ", text).strip()
 
 def clean(text):
@@ -80,6 +102,11 @@ def load_chapter(book_id, chapter):
 def main():
     if len(sys.argv) != 3:
         sys.exit("usage: mbt-chapter-kit.py <bookId> <chapter>")
+    _load_strongs()
+    if _STRONGS:
+        print(f"Lexicon loaded: {len(_STRONGS)} Strong's entries (enriched tags)")
+    else:
+        print("Lexicon not found — run bin/mbt-build-lexicon.py first (bare [G####] tags)")
     book_id, chapter = int(sys.argv[1]), int(sys.argv[2])
     verses, src = load_chapter(book_id, chapter)
     if not verses:
