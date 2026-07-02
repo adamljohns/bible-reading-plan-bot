@@ -181,6 +181,38 @@ as the index + section pages). Backward-compatible: entries without it are
 unchanged. Add `voice_lock_ok: ["progressive"]` (or "therapy") to any entry that
 must quote woke/therapeutic vocabulary to rebut it, or the drift audit flags it.
 
+## 7b. Webster 1828 honesty — the `modern_coinage` flag (2026-07-02)
+
+Noah Webster (d. 1843) never defined *rizz*, *deconstruction*, or *deplatform*. A
+section titled **"Webster 1828 Definition"** on a word that did not exist in 1828 is
+a fabricated reference and hurts credibility. So `generate_dict_entries.py` reads an
+optional boolean:
+
+    "modern_coinage": true
+
+When set, the Webster section renders as **"&#128220; Origin &amp; Era"** (section
+id `origin`, and the false "Webster 1828," is dropped from the SEO meta); the
+`webster_summary`/`webster_full` content is kept, just under an honest heading.
+Default (flag absent) is unchanged — a real 1828 word keeps its **"Webster 1828
+Definition"** section. When authoring any decoder/slang/Christianese entry:
+
+- **Real 1828 word in a weaponized modern sense** (winsome, affirming, diversity,
+  equity, woke = &ldquo;past of wake&rdquo;, image-bearer &rarr; image + bearer):
+  leave `modern_coinage` UNSET and put the REAL Webster 1828 definition in
+  `webster_full`. The genuine def sharpens the corruption **by contrast** &mdash;
+  that is a feature; keep it.
+- **Coinage that postdates 1828** (deconstruction, cisgender, name-it-and-claim-it,
+  most slang): set `"modern_coinage": true`.
+
+Retrofit EXISTING entries with **`bin/relabel_decoder_webster.py <slugs-file>`**
+(relabels heading + id + meta, keeps content). To decide keep-vs-relabel for an
+existing block: a real tie cites `Webster 1828` in the body or a classic etymology
+(`From Saxon/Latin/Greek/French`, `[L.`, `[Gr.`) with a real definition &mdash;
+KEEP; a block that says *&ldquo;this word did not exist in 1828&rdquo;* &mdash;
+RELABEL. Done 2026-07-02: 104 generational + 74 Christianese relabeled; **25**
+Christianese real-1828 words kept their genuine Webster tie (that guardrail caught
+7 real words a coarse first pass had wrongly stripped).
+
 ## 8. Topical-section curation — `bin/curate_sections.py`
 
 The TOPICAL sections (doctrinal-anchors, most-corrupted, expressly-prohibited,
