@@ -74,9 +74,15 @@ def pick_llm(cli_base=None):
     for b in [x for x in bases if x]:
         try:
             with urllib.request.urlopen(b.rstrip("/") + "/models", timeout=5) as r:
-                models = json.load(r).get("data", [])
-                if models:
-                    return b.rstrip("/"), models[0]["id"]
+                j = json.load(r)
+                # OpenAI shape {"data":[{"id":...}]} (LM Studio, llama-server) OR
+                # Ollama shape {"models":[{"name"/"model":...}]} (Hermes :1235 proxy)
+                models = j.get("data") or j.get("models") or []
+                # skip embedding models (LM Studio lists them alongside chat models)
+                names = [m.get("id") or m.get("model") or m.get("name") for m in models]
+                names = [n for n in names if n and "embed" not in n.lower()]
+                if names:
+                    return b.rstrip("/"), names[0]
         except Exception:
             continue
     return None, None
