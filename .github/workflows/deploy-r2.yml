@@ -1,0 +1,37 @@
+name: Deploy site to R2
+# usmcmin.org is served from Cloudflare R2 (bucket: usmcmin-site) via the
+# `usmcmin-site` Worker. This action syncs docs/ -> R2 on every push to main,
+# replacing the GitHub Pages build (which stays enabled only as a fallback).
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-r2
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install rclone
+        run: sudo apt-get update -q && sudo apt-get install -y -q rclone
+      - name: Sync docs/ to R2
+        env:
+          RCLONE_CONFIG_R2_TYPE: s3
+          RCLONE_CONFIG_R2_PROVIDER: Cloudflare
+          RCLONE_CONFIG_R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          RCLONE_CONFIG_R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          RCLONE_CONFIG_R2_ENDPOINT: https://a57e8cd919350d6bb9ced6f47ef627d3.r2.cloudflarestorage.com
+          RCLONE_CONFIG_R2_NO_CHECK_BUCKET: "true"
+        run: |
+          rclone sync docs r2:usmcmin-site \
+            --checksum --fast-list \
+            --transfers 64 --checkers 64 \
+            --s3-upload-cutoff 200M --s3-chunk-size 32M \
+            --stats-one-line --stats 30s

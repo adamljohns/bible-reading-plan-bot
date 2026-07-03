@@ -17,7 +17,7 @@ Owner: Adam Johns (U.S.M.C. Ministries). Target: 7,777 verified churches. **Curr
 | `HUMAN-TODO.md` | Human-attention queue — items autonomous agents could not safely resolve. Append new items here; mark resolved with `[x]` + ~strikethrough~. |
 | `~/.claude/commands/enrich-churches.md` | The `/enrich-churches` slash command (4-wave parallel pattern; user-invokable). |
 
-The repo is a regular git checkout. `main` deploys via GitHub Pages from `docs/`. There is **no CI** — `git push origin main` is the deploy.
+The repo is a regular git checkout. **`git push origin main` is still the deploy** — but as of 2026-07-02 the live site (usmcmin.org) is served from **Cloudflare R2** (bucket `usmcmin-site`) via the `usmcmin-site` Worker, NOT GitHub Pages. A GitHub Action (`.github/workflows/deploy-r2.yml`) syncs `docs/` → R2 on every push to main. Nothing changes for agents/autopilots: push to main and the site updates in ~2-4 min. GitHub Pages remains enabled only as a dormant fallback (its 1.85GB build exceeded the 1GB Pages limit and was failing). Do NOT hand-upload to R2; let the Action deploy. Worker source + rollback steps: `~/usmcmin-site-worker/` (ROLLBACK.md).
 
 ## Schema invariants — NEVER violate these
 
