@@ -972,14 +972,29 @@ if (pvEl) {
 // Generate church pages. `--only id1,id2,...` regenerates just those records (fast, no
 // whole-directory churn — e.g. after editing or pruning a handful); no flag = full rebuild.
 const onlyArg = (() => { const i = process.argv.indexOf('--only'); return i >= 0 && process.argv[i + 1] ? new Set(process.argv[i + 1].split(',').map(s => s.trim()).filter(Boolean)) : null; })();
-let count = 0;
+
+// Write a page only when its content actually changed. The footer "Last updated:
+// ${BUILD_DATE}" is volatile (today's date), so writing unconditionally rewrites all
+// ~28.5k pages every run — pure churn that ballooned .git to ~11 GB and forced
+// surgical per-file staging on every enrichment. Normalize the date line out of the
+// comparison: unchanged pages stay byte-identical (keeping their real last-change
+// date) and only genuinely-changed churches get rewritten with today's date.
+const stripBuildDate = s => s.replace(/Last updated: \d{4}-\d{2}-\d{2}/g, 'Last updated: __D__');
+function writePageIfChanged(outPath, html) {
+  try {
+    if (stripBuildDate(fs.readFileSync(outPath, 'utf8')) === stripBuildDate(html)) return false;
+  } catch (_) { /* file doesn't exist yet → write it */ }
+  fs.writeFileSync(outPath, html);
+  return true;
+}
+
+let count = 0, rewritten = 0;
 data.churches.forEach(church => {
   if (onlyArg && !onlyArg.has(String(church.id))) return;
   const html = buildPage(church);
   const outPath = path.join(outDir, `${church.id}.html`);
-  fs.writeFileSync(outPath, html);
+  if (writePageIfChanged(outPath, html)) { rewritten++; if (!onlyArg) console.log(`✅ ${church.id}.html`); }
   count++;
-  if (!onlyArg) console.log(`✅ ${church.id}.html`);
 });
 
 // Generate index redirect
@@ -1020,4 +1035,4 @@ for (const script of ['build_state_shards.py', 'build_denomination_shards.py']) 
   }
 }
 
-console.log(onlyArg ? `\n🎉 Regenerated ${count} page(s): ${[...onlyArg].join(', ')}` : `\n🎉 Generated ${count} church pages + index.html`);
+console.log(onlyArg ? `\n🎉 Regenerated ${count} page(s): ${[...onlyArg].join(', ')}` : `\n🎉 ${rewritten} of ${count} church pages rewritten (unchanged skipped) + index.html`);

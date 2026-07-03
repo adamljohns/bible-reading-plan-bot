@@ -56,7 +56,14 @@ def write_if_changed(path, payload):
     if path.exists():
         try:
             old = json.loads(path.read_text())
-            if old == dict(payload, shard_generated_at=old.get("shard_generated_at")):
+            # Ignore volatile stamps — a shard must churn ONLY when its church CONTENT
+            # changes. shard_generated_at is per-run; directory_updated is bumped to today
+            # by merge-pastor-enrichments on every enrichment and lives in every shard's
+            # meta, so without excluding it too all ~200 shards rewrite each run (bloat).
+            probe = dict(payload,
+                         shard_generated_at=old.get("shard_generated_at"),
+                         directory_updated=old.get("directory_updated"))
+            if old == probe:
                 return False
         except (json.JSONDecodeError, OSError):
             pass
