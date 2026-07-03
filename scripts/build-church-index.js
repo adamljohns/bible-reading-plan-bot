@@ -21,7 +21,7 @@ const path = require('path');
 // Card fields copied verbatim when non-empty (churches.html buildCardEl + filter index).
 const FIELDS = [
   'id', 'name', 'overall_rating', 'denomination', 'denomination_family', 'founded',
-  'pastor', 'pastor_credentials', 'address', 'website', 'services',
+  'pastor', 'pastors', 'pastor_credentials', 'address', 'website', 'services',
   'has_mens_ministry', 'has_kids_ministry', 'tags',
   'score_notes', 'gender_detail', 'assessment', 'region', 'type',
 ];

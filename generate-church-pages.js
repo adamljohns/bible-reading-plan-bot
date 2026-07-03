@@ -805,7 +805,11 @@ function buildPage(church) {
       if (yr) schema.foundingDate = yr[1];
     }
     if (church.pastor && !/^(see website|verify|various|not published|unknown)$/i.test(String(church.pastor).trim())) {
-      schema.employee = { '@type': 'Person', name: church.pastor, jobTitle: 'Pastor' };
+      // Multi-pastor roster (2026-07-03): when pastors[] exists it carries the full
+      // verified leadership team [{name, role}], lead first — schema.org gets them all.
+      schema.employee = Array.isArray(church.pastors) && church.pastors.length
+        ? church.pastors.map(p => ({ '@type': 'Person', name: p.name, jobTitle: p.role || 'Pastor' }))
+        : { '@type': 'Person', name: church.pastor, jobTitle: 'Pastor' };
     }
     // Emit the JSON safely between <script> tags; escapeJSONForScript prevents </script> injection.
     const body = JSON.stringify(schema).replace(/</g, '\\u003c').replace(/>/g, '\\u003e').replace(/&/g, '\\u0026');
@@ -862,7 +866,13 @@ ${(() => {
           church.website && String(church.website).startsWith('http') && church.pastor && church.pastor !== 'See website' && church.pastor !== 'Verify'
             ? `<a href="${escapeHtml(church.website)}" target="_blank" rel="noopener" style="color:var(--gold);text-decoration:none;border-bottom:1px dashed var(--gold);" title="Visit church website to learn more about the pastor">${escapeHtml(church.pastor)}</a>`
             : escapeHtml(church.pastor || 'Unknown')
-        }</span>
+        }${Array.isArray(church.pastors) && church.pastors.length && church.pastors[0] && church.pastors[0].role ? ` <span style="font-size:0.72rem;color:var(--gray);font-style:italic;">— ${escapeHtml(church.pastors[0].role)}</span>` : ''}</span>${
+          // Multi-pastor roster block. NOTE: when pastors[] is absent this MUST render
+          // as the empty string with no added whitespace, so pages without a roster stay
+          // byte-identical and the write-if-changed regen doesn't churn all 28.5k pages.
+          Array.isArray(church.pastors) && church.pastors.length > 1 ? `
+        <span style="display:block;margin-top:7px;font-size:0.78rem;color:var(--gray-light);line-height:1.6;">${church.pastors.slice(1).map(p => escapeHtml(p.name) + (p.role ? ' <span style="color:var(--gray);font-style:italic;">— ' + escapeHtml(p.role) + '</span>' : '')).join('<br>')}</span>` : ''
+        }
       </div>
       ${church.pastor_transition && church.pastor_transition.detail ? `<div class="fact-item" style="grid-column: 1 / -1; border-left: 3px solid var(--gold); padding-left: 10px;">
         <span class="fact-label">⛪ Leadership Update${church.pastor_transition.updated ? ` <span style="font-size:0.65rem;color:var(--gray);font-style:italic;text-transform:none;letter-spacing:0;">— as of ${escapeHtml(church.pastor_transition.updated)}</span>` : ''}</span>

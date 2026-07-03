@@ -48,7 +48,14 @@ function isPlaceholderPastor(p) {
 const isUS = c => { const s = String(c.state || '').toUpperCase().trim(); return AB.has(s) || FULL.has(s); };
 const isEnglish = n => typeof n === 'string' && !/[^\x00-\x7F]/.test(n);
 const notesText = c => Array.isArray(c.enrichment_notes) ? c.enrichment_notes.join(' ') : String(c.enrichment_notes || '');
-const alreadyAttempted = c => !!c._loop_round_attempted || !!c._verify_round_attempted || /Phase 6f/i.test(notesText(c));
+// A junk-pastor-reset stamped AFTER the last Phase-6f attempt re-opens the record for
+// research (the prior "attempt" landed a scraper artifact, not a real answer). A fresh
+// Phase-6f note after the reset closes it again.
+const alreadyAttempted = c => {
+  const n = notesText(c);
+  if (n.lastIndexOf('junk-pastor-reset') > n.lastIndexOf('Phase 6f')) return false;
+  return !!c._loop_round_attempted || !!c._verify_round_attempted || /Phase 6f/i.test(n);
+};
 
 const eligible = churches.filter(c =>
   c.needs_review === true &&
