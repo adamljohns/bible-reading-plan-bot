@@ -53,13 +53,30 @@ say "extracted: $FOUND verified lead(s) of $N_BATCH churches"
 
 node scripts/merge-pastor-enrichments.js --input "$WORK/enriched.json" >>"$LOG" 2>&1 \
   || die "merge failed"
+
+# Publish a QA sample for the fleet: the newest local-extract finds land at
+# https://usmcmin.org/data/qa-sample.json so Chaps (web_fetch-only tooling) can
+# audit them on his recurring QA cron — verify pastor_name appears at
+# pastor_source_url AND on the directory page — and report discrepancies to Adam.
+node -e '
+const fs=require("fs");
+const found=require("'"$WORK"'/enriched.json").filter(x=>x.pastor_name).map(x=>({
+  id:x.id, pastor_name:x.pastor_name, pastor_role:x.pastor_role||null,
+  pastor_source_url:x.pastor_source_url,
+  page_url:"https://usmcmin.org/churches/"+x.id+".html",
+  extracted_at:new Date().toISOString().slice(0,10), extractor:x.extractor||"local"}));
+const P="docs/data/qa-sample.json";
+let prev=[]; try{prev=JSON.parse(fs.readFileSync(P,"utf8")).sample||[]}catch(_){}
+const merged=[...found,...prev.filter(p=>!found.some(f=>f.id===p.id))].slice(0,40);
+fs.writeFileSync(P,JSON.stringify({updated:new Date().toISOString().slice(0,10),note:"Most recent local-LLM pastor extractions — QA audit sample for fleet verification (Chaps recurring cron): verify pastor_name appears at pastor_source_url AND on page_url.",sample:merged},null,1));
+' >>"$LOG" 2>&1 || say "qa-sample update failed (non-fatal)"
 node generate-church-pages.js >>"$LOG" 2>&1 \
   || { git reset -q --hard; die "regen failed — working tree reset"; }
 node scripts/check-consistency.js >>"$LOG" 2>&1 \
   || { git reset -q --hard; die "consistency check FAILED — commit aborted, tree reset"; }
 
 if [ -n "$(git status --porcelain)" ]; then
-  git add docs/data/churches.json docs/churches/ docs/data/churches-index.json docs/data/churches/
+  git add docs/data/churches.json docs/churches/ docs/data/churches-index.json docs/data/churches/ docs/data/qa-sample.json
   git commit -qm "Nightly local pastor refine: +$FOUND pastors of $N_BATCH attempted (local-extract)" \
     || die "commit failed"
   if ! git push -q origin HEAD:main; then
