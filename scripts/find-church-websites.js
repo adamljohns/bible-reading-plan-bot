@@ -80,9 +80,12 @@ function fetchText(url, depth = 0) {
   });
 }
 
-const MATCH = arg('--match', ''); // optional name filter to target/ test (e.g. --match "first baptist")
+const MATCH = arg('--match', ''); // optional NAME filter (e.g. --match "first baptist")
 const matchRe = MATCH ? new RegExp(MATCH, 'i') : null;
-const eligible = d.churches.filter(c => !hasSite(c) && isEnglish(c.name) && isUS(c) && !c._website_searched && (!matchRe || matchRe.test(c.name)))
+const STATES_F = (arg('--states', '') || '').toUpperCase().split(',').map(s => s.trim()).filter(Boolean); // e.g. --states VA,DC,MD
+const eligible = d.churches.filter(c => !hasSite(c) && isEnglish(c.name) && isUS(c) && !c._website_searched
+  && (!matchRe || matchRe.test(c.name))
+  && (!STATES_F.length || STATES_F.includes(String(c.state || '').toUpperCase())))
   .sort((a, b) => String(a.id).localeCompare(String(b.id))).slice(0, COUNT);
 
 console.log(`${APPLY ? 'APPLYING' : 'DRY RUN'} — website search for ${eligible.length} siteless churches (Brave)\n`);
