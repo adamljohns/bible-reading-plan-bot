@@ -49,7 +49,7 @@ const SENTENCE_SILENCE = '0.35';
 const VERSE_GAP = 0.35;        // brief pause between verses
 
 // Pilot books. Chapter counts are derived from the source, not trusted from here.
-const BOOK_NAMES = { '8': 'Ruth', '17': 'Esther' };
+const BOOK_NAMES = { '8': 'Ruth', '17': 'Esther', '20': 'Proverbs', '57': 'Philemon' };
 
 function checkPrereqs() {
   if (!fs.existsSync(MODEL)) throw new Error('Voice model missing: ' + MODEL + ' (set PIPER_MODEL or download a female voice)');
