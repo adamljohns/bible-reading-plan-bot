@@ -1,8 +1,8 @@
 # Operating manual for agents working on this repo
 
-This file is auto-loaded for any Claude Code agent that opens this directory. The original `README.md` documents the daily Bible-reading plan generator (`plan.py`) — a separate concern. **This file documents the MOOP Church Directory**, which is the primary product shipped from this repo to `usmcmin.org/churches.html` via GitHub Pages from `docs/`.
+This file is auto-loaded for any Claude Code agent that opens this directory. The original `README.md` documents the daily Bible-reading plan generator (`plan.py`) — a separate concern. **This file documents the MOOP Church Directory**, which is the primary product shipped from this repo to `usmcmin.org/churches.html` via Cloudflare R2 from `docs/` (see the deploy paragraph below the table).
 
-Owner: Adam Johns (U.S.M.C. Ministries). Target: 7,777 verified churches. **Current state: 4,911 (V4.9.7, 2026-04-30)**.
+Owner: Adam Johns (U.S.M.C. Ministries). Original target: 7,777 verified churches — long surpassed. **Current state: 28,574 (V7.1.0, 2026-07-04)**.
 
 ## What lives where
 
