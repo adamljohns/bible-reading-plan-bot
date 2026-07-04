@@ -1,8 +1,8 @@
 # Operating manual for agents working on this repo
 
-This file is auto-loaded for any Claude Code agent that opens this directory. The original `README.md` documents the daily Bible-reading plan generator (`plan.py`) — a separate concern. **This file documents the MOOP Church Directory**, which is the primary product shipped from this repo to `usmcmin.org/churches.html` via GitHub Pages from `docs/`.
+This file is auto-loaded for any Claude Code agent that opens this directory. The original `README.md` documents the daily Bible-reading plan generator (`plan.py`) — a separate concern. **This file documents the MOOP Church Directory**, which is the primary product shipped from this repo to `usmcmin.org/churches.html` via Cloudflare (R2 + Worker) from `docs/` — see Deployment below.
 
-Owner: Adam Johns (U.S.M.C. Ministries). Target: 7,777 verified churches. **Current state: 4,911 (V4.9.7, 2026-04-30)**.
+Owner: Adam Johns (U.S.M.C. Ministries). Original target: 7,777 verified churches — long surpassed. **Current state: 28,574 (V7.1.0, 2026-07-04)**.
 
 ## What lives where
 
@@ -17,7 +17,16 @@ Owner: Adam Johns (U.S.M.C. Ministries). Target: 7,777 verified churches. **Curr
 | `HUMAN-TODO.md` | Human-attention queue — items autonomous agents could not safely resolve. Append new items here; mark resolved with `[x]` + ~strikethrough~. |
 | `~/.claude/commands/enrich-churches.md` | The `/enrich-churches` slash command (4-wave parallel pattern; user-invokable). |
 
-The repo is a regular git checkout. `main` deploys via GitHub Pages from `docs/`. There is **no CI** — `git push origin main` is the deploy.
+## Deployment (Cloudflare cutover 2026-07-02 — verified 2026-07-04)
+
+`git push origin main` is still the deploy trigger, but the mechanism changed after the repo outgrew GitHub Pages' 1GB limit:
+
+- **Push to `main`** → GitHub Action `.github/workflows/deploy-r2.yml` → `rclone sync docs/ → R2 bucket usmcmin-site` (Cloudflare account `usmcministries2022@gmail.com`, id `a57e8cd919350d6bb9ced6f47ef627d3`).
+- **Serving:** Cloudflare Worker `usmcmin-site` (source: `~/usmcmin-site-worker/worker.js` + `wrangler.toml`, outside this repo) reads the bucket and serves `usmcmin.org` + `www.usmcmin.org`. Preview always on at `r2.usmcmin.org`.
+- **GitHub Pages remains enabled as a dormant fallback only.** Its build status shows "errored"/stuck — expected and harmless; ignore it. Rollback procedure: `~/usmcmin-site-worker/ROLLBACK.md` (restore DNS to GitHub Pages A records, ~seconds).
+- **Manual full sync from this machine:** `rclone sync docs r2:usmcmin-site --checksum --s3-no-check-bucket` (rclone remote `r2` is configured locally).
+- Deploys are eventually-consistent within ~1–2 min of the Action completing. Only `docs/` ships; repo-root files never reach the site.
+- `usmcmin.com` (RESOLUTE/citizen site, separate repo) was NOT part of this migration.
 
 ## Schema invariants — NEVER violate these
 
