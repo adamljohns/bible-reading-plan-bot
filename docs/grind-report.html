@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>Local Grind Report — MOOP Church Directory</title>
+<style>
+  :root { --gold:#d4af37; --bg:#0a0a0a; --card:#161616; --border:#2a2a2a; --white:#e8e8e8; --gray:#8a8a8a; --gray-light:#b5b5b5; --green:#4caf7d; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--bg); color:var(--white); font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; padding:28px 16px 60px; }
+  .wrap { max-width:1080px; margin:0 auto; }
+  h1 { font-size:1.5rem; color:var(--gold); margin-bottom:4px; }
+  .sub { color:var(--gray); font-size:.85rem; margin-bottom:26px; }
+  .cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:12px; margin-bottom:30px; }
+  .card { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:16px; }
+  .card .label { font-size:.7rem; letter-spacing:.08em; text-transform:uppercase; color:var(--gray); margin-bottom:6px; }
+  .card .big { font-size:1.7rem; font-weight:700; color:var(--gold); }
+  .card .delta { font-size:.8rem; color:var(--green); margin-top:3px; }
+  .card .base { font-size:.72rem; color:var(--gray); margin-top:2px; }
+  h2 { font-size:1.05rem; color:var(--gold); margin:26px 0 12px; }
+  .bars { display:flex; align-items:flex-end; gap:10px; height:150px; padding:12px; background:var(--card); border:1px solid var(--border); border-radius:10px; overflow-x:auto; }
+  .barcol { display:flex; flex-direction:column; align-items:center; gap:6px; min-width:56px; }
+  .bar { width:34px; background:linear-gradient(180deg,#e8c95c,var(--gold)); border-radius:4px 4px 0 0; min-height:3px; }
+  .bar.retry { background:linear-gradient(180deg,#7fb6e8,#4a90d9); }
+  .barval { font-size:.75rem; color:var(--white); }
+  .barday { font-size:.65rem; color:var(--gray); }
+  table { width:100%; border-collapse:collapse; background:var(--card); border:1px solid var(--border); border-radius:10px; overflow:hidden; font-size:.82rem; }
+  th,td { padding:8px 10px; text-align:left; border-bottom:1px solid var(--border); }
+  th { color:var(--gray); font-size:.68rem; text-transform:uppercase; letter-spacing:.06em; }
+  td.num { color:var(--gold); font-weight:600; }
+  .finds { display:grid; gap:8px; }
+  .find { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:10px 14px; font-size:.85rem; }
+  .find a { color:var(--gold); text-decoration:none; }
+  .find .role { color:var(--gray); font-style:italic; }
+  .find .src { color:var(--gray); font-size:.72rem; display:block; margin-top:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .err { color:#e07070; padding:14px; }
+  .note { color:var(--gray); font-size:.75rem; margin-top:8px; line-height:1.5; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>⚙️ Local Grind Report</h1>
+  <div class="sub">The zero-cloud-usage enrichment pipeline (local Qwen on this Mac) vs. the 2026-07-03 baseline. Data: <a href="/data/grind-stats.json" style="color:var(--gray)">grind-stats.json</a> · newest finds: <a href="/data/qa-sample.json" style="color:var(--gray)">qa-sample.json</a></div>
+  <div class="cards" id="cards"><div class="card"><div class="label">Loading…</div></div></div>
+  <h2>Pastors found per day <span style="font-size:.7rem;color:var(--gray);font-weight:400">(gold = fresh pool · blue = retry pool)</span></h2>
+  <div class="bars" id="bars"></div>
+  <h2>Recent rounds</h2>
+  <div style="overflow-x:auto"><table id="rounds"><thead><tr><th>When (UTC)</th><th>Mode</th><th>Attempted</th><th>Found</th><th>Pool left</th><th>Total pastors</th><th>Rosters</th><th>Socials</th></tr></thead><tbody></tbody></table></div>
+  <h2>Newest verified finds (QA sample — what Chaps audits)</h2>
+  <div class="finds" id="finds"></div>
+  <div class="note">Every name shown was verified to appear verbatim on the fetched church page before it could land; the merge layer additionally rejects junk-shaped names and holds typically-female-named leads for manual rubric review. Chaps re-audits the newest finds every 3 days and reports to Adam's Telegram.</div>
+</div>
+<script>
+(async function () {
+  const $ = id => document.getElementById(id);
+  let stats, qa;
+  try {
+    stats = await (await fetch('/data/grind-stats.json', {cache:'no-store'})).json();
+  } catch (e) { $('cards').innerHTML = '<div class="err">grind-stats.json not reachable — no rounds recorded yet.</div>'; return; }
+  try { qa = await (await fetch('/data/qa-sample.json', {cache:'no-store'})).json(); } catch (e) { qa = {sample:[]}; }
+
+  const s = stats.series || [];
+  if (!s.length) { $('cards').innerHTML = '<div class="err">No data rows yet.</div>'; return; }
+  const base = s[0], last = s[s.length - 1];
+  const attempted = s.reduce((a, r) => a + (r.attempted || 0), 0);
+  const found = s.reduce((a, r) => a + (r.found || 0), 0);
+  const card = (label, val, delta, baseTxt) =>
+    `<div class="card"><div class="label">${label}</div><div class="big">${val.toLocaleString()}</div>` +
+    (delta > 0 ? `<div class="delta">▲ +${delta.toLocaleString()} since baseline</div>` : '') +
+    (baseTxt ? `<div class="base">${baseTxt}</div>` : '') + `</div>`;
+  $('cards').innerHTML =
+    card('Verified pastors', last.real_pastors, last.real_pastors - base.real_pastors, 'baseline ' + base.real_pastors.toLocaleString()) +
+    card('Multi-pastor rosters', last.rosters, last.rosters - base.rosters, 'baseline ' + base.rosters) +
+    card('Churches w/ socials', last.socials_any, last.socials_any - base.socials_any, 'baseline ' + base.socials_any.toLocaleString()) +
+    card('Attempted (total)', attempted, 0, found + ' pastors landed · ' + (attempted ? Math.round(100 * found / attempted) : 0) + '% hit rate') +
+    card('Pool remaining', last.pool_after ?? 0, 0, 'mode: ' + (last.mode || '?'));
+
+  // pastors found per day
+  const byDay = {};
+  for (const r of s) { if (r.mode === 'baseline') continue; const day = (r.ts || '').slice(5, 10); if (!day) continue;
+    byDay[day] = byDay[day] || { fresh: 0, retry: 0 }; byDay[day][r.mode === 'retry' ? 'retry' : 'fresh'] += (r.found || 0); }
+  const days = Object.keys(byDay);
+  const max = Math.max(1, ...days.map(d => byDay[d].fresh + byDay[d].retry));
+  $('bars').innerHTML = days.map(d => {
+    const f = byDay[d].fresh, r = byDay[d].retry;
+    return `<div class="barcol"><div class="barval">${f + r}</div>` +
+      (r ? `<div class="bar retry" style="height:${Math.round(110 * r / max)}px"></div>` : '') +
+      `<div class="bar" style="height:${Math.max(3, Math.round(110 * f / max))}px"></div><div class="barday">${d}</div></div>`;
+  }).join('') || '<div class="err">No rounds yet.</div>';
+
+  $('rounds').querySelector('tbody').innerHTML = s.slice(-20).reverse().map(r =>
+    `<tr><td>${r.ts || ''}</td><td>${r.mode || ''}</td><td>${r.attempted ?? ''}</td><td class="num">${r.found ?? ''}</td><td>${r.pool_after ?? ''}</td><td>${(r.real_pastors || 0).toLocaleString()}</td><td>${r.rosters ?? ''}</td><td>${(r.socials_any || 0).toLocaleString()}</td></tr>`).join('');
+
+  $('finds').innerHTML = (qa.sample || []).slice(0, 15).map(f =>
+    `<div class="find"><a href="${f.page_url}" target="_blank" rel="noopener">${f.id}</a> → <strong>${f.pastor_name}</strong>` +
+    (f.pastor_role ? ` <span class="role">— ${f.pastor_role}</span>` : '') +
+    `<span class="src">source: ${f.pastor_source_url || 'n/a'} · ${f.extracted_at || ''} · ${f.extractor || ''}</span></div>`).join('')
+    || '<div class="err">No QA sample yet.</div>';
+})();
+</script>
+</body>
+</html>

@@ -57,17 +57,29 @@ const alreadyAttempted = c => {
   return !!c._loop_round_attempted || !!c._verify_round_attempted || /Phase 6f/i.test(n);
 };
 
-const eligible = churches.filter(c =>
-  c.needs_review === true &&
+// Base fetchability: placeholder pastor + real website + US + ASCII name.
+// (2026-07-03: the needs_review===true gate was dropped — it was an accident of
+// which import wave set the flag, not a statement about enrichability, and it
+// hid ~600 fetchable churches.)
+const fetchable = c =>
   isPlaceholderPastor(c.pastor) &&
   typeof c.website === 'string' && /^https?:\/\//i.test(c.website) &&
   isEnglish(c.name) &&
-  isUS(c) &&
-  !alreadyAttempted(c)
-);
+  isUS(c);
+
+// --retry mode (2026-07-03): second pass over churches attempted EXACTLY once
+// that came back "no parseable pastor" — the extractor's smarter page discovery
+// (homepage link-following) often finds the staff page the fixed paths missed.
+// Two strikes and the record leaves the automated pool for good.
+const RETRY = args.includes('--retry');
+const noPastorStrikes = c => (notesText(c).match(/no parseable pastor/gi) || []).length;
+
+const eligible = churches.filter(c => fetchable(c) &&
+  (RETRY ? (alreadyAttempted(c) && noPastorStrikes(c) === 1)
+         : !alreadyAttempted(c)));
 eligible.sort((a, b) => String(a.id).localeCompare(String(b.id)));
 
-console.log(`Eligible pool (never-attempted, pastor-fetchable): ${eligible.length}`);
+console.log(`Eligible pool (${RETRY ? 'RETRY: one no-pastor strike' : 'never-attempted'}, pastor-fetchable): ${eligible.length}`);
 const pick = eligible.slice(0, COUNT);
 const slim = c => ({ id: c.id, name: c.name, city: c.city || null, state: c.state, website: c.website, denomination: c.denomination || c.denomination_family || null });
 const batches = Array.from({ length: BATCHES }, () => []);

@@ -28,6 +28,57 @@ PATHS = ["", "/about", "/about-us", "/staff", "/leadership", "/our-team", "/team
 MINISTRY_TAIL = re.compile(r"^(equipping|ministries|ministry|worship|connect|missions|discipleship|outreach|groups|media|communications|operations|administration|families|students|children|youth|music|preaching|teaching|counseling|evangelism|education|admin|online|campus|creative|tech|production|next|steps|generations|kids|college|network|resources|giving|generosity|connections|nursery)$", re.I)
 NONLEAD_ROLE = re.compile(r"youth|kids|children|students|worship|music|executive|associate|assistant|admin|connect|outreach|discipleship|equipping|missions|family|women|creative|tech|media|next\s*gen|college|groups|care|counseling|education|operations", re.I)
 
+# ── Deterministic social-link capture (2026-07-03) ──────────────────────────
+# Harvested by REGEX from the raw fetched HTML — no LLM involved, so no trust
+# question. merge-pastor-enrichments.js re-validates host patterns and only
+# fills EMPTY fields. 7k+ churches have a website but no social link on file.
+SOCIAL_RE = {
+    "facebook": re.compile(r'https?://(?:www\.|m\.)?facebook\.com/[A-Za-z0-9_.\-]{3,}/?', re.I),
+    "instagram": re.compile(r'https?://(?:www\.)?instagram\.com/[A-Za-z0-9_.\-]{2,}/?', re.I),
+    "youtube": re.compile(r'https?://(?:www\.)?youtube\.com/(?:@[\w.\-]+|channel/[\w\-]+|c/[\w.\-]+|user/[\w.\-]+)/?', re.I),
+}
+BAD_SOCIAL = re.compile(r'facebook\.com/(?:sharer|share|plugins|dialog|login|events|photo|watch|hashtag|policies|help|tr\b|profile\.php)|instagram\.com/(?:p|reel|explore|accounts)/', re.I)
+
+
+def harvest_socials(raw, found):
+    for k, rx in SOCIAL_RE.items():
+        if k in found:
+            continue
+        for m in rx.finditer(raw):
+            u = m.group(0).rstrip('/&"\'')
+            if BAD_SOCIAL.search(u):
+                continue
+            found[k] = u.split("?")[0].split("#")[0]
+            break
+
+
+# ── Same-host staff-page discovery (2026-07-03) ─────────────────────────────
+# The fixed PATHS list misses churches whose staff page lives at a custom slug
+# ("/our-church/meet-the-team"). Harvest same-host links whose path looks
+# leadership-ish from the homepage and try those too — this is what makes the
+# --retry pass over one-strike "no parseable pastor" churches worthwhile.
+HREF_RE = re.compile(r'href=["\']([^"\'#?]+)', re.I)
+STAFFY = re.compile(r'staff|leader|team|about|elder|pastor|minist|who-we-are|meet', re.I)
+
+
+def discover_links(raw, base):
+    from urllib.parse import urljoin, urlparse
+    host = urlparse(base).netloc.lower().replace("www.", "")
+    out, seen = [], set()
+    for m in HREF_RE.finditer(raw):
+        u = urljoin(base + "/", m.group(1)).split("#")[0]
+        pu = urlparse(u)
+        if pu.netloc.lower().replace("www.", "") != host:
+            continue
+        if not STAFFY.search(pu.path):
+            continue
+        if re.search(r"\.(pdf|jpe?g|png|gif|svg|mp[34]|css|js|ico)$", pu.path, re.I):
+            continue
+        if u not in seen:
+            seen.add(u)
+            out.append(u)
+    return out[:4]
+
 SYSTEM_PROMPT = (
     "You extract pastor names from church website text. Reply with ONLY a JSON object, no prose:\n"
     '{"lead_pastor": {"name": "...", "role": "..."} , "other_pastors": [{"name": "...", "role": "..."}]}\n'
@@ -129,18 +180,32 @@ def main():
         entry = {"id": cid, "pastor_name": None, "pastor_role": None, "other_pastors": [],
                  "pastor_source_url": None, "website_status": "timeout",
                  "extractor": "local-" + model.split("/")[-1][:40]}
-        pages, last_err = [], "timeout"
-        for p in PATHS:
-            if len(pages) >= 4:
-                break
+        pages, last_err, socials = [], "timeout", {}
+        candidates = [site + p for p in PATHS]
+        tried, links_harvested = set(), False
+        idx = 0
+        while idx < len(candidates) and len(pages) < 4 and len(tried) < 9:
+            url = candidates[idx]
+            idx += 1
+            if url in tried:
+                continue
+            tried.add(url)
             try:
-                txt = to_text(fetch(site + p))
-                if len(txt) > 400:
-                    pages.append((site + (p or "/"), txt[:6000]))
+                raw = fetch(url)
             except urllib.error.HTTPError as e2:
                 last_err = "404" if e2.code in (404, 410) else "timeout"
+                continue
             except Exception:
                 last_err = "timeout"
+                continue
+            harvest_socials(raw, socials)
+            if not links_harvested:  # discover staff-ish pages from the first page that loads
+                links_harvested = True
+                candidates.extend(u for u in discover_links(raw, site) if u not in tried)
+            txt = to_text(raw)
+            if len(txt) > 400:
+                pages.append((url, txt[:6000]))
+        entry.update(socials)  # deterministic finds ride along even when no pastor parses
         if not pages:
             entry["website_status"] = last_err
             out.append(entry)
@@ -186,12 +251,14 @@ def main():
         entry["website_status"] = "200_pastor_found" if entry["pastor_name"] else "200_no_pastor_found"
         out.append(entry)
         print(f"  [{i}/{len(churches)}] {cid}: {entry['pastor_name'] or '(no verified lead)'}"
-              + (f" +{len(others)} others" if others else ""))
+              + (f" +{len(others)} others" if others else "")
+              + (f" [socials: {'/'.join(sorted(socials))}]" if socials else ""))
         time.sleep(0.3)
 
     json.dump(out, open(out_path, "w"), indent=1)
     found = sum(1 for e in out if e["pastor_name"])
-    print(f"wrote {out_path}: {found}/{len(out)} leads verified")
+    soc = sum(1 for e in out if e.get("facebook") or e.get("youtube") or e.get("instagram"))
+    print(f"wrote {out_path}: {found}/{len(out)} leads verified, {soc} with socials")
 
 
 if __name__ == "__main__":
