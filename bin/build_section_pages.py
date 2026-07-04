@@ -328,7 +328,7 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
     </div>
 
     <footer>
-        <p>MOOP Dictionary &mdash; <strong style="color:var(--accent);">V5.25</strong> &middot; <a href="index.html">Full Dictionary Index</a> &middot; <a href="../index.html">Home</a></p>
+        <p>MOOP Dictionary &mdash; <strong style="color:var(--accent);">V6.0</strong> &middot; <a href="index.html">Full Dictionary Index</a> &middot; <a href="../index.html">Home</a></p>
     </footer>
 
     <script>

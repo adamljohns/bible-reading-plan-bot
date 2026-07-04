@@ -191,6 +191,22 @@ def main():
     hard += fail_list('invalid HTML entities', bad_ents, args.quiet)
     hard += fail_list('broken Word-of-the-Day targets', wotd_bad, args.quiet)
     hard += fail_list('manifest slugs without pages', manifest_bad, args.quiet)
+    # Version-badge consistency (2026-07-02): every displayed footer version must
+    # match. changelog.html legitimately lists all historical versions, so skip it.
+    # This is HARD — a mismatched version number reads as sloppiness to visitors.
+    ver_counts = Counter()
+    for _f in os.listdir(DICT_DIR):
+        if not _f.endswith('.html') or _f == 'changelog.html':
+            continue
+        _t = open(os.path.join(DICT_DIR, _f), encoding='utf-8', errors='ignore').read()
+        ver_counts.update(re.findall(r'<strong[^>]*>(V\d+\.\d+)</strong>', _t))
+    if len(ver_counts) > 1:
+        hard += 1
+        if not args.quiet:
+            spread = ', '.join(f'{v}×{n}' for v, n in ver_counts.most_common())
+            print(f'  [     FAIL] inconsistent version badges (must be ONE): {spread}')
+    elif not args.quiet:
+        print(f'  [       OK] version badge consistent ({next(iter(ver_counts), "none")})')
     print('-' * 62)
     print('  SOFT (era debt / review items, not failures):')
     print(f'    duplicate display titles: {len(dupes)}'

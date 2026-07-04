@@ -103,6 +103,17 @@ origin/main --oneline` — your commit usually landed. Don't panic-rebase.
   - `python3 bin/fix_dangling_chips.py --dry-run` — if related-chips ever
     rot again (curated retargets + removal; review before applying).
 
+**Version stamp — keep it single (current: `V6.0`).** Every dictionary page shows
+the version in its footer badge (`<strong ...>V6.0</strong>`). It is stamped by
+THREE places, which drifted apart historically (entries said V5.0, index/sections
+V5.25, most HTML V6.0 — a credibility bug fixed 2026-07-02): `generate_dict_entries.py`
+(entry footer), `rebuild-dictionary.py` (index footer), `build_section_pages.py`
+(section footer). **To bump the version, change all THREE templates AND bulk-
+normalize existing HTML** — `python3 - <<'PY'` a regex over `docs/dictionary/*.html`
+replacing `(<strong[^>]*>)V\d+\.\d+(</strong>)`, **excluding `changelog.html`** (its
+historical version list is correct). The integrity audit now **HARD-fails** on any
+version-badge mismatch, so drift can't ship silently.
+
 ## NEVER
 
 - `git add -A` or `git add .` — the working tree carries the fleet's live
