@@ -3,6 +3,18 @@
 
 import os
 
+# ─────────────────────────────────────────────────────────────────────────────
+# CANONICAL BTE ENGINE VERSION — keep in sync with bible.html (the live BTE).
+BTE_VERSION = "7.1"   # bumped 2026-07-04 (was 3.2); live verse pages are V7.1.
+#
+# ⚠️  STALE GENERATOR — DO NOT naively regenerate verse/*.html from this script.
+#     The deployed verse pages are AHEAD of this template: they render
+#     "V7.1 · 11 translations" with a newer feature set, while this script still
+#     emits an older 9-translation body. Running it as-is would DOWNGRADE the
+#     live pages. Before any regen, reconcile this TEMPLATE against a current
+#     docs/verse/*.html. Only the version *label* was corrected on 2026-07-04.
+# ─────────────────────────────────────────────────────────────────────────────
+
 VERSES = [
     {
         "ref": "1 Corinthians 6:19",
@@ -116,7 +128,7 @@ TEMPLATE = '''<!DOCTYPE html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta property="og:title" content="{ref} — MOOP Bible Translation Engine V3.2">
+    <meta property="og:title" content="{ref} — MOOP Bible Translation Engine V7.1">
     <meta property="og:description" content="9 translations blended with interlinear roots and Strong's Concordance links. Deep word study for {ref}.">
     <meta property="og:image" content="https://usmcmin.org/assets/og/og-bible.png">
     <meta property="og:image:width" content="1200">
@@ -124,7 +136,7 @@ TEMPLATE = '''<!DOCTYPE html>
     <meta property="og:type" content="article">
     <meta property="og:url" content="https://usmcmin.org/verse/{slug}.html">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="{ref} — MOOP Bible Translation Engine V3.2">
+    <meta name="twitter:title" content="{ref} — MOOP Bible Translation Engine V7.1">
     <meta name="twitter:description" content="9 translations blended for {ref}. Strong's Concordance links. Deep word study.">
     <meta name="twitter:image" content="https://usmcmin.org/assets/og/og-bible.png">
     <meta name="description" content="Deep word study for {ref}. 9 English translations blended with interlinear Hebrew/Greek roots and Strong\'s Concordance links.">
@@ -723,7 +735,7 @@ TEMPLATE = '''<!DOCTYPE html>
             }} else {{
                 html += \'<div class="lexicon-footer">Word studies: <a href="https://www.blueletterbible.org/" target="_blank">Blue Letter Bible</a></div>\';
             }}
-            html += \'<div class="engine-info">The MOOP Bible Translation Engine V3.2 · 9 translations · Interlinear \' + (ref.isOT ? \'Hebrew\' : \'Greek\') + \' backbone</div>\';
+            html += \'<div class="engine-info">The MOOP Bible Translation Engine V7.1 · 9 translations · Interlinear \' + (ref.isOT ? \'Hebrew\' : \'Greek\') + \' backbone</div>\';
             html += \'</div>\';
             html += renderNav(rangeStr);
 
