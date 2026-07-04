@@ -2,20 +2,25 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-    <!-- Nightly zero-cloud-usage pastor enrichment for the MOOP church directory.
-         Canonical copy lives in the repo at scripts/launchd/; installed copy at
-         ~/Library/LaunchAgents/. Runs scripts/pastor-refine-local.sh in the
-         detached autopilot worktree at 03:07 (staggered after the dictionary
-         nightly). Silent on success; Telegram alert via notify-adam.sh on failure. -->
+    <!-- Zero-cloud-usage church-directory enrichment on the LOCAL model.
+         Canonical copy in repo at scripts/launchd/; installed at ~/Library/LaunchAgents/.
+         Each firing runs a 4-HOUR SESSION (directory-grind-session.sh loops rounds with
+         cooldowns until the deadline or the pool runs dry), wrapped in caffeinate so the
+         Mac stays awake. 4 firings/day × 4h = ~16h/day of local work (Adam 2026-07-04:
+         "make this $7k machine earn its keep"). Silent on success; Telegram wrap-up per
+         session + failure alert via notify-adam.sh. -->
     <key>Label</key>
     <string>com.moop.pastor-refine-local</string>
     <key>ProgramArguments</key>
     <array>
+        <string>/usr/bin/caffeinate</string>
+        <string>-is</string>
         <string>/bin/bash</string>
-        <string>/Users/moop_bot_pro/bible-reading-plan-bot-autopilot/scripts/pastor-refine-local.sh</string>
+        <string>/Users/moop_bot_pro/bible-reading-plan-bot-autopilot/scripts/directory-grind-session.sh</string>
+        <string>4</string>
     </array>
-    <!-- 4 rounds/day (~100 churches attempted daily) per Adam 2026-07-03:
-         "I don't want this to take years." Staggered off the dictionary nightly. -->
+    <!-- 4 sessions/day at 4h each (03:07-07:07, 09:07-13:07, 15:07-19:07, 21:07-01:07),
+         with ~2h gaps between = 16h on / 8h off. Staggered off the dictionary nightly. -->
     <key>StartCalendarInterval</key>
     <array>
         <dict><key>Hour</key><integer>3</integer><key>Minute</key><integer>7</integer></dict>
@@ -25,11 +30,11 @@
     </array>
     <key>RunAtLoad</key>
     <false/>
-    <!-- 35/round x 4 rounds = ~140 attempts/day for the week-long grind (2026-07-03). -->
+    <!-- batch 50/round; a session lock prevents overlapping sessions. -->
     <key>EnvironmentVariables</key>
     <dict>
         <key>PASTOR_REFINE_BATCH</key>
-        <string>35</string>
+        <string>50</string>
     </dict>
     <key>StandardOutPath</key>
     <string>/Users/moop_bot_pro/Library/Logs/pastor-refine-local.launchd.log</string>
