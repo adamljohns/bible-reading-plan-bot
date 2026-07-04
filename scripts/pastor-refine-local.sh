@@ -94,23 +94,11 @@ fs.writeFileSync(P,JSON.stringify({updated:new Date().toISOString().slice(0,10),
 ' >>"$LOG" 2>&1 || say "qa-sample update failed (non-fatal)"
 
 # Append a row to the grind time-series (docs/data/grind-stats.json) — the fuel
-# for the live before/after dashboard at usmcmin.org/grind-report.html.
-node -e '
-const fs=require("fs");
-const d=JSON.parse(fs.readFileSync("docs/data/churches.json","utf8")).churches;
-const isPh=p=>{const s=String(p||"").trim();return !s||/^(pastors?|tbd|n\/?a|none|unknown|various|staff)\.?$/i.test(s)||/verify|see website|see site|not published|search in progress|to be (announced|determined)|coming soon|^unknown/i.test(s);};
-const row={ts:new Date().toISOString().slice(0,16),mode:"'"$MODE"'",attempted:'"$N_BATCH"',found:'"$FOUND"',
-  pool_after:Math.max(0,('"${POOL:-0}"')-('"$N_BATCH"')),
-  real_pastors:d.filter(c=>!isPh(c.pastor)).length,
-  rosters:d.filter(c=>Array.isArray(c.pastors)&&c.pastors.length).length,
-  socials_any:d.filter(c=>c.facebook||c.youtube||c.instagram).length,
-  needs_review:d.filter(c=>c.needs_review===true).length};
-const P="docs/data/grind-stats.json";
-let j={series:[]};try{j=JSON.parse(fs.readFileSync(P,"utf8"))}catch(_){}
-j.series.push(row); j.series=j.series.slice(-500);
-fs.writeFileSync(P,JSON.stringify(j,null,1));
-console.log("grind-stats row:",JSON.stringify(row));
-' >>"$LOG" 2>&1 || say "grind-stats update failed (non-fatal)"
+# for the live before/after dashboard at usmcmin.org/grind-report.html. Records the
+# TOTAL remaining enrichment work (fresh+retry+social) + US coverage, not just the
+# current tier (so the dashboard never falsely shows "0 remaining").
+node scripts/append-grind-stats.js --mode "$MODE" --attempted "$N_BATCH" --found "$FOUND" \
+  >>"$LOG" 2>&1 || say "grind-stats update failed (non-fatal)"
 node generate-church-pages.js >>"$LOG" 2>&1 \
   || { git reset -q --hard; die "regen failed — working tree reset"; }
 node scripts/check-consistency.js >>"$LOG" 2>&1 \
