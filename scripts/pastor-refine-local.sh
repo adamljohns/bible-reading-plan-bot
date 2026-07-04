@@ -53,7 +53,17 @@ if [ "$N_BATCH" -eq 0 ]; then
   cat "$WORK/selector.txt" >>"$LOG"
   N_BATCH=$(node -e 'console.log(require("'"$WORK"'/enrich-batch-1.json").length)' 2>/dev/null || echo 0)
 fi
-if [ "$N_BATCH" -eq 0 ]; then say "fresh AND retry pools empty — grind complete, nothing to do"; exit 0; fi
+# Third tier: SOCIAL-fill (churches with a website but no social link). Keeps the
+# local sessions productive for a week after the pastor pools dry.
+SOCIAL_FLAG=""
+if [ "$N_BATCH" -eq 0 ]; then
+  MODE="social"; SOCIAL_FLAG="--social"
+  node scripts/select-enrichment-batch.js --social --count "$BATCH" --batches 1 --out "$WORK" >"$WORK/selector.txt" 2>&1 \
+    || die "selector failed (social mode)"
+  cat "$WORK/selector.txt" >>"$LOG"
+  N_BATCH=$(node -e 'console.log(require("'"$WORK"'/enrich-batch-1.json").length)' 2>/dev/null || echo 0)
+fi
+if [ "$N_BATCH" -eq 0 ]; then say "fresh, retry AND social pools all empty — grind complete, nothing to do"; exit 0; fi
 POOL=$(grep -oE 'pastor-fetchable\): [0-9]+' "$WORK/selector.txt" | grep -oE '[0-9]+$' | head -1)
 say "mode=$MODE pool=${POOL:-?} batch=$N_BATCH"
 
@@ -63,7 +73,7 @@ python3 scripts/local-pastor-extract.py "$WORK/enrich-batch-1.json" "$WORK/enric
 FOUND=$(node -e 'console.log(require("'"$WORK"'/enriched.json").filter(x=>x.pastor_name).length)')
 say "extracted: $FOUND verified lead(s) of $N_BATCH churches"
 
-node scripts/merge-pastor-enrichments.js --input "$WORK/enriched.json" >>"$LOG" 2>&1 \
+node scripts/merge-pastor-enrichments.js --input "$WORK/enriched.json" $SOCIAL_FLAG >>"$LOG" 2>&1 \
   || die "merge failed"
 
 # Publish a QA sample for the fleet: the newest local-extract finds land at

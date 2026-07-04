@@ -83,6 +83,10 @@ function applySocials(c, e) {
 }
 
 const args = process.argv.slice(2);
+// --social (2026-07-04): social-fill pass. Apply verified social links, mark
+// _social_attempted, and do NOT stamp a "no parseable pastor" note (we're not
+// hunting pastors here). A pastor found as a bonus still applies via the guards.
+const SOCIAL_MODE = args.includes('--social');
 let inputs = [];
 for (let i = 0; i < args.length; i++) {
   if (args[i] === '--input') inputs.push(args[++i]);
@@ -134,7 +138,15 @@ for (const c of d.churches) {
 
   // Apply any verified social links the agent found (independent of the pastor outcome —
   // a church can have a real FB/YouTube/IG even when no pastor name is parseable).
-  socialsApplied += applySocials(c, e);
+  const nSocial = applySocials(c, e);
+  socialsApplied += nSocial;
+  if (SOCIAL_MODE) {
+    c._social_attempted = TODAY;
+    if (nSocial) {
+      const sNote = `[${TODAY}] Social-fill: added ${nSocial} verified social link(s) from ${c.website || 'church website'}.`;
+      c.enrichment_notes = c.enrichment_notes ? c.enrichment_notes + '\n' + sNote : sNote;
+    }
+  }
 
   if (e.pastor_name && typeof e.pastor_name === 'string' && e.pastor_name.trim()) {
     const candidate = e.pastor_name.trim();
@@ -210,9 +222,14 @@ for (const c of d.churches) {
 
   if (e.website_status === '200_no_pastor_found') {
     noPastorFound++;
-    const noteAppend = `[${TODAY}] Phase 6f live-fetched but no parseable pastor name on standard pages (/about, /staff, /leaders). Site OK.`;
-    c.enrichment_notes = c.enrichment_notes ? c.enrichment_notes + '\n' + noteAppend : noteAppend;
-    stillNeedsReview.push(c.id);
+    // Social-fill pass isn't hunting pastors — don't stamp a no-pastor note (that
+    // would wrongly mark the church "pastor-attempted"); the _social_attempted flag
+    // set above is the record for this pass.
+    if (!SOCIAL_MODE) {
+      const noteAppend = `[${TODAY}] Phase 6f live-fetched but no parseable pastor name on standard pages (/about, /staff, /leaders). Site OK.`;
+      c.enrichment_notes = c.enrichment_notes ? c.enrichment_notes + '\n' + noteAppend : noteAppend;
+      stillNeedsReview.push(c.id);
+    }
   }
 }
 

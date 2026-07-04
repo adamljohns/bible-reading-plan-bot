@@ -74,12 +74,22 @@ const fetchable = c =>
 const RETRY = args.includes('--retry');
 const noPastorStrikes = c => (notesText(c).match(/no parseable pastor/gi) || []).length;
 
-const eligible = churches.filter(c => fetchable(c) &&
-  (RETRY ? (alreadyAttempted(c) && noPastorStrikes(c) === 1)
-         : !alreadyAttempted(c)));
+// --social mode (2026-07-04): fill social links (fb/yt/ig) for churches that have a
+// website but no social on file — a huge second tranche (~7k) so the local sessions
+// stay productive for a week after the pastor pool dries. Pastor status is irrelevant
+// here; the extractor harvests socials deterministically (regex, no LLM) on the fetch.
+const SOCIAL = args.includes('--social');
+const hasWebsite = c => typeof c.website === 'string' && /^https?:\/\//i.test(c.website);
+const socialEligible = c => hasWebsite(c) && !c.facebook && !c.youtube && !c.instagram &&
+  isEnglish(c.name) && isUS(c) && !c._social_attempted;
+
+const eligible = churches.filter(c =>
+  SOCIAL ? socialEligible(c)
+    : (fetchable(c) && (RETRY ? (alreadyAttempted(c) && noPastorStrikes(c) === 1) : !alreadyAttempted(c))));
 eligible.sort((a, b) => String(a.id).localeCompare(String(b.id)));
 
-console.log(`Eligible pool (${RETRY ? 'RETRY: one no-pastor strike' : 'never-attempted'}, pastor-fetchable): ${eligible.length}`);
+const mode = SOCIAL ? 'SOCIAL: website + no social link' : RETRY ? 'RETRY: one no-pastor strike' : 'never-attempted';
+console.log(`Eligible pool (${mode}, pastor-fetchable): ${eligible.length}`);
 const pick = eligible.slice(0, COUNT);
 const slim = c => ({ id: c.id, name: c.name, city: c.city || null, state: c.state, website: c.website, denomination: c.denomination || c.denomination_family || null });
 const batches = Array.from({ length: BATCHES }, () => []);
