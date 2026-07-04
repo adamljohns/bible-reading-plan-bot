@@ -23,6 +23,8 @@ LANGS = {
     "la": ("vulgate",    "Latina",          "Vulgata Clementina — Public Domain"),
     "de": ("luther1545", "Deutsch (Luther)", "Luther 1545 — Public Domain"),
     "ja": ("japbungo",   "日本語",          "Meiji/Taisho — Public Domain"),
+    "es": ("sse",        "Español",         "Sagradas Escrituras 1569 — Public Domain"),
+    "fr": ("darby",      "Français",        "Darby (French) — Public Domain"),
 }
 
 
