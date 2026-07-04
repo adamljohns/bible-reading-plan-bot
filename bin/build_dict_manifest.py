@@ -180,6 +180,34 @@ def main():
             if norm not in tokens or len(slug) < len(tokens[norm]):
                 tokens[norm] = slug
 
+    # Alias layer: curated phrases that map to an EXISTING entry whose headword
+    # differs from the phrase as it appears in Scripture. The manifest otherwise
+    # only links exact headwords, so weighty phrases like "born of God" (→ the
+    # regeneration entry) never link even though the concept is fully defined.
+    # Source: docs/dictionary/aliases.json = { "<phrase>": "<slug>", ... }.
+    # Each target slug is validated to have a real entry so we never link to a 404.
+    alias_path = os.path.join(DICT_DIR, 'aliases.json')
+    alias_added = 0
+    if os.path.exists(alias_path):
+        with open(alias_path, 'r', encoding='utf-8') as f:
+            aliases = json.load(f)
+        have_entry = {fn[:-5] for fn in os.listdir(DICT_DIR) if fn.endswith('.html')}
+        existing = {p[0] for p in phrases}
+        for phrase, slug in aliases.items():
+            if phrase.startswith('_'):
+                continue  # comment/metadata key
+            norm = normalize(phrase)
+            if not norm or ' ' not in norm:
+                continue  # aliases are multi-word phrases only
+            if slug not in have_entry:
+                print(f"  [alias] SKIP {norm!r} -> {slug} (no such entry)")
+                continue
+            if norm in existing:
+                continue  # already linkable
+            phrases.append([norm, slug])
+            existing.add(norm)
+            alias_added += 1
+
     manifest = {
         'version': 2,
         'generated_at_count': total,
@@ -193,7 +221,7 @@ def main():
     print(f"Wrote manifest: {OUTPUT}")
     print(f"  Entries with extractable headword: {total}")
     print(f"  Single-word matches (tokens):     {len(tokens)}")
-    print(f"  Multi-word matches (phrases):     {len(phrases)}")
+    print(f"  Multi-word matches (phrases):     {len(phrases)}  (incl. {alias_added} curated aliases)")
     print(f"  Hover summaries captured:         {len(summaries)}")
     print(f"  Skipped (no headword found):      {skipped_no_word}")
     size_kb = os.path.getsize(OUTPUT) / 1024

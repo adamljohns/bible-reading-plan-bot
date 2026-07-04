@@ -9,7 +9,7 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-touch-icon.png">
     <link rel="manifest" href="/manifest.json">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta property="og:title" content="MOOP Bible Translation Engine V7.0">
+    <meta property="og:title" content="MOOP Bible Translation Engine V7.1">
     <meta property="og:description" content="12 English translations blended with interlinear Hebrew and Greek roots. Strong's Concordance links. Cross-references. Bookmarks. Word search. Built for deep word study.">
     <meta property="og:image" content="https://usmcmin.org/assets/og/og-bible.png?v=53">
     <meta property="og:image:width" content="1200">
@@ -17,11 +17,11 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://usmcmin.org/bible.html">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="MOOP Bible Translation Engine V7.0">
+    <meta name="twitter:title" content="MOOP Bible Translation Engine V7.1">
     <meta name="twitter:description" content="12 English translations blended with interlinear Hebrew and Greek roots. Strong's Concordance links. Cross-references. Bookmarks. Word search. Built for deep word study.">
     <meta name="twitter:image" content="https://usmcmin.org/assets/og/og-bible.png?v=53">
     <meta name="description" content="12 English translations blended with interlinear Hebrew and Greek roots. Strong's Concordance links. Cross-references. Bookmarks. Word search. Built for deep word study.">
-    <title>The MOOP Bible Translation Engine V7.0 — U.S.M.C. Ministries</title>
+    <title>The MOOP Bible Translation Engine V7.1 — U.S.M.C. Ministries</title>
     <!-- BTE v6.3 (2026-05-22): readability pass — reading column capped at 760px
          (was 1100px on desktop); softened off-black/off-white palette; clean Reader
          Mode now the default (tools one click away); dictionary underlines calmed. -->
@@ -262,6 +262,20 @@
         .crossref-inline-body.open { display: block; }
         .crossref-inline-body a { color: var(--gold); text-decoration: none; border-bottom: 1px dotted var(--gold); }
         .crossref-inline-body a:hover { color: var(--gold-light); border-bottom-style: solid; }
+        /* BTE v7.1: cross-references shown by default in verse-by-verse mode, each
+           with a lazy verse-text preview. Still gated to Show Tools + verse view via
+           the body.reader-mode / body.paragraph-mode rules below. */
+        .crossref-inline-body.crossref-shown { display: block; }
+        .crossref-inline-label {
+            font-size: 0.68rem; font-weight: 600; letter-spacing: 0.08em;
+            text-transform: uppercase; color: var(--gold); opacity: 0.75; margin-bottom: 3px;
+        }
+        .crossref-row { display: block; line-height: 1.5; margin: 2px 0; }
+        .crossref-row .crossref-ref { white-space: nowrap; font-weight: 500; border-bottom: none; }
+        .crossref-row .crossref-ref:hover { border-bottom: 1px solid var(--gold-light); }
+        .crossref-preview { color: #9a9a9a; font-style: italic; }
+        body.light-mode .crossref-preview { color: #6b6b6b; }
+        .crossref-more { display: inline-block; margin-top: 4px; font-size: 0.8rem; opacity: 0.85; border-bottom: none !important; }
         .share-toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: var(--gold); color: #000; padding: 10px 24px; border-radius: 8px; font-weight: 600; font-size: 0.95rem; z-index: 9999; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
         .share-toast.show { opacity: 1; }
 
@@ -866,7 +880,7 @@
         }
     </style>
     <!-- Open Graph / Twitter (backfilled) -->
-    <meta name="twitter:title" content="The MOOP Bible Translation Engine V7.0">
+    <meta name="twitter:title" content="The MOOP Bible Translation Engine V7.1">
     <meta name="twitter:image" content="https://usmcmin.org/assets/icons/icon-512.png">
     <link rel="stylesheet" href="/assets/css/light-icons.css">
     <link rel="stylesheet" href="/assets/css/print.css" media="print">
@@ -945,7 +959,7 @@
             <section class="hero">
                 <img src="assets/images/usmc-logo-shield-cross.png" alt="U.S.M.C. Ministries" onerror="this.style.display='none'">
                 <h1>The MOOP Bible Translation Engine</h1>
-                <p class="subtitle">V7.0 · 12 Translations · Interlinear Hebrew &amp; Greek · Strong's Concordance · Cross-References · MBT · Whole-Bible Dictionary</p>
+                <p class="subtitle">V7.1 · 12 Translations · Interlinear Hebrew &amp; Greek · Strong's Concordance · Cross-References · MBT · Whole-Bible Dictionary</p>
                 <p class="desc">
                     Select a testament, book, and chapter to read, or type any Bible reference below.
                     The engine blends 12 English translations with NKJV as the primary voice, surfaces
@@ -1206,18 +1220,53 @@
             if (el) el.classList.toggle('open');
         }
 
-        // BTE v5.0: Build inline cross-ref indicator for a single verse (chapter mode)
+        // BTE v7.1: Cross-references shown by default in verse-by-verse mode, each row
+        // carrying a lazy preview of the referenced verse (hydrated post-render from the
+        // cached chapter store — no data bloat, no per-verse-page regeneration). Up to
+        // CROSSREF_INLINE_SHOW rows inline; the rest via a "+N more" link to the verse view.
+        var CROSSREF_INLINE_SHOW = 4;
         function buildInlineCrossRef(bookId, chapter, verseNum) {
-            var refs = getCrossRefs(bookId, chapter, verseNum, 'chapter');
-            if (!refs.length) return '';
-            var id = 'cri-' + bookId + '-' + chapter + '-' + verseNum;
-            var linksHtml = refs.map(function(refKey) {
+            var all = (typeof crossRefData !== 'undefined' && crossRefData[bookId + '_' + chapter + '_' + verseNum]) || [];
+            if (!all.length) return '';
+            var shown = all.slice(0, CROSSREF_INLINE_SHOW);
+            var rowsHtml = shown.map(function(refKey) {
                 var display = crossRefKeyToDisplay(refKey);
                 var link = crossRefKeyToLink(refKey);
-                return '<a href="' + link + '">→ ' + display + '</a>';
-            }).join(' &nbsp;');
-            return '<span class="crossref-inline-toggle" onclick="toggleInlineCrossRef(\'' + id + '\')" title="Cross-references"><img src="assets/icons/shield-bible.png" class="site-icon" alt="cross-ref" width="20" height="20"></span>' +
-                '<div class="crossref-inline-body" id="' + id + '">' + linksHtml + '</div>';
+                return '<div class="crossref-row">' +
+                    '<a class="crossref-ref" href="' + link + '">→ ' + display + '</a>' +
+                    '<span class="crossref-preview" data-xref="' + refKey + '"></span>' +
+                    '</div>';
+            }).join('');
+            var moreHtml = '';
+            if (all.length > CROSSREF_INLINE_SHOW) {
+                var n = all.length - CROSSREF_INLINE_SHOW;
+                var selfLink = crossRefKeyToLink(bookId + '_' + chapter + '_' + verseNum);
+                moreHtml = '<a class="crossref-more" href="' + selfLink + '">+' + n +
+                    ' more cross-reference' + (n !== 1 ? 's' : '') + ' →</a>';
+            }
+            return '<div class="crossref-inline-body crossref-shown">' +
+                '<div class="crossref-inline-label">Cross-references</div>' +
+                rowsHtml + moreHtml + '</div>';
+        }
+
+        // BTE v7.1: Fill cross-ref preview snippets from the (cached) chapter store.
+        // Runs after a chapter render; fetches are deduped/cached per chapter by
+        // fetchChapterData, so all refs into the same chapter share one fetch.
+        function hydrateCrossRefPreviews() {
+            var spans = document.querySelectorAll('.crossref-preview[data-xref]:not([data-xref-done])');
+            spans.forEach(function(span) {
+                span.setAttribute('data-xref-done', '1');
+                var parts = span.getAttribute('data-xref').split('_');
+                var bId = parseInt(parts[0], 10), ch = parts[1], vs = parts[2];
+                if (!bId || !ch || !vs) return;
+                fetchChapterData(bId, ch, 'NKJV').then(function(chapData) {
+                    if (!chapData) return;
+                    var t = chapData[vs];
+                    if (!t) return;
+                    var preview = t.length > 80 ? t.slice(0, 80).replace(/\s+\S*$/, '') + '…' : t;
+                    span.textContent = ' — ' + preview;
+                }).catch(function(){});
+            });
         }
 
         // BTE v5.0: Toggle cross-reference panel
@@ -3365,7 +3414,7 @@
 
             // BTE v5.0: Cross-reference count in stats footer
             var crossRefStatStr = crossRefResult.count > 0 ? ' · ' + crossRefResult.count + ' cross-reference' + (crossRefResult.count !== 1 ? 's' : '') + ' found' : '';
-            html += '<div class="engine-info">The MOOP Bible Translation Engine V7.0 · 12 translations · Interlinear ' +
+            html += '<div class="engine-info">The MOOP Bible Translation Engine V7.1 · 12 translations · Interlinear ' +
                 (ref.isOT ? 'Hebrew' : 'Greek') + ' backbone' + crossRefStatStr + '</div>';
             html += '</div>';
             html += renderBottomNav(rangeStr);
@@ -3382,6 +3431,8 @@
             }
             // BTE v5.6: Dictionary highlighter (John pilot)
             try { enrichDictionaryLinks(ref.bookId); } catch(e){}
+            // BTE v7.1: fill inline cross-ref preview snippets (chapter mode)
+            try { hydrateCrossRefPreviews(); } catch(e){}
             updateNavBoundaries();
             document.getElementById('searchBtn').disabled = false;
             if (document.body.classList.contains('paragraph-mode')) applyParagraphBreaks();
