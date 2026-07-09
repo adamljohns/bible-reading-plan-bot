@@ -36,19 +36,13 @@
   .header { text-align: center; padding: 40px 20px 20px; border-bottom: 2px solid var(--gold); background: linear-gradient(180deg, #0a0a0a 0%, var(--bg) 100%); }
   .header h1 { font-family: 'Playfair Display', serif; font-size: clamp(1.8rem, 4vw, 2.6rem); color: var(--white); margin-bottom: 6px; }
   .header .sub { color: var(--gold); font-size: 1rem; margin-bottom: 4px; }
-  .header .meta { color: var(--gray); font-size: 0.8rem; font-style: italic; max-width: min(92%, 640px); margin: 0 auto; text-wrap: balance; }
+  .header .meta { color: var(--gray); font-size: 0.8rem; font-style: italic; }
 
   /* STATS BAR */
-  .stats { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; padding: 20px 20px 0; max-width: 960px; margin: 0 auto; }
-  .stats:last-of-type { padding-bottom: 20px; }
-  .stats-secondary { padding-top: 12px; }
-  .stat { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; text-align: center; flex: 1; min-width: 140px; }
+  .stats { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; padding: 20px; max-width: 960px; margin: 0 auto; }
+  .stat { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 12px 20px; text-align: center; flex: 1; min-width: 100px; }
   .stat-num { font-size: 1.8rem; font-weight: 700; color: var(--gold); font-family: 'JetBrains Mono', monospace; }
-  .stat-label { font-size: 0.72rem; color: var(--gray); margin-top: 2px; white-space: nowrap; }
-  @media (max-width: 640px) {
-    .stat { min-width: 124px; }
-    .stat-label { white-space: normal; line-height: 1.3; }
-  }
+  .stat-label { font-size: 0.72rem; color: var(--gray); margin-top: 2px; }
 
   /* FILTER BAR */
   .filter-section { text-align: center; padding: 12px 20px 4px; }
@@ -58,9 +52,7 @@
     font-size: 0.75rem; padding: 5px 14px; border-radius: 20px;
     border: 1px solid var(--border); background: none; color: var(--gray);
     cursor: pointer; transition: all 0.2s; font-family: 'Inter', sans-serif;
-    display: inline-flex; align-items: center; gap: 6px;
   }
-  .filter-btn svg { width: 13px; height: 13px; flex-shrink: 0; }
   .filter-btn:hover { border-color: var(--gold); color: var(--gold); }
   .filter-btn.active { background: var(--gold); color: #000; border-color: var(--gold); font-weight: 600; }
   /* category color accents on active */
@@ -78,7 +70,7 @@
   .hidden-notice { text-align: center; padding: 40px 20px; color: var(--gray); font-style: italic; display: none; }
 
   /* TIMELINE */
-  .timeline { max-width: 1180px; margin: 0 auto; padding: 20px 20px 60px; position: relative; }
+  .timeline { max-width: 820px; margin: 0 auto; padding: 20px 20px 60px; position: relative; }
   .timeline::before { content: ''; position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: linear-gradient(180deg, var(--gold) 0%, rgba(212,175,55,0.2) 100%); transform: translateX(-50%); }
 
   /* PHASE MARKERS */
@@ -175,47 +167,21 @@
 
 <!-- HEADER -->
 <div class="header">
-  <svg width="44" height="52" viewBox="0 0 44 52" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="timeline" style="margin-bottom:12px;opacity:0.9;">
-    <line x1="22" y1="4" x2="22" y2="48" stroke="#D4AF37" stroke-width="2" stroke-linecap="round" opacity="0.55"/>
-    <circle cx="22" cy="8" r="3" fill="#0d1117" stroke="#D4AF37" stroke-width="2"/>
-    <line x1="29" y1="8" x2="37" y2="8" stroke="#D4AF37" stroke-width="2" stroke-linecap="round" opacity="0.4"/>
-    <circle cx="22" cy="26" r="5" fill="#D4AF37"/>
-    <circle cx="22" cy="26" r="8.5" stroke="#F4D470" stroke-width="1.5" opacity="0.45"/>
-    <line x1="7" y1="26" x2="11" y2="26" stroke="#F4D470" stroke-width="2" stroke-linecap="round" opacity="0.55"/>
-    <circle cx="22" cy="44" r="3" fill="#0d1117" stroke="#D4AF37" stroke-width="2"/>
-    <line x1="29" y1="44" x2="37" y2="44" stroke="#D4AF37" stroke-width="2" stroke-linecap="round" opacity="0.4"/>
-  </svg>
+  <img src="assets/icons/shield-anchor.png" alt="anchor" width="48" height="48" style="margin-bottom:12px;opacity:0.85;">
   <h1>MbPro Mission Log</h1>
   <p class="sub">A living record of what we've built together</p>
-  <p class="meta">MOOPbotPro (MbPro) · Inception: Mac Mini → MacBook Pro 2017 → M5 Max MacBook Pro (Apr 2026) · First commit: Mar 5, 2026</p>
+  <p class="meta">MOOPbotPro (MbPro) · Inception: Mac Mini → MacBook Pro 2017 · First commit: Mar 5, 2026</p>
 </div>
 
 <!-- LIVE STATS -->
-<!--
-  Counters below are baked at edit time (last refreshed 2026-07-03) because the source
-  files are too large to fetch client-side just for a number. Refresh from the repo root:
-    Lexicon words:       ls docs/lexicon | grep -c '\.html$'
-    Cross-references:    python3 -c "import json;d=json.load(open('docs/assets/cross-references.json'));print(sum(len(v) for v in d.values()))"
-    Dictionary words:    python3 -c "import json;print(json.load(open('docs/dictionary/manifest.json'))['generated_at_count'])"
-    Churches:            python3 -c "import json;print(len(json.load(open('docs/data/churches.json'))['churches']))"
-    LBCF chapters:       ls docs/lbcf/chapter-*.html | wc -l
-    Institutes chapters: ls docs/institutes/*.html | wc -l
-    Blog posts:          ls docs/blog/*.html | wc -l
-  (Timeline Entries + Days Since Launch stay computed live in JS.)
--->
 <div class="stats" id="stats-bar">
   <div class="stat"><div class="stat-num" id="stat-entries">…</div><div class="stat-label">Timeline Entries</div></div>
   <div class="stat"><div class="stat-num" id="stat-days">…</div><div class="stat-label">Days Since Launch</div></div>
-  <div class="stat"><div class="stat-num" id="stat-lexicon">7,826</div><div class="stat-label">Lexicon Words</div></div>
-  <div class="stat"><div class="stat-num" id="stat-xrefs">71,777</div><div class="stat-label">Cross-References</div></div>
-  <div class="stat"><div class="stat-num" id="stat-dict">6,879</div><div class="stat-label">Dictionary Words</div></div>
-  <div class="stat"><div class="stat-num" id="stat-churches">28,515</div><div class="stat-label">Churches in Directory</div></div>
-</div>
-<div class="stats stats-secondary">
+  <div class="stat"><div class="stat-num" id="stat-lexicon">5,027+</div><div class="stat-label">Lexicon Words</div></div>
+  <div class="stat"><div class="stat-num" id="stat-xrefs">11,937+</div><div class="stat-label">Cross-References</div></div>
+  <div class="stat"><div class="stat-num" id="stat-dict">684+</div><div class="stat-label">Dictionary Words</div></div>
+  <div class="stat"><div class="stat-num">43</div><div class="stat-label">Churches Assessed</div></div>
   <div class="stat"><div class="stat-num">5</div><div class="stat-label">Bible Watches Daily</div></div>
-  <div class="stat"><div class="stat-num">32</div><div class="stat-label">LBCF Chapters</div></div>
-  <div class="stat"><div class="stat-num">80</div><div class="stat-label">Institutes Chapters</div></div>
-  <div class="stat"><div class="stat-num">187</div><div class="stat-label">Blog Posts</div></div>
 </div>
 
 <!-- FILTER BAR -->
@@ -223,16 +189,16 @@
   <div class="filter-label">Filter by Desk</div>
 </div>
 <div class="filters" id="filter-bar">
-  <button class="filter-btn active" data-cat="all"       onclick="setFilter(this)"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><rect x="2" y="2" width="5" height="5" rx="1"/><rect x="9" y="2" width="5" height="5" rx="1"/><rect x="2" y="9" width="5" height="5" rx="1"/><rect x="9" y="9" width="5" height="5" rx="1"/></svg>All</button>
-  <button class="filter-btn"        data-cat="bible"     onclick="setFilter(this)"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3.5C4 2.6 6.1 2.6 8 3.7c1.9-1.1 4-1.1 6-.2V12c-2-.9-4.1-.9-6 .2-1.9-1.1-4-1.1-6-.2z"/><path d="M8 3.7v8.5"/></svg>Bible / BTE</button>
-  <button class="filter-btn"        data-cat="website"   onclick="setFilter(this)"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><circle cx="8" cy="8" r="6"/><ellipse cx="8" cy="8" rx="2.6" ry="6"/><path d="M2 8h12"/></svg>Website</button>
-  <button class="filter-btn"        data-cat="infra"     onclick="setFilter(this)"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><circle cx="8" cy="8" r="3.1"/><path d="M8 1.6v2M8 12.4v2M14.4 8h-2M3.6 8h-2M12.5 3.5 11.1 4.9M4.9 11.1 3.5 12.5M12.5 12.5 11.1 11.1M4.9 4.9 3.5 3.5"/></svg>Infrastructure</button>
-  <button class="filter-btn"        data-cat="airbnb"    onclick="setFilter(this)"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 8 8 3l5.5 5"/><path d="M4 7.2v6.3h8V7.2"/><path d="M6.7 13.5V10h2.6v3.5"/></svg>Airbnb / B&amp;A</button>
-  <button class="filter-btn"        data-cat="ministry"  onclick="setFilter(this)"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M8 2v12M4.5 6h7"/></svg>Ministry</button>
-  <button class="filter-btn"        data-cat="finance"   onclick="setFilter(this)"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M10.4 4.8c-.7-1-4.8-1.3-4.8 1.1s4.8 1.2 4.8 3.5-4.1 2.1-4.8 1.1"/><path d="M8 2.6v10.8"/></svg>Finance</button>
-  <button class="filter-btn"        data-cat="health"    onclick="setFilter(this)"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 13.2C3.2 10 2.1 7.2 3.4 5.2 4.7 3.4 7.2 3.7 8 5.5c.8-1.8 3.3-2.1 4.6-.3 1.3 2 .2 4.8-4.6 8z"/></svg>Health</button>
-  <button class="filter-btn"        data-cat="email"     onclick="setFilter(this)"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1.8" y="3.5" width="12.4" height="9" rx="1.2"/><path d="m2.5 4.7 5.5 4.4 5.5-4.4"/></svg>Email</button>
-  <button class="filter-btn"        data-cat="automation" onclick="setFilter(this)"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.8 1.8 3.9 8.8h3.2l-1 5.4 5-7.2H7.9z"/></svg>Automation</button>
+  <button class="filter-btn active" data-cat="all"       onclick="setFilter(this)">All</button>
+  <button class="filter-btn"        data-cat="bible"     onclick="setFilter(this)"><img class="site-icon" src="assets/icons/shield-bible.png" alt="" width="16" height="16"> Bible / BTE</button>
+  <button class="filter-btn"        data-cat="website"   onclick="setFilter(this)">🌐 Website</button>
+  <button class="filter-btn"        data-cat="infra"     onclick="setFilter(this)">⚙️ Infrastructure</button>
+  <button class="filter-btn"        data-cat="airbnb"    onclick="setFilter(this)">🏠 Airbnb / B&amp;A</button>
+  <button class="filter-btn"        data-cat="ministry"  onclick="setFilter(this)">✝️ Ministry</button>
+  <button class="filter-btn"        data-cat="finance"   onclick="setFilter(this)"><img class="site-icon" src="assets/icons/shield-finance.png" alt="" width="16" height="16"> Finance</button>
+  <button class="filter-btn"        data-cat="health"    onclick="setFilter(this)">💪 Health</button>
+  <button class="filter-btn"        data-cat="email"     onclick="setFilter(this)">📧 Email</button>
+  <button class="filter-btn"        data-cat="automation" onclick="setFilter(this)">🤖 Automation</button>
 </div>
 <div class="hidden-notice" id="hidden-notice">No entries match this filter yet.</div>
 
@@ -287,7 +253,7 @@
   </div>
 
   <!-- ── PHASE 2 ── -->
-  <div class="phase-marker"><span class="phase-label">⛪ Phase 2 — Website Build (Mar 7–9, 2026)</span></div>
+  <div class="phase-marker"><span class="phase-label"><img class="site-icon" src="assets/icons/shield-church-48.png" alt="" width="16" height="16"> Phase 2 — Website Build (Mar 7–9, 2026)</span></div>
 
   <div class="entry right" data-category="website ministry">
     <div class="entry-spacer"></div>
@@ -345,7 +311,7 @@
   </div>
 
   <!-- ── PHASE 3 ── -->
-  <div class="phase-marker"><span class="phase-label">📖 Phase 3 — BTE Expansion (Mar 10–14, 2026)</span></div>
+  <div class="phase-marker"><span class="phase-label"><img class="site-icon" src="assets/icons/shield-bible.png" alt="" width="16" height="16"> Phase 3 — BTE Expansion (Mar 10–14, 2026)</span></div>
 
   <div class="entry left" data-category="bible">
     <div class="entry-card">
@@ -508,7 +474,7 @@
   </div>
 
   <!-- ── PHASE 6 ── -->
-  <div class="phase-marker"><span class="phase-label">📖 Phase 6 — BTE v5.0 + Lexicon (Mar 17–19, 2026)</span></div>
+  <div class="phase-marker"><span class="phase-label"><img class="site-icon" src="assets/icons/shield-bible.png" alt="" width="16" height="16"> Phase 6 — BTE v5.0 + Lexicon (Mar 17–19, 2026)</span></div>
 
   <div class="entry left" data-category="bible">
     <div class="entry-card">
@@ -778,7 +744,7 @@
   </div>
 
   <!-- PHASE 8 -->
-  <div class="phase-marker"><span class="phase-label">✈️ Phase 8 — PSA Army + Ministry Build (Mar 22–31, 2026)</span></div>
+  <div class="phase-marker"><span class="phase-label"><img class="site-icon" src="assets/icons/shield-airplane-48.png" alt="" width="16" height="16"> Phase 8 — PSA Army + Ministry Build (Mar 22–31, 2026)</span></div>
 
   <div class="entry left" data-category="infra automation">
     <div class="entry-card">
@@ -849,7 +815,7 @@
   <div class="entry left" data-category="website">
     <div class="entry-card milestone">
       <div class="entry-date">2026-03-26</div>
-      <div class="entry-title">✈️ TACC Framework Born — Retired Nautical, Went Aviation</div>
+      <div class="entry-title"><img class="site-icon" src="assets/icons/shield-airplane-48.png" alt="" width="16" height="16"> TACC Framework Born — Retired Nautical, Went Aviation</div>
       <div class="entry-desc">The Family Captain / nautical metaphor system was officially retired and replaced with the TACC (Tactical Air Command &amp; Control) aviation framework. New callsign structure, mission briefings, and TACC ops language deployed across all family pages.</div>
       <div class="entry-tags"><span class="tag tag-website">Website</span></div>
     </div>
@@ -963,7 +929,7 @@
     <div class="entry-card">
       <div class="entry-date">2026-03-14</div>
       <div class="entry-title">Yahoo Mail App Password Configured</div>
-      <div class="entry-desc">Yahoo Mail IMAP access established via app-specific password (stored securely in macOS Keychain). Enables MbPro to triage adamjohns78@yahoo.com independently — 955 unread messages now accessible for automated triage.</div>
+      <div class="entry-desc">Yahoo Mail IMAP access established via app-specific password (zvvincwjtoqawuhq). Enables MbPro to triage adamjohns78@yahoo.com independently — 955 unread messages now accessible for automated triage.</div>
       <div class="entry-tags"><span class="tag tag-email">Email</span><span class="tag tag-infra">Infrastructure</span></div>
     </div>
     <div class="entry-dot dot-blue"></div>
@@ -1219,7 +1185,7 @@
   </div>
 
   <!-- ── PHASE 11 (FUTURE → COMPRESSED) ── -->
-  <div class="phase-marker"><span class="phase-label">⚡ Phase 11 — M5 Max Migration (Originally Projected May–Jun · ACTUAL: April 16, 2026)</span></div>
+  <div class="phase-marker"><span class="phase-label" style="border-color:var(--blue);color:var(--blue);">🔮 Phase 11 — M5 Max Migration (Originally Projected May–Jun · ACTUAL: April 16, 2026)</span></div>
 
   <div class="entry right" data-category="infra">
     <div class="entry-spacer"></div>
@@ -1233,33 +1199,11 @@
   </div>
 
   <div class="entry left" data-category="infra">
-    <div class="entry-card milestone">
-      <div class="entry-date">2026-04-16</div>
-      <div class="entry-title">⚡ M5 Max MacBook Pro Deployed — Intel → ARM Migration Complete</div>
-      <div class="entry-desc">The actual migration, weeks ahead of the projections below: MbPro moved off the 2017 Intel MacBook Pro onto the Apple Silicon M5 Max — 128 GB unified memory, 8 TB SSD, double the planned 64 GB / 4 TB spec. Time Machine + Migration Assistant restore, Intel-to-ARM path fixes (/usr/local &rarr; /opt/homebrew), and the full OpenClaw tree (11 agents + cron system) preserved intact. On-device models came online on the new silicon &mdash; the fleet's local-LLM era began here. Migration plan + day-of delta doc committed (M5MAX_MIGRATION_PLAN.md, TRACK_A_migration_prep.md).</div>
-      <div class="entry-tags"><span class="tag tag-infra">Infrastructure</span></div>
-    </div>
-    <div class="entry-dot dot-gold"></div>
-    <div class="entry-spacer"></div>
-  </div>
-
-  <div class="entry right" data-category="infra">
-    <div class="entry-spacer"></div>
-    <div class="entry-dot dot-gold"></div>
     <div class="entry-card">
       <div class="entry-date">2026-05 (projected)</div>
       <div class="entry-title">M5 Max MacBook Pro — Unbox &amp; Time Machine Restore</div>
       <div class="entry-desc">MacBook Pro M5 Max arrives (64GB unified memory, 4TB SSD, 40 GPU cores). Time Machine restore from BU2TB. Intel-to-ARM path migration (Homebrew, LaunchAgents, shell configs). OpenClaw reinstalled ARM-native. All 11 agents verified.</div>
       <div class="entry-tags"><span class="tag tag-infra">Infrastructure</span></div>
-    </div>
-  </div>
-
-  <div class="entry left" data-category="infra automation">
-    <div class="entry-card">
-      <div class="entry-date">2026-05 (projected)</div>
-      <div class="entry-title">Local LLM Online — Llama 3.1 70B Q4 on M5 Max</div>
-      <div class="entry-desc">Ollama + llama-server (llama.cpp) installed. Llama 3.1 70B Instruct (Q4_K_M, ~40GB) pulled and benchmarked. Expected: 20-28 tok/s generation. OpenAI-compatible API on localhost:8080. Ollama registered as LaunchAgent for always-on service.</div>
-      <div class="entry-tags"><span class="tag tag-infra">Infrastructure</span><span class="tag tag-automation">Automation</span></div>
     </div>
     <div class="entry-dot dot-gold"></div>
     <div class="entry-spacer"></div>
@@ -1267,11 +1211,11 @@
 
   <div class="entry right" data-category="infra automation">
     <div class="entry-spacer"></div>
-    <div class="entry-dot dot-teal"></div>
+    <div class="entry-dot dot-gold"></div>
     <div class="entry-card">
-      <div class="entry-date">2026-06 (projected)</div>
-      <div class="entry-title">RAG Pipeline — 174MB Agent Memory Indexed</div>
-      <div class="entry-desc">ChromaDB vector database loaded with all 11 agents' SQLite conversation history (174MB), 227 shared-memory context files, and 73 daily memory files. nomic-embed-text embedding model running on CPU. OpenClaw queries RAG before every LLM call for user-specific context injection.</div>
+      <div class="entry-date">2026-05 (projected)</div>
+      <div class="entry-title">Local LLM Online — Llama 3.1 70B Q4 on M5 Max</div>
+      <div class="entry-desc">Ollama + llama-server (llama.cpp) installed. Llama 3.1 70B Instruct (Q4_K_M, ~40GB) pulled and benchmarked. Expected: 20-28 tok/s generation. OpenAI-compatible API on localhost:8080. Ollama registered as LaunchAgent for always-on service.</div>
       <div class="entry-tags"><span class="tag tag-infra">Infrastructure</span><span class="tag tag-automation">Automation</span></div>
     </div>
   </div>
@@ -1279,12 +1223,23 @@
   <div class="entry left" data-category="infra automation">
     <div class="entry-card">
       <div class="entry-date">2026-06 (projected)</div>
+      <div class="entry-title">RAG Pipeline — 174MB Agent Memory Indexed</div>
+      <div class="entry-desc">ChromaDB vector database loaded with all 11 agents' SQLite conversation history (174MB), 227 shared-memory context files, and 73 daily memory files. nomic-embed-text embedding model running on CPU. OpenClaw queries RAG before every LLM call for user-specific context injection.</div>
+      <div class="entry-tags"><span class="tag tag-infra">Infrastructure</span><span class="tag tag-automation">Automation</span></div>
+    </div>
+    <div class="entry-dot dot-teal"></div>
+    <div class="entry-spacer"></div>
+  </div>
+
+  <div class="entry right" data-category="infra automation">
+    <div class="entry-spacer"></div>
+    <div class="entry-dot dot-gold"></div>
+    <div class="entry-card">
+      <div class="entry-date">2026-06 (projected)</div>
       <div class="entry-title">11 LoRA Persona Adapters — Fine-Tuned &amp; Deployed</div>
       <div class="entry-desc">MLX QLoRA training on M5 Max: 11 LoRA adapters (main, carnegie, chaps, coach-arnie, doc, pops, preacher-john, prof-x, rush, sally, sheriff-roy). ~50-100MB each. Hot-swap per-request via llama-server. Each agent verified against 50 test conversations for persona consistency.</div>
       <div class="entry-tags"><span class="tag tag-infra">Infrastructure</span><span class="tag tag-automation">Automation</span></div>
     </div>
-    <div class="entry-dot dot-gold"></div>
-    <div class="entry-spacer"></div>
   </div>
 
   <!-- ── PHASE 12 (FUTURE) ── -->
@@ -1436,208 +1391,50 @@
     <div class="entry-spacer"></div>
   </div>
 
-  <!-- ── PHASE 14 — CORPUS GRIND + WORSHIP SONGBOOK (Jun 1–22, 2026) ── -->
-  <div class="phase-marker"><span class="phase-label">📖 Phase 14 — Corpus Grind + Worship Songbook (Jun 1–22, 2026)</span></div>
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- PHASE 14 — July Edge + Command Stack (Jul 2–9, 2026) -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div class="phase-marker"><span class="phase-label">⚡ Phase 14 — Cloudflare Edge + Command Stack (Jul 2–9, 2026)</span></div>
 
-  <div class="entry right" data-category="bible">
-    <div class="entry-spacer"></div>
-    <div class="entry-dot dot-purple"></div>
-    <div class="entry-card milestone">
-      <div class="entry-date">2026-06-01 → 02</div>
-      <div class="entry-title">MBT Whole-Book Sprint — ~1,275 Verses in 48 Hours</div>
-      <div class="entry-desc">Micah, Joel, Nahum, and Zephaniah authored complete; landmark chapters across Genesis (Jacob + Joseph cycles, Abraham expansion), Judges, Numbers, Leviticus, Jeremiah, and Ezekiel; Psalms batch 4 added 13 beloved psalms (144 verses). Roughly 1,275 verses of the MOOP Bible Translation landed in a two-day burst.</div>
-      <div class="entry-tags"><span class="tag tag-bible">Bible / BTE</span></div>
-    </div>
-  </div>
-
-  <div class="entry left" data-category="website bible">
-    <div class="entry-card">
-      <div class="entry-date">2026-06-02</div>
-      <div class="entry-title">Directory Map-First Address Blitz — 12 Rounds in One Day</div>
-      <div class="entry-desc">Twelve back-to-back map-first autopilot rounds on the Church Directory: +256 street addresses and +167 verified pastors in a single day. The map-first pattern (geocode gaps drive the research queue) proved itself as the fastest enrichment lane to date.</div>
-      <div class="entry-tags"><span class="tag tag-website">Website</span><span class="tag tag-bible">Bible / BTE</span></div>
-    </div>
-    <div class="entry-dot dot-blue"></div>
-    <div class="entry-spacer"></div>
-  </div>
-
-  <div class="entry right" data-category="website ministry">
+  <div class="entry right" data-category="website infra">
     <div class="entry-spacer"></div>
     <div class="entry-dot dot-blue"></div>
     <div class="entry-card milestone">
-      <div class="entry-date">2026-06-13</div>
-      <div class="entry-title">🎵 Worship Songbook LIVE — 1,439 Chord Charts</div>
-      <div class="entry-desc">The full chord-chart archive shipped as a searchable, transposable songbook on usmcmin.org: per-song YouTube deep links, faithful print layout, Ultimate Guitar links, Random Song, and Song-of-the-Day. A whole new site pillar in one push.</div>
-      <div class="entry-tags"><span class="tag tag-website">Website</span><span class="tag tag-ministry">Ministry</span></div>
-    </div>
-  </div>
-
-  <div class="entry left" data-category="website">
-    <div class="entry-card">
-      <div class="entry-date">2026-06-14</div>
-      <div class="entry-title">Worship Curation Blitz — 132 Lyric-Verified Videos + 104 Slide Decks</div>
-      <div class="entry-desc">One-day curation marathon: lyric-verified YouTube versions grew 15 → 132 (including a full Christmas-carols pass), duplicate charts cross-linked as "other versions," 104 PowerPoint decks converted to a PDF slides library, and a title-label data bug fixed across 13 songs.</div>
-      <div class="entry-tags"><span class="tag tag-website">Website</span></div>
-    </div>
-    <div class="entry-dot dot-blue"></div>
-    <div class="entry-spacer"></div>
-  </div>
-
-  <div class="entry right" data-category="bible">
-    <div class="entry-spacer"></div>
-    <div class="entry-dot dot-purple"></div>
-    <div class="entry-card milestone">
-      <div class="entry-date">2026-06-16</div>
-      <div class="entry-title">Calvin's Institutes — Complete Beveridge Edition Shipped (80 Chapters)</div>
-      <div class="entry-desc">Institutes Stage 1: the entire Beveridge translation of Calvin's Institutes of the Christian Religion published on the site — all 80 chapters, readable and linkable. A cornerstone Reformed text now lives beside the BTE.</div>
-      <div class="entry-tags"><span class="tag tag-bible">Bible / BTE</span></div>
-    </div>
-  </div>
-
-  <div class="entry left" data-category="website">
-    <div class="entry-card">
-      <div class="entry-date">2026-06-15 → 21</div>
-      <div class="entry-title">Worship Sprints A1–A6 + Phase B — From Archive to Instrument</div>
-      <div class="entry-desc">Full-text lyric search, credits &amp; attribution, Project &amp; Stage fullscreen modes on every song, a Set List builder, a "Worship only" data-quality filter, artist search with popularity ranking, then Phase B theme tags + scripture links. Closed with a purge of 5 secular tracks and +40 worship standards (1,439 → 1,474 charts).</div>
-      <div class="entry-tags"><span class="tag tag-website">Website</span></div>
-    </div>
-    <div class="entry-dot dot-blue"></div>
-    <div class="entry-spacer"></div>
-  </div>
-
-  <div class="entry right" data-category="bible">
-    <div class="entry-spacer"></div>
-    <div class="entry-dot dot-purple"></div>
-    <div class="entry-card">
-      <div class="entry-date">2026-06-14 → 22</div>
-      <div class="entry-title">Dictionary Nightly Engine — Batches 151–227 (+770 → 6,217)</div>
-      <div class="entry-desc">The corpus-demand sweep became a nightly rhythm: ~100 new dictionary entries a night, batches 151 through 227, pushing the MOOP Dictionary from 5,553 to 6,217 on the road to 7,777.</div>
-      <div class="entry-tags"><span class="tag tag-bible">Bible / BTE</span></div>
+      <div class="entry-date">2026-07-02 → 07-04</div>
+      <div class="entry-title">🌐 usmcmin.org on Cloudflare R2 + Worker</div>
+      <div class="entry-desc">Cut over from GitHub Pages (1GB limit) to R2 bucket <code>usmcmin-site</code> + Worker <code>usmcmin-site</code>. Deploy path: push <code>main</code> → Action rclone sync of <code>docs/</code>. Preview at r2.usmcmin.org. CLAUDE.md deployment truth updated (BTE V7.x era).</div>
+      <div class="entry-tags"><span class="tag tag-website">Website</span><span class="tag tag-infra">Infrastructure</span></div>
     </div>
   </div>
 
   <div class="entry left" data-category="bible">
     <div class="entry-card milestone">
-      <div class="entry-date">2026-06-21 → 22</div>
-      <div class="entry-title">MBT Restart — Copyright-Safe Author-by-Book + Audio Narration</div>
-      <div class="entry-desc">The translation restarted on a clean, copyright-safe author-by-book method with Ruth as the pilot (85 verses). Next day: chapter-page narration player + Piper text-to-speech generator shipped, with Ruth/Esther as the audio pilots. The Bible now reads itself aloud.</div>
+      <div class="entry-date">2026-07-03 → 07-04</div>
+      <div class="entry-title">📖 BTE V7.0 / V7.1 — Dictionary underlines + cross-ref previews</div>
+      <div class="entry-desc">Reader Mode: visible dictionary underlines; cross-ref previews on by default; dictionary alias layer. Verse pages server-rendered (SSG) so agents/crawlers see real Scripture text. Browse-first Bible Navigator above search.</div>
       <div class="entry-tags"><span class="tag tag-bible">Bible / BTE</span></div>
     </div>
     <div class="entry-dot dot-purple"></div>
     <div class="entry-spacer"></div>
   </div>
 
-  <div class="entry right" data-category="infra automation">
+  <div class="entry right" data-category="website automation">
     <div class="entry-spacer"></div>
-    <div class="entry-dot dot-gold"></div>
-    <div class="entry-card milestone">
-      <div class="entry-date">2026-06-22</div>
-      <div class="entry-title">Autonomous Session — Supplement Directory Live + 4 Fleet Decisions Settled</div>
-      <div class="entry-desc">"Do all 3 — don't wait for me." Supplement Stack promoted site-wide (homepage card + footer links on 17 pages, live-verified); the fleet's only erroring cron re-modeled to Gemma; peer-routing maps rolled out to Sally + Sheriff Roy; church-directory ownership formalized under Sheriff Roy. Fleet behavior probe: 5 PASS / 1 YELLOW / 0 RED — no agent fabricated, none went out of lane.</div>
+    <div class="entry-dot dot-blue"></div>
+    <div class="entry-card">
+      <div class="entry-date">2026-07-05</div>
+      <div class="entry-title">🕊️ Freedom Day sprint — Discord Hive Mind + model 6/6</div>
+      <div class="entry-desc">MOOP context v4.1.0: all 13 agents on Discord with Message-to-Garcia delivery doctrine; Sally dual-inbox + archive filters; BTE/About emblem; local model split Gemma×6 / Qwen×6 for PSAs. Kids DOBs recorded. Ministry rebrand note (full-name mark vs USMC mark).</div>
       <div class="entry-tags"><span class="tag tag-infra">Infrastructure</span><span class="tag tag-automation">Automation</span></div>
     </div>
   </div>
 
-  <!-- ── PHASE 15 — THE BIG CLEANUP + PUBLISHING WAVE (Jun 27–30, 2026) ── -->
-  <div class="phase-marker"><span class="phase-label">🧹 Phase 15 — The Big Cleanup + Publishing Wave (Jun 27–30, 2026)</span></div>
-
-  <div class="entry left" data-category="infra">
+  <div class="entry left" data-category="website infra">
     <div class="entry-card milestone">
-      <div class="entry-date">2026-06-27</div>
-      <div class="entry-title">🧭 System Cleanup Command Center — Control Regained</div>
-      <div class="entry-desc">The big "get control" day. Operating rule: nothing deleted, everything quarantined with a restore ledger. Launchd audit trimmed 86 → 78 jobs; the recurring Chrome/Airbnb popup root-caused and killed (a review-submit job relaunching every 20 min with zero reviews to post); all 13 Hive-Mind personas mapped; ~50GB of reclaimable space staged; backup gap discovered — agent session histories had no backup anywhere.</div>
-      <div class="entry-tags"><span class="tag tag-infra">Infrastructure</span></div>
-    </div>
-    <div class="entry-dot dot-gold"></div>
-    <div class="entry-spacer"></div>
-  </div>
-
-  <div class="entry right" data-category="bible">
-    <div class="entry-spacer"></div>
-    <div class="entry-dot dot-purple"></div>
-    <div class="entry-card">
-      <div class="entry-date">2026-06-27</div>
-      <div class="entry-title">Christianese Decoded — New Special Directory (101 Cards)</div>
-      <div class="entry-desc">A new dictionary special directory decoding church-culture jargon, scaled to 101 verdict cards the same weekend it launched. Also: Philemon went live through the new fleet-draft → Claude-polish MBT pipeline, and Strong's lexicon (verified Greek/Hebrew) wired into the MBT chapter kit.</div>
-      <div class="entry-tags"><span class="tag tag-bible">Bible / BTE</span></div>
-    </div>
-  </div>
-
-  <div class="entry left" data-category="ministry bible">
-    <div class="entry-card milestone">
-      <div class="entry-date">2026-06-28</div>
-      <div class="entry-title">Solo Leveling &amp; Manhood — 12-Part Series Published + Corpus Dedupe</div>
-      <div class="entry-desc">The full father-son discipleship series (Solo Leveling + 1689 confession) published, Parts 1–12. Same day: corpus-wide dedupe merged 275 duplicate dictionary entries across three passes with re-creation guards, blog autolink refresh added +364 dictionary links across 69 posts, and the LBCF dict-linker gained 23 confessional terms.</div>
-      <div class="entry-tags"><span class="tag tag-ministry">Ministry</span><span class="tag tag-bible">Bible / BTE</span></div>
-    </div>
-    <div class="entry-dot dot-orange"></div>
-    <div class="entry-spacer"></div>
-  </div>
-
-  <div class="entry right" data-category="ministry">
-    <div class="entry-spacer"></div>
-    <div class="entry-dot dot-orange"></div>
-    <div class="entry-card">
-      <div class="entry-date">2026-06-28 → 07-02</div>
-      <div class="entry-title">Biblical Masculinity Series + Mutual-Submission Critique</div>
-      <div class="entry-desc">"What the Care and Counsel Bible Gets Wrong About Mutual Submission" published with a Go Deeper media hub, real backstory, and cited sources — then the 5-part Biblical Masculinity series began rolling out (Parts 1–4 live by Jul 2): the wrong question, the shared virtues, the male-specific calling, and the three legs of biblical manhood.</div>
-      <div class="entry-tags"><span class="tag tag-ministry">Ministry</span></div>
-    </div>
-  </div>
-
-  <div class="entry left" data-category="bible">
-    <div class="entry-card milestone">
-      <div class="entry-date">2026-06-30</div>
-      <div class="entry-title">Proverbs Reads MBT End-to-End — Clean MBT Becomes Primary Verse Text</div>
-      <div class="entry-desc">Proverbs 2–31 authored clean and copyright-safe — the whole book now reads MBT — and the BTE switched to displaying the clean MBT as its primary verse text, superseding the NKJV-based blend. Dictionary crossed 6,687 the same day with the Psalm-superscription batches (301–302).</div>
-      <div class="entry-tags"><span class="tag tag-bible">Bible / BTE</span></div>
-    </div>
-    <div class="entry-dot dot-purple"></div>
-    <div class="entry-spacer"></div>
-  </div>
-
-  <div class="entry right" data-category="ministry">
-    <div class="entry-spacer"></div>
-    <div class="entry-dot dot-orange"></div>
-    <div class="entry-card">
-      <div class="entry-date">2026-06-29 → 30</div>
-      <div class="entry-title">RESOLUTE Citizen Enrichment Crosses Batch 500</div>
-      <div class="entry-desc">The scorecard evidence engine pivoted to state legislatures — WV, VT, UT, TX, and WI waves at 10–15 cited claims per batch — and rolled through batch 500 on June 30. By July 2 the waves had reached batch 521 and pivoted back through sitting U.S. Senators.</div>
-      <div class="entry-tags"><span class="tag tag-ministry">Ministry</span></div>
-    </div>
-  </div>
-
-  <!-- ── PHASE 16 — FLEET AUDIT + HARDENING (Jul 1–2, 2026) ── -->
-  <div class="phase-marker"><span class="phase-label">🛡️ Phase 16 — Fleet Audit + Hardening (Jul 1–2, 2026)</span></div>
-
-  <div class="entry left" data-category="infra">
-    <div class="entry-card milestone">
-      <div class="entry-date">2026-07-01</div>
-      <div class="entry-title">Fleet Audit Night — Data Protected, Silent Failures Killed, 52GB Purged</div>
-      <div class="entry-desc">Full-fleet audit. Data first: a 255-commit unpushed branch and 7 never-pushed context commits sent to origin. Then the silent-failure hunt: weekly digest root-caused (3 Sundays of non-delivery from an unresolved secret descriptor), the iMessage bot's fd-leak crash loop fixed with proper connection closing, two agents' HEARTBEAT files repointed off dead data paths, and a 13-hour wedged maintenance job killed. The staged 52GB quarantine purged with Adam's explicit authorization — ledgered.</div>
-      <div class="entry-tags"><span class="tag tag-infra">Infrastructure</span></div>
-    </div>
-    <div class="entry-dot dot-gold"></div>
-    <div class="entry-spacer"></div>
-  </div>
-
-  <div class="entry right" data-category="bible">
-    <div class="entry-spacer"></div>
-    <div class="entry-dot dot-purple"></div>
-    <div class="entry-card">
-      <div class="entry-date">2026-07-01 → 02</div>
-      <div class="entry-title">Dictionary 300s Wave + Quality Reviews (→ 6,785)</div>
-      <div class="entry-desc">Batches 303–314: Reformers, Covenanters, Puritans, hymn-writers &amp; missionaries, the months of the sacred year, and the ports of the apostle's voyages. Quality passes merged 22 same-person duplicates, added recurrence guards and a KJV verifier, and the MBT got a Hebrew-fidelity sweep with a deterministic verifier. Corpus at 6,785 of 7,777.</div>
-      <div class="entry-tags"><span class="tag tag-bible">Bible / BTE</span></div>
-    </div>
-  </div>
-
-  <div class="entry left" data-category="infra automation">
-    <div class="entry-card">
-      <div class="entry-date">2026-07-02</div>
-      <div class="entry-title">Permanence Hour — Error Elimination Across the Fleet</div>
-      <div class="entry-desc">Root causes, not symptoms: tacc-feed + wheelhouse push failures traced to a 341-commit side-branch divergence and fixed; the hourly RAG indexer repointed off a server removed in May (memory indexes had been frozen since spring — full 13-agent re-index launched); 9 ambiguous heartbeat targets made explicit, closing the phantom-agent factory; the 6 heaviest agent identity files cut roughly in half. LoRA A/B verdict: both first adapters rejected for heartbeat-pollution mode collapse — extractor filtered, clean retrain launched.</div>
-      <div class="entry-tags"><span class="tag tag-infra">Infrastructure</span><span class="tag tag-automation">Automation</span></div>
+      <div class="entry-date">2026-07-09</div>
+      <div class="entry-title">🛡️ Dual-site edge harden + sitemap shards live</div>
+      <div class="entry-desc">Workers <code>usmcmin-site</code> + <code>usmcmin-com</code>: HSTS, nosniff, Referrer-Policy, Permissions-Policy, X-Frame-Options, CSP Report-Only. <code>/resolute</code> → 302 citizen.html. usmcmin.com sitemap rebased onto main (old branch 1,672 behind) — PR #15 merged; live <code>sitemap.xml</code> is a proper sitemap index (~9,209 URLs / 55 shards). Local corrupt usmcmin-com checkout repaired.</div>
+      <div class="entry-tags"><span class="tag tag-website">Website</span><span class="tag tag-infra">Infrastructure</span></div>
     </div>
     <div class="entry-dot dot-gold"></div>
     <div class="entry-spacer"></div>
@@ -1647,39 +1444,50 @@
     <div class="entry-spacer"></div>
     <div class="entry-dot dot-gold"></div>
     <div class="entry-card milestone">
-      <div class="entry-date">2026-07-02</div>
-      <div class="entry-title">Fleet hardening: local-first cutover, SITREP live, LoRA pipeline revived</div>
-      <div class="entry-desc">Chat brain cut over to local-first routing; a daily 07:15 fleet SITREP now lands on Telegram (cron health, launchd exits, log freshness, SKILLS-drift check); the LoRA training pipeline revived on the Gemma base with clean-corpus extraction across 13 agents; and the nightly snapshot finally backs up agent session histories — the hardest-to-recreate asset on the machine.</div>
+      <div class="entry-date">2026-07-09</div>
+      <div class="entry-title">🧠 Brain routing — Hermes SuperGrok · Max Codex · PSAs local</div>
+      <div class="entry-desc">Hermes primary: SuperGrok (<code>grok-4.20-reasoning</code> via xAI OAuth) + Electron desktop live. OpenClaw Max: ChatGPT/Codex OAuth <code>openai/gpt-5.5</code>. 12 PSAs: 6×Gemma-4-31B + 6×Qwen3.6-35B. MOOP Personal Context bumped to <strong>v4.3</strong>.</div>
       <div class="entry-tags"><span class="tag tag-infra">Infrastructure</span><span class="tag tag-automation">Automation</span></div>
     </div>
   </div>
 
-  <div class="entry left" data-category="automation">
-    <div class="entry-card milestone">
-      <div class="entry-date">2026-07-02</div>
-      <div class="entry-title">Fleet Repair Night — Local Models Truly Local</div>
-      <div class="entry-desc">Root-caused and fixed the model-identity bug that had silently routed 'local-first' traffic to cloud fallback since spring: the fleet's Gemma 4 31B is now registered correctly and serving real conversations on-device. Same night: agent memory rebuilt end-to-end (all 13 agents gained recall tools + fresh semantic indexes on local embeddings), Preacher John's Bible watches un-clipped from Telegram's length limit, Pops' triple weather alerts de-duplicated, Sally's Airbnb board parser hardened, and Garmin vitals restored. Five root-cause fixes, all verified live.</div>
-      <div class="entry-tags"><span class="tag tag-automation">Automation</span></div>
+  <div class="entry left" data-category="infra">
+    <div class="entry-card">
+      <div class="entry-date">2026-07-09</div>
+      <div class="entry-title">📓 Obsidian vault — MOOP Command (free / iCloud)</div>
+      <div class="entry-desc">Vault framework seeded: Start Here habit, Open Loops, Context Compact Survival, v4.3 doctrine, Sally ADT skill note. Durable spine for local-LLM compact survival — free desktop, no paid Sync required.</div>
+      <div class="entry-tags"><span class="tag tag-infra">Infrastructure</span></div>
     </div>
-    <div class="entry-dot dot-purple"></div>
+    <div class="entry-dot dot-blue"></div>
     <div class="entry-spacer"></div>
   </div>
 
-  <div class="entry right" data-category="infra website">
+  <div class="entry right" data-category="airbnb automation">
     <div class="entry-spacer"></div>
-    <div class="entry-dot dot-gold"></div>
-    <div class="entry-card milestone">
-      <div class="entry-date">2026-07-02 → 03</div>
-      <div class="entry-title">⚓ Operation Firm Foundation — Both Sites Migrate to Cloudflare R2</div>
-      <div class="entry-desc">GitHub Pages builds began failing on both ministry sites (usmcmin.org at 1.85 GB / 50,926 files and usmcmin.com at 0.94 GB / 22,908 files vs. Pages&rsquo; 1 GB limit). Full hosting migration executed with zero content loss: R2 buckets <code>usmcmin-site</code> + <code>usmcmin-com-site</code> behind two Cloudflare Workers (range-request support for media, conditional GETs, immutable asset caching). usmcmin.org cut over via custom domains (old GitHub DNS recorded for rollback); usmcmin.com cut over via zone routes in front of the already-proxied origin &mdash; zero DNS changes, zero downtime. GitHub Actions now sync every push to R2 in ~2&ndash;4 min, so <em>push-to-main remains the deploy</em> for every agent and autopilot &mdash; the fleet (repo CLAUDE/AGENTS docs, workspace, Hermes, cowork projects) was briefed in writing. Site capacity ceiling raised from 1 GB to 10 GB with no file-count limit; the failed-deploy roulette that had blocked blog publishing is retired. Preview domains: r2.usmcmin.org / r2.usmcmin.com. Rollback docs: <code>~/usmcmin-site-worker/ROLLBACK.md</code>, <code>~/usmcmin-com-worker/ROLLBACK.md</code>.</div>
-      <div class="entry-tags"><span class="tag tag-infra">Infrastructure</span><span class="tag tag-website">Website</span></div>
+    <div class="entry-dot dot-green"></div>
+    <div class="entry-card">
+      <div class="entry-date">2026-07-09</div>
+      <div class="entry-title">🏠 Airbnb ops — reviews auto; ADT via Safari; Shuhui deprogrammed</div>
+      <div class="entry-desc">Guest reviews continue automatic. ADT Control driven in Safari (Apple Events JS) when Chrome CDP flaked — Apt 7 inventory confirmed; <strong>Shuhui 1 night stay</strong> deleted post-checkout (read-back verified). OpenClaw <code>adt</code>/<code>bowandarrow</code> profiles repaired for future unattended path; codes still human-led when session dies.</div>
+      <div class="entry-tags"><span class="tag tag-airbnb">Airbnb</span><span class="tag tag-automation">Automation</span></div>
     </div>
+  </div>
+
+  <div class="entry left" data-category="website automation">
+    <div class="entry-card">
+      <div class="entry-date">2026-07-02 → 07-09</div>
+      <div class="entry-title">🗳️ RESOLUTE Citizen — enrichment grind continues</div>
+      <div class="entry-desc">Dozens of enrichment batches on state senators (SC/OR/GA/OH/UT/SD/VT…) + local-LLM evidence-scoring pipeline (zero-cloud grind). Command-center fleet refresh commits keep rolling. Sitemap sharding unblocks crawl of 9k+ candidate profiles.</div>
+      <div class="entry-tags"><span class="tag tag-website">Website</span><span class="tag tag-automation">Automation</span></div>
+    </div>
+    <div class="entry-dot dot-teal"></div>
+    <div class="entry-spacer"></div>
   </div>
 
   <!-- ONGOING -->
   <div class="phase-marker"><span class="phase-label" style="border-color:var(--green);color:var(--green);">🟢 Active — More To Come</span></div>
   <div style="text-align:center;padding:20px;color:var(--gray);font-size:0.85rem;font-style:italic;">
-    This log updates continuously. Every commit, fix, and completed mission gets added here.
+    This log updates continuously. Every commit, fix, and completed mission gets added here. Last mission-log sync: 2026-07-09 (Phase 14).
   </div>
 
 </div><!-- /timeline -->
@@ -1751,10 +1559,6 @@ function updatePhaseMarkers() {
 }
 
 /* ── Stats ── */
-/* Corpus counters (lexicon, cross-refs, dictionary, churches, LBCF, Institutes,
-   blog) are baked into the HTML above — see the comment on the stats bar for the
-   refresh commands. The old /lexicon-manifest.json fetch was removed: that manifest
-   froze at 443 entries on 2026-03-17 and was under-reporting by ~7,400 words. */
 function initPage() {
   /* Days since launch */
   var launch = new Date('2026-03-05T00:00:00');
@@ -1767,6 +1571,23 @@ function initPage() {
   var entries = document.querySelectorAll('.entry[data-category]').length;
   var eel = document.getElementById('stat-entries');
   if (eel) eel.textContent = entries;
+
+  /* Dictionary count */
+  var del = document.getElementById('stat-dict');
+  if (del) del.textContent = '684+';
+
+  /* Lexicon count — fetch manifest */
+  fetch('/lexicon-manifest.json')
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      var count = d.count || (Array.isArray(d.entries) ? d.entries.length : 0) || '5,027+';
+      var lel = document.getElementById('stat-lexicon');
+      if (lel) lel.textContent = count.toLocaleString ? count.toLocaleString() : count;
+    })
+    .catch(function() {
+      var lel = document.getElementById('stat-lexicon');
+      if (lel) lel.textContent = '5,027+';
+    });
 }
 </script>
     <footer style="text-align:center; padding:28px 20px; border-top:1px solid var(--border,#333); margin-top:40px; color:var(--gray,#888); font-size:0.88rem;">

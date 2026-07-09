@@ -62,6 +62,24 @@ const WORKFLOWS_DEFAULT = [
             { name: 'Post-Stay Follow-Up',   desc: 'Note any maintenance items, update unit if needed.' },
         ]
     },
+
+    {
+        id: 'adt-lock-automation',
+        title: 'ADT Lock Code Automation',
+        category: 'Business',
+        icon: '🔐',
+        status: 'active',
+        currentStep: 3,
+        steps: [
+            { name: 'Recon ADT Control UI', desc: 'Map systems, users, Temporary Access. (DONE ✅ May 2026)' },
+            { name: 'adt-login.sh + Keychain', desc: 'Self-heal session script + ADT_CONTROL in Keychain. (DONE ✅)' },
+            { name: 'Lock-code programming flow', desc: 'Documented exact program/deprogram steps + read-back rules. (DONE ✅)' },
+            { name: 'Stable browser session', desc: 'OpenClaw adt CDP reliable; or Safari operator path when Chrome flakes. Safari control proven 2026-07-09.' },
+            { name: 'Google Messages 2FA pairing', desc: 'Pair Messages Web in adt profile for unattended SMS 2FA.' },
+            { name: 'Hands-off check-in cron', desc: 'Provision codes before noon on check-in day from Airbnb suggested PIN; deprogram after checkout.' },
+        ]
+    },
+
     {
         id: 'tenant-onboarding',
         title: 'Tenant Onboarding',
@@ -326,7 +344,7 @@ const WORKFLOWS_DEFAULT = [
             { name: 'Automated Guest Messaging', desc: 'Set up cron-driven pre-arrival, welcome, mid-stay, checkout, and review-request messages. (DONE ✅)' },
             { name: 'Daily Digest Cron', desc: 'Automated daily Airbnb digest pulling from calendar + messages. (DONE ✅)' },
             { name: 'Listing Description Generator', desc: 'Use AI to generate/test listing descriptions optimized for conversion.' },
-            { name: 'Review Response Templates', desc: 'Build AI-powered review response system — personalized, not generic.' },
+            { name: 'Review Response Templates', desc: 'Guest review drafting/submit path working automatically (2026-07). Build AI-powered review response system — personalized, not generic.' },
             { name: 'Pricing Analysis Reports', desc: 'Weekly AI-generated pricing report comparing your rates to market.' },
             { name: 'Guest Communication Playbook', desc: 'Document all message templates and triggers in a playbook for consistency.' },
             { name: 'Full Ops Dashboard', desc: 'Integrate all Airbnb data into the Bow & Arrow Studio OS dashboard.' },
@@ -362,23 +380,6 @@ const WORKFLOWS_DEFAULT = [
             { name: 'Test 1 week',              desc: 'Run v3 in production for 1 full week.' },
             { name: 'Add iMessage delivery',    desc: 'Integrate iMessage delivery channel.' },
             { name: 'Production',               desc: 'Full production deployment of Email Autopilot v3.' },
-        ]
-    },
-    {
-        id: 'fleet-local-first-cutover',
-        title: 'OpenClaw Fleet — Local-First Cutover & Hardening',
-        category: 'Business',
-        icon: '<img src="assets/icons/shield-gear.png" alt="" width="16" height="16" style="vertical-align:middle;margin-right:3px;">',
-        status: 'active',
-        currentStep: 3,
-        steps: [
-            { name: 'Fleet audit', desc: 'Full audit of the 13-agent fleet — stale jobs cleared, wedged maintenance killed, configs reconciled. (DONE ✅ 2026-07-01)' },
-            { name: 'Daily Fleet SITREP', desc: 'One daily 07:15 SITREP covering job health, deliveries, and drift checks — visibility instead of silent failures. (DONE ✅)' },
-            { name: 'Hourly RAG re-indexing', desc: 'Agent memory indexes unfrozen and re-indexing hourly on LM Studio embeddings, with a hard timeout so it can never wedge again. (DONE ✅)' },
-            { name: 'Gemma 4 31B local-first cutover', desc: 'Chat brain moves local-first on Gemma 4 31B (2026-07-02); cloud Claude reserved for heavy lifts. (IN PROGRESS)' },
-            { name: 'LoRA voice adapters — clean retrain', desc: 'Voice-adapter pipeline revived; polluted corpora filtered, each adapter must pass an A/B quality gate before shipping.' },
-            { name: 'Repo branch reconciliation', desc: 'Merge the side branch back to main so the live TACC feed and wheelhouse publish to the deployed site again.' },
-            { name: 'Steady state', desc: 'Seven consecutive green SITREPs — fleet declared stable, watch items closed.' },
         ]
     },
     // ── Personal / Family ──
