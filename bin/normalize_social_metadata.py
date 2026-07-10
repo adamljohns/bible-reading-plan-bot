@@ -103,7 +103,8 @@ def section_for(rel: Path) -> str:
     if name in {"bible", "bible-plan", "bible-reading-plan", "chronological", "crossrefs",
                 "catechism", "lbcf-full", "mbt", "atlas"}:
         return "bible"
-    if name in {"resources", "downloads", "mops", "retirement", "about", "gospel", "watchman"}:
+    if name in {"resources", "dev-resources", "military-ministry-resources", "downloads", "mops",
+                "retirement", "about", "gospel", "watchman"}:
         return "resources"
     return "default"
 
