@@ -207,6 +207,18 @@ def main():
             print(f'  [     FAIL] inconsistent version badges (must be ONE): {spread}')
     elif not args.quiet:
         print(f'  [       OK] version badge consistent ({next(iter(ver_counts), "none")})')
+    # Interactive toolkit coverage (2026-07-02): every live dictionary page must
+    # load moop-tools.js (share/bookmark/amen). Redirect stubs are exempt.
+    no_tools = []
+    for _f in os.listdir(DICT_DIR):
+        if not _f.endswith('.html'):
+            continue
+        _t = open(os.path.join(DICT_DIR, _f), encoding='utf-8', errors='ignore').read()
+        if 'MERGED-REDIRECT' in _t[:600]:
+            continue
+        if 'moop-tools.js' not in _t:
+            no_tools.append(_f)
+    hard += fail_list('pages missing moop-tools.js (interactive toolkit)', no_tools, args.quiet)
     print('-' * 62)
     print('  SOFT (era debt / review items, not failures):')
     print(f'    duplicate display titles: {len(dupes)}'

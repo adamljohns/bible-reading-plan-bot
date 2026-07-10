@@ -353,6 +353,7 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
         }}
     }})();
     </script>
+    <script defer src="../assets/js/moop-tools.js"></script>
 </body>
 </html>
 """

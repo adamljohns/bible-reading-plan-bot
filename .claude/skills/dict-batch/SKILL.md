@@ -260,3 +260,30 @@ the most inbound links + the fullest content.
   are the real backfill targets. (~320 lack Corruption; per policy above that
   is acceptable, not debt.)
 - ~778 open candidates in `data/dictionary-candidates-from-dangling.txt`.
+
+## 10. Site-wide interactive toolkit — `docs/assets/js/moop-tools.js` (2026-07-02)
+
+Every live dictionary page (and cross-references.html) loads ONE self-contained
+script that renders the pill toolbar under the word header: **Share** (Web Share
+API on mobile, copy-canonical-link elsewhere), **Copy Definition** (def text +
+link, entries only), **Bookmark** (site-wide `moop-bookmarks` localStorage — one
+"My Saved" shelf across Dictionary/Lexicon/Cross-Refs/Churches), **Amen** (one
+per visitor per entry, `moop-amens`), **Feedback** (deep-links
+`connect.html?about=<slug>`), **My Saved** panel, plus hover **section
+permalinks** (copies `canonical#section-id`) on every `.section[id]`.
+
+Rules and wiring:
+- The three page templates (generate_dict_entries.py, rebuild-dictionary.py,
+  build_section_pages.py) ship the tag; `bin/inject_tools.py <globs>` retrofits
+  any page set (idempotent; skips MERGED-REDIRECT stubs; depth-aware path).
+- The integrity audit **HARD-fails** any live dict page missing moop-tools.js.
+- Bookmarks store the CANONICAL url (works even when saved from a preview).
+- **Amen global counts are progressive enhancement**: the client GETs/POSTs
+  `/api/amen` and silently stays local until a Cloudflare Worker + KV endpoint
+  exists (contract: `GET /api/amen?slug=<k>` -> `{count}`, `POST {slug}` ->
+  `{count}`; slug format `dictionary:grace`). Deploying that Worker is a
+  DELIBERATE infra step — ask Adam first.
+- Rollout status: dictionary (all live pages) + cross-references DONE;
+  lexicon (7,826 pages) and churches (28,516 pages) are one command each —
+  `python3 bin/inject_tools.py docs/lexicon/*.html` etc. — pending Adam's go
+  (large R2 sync).

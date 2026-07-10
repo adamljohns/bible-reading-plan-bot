@@ -284,6 +284,7 @@ ${KJV_CONTINUAL_SECTION}
         d.addEventListener('toggle', update);
     });
     </script>
+    <script defer src="../assets/js/moop-tools.js"></script>
 </body>
 </html>
 """)
