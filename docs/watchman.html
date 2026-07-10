@@ -350,6 +350,13 @@
                     <span class="badge">Maximum Depth</span>
                 </div>
             </div>
+            <p style="color: var(--gray); font-size: 0.82rem; max-width: 560px; margin: 10px auto 0; line-height: 1.55;">
+                Every tier delivers the same five daily watch readings — the questions only set how
+                deeply they're personalized: <strong>Basic</strong> fits the readings to your household,
+                <strong>Amplified</strong> adds your family archetype and spiritual goals,
+                <strong>Deep Devotional</strong> tailors them down to each child and season of life.
+                You can start Basic and upgrade without re-answering anything.
+            </p>
 
             <button id="startBtn" class="cta-button" onclick="startForm()">Begin Intake</button>
             <div style="margin-top: 20px; padding: 15px; border: 1px solid #333; border-radius: 8px; max-width: 400px; margin-left: auto; margin-right: auto;">
@@ -780,6 +787,14 @@
             return true;
         }
 
+        // Watchman backend endpoint. Empty = no backend wired: answers persist in
+        // localStorage only and all network calls are skipped. When the Cloudflare
+        // Worker lands (signed-token retrieval), set this to its URL — one line.
+        // (Replaces a hardcoded LAN IP that leaked internal topology in public HTML
+        // and could never be reached by real visitors — HTTPS pages block http:// LAN
+        // fetches as mixed content, so it was dead code for everyone off-network.)
+        const WATCHMAN_API = '';
+
         // BTE v4.0: Email save / skip handlers
         function saveEmail() {
             const emailInput = document.getElementById('emailSaveInput');
@@ -790,12 +805,14 @@
                 return;
             }
             formData.emailSave = email;
-            // Try to notify backend (gracefully handles unavailability)
-            fetch('http://192.168.1.166:8080/api/save-email', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: email, answers: formData, timestamp: new Date().toISOString() })
-            }).catch(function() { /* backend unavailable — fail silently */ });
+            // Notify backend if one is wired (gracefully handles unavailability)
+            if (WATCHMAN_API) {
+                fetch(WATCHMAN_API + '/api/save-email', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email, answers: formData, timestamp: new Date().toISOString() })
+                }).catch(function() { /* backend unavailable — fail silently */ });
+            }
             // Show confirmation then advance
             if (statusEl) { statusEl.innerHTML = '<img src="assets/icons/shield-star.png" class="site-icon" alt="star" width="20" height="20"> Saved!'; statusEl.style.color = '#4CAF50'; }
             setTimeout(function() {
@@ -852,8 +869,23 @@
             const emailInput = document.getElementById('emailLookup');
             if (!emailInput || !emailInput.value.trim()) { alert('Enter your email to look up your plan.'); return; }
             const email = emailInput.value.trim();
-            // Try Mac Mini server first, fallback to localStorage
-            fetch('http://192.168.1.166:8080/api/bible-intake?email=' + encodeURIComponent(email))
+            // Backend lookup if wired, else this browser's localStorage
+            const localFallback = () => {
+                const saved = localStorage.getItem('watchmanPlan');
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    if (parsed.contact === email || parsed.email === email) {
+                        formData = parsed;
+                        selectedTier = formData.tier || 'basic';
+                        alert('Found your saved plan locally!');
+                        showPreview();
+                        return;
+                    }
+                }
+                alert('No plan found for that email. Start fresh below!');
+            };
+            if (!WATCHMAN_API) { localFallback(); return; }
+            fetch(WATCHMAN_API + '/api/bible-intake?email=' + encodeURIComponent(email))
                 .then(r => r.ok ? r.json() : Promise.reject('not found'))
                 .then(data => {
                     if (data && data.user) {
@@ -863,21 +895,7 @@
                         showPreview();
                     } else { alert('No plan found for that email. Start a new one!'); }
                 })
-                .catch(() => {
-                    // Fallback to localStorage
-                    const saved = localStorage.getItem('watchmanPlan');
-                    if (saved) {
-                        const parsed = JSON.parse(saved);
-                        if (parsed.contact === email || parsed.email === email) {
-                            formData = parsed;
-                            selectedTier = formData.tier || 'basic';
-                            alert('Found your saved plan locally!');
-                            showPreview();
-                            return;
-                        }
-                    }
-                    alert('No plan found for that email. Start fresh below!');
-                });
+                .catch(localFallback);
         }
 
         function showPreview() {
