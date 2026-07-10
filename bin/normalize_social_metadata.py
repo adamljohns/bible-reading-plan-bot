@@ -15,12 +15,17 @@ from pathlib import Path
 from urllib.parse import quote
 
 SITE = "https://usmcmin.org"
-VERSION = "2026-07"
+VERSION = "2026-07-10"
+# Homepage share card remains the earlier dedicated crest card.
+HOME_CARD_VERSION = "2026-07"
 
 CARD_URLS = {
     "default": f"{SITE}/assets/og/og-default-{VERSION}.png",
     "bible": f"{SITE}/assets/og/og-bible-{VERSION}.png",
+    "lexicon": f"{SITE}/assets/og/og-lexicon-{VERSION}.png",
     "dictionary": f"{SITE}/assets/og/og-dictionary-{VERSION}.png",
+    "crossrefs": f"{SITE}/assets/og/og-crossrefs-{VERSION}.png",
+    "atlas": f"{SITE}/assets/og/og-atlas-{VERSION}.png",
     "churches": f"{SITE}/assets/og/og-churches-{VERSION}.png",
     "worship": f"{SITE}/assets/og/og-worship-{VERSION}.png",
     "assessments": f"{SITE}/assets/og/og-assessments-{VERSION}.png",
@@ -28,12 +33,15 @@ CARD_URLS = {
     "resources": f"{SITE}/assets/og/og-resources-{VERSION}.png",
     "connect": f"{SITE}/assets/og/og-connect-{VERSION}.png",
 }
-HOME_CARD_URL = f"{SITE}/assets/og/og-home-{VERSION}.png"
+HOME_CARD_URL = f"{SITE}/assets/og/og-home-{HOME_CARD_VERSION}.png"
 
 SECTION_LABELS = {
     "default": "U.S.M.C. Ministries",
-    "bible": "Bible Tools",
+    "bible": "MOOP Bible Translation Engine",
+    "lexicon": "MOOP Lexicon",
     "dictionary": "The MOOP Dictionary",
+    "crossrefs": "Scripture Cross-References",
+    "atlas": "Biblical Atlas",
     "churches": "Church Directory",
     "worship": "Worship & Devotion",
     "assessments": "Biblical Assessments",
@@ -44,8 +52,11 @@ SECTION_LABELS = {
 
 GENERIC_DESCRIPTIONS = {
     "default": "Christ-centered tools for faith, family, freedom, and fraternity from U.S.M.C. Ministries.",
-    "bible": "Scripture text, translation tools, reading plans, cross-references, and biblical word-study resources from U.S.M.C. Ministries.",
+    "bible": "MOOP Bible Translation Engine: 12 translations, interlinear Hebrew & Greek, Strong’s, cross-references, and verse study tools.",
+    "lexicon": "Hebrew and Greek lexicon entries with Strong’s numbers, original roots, and Scripture links from U.S.M.C. Ministries.",
     "dictionary": "Biblical definitions, theological context, word origins, and Scripture references from the MOOP Dictionary.",
+    "crossrefs": "Scripture cross-references, thematic links, and study paths from U.S.M.C. Ministries.",
+    "atlas": "Biblical maps, charts, and journey overviews from U.S.M.C. Ministries.",
     "churches": "Church profile and directory information—including location, doctrine, leadership, and ministry details when available.",
     "worship": "Christ-centered worship, songs, Scripture connections, prayer, and devotional resources from U.S.M.C. Ministries.",
     "assessments": "Biblical self-assessments for husbands, fathers, men, and citizens—built for honest reflection and practical action.",
@@ -85,11 +96,28 @@ def section_for(rel: Path) -> str:
     first = parts[0] if len(parts) > 1 else ""
     name = rel.stem.lower()
 
-    if first in {"chapters", "verse", "readings", "proverbs", "lbcf", "institutes"}:
+    # Bible Translation Engine / verse shares — BTE hero, not main ministry crest.
+    if first in {"chapters", "verse", "readings", "proverbs", "lbcf", "institutes", "mbt"}:
         return "bible"
-    if first in {"dictionary", "lexicon"}:
+    if name in {"bible", "bible-plan", "bible-reading-plan", "chronological", "catechism",
+                "lbcf-full", "mbt", "cross-references"} or name.startswith("cross-ref"):
+        if "cross" in name:
+            return "crossrefs"
+        return "bible"
+    if name in {"crossrefs", "cross-references"}:
+        return "crossrefs"
+
+    # Distinct tool heroes
+    if first == "lexicon" or name == "lexicon":
+        return "lexicon"
+    if first == "dictionary" or name in {"dictionary", "dictionary-index"}:
         return "dictionary"
-    if first == "churches" or name in {"churches", "near-me", "directory-overview"}:
+    if name == "atlas" or first == "atlas":
+        return "atlas"
+
+    if first == "churches" or name in {"churches", "near-me", "directory-overview",
+                                      "churches-fxbg", "churches-virginia", "churches-dc",
+                                      "moop-attended"}:
         return "churches"
     if first == "worship" or name.startswith("worship"):
         return "worship"
@@ -100,9 +128,6 @@ def section_for(rel: Path) -> str:
         return "assessments"
     if name in {"connect", "contacts", "mentoring", "counseling", "serving-intake", "prayer"}:
         return "connect"
-    if name in {"bible", "bible-plan", "bible-reading-plan", "chronological", "crossrefs",
-                "catechism", "lbcf-full", "mbt", "atlas"}:
-        return "bible"
     if name in {"resources", "dev-resources", "military-ministry-resources", "downloads", "mops",
                 "retirement", "about", "gospel", "watchman"}:
         return "resources"
