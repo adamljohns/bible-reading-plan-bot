@@ -1,0 +1,130 @@
+/* USMC Ministries — Assessment shell polish (shared)
+   Loaded after page-local CSS so these refinements win without rewriting
+   each monolithic assessment page. */
+
+:root {
+  --assess-space-1: 4px;
+  --assess-space-2: 8px;
+  --assess-space-3: 12px;
+  --assess-space-4: 16px;
+  --assess-space-5: 24px;
+  --assess-radius: 12px;
+  --assess-radius-sm: 8px;
+  --assess-focus: 0 0 0 3px rgba(212, 175, 55, 0.35);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Focus visibility for keyboard users */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+.bte-theme-toggle:focus-visible {
+  outline: none;
+  box-shadow: var(--assess-focus);
+}
+
+/* Sticky nav polish */
+nav {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* Chart: prevent layout jump */
+.chart-wrapper {
+  min-height: 280px;
+}
+
+/* Range inputs: larger hit target on touch */
+input[type=range] {
+  min-height: 28px;
+  touch-action: pan-y;
+}
+
+/* Buttons */
+.btn,
+button.btn {
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* Share modal */
+#share-modal {
+  backdrop-filter: blur(4px);
+}
+
+#share-modal .share-panel,
+#share-modal > div {
+  max-height: min(90vh, 720px);
+  overflow: auto;
+}
+
+body.modal-open {
+  overflow: hidden;
+}
+
+/* Progress empty state */
+#no-history,
+.history-empty {
+  color: var(--gray, #888);
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+/* Soften pure-white body text if page used pure white */
+body:not(.light-mode) {
+  color: var(--white, #e8e8e8);
+}
+
+/* Print: keep formation plan readable */
+@media print {
+  body {
+    background: #fff !important;
+    color: #111 !important;
+  }
+  .section-card,
+  .formation-area,
+  .question-block,
+  .axis-block {
+    break-inside: avoid;
+    box-shadow: none !important;
+  }
+  a[href^="bible.html"]::after {
+    content: " (" attr(href) ")";
+    font-size: 0.75em;
+    color: #666;
+  }
+}
+
+/* Hub page: do not force all anchors gold (nav + cards need local colors) */
+body.assess-hub a.assess-card,
+body.assess-hub a.assess-card:link,
+body.assess-hub a.assess-card:visited {
+  color: var(--white, #fff) !important;
+}
+body.assess-hub nav a,
+body.assess-hub nav a:link,
+body.assess-hub nav a:visited {
+  color: var(--gray, #888) !important;
+}
+body.assess-hub nav a:hover,
+body.assess-hub nav a.active {
+  color: var(--gold, #D4AF37) !important;
+}

@@ -19,7 +19,9 @@
     <title>R.E.A.L. M.A.N. Assessment | USMC Ministries</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="/assets/css/assessment.css">
+    <script src="/assets/js/assessment-core.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
@@ -340,6 +342,7 @@
         <a href="index.html"><img src="assets/icons/shield-home-48.png" width="16" height="16" alt="" style="vertical-align:-2px"> U.S.M.C. Ministries Home</a>
         <a href="watchman.html"><img src="assets/icons/shield-bible.png" width="16" height="16" alt="" style="vertical-align:-2px"> Watchman Bible Plan</a>
         <a href="bible.html"><img src="assets/icons/shield-bible-cross-48.png" width="16" height="16" alt="" style="vertical-align:-2px"> Bible Translation Engine</a>
+        <a href="assessments.html"><img src="assets/icons/shield-checklist-48.png" width="16" height="16" alt="" style="vertical-align:-2px"> Assessments</a>
         <a href="purity-assessment.html"><img src="assets/icons/shield-cross-bible-48.png" width="16" height="16" alt="" style="vertical-align:-2px"> Purity Assessment</a>
         <a href="resolute-citizen-assessment.html"><img src="assets/icons/shield-handshake.png" width="16" height="16" alt="" style="vertical-align:-2px"> Resolute Citizen</a>
         <a href="connect.html"><img src="assets/icons/shield-handshake.png" width="16" height="16" alt="" style="vertical-align:-2px"> Connect</a>
@@ -408,7 +411,7 @@
 
             <div class="btn-row" id="print-hide">
                 <button class="btn btn-primary" onclick="runAssessment()"><img src="assets/icons/shield-checklist-48.png" alt="" width="16" height="16" style="vertical-align:middle;margin-right:3px;"> Generate Formation Plan</button>
-                <button class="btn btn-ghost" onclick="saveProgress()">💾 Save Progress</button>
+                <button class="btn btn-ghost" onclick="saveProgress(event)">💾 Save Progress</button>
             </div>
         </div>
 
@@ -451,7 +454,7 @@
             <p style="font-size:0.88rem; color:var(--gray); margin-bottom:4px;">Copy this summary to share. No name included unless you add it.</p>
             <textarea id="shareText" class="share-text-area" rows="16" readonly></textarea>
             <div class="btn-row" style="margin-top:14px;">
-                <button class="btn btn-primary" onclick="copyShareText()"><img src="assets/icons/shield-checklist-48.png" alt="" width="16" height="16" style="vertical-align:middle;margin-right:3px;"> Copy to Clipboard</button>
+                <button class="btn btn-primary" onclick="copyShareText(event)"><img src="assets/icons/shield-checklist-48.png" alt="" width="16" height="16" style="vertical-align:middle;margin-right:3px;"> Copy to Clipboard</button>
                 <button class="btn btn-ghost" onclick="closeShareModal()">Close</button>
             </div>
         </div>
@@ -658,10 +661,10 @@
 
     // ── TIER ─────────────────────────────────────────────────────────────────
     function getTier(avg) {
-        if (avg >= 9)  return { label: '🏅 Walking in Strength', color: '#27ae60' };
-        if (avg >= 7)  return { label: '✅ Gaining Ground', color: '#2ecc71' };
-        if (avg >= 4)  return { label: '<img src="assets/icons/shield-chain-sword-48.png" alt="" width="16" height="16" style="vertical-align:middle;margin-right:3px;"> In the Fight', color: '#D4AF37' };
-        return { label: '🚨 Under Siege', color: '#c0392b' };
+        if (avg >= 9)  return { label: 'Walking in Strength', color: '#27ae60' };
+        if (avg >= 7)  return { label: 'Gaining Ground', color: '#2ecc71' };
+        if (avg >= 4)  return { label: 'In the Fight', color: '#D4AF37' };
+        return { label: 'Under Siege', color: '#c0392b' };
     }
 
     // ── CHART ────────────────────────────────────────────────────────────────
@@ -788,7 +791,7 @@
                 </div>
                 <div class="q-text">${axis.text}</div>
                 <ul class="q-subquestions">${subQHtml}</ul>
-                <a class="q-scripture" href="bible.html?ref=${axis.formation.memRef}" target="_blank" rel="noopener">
+                <a class="q-scripture" href="bible.html?ref=${encodeURIComponent(axis.scripture)}" target="_blank" rel="noopener">
                     <img src="assets/icons/shield-bible.png" alt="" width="16" height="16" style="vertical-align:middle;margin-right:3px;"> ${axis.scripture}
                 </a>
             `;
@@ -847,6 +850,23 @@
         plan.style.display = 'block';
         plan.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
+        // Auto-persist this run so Progress Log stays useful without a second click
+        try {
+            if (typeof STORAGE_KEY !== 'undefined') {
+                const history = getHistory();
+                const scores = (typeof getRadarData === 'function')
+                    ? getRadarData()
+                    : (typeof SCORES !== 'undefined' ? [...SCORES] : null);
+                if (scores) {
+                    history.unshift({ date: new Date().toISOString(), scores });
+                    if (history.length > 20) history.length = 20;
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+                    if (typeof renderHistory === 'function') renderHistory();
+                }
+            }
+        } catch (e) {}
+
+
         try {
             const avg = getOverallAvg();
             const tier = getTier(avg).label;
@@ -862,16 +882,19 @@
     // ── PROGRESS TRACKER ──────────────────────────────────────────────────────
     const STORAGE_KEY = 'realManHistory';
 
-    function saveProgress() {
+    function saveProgress(evt) {
         const history = getHistory();
         const entry = { date: new Date().toISOString(), scores: AXES.map((_, i) => getAxisAvg(i)) };
         history.unshift(entry);
         if (history.length > 20) history.pop();
         localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
         renderHistory();
-        const btn = event.target;
-        btn.textContent = '✅ Saved!';
-        setTimeout(() => btn.textContent = '💾 Save Progress', 2000);
+        const btn = (evt && evt.currentTarget) || (typeof event !== 'undefined' ? event.target : null);
+        if (btn) {
+            const prev = btn.textContent;
+            btn.textContent = 'Saved';
+            setTimeout(() => { btn.textContent = prev || 'Save Progress'; }, 2000);
+        }
     }
 
     function getHistory() {
@@ -943,7 +966,7 @@
         const date = new Date().toLocaleDateString('en-US', {month:'long', day:'numeric', year:'numeric'});
         let text = `R.E.A.L. M.A.N. ASSESSMENT — ${date}\n`;
         text += `${'='.repeat(42)}\n\n`;
-        text += `Overall Score: ${avg.toFixed(1)}/10  —  ${tier.label.replace(/[^\w\s\-\./]/g,'').trim()}\n\n`;
+        text += `Overall Score: ${avg.toFixed(1)}/10  —  ${String(tier.label||'').replace(/<[^>]*>/g,'').replace(/[^\w\s\-\./]/g,'').trim()}\n\n`;
         AXES.forEach((a, i) => {
             text += `${a.letter} — ${a.word}: ${getAxisAvg(i).toFixed(1)}/10\n`;
         });
@@ -963,20 +986,30 @@
         document.getElementById('share-modal').classList.remove('open');
     }
 
-    function copyShareText() {
+    function copyShareText(evt) {
         const ta = document.getElementById('shareText');
         ta.select();
         try { navigator.clipboard.writeText(ta.value).catch(() => document.execCommand('copy')); }
         catch(e) { document.execCommand('copy'); }
-        const btn = event.target;
-        btn.textContent = '✅ Copied!';
-        setTimeout(() => btn.textContent = '<img src="assets/icons/shield-checklist-48.png" alt="" width="16" height="16" style="vertical-align:middle;margin-right:3px;"> Copy to Clipboard', 2000);
+        const btn = (evt && evt.currentTarget) || (typeof event !== 'undefined' ? event.target : null);
+        if (btn) {
+            const prev = btn.getAttribute('data-label') || 'Copy to Clipboard';
+            btn.setAttribute('data-label', prev);
+            btn.textContent = 'Copied';
+            setTimeout(() => { btn.textContent = prev; }, 2000);
+        } else {
+            // no-op visual feedback
+        }
     }
 
     function printSummary() { window.print(); }
 
     // ── THEME ─────────────────────────────────────────────────────────────────
     function bteToggleTheme() {
+        if (window.USMCAssessment) {
+            USMCAssessment.toggleTheme(radarChart);
+            return;
+        }
         document.body.classList.toggle('light-mode');
         const isLight = document.body.classList.contains('light-mode');
         localStorage.setItem('bte-theme', isLight ? 'light' : 'dark');
@@ -996,6 +1029,12 @@
         initChart();
         updateChart();
         renderHistory();
+        (function wireModal(){
+            const modal = document.getElementById('share-modal');
+            if (!modal) return;
+            modal.addEventListener('click', function(e){ if (e.target === modal) closeShareModal(); });
+            document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && modal.classList.contains('open')) closeShareModal(); });
+        })();
     })();
     </script>
     <footer style="text-align:center; padding:28px 20px; border-top:1px solid var(--border,#333); margin-top:40px; color:var(--gray,#888); font-size:0.88rem;">
