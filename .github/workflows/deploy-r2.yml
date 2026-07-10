@@ -19,6 +19,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Normalize social share metadata
+        run: |
+          python3 bin/normalize_social_metadata.py --root docs
+          python3 - <<'PY'
+          from pathlib import Path
+          required = {
+              "og-home-2026-07.png", "og-default-2026-07.png", "og-bible-2026-07.png",
+              "og-dictionary-2026-07.png", "og-churches-2026-07.png", "og-worship-2026-07.png",
+              "og-assessments-2026-07.png", "og-blog-2026-07.png",
+              "og-resources-2026-07.png", "og-connect-2026-07.png",
+          }
+          present = {p.name for p in Path("docs/assets/og").glob("*.png")}
+          missing = required - present
+          if missing:
+              raise SystemExit(f"missing social cards: {sorted(missing)}")
+          print(f"PASS: all {len(required)} social cards present")
+          PY
       - name: Install rclone
         run: sudo apt-get update -q && sudo apt-get install -y -q rclone
       - name: Sync docs/ to R2
