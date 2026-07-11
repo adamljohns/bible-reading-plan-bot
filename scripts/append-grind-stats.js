@@ -24,8 +24,9 @@ const attempted = c => { const n = notesText(c); if (n.lastIndexOf('junk-pastor-
 const strikes = c => (notesText(c).match(/no parseable pastor/gi) || []).length;
 const fetchable = c => isPh(c.pastor) && hasWebsite(c) && isEnglish(c.name) && isUS(c);
 
-const pool_fresh = d.filter(c => fetchable(c) && !attempted(c)).length;
-const pool_retry = d.filter(c => fetchable(c) && attempted(c) && strikes(c) === 1).length;
+// !._hold_review mirrors select-enrichment-batch.js — held names leave the pastor pools
+const pool_fresh = d.filter(c => fetchable(c) && !c._hold_review && !attempted(c)).length;
+const pool_retry = d.filter(c => fetchable(c) && !c._hold_review && attempted(c) && strikes(c) === 1).length;
 const pool_social = d.filter(c => hasWebsite(c) && !c.facebook && !c.youtube && !c.instagram && isEnglish(c.name) && isUS(c) && !c._social_attempted).length;
 
 const US_UNIVERSE = 350000; // ~congregations, 2020 U.S. Religion Census

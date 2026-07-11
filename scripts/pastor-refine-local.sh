@@ -46,7 +46,17 @@ node scripts/select-enrichment-batch.js --count "$BATCH" --batches 1 --out "$WOR
   || die "selector failed"
 cat "$WORK/selector.txt" >>"$LOG"
 N_BATCH=$(node -e 'console.log(require("'"$WORK"'/enrich-batch-1.json").length)' 2>/dev/null || echo 0)
-if [ "$N_BATCH" -eq 0 ]; then
+POOL=$(grep -oE 'pastor-fetchable\): [0-9]+' "$WORK/selector.txt" | grep -oE '[0-9]+$' | head -1)
+# MIN_FRESH floor (2026-07-11): don't burn a full round (fetch + regen + push) on a
+# sub-threshold fresh trickle while thousands sit in retry/social — a 1-church fresh
+# pool once spun the grind for 5 days. A skipped trickle is swept later: discovery
+# refills fresh past the floor, or the final fallback below processes it when the
+# deeper pools are dry.
+MIN_FRESH="${MIN_FRESH:-10}"
+N_FRESH_TRICKLE=0
+if [ "$N_BATCH" -eq 0 ] || { [ -n "$POOL" ] && [ "$POOL" -lt "$MIN_FRESH" ]; }; then
+  N_FRESH_TRICKLE=$N_BATCH
+  [ "$N_BATCH" -gt 0 ] && say "fresh pool ($POOL) below floor ($MIN_FRESH) — deferring trickle, trying retry pool"
   MODE="retry"
   node scripts/select-enrichment-batch.js --retry --count "$BATCH" --batches 1 --out "$WORK" >"$WORK/selector.txt" 2>&1 \
     || die "selector failed (retry mode)"
@@ -63,6 +73,15 @@ if [ "$N_BATCH" -eq 0 ]; then
   cat "$WORK/selector.txt" >>"$LOG"
   N_BATCH=$(node -e 'console.log(require("'"$WORK"'/enrich-batch-1.json").length)' 2>/dev/null || echo 0)
 fi
+# Final fallback: retry+social dry but a fresh trickle was deferred — process it now
+# rather than declaring the grind complete with real work left.
+if [ "$N_BATCH" -eq 0 ] && [ "$N_FRESH_TRICKLE" -gt 0 ]; then
+  MODE="fresh"; SOCIAL_FLAG=""
+  node scripts/select-enrichment-batch.js --count "$BATCH" --batches 1 --out "$WORK" >"$WORK/selector.txt" 2>&1 \
+    || die "selector failed (fresh-trickle mode)"
+  cat "$WORK/selector.txt" >>"$LOG"
+  N_BATCH=$(node -e 'console.log(require("'"$WORK"'/enrich-batch-1.json").length)' 2>/dev/null || echo 0)
+fi
 if [ "$N_BATCH" -eq 0 ]; then say "fresh, retry AND social pools all empty — grind complete, nothing to do"; exit 0; fi
 POOL=$(grep -oE 'pastor-fetchable\): [0-9]+' "$WORK/selector.txt" | grep -oE '[0-9]+$' | head -1)
 say "mode=$MODE pool=${POOL:-?} batch=$N_BATCH"
@@ -73,8 +92,13 @@ python3 scripts/local-pastor-extract.py "$WORK/enrich-batch-1.json" "$WORK/enric
 FOUND=$(node -e 'console.log(require("'"$WORK"'/enriched.json").filter(x=>x.pastor_name).length)')
 say "extracted: $FOUND verified lead(s) of $N_BATCH churches"
 
-node scripts/merge-pastor-enrichments.js --input "$WORK/enriched.json" $SOCIAL_FLAG >>"$LOG" 2>&1 \
-  || die "merge failed"
+node scripts/merge-pastor-enrichments.js --input "$WORK/enriched.json" $SOCIAL_FLAG >"$WORK/merge.txt" 2>&1 \
+  || { cat "$WORK/merge.txt" >>"$LOG"; die "merge failed"; }
+cat "$WORK/merge.txt" >>"$LOG"
+# Honest counts for the commit message: what the guards actually APPLIED, not what
+# the extractor merely found (found-but-HELD names used to be reported as "+1 pastors").
+APPLIED=$(grep -oE 'Pastors applied: +[0-9]+' "$WORK/merge.txt" | grep -oE '[0-9]+$' | head -1); APPLIED=${APPLIED:-0}
+SOC_APPLIED=$(grep -oE 'Social links applied: +[0-9]+' "$WORK/merge.txt" | grep -oE '[0-9]+$' | head -1); SOC_APPLIED=${SOC_APPLIED:-0}
 
 # Publish a QA sample for the fleet: the newest local-extract finds land at
 # https://usmcmin.org/data/qa-sample.json so Chaps (web_fetch-only tooling) can
@@ -106,14 +130,14 @@ node scripts/check-consistency.js >>"$LOG" 2>&1 \
 
 if [ -n "$(git status --porcelain)" ]; then
   git add docs/data/churches.json docs/churches/ docs/data/churches-index.json docs/data/churches/ docs/data/qa-sample.json docs/data/grind-stats.json
-  git commit -qm "Local pastor refine: +$FOUND pastors of $N_BATCH attempted ($MODE pool, local-extract)" \
+  git commit -qm "Local pastor refine: +$APPLIED pastors, +$SOC_APPLIED socials applied of $N_BATCH attempted ($MODE pool, local-extract)" \
     || die "commit failed"
   if ! git push -q origin HEAD:main; then
     say "push rejected — rebasing onto fresh origin/main and retrying"
     git fetch -q origin main && git rebase -q FETCH_HEAD && git push -q origin HEAD:main \
       || die "push failed after rebase retry — commit stranded in autopilot worktree"
   fi
-  say "pushed: +$FOUND pastors ($N_BATCH attempted)"
+  say "pushed: +$APPLIED pastors, +$SOC_APPLIED socials applied ($N_BATCH attempted, $FOUND extracted)"
 else
   say "no changes to commit (0 applied)"
 fi

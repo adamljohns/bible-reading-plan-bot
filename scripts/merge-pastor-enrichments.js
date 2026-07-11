@@ -157,6 +157,7 @@ for (const c of d.churches) {
       const jNote = `[${TODAY}] Enrichment guard: rejected junk-looking pastor value "${candidate}" (source: ${e.extractor || 'agent'}). Left unset.`;
       c.enrichment_notes = c.enrichment_notes ? c.enrichment_notes + '\n' + jNote : jNote;
       c.needs_review = true;
+      c._hold_review = TODAY; // exits the automated pools — a re-fetch would re-extract the same junk
       continue;
     }
 
@@ -166,6 +167,7 @@ for (const c of d.churches) {
       const fNote = `[${TODAY}] Enrichment guard: lead-pastor candidate "${candidate}" has a typically-female first name — HELD for manual MOOP-rubric review (name not applied). Source: ${e.pastor_source_url || 'n/a'}.`;
       c.enrichment_notes = c.enrichment_notes ? c.enrichment_notes + '\n' + fNote : fNote;
       c.needs_review = true;
+      c._hold_review = TODAY; // exits the automated pools until a human clears the hold (2026-07-11: an unstamped hold pinned pool_fresh=1 and spun the grind for 5 days)
       continue;
     }
 

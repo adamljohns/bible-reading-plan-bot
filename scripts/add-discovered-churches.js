@@ -108,6 +108,13 @@ const seen = new Set();
 const toAdd = [], skipped = [];
 for (const r of incoming) {
   if (!r || !r.name) { skipped.push('(no name)'); continue; }
+  // Zero-presence gate (Adam, 2026-07-11): a discovered church must arrive with a
+  // verifiable web presence — a real website or at least one social link. With
+  // nothing to verify against, nothing about it can ever be enriched or checked,
+  // and honest blanks beat unverifiable listings. (Facebook-only is acceptable.)
+  const hasSite = typeof r.website === 'string' && /^https?:\/\//i.test(r.website);
+  const hasSocial = !!(r.facebook || r.youtube || r.instagram);
+  if (!hasSite && !hasSocial) { skipped.push(`${r.name} — zero web presence (no website, no social); not added per 2026-07-11 policy`); continue; }
   const dupId = existingFxbgDup(r);
   if (dupId) { skipped.push(`${r.name} — already in FXBG directory (${dupId})`); continue; }
   const key = normName(r.name) + '|' + String(r.city || '').toLowerCase().replace(/[^a-z]/g, '');

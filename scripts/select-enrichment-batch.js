@@ -83,9 +83,14 @@ const hasWebsite = c => typeof c.website === 'string' && /^https?:\/\//i.test(c.
 const socialEligible = c => hasWebsite(c) && !c.facebook && !c.youtube && !c.instagram &&
   isEnglish(c.name) && isUS(c) && !c._social_attempted;
 
+// _hold_review (2026-07-11): the merge guard HELD an extracted name (junk-looking or
+// typically-female lead) for manual MOOP-rubric review. Re-fetching would only re-extract
+// the same held candidate, so held records leave BOTH pastor pools until a human clears
+// the flag. Without this, a held church pinned pool_fresh at 1 and the grind spun on it
+// for 5 days (500 rounds, zero net pastors).
 const eligible = churches.filter(c =>
   SOCIAL ? socialEligible(c)
-    : (fetchable(c) && (RETRY ? (alreadyAttempted(c) && noPastorStrikes(c) === 1) : !alreadyAttempted(c))));
+    : (fetchable(c) && !c._hold_review && (RETRY ? (alreadyAttempted(c) && noPastorStrikes(c) === 1) : !alreadyAttempted(c))));
 eligible.sort((a, b) => String(a.id).localeCompare(String(b.id)));
 
 const mode = SOCIAL ? 'SOCIAL: website + no social link' : RETRY ? 'RETRY: one no-pastor strike' : 'never-attempted';
