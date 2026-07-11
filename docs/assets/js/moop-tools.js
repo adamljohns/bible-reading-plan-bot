@@ -107,9 +107,9 @@
     var b = document.getElementById('moop-bk'); if (!b) return;
     var on = isSaved();
     b.classList.toggle('on', on);
-    b.innerHTML = (on ? '&#128278; Saved' : '&#128278; Bookmark');
+    b.innerHTML = ico(ICON.bookmark) + (on ? ' Saved' : ' Bookmark');
     var s = document.getElementById('moop-savedbtn');
-    if (s) s.innerHTML = '&#9733; My Saved (' + bookmarks().length + ')';
+    if (s) s.innerHTML = ico(ICON.saved) + ' My Saved (' + bookmarks().length + ')';
   }
   function paintPanel() {
     var p = document.getElementById('moop-saved'); if (!p) return;
@@ -117,8 +117,8 @@
     var rows = list.map(function (b, i) {
       return '<div class="mi"><a href="' + b.u + '">' + b.t.replace(/</g, '&lt;') +
              ' <span class="k">' + b.k + '</span></a><button data-i="' + i + '" title="Remove">&#10005;</button></div>';
-    }).join('') || '<p style="font-size:0.82rem;color:var(--gray,#888)">Nothing saved yet. Tap &#128278; Bookmark on any entry.</p>';
-    p.innerHTML = '<h4>&#9733; My Saved</h4>' + rows +
+    }).join('') || '<p style="font-size:0.82rem;color:var(--gray,#888)">Nothing saved yet. Tap Bookmark on any entry.</p>';
+    p.innerHTML = '<h4>' + ico(ICON.saved) + ' My Saved</h4>' + rows +
       '<div class="actions"><button id="moop-copyall">Copy list</button><button id="moop-clearall">Clear all</button><button id="moop-closep">Close</button></div>';
     p.querySelectorAll('.mi button').forEach(function (x) {
       x.onclick = function () { var l = bookmarks(); l.splice(+x.dataset.i, 1); store(BK, l); paintSave(); paintPanel(); };
@@ -144,7 +144,7 @@
     var b = document.getElementById('moop-amen'); if (!b) return;
     var on = amened();
     b.classList.toggle('on', on);
-    b.innerHTML = '&#128591; Amen' + (on ? ' &#10003;' : '') + (count ? ' &middot; ' + count : '');
+    b.innerHTML = ico(ICON.amen) + ' Amen' + (on ? ' &#10003;' : '') + (count ? ' &middot; ' + count : '');
   }
   function doAmen() {
     if (amened()) { toast('You already said Amen to this one'); return; }
@@ -187,34 +187,49 @@
     copyText('“' + title + '” — ' + (d ? d + '\n\n' : '') + canonical, 'Definition copied with link');
   }
 
-  /* ---------- section permalinks ---------- */
-  document.querySelectorAll('.section[id] > h3').forEach(function (h) {
-    var id = h.parentElement.id; if (!id) return;
-    var a = document.createElement('a');
-    a.className = 'moop-seclink'; a.href = '#' + id; a.title = 'Copy link to this section';
-    a.innerHTML = '&#128279;';
-    a.addEventListener('click', function (ev) {
-      ev.preventDefault();
-      copyText(canonical + '#' + id, 'Section link copied');
-      history.replaceState(null, '', '#' + id);
+  /* ---------- section permalinks (added after ico() is ready; see bottom) ---------- */
+  function addSectionLinks() {
+    document.querySelectorAll('.section[id] > h3').forEach(function (h) {
+      var id = h.parentElement.id; if (!id) return;
+      var a = document.createElement('a');
+      a.className = 'moop-seclink'; a.href = '#' + id; a.title = 'Copy link to this section';
+      a.innerHTML = ico('shield-infinity-rope-16.png', 12);
+      a.addEventListener('click', function (ev) {
+        ev.preventDefault();
+        copyText(canonical + '#' + id, 'Section link copied');
+        history.replaceState(null, '', '#' + id);
+      });
+      h.appendChild(a);
     });
-    h.appendChild(a);
-  });
+  }
 
-  /* ---------- feedback ---------- */
+  /* ---------- feedback + brand icons (no stock emojis — house shield set) ---------- */
   var depth = (path.match(/\//g) || []).length > 1 ? '../' : '';
   var feedbackHref = depth + 'connect.html?about=' + encodeURIComponent(slug);
+  function ico(name, size) {
+    size = size || 15;
+    return '<img src="' + depth + 'assets/icons/' + name + '" width="' + size + '" height="' + size +
+           '" alt="" style="vertical-align:-3px" loading="lazy">';
+  }
+  var ICON = {
+    share:   'shield-infinity-rope-24.png',
+    copy:    'shield-quill-note-24.png',
+    bookmark:'shield-save-48.png',
+    amen:    'shield-chain-prayer-48.png',
+    feedback:'shield-handshake.png',
+    saved:   'shield-star.png'
+  };
 
   /* ---------- toolbar ---------- */
   var bar = document.createElement('div');
   bar.className = 'moop-toolbar';
   bar.innerHTML =
-    '<button id="moop-share" title="Share this page">&#128279; Share</button>' +
-    (isEntry && defText() ? '<button id="moop-copydef" title="Copy the definition with a link">&#128203; Copy Definition</button>' : '') +
-    '<button id="moop-bk" title="Save to your bookmarks">&#128278; Bookmark</button>' +
-    (isEntry ? '<button id="moop-amen" title="This entry blessed you — add your Amen">&#128591; Amen</button>' : '') +
-    '<a id="moop-fb" href="' + feedbackHref + '" title="Suggest an improvement to this entry">&#9993; Feedback</a>' +
-    '<button id="moop-savedbtn" title="Open your saved bookmarks">&#9733; My Saved</button>';
+    '<button id="moop-share" title="Share this page">' + ico(ICON.share) + ' Share</button>' +
+    (isEntry && defText() ? '<button id="moop-copydef" title="Copy the definition with a link">' + ico(ICON.copy) + ' Copy Definition</button>' : '') +
+    '<button id="moop-bk" title="Save to your bookmarks">' + ico(ICON.bookmark) + ' Bookmark</button>' +
+    (isEntry ? '<button id="moop-amen" title="This entry blessed you — add your Amen">' + ico(ICON.amen) + ' Amen</button>' : '') +
+    '<a id="moop-fb" href="' + feedbackHref + '" title="Suggest an improvement to this entry">' + ico(ICON.feedback) + ' Feedback</a>' +
+    '<button id="moop-savedbtn" title="Open your saved bookmarks">' + ico(ICON.saved) + ' My Saved</button>';
 
   var anchor = document.querySelector('.word-header') || document.querySelector('.dict-back-nav') || document.querySelector('nav');
   if (anchor) anchor.insertAdjacentElement('afterend', bar); else document.body.prepend(bar);
@@ -225,6 +240,6 @@
   var am = document.getElementById('moop-amen'); if (am) am.onclick = doAmen;
   document.getElementById('moop-savedbtn').onclick = togglePanel;
 
-  paintSave(); paintAmen();
+  paintSave(); paintAmen(); addSectionLinks();
   if (isEntry) fetchAmenCount();
 })();
