@@ -723,6 +723,44 @@
         </blockquote>
     </div>
 
+    <!-- ── Geo Lookup (hero feature) — type a City, State or ZIP, get every church within the radius ── -->
+    <style>
+      .geo-lookup{max-width:720px;margin:0 auto 18px;padding:18px 20px;border:1px solid rgba(212,175,55,0.45);border-radius:12px;background:rgba(212,175,55,0.05);}
+      .geo-lookup h3{margin:0 0 10px;color:var(--gold,#D4AF37);font-size:1rem;letter-spacing:1px;text-align:center;}
+      .geo-row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;}
+      .geo-input-wrap{position:relative;flex:1 1 280px;min-width:220px;}
+      #geo-q{width:100%;box-sizing:border-box;background:#1a1a1a;border:1px solid var(--border,#333);color:var(--white,#e8e8e8);padding:12px 14px;border-radius:8px;font-size:1rem;outline:none;}
+      #geo-q:focus{border-color:var(--gold,#D4AF37);}
+      #geo-suggest{position:absolute;top:calc(100% + 4px);left:0;right:0;background:#141414;border:1px solid var(--border,#333);border-radius:8px;z-index:50;max-height:280px;overflow-y:auto;display:none;box-shadow:0 8px 24px rgba(0,0,0,0.6);}
+      #geo-suggest div{padding:10px 14px;cursor:pointer;font-size:0.92rem;color:var(--white,#e8e8e8);}
+      #geo-suggest div:hover,#geo-suggest div.sel{background:rgba(212,175,55,0.15);color:var(--gold,#D4AF37);}
+      #geo-radius{background:#1a1a1a;border:1px solid var(--border,#333);color:var(--white,#e8e8e8);padding:12px 10px;border-radius:8px;font-size:0.95rem;}
+      .geo-btn{background:rgba(212,175,55,0.15);border:1px solid var(--gold,#D4AF37);color:var(--gold,#D4AF37);padding:12px 18px;border-radius:8px;font-size:0.95rem;cursor:pointer;white-space:nowrap;}
+      .geo-btn:hover{background:rgba(212,175,55,0.3);}
+      #geo-status{display:none;margin-top:12px;text-align:center;font-size:0.9rem;color:var(--white,#e8e8e8);}
+      #geo-status .geo-clear{margin-left:10px;color:var(--red,#e05252);cursor:pointer;border:1px solid rgba(224,82,82,0.5);border-radius:12px;padding:2px 10px;font-size:0.8rem;}
+      .geo-dist{color:var(--gold,#D4AF37);font-size:0.78rem;font-weight:700;white-space:nowrap;margin-right:6px;}
+      .unverified-chip{display:inline-block;background:rgba(120,120,120,0.18);border:1px solid #555;color:#999;font-size:0.62rem;letter-spacing:0.5px;padding:1px 7px;border-radius:9px;vertical-align:middle;margin-right:6px;}
+      @media (max-width:480px){.geo-row{flex-direction:column;}.geo-input-wrap{flex:1 1 auto;}}
+    </style>
+    <div class="geo-lookup">
+        <h3>📍 FIND CHURCHES NEAR YOU</h3>
+        <div class="geo-row">
+            <div class="geo-input-wrap">
+                <input type="text" id="geo-q" placeholder="City, State — or ZIP (e.g. Houston, Texas or 22401)" autocomplete="off">
+                <div id="geo-suggest"></div>
+            </div>
+            <select id="geo-radius" title="Search radius">
+                <option value="10">10 mi</option>
+                <option value="25" selected>25 mi</option>
+                <option value="50">50 mi</option>
+                <option value="100">100 mi</option>
+            </select>
+            <button type="button" class="geo-btn" onclick="geoNearMe()" title="Use my current location">Near me</button>
+        </div>
+        <div id="geo-status"></div>
+    </div>
+
     <!-- ── Filter Bar ── -->
     <div class="filter-bar">
         <h3>Filter Churches</h3>
@@ -975,7 +1013,142 @@
     }
 
     /* ── Filter state ── */
-    const filters = { rating: 'all', denomination: 'all', region: 'all', mens: false, kids: false, search: '' };
+    const filters = { rating: 'all', denomination: 'all', region: 'all', mens: false, kids: false, search: '', geo: null };
+
+    /* ── Geo lookup — City, State or ZIP → churches within the radius ──
+       Data: data/geo/places.json (32k US places) + data/geo/zcta-centroids.json (34k ZIPs),
+       both from the public-domain Census Gazetteer, lazy-loaded on first focus so the
+       page's initial payload doesn't grow. Church coords ride in the index as ll:[lat,lng]. */
+    let GEO = null, geoLoadPromise = null;
+    function loadGeoData() {
+        if (geoLoadPromise) return geoLoadPromise;
+        geoLoadPromise = Promise.all([
+            fetch('data/geo/places.json').then(r => r.json()),
+            fetch('data/geo/zcta-centroids.json').then(r => r.json()),
+        ]).then(([p, z]) => (GEO = { places: p.places, zcta: z.zcta }));
+        return geoLoadPromise;
+    }
+    const STATE_FULL = {alabama:'AL',alaska:'AK',arizona:'AZ',arkansas:'AR',california:'CA',colorado:'CO',connecticut:'CT',delaware:'DE',florida:'FL',georgia:'GA',hawaii:'HI',idaho:'ID',illinois:'IL',indiana:'IN',iowa:'IA',kansas:'KS',kentucky:'KY',louisiana:'LA',maine:'ME',maryland:'MD',massachusetts:'MA',michigan:'MI',minnesota:'MN',mississippi:'MS',missouri:'MO',montana:'MT',nebraska:'NE',nevada:'NV','new hampshire':'NH','new jersey':'NJ','new mexico':'NM','new york':'NY','north carolina':'NC','north dakota':'ND',ohio:'OH',oklahoma:'OK',oregon:'OR',pennsylvania:'PA','rhode island':'RI','south carolina':'SC','south dakota':'SD',tennessee:'TN',texas:'TX',utah:'UT',vermont:'VT',virginia:'VA',washington:'WA','west virginia':'WV',wisconsin:'WI',wyoming:'WY','district of columbia':'DC','washington dc':'DC'};
+    const ST_ABBREVS = new Set(Object.values(STATE_FULL));
+    function resolveStateToken(t) {
+        t = t.trim().toLowerCase().replace(/\./g, '');
+        if (!t) return null;
+        if (ST_ABBREVS.has(t.toUpperCase())) return t.toUpperCase();
+        if (STATE_FULL[t]) return STATE_FULL[t];
+        // partial full-name ("tex" → TX) — only when unambiguous
+        const hits = Object.keys(STATE_FULL).filter(n => n.startsWith(t));
+        return (new Set(hits.map(n => STATE_FULL[n]))).size === 1 ? STATE_FULL[hits[0]] : null;
+    }
+    function matchPlaces(q) {
+        if (!GEO) return [];
+        q = q.toLowerCase().trim();
+        if (!q) return [];
+        let cityQ = q, st = null;
+        if (q.includes(',')) {
+            const [c, s] = q.split(',', 2);
+            cityQ = c.trim(); st = resolveStateToken(s || '');
+        } else {
+            const toks = q.split(/\s+/);
+            if (toks.length > 1) {
+                const maybe = resolveStateToken(toks[toks.length - 1]);
+                if (maybe) { st = maybe; cityQ = toks.slice(0, -1).join(' '); }
+            }
+        }
+        if (!cityQ) return [];
+        const out = [];
+        for (const p of GEO.places) {
+            const n = p[0].toLowerCase();
+            if (n.startsWith(cityQ) && (!st || p[1] === st)) {
+                out.push(p);
+                if (out.length >= 40) break;
+            }
+        }
+        // exact name first, then shorter names, then state
+        out.sort((a, b) => (a[0].toLowerCase() === cityQ ? 0 : 1) - (b[0].toLowerCase() === cityQ ? 0 : 1)
+            || a[0].length - b[0].length || a[1].localeCompare(b[1]));
+        return out.slice(0, 8);
+    }
+    const haversineMi = (la1, lo1, la2, lo2) => {
+        const rad = Math.PI / 180, R = 3958.8;
+        const dLa = (la2 - la1) * rad, dLo = (lo2 - lo1) * rad;
+        const h = Math.sin(dLa / 2) ** 2 + Math.cos(la1 * rad) * Math.cos(la2 * rad) * Math.sin(dLo / 2) ** 2;
+        return 2 * R * Math.asin(Math.sqrt(h));
+    };
+    function setGeo(lat, lng, label) {
+        filters.geo = { lat, lng, label };
+        document.getElementById('geo-suggest').style.display = 'none';
+        applyFilters();
+    }
+    function clearGeo() {
+        filters.geo = null;
+        document.getElementById('geo-q').value = '';
+        document.getElementById('geo-status').style.display = 'none';
+        applyFilters();
+    }
+    function geoNearMe() {
+        if (!navigator.geolocation) return alert('Location is not available in this browser — type your city or ZIP instead.');
+        navigator.geolocation.getCurrentPosition(
+            pos => { document.getElementById('geo-q').value = ''; setGeo(pos.coords.latitude, pos.coords.longitude, 'your location'); },
+            () => alert('Could not get your location — type your city or ZIP instead.'));
+    }
+    function renderGeoSuggest(items, zip) {
+        const box = document.getElementById('geo-suggest');
+        let html = '';
+        if (zip && GEO && GEO.zcta[zip]) {
+            html += `<div data-zip="${zip}">📮 ZIP ${zip}</div>`;
+        }
+        html += items.map(p => `<div data-lat="${p[2]}" data-lng="${p[3]}" data-label="${esc(p[0])}, ${p[1]}">📍 ${esc(p[0])}, ${p[1]}</div>`).join('');
+        box.innerHTML = html;
+        box.style.display = html ? 'block' : 'none';
+    }
+    function initGeoLookup() {
+        const input = document.getElementById('geo-q');
+        const box = document.getElementById('geo-suggest');
+        if (!input) return;
+        input.addEventListener('focus', loadGeoData, { once: true });
+        input.addEventListener('input', async () => {
+            const q = input.value.trim();
+            if (!q) { box.style.display = 'none'; if (filters.geo) clearGeo(); return; }
+            await loadGeoData();
+            const zip = /^\d{5}$/.test(q) ? q : null;
+            renderGeoSuggest(zip ? [] : matchPlaces(q), zip);
+        });
+        input.addEventListener('keydown', e => {
+            if (e.key === 'Escape') { box.style.display = 'none'; return; }
+            if (e.key !== 'Enter') return;
+            e.preventDefault();
+            const first = box.querySelector('div');
+            if (box.style.display !== 'none' && first) first.click();
+        });
+        box.addEventListener('click', e => {
+            const d = e.target.closest('div[data-lat],div[data-zip]');
+            if (!d) return;
+            if (d.dataset.zip) {
+                const c = GEO.zcta[d.dataset.zip];
+                input.value = 'ZIP ' + d.dataset.zip;
+                setGeo(c[0], c[1], 'ZIP ' + d.dataset.zip);
+            } else {
+                input.value = d.dataset.label;
+                setGeo(parseFloat(d.dataset.lat), parseFloat(d.dataset.lng), d.dataset.label);
+            }
+        });
+        document.addEventListener('click', e => { if (!e.target.closest('.geo-input-wrap')) box.style.display = 'none'; });
+        document.getElementById('geo-radius').addEventListener('change', () => { if (filters.geo) applyFilters(); });
+    }
+    initGeoLookup();
+    // Deep link: churches.html?near=Fredericksburg,VA&r=25 (or ?near=22401)
+    async function checkUrlGeo() {
+        const u = new URLSearchParams(location.search), near = (u.get('near') || '').trim();
+        if (!near) return;
+        const r = u.get('r'); if (r && document.querySelector(`#geo-radius option[value="${r}"]`)) document.getElementById('geo-radius').value = r;
+        await loadGeoData();
+        if (/^\d{5}$/.test(near) && GEO.zcta[near]) {
+            document.getElementById('geo-q').value = 'ZIP ' + near;
+            return setGeo(GEO.zcta[near][0], GEO.zcta[near][1], 'ZIP ' + near);
+        }
+        const m = matchPlaces(near);
+        if (m.length) { document.getElementById('geo-q').value = m[0][0] + ', ' + m[0][1]; setGeo(m[0][2], m[0][3], m[0][0] + ', ' + m[0][1]); }
+    }
 
     function toggleFilter(key) {
         filters[key] = !filters[key];
@@ -1033,7 +1206,7 @@
 
         // Filter the lightweight church index (data only, no DOM) set by loadChurches.
         if (!window._allCards) return;
-        const filtered = window._allCards.filter(c => {
+        let filtered = window._allCards.filter(c => {
             const ratingOk = filters.rating === 'all' || c.rating === filters.rating;
             const denomOk = filters.denomination === 'all' || c.denomination === filters.denomination;
             const mensOk = !filters.mens || c.mens;
@@ -1042,6 +1215,23 @@
             const searchOk = fuzzyMatch(filters.search, c.search);
             return ratingOk && denomOk && mensOk && kidsOk && regionOk && searchOk;
         });
+
+        // Geo mode: keep churches within the radius, closest first (verifiable ones
+        // above zero-presence ones — the 2026-07-11 demote-and-rescue rule).
+        const statusEl = document.getElementById('geo-status');
+        if (filters.geo) {
+            const R = parseFloat(document.getElementById('geo-radius').value) || 25;
+            const g = filters.geo;
+            filtered = filtered.filter(c => c.ll)
+                .map(c => { c._dist = haversineMi(g.lat, g.lng, c.ll[0], c.ll[1]); return c; })
+                .filter(c => c._dist <= R);
+            filtered.sort((a, b) => (b.vf - a.vf) || (a._dist - b._dist));
+            statusEl.innerHTML = `Showing <strong style="color:var(--gold,#D4AF37)">${filtered.length}</strong> church${filtered.length === 1 ? '' : 'es'} within <strong>${R} mi</strong> of <strong>${esc(g.label)}</strong><span class="geo-clear" onclick="clearGeo()">✕ clear</span>`;
+            statusEl.style.display = 'block';
+        } else {
+            filtered.forEach(c => { c._dist = undefined; });
+            statusEl.style.display = 'none';
+        }
 
         window._filteredCards = filtered;
         window.paginate(1);
@@ -1055,6 +1245,9 @@
         filters.mens = false;
         filters.kids = false;
         filters.search = '';
+        filters.geo = null;
+        document.getElementById('geo-q').value = '';
+        document.getElementById('geo-status').style.display = 'none';
         document.getElementById('filter-rating').value = 'all';
         document.getElementById('filter-denomination').value = 'all';
         document.getElementById('filter-region').value = 'all';
@@ -1082,8 +1275,9 @@
     async function loadChurches() {
         // Slim index (~20 MB vs the full 61 MB churches.json) — card fields only; full detail
         // lives on the per-church pages. Rebuilt by scripts/build-church-index.js on every regen.
-        const res = await fetch('data/churches-index.json');
-        const data = await res.json();
+        // ONE fetch, shared with the footer count script (it used to download the index twice).
+        window._indexPromise = window._indexPromise || fetch('data/churches-index.json').then(r => r.json());
+        const data = await window._indexPromise;
 
         // Build rubric panel
         const rubricGrid = document.getElementById('rubric-grid');
@@ -1094,11 +1288,13 @@
             rubricGrid.appendChild(div);
         });
 
-        // Sort: green → yellow → red → black, then alphabetical within tier
+        // Sort: green → yellow → red → black, verifiable (website/social) above
+        // zero-presence within each tier, then alphabetical
         const sorted = [...data.churches].sort((a, b) => {
             const tierA = TIER_ORDER[normalizeRating(a.overall_rating)] ?? 4;
             const tierB = TIER_ORDER[normalizeRating(b.overall_rating)] ?? 4;
             if (tierA !== tierB) return tierA - tierB;
+            if (!!a.vf !== !!b.vf) return a.vf ? -1 : 1;
             return a.name.localeCompare(b.name);
         });
 
@@ -1132,7 +1328,20 @@
         // scores in churches-index.json are a 10-char string in rubric order: g/y/r/b, '-' = unscored
         const SCORE_CHAR = { g: 'green', y: 'yellow', r: 'red', b: 'black' };
 
-        function buildCardEl(church) {
+        // Placeholder-aware display: "verify on website"-class strings are honest blanks
+        // in the data — render them as a quiet "not yet verified", never as raw prose.
+        const PLACEHOLDER_RX = /verify|see website|see site|not published|search in progress|to be announced|to be determined|coming soon|unknown|tbd/i;
+        function fmtServices(s) {
+            if (!s) return '';
+            if (typeof s === 'string') return PLACEHOLDER_RX.test(s) ? '' : s;
+            if (typeof s !== 'object') return '';
+            return Object.entries(s)
+                .filter(([, v]) => typeof v === 'string' && v && !PLACEHOLDER_RX.test(v))
+                .map(([k, v]) => k.replace(/_/g, ' ').replace(/\b\w/g, ch => ch.toUpperCase()) + ': ' + v)
+                .join(' · ');
+        }
+
+        function buildCardEl(church, distMi) {
             const isBlack = normalizeRating(church.overall_rating) === 'black';
             const card = document.createElement('div');
             card.className = 'church-card' + (isBlack ? ' black-tier' : '');
@@ -1140,6 +1349,12 @@
 
             // Address (one line — strip duplicate city/zip if long)
             const address = church.address || '';
+            const distChip = (typeof distMi === 'number') ? `<span class="geo-dist">${distMi < 10 ? distMi.toFixed(1) : Math.round(distMi)} mi</span>` : '';
+            const unverifiedChip = church.vf ? '' : '<span class="unverified-chip" title="No website or social media on file yet — details could not be independently verified">UNVERIFIED</span>';
+            const pastorDisplay = (!church.pastor || PLACEHOLDER_RX.test(String(church.pastor)))
+                ? '<em style="color:var(--gray,#888)">Pastor not yet verified</em>'
+                : esc(church.pastor);
+            const foundedPart = (church.founded && !PLACEHOLDER_RX.test(String(church.founded))) ? ' · Est. ' + esc(church.founded) : '';
 
             // Compact view
             const compactHtml = `
@@ -1147,13 +1362,13 @@
                     <div class="compact-header">
                         <div class="church-name">${esc(church.name)}</div>
                         <div class="compact-right">
-                            <span class="rating-emoji">${EMOJI[normalizeRating(church.overall_rating)] || '⬜'}</span>
+                            ${distChip}${unverifiedChip}<span class="rating-emoji">${EMOJI[normalizeRating(church.overall_rating)] || '⬜'}</span>
                             <span class="card-chevron">▼</span>
                         </div>
                     </div>
                     <div class="compact-meta">
-                        <div class="compact-meta-row"><span class="meta-icon"><img src="assets/icons/shield-church-48.png" alt="" width="16" height="16" style="vertical-align:middle;"></span><span>${esc(church.denomination) || 'Independent'}${church.founded ? ' · Est. ' + esc(church.founded) : ''}</span></div>
-                        <div class="compact-meta-row"><span class="meta-icon">👤</span><span>${esc(church.pastor)}${church.pastor_credentials ? ' — <em style="color:var(--gray)">' + esc(church.pastor_credentials) + '</em>' : ''}</span></div>
+                        <div class="compact-meta-row"><span class="meta-icon"><img src="assets/icons/shield-church-48.png" alt="" width="16" height="16" style="vertical-align:middle;"></span><span>${esc(church.denomination) || 'Independent'}${foundedPart}</span></div>
+                        <div class="compact-meta-row"><span class="meta-icon">👤</span><span>${pastorDisplay}${church.pastor_credentials && !PLACEHOLDER_RX.test(String(church.pastor_credentials)) ? ' — <em style="color:var(--gray)">' + esc(church.pastor_credentials) + '</em>' : ''}</span></div>
                         <div class="compact-meta-row"><span class="meta-icon"><img src="assets/icons/shield-map-48.png" alt="" width="16" height="16" style="vertical-align:middle;"></span><span>${esc(address)}</span></div>
                     </div>
                 </div>`;
@@ -1166,7 +1381,7 @@
             const expandedInfoHtml = `
                 <div class="expanded-info">
                     <div class="expanded-info-row"><span class="meta-icon"><img src="assets/icons/shield-map-48.png" alt="" width="16" height="16" style="vertical-align:middle;"></span><span>${esc(address)}${websitePart}</span></div>
-                    ${church.services ? `<div class="expanded-info-row"><span class="meta-icon">🕐</span><span>${esc(church.services)}</span></div>` : ''}
+                    ${fmtServices(church.services) ? `<div class="expanded-info-row"><span class="meta-icon">🕐</span><span>${esc(fmtServices(church.services))}</span></div>` : ''}
                     <div class="ministry-flags">
                         <span class="ministry-flag" style="color:${church.has_mens_ministry ? 'var(--green)' : '#555'};"><img src="assets/icons/shield-chain-sword-48.png" alt="" width="16" height="16" style="vertical-align:middle;"> Men's Min.</span>
                         <span class="ministry-flag" style="color:${church.has_kids_ministry ? 'var(--green)' : '#555'};">👶 Kids Min.</span>
@@ -1232,6 +1447,8 @@
             mens: !!church.has_mens_ministry,
             kids: !!church.has_kids_ministry,
             region: church.region || '',
+            ll: church.ll || null,       // [lat,lng] for the radius lookup (85% coverage)
+            vf: church.vf ? 1 : 0,       // verifiable web presence (demote-and-rescue rule)
             search: (church.name + ' ' + (church.pastor || '') + ' ' + (Array.isArray(church.pastors) ? church.pastors.map(p => (p && p.name) || '').join(' ') : '') + ' ' + (church.denomination || '') + ' ' + (church.address || '') + ' ' + (church.type || '')).toLowerCase(),
         }));
 
@@ -1245,7 +1462,7 @@
 
             // Render ONLY this page's cards into the grid; the rest remain as data.
             const frag = document.createDocumentFragment();
-            cards.slice(start, end).forEach(c => frag.appendChild(buildCardEl(c.church)));
+            cards.slice(start, end).forEach(c => frag.appendChild(buildCardEl(c.church, c._dist)));
             grid.innerHTML = '';
             grid.appendChild(frag);
 
@@ -1299,6 +1516,9 @@
         // Initial render — page 1 (pass undefined so the scroll-to-grid guard skips on initial load;
         // user interactions like search/filter/paginate pass filtered explicitly and DO scroll)
         showPage(1);
+
+        // ?near=City,ST&r=25 deep links (regional pages + shares) activate the lookup
+        checkUrlGeo();
     }
 
     loadChurches().catch(err => {
@@ -1320,8 +1540,9 @@
     <p style="margin-top:6px;font-size:0.72rem;color:#444;letter-spacing:1px;">MOOP Church Directory V7.1.0 &middot; <span data-church-count>28,500+</span> churches &middot; Updated <span data-directory-updated>2026-06-10</span> &middot; <a href="directory-overview.html" style="color:var(--gold,#D4AF37);text-decoration:none;">Progress overview</a></p>
 </footer>
 <script>
-    // Live-update church count + last-updated date from the slim index
-    fetch('data/churches-index.json').then(r => r.json()).then(d => {
+    // Live-update church count + last-updated date — reuses loadChurches' fetch of the
+    // slim index instead of downloading the 21 MB file a second time.
+    (window._indexPromise || fetch('data/churches-index.json').then(r => r.json())).then(d => {
         var n = (d.total_churches || (d.churches || d).length || 0).toLocaleString();
         document.querySelectorAll('[data-church-count]').forEach(el => el.textContent = n);
         if (d.directory_updated) document.querySelectorAll('[data-directory-updated]').forEach(el => el.textContent = d.directory_updated);
