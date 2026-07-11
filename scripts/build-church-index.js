@@ -45,6 +45,35 @@ function isEmpty(v) {
   return v === false; // booleans: absent reads as false on the page, so drop false
 }
 
+// Geo for the "City, State or ZIP" radius lookup (2026-07-11): each index entry
+// gets ll:[lat,lng] — the church's own geocode when present (11k records), else
+// the Census centroid of the trailing 5-digit ZIP in its address (13k more).
+// Coordinates rounded to 3 dp (~110 m) to keep the index lean. Entries with no
+// geocode and no parseable ZIP simply omit ll (they can't appear in radius results).
+let ZCTA = null;
+function loadZcta() {
+  if (ZCTA) return ZCTA;
+  try {
+    ZCTA = JSON.parse(fs.readFileSync(path.join(__dirname, '../docs/data/geo/zcta-centroids.json'), 'utf8')).zcta || {};
+  } catch (_) { ZCTA = {}; }
+  return ZCTA;
+}
+const round3 = n => Math.round(parseFloat(n) * 1000) / 1000;
+function churchLatLng(c) {
+  if (isFinite(parseFloat(c.latitude)) && isFinite(parseFloat(c.longitude))) {
+    return [round3(c.latitude), round3(c.longitude)];
+  }
+  const m = String(c.address || '').match(/\b(\d{5})(?:-\d{4})?\s*$/);
+  return (m && loadZcta()[m[1]]) || null;
+}
+
+// vf=1 — "verifiable web presence" (real website or at least one social). Absent
+// means zero-presence: the page badges these "unverified" and ranks them last
+// (Adam's 2026-07-11 demote-and-rescue policy).
+const isVerifiable = c =>
+  (typeof c.website === 'string' && /^https?:\/\//i.test(c.website)) ||
+  !!(c.facebook || c.youtube || c.instagram);
+
 function buildIndex(data) {
   const rubric = data.rubric || [];
   const warnings = new Set();
@@ -55,6 +84,9 @@ function buildIndex(data) {
     }
     const sc = compactScores(c.scores, rubric, warnings);
     if (sc.replace(/-/g, '') !== '') slim.scores = sc; // all-gray ⇒ omit entirely
+    const ll = churchLatLng(c);
+    if (ll) slim.ll = ll;
+    if (isVerifiable(c)) slim.vf = 1;
     return slim;
   });
   if (warnings.size) {

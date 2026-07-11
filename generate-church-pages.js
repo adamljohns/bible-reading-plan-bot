@@ -25,6 +25,25 @@ const path = require('path');
 const data = JSON.parse(fs.readFileSync(path.join(__dirname, 'docs/data/churches.json'), 'utf8'));
 const outDir = path.join(__dirname, 'docs/churches');
 
+// Church-logo sidecar (scripts/harvest-church-logos.js — 2026-07-11): logos harvested
+// from each church's OWN website, kept out of churches.json so the harvester never
+// races the enrichment autopilot. Merged at render time into the existing image slots:
+//   kind 'og'            → image_url  (hero strip + og:image — usually a photo)
+//   kind touch/icon/img  → image_thumb (the mark/avatar next to the church name)
+// Real image_url/image_thumb values already on the record always win.
+(() => {
+  let logos = {};
+  try { logos = JSON.parse(fs.readFileSync(path.join(__dirname, 'docs/data/church-logos.json'), 'utf8')).logos || {}; } catch (_) { return; }
+  let merged = 0;
+  for (const c of data.churches) {
+    const lg = logos[c.slug || c.id];
+    if (!lg || typeof lg.url !== 'string' || !/^https?:\/\//.test(lg.url)) continue;
+    if (lg.kind === 'og') { if (!c.image_url) { c.image_url = lg.url; merged++; } }
+    else if (!c.image_thumb) { c.image_thumb = lg.url; merged++; }
+  }
+  if (merged) console.log(`🖼  church-logos sidecar: ${merged} harvested logos merged into render slots`);
+})();
+
 // Site-wide build date — self-maintaining, reflects when pages were last regenerated.
 // Use the local calendar (America/New_York), not UTC: after ~8pm EDT, toISOString()
 // rolls to the next day and the footer would read a day ahead of the real date.
@@ -765,7 +784,7 @@ function buildPage(church) {
   <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-touch-icon.png">
   <link rel="manifest" href="/manifest.json">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="${escapeHtml(church.name)} — Theological due diligence scorecard for Christian men in Fredericksburg, VA.">
+  <meta name="description" content="${escapeHtml(church.name)} — Theological due diligence scorecard for Christian men. MOOP Nationwide Church Directory.">
   <meta property="og:title" content="${escapeHtml(church.name)} — Church Directory | USMC Ministries">
   <meta property="og:description" content="10-point theological scorecard: ${escapeHtml(church.overall_label || '')}">
   <meta property="og:type" content="website">
@@ -955,7 +974,7 @@ ${(() => {
 </div>
 
 <footer>
-  <p>Fredericksburg Church Directory &mdash; Theological Due Diligence for Christian Men &mdash; <a href="https://usmcmin.org" style="color: var(--gold);">usmcmin.org</a></p>
+  <p>MOOP Nationwide Church Directory &mdash; Theological Due Diligence for Christian Men &mdash; <a href="https://usmcmin.org" style="color: var(--gold);">usmcmin.org</a></p>
   <p style="margin-top: 6px;">Last updated: ${BUILD_DATE}</p>
 </footer>
 <script data-goatcounter="https://usmcmin.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
