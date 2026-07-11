@@ -908,6 +908,7 @@ def main():
         }});
     }})();
     </script>
+    <script defer src="../assets/js/moop-tools.js"></script>
 </body>
 </html>'''
 

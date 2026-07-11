@@ -347,6 +347,35 @@
             <p style="margin-top:8px;font-size:0.78rem;color:var(--gray);"><strong style="color:var(--gold);">V6.0</strong> &middot; <em>Pastoral Lexicon Edition</em> &middot; section titles now open full-page browsers</p>
         </section>
 
+        <!-- Most Amen'd Words — fed live by /api/amen/top (amen-counter Worker);
+             hidden entirely until the API returns data, so it can never break the page -->
+        <div id="most-amend" style="display:none;text-align:center;margin:6px auto 20px;max-width:760px;">
+            <h3 style="color:var(--gold);font-size:1.0rem;margin-bottom:10px;">
+                <img src="../assets/icons/shield-chain-prayer-48.png" alt="" width="18" height="18" style="vertical-align:-3px;"> Most Amen&#39;d Words</h3>
+            <div id="most-amend-chips" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;"></div>
+        </div>
+        <script>
+        (function() {
+            fetch('/api/amen/top?limit=10').then(function(r) { return r.ok ? r.json() : null; })
+            .then(function(d) {
+                if (!d || !d.top || !d.top.length) return;
+                var rows = d.top.filter(function(t) { return t.slug.indexOf('dictionary:') === 0 && t.count > 0; }).slice(0, 10);
+                if (!rows.length) return;
+                var box = document.getElementById('most-amend-chips');
+                rows.forEach(function(t) {
+                    var s = t.slug.slice(11);
+                    var label = s.split('-').map(function(w) { return w.charAt(0).toUpperCase() + w.slice(1); }).join(' ');
+                    var a = document.createElement('a');
+                    a.href = s + '.html';
+                    a.style.cssText = 'background:var(--card);border:1px solid var(--border);padding:6px 14px;border-radius:20px;font-size:0.85rem;text-decoration:none;';
+                    a.innerHTML = label + ' <span style="color:var(--gold);font-weight:700;">&#128591; ' + t.count + '</span>';
+                    box.appendChild(a);
+                });
+                document.getElementById('most-amend').style.display = 'block';
+            }).catch(function() {});
+        })();
+        </script>
+
         <!-- Search + Random — moved to the top, above the Word of the Day -->
         <div class="search-wrap">
             <span class="search-icon"><img src="../assets/icons/shield-search-48.png" alt="" width="18" height="18" style="display:block;"></span>

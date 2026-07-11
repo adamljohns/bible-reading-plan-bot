@@ -448,6 +448,7 @@ def build_html(buckets, total):
     function bteToggleTheme(){{document.body.classList.toggle('light-mode');localStorage.setItem('bte-theme',document.body.classList.contains('light-mode')?'light':'dark');}}
     (function(){{if(localStorage.getItem('bte-theme')==='light')document.body.classList.add('light-mode');}})();
     </script>
+    <script defer src="../assets/js/moop-tools.js"></script>
 </body>
 </html>'''
 
