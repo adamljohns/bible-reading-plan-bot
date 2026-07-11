@@ -278,12 +278,20 @@ Rules and wiring:
   any page set (idempotent; skips MERGED-REDIRECT stubs; depth-aware path).
 - The integrity audit **HARD-fails** any live dict page missing moop-tools.js.
 - Bookmarks store the CANONICAL url (works even when saved from a preview).
-- **Amen global counts are progressive enhancement**: the client GETs/POSTs
-  `/api/amen` and silently stays local until a Cloudflare Worker + KV endpoint
-  exists (contract: `GET /api/amen?slug=<k>` -> `{count}`, `POST {slug}` ->
-  `{count}`; slug format `dictionary:grace`). Deploying that Worker is a
-  DELIBERATE infra step — ask Adam first.
-- Rollout status: dictionary (all live pages) + cross-references DONE;
-  lexicon (7,826 pages) and churches (28,516 pages) are one command each —
-  `python3 bin/inject_tools.py docs/lexicon/*.html` etc. — pending Adam's go
-  (large R2 sync).
+- **Amen global counts are LIVE (deployed 2026-07-02, Adam-approved)**: the
+  standalone Cloudflare Worker `workers/amen-counter/` serves
+  `usmcmin.org/api/amen*` (KV namespace AMEN, id 5f6a78c08d3f471f97dc442b6cba8d87,
+  account usmcministries2022@gmail.com). API: `GET /api/amen?slug=` -> `{count}`;
+  `POST {slug}` -> `{count, counted}` (per-IP per-day dedupe, slug regex
+  validated); `GET /api/amen/top?limit=` -> leaderboard (cached 5 min).
+  Redeploy after edits: `cd workers/amen-counter && npx wrangler deploy`.
+  It is deliberately SEPARATE from the static-site Worker — it can never
+  break page serving. KV increments are not atomic (fine at ministry scale).
+- Buttons use the BRAND SHIELD ICONS, never stock emojis: Share=infinity-rope,
+  Copy=quill-note, Bookmark=save, Amen=chain-prayer, Feedback=handshake,
+  My Saved=star (light-mode handled by the existing shield CSS filter).
+- Rollout status: Dictionary + cross-references + Lexicon (7,826) + Church
+  Directory (28,575) ALL DONE. If a generator ever regenerates lexicon/church
+  pages from scratch, re-run `bin/inject_tools.py` on that glob (idempotent).
+- Possible next: a "Most Amen'd Words" board on the dictionary index fed by
+  `/api/amen/top`.
