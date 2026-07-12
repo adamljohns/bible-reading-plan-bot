@@ -192,14 +192,14 @@ HTML_TEMPLATE = Template(r"""<!DOCTYPE html>
         </div>
 ${VERDICT_CARD}
         <div class="section">
-            <h3>&#128214; Biblical Definition</h3>
+            <h3><img src="../assets/icons/shield-open-book-24.png" alt="" width="20" height="20" style="vertical-align:middle;margin-right:6px;">Biblical Definition</h3>
             <div class="biblical-def">
                 <p>${BIBLICAL_DEF}</p>
             </div>
         </div>
 ${KJV_CONTINUAL_SECTION}
         <div class="section" id="${WEBSTER_SECTION_ID}">
-            <h3>&#128220; ${WEBSTER_HEADING}</h3>
+            <h3><img src="../assets/icons/shield-scroll-quill-24.png" alt="" width="20" height="20" style="vertical-align:middle;margin-right:6px;">${WEBSTER_HEADING}</h3>
             <p class="section-summary">${WEBSTER_SUMMARY}</p>
             <details>
                 <summary><em style="color:var(--gray)">expand to see more</em></summary>
@@ -210,12 +210,12 @@ ${KJV_CONTINUAL_SECTION}
         </div>
 
         <div class="section">
-            <h3>&#128214; Key Scripture</h3>
+            <h3><img src="../assets/icons/shield-bible-cross-24.png" alt="" width="20" height="20" style="vertical-align:middle;margin-right:6px;">Key Scripture</h3>
             ${SCRIPTURES}
         </div>
 
         <div class="section">
-            <h3>&#9888;&#65039; Modern Corruption</h3>
+            <h3><img src="../assets/icons/shield-warning-48.png" alt="" width="20" height="20" style="vertical-align:middle;margin-right:6px;">Modern Corruption</h3>
             <p class="section-summary">${CORRUPTION_SUMMARY}</p>
             <details>
                 <summary><em style="color:var(--gray)">expand to see more</em></summary>
@@ -226,7 +226,7 @@ ${KJV_CONTINUAL_SECTION}
         </div>
 
         <div class="section">
-            <h3>&#128279; Greek &amp; Hebrew Roots</h3>
+            <h3><img src="../assets/icons/shield-alpha-omega-24.png" alt="" width="20" height="20" style="vertical-align:middle;margin-right:6px;">Greek &amp; Hebrew Roots</h3>
             <p class="section-summary">${ROOTS_SUMMARY}</p>
             <details>
                 <summary><em style="color:var(--gray)">expand to see more</em></summary>
@@ -330,7 +330,7 @@ def render_kjv_continual(kjv):
     paragraphs = '\n                    '.join(f'<p>{p}</p>' for p in kjv['paragraphs'])
     return f'''
         <div class="section kjv-continual">
-            <h3>&#128220; KJV Continual Tense</h3>
+            <h3><img src="../assets/icons/shield-key-scripture-48.png" alt="" width="20" height="20" style="vertical-align:middle;margin-right:6px;">KJV Continual Tense</h3>
             <p class="section-summary">{kjv['summary']}</p>
             <details>
                 <summary><em style="color:var(--gray)">expand to see more</em></summary>
@@ -358,7 +358,7 @@ def render_verdict_card(verdict):
     emoji = VERDICT_EMOJI.get(color, '\U0001F7E1')
     return f'''
         <div class="section">
-            <h3>&#9878;&#65039; Biblical Verdict</h3>
+            <h3><img src="../assets/icons/shield-checklist-48.png" alt="" width="20" height="20" style="vertical-align:middle;margin-right:6px;">Biblical Verdict</h3>
             <div class="verdict-card v-{color}">
                 <div class="v-emoji">{emoji}</div>
                 <div>
