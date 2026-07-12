@@ -125,11 +125,30 @@ node scripts/append-grind-stats.js --mode "$MODE" --attempted "$N_BATCH" --found
   >>"$LOG" 2>&1 || say "grind-stats update failed (non-fatal)"
 node generate-church-pages.js >>"$LOG" 2>&1 \
   || { git reset -q --hard; die "regen failed — working tree reset"; }
-node scripts/check-consistency.js >>"$LOG" 2>&1 \
-  || { git reset -q --hard; die "consistency check FAILED — commit aborted, tree reset"; }
+if ! node scripts/check-consistency.js >>"$LOG" 2>&1; then
+  # Self-heal (2026-07-11): sibling sessions sometimes push church ADDITIONS without
+  # the non-regen derived artifacts (sitemap-churches.xml; the total_churches field) —
+  # that PRE-EXISTING drift then failed this check twice and killed the whole 4h
+  # session (15:07 today died on "sitemap missing 104" from a wave pushed at 14:11,
+  # discarding two rounds of good enrichment). Both drifts are purely mechanical, so
+  # repair them once and re-check; anything else still dies loudly like before.
+  say "consistency FAILED — attempting mechanical self-heal (total_churches + sitemap + index)"
+  node -e '
+    const { makeWriter } = require("./scripts/lib/format-preserving-write.js");
+    const { data, write } = makeWriter("docs/data/churches.json");
+    if (data.total_churches !== data.churches.length) {
+      data.total_churches = data.churches.length; write(data);
+      console.log("self-heal: total_churches ->", data.churches.length);
+    }' >>"$LOG" 2>&1
+  node scripts/build-sitemap-churches.js >>"$LOG" 2>&1
+  node scripts/build-church-index.js >>"$LOG" 2>&1
+  node scripts/check-consistency.js >>"$LOG" 2>&1 \
+    || { git reset -q --hard; die "consistency check FAILED even after self-heal — commit aborted, tree reset"; }
+  say "self-heal OK — consistency GREEN"
+fi
 
 if [ -n "$(git status --porcelain)" ]; then
-  git add docs/data/churches.json docs/churches/ docs/data/churches-index.json docs/data/churches/ docs/data/qa-sample.json docs/data/grind-stats.json
+  git add docs/data/churches.json docs/churches/ docs/data/churches-index.json docs/data/churches/ docs/data/qa-sample.json docs/data/grind-stats.json docs/sitemap-churches.xml
   git commit -qm "Local pastor refine: +$APPLIED pastors, +$SOC_APPLIED socials applied of $N_BATCH attempted ($MODE pool, local-extract)" \
     || die "commit failed"
   if ! git push -q origin HEAD:main; then
