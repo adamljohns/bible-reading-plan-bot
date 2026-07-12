@@ -742,10 +742,18 @@
       #geo-status .geo-clear{margin-left:10px;color:var(--red,#e05252);cursor:pointer;border:1px solid rgba(224,82,82,0.5);border-radius:12px;padding:2px 10px;font-size:0.8rem;}
       .geo-dist{color:var(--gold,#D4AF37);font-size:0.78rem;font-weight:700;white-space:nowrap;margin-right:6px;}
       .unverified-chip{display:inline-block;background:rgba(120,120,120,0.18);border:1px solid #555;color:#999;font-size:0.62rem;letter-spacing:0.5px;padding:1px 7px;border-radius:9px;vertical-align:middle;margin-right:6px;}
+      .geo-lookup h3 img{vertical-align:middle;margin-right:6px;}
+      /* Collapsible info panels (Threat Zone + Rubric) — tuck away once a search/filter is active */
+      details.info-panel{margin-bottom:18px;}
+      details.info-panel>summary{list-style:none;cursor:pointer;user-select:none;display:flex;align-items:center;gap:8px;}
+      details.info-panel>summary::-webkit-details-marker{display:none;}
+      details.info-panel>summary h3{margin:0;flex:1;}
+      details.info-panel>summary::after{content:'▸';color:var(--gold,#D4AF37);font-size:0.9rem;transition:transform 0.15s;}
+      details.info-panel[open]>summary::after{transform:rotate(90deg);}
       @media (max-width:480px){.geo-row{flex-direction:column;}.geo-input-wrap{flex:1 1 auto;}}
     </style>
     <div class="geo-lookup">
-        <h3>📍 FIND CHURCHES NEAR YOU</h3>
+        <h3><img src="assets/icons/shield-map-48.png" alt="" width="20" height="20"> FIND CHURCHES NEAR YOU</h3>
         <div class="geo-row">
             <div class="geo-input-wrap">
                 <input type="text" id="geo-q" placeholder="City, State — or ZIP (e.g. Houston, Texas or 22401)" autocomplete="off">
@@ -850,8 +858,23 @@
             </div>
             <div class="filter-group">
                 <label for="filter-denomination">Denomination</label>
-                <select id="filter-denomination" onchange="applyFilters()">
+                <select id="filter-denomination" onchange="onFamilyChange()">
                     <option value="all">All Denominations</option>
+                </select>
+            </div>
+            <div class="filter-group" id="subdenom-group" style="display:none;">
+                <label for="filter-subdenom">Refine</label>
+                <select id="filter-subdenom" onchange="applyFilters()">
+                    <option value="all">All</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="filter-sort">Sort by</label>
+                <select id="filter-sort" onchange="applyFilters()">
+                    <option value="auto">Best match</option>
+                    <option value="distance">Nearest</option>
+                    <option value="rating">Rating (best first)</option>
+                    <option value="name">Name (A–Z)</option>
                 </select>
             </div>
             <div class="filter-group" style="justify-content:flex-end;">
@@ -872,9 +895,9 @@
     <!-- ── Main ── -->
     <main>
 
-        <!-- Threat Zone Legend -->
-        <div class="rubric-panel" style="margin-bottom:18px;">
-            <h3><img class="site-icon" src="assets/icons/shield-map-48.png" alt="" width="20" height="20"> 4-Tier Threat Zone System</h3>
+        <!-- Threat Zone Legend (collapsible — auto-tucks once a search/filter is active) -->
+        <details class="rubric-panel info-panel" id="threat-panel" open>
+            <summary><h3><img class="site-icon" src="assets/icons/shield-map-48.png" alt="" width="20" height="20"> 4-Tier Threat Zone System</h3></summary>
             <p style="font-size:0.82rem; color:var(--gray); margin-bottom:8px; font-style:italic;">Adapted from military aviation threat zone classification — assess before committing your family, as a commander would before committing his pilots and crew to fly into combat.</p>
             <p style="font-size:0.78rem; color:var(--gray); margin-bottom:14px;">Designed by <span style="color:var(--gold);">MOOP</span> for <a href="index.html" style="color:var(--gold);text-decoration:none;">U.S.M.C. Ministries</a> — as described in <a href="blog/fredericksburg-church-directory-theological-due-diligence.html" style="color:var(--gold);text-decoration:underline;">Theological Due Diligence: Why Every Christian Man Needs to Evaluate His Church</a> (March 27, 2026).</p>
             <div style="display:flex; flex-direction:column; gap:10px;">
@@ -895,11 +918,11 @@
                     <div><strong style="color:#666;">BLACK — Avoid</strong><span style="display:block; font-size:0.8rem; color:#555;">Feminized, hostile to biblical manhood, or apostate. Do not attend.</span></div>
                 </div>
             </div>
-        </div>
+        </details>
 
-        <!-- Rubric Panel -->
-        <div class="rubric-panel" id="rubric-panel">
-            <h3><img src="assets/icons/shield-checklist-48.png" alt="" width="20" height="20" style="vertical-align:middle;"> 10-Category Scoring Rubric</h3>
+        <!-- Rubric Panel (collapsible) -->
+        <details class="rubric-panel info-panel" id="rubric-panel" open>
+            <summary><h3><img src="assets/icons/shield-checklist-48.png" alt="" width="20" height="20" style="vertical-align:middle;"> 10-Category Scoring Rubric</h3></summary>
             <p style="color:var(--gray);font-size:0.88rem;font-style:italic;margin-bottom:8px;"><span style="color:var(--green);">Recommended</span> — 6+ greens in core categories (Christology, Scripture, Soteriology, Gender, Leadership, Men's Discipleship), no reds
                 &nbsp;·&nbsp;<span style="color:var(--yellow);">Visit with Discernment</span> — mixed, 0–1 reds
                 &nbsp;·&nbsp;<span style="color:var(--red);">Not Recommended</span> — 2+ reds or critical failures</p>
@@ -916,7 +939,7 @@
                 <div class="legend-item"><div class="legend-dot black"></div><strong><span style="color:#666;">Avoid</span></strong> — feminized, apostate, or hostile to biblical manhood</div>
             </div>
             </details>
-        </div>
+        </details>
 
         <!-- Count Header -->
         <div class="count-header" id="count-header">
@@ -1014,7 +1037,61 @@
     }
 
     /* ── Filter state ── */
-    const filters = { rating: 'all', denomination: 'all', region: 'all', mens: false, kids: false, search: '', geo: null };
+    const filters = { rating: 'all', denomFamily: 'all', subdenom: 'all', region: 'all', mens: false, kids: false, search: '', geo: null, sort: 'auto' };
+
+    /* ── Denomination consolidation ──
+       churches.json carries 175 fine-grained denomination_family values (e.g. "Southern
+       Baptist (SBC)", "SBC", "Baptist" are all separate) — too vast to pick from, and the
+       cause of the "filter SBC → nothing near Montgomery" miss. canonicalFamily() buckets
+       every value into ~12 top-level families for the primary dropdown; the exact value is
+       kept for an optional "Refine" sub-filter. Anabaptist is checked FIRST (it contains
+       "baptist"). Order matters within each rule. */
+    function canonicalFamily(raw) {
+        const s = String(raw || '').toLowerCase();
+        if (!s || s === 'verify' || s === 'other' || s === '(none)' || s === 'unknown') return 'Other / Unverified';
+        if (/anabaptist|mennonite|brethren|amish|\bbic\b/.test(s)) return 'Anabaptist';
+        if (/baptist|\bsbc\b|garbc|converge|\bifb\b|\bcba\b|\brb\b/.test(s)) return 'Baptist';
+        if (/presbyterian|reformed|\bpca\b|\bopc\b|\barp\b|\bepc\b|urcna|canrc|continental|dutch reformed|\bpres\b|rcus|prca|\brpc|\bcrec\b|frcna|crcna|covenanter/.test(s)) return 'Presbyterian & Reformed';
+        if (/anglican|episcopal|\bacna\b/.test(s)) return 'Anglican / Episcopal';
+        if (/lutheran|lcms|wels|\belca\b/.test(s)) return 'Lutheran';
+        if (/methodist|wesleyan|nazarene|holiness|\bgmc\b/.test(s)) return 'Methodist & Wesleyan';
+        if (/pentecostal|charismatic|assemblies of god|foursquare|vineyard|calvary chapel|\bag\b/.test(s)) return 'Pentecostal & Charismatic';
+        if (/church of christ|christian church|disciples|restorationist|restoration movement|stone-campbell/.test(s)) return 'Restorationist';
+        if (/catholic|orthodox/.test(s)) return 'Catholic / Orthodox';
+        if (/evangelical|efca|missionary alliance|c&ma|free church|\bifca\b/.test(s)) return 'Evangelical & Free Church';
+        if (/non-?denomination|independent|acts 29|sovereign grace|network|community church|bible church/.test(s)) return 'Non-Denominational & Networks';
+        return 'Other / Unverified';
+    }
+    // Curated top-level order (families with 0 churches are dropped at populate time)
+    const FAMILY_ORDER = ['Baptist', 'Presbyterian & Reformed', 'Non-Denominational & Networks', 'Anglican / Episcopal', 'Lutheran', 'Methodist & Wesleyan', 'Pentecostal & Charismatic', 'Evangelical & Free Church', 'Restorationist', 'Anabaptist', 'Catholic / Orthodox', 'Other / Unverified'];
+
+    // When the top-level family changes, (re)build the Refine sub-select from the exact
+    // denomination_family values within that family, then filter.
+    function onFamilyChange() {
+        const fam = document.getElementById('filter-denomination').value;
+        const sub = document.getElementById('filter-subdenom');
+        const group = document.getElementById('subdenom-group');
+        sub.innerHTML = '<option value="all">All</option>';
+        if (fam === 'all' || !window._subdenomsByFamily || !window._subdenomsByFamily[fam] || window._subdenomsByFamily[fam].length < 2) {
+            group.style.display = 'none';
+        } else {
+            window._subdenomsByFamily[fam].forEach(([val, n]) => {
+                const o = document.createElement('option');
+                o.value = val; o.textContent = `${val} (${n.toLocaleString()})`;
+                sub.appendChild(o);
+            });
+            group.style.display = '';
+        }
+        applyFilters();
+    }
+
+    // Tuck the Threat-Zone + Rubric panels away once the user is actively searching/filtering,
+    // reopen them when everything is cleared (they're educational, useful on first landing).
+    function syncInfoPanels(active) {
+        const t = document.getElementById('threat-panel'), r = document.getElementById('rubric-panel');
+        if (t) t.open = !active;
+        if (r) r.open = !active;
+    }
 
     /* ── Geo lookup — City, State or ZIP → churches within the radius ──
        Data: data/geo/places.json (32k US places) + data/geo/zcta-centroids.json (34k ZIPs),
@@ -1201,24 +1278,27 @@
 
     function applyFilters() {
         filters.rating = document.getElementById('filter-rating').value;
-        filters.denomination = document.getElementById('filter-denomination').value;
+        filters.denomFamily = document.getElementById('filter-denomination').value;
+        filters.subdenom = document.getElementById('filter-subdenom').value;
         filters.region = document.getElementById('filter-region').value;
+        filters.sort = document.getElementById('filter-sort').value;
         filters.search = document.getElementById('filter-search').value.toLowerCase().trim();
 
         // Filter the lightweight church index (data only, no DOM) set by loadChurches.
         if (!window._allCards) return;
         let filtered = window._allCards.filter(c => {
             const ratingOk = filters.rating === 'all' || c.rating === filters.rating;
-            const denomOk = filters.denomination === 'all' || c.denomination === filters.denomination;
+            const famOk = filters.denomFamily === 'all' || c.famGroup === filters.denomFamily;
+            const subOk = filters.subdenom === 'all' || c.denom === filters.subdenom;
             const mensOk = !filters.mens || c.mens;
             const kidsOk = !filters.kids || c.kids;
             const regionOk = filters.region === 'all' || c.region === filters.region;
             const searchOk = fuzzyMatch(filters.search, c.search);
-            return ratingOk && denomOk && mensOk && kidsOk && regionOk && searchOk;
+            return ratingOk && famOk && subOk && mensOk && kidsOk && regionOk && searchOk;
         });
 
-        // Geo mode: keep churches within the radius, closest first (verifiable ones
-        // above zero-presence ones — the 2026-07-11 demote-and-rescue rule).
+        // Geo mode: keep churches within the radius (verifiable churches rank above
+        // zero-presence ones — the 2026-07-11 demote-and-rescue rule).
         const statusEl = document.getElementById('geo-status');
         if (filters.geo) {
             const R = parseFloat(document.getElementById('geo-radius').value) || 25;
@@ -1226,13 +1306,33 @@
             filtered = filtered.filter(c => c.ll)
                 .map(c => { c._dist = haversineMi(g.lat, g.lng, c.ll[0], c.ll[1]); return c; })
                 .filter(c => c._dist <= R);
-            filtered.sort((a, b) => (b.vf - a.vf) || (a._dist - b._dist));
             statusEl.innerHTML = `Showing <strong style="color:var(--gold,#D4AF37)">${filtered.length}</strong> church${filtered.length === 1 ? '' : 'es'} within <strong>${R} mi</strong> of <strong>${esc(g.label)}</strong><span class="geo-clear" onclick="clearGeo()">✕ clear</span>`;
             statusEl.style.display = 'block';
         } else {
             filtered.forEach(c => { c._dist = undefined; });
             statusEl.style.display = 'none';
         }
+
+        // Unified sort. "auto" = nearest when a location is set, else best rating.
+        const mode = filters.sort === 'auto' ? (filters.geo ? 'distance' : 'rating') : filters.sort;
+        const byName = (a, b) => a.church.name.localeCompare(b.church.name);
+        if (mode === 'distance' && filters.geo) {
+            filtered.sort((a, b) => (b.vf - a.vf) || (a._dist - b._dist) || byName(a, b));
+        } else if (mode === 'name') {
+            filtered.sort(byName);
+        } else { // rating
+            filtered.sort((a, b) => {
+                const ta = TIER_ORDER[a.rating] ?? 4, tb = TIER_ORDER[b.rating] ?? 4;
+                if (ta !== tb) return ta - tb;
+                if (!!a.vf !== !!b.vf) return a.vf ? -1 : 1;
+                if (filters.geo) return (a._dist - b._dist) || byName(a, b);
+                return byName(a, b);
+            });
+        }
+
+        // Collapse the info panels once the user is actively searching/filtering.
+        syncInfoPanels(!!(filters.geo || filters.search || filters.denomFamily !== 'all' ||
+            filters.rating !== 'all' || filters.region !== 'all' || filters.mens || filters.kids));
 
         window._filteredCards = filtered;
         window.paginate(1);
@@ -1241,8 +1341,10 @@
 
     function resetFilters() {
         filters.rating = 'all';
-        filters.denomination = 'all';
+        filters.denomFamily = 'all';
+        filters.subdenom = 'all';
         filters.region = 'all';
+        filters.sort = 'auto';
         filters.mens = false;
         filters.kids = false;
         filters.search = '';
@@ -1251,7 +1353,10 @@
         document.getElementById('geo-status').style.display = 'none';
         document.getElementById('filter-rating').value = 'all';
         document.getElementById('filter-denomination').value = 'all';
+        document.getElementById('filter-subdenom').value = 'all';
+        document.getElementById('subdenom-group').style.display = 'none';
         document.getElementById('filter-region').value = 'all';
+        document.getElementById('filter-sort').value = 'auto';
         document.getElementById('filter-search').value = '';
         document.getElementById('btn-mens').classList.remove('active');
         document.getElementById('btn-kids').classList.remove('active');
@@ -1299,13 +1404,24 @@
             return a.name.localeCompare(b.name);
         });
 
-        // Populate denomination filter using denomination_family (consolidated)
-        const denomSet = new Set(sorted.map(c => c.denomination_family || c.denomination).filter(Boolean));
+        // Populate the denomination filter with ~12 canonical families (with counts),
+        // and precompute each family's exact sub-values for the Refine select.
+        const famCounts = {}, subMap = {};
+        sorted.forEach(c => {
+            const raw = c.denomination_family || c.denomination || '';
+            const fam = canonicalFamily(raw);
+            famCounts[fam] = (famCounts[fam] || 0) + 1;
+            (subMap[fam] = subMap[fam] || {})[raw] = (subMap[fam][raw] || 0) + 1;
+        });
+        window._subdenomsByFamily = {};
+        Object.keys(subMap).forEach(fam => {
+            window._subdenomsByFamily[fam] = Object.entries(subMap[fam]).sort((a, b) => b[1] - a[1]);
+        });
         const denomSelect = document.getElementById('filter-denomination');
-        [...denomSet].sort().forEach(d => {
+        FAMILY_ORDER.filter(f => famCounts[f]).forEach(fam => {
             const opt = document.createElement('option');
-            opt.value = d;
-            opt.textContent = d;
+            opt.value = fam;
+            opt.textContent = `${fam} (${famCounts[fam].toLocaleString()})`;
             denomSelect.appendChild(opt);
         });
 
@@ -1444,7 +1560,8 @@
         const allCards = sorted.map(church => ({
             church,
             rating: normalizeRating(church.overall_rating),
-            denomination: church.denomination_family || church.denomination || '',
+            denom: church.denomination_family || church.denomination || '',   // exact value (Refine sub-filter + search)
+            famGroup: canonicalFamily(church.denomination_family || church.denomination || ''),  // canonical top-level family
             mens: !!church.has_mens_ministry,
             kids: !!church.has_kids_ministry,
             region: church.region || '',
