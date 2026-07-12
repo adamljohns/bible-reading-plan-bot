@@ -66,9 +66,12 @@ for (const r of rows(placeTxt)) {
   const prev = best.get(key);
   if (!prev || aland > prev.aland) best.set(key, { name, st, lat, lng, aland });
 }
+// 5th element = land area in sq mi (1 dp) — the autocomplete's prominence rank, so
+// "fredericksburg" suggests Fredericksburg VA (10.5 sq mi city) above the same-named
+// 1-sq-mi towns that used to win on state-alphabetical order.
 const places = [...best.values()]
   .sort((a, b) => a.name.localeCompare(b.name) || a.st.localeCompare(b.st))
-  .map(p => [p.name, p.st, p.lat, p.lng]);
+  .map(p => [p.name, p.st, p.lat, p.lng, Math.round(p.aland / 2589988.11 * 10) / 10]);
 
 fs.writeFileSync(path.join(OUT_DIR, 'zcta-centroids.json'),
   esc(JSON.stringify({ updated: TODAY, source: 'US Census Gazetteer (public domain)', zcta })));

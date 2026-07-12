@@ -750,6 +750,16 @@
       details.info-panel>summary h3{margin:0;flex:1;}
       details.info-panel>summary::after{content:'▸';color:var(--gold,#D4AF37);font-size:0.9rem;transition:transform 0.15s;}
       details.info-panel[open]>summary::after{transform:rotate(90deg);}
+      /* Light mode: the controls above hardcode dark backgrounds; without these overrides
+         light mode flips --white to #1a1a1a and the inputs become dark-on-dark invisible.
+         (#filter-search had the same pre-existing bug — covered here too.) */
+      body.light-mode #geo-q, body.light-mode #geo-radius, body.light-mode #filter-search{background:#fff !important;color:#1a1a1a !important;border-color:#d4d0c8 !important;}
+      body.light-mode #geo-suggest{background:#fff;border-color:#d4d0c8;box-shadow:0 8px 24px rgba(0,0,0,0.15);}
+      body.light-mode #geo-suggest div{color:#1a1a1a;}
+      body.light-mode #geo-suggest div:hover,body.light-mode #geo-suggest div.sel{background:rgba(184,150,12,0.12);color:#8a6d00;}
+      body.light-mode .geo-lookup{background:rgba(184,150,12,0.06);}
+      body.light-mode #geo-status{color:#1a1a1a;}
+      body.light-mode .unverified-chip{background:rgba(0,0,0,0.05);color:#777;border-color:#bbb;}
       @media (max-width:480px){.geo-row{flex-direction:column;}.geo-input-wrap{flex:1 1 auto;}}
     </style>
     <div class="geo-lookup">
@@ -1100,50 +1110,56 @@
     let GEO = null, geoLoadPromise = null;
     function loadGeoData() {
         if (geoLoadPromise) return geoLoadPromise;
+        // ?v= busts HTTP/edge caches when the gazetteer tables change shape (bump on rebuild;
+        // 20260711b added the 5th prominence element that ranks suggestions by place size)
         geoLoadPromise = Promise.all([
-            fetch('data/geo/places.json').then(r => r.json()),
-            fetch('data/geo/zcta-centroids.json').then(r => r.json()),
+            fetch('data/geo/places.json?v=20260711b').then(r => r.json()),
+            fetch('data/geo/zcta-centroids.json?v=20260711b').then(r => r.json()),
         ]).then(([p, z]) => (GEO = { places: p.places, zcta: z.zcta }));
         return geoLoadPromise;
     }
     const STATE_FULL = {alabama:'AL',alaska:'AK',arizona:'AZ',arkansas:'AR',california:'CA',colorado:'CO',connecticut:'CT',delaware:'DE',florida:'FL',georgia:'GA',hawaii:'HI',idaho:'ID',illinois:'IL',indiana:'IN',iowa:'IA',kansas:'KS',kentucky:'KY',louisiana:'LA',maine:'ME',maryland:'MD',massachusetts:'MA',michigan:'MI',minnesota:'MN',mississippi:'MS',missouri:'MO',montana:'MT',nebraska:'NE',nevada:'NV','new hampshire':'NH','new jersey':'NJ','new mexico':'NM','new york':'NY','north carolina':'NC','north dakota':'ND',ohio:'OH',oklahoma:'OK',oregon:'OR',pennsylvania:'PA','rhode island':'RI','south carolina':'SC','south dakota':'SD',tennessee:'TN',texas:'TX',utah:'UT',vermont:'VT',virginia:'VA',washington:'WA','west virginia':'WV',wisconsin:'WI',wyoming:'WY','district of columbia':'DC','washington dc':'DC'};
     const ST_ABBREVS = new Set(Object.values(STATE_FULL));
-    function resolveStateToken(t) {
+    // A state token resolves to the SET of states it could mean: "tx" → {TX};
+    // "virginia" → {VA}; a partial like "v" → {VA, VT}. (It used to be discarded as
+    // ambiguous, which made "fredericksburg, v" suggest Fredericksburg IA first —
+    // state-alphabetical order beat Adam's actual city.)
+    function stateCandidates(t) {
         t = t.trim().toLowerCase().replace(/\./g, '');
         if (!t) return null;
-        if (ST_ABBREVS.has(t.toUpperCase())) return t.toUpperCase();
-        if (STATE_FULL[t]) return STATE_FULL[t];
-        // partial full-name ("tex" → TX) — only when unambiguous
-        const hits = Object.keys(STATE_FULL).filter(n => n.startsWith(t));
-        return (new Set(hits.map(n => STATE_FULL[n]))).size === 1 ? STATE_FULL[hits[0]] : null;
+        if (ST_ABBREVS.has(t.toUpperCase())) return new Set([t.toUpperCase()]);
+        const hits = Object.keys(STATE_FULL).filter(n => n.startsWith(t)).map(n => STATE_FULL[n]);
+        return hits.length ? new Set(hits) : null;
     }
     function matchPlaces(q) {
         if (!GEO) return [];
         q = q.toLowerCase().trim();
         if (!q) return [];
-        let cityQ = q, st = null;
+        let cityQ = q, states = null;
         if (q.includes(',')) {
             const [c, s] = q.split(',', 2);
-            cityQ = c.trim(); st = resolveStateToken(s || '');
+            cityQ = c.trim(); states = stateCandidates(s || '');
         } else {
             const toks = q.split(/\s+/);
             if (toks.length > 1) {
-                const maybe = resolveStateToken(toks[toks.length - 1]);
-                if (maybe) { st = maybe; cityQ = toks.slice(0, -1).join(' '); }
+                // trailing token counts as a state only if it's an abbrev or full-name prefix
+                const maybe = stateCandidates(toks[toks.length - 1]);
+                if (maybe) { states = maybe; cityQ = toks.slice(0, -1).join(' '); }
             }
         }
         if (!cityQ) return [];
         const out = [];
         for (const p of GEO.places) {
             const n = p[0].toLowerCase();
-            if (n.startsWith(cityQ) && (!st || p[1] === st)) {
+            if (n.startsWith(cityQ) && (!states || states.has(p[1]))) {
                 out.push(p);
-                if (out.length >= 40) break;
+                if (out.length >= 60) break;
             }
         }
-        // exact name first, then shorter names, then state
+        // exact name match first, then PROMINENCE (land area, places.json[4]) so the
+        // real city outranks same-named villages, then shorter names, then state
         out.sort((a, b) => (a[0].toLowerCase() === cityQ ? 0 : 1) - (b[0].toLowerCase() === cityQ ? 0 : 1)
-            || a[0].length - b[0].length || a[1].localeCompare(b[1]));
+            || (b[4] || 0) - (a[4] || 0) || a[0].length - b[0].length || a[1].localeCompare(b[1]));
         return out.slice(0, 8);
     }
     const haversineMi = (la1, lo1, la2, lo2) => {
