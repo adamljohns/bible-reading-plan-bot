@@ -297,6 +297,9 @@ redefinition, use the caveat template in `corruption_summary`.
 >    7,767 by authoring; the count must land on 7,777 exactly via the crown batch.
 > 2. **The CROWN BATCH (final 10) is hand-curated with Adam** — capstone words chosen by the
 >    editor, ending on a deliberately chosen 7,777th entry. Do not author it in a nightly.
+>    ★ ADAM HAS CHOSEN (2026-07-16): **the 7,777th entry is `sevenfold`** — the number of
+>    completion, multiplied (Psa 12:6; Gen 4:15; Isa 30:26). Slug verified open and RESERVED:
+>    no batch may author `sevenfold` before the crown batch.
 > 3. Before the crown batch ships: full integrity audit; corpus drift audit; fresh
 >    find_duplicates.py pass (human review of any new clusters); verify_kjv_quotes.py over the
 >    final 10 batches; sitemap + manifest regen (pipeline does this); version bump decision
