@@ -108,18 +108,52 @@
 
   // ── Nav HTML ──────────────────────────────────────────────────────────
   function navHtml(activeLabel, activeHref) {
-    return '<nav>\n' +
+    var active = '';
+    if (activeLabel) {
+      var href = activeHref || '#';
+      active = '    <a href="' + href + '" class="active" aria-current="page">' + activeLabel + '</a>\n';
+    }
+    return '<nav id="site-nav">\n' +
       '    <a href="index.html"><img src="assets/icons/shield-home-48.png" class="site-icon" alt="" width="16" height="16"> U.S.M.C. Ministries Home</a>\n' +
       '    <a href="watchman.html"><img src="assets/icons/shield-bible.png" class="site-icon" alt="" width="16" height="16"> Watchman Bible Plan</a>\n' +
       '    <a href="bible.html"><img src="assets/icons/shield-bible-cross-48.png" class="site-icon" alt="" width="16" height="16"> Bible Translation Engine</a>\n' +
       '    <a href="assessments.html"><img src="assets/icons/shield-checklist-48.png" class="site-icon" alt="" width="16" height="16"> Assessments</a>\n' +
-      (activeLabel ? '<a href="' + activeHref + '" class="active">' + activeLabel + '</a>' : '') +
+      active +
       '    <a href="connect.html"><img src="assets/icons/shield-handshake.png" class="site-icon" alt="" width="16" height="16"> Connect</a>\n' +
-      '<div class="bte-theme-toggle nav-theme-toggle" onclick="bteToggleTheme()" title="Toggle dark/light mode">\n' +
+      '<div class="bte-theme-toggle nav-theme-toggle" onclick="bteToggleTheme()" title="Toggle dark/light mode" role="button" aria-label="Toggle dark/light mode">\n' +
       '        <span class="toggle-icon moon-icon">\uD83C\uDF19</span>\n' +
       '        <div class="toggle-track"><div class="toggle-knob"></div></div>\n' +
       '        <span class="toggle-icon sun-icon">\u2600\uFE0F</span>\n' +
       '    </div></nav>';
+  }
+
+  function wireHideOnScrollNav() {
+    var nav = document.querySelector('nav');
+    if (!nav || nav.dataset.hideScrollWired === '1') return;
+    nav.dataset.hideScrollWired = '1';
+    var lastY = window.scrollY || window.pageYOffset || 0;
+    var ticking = false;
+    var THRESHOLD = 60;
+    function mobile() { return window.matchMedia('(max-width:820px)').matches; }
+    function update() {
+      var y = window.scrollY || window.pageYOffset || 0;
+      if (!mobile()) {
+        nav.classList.remove('nav-hidden');
+        lastY = y;
+        ticking = false;
+        return;
+      }
+      if (y > lastY && y > THRESHOLD) nav.classList.add('nav-hidden');
+      else if (y < lastY) nav.classList.remove('nav-hidden');
+      lastY = y <= 0 ? 0 : y;
+      ticking = false;
+    }
+    window.addEventListener('scroll', function () {
+      if (!ticking) {
+        window.requestAnimationFrame(update);
+        ticking = true;
+      }
+    }, { passive: true });
   }
 
   // ── Build questions block ─────────────────────────────────────────────
@@ -489,12 +523,19 @@
     // Build DOM
     var body = document.body;
 
-    // Inject nav
-    var nav = document.createElement('nav');
+    // Inject nav (use shareUrl for active self-link when available)
     var activeLabel = ASSESSMENT_DATA.navTitle || ASSESSMENT_DATA.title;
-    var activeHref = ASSESSMENT_DATA.navTitle ? undefined : undefined;
-    nav.innerHTML = navHtml(ASSESSMENT_DATA.title, '');
+    var activeHref = ASSESSMENT_DATA.shareUrl || (window.location && window.location.pathname) || '#';
+    try {
+      if (activeHref.indexOf('http') === 0) {
+        activeHref = activeHref.replace(/^https?:\/\/[^/]+\//, '');
+      }
+    } catch (e) {}
+    var navWrap = document.createElement('div');
+    navWrap.innerHTML = navHtml(activeLabel, activeHref);
+    var nav = navWrap.firstChild;
     body.insertBefore(nav, body.firstChild);
+    wireHideOnScrollNav();
 
     // Build title/hero
     var hero = document.createElement('div');
@@ -585,6 +626,12 @@
 
     // Expose to window
     window.updateChart = updateChart;
+    window.bteToggleTheme = bteToggleTheme;
+    window.runAssessment = runAssessment;
+    window.saveProgress = saveProgress;
+    window.toggleRubric = toggleRubric;
+    window.printSummary = printSummary;
+    window.copyShareText = copyShareText;
   }
 
   global.AssessmentTemplate = { render: render };
