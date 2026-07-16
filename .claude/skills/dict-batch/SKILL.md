@@ -238,6 +238,15 @@ most-corrupted→85. Next: biblical-order (21), expressly-prohibited (28) — ad
 selector to the SECTIONS map. Section pages with a SHARED css class (several
 `featured-section` blocks) are bounded by their h3 self-link, not the class.
 
+## 9b. THE LIVING CANON (post-7,777 law)
+
+Once the corpus lands on 7,777, that number is a PERMANENT CONSTANT. Every merge
+opens exactly one vacancy; fill it with one genuinely new entry in the same
+session so the count returns to 7,777 before pushing. Never push off-count.
+Merge inventory = find_duplicates.py tier-1, human-reviewed; intentional
+theological disambiguations are NOT twins. Enriching entries in place (era-debt
+Usage/Webster backfill) is always allowed — it never touches the count.
+
 ## 9. Merging duplicates — `bin/merge_entries.py` (don't define a word 3×)
 
 When a word has near-duplicate entries, consolidate to ONE canonical:

@@ -304,8 +304,20 @@ redefinition, use the caveat template in `corruption_summary`.
 >    find_duplicates.py pass (human review of any new clusters); verify_kjv_quotes.py over the
 >    final 10 batches; sitemap + manifest regen (pipeline does this); version bump decision
 >    (proposal: V7.0 &ldquo;7,777 Jubilee Edition&rdquo;) — Adam's call.
-> 4. **After 7,777: SHELF MODE.** The nightly stops authoring and flips to weekly maintenance:
->    integrity + drift + duplicate scan + dead-link check + Amen leaderboard glance. Era-debt
->    (601 entries lacking Usage; 176 lacking Webster) stays optional post-shelf polish.
+> 4. **After 7,777: THE LIVING CANON (Adam's doctrine, 2026-07-16).** 7,777 becomes a
+>    PERMANENT CONSTANT, not a high-water mark. The count never moves; the CONTENT keeps
+>    improving by exchange — **one out, one in**:
+>    - MERGE a true same-concept twin (via bin/merge_entries.py; redirect stub preserves the
+>      old URL) → that opens exactly one vacancy → fill it with a genuinely new word IN THE
+>      SAME session, landing back on 7,777 before pushing. Never push an off-count corpus.
+>    - The MERGE INVENTORY: bin/find_duplicates.py tier-1 (currently 48 clusters). True twins
+>      confirmed by eye so far: iron-bible/iron, tappuah/tappuah-town, babylon-city/babylon,
+>      new-jerusalem/jerusalem-new/new-jerusalem-city, idolatry-modern/idolatry. KEEP the
+>      intentional theological disambiguations (grace-prevenient/common, dualism-cartesian/
+>      gnostic, confession-auricular/mutual, israel-name/people, ephraim variants, etc.) —
+>      human review decides every merge; nothing auto-merges.
+>    - Weekly maintenance run: integrity + drift + duplicate scan + dead-link check + Amen
+>      leaderboard glance. Era-debt (601 lacking Usage; 176 lacking Webster) is exchange-free
+>      polish — enriching an entry in place never touches the count.
 > - Standing rules unchanged: one-entity rule, never recreate redirected slugs, disambiguators
 >   are not duplicates, commit+push fast, stage dictionary paths only, audit-FAIL = no push.
