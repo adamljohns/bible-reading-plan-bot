@@ -132,6 +132,7 @@ version-badge mismatch, so drift can't ship silently.
   genuinely DIFFERENT (brook-kanah vs kanah the town), acknowledge with
   `"distinct_from": ["<slug>"]` on the entry — never add it just to silence
   the guard.
+- Reuse a batch NUMBER. Next file = (highest existing batch-N) + 1 — check `ls data/dictionary-batches/ | sort -V | tail -1`. (Two files now share 260 from a 7/14 agent run; slugs were distinct so content is fine, but never repeat this.)
 - Edit existing `data/dictionary-batches/*.json` — historical record;
   revisions go in NEW batches.
 - `roots_lines` as list-of-lists (silent rendering bug).
