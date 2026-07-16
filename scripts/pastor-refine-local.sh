@@ -33,8 +33,11 @@ cd "$WT" || die "cd $WT failed"
 
 say "── round start (batch=$BATCH) ──"
 git fetch -q origin main            || die "git fetch failed"
-git checkout -q --detach FETCH_HEAD || die "checkout FETCH_HEAD failed"
-git reset -q --hard FETCH_HEAD
+# reset --hard moves the detached HEAD to FETCH_HEAD AND overwrites local dirt in one
+# unstoppable step. (A plain `checkout --detach` REFUSES a dirty tree — leftover dirt
+# from one died round deadlocked EVERY later round 07-12→07-15: 16 sessions, 32
+# "checkout FETCH_HEAD failed", four days of zero work.)
+git reset -q --hard FETCH_HEAD      || die "reset to FETCH_HEAD failed"
 git clean -qfd
 
 mkdir -p "$WORK" && rm -f "$WORK"/*.json "$WORK"/selector.txt
@@ -54,14 +57,38 @@ POOL=$(grep -oE 'pastor-fetchable\): [0-9]+' "$WORK/selector.txt" | grep -oE '[0
 # deeper pools are dry.
 MIN_FRESH="${MIN_FRESH:-10}"
 N_FRESH_TRICKLE=0
+# Cold-retry escalation (2026-07-16): the retry pool's tail is mostly dead sites —
+# 25 of today's 44 rounds applied literally nothing while 6k+ guaranteed-yield
+# social-fill churches waited. After RETRY_COLD_AFTER consecutive zero-yield retry
+# rounds (counter kept in /tmp, reset by any yield), rounds jump to the SOCIAL tier
+# first; retry still runs when social is dry, and the streak resets so it gets a
+# fresh shot after social exhausts.
+STREAK_FILE="/tmp/prl-retry-zero-streak"
+RETRY_COLD_AFTER="${RETRY_COLD_AFTER:-3}"
+RETRY_STREAK=$(cat "$STREAK_FILE" 2>/dev/null || echo 0)
+case "$RETRY_STREAK" in ''|*[!0-9]*) RETRY_STREAK=0 ;; esac
 if [ "$N_BATCH" -eq 0 ] || { [ -n "$POOL" ] && [ "$POOL" -lt "$MIN_FRESH" ]; }; then
   N_FRESH_TRICKLE=$N_BATCH
-  [ "$N_BATCH" -gt 0 ] && say "fresh pool ($POOL) below floor ($MIN_FRESH) — deferring trickle, trying retry pool"
-  MODE="retry"
-  node scripts/select-enrichment-batch.js --retry --count "$BATCH" --batches 1 --out "$WORK" >"$WORK/selector.txt" 2>&1 \
-    || die "selector failed (retry mode)"
-  cat "$WORK/selector.txt" >>"$LOG"
-  N_BATCH=$(node -e 'console.log(require("'"$WORK"'/enrich-batch-1.json").length)' 2>/dev/null || echo 0)
+  [ "$N_BATCH" -gt 0 ] && say "fresh pool ($POOL) below floor ($MIN_FRESH) — deferring trickle"
+  if [ "$RETRY_STREAK" -ge "$RETRY_COLD_AFTER" ]; then
+    say "retry pool is cold ($RETRY_STREAK consecutive zero-yield rounds) — trying SOCIAL tier first"
+    MODE="social"; SOCIAL_FLAG="--social"
+    node scripts/select-enrichment-batch.js --social --count "$BATCH" --batches 1 --out "$WORK" >"$WORK/selector.txt" 2>&1 \
+      || die "selector failed (social-first mode)"
+    cat "$WORK/selector.txt" >>"$LOG"
+    N_BATCH=$(node -e 'console.log(require("'"$WORK"'/enrich-batch-1.json").length)' 2>/dev/null || echo 0)
+    if [ "$N_BATCH" -eq 0 ]; then
+      say "social pool dry — returning to retry with a fresh streak"
+      rm -f "$STREAK_FILE"; RETRY_STREAK=0
+    fi
+  fi
+  if [ "$N_BATCH" -eq 0 ]; then
+    MODE="retry"; SOCIAL_FLAG=""
+    node scripts/select-enrichment-batch.js --retry --count "$BATCH" --batches 1 --out "$WORK" >"$WORK/selector.txt" 2>&1 \
+      || die "selector failed (retry mode)"
+    cat "$WORK/selector.txt" >>"$LOG"
+    N_BATCH=$(node -e 'console.log(require("'"$WORK"'/enrich-batch-1.json").length)' 2>/dev/null || echo 0)
+  fi
 fi
 # Third tier: SOCIAL-fill (churches with a website but no social link). Keeps the
 # local sessions productive for a week after the pastor pools dry.
@@ -99,6 +126,15 @@ cat "$WORK/merge.txt" >>"$LOG"
 # the extractor merely found (found-but-HELD names used to be reported as "+1 pastors").
 APPLIED=$(grep -oE 'Pastors applied: +[0-9]+' "$WORK/merge.txt" | grep -oE '[0-9]+$' | head -1); APPLIED=${APPLIED:-0}
 SOC_APPLIED=$(grep -oE 'Social links applied: +[0-9]+' "$WORK/merge.txt" | grep -oE '[0-9]+$' | head -1); SOC_APPLIED=${SOC_APPLIED:-0}
+# Track the cold-retry streak (see escalation above): zero-yield retry rounds
+# increment it; any retry yield resets it.
+if [ "$MODE" = "retry" ]; then
+  if [ "$APPLIED" -eq 0 ] && [ "$SOC_APPLIED" -eq 0 ]; then
+    echo $((RETRY_STREAK + 1)) > "$STREAK_FILE"
+  else
+    echo 0 > "$STREAK_FILE"
+  fi
+fi
 
 # Publish a QA sample for the fleet: the newest local-extract finds land at
 # https://usmcmin.org/data/qa-sample.json so Chaps (web_fetch-only tooling) can
