@@ -949,10 +949,13 @@ const INDEX_CSS = `
         .no-results { text-align:center; color:var(--gray); padding:40px 20px; display:none; }`;
 
 function indexPage(songs, slidesCount) {
-  const total = songs.length;
-  const praise = songs.filter(s => s.type === 'praise' && !s.christmas).length;
-  const tabs = songs.filter(s => s.type === 'tab').length;
-  const xmas = songs.filter(s => s.christmas).length;
+  // Hero counts reflect the WORSHIP directory (the default view) — songs the
+  // audit marked non-worship are excluded here, though still searchable.
+  const shown = songs.filter(s => !isOtherSong(s));
+  const total = shown.length;
+  const praise = shown.filter(s => s.type === 'praise' && !s.christmas).length;
+  const tabs = shown.filter(s => s.type === 'tab').length;
+  const xmas = shown.filter(s => s.christmas).length;
   // Lightweight client index:
   // [slug, title, type(p/t), christmas(0/1), letter, key, artist, score, wellKnown(0/1), isOther(0/1), themes[]]
   const idx = songs.map(s => [s.slug, s.title, s.type === 'tab' ? 't' : 'p', s.christmas ? 1 : 0,
