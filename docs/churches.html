@@ -1389,6 +1389,9 @@
     /* ── Card toggle (click anywhere on compact) ── */
     function toggleCard(cardEl) {
         cardEl.classList.toggle('expanded');
+        // First expand pulls this card's expand-only detail (assessment, score notes,
+        // services, tags…) from its lazy shard — see fillCardDetail in loadChurches.
+        if (cardEl.classList.contains('expanded') && window._fillCardDetail) window._fillCardDetail(cardEl);
     }
 
     /* ── Prevent link clicks from toggling card ── */
@@ -1396,10 +1399,13 @@
 
     /* ── Load + Render ── */
     async function loadChurches() {
-        // Slim index (~20 MB vs the full 61 MB churches.json) — card fields only; full detail
-        // lives on the per-church pages. Rebuilt by scripts/build-church-index.js on every regen.
+        // Slim index (~9 MB vs the 21 MB legacy churches-index.json vs the full 61 MB
+        // churches.json) — card-grid + filter + search + geo fields only. Expand-only detail
+        // (assessment, score notes, services, credentials, tags) lives in lazy shards under
+        // data/churches/detail/, fetched per-prefix the first time a card is expanded.
+        // All rebuilt together by scripts/build-church-index.js on every regen.
         // ONE fetch, shared with the footer count script (it used to download the index twice).
-        window._indexPromise = window._indexPromise || fetch('data/churches-index.json').then(r => r.json());
+        window._indexPromise = window._indexPromise || fetch('data/churches-index-slim.json').then(r => r.json());
         const data = await window._indexPromise;
 
         // Build rubric panel
@@ -1459,8 +1465,47 @@
         // the tab. buildCardEl() makes one card on demand; showPage() renders just the visible 50.
         const grid = document.getElementById('church-grid');
 
-        // scores in churches-index.json are a 10-char string in rubric order: g/y/r/b, '-' = unscored
+        // scores in churches-index-slim.json are a 10-char string in rubric order: g/y/r/b, '-' = unscored
         const SCORE_CHAR = { g: 'green', y: 'yellow', r: 'red', b: 'black' };
+
+        /* ── Lazy expand-only detail ──
+           data/churches/detail/<key>.json shards (built by scripts/build-church-index.js) map
+           id → {assessment, score_notes, services, gender_detail, pastor_credentials, tags,
+           pastors}. Key = first two id chars, lowercased, non-alphanumeric → '_' — MUST match
+           shardKey() in the builder. Shards are fetched once and cached, so browsing cards
+           that share a prefix ("first-baptist-…") reuses a single request. */
+        const shardPromises = new Map();  // key → in-flight/settled fetch promise
+        const shardCache = new Map();     // key → resolved shard map (sync reuse on re-render)
+        const shardKeyOf = id => String(id).slice(0, 2).toLowerCase().replace(/[^a-z0-9]/g, '_');
+        function fetchShard(key) {
+            if (!shardPromises.has(key)) {
+                shardPromises.set(key, fetch('data/churches/detail/' + key + '.json')
+                    .then(r => {
+                        if (r.status === 404) return {};  // legit prefix with no detail yet
+                        if (!r.ok) throw new Error('HTTP ' + r.status);
+                        return r.json();
+                    })
+                    .then(m => { shardCache.set(key, m); return m; })
+                    .catch(err => { shardPromises.delete(key); throw err; })); // drop so re-expand retries
+            }
+            return shardPromises.get(key);
+        }
+        // Called by toggleCard on expand: fetch the card's shard and swap the expanded
+        // skeleton for the full detail. _detailDone guards double-fills per card element;
+        // pagination re-renders build fresh elements, which resolve instantly off shardCache.
+        window._fillCardDetail = function (cardEl) {
+            const church = cardEl._church;
+            if (!church || cardEl._detailDone) return;
+            cardEl._detailDone = true;
+            fetchShard(shardKeyOf(church.id)).then(m => {
+                const exp = cardEl.querySelector('.card-expanded');
+                if (exp) exp.innerHTML = buildExpandedHtml(church, m[church.id] || {});
+            }).catch(() => {
+                cardEl._detailDone = false;
+                const p = cardEl.querySelector('.assessment-block p');
+                if (p) p.innerHTML = '<em style="color:var(--gray,#888)">Couldn’t load details — close and re-open this card to retry.</em>';
+            });
+        };
 
         // Placeholder-aware display: "verify on website"-class strings are honest blanks
         // in the data — render them as a quiet "not yet verified", never as raw prose.
@@ -1475,47 +1520,31 @@
                 .join(' · ');
         }
 
-        function buildCardEl(church, distMi) {
-            const isBlack = normalizeRating(church.overall_rating) === 'black';
-            const card = document.createElement('div');
-            card.className = 'church-card' + (isBlack ? ' black-tier' : '');
-            card.setAttribute('onclick', 'toggleCard(this)');
-
-            // Address (one line — strip duplicate city/zip if long)
+        // Inner content of .card-expanded. `det` = this church's expand-only shard entry:
+        // null while the shard is still loading (score rows render without notes and the
+        // assessment shows a quiet loading line), {} / object once loaded. Everything else
+        // (address, website, ministry flags, scores, rubric) comes from the slim index, so
+        // the card is meaningful instantly and detail pops in on first expand.
+        function buildExpandedHtml(church, det) {
+            const loading = det === null;
+            const d = det || {};
             const address = church.address || '';
-            const distChip = (typeof distMi === 'number') ? `<span class="geo-dist">${distMi < 10 ? distMi.toFixed(1) : Math.round(distMi)} mi</span>` : '';
-            const unverifiedChip = church.vf ? '' : '<span class="unverified-chip" title="No website or social media on file yet — details could not be independently verified">UNVERIFIED</span>';
-            const pastorDisplay = (!church.pastor || PLACEHOLDER_RX.test(String(church.pastor)))
-                ? '<em style="color:var(--gray,#888)">Pastor not yet verified</em>'
-                : esc(church.pastor);
-            const foundedPart = (church.founded && !PLACEHOLDER_RX.test(String(church.founded))) ? ' · Est. ' + esc(church.founded) : '';
-
-            // Compact view
-            const compactHtml = `
-                <div class="card-compact">
-                    <div class="compact-header">
-                        <div class="church-name">${esc(church.name)}</div>
-                        <div class="compact-right">
-                            ${distChip}${unverifiedChip}<span class="rating-emoji">${EMOJI[normalizeRating(church.overall_rating)] || '⬜'}</span>
-                            <span class="card-chevron">▼</span>
-                        </div>
-                    </div>
-                    <div class="compact-meta">
-                        <div class="compact-meta-row"><span class="meta-icon"><img src="assets/icons/shield-church-48.png" alt="" width="16" height="16" style="vertical-align:middle;"></span><span>${esc(church.denomination) || 'Independent'}${foundedPart}</span></div>
-                        <div class="compact-meta-row"><span class="meta-icon">👤</span><span>${pastorDisplay}${church.pastor_credentials && !PLACEHOLDER_RX.test(String(church.pastor_credentials)) ? ' — <em style="color:var(--gray)">' + esc(church.pastor_credentials) + '</em>' : ''}</span></div>
-                        <div class="compact-meta-row"><span class="meta-icon"><img src="assets/icons/shield-map-48.png" alt="" width="16" height="16" style="vertical-align:middle;"></span><span>${esc(address)}</span></div>
-                    </div>
-                </div>`;
 
             // Expanded: website + address consolidated
             const websitePart = church.website
                 ? ` · <a href="${esc(church.website)}" target="_blank" rel="noopener" style="color:var(--gold);" onclick="stopProp(event)">${esc(church.website.replace(/^https?:\/\//, ''))}</a>`
                 : '';
 
+            // Pastor credentials ride in the detail shard (compact shows the bare name)
+            const credsPart = (d.pastor_credentials && !PLACEHOLDER_RX.test(String(d.pastor_credentials)))
+                ? `<div class="expanded-info-row"><span class="meta-icon">👤</span><span>${(!church.pastor || PLACEHOLDER_RX.test(String(church.pastor))) ? 'Pastor' : esc(church.pastor)} — <em style="color:var(--gray)">${esc(d.pastor_credentials)}</em></span></div>`
+                : '';
+
             const expandedInfoHtml = `
                 <div class="expanded-info">
                     <div class="expanded-info-row"><span class="meta-icon"><img src="assets/icons/shield-map-48.png" alt="" width="16" height="16" style="vertical-align:middle;"></span><span>${esc(address)}${websitePart}</span></div>
-                    ${fmtServices(church.services) ? `<div class="expanded-info-row"><span class="meta-icon">🕐</span><span>${esc(fmtServices(church.services))}</span></div>` : ''}
+                    ${credsPart}
+                    ${fmtServices(d.services) ? `<div class="expanded-info-row"><span class="meta-icon">🕐</span><span>${esc(fmtServices(d.services))}</span></div>` : ''}
                     <div class="ministry-flags">
                         <span class="ministry-flag" style="color:${church.has_mens_ministry ? 'var(--green)' : '#555'};"><img src="assets/icons/shield-chain-sword-48.png" alt="" width="16" height="16" style="vertical-align:middle;"> Men's Min.</span>
                         <span class="ministry-flag" style="color:${church.has_kids_ministry ? 'var(--green)' : '#555'};">👶 Kids Min.</span>
@@ -1523,15 +1552,15 @@
                 </div>`;
 
             // Tags
-            const tagsHtml = (church.tags || []).length
-                ? `<div class="card-tags">${(church.tags).map(t => `<span class="tag">${esc(t.replace(/-/g, ' '))}</span>`).join('')}</div>`
+            const tagsHtml = (d.tags || []).length
+                ? `<div class="card-tags">${(d.tags).map(t => `<span class="tag">${esc(t.replace(/-/g, ' '))}</span>`).join('')}</div>`
                 : '';
 
             // Scorecard rows (denomination NOT repeated here since it's in compact)
             const scorecardRowsHtml = data.rubric.map((r, i) => {
                 const score = SCORE_CHAR[(church.scores || '')[i]] || 'gray';
-                const note = church.score_notes && church.score_notes[r.id];
-                const genderDetail = (r.id === 'gender' && church.gender_detail) ? church.gender_detail : null;
+                const note = d.score_notes && d.score_notes[r.id];
+                const genderDetail = (r.id === 'gender' && d.gender_detail) ? d.gender_detail : null;
 
                 let noteHtml = '';
                 if (note) {
@@ -1555,21 +1584,59 @@
             // Church page link — always use church.id (matches generated HTML filename)
             const churchPageLink = `<a class="church-page-link" href="/churches/${church.id}.html" onclick="stopProp(event)"><img class="site-icon" src="assets/icons/shield-church-48.png" alt="" width="16" height="16"> View Full Church Profile →</a>`;
 
-            // Expanded view
-            const expandedHtml = `
-                <div class="card-expanded">
+            return `
                     ${expandedInfoHtml}
                     ${tagsHtml}
                     <div class="scorecard-label">10-Category Theological Scorecard</div>
                     <div class="score-rows">${scorecardRowsHtml}</div>
                     <div class="assessment-block">
                         <h5>Assessment</h5>
-                        <p>${esc(church.assessment)}</p>
+                        <p>${loading ? '<em style="color:var(--gray,#888)">Loading assessment…</em>' : esc(d.assessment)}</p>
                     </div>
-                    ${churchPageLink}
+                    ${churchPageLink}`;
+        }
+
+        function buildCardEl(church, distMi) {
+            const isBlack = normalizeRating(church.overall_rating) === 'black';
+            const card = document.createElement('div');
+            card.className = 'church-card' + (isBlack ? ' black-tier' : '');
+            card.setAttribute('onclick', 'toggleCard(this)');
+
+            // Address (one line — strip duplicate city/zip if long)
+            const address = church.address || '';
+            const distChip = (typeof distMi === 'number') ? `<span class="geo-dist">${distMi < 10 ? distMi.toFixed(1) : Math.round(distMi)} mi</span>` : '';
+            const unverifiedChip = church.vf ? '' : '<span class="unverified-chip" title="No website or social media on file yet — details could not be independently verified">UNVERIFIED</span>';
+            const pastorDisplay = (!church.pastor || PLACEHOLDER_RX.test(String(church.pastor)))
+                ? '<em style="color:var(--gray,#888)">Pastor not yet verified</em>'
+                : esc(church.pastor);
+            const foundedPart = (church.founded && !PLACEHOLDER_RX.test(String(church.founded))) ? ' · Est. ' + esc(church.founded) : '';
+
+            // Compact view (slim fields only — credentials appear in the expanded info)
+            const compactHtml = `
+                <div class="card-compact">
+                    <div class="compact-header">
+                        <div class="church-name">${esc(church.name)}</div>
+                        <div class="compact-right">
+                            ${distChip}${unverifiedChip}<span class="rating-emoji">${EMOJI[normalizeRating(church.overall_rating)] || '⬜'}</span>
+                            <span class="card-chevron">▼</span>
+                        </div>
+                    </div>
+                    <div class="compact-meta">
+                        <div class="compact-meta-row"><span class="meta-icon"><img src="assets/icons/shield-church-48.png" alt="" width="16" height="16" style="vertical-align:middle;"></span><span>${esc(church.denomination) || 'Independent'}${foundedPart}</span></div>
+                        <div class="compact-meta-row"><span class="meta-icon">👤</span><span>${pastorDisplay}</span></div>
+                        <div class="compact-meta-row"><span class="meta-icon"><img src="assets/icons/shield-map-48.png" alt="" width="16" height="16" style="vertical-align:middle;"></span><span>${esc(address)}</span></div>
+                    </div>
                 </div>`;
 
-            card.innerHTML = `<div class="rating-stripe ${normalizeRating(church.overall_rating)}"></div>${compactHtml}${expandedHtml}`;
+            // Expanded view: full detail when its shard is already cached (pagination
+            // re-renders, neighboring cards), else the loading skeleton — toggleCard's
+            // fillCardDetail swaps the real thing in on first expand.
+            const cached = shardCache.get(shardKeyOf(church.id));
+            const det = cached ? (cached[church.id] || {}) : null;
+            card._church = church;
+            if (det !== null) card._detailDone = true;
+
+            card.innerHTML = `<div class="rating-stripe ${normalizeRating(church.overall_rating)}"></div>${compactHtml}<div class="card-expanded">${buildExpandedHtml(church, det)}</div>`;
             return card;
         }
 
@@ -1584,7 +1651,8 @@
             region: church.region || '',
             ll: church.ll || null,       // [lat,lng] for the radius lookup (85% coverage)
             vf: church.vf ? 1 : 0,       // verifiable web presence (demote-and-rescue rule)
-            search: (church.name + ' ' + (church.pastor || '') + ' ' + (Array.isArray(church.pastors) ? church.pastors.map(p => (p && p.name) || '').join(' ') : '') + ' ' + (church.denomination || '') + ' ' + (church.address || '') + ' ' + (church.type || '')).toLowerCase(),
+            // slim index carries pastors as plain name strings; tolerate {name} objects too
+            search: (church.name + ' ' + (church.pastor || '') + ' ' + (Array.isArray(church.pastors) ? church.pastors.map(p => typeof p === 'string' ? p : (p && p.name) || '').join(' ') : '') + ' ' + (church.denomination || '') + ' ' + (church.address || '') + ' ' + (church.type || '')).toLowerCase(),
         }));
 
         // Pagination controls
@@ -1657,7 +1725,7 @@
     }
 
     loadChurches().catch(err => {
-        console.error('Failed to load churches.json:', err);
+        console.error('Failed to load churches-index-slim.json:', err);
         document.getElementById('church-grid').innerHTML = '<p style="color:var(--red);text-align:center;padding:40px;">Failed to load church data.</p>';
     });
     </script>
@@ -1676,8 +1744,8 @@
 </footer>
 <script>
     // Live-update church count + last-updated date — reuses loadChurches' fetch of the
-    // slim index instead of downloading the 21 MB file a second time.
-    (window._indexPromise || fetch('data/churches-index.json').then(r => r.json())).then(d => {
+    // slim index instead of downloading it a second time.
+    (window._indexPromise || fetch('data/churches-index-slim.json').then(r => r.json())).then(d => {
         var n = (d.total_churches || (d.churches || d).length || 0).toLocaleString();
         document.querySelectorAll('[data-church-count]').forEach(el => el.textContent = n);
         if (d.directory_updated) document.querySelectorAll('[data-directory-updated]').forEach(el => el.textContent = d.directory_updated);
