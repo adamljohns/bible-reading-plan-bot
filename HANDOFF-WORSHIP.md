@@ -157,3 +157,49 @@ the body with a real chart and drop `lyricsOnly`.
 **Still available as future song sources:** ~31 more slide decks loosely match an
 existing chart (skipped as probable dupes — worth a manual pass); the 16 `.doc`
 songbooks; deepening chord charts on the 40 lyrics-only standards.
+
+---
+
+## Genre audit + PD hymn/songbook expansion (2026-07-17, branch `worship-audit-1777`)
+
+Adam: "make sure the directory doesn't list non-worship songs; add ~200 to reach ~1700."
+Worked in an isolated worktree off `main` (fleet was actively committing).
+
+**Baseline reality:** the directory was **1,169** (a 2026-07-11 session had already scrubbed
+305 tab-archive/secular songs — but only from the JSON; the generator would have
+**resurrected them on any re-ingest**. Fixed: `PURGED` now also reads
+`data/worship-removed-2026-07-04.json` + `docs/data/worship-purged.json`, so all
+removals are durable.)
+
+**Genre audit (multi-agent, 38 batches, web-verified vs Hymnary/CCLI/etc.):**
+classified 878 songs → 519 worship, 344 Christian-but-not-worship (DC Talk, Audio
+Adrenaline, Caedmon's Call, Petra, Margaret Becker…), 3 secular, 11 unknown.
+- **3 secular hard-removed** (Deck the Halls, The Lemonheads' "Into Your Arms",
+  Tommy Sands' "There Were Roses") → `docs/data/worship-purged.json`.
+- **344 Christian-non-worship HIDDEN** (not deleted) via `docs/data/worship-nonworship.json`;
+  `isOtherSong()` now honors it, so the default "Worship only" filter keeps them out
+  of the worship view while they stay in the DB + searchable. Honors Adam's earlier
+  "keep Christian music" + this task's "worship directory = worship songs." Reversible.
+- 1 batch (~24 songs) errored on a 500; those stay visible (unaudited) — a re-run TODO.
+
+**Additions (+350):**
+- **102 songbook songs** with real chord charts, parsed from Adam's own `.doc` worship
+  books (Above All, Days of Elijah, Better Is One Day, Heart of Worship, It Is Well…).
+  Parser: `scripts/build-worship-extras.js`? no — songbook parse is ad hoc; charts in
+  `docs/data/worship-extra-songs.json`.
+- **248 public-domain hymns** (lyrics-only, key + author + "Public domain · year ·
+  author" credit), web-sourced from Hymnary.org across 22 themed categories via a
+  second multi-agent fan-out. 7 category-agents were blocked by the doctrinal content
+  filter (cross/blood themes) — a re-run with the chunking workaround would add more.
+- All additions live in `docs/data/worship-extra-songs.json`, merged at ingest.
+
+**Result: 1,516 songs in the DB · 347 hidden as non-worship · 1,169 genuine worship
+songs visible by default** (up from a muddied 1,146 where ~324 weren't worship).
+
+**Not yet at 1,777:** need ~+260 more visible worship. Path: re-run the 7 filter-blocked
+hymn categories (chunked), the 11 "unknown" + 24 errored-batch songs need a verdict, and
+the ~485-hymn ceiling of the Open Hymnal corpus is untapped.
+
+**NOT merged to main** (the live site) — this is a large change that hides 344 songs and
+reverses June's keep-everything default, so it's on branch `worship-audit-1777` for
+Adam's review. To go live: merge the branch to main.
