@@ -33,16 +33,32 @@ R2_PREFIX = "bible"
 R2_BASE = "https://audio.usmcmin.org"
 LABEL = "AI narration (MBT)"
 
-# Per-book voice config. engine 'kokoro' books are rendered here; 'piper' books
-# (Esther) are only listed in the manifest — their MP3s already live on R2.
-# 'overrides' maps a chapter number to a different voice (Proverbs 31).
-BOOK_CFG = {
-    "8":  {"name": "Ruth",     "engine": "kokoro", "voice": "bf_emma",    "lang": "b"},
-    "17": {"name": "Esther",   "engine": "piper",  "voice": "en_GB-jenny_dioco-medium"},
-    "20": {"name": "Proverbs", "engine": "kokoro", "voice": "am_michael", "lang": "a",
-           "overrides": {"31": {"voice": "af_heart", "lang": "a"}}},
-    "57": {"name": "Philemon", "engine": "kokoro", "voice": "bm_daniel",  "lang": "b"},
-}
+# Per-book voice config now lives in the SHARED map data/book-voices.json — the
+# same casting the daily-reading watch audio uses for Scripture passages. Books
+# whose entry carries a "bte" engine override (Esther -> frozen Piper jenny) are
+# only listed in the manifest here, never re-rendered. 'overrides' maps a chapter
+# number to a different voice (Proverbs 31).
+def _load_book_cfg():
+    vm = json.load(open(os.path.join(ROOT, "data", "book-voices.json")))
+    cfg = {}
+    for b in vm["books"]:
+        bid = str(b["id"])
+        bte = b.get("bte") or {}
+        cfg[bid] = {
+            "name": b["name"],
+            "engine": bte.get("engine", "kokoro"),
+            "voice": bte.get("voice", b["voice"]) if bte else b["voice"],
+            "lang": b.get("lang", "a"),
+            "overrides": b.get("overrides") or {},
+        }
+    return cfg
+
+BOOK_CFG = _load_book_cfg()
+
+# Books whose BTE audio is PUBLISHED. The shared map casts all 66, but only these
+# render/advertise here — Psalms (19) stays held until its MBT text is complete
+# (only 4/150 chapters authored; advertising maxCh=56 off 4 files would be wrong).
+BTE_BOOKS = {"8", "17", "20", "57"}
 
 # Friendly per-book voice descriptor for the manifest (metadata; reader shows LABEL).
 def voice_desc(b):
@@ -62,7 +78,7 @@ def index_source():
     idx = {}
     for key, text in data.items():
         b, c, v = key.split("_")
-        if b not in BOOK_CFG:
+        if b not in BTE_BOOKS:
             continue
         idx.setdefault(b, {}).setdefault(c, []).append((int(v), text))
     for b in idx:
