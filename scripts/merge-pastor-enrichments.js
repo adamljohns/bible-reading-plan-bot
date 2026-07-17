@@ -124,14 +124,26 @@ for (const c of d.churches) {
   const e = enrichments.get(c.id);
   if (!e) continue;
 
+  // A social-batch member was ATTEMPTED regardless of how the fetch went — stamp it
+  // FIRST. (2026-07-17: this stamp used to sit below the website-status `continue`,
+  // so dead-site churches at the alphabetical head of the social pool were never
+  // stamped, got re-selected every round, and 48 of 52 overnight rounds re-fetched
+  // the same 50 dead sites while stacking duplicate timeout notes.)
+  if (SOCIAL_MODE) c._social_attempted = TODAY;
+
   // Track website status — broken websites are NOT a doctrinal red flag
   // (small churches often use Facebook or other social instead of a website).
   // Note the issue + keep needs_review for follow-up social-channel research,
   // but DO NOT downgrade the overall rating.
   if (e.website_status && /404|timeout|ssl_error|redirect_loop|not_a_church/.test(e.website_status)) {
     brokenSites++;
-    const noteAppend = `[${TODAY}] Phase 6f live-fetch verdict: ${e.website_status}. Site may be defunct or church may use Facebook/social instead of website. NOT a doctrinal flag — research social channel before publishing.`;
-    c.enrichment_notes = c.enrichment_notes ? c.enrichment_notes + '\n' + noteAppend : noteAppend;
+    // One note per distinct verdict — a dead site stays dead; re-observations
+    // must not stack duplicate lines (one church collected 8 identical notes).
+    const verdictLine = `Phase 6f live-fetch verdict: ${e.website_status}.`;
+    if (!String(c.enrichment_notes || '').includes(verdictLine)) {
+      const noteAppend = `[${TODAY}] ${verdictLine} Site may be defunct or church may use Facebook/social instead of website. NOT a doctrinal flag — research social channel before publishing.`;
+      c.enrichment_notes = c.enrichment_notes ? c.enrichment_notes + '\n' + noteAppend : noteAppend;
+    }
     c.needs_review = true;
     continue;
   }
@@ -140,12 +152,9 @@ for (const c of d.churches) {
   // a church can have a real FB/YouTube/IG even when no pastor name is parseable).
   const nSocial = applySocials(c, e);
   socialsApplied += nSocial;
-  if (SOCIAL_MODE) {
-    c._social_attempted = TODAY;
-    if (nSocial) {
-      const sNote = `[${TODAY}] Social-fill: added ${nSocial} verified social link(s) from ${c.website || 'church website'}.`;
-      c.enrichment_notes = c.enrichment_notes ? c.enrichment_notes + '\n' + sNote : sNote;
-    }
+  if (SOCIAL_MODE && nSocial) {
+    const sNote = `[${TODAY}] Social-fill: added ${nSocial} verified social link(s) from ${c.website || 'church website'}.`;
+    c.enrichment_notes = c.enrichment_notes ? c.enrichment_notes + '\n' + sNote : sNote;
   }
 
   if (e.pastor_name && typeof e.pastor_name === 'string' && e.pastor_name.trim()) {
