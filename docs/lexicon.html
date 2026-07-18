@@ -122,6 +122,112 @@
         body.light-mode .lex-nav-wrap { background: rgba(250,248,245,0.97); }
         body.light-mode .alpha-btn { background: #f5f3ef; border-color: #d4d0c8; }
         body.light-mode footer { border-top-color: #d4d0c8; }
+    
+        /* ── Valhalla UX: how-to strip + mobile hamburger nav ── */
+        .how-strip {
+            background: var(--bg-card, #111);
+            border: 1px solid var(--border, #333);
+            border-radius: 12px;
+            padding: 18px 20px;
+            margin: 8px auto 28px;
+            max-width: 720px;
+            text-align: left;
+        }
+        .how-strip h2 {
+            color: var(--gold, #D4AF37);
+            font-size: 1.05rem;
+            margin: 0 0 10px;
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+        }
+        .how-strip ol {
+            margin: 0 0 0 1.15rem;
+            padding: 0;
+            color: var(--gray, #888);
+            font-size: 0.9rem;
+            line-height: 1.65;
+        }
+        .how-strip li { margin-bottom: 6px; }
+        .how-strip li strong { color: var(--white, #e8e8e8); }
+        .how-strip .how-more {
+            margin-top: 12px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .how-strip .how-more a {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 12px;
+            border-radius: 16px;
+            border: 1px solid var(--border, #333);
+            color: var(--gray, #888);
+            text-decoration: none;
+            font-size: 0.8rem;
+            background: transparent;
+            transition: border-color 0.2s, color 0.2s;
+        }
+        .how-strip .how-more a:hover { color: var(--gold, #D4AF37); border-color: var(--gold, #D4AF37); }
+        body.light-mode .how-strip { background: #fff !important; border-color: #d4d0c8 !important; }
+        body.light-mode .how-strip li strong { color: #1a1a1a !important; }
+        body.light-mode .hamburger { border-color: #d4d0c8; }
+
+        .nav-brand { display: none; }
+        .hamburger {
+            display: none;
+            background: none;
+            border: 1px solid var(--border, #333);
+            color: var(--gold, #D4AF37);
+            font-size: 1.25rem;
+            cursor: pointer;
+            padding: 6px 12px;
+            border-radius: 8px;
+            line-height: 1;
+            font-family: inherit;
+        }
+        nav > .nav-links { display: contents; }
+        @media (max-width: 720px) {
+            nav {
+                flex-wrap: wrap !important;
+                justify-content: space-between !important;
+                align-items: center !important;
+                gap: 8px !important;
+            }
+            nav > .nav-brand {
+                display: inline-flex !important;
+                align-items: center;
+                gap: 6px;
+                color: var(--gold, #D4AF37) !important;
+                font-weight: 600;
+                font-size: 0.9rem;
+                border: none !important;
+                padding: 5px 4px !important;
+                order: 0;
+            }
+            nav > .hamburger { display: block; order: 2; }
+            nav > .bte-theme-toggle,
+            nav > .nav-theme-toggle { order: 2; margin: 0 0 0 auto !important; }
+            nav > .font-controls,
+            nav > .lang-dd { order: 2; }
+            nav > .nav-links {
+                display: none;
+                flex-basis: 100%;
+                flex-direction: column;
+                width: 100%;
+                gap: 4px;
+                padding-top: 8px;
+                order: 10;
+            }
+            nav > .nav-links.open { display: flex; }
+            nav > .nav-links a {
+                text-align: center;
+                padding: 10px 12px !important;
+                border: 1px solid var(--border, #333) !important;
+                border-radius: 8px !important;
+            }
+        }
+
     </style>
     <!-- Open Graph / Twitter (backfilled) -->
     <meta property="og:url" content="https://usmcmin.org/lexicon.html">
@@ -134,7 +240,10 @@
 </head>
 <body>
         <nav>
-        <a href="index.html"><img src="assets/icons/shield-home-48.png" class="site-icon" alt="" width="16" height="16"> Home</a>
+        <a href="index.html" class="nav-brand"><img src="assets/icons/shield-home-48.png" class="site-icon" alt="" width="16" height="16"> Home</a>
+        <button type="button" class="hamburger" onclick="var n=this.parentElement.querySelector('.nav-links');n.classList.toggle('open');this.setAttribute('aria-expanded',n.classList.contains('open')?'true':'false');" aria-label="Open menu" aria-expanded="false">☰</button>
+        <div class="nav-links">
+<a href="index.html"><img src="assets/icons/shield-home-48.png" class="site-icon" alt="" width="16" height="16"> Home</a>
         <a href="watchman.html"><img src="assets/icons/shield-bible.png" class="site-icon" alt="" width="16" height="16"> Watchman</a>
         <a href="bible.html"><img src="assets/icons/shield-bible-cross-48.png" class="site-icon" alt="" width="16" height="16"> BTE</a>
         <a href="lexicon.html" class="active"><img src="assets/icons/shield-alpha-omega-48.png" class="site-icon" alt="" width="16" height="16"> Lexicon</a>
@@ -143,19 +252,19 @@
         <a href="worship.html"><img src="assets/icons/shield-quill-note-48.png" class="site-icon" alt="" width="16" height="16"> Worship</a>
         <a href="blog.html"><img src="assets/icons/shield-scroll-quill-48.png" class="site-icon" alt="" width="16" height="16"> Blog</a>
         <a href="connect.html"><img src="assets/icons/shield-handshake.png" class="site-icon" alt="" width="16" height="16"> Connect</a>
+        </div>
     <div class="bte-theme-toggle nav-theme-toggle" onclick="bteToggleTheme()" title="Toggle dark/light mode">
             <span class="toggle-icon moon-icon">🌙</span>
             <div class="toggle-track"><div class="toggle-knob"></div></div>
             <span class="toggle-icon sun-icon">☀️</span>
         </div></nav>
-    <div style="text-align:center; margin-top:8px; margin-bottom:4px;">
-        
+    <div style="text-align:center; margin-top:8px; margin-bottom:4px;"></div>
 
     <div class="container">
         <div class="hero">
             <img src="assets/icons/shield-alpha-omega-hires.png" alt="Lexicon" width="96" height="96" style="display:block; margin:0 auto 16px; ">
             <h1>Greek &amp; Hebrew Lexicon</h1>
-            <p>Go deeper into God's Word. Explore the original Hebrew and Greek words of Scripture — their meanings, their theological significance, and how they shape our understanding of the Bible.</p>
+            <p>Word studies that serve the text — not trivia. Search Strong's numbers, transliterations, or English glosses; open a study for usage, theology, and links back into the Bible Engine.</p>
 
             <!-- Stats -->
             <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:15px;margin-top:25px;">
@@ -171,6 +280,23 @@
                     <div id="lexStatGreek" style="font-family:'Playfair Display',serif;font-size:1.8rem;color:var(--gold);font-weight:700;">—</div>
                     <div style="font-size:0.75rem;color:var(--gray);text-transform:uppercase;letter-spacing:1px;margin-top:4px;">Greek (NT)</div>
                 </div>
+            </div>
+        </div>
+
+
+        <div class="how-strip">
+            <h2>How to study a word</h2>
+            <ol>
+                <li><strong>Search first.</strong> Type a Strong's number (e.g. G26), a root, or a meaning.</li>
+                <li><strong>Or browse.</strong> Tap Hebrew (OT) or Greek (NT), then filter by letter when you need the alphabet.</li>
+                <li><strong>Open the study.</strong> Read definition, key uses, and theological weight — then jump to passages in BTE.</li>
+                <li><strong>Pair tools.</strong> Cross-Refs show thematic chains; the Dictionary covers whole-Bible concepts.</li>
+            </ol>
+            <div class="how-more">
+                <a href="bible.html"><img src="assets/icons/shield-bible-cross-48.png" alt="" width="14" height="14"> Bible Engine</a>
+                <a href="cross-references.html"><img src="assets/icons/shield-infinity-rope-48.png" alt="" width="14" height="14"> Cross-Refs</a>
+                <a href="dictionary/index.html"><img src="assets/icons/shield-book-greek-48.png" alt="" width="14" height="14"> Dictionary</a>
+                <a href="watchman.html"><img src="assets/icons/shield-bible.png" alt="" width="14" height="14"> Watchman</a>
             </div>
         </div>
 
@@ -6915,11 +7041,13 @@ function filterWords() {
     <p><a href="index.html" style="color:var(--gray,#888);text-decoration:none;"><img src="assets/icons/shield-home-48.png" style="vertical-align:middle;opacity:0.8;" alt="" width="16" height="16"> Home</a> &middot;
         <a href="churches.html" style="color:var(--gray,#888);text-decoration:none;"><img src="assets/icons/shield-church-48.png" style="vertical-align:middle;opacity:0.8;" alt="" width="16" height="16"> Churches</a> &middot;
         <a href="blog.html" style="color:var(--gray,#888);text-decoration:none;"><img src="assets/icons/shield-scroll-quill-48.png" style="vertical-align:middle;opacity:0.8;" alt="" width="16" height="16"> Blog</a> &middot;
-        <a href="connect.html" style="color:var(--gray,#888);text-decoration:none;"><img src="assets/icons/shield-handshake.png" style="vertical-align:middle;opacity:0.8;" alt="" width="16" height="16"> Connect</a> &middot;
+        <a href="connect.html" style="color:var(--gray,#888);text-decoration:none;"><img src="assets/icons/shield-handshake.png" style="vertical-align:middle;opacity:0.8;" alt="" width="16" height="16"> Connect</a>  &middot;
+        <a href="assessments.html" style="color:var(--gray,#888);text-decoration:none;"><img src="assets/icons/shield-checklist-48.png" style="vertical-align:middle;opacity:0.8;" alt="" width="16" height="16"> Assessments</a> &middot;
         <a href="sitemap.html" style="color:var(--gray,#888);text-decoration:none;"><img src="assets/icons/shield-map-48.png" style="vertical-align:middle;opacity:0.8;" alt="" width="16" height="16"> Site Map</a></p>
     <p style="margin-top:10px;"><a href="https://www.instagram.com/alj4000bc31oct1517sep78" style="color:var(--gray,#888);text-decoration:none;opacity:0.6;" target="_blank">IG</a> &middot; <a href="https://www.linkedin.com/in/uniting-serving-mentoring-and-counseling-ministries-est2022" style="color:var(--gray,#888);text-decoration:none;opacity:0.6;" target="_blank">LinkedIn</a> &middot; <a href="https://www.youtube.com/@USMC_Ministries" style="color:var(--gray,#888);text-decoration:none;opacity:0.6;" target="_blank">YouTube</a> &middot; <a href="https://x.com/Just_A_Man67" style="color:var(--gray,#888);text-decoration:none;opacity:0.6;" target="_blank">X</a></p>
     <p style="margin-top:8px;font-size:0.78rem;color:#555;">&ldquo;Iron sharpens iron.&rdquo; &mdash; <a href="bible.html?ref=Proverbs+27:17" style="color:var(--gold,#D4AF37);text-decoration:underline;">Proverbs 27:17</a> &middot; Built for the brotherhood.</p>
 </footer>
 <script>if("serviceWorker" in navigator){navigator.serviceWorker.register("/sw.js")}</script>
+<script src="/assets/js/print-kit.js" defer></script>
 </body>
 </html>
