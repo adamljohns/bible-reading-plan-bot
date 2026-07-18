@@ -29,9 +29,16 @@ READINGS_JSON = os.path.join(ROOT, "docs", "assets", "readings")
 VOICE_MAP = os.path.join(ROOT, "data", "book-voices.json")
 OUT = os.path.join(ROOT, "docs", "assets", "audio", "readings")
 MODEL_ID = os.environ.get("KOKORO_MODEL", "mlx-community/Kokoro-82M-bf16")
-NARRATOR = os.environ.get("WATCH_VOICE", "am_michael")
-NARRATOR_LANG = os.environ.get("WATCH_LANG", "a")
-ALT_SCRIPTURE = ("bm_george", "b")   # used when a book's voice collides with the narrator
+def _map_narrator():
+    try:
+        n = json.load(open(VOICE_MAP)).get("narrator") or {}
+        return n.get("voice", "am_michael")
+    except Exception:
+        return "am_michael"
+
+NARRATOR = os.environ.get("WATCH_VOICE") or _map_narrator()
+NARRATOR_LANG = os.environ.get("WATCH_LANG") or ("b" if NARRATOR.startswith("b") else "a")
+ALT_SCRIPTURE = ("am_michael", "a")  # used when a book's voice collides with the narrator
 SAMPLE_RATE = 24000
 GAP_SECONDS = 0.5
 
@@ -113,16 +120,19 @@ def segment_watch(text, by_name):
 
     entry = book_for_ref(by_name, ref) if ref else None
     pre_t, pas_t, post_t = join(pre), join(passage), join(post)
+    NARR_SEG = (NARRATOR, NARRATOR_LANG, "kokoro", 1.0)
     if not entry or not pas_t:
         whole = join([l for l in lines if not SEPARATOR.match(l)])
-        return [(NARRATOR, NARRATOR_LANG, apply_lexicon(whole))], None
+        return [NARR_SEG + (apply_lexicon(whole),)], None
     sv, sl = entry["voice"], entry.get("lang", "a")
+    se, ssp = entry.get("engine", "kokoro"), float(entry.get("speed") or 1.0)
     if sv == NARRATOR:
         sv, sl = ALT_SCRIPTURE
+        se, ssp = "kokoro", 1.0
     segs = []
-    if pre_t:  segs.append((NARRATOR, NARRATOR_LANG, apply_lexicon(pre_t)))
-    segs.append((sv, sl, apply_lexicon(pas_t)))
-    if post_t: segs.append((NARRATOR, NARRATOR_LANG, apply_lexicon(post_t)))
+    if pre_t:  segs.append(NARR_SEG + (apply_lexicon(pre_t),))
+    segs.append((sv, sl, se, ssp, apply_lexicon(pas_t)))
+    if post_t: segs.append(NARR_SEG + (apply_lexicon(post_t),))
     return segs, (entry["name"], sv)
 
 def render_watch(model, gen_audio, date, key, segs):
@@ -131,12 +141,25 @@ def render_watch(model, gen_audio, date, key, segs):
         subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-f", "lavfi",
                         "-i", f"anullsrc=r={SAMPLE_RATE}:cl=mono", "-t", str(GAP_SECONDS), sil], check=True)
         parts = []
-        for i, (voice, lang, text) in enumerate(segs):
+        for i, (voice, lang, engine, spd, text) in enumerate(segs):
             seg_dir = os.path.join(tmp, f"s{i}"); os.makedirs(seg_dir)
-            gen_audio(text=text, model=model, voice=voice, lang_code=lang,
-                      output_path=seg_dir, file_prefix="p", join_audio=True,
-                      audio_format="wav", verbose=False)
-            wavs = sorted(glob.glob(os.path.join(seg_dir, "*.wav")))
+            if engine == "piper":
+                pw = os.path.join(seg_dir, "p.wav")
+                pmodel = os.path.join(os.path.expanduser("~"), ".piper-voices", f"{voice}.onnx")
+                subprocess.run([os.path.join(os.path.expanduser("~"), ".piper-venv", "bin", "python"),
+                                "-m", "piper", "-m", pmodel, "--length-scale", str(1.0 / (spd or 1.0)),
+                                "--sentence-silence", "0.35", "-f", pw],
+                               input=text.encode(), check=True, capture_output=True)
+                # piper renders 22.05k; resample to the kokoro concat rate
+                rw = os.path.join(seg_dir, "p24.wav")
+                subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", pw,
+                                "-ar", str(SAMPLE_RATE), "-ac", "1", rw], check=True)
+                wavs = [rw]
+            else:
+                gen_audio(text=text, model=model, voice=voice, lang_code=lang,
+                          output_path=seg_dir, file_prefix="p", join_audio=True,
+                          audio_format="wav", verbose=False)
+                wavs = sorted(glob.glob(os.path.join(seg_dir, "*.wav")))
             if not wavs:
                 raise RuntimeError(f"no wav for {date} {key} segment {i} ({voice})")
             if parts: parts.append(sil)
