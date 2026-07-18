@@ -38,24 +38,24 @@ const OUT_DIR = path.join(REPO, 'docs/worship');
 const INDEX_HTML = path.join(REPO, 'docs/worship.html');
 const BUILD_DATE = new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
 
-// Slugs purged from the directory because they are not congregational worship
-// (secular, or Christian music that isn't a worship song). Reversible: the source
-// charts are untouched in the archive; remove a slug from these lists + re-ingest
-// to restore it. Auditable + durable across re-ingest (the archive still holds the
-// charts, so without this a re-ingest would resurrect every removed song).
-//   - 2026-06-21: Jeremy Enigk's secular solo album (hardcoded below).
-//   - 2026-07-04/11: 305-song scrub, list in data/worship-removed-2026-07-04.json.
-//   - ongoing: web-verified non-worship removals in docs/data/worship-purged.json.
+// Slugs purged from the directory because they are genuinely secular (not
+// worship/praise/Christian music). Reversible: the source charts are untouched
+// in the archive; clear a slug here and re-ingest to restore it. Kept here (not
+// deleted blindly) so the exclusion is auditable and survives re-ingest.
+// 2026-06-21: Jeremy Enigk's secular solo album "Return of the Frog Queen".
 const PURGED = new Set([
   'carnival', 'explain', 'lewis-hollow', 'lizard', 'return-of-the-frog-queen',
 ]);
-for (const f of [path.join(REPO, 'data/worship-removed-2026-07-04.json'),
-                 path.join(DATA_DIR, 'worship-purged.json')]) {
+// 2026-07-04 scrub of non-worship tab-archive junk (Alice In Wonderland, etc.).
+// Loaded from the audit JSON so a future --ingest does not resurrect them.
+const REMOVED_AUDIT = path.join(REPO, 'data/worship-removed-2026-07-04.json');
+if (fs.existsSync(REMOVED_AUDIT)) {
   try {
-    const j = JSON.parse(fs.readFileSync(f, 'utf8'));
-    const slugs = Array.isArray(j) ? j : (j.removed_2026_07_04 || j.slugs || []);
-    for (const s of slugs) if (typeof s === 'string') PURGED.add(s);
-  } catch { /* file absent — fine */ }
+    const rem = JSON.parse(fs.readFileSync(REMOVED_AUDIT, 'utf8'));
+    for (const slug of (rem.removed_2026_07_04 || [])) PURGED.add(slug);
+  } catch (e) {
+    console.warn('!! worship-removed audit unreadable: ' + e.message);
+  }
 }
 
 const args = process.argv.slice(2);
@@ -324,23 +324,12 @@ function popularity(s) {
 }
 function isWellKnown(s) { return !!(s.youtube || s.slides); }
 
-// Verified NON-worship list: songs a web genre-audit confirmed are Christian
-// music but not congregational worship (CCM / Christian rock / album cuts). These
-// stay in the DB and are searchable, but the default "Worship only" filter hides
-// them so the worship directory reads as actual worship songs. Reversible: remove
-// a slug from docs/data/worship-nonworship.json to un-hide it.
-const NONWORSHIP = new Set();
-try {
-  for (const s of JSON.parse(fs.readFileSync(path.join(DATA_DIR, 'worship-nonworship.json'), 'utf8')))
-    if (typeof s === 'string') NONWORSHIP.add(s);
-} catch { /* absent — fine */ }
-
-// Flag a chart as NON-worship (hidden by the default "Worship only" filter). Two
-// sources: the verified audit list above, plus a conservative fallback heuristic
-// for un-audited guitar tabs with zero worship vocabulary.
+// Conservatively flag a chart as NON-worship (Adam's archive mixes in a lot of
+// 90s/2000s Christian rock/alt that he tabbed). High precision: only guitar-tab
+// files that aren't well-known, aren't Christmas, have no CCLI, and whose lyrics
+// contain zero worship vocabulary. Everything else stays "worship".
 const WORSHIP_WORDS = /\b(lord|jesus|christ|god|holy|spirit|praise|worship|hallelujah|hosanna|heaven|grace|savior|saviour|king|almighty|lamb|cross|glory|glorious|redeem|redeemer|salvation|blessed|faithful|mercy|merciful|worthy|exalt|adore|messiah|emmanuel|alleluia|amen|hallowed|reign|risen|throne|kingdom|gospel|faith|hope|soul|prayer|pray|bless|angel|noel|born)\b/i;
 function isOtherSong(s) {
-  if (NONWORSHIP.has(s.slug)) return true;            // web-verified non-worship
   if (s.youtube || s.slides || s.ccli || s.christmas) return false;
   if (s.type !== 'tab') return false;
   const L = extractLyrics(s.body);
@@ -683,7 +672,7 @@ function songPage(song, siblings) {
   const art = resolveArtist(song);
   if (art) subBits.push(escapeHtml(art));
   subBits.push(tagLabel);
-  if (lyricsOnly) subBits.push(song.slides ? 'Lyrics &amp; slides' : (song.publicDomain ? 'Public-domain hymn' : 'Lyrics'));
+  if (lyricsOnly) subBits.push('Lyrics &amp; slides');
   const yt = youtubeId(song.youtube);
   const media = yt
     ? `\n        <div class="media"><iframe src="https://www.youtube-nocookie.com/embed/${yt}" title="${escapeHtml(song.title)} — video" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`
@@ -949,13 +938,10 @@ const INDEX_CSS = `
         .no-results { text-align:center; color:var(--gray); padding:40px 20px; display:none; }`;
 
 function indexPage(songs, slidesCount) {
-  // Hero counts reflect the WORSHIP directory (the default view) — songs the
-  // audit marked non-worship are excluded here, though still searchable.
-  const shown = songs.filter(s => !isOtherSong(s));
-  const total = shown.length;
-  const praise = shown.filter(s => s.type === 'praise' && !s.christmas).length;
-  const tabs = shown.filter(s => s.type === 'tab').length;
-  const xmas = shown.filter(s => s.christmas).length;
+  const total = songs.length;
+  const praise = songs.filter(s => s.type === 'praise' && !s.christmas).length;
+  const tabs = songs.filter(s => s.type === 'tab').length;
+  const xmas = songs.filter(s => s.christmas).length;
   // Lightweight client index:
   // [slug, title, type(p/t), christmas(0/1), letter, key, artist, score, wellKnown(0/1), isOther(0/1), themes[]]
   const idx = songs.map(s => [s.slug, s.title, s.type === 'tab' ? 't' : 'p', s.christmas ? 1 : 0,
