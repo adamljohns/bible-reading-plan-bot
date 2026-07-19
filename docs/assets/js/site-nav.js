@@ -30,6 +30,7 @@
   function update() {
     var y = window.scrollY || window.pageYOffset || 0;
     if (!mobile()) { nav.classList.remove('nav-hidden'); lastY = y; ticking = false; return; }
+    if (y <= THRESHOLD) { nav.classList.remove('nav-hidden'); lastY = y; ticking = false; return; }
     if (y > lastY && y > THRESHOLD) { nav.classList.add('nav-hidden'); }
     else if (y < lastY) { nav.classList.remove('nav-hidden'); }
     lastY = y <= 0 ? 0 : y; ticking = false;
