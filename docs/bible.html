@@ -1196,12 +1196,13 @@
             return 'bible.html?ref=' + encodeURIComponent(display);
         }
 
-        // BTE v5.0: Get cross-references for a verse, with mode-based limit
+        // BTE v5.0 / PJG-0007: verse mode shows full curated list (no hard 12-cap).
+        // Range/chapter stay tight so chapter chrome does not drown the text.
         function getCrossRefs(bookId, chapter, verse, mode) {
             const key = bookId + '_' + chapter + '_' + verse;
             const refs = crossRefData[key];
             if (!refs || !refs.length) return [];
-            if (mode === 'verse') return refs.slice(0, 12);
+            if (mode === 'verse') return refs.slice(); // full list — Adam needs Mark/John water-walking parallels visible
             if (mode === 'range') return refs.slice(0, 2);
             // BTE v5.0: Chapter mode now returns up to 2 refs (shown as inline indicators)
             return refs.slice(0, 2);
