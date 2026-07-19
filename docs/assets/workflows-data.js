@@ -122,7 +122,7 @@ const WORKFLOWS_DEFAULT = [
         title: 'Counseling Service Launch',
         category: 'Ministry',
         icon: '🤝',
-        status: 'active',
+        status: 'waiting',
         currentStep: 4,
         steps: [
             { name: 'Intake Form Ready',       desc: 'Build and publish counseling intake form.' },
@@ -184,7 +184,7 @@ const WORKFLOWS_DEFAULT = [
         category: 'Ministry',
         icon: '<img src="assets/icons/shield-chain-sword-48.png" alt="" width="16" height="16" style="vertical-align:middle;margin-right:3px;">',
         status: 'active',
-        currentStep: 0,
+        currentStep: 2,
         steps: [
             { name: 'PWA Deployed',              desc: 'Progressive Web App live and accessible. (DONE ✅)' },
             { name: '4 Seasons Content',          desc: 'Build out all 4 seasons of content.' },
@@ -242,7 +242,7 @@ const WORKFLOWS_DEFAULT = [
         category: 'Ministry',
         icon: '💍',
         status: 'active',
-        currentStep: 0,
+        currentStep: 1,
         steps: [
             { name: 'Design',          desc: 'Design the wedding officiant page layout and copy.' },
             { name: 'Build page',      desc: 'Build the page on usmcmin.org.' },
@@ -321,7 +321,7 @@ const WORKFLOWS_DEFAULT = [
         category: 'Business',
         icon: '🤖',
         status: 'active',
-        currentStep: 2,
+        currentStep: 4,
         steps: [
             { name: 'Automated Guest Messaging', desc: 'Set up cron-driven pre-arrival, welcome, mid-stay, checkout, and review-request messages. (DONE ✅)' },
             { name: 'Daily Digest Cron', desc: 'Automated daily Airbnb digest pulling from calendar + messages. (DONE ✅)' },
@@ -354,14 +354,14 @@ const WORKFLOWS_DEFAULT = [
         category: 'Business',
         icon: '📧',
         status: 'active',
-        currentStep: 3,
+        currentStep: 4,
         steps: [
-            { name: 'v1 built',                 desc: 'Initial Email Autopilot version built.' },
-            { name: 'v2 working',               desc: 'v2 working with improved logic.' },
-            { name: 'v3 smart triage rebuilt',  desc: 'v3 smart triage system rebuilt. (In progress)' },
-            { name: 'Test 1 week',              desc: 'Run v3 in production for 1 full week.' },
-            { name: 'Add iMessage delivery',    desc: 'Integrate iMessage delivery channel.' },
-            { name: 'Production',               desc: 'Full production deployment of Email Autopilot v3.' },
+            { name: 'v1 built',                  desc: 'Original email autopilot built. (DONE ✅)' },
+            { name: 'v2 working',                desc: 'v2 triage operational. (DONE ✅)' },
+            { name: 'v3 smart triage rebuilt',   desc: '8-lane ownership map + IMAP run.py; no dual-claim. (DONE ✅ 2026-07-16)' },
+            { name: 'LIVE new-mail only',        desc: 'Autopilot processes NEW mail only; backlog blitz scripts ready (needs Adam GO). (DONE ✅ LIVE)' },
+            { name: 'Backlog zero + patterns',   desc: 'Optional: GO backlog blitz; expand label patterns without duplication.' },
+            { name: 'Production hardening',      desc: 'Cron reliability, TG alerts, dry-run reports. iMessage optional.' },
         ]
     },
     // ── Personal / Family ──
@@ -492,6 +492,134 @@ const WORKFLOWS_DEFAULT = [
             { name: 'Travel',               desc: 'Travel to Disney and execute the trip.' },
         ]
     },
+    {
+        id: 'openclaw-fleet-hardening',
+        title: 'OpenClaw Fleet Hardening (13 Agents)',
+        category: 'Personal',
+        icon: '⚔️',
+        status: 'active',
+        currentStep: 5,
+        steps: [
+            { name: 'Agent roster + TG/Discord routing', desc: '11 PSAs + Max + Hermes surfaces mapped. (DONE ✅)' },
+            { name: 'Browser profiles headless', desc: 'CDP 18800–18808; headless default; PROFILE_MAP doctrine. (DONE ✅ 2026-07-16)' },
+            { name: 'Airbnb bowandarrow LIVE', desc: 'Sally path re-auth seed; Today · Airbnb; host cron green. (DONE ✅)' },
+            { name: 'Cron reliability sweep', desc: 'Timeouts, sticky errors, delivery tokens fixed. (DONE ✅)' },
+            { name: 'TOOLS/skills upgrade all desks', desc: '1Password CLI doctrine, login hygiene, skill inventory, SOUL/MEMORY burn. (DONE ✅ core; remaining desks in flight)' },
+            { name: 'Fleet mission control live', desc: 'usmcmin.com/fleet/index.html via PR merge (PR #29 pending).' },
+            { name: 'Model routing stable', desc: 'xAI/Grok primary + LM Studio fallbacks; SuperGrok OAuth healthy.' },
+        ]
+    },
+    {
+        id: 'proven-assessment',
+        title: 'PROVEN Assessment (like PURE HEARTS)',
+        category: 'Ministry',
+        icon: '✅',
+        status: 'active',
+        currentStep: 3,
+        steps: [
+            { name: 'Design 6-letter PROVEN rubric', desc: 'Purity/Realness/Obedience/Vision/Endurance/Neighbor love. (DONE ✅)' },
+            { name: 'Build timer + gamification UI', desc: 'Live assessment page with progress, readings, connect CTAs. (DONE ✅)' },
+            { name: 'Ship to usmcmin.org', desc: 'https://usmcmin.org/proven-assessment.html live. (DONE ✅)' },
+            { name: 'Max TG distribution', desc: 'Link sent via Max to Telegram. (DONE ✅)' },
+            { name: 'Wire Assessments hub nav', desc: 'Footer + assessments hub consistency. (MOSTLY DONE)' },
+            { name: 'First cohort feedback loop', desc: 'Collect results, refine scoring, add pastor follow-up path.' },
+        ]
+    },
+    {
+        id: 'resolute-citizen-scorecards',
+        title: 'RESOLUTE Citizen Scorecards',
+        category: 'Ministry',
+        icon: '🗳️',
+        status: 'active',
+        currentStep: 2,
+        steps: [
+            { name: 'v5.0 rubric + roster', desc: 'Local/state categories locked; refine-scorecard skill live. (DONE ✅)' },
+            { name: 'Evidence cell grind', desc: 'Cited TRUE/FALSE cells; hygiene + Valhalla cells shipping. (IN PROGRESS)' },
+            { name: 'FXBG + VA coverage depth', desc: 'City council / county / legislature completeness.' },
+            { name: 'Council recap video pipeline', desc: 'RESOLUTE Local highlight reels + Shorts.' },
+            { name: 'Public publish cadence', desc: 'APPROVE-gated posts; mission control embeds.' },
+        ]
+    },
+    {
+        id: 'carnegie-paper-trading',
+        title: 'Carnegie Paper Trading Lab',
+        category: 'Business',
+        icon: '📈',
+        status: 'active',
+        currentStep: 1,
+        steps: [
+            { name: 'Paper account + desk doctrine', desc: 'Alpaca paper path; Carnegie c5isr profile. (IN PROGRESS)' },
+            { name: 'Week-1 thesis brief', desc: 'Flat $100k baseline + first-week plan written. (DONE ✅ 2026-07-16)' },
+            { name: 'Daily journal + risk rules', desc: 'Position sizing, stop rules, no live capital.' },
+            { name: 'Week-1 execution log', desc: 'Record simulated trades; review with Adam.' },
+            { name: 'Month-1 review', desc: 'Performance vs thesis; decide continue/pause.' },
+        ]
+    },
+    {
+        id: 'context-three-way-sync',
+        title: 'Context Sync (Site · Google Doc · Obsidian)',
+        category: 'Personal',
+        icon: '🔄',
+        status: 'active',
+        currentStep: 2,
+        steps: [
+            { name: 'moop-context.html v5.0+', desc: 'Public context page live with GDoc link. (DONE ✅)' },
+            { name: 'Obsidian dual-vault dump', desc: 'Sprint dumps into both vaults. (DONE ✅ 2026-07-16)' },
+            { name: 'Google Doc parity', desc: 'Keep GDoc aligned (manual/export — not auto-editable from agents).' },
+            { name: 'Agent MEMORY/SOUL mirror', desc: 'Workspace doctrine sync across PSAs.' },
+            { name: 'Quarterly freeze', desc: 'Version-tagged context freeze + changelog.' },
+        ]
+    },
+    {
+        id: 'usmcmin-site-valhalla',
+        title: 'usmcmin.org/.com Content Valhalla',
+        category: 'Ministry',
+        icon: '🏛️',
+        status: 'active',
+        currentStep: 4,
+        steps: [
+            { name: 'Nav/footer consistency', desc: 'Assessments hub, sitemap, footers. (DONE ✅)' },
+            { name: 'Purpose/vision/gospel deep content', desc: 'Pillars expanded; ministry resources. (DONE ✅ 2026-07-16)' },
+            { name: 'PROVEN + assessments clarity', desc: 'Purity/proven pages live. (DONE ✅)' },
+            { name: 'Workflows command center refresh', desc: 'Update workflows-data + SEED_SYNCED; ship. (DONE ✅ 2026-07-16)' },
+            { name: 'com fleet + coaching polish', desc: 'PR #29 merge for mission control.' },
+            { name: 'Church directory toward 7,777', desc: 'Ongoing enrichment autopilots.' },
+        ]
+    },
+    {
+        id: 'onepassword-agent-auth',
+        title: '1Password CLI for Agent Fleet',
+        category: 'Personal',
+        icon: '🔐',
+        status: 'active',
+        currentStep: 3,
+        steps: [
+            { name: 'CLI installed + account linked', desc: 'op on PATH; my.1password.com account. (DONE ✅)' },
+            { name: 'Desktop app CLI integration', desc: 'Developer → Integrate with 1Password CLI. (Adam granted 2026-07-16)' },
+            { name: 'Agent TOOLS doctrine', desc: 'Preferred: Keychain env inject; allowed: op read when signed in; never dump secrets to chat. (IN PROGRESS)' },
+            { name: 'Login hygiene — no garbage items', desc: 'On failed login, fix/update correct item; delete incomplete/dupe drafts agents created.' },
+            { name: 'TCC-safe headless path', desc: 'No silent hourly op from launchd; use gateway-wrapper env for known secrets.' },
+            { name: 'Vault audit pass', desc: 'Purge placeholders, fix stale Airbnb/Gmail/USMC logins.' },
+        ]
+    },
+
+    {
+        id: 'fleet-per-desk-pdf-themes',
+        title: 'Fleet PDF Themes — Per-Desk Palettes',
+        category: 'Personal',
+        icon: '🖨️',
+        status: 'active',
+        currentStep: 2,
+        steps: [
+            { name: 'Reject plain pandoc letters', desc: 'Principal 2026-07-19: staff-brief layout required (banner/meta/cards). (DONE ✅)' },
+            { name: 'Do NOT fleet-paint Carnegie colors', desc: 'Principal voice order: Coach lime/gray; PJ/Chaps USMC black-gold-silver; Mac/Gus Marine; Doc clinical green; Max navy/crimson/teal/sepia; Carnegie keeps C5iSR forest/gold. (DONE ✅ desk-themes.json)' },
+            { name: 'Wire psa-send-pdf + skill', desc: 'md-to-staff-brief injects desk CSS vars; pdf-send-to-principal skill documents rule. (DONE ✅)' },
+            { name: 'Auto-log ships to Mission Control', desc: 'psa-send-pdf appends fleet-accomplishments.json; rebuild usage-progress. (DONE ✅ 2026-07-19)' },
+            { name: 'Obsidian continuous log reflex', desc: 'command-notebook-update after durable wins without Principal nag. (IN PROGRESS)' },
+            { name: 'Hand-HTML multi-section briefs', desc: 'Standing: judged multi-section docs authored as themed HTML, not MD-only.' },
+        ]
+    },
+
 ];
 
 const CATEGORIES = ['All', 'Ministry', 'Business', 'Family', 'Personal'];
