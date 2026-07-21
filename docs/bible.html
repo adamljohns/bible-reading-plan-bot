@@ -9,7 +9,7 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-touch-icon.png">
     <link rel="manifest" href="/manifest.json">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta property="og:title" content="MOOP Bible Translation Engine V7.1.1">
+    <meta property="og:title" content="MOOP Bible Translation Engine V7.1">
     <meta property="og:description" content="12 English translations blended with interlinear Hebrew and Greek roots. Strong's Concordance links. Cross-references. Bookmarks. Word search. Built for deep word study.">
     <meta property="og:image" content="https://usmcmin.org/assets/og/og-bible.png?v=53">
     <meta property="og:image:width" content="1200">
@@ -17,11 +17,11 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://usmcmin.org/bible.html">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="MOOP Bible Translation Engine V7.1.1">
+    <meta name="twitter:title" content="MOOP Bible Translation Engine V7.1">
     <meta name="twitter:description" content="12 English translations blended with interlinear Hebrew and Greek roots. Strong's Concordance links. Cross-references. Bookmarks. Word search. Built for deep word study.">
     <meta name="twitter:image" content="https://usmcmin.org/assets/og/og-bible.png?v=53">
     <meta name="description" content="12 English translations blended with interlinear Hebrew and Greek roots. Strong's Concordance links. Cross-references. Bookmarks. Word search. Built for deep word study.">
-    <title>The MOOP Bible Translation Engine V7.1.1 — U.S.M.C. Ministries</title>
+    <title>The MOOP Bible Translation Engine V7.1 — U.S.M.C. Ministries</title>
     <!-- BTE v6.3 (2026-05-22): readability pass — reading column capped at 760px
          (was 1100px on desktop); softened off-black/off-white palette; clean Reader
          Mode now the default (tools one click away); dictionary underlines calmed. -->
@@ -262,8 +262,9 @@
         .crossref-inline-body.open { display: block; }
         .crossref-inline-body a { color: var(--gold); text-decoration: none; border-bottom: 1px dotted var(--gold); }
         .crossref-inline-body a:hover { color: var(--gold-light); border-bottom-style: solid; }
-        /* BTE v7.1.1: inline cross-ref styles retained for legacy/tools, but chapter
-           pages no longer auto-inject them. Verse pages use the bottom panel. */
+        /* BTE v7.1: cross-references shown by default in verse-by-verse mode, each
+           with a lazy verse-text preview. Still gated to Show Tools + verse view via
+           the body.reader-mode / body.paragraph-mode rules below. */
         .crossref-inline-body.crossref-shown { display: block; }
         .crossref-inline-label {
             font-size: 0.68rem; font-weight: 600; letter-spacing: 0.08em;
@@ -844,20 +845,8 @@
             color: var(--gold); font-family: 'Playfair Display', serif;
             font-size: 0.95rem; margin: 0; flex: 1;
         }
-        /* Brand gold triangle expander — no stock emoji / grey chevron (PJG-0007) */
         .crossref-toggle {
-            display: inline-block;
-            width: 0;
-            height: 0;
-            border-style: solid;
-            border-width: 5px 0 5px 8px;
-            border-color: transparent transparent transparent var(--gold);
-            color: transparent;
-            font-size: 0;
-            line-height: 0;
-            transition: transform 0.3s;
-            transform-origin: 40% 50%;
-            flex-shrink: 0;
+            color: var(--gold); font-size: 0.8rem; transition: transform 0.3s;
         }
         .crossref-toggle.open { transform: rotate(90deg); }
         .crossref-body { padding: 0 16px 14px; display: none; }
@@ -868,20 +857,8 @@
             letter-spacing: 0.3px; margin-bottom: 4px; opacity: 0.8;
         }
         .crossref-item {
-            display: block; padding: 5px 0 5px 18px; font-size: 0.88rem;
+            display: block; padding: 5px 0 5px 14px; font-size: 0.88rem;
             border-left: 2px solid #2a2a2a; margin: 3px 0; transition: border-color 0.2s;
-            position: relative;
-        }
-        .crossref-item::before {
-            content: '';
-            position: absolute;
-            left: 4px;
-            top: 0.85em;
-            width: 0;
-            height: 0;
-            border-style: solid;
-            border-width: 4px 0 4px 6px;
-            border-color: transparent transparent transparent var(--gold);
         }
         .crossref-item:hover { border-left-color: var(--gold); }
         .crossref-item a {
@@ -901,9 +878,115 @@
                Hold a comfortable measure on desktop too. */
             .container { max-width: 760px; }
         }
+    
+        /* ── Valhalla UX: how-to strip + mobile hamburger nav ── */
+        .how-strip {
+            background: var(--bg-card, #111);
+            border: 1px solid var(--border, #333);
+            border-radius: 12px;
+            padding: 18px 20px;
+            margin: 8px auto 28px;
+            max-width: 720px;
+            text-align: left;
+        }
+        .how-strip h2 {
+            color: var(--gold, #D4AF37);
+            font-size: 1.05rem;
+            margin: 0 0 10px;
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+        }
+        .how-strip ol {
+            margin: 0 0 0 1.15rem;
+            padding: 0;
+            color: var(--gray, #888);
+            font-size: 0.9rem;
+            line-height: 1.65;
+        }
+        .how-strip li { margin-bottom: 6px; }
+        .how-strip li strong { color: var(--white, #e8e8e8); }
+        .how-strip .how-more {
+            margin-top: 12px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .how-strip .how-more a {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 12px;
+            border-radius: 16px;
+            border: 1px solid var(--border, #333);
+            color: var(--gray, #888);
+            text-decoration: none;
+            font-size: 0.8rem;
+            background: transparent;
+            transition: border-color 0.2s, color 0.2s;
+        }
+        .how-strip .how-more a:hover { color: var(--gold, #D4AF37); border-color: var(--gold, #D4AF37); }
+        body.light-mode .how-strip { background: #fff !important; border-color: #d4d0c8 !important; }
+        body.light-mode .how-strip li strong { color: #1a1a1a !important; }
+        body.light-mode .hamburger { border-color: #d4d0c8; }
+
+        .nav-brand { display: none; }
+        .hamburger {
+            display: none;
+            background: none;
+            border: 1px solid var(--border, #333);
+            color: var(--gold, #D4AF37);
+            font-size: 1.25rem;
+            cursor: pointer;
+            padding: 6px 12px;
+            border-radius: 8px;
+            line-height: 1;
+            font-family: inherit;
+        }
+        nav > .nav-links { display: contents; }
+        @media (max-width: 720px) {
+            nav {
+                flex-wrap: wrap !important;
+                justify-content: space-between !important;
+                align-items: center !important;
+                gap: 8px !important;
+            }
+            nav > .nav-brand {
+                display: inline-flex !important;
+                align-items: center;
+                gap: 6px;
+                color: var(--gold, #D4AF37) !important;
+                font-weight: 600;
+                font-size: 0.9rem;
+                border: none !important;
+                padding: 5px 4px !important;
+                order: 0;
+            }
+            nav > .hamburger { display: block; order: 2; }
+            nav > .bte-theme-toggle,
+            nav > .nav-theme-toggle { order: 2; margin: 0 0 0 auto !important; }
+            nav > .font-controls,
+            nav > .lang-dd { order: 2; }
+            nav > .nav-links {
+                display: none;
+                flex-basis: 100%;
+                flex-direction: column;
+                width: 100%;
+                gap: 4px;
+                padding-top: 8px;
+                order: 10;
+            }
+            nav > .nav-links.open { display: flex; }
+            nav > .nav-links a {
+                text-align: center;
+                padding: 10px 12px !important;
+                border: 1px solid var(--border, #333) !important;
+                border-radius: 8px !important;
+            }
+        }
+
     </style>
     <!-- Open Graph / Twitter (backfilled) -->
-    <meta name="twitter:title" content="The MOOP Bible Translation Engine V7.1.1">
+    <meta name="twitter:title" content="The MOOP Bible Translation Engine V7.1">
     <meta name="twitter:image" content="https://usmcmin.org/assets/icons/icon-512.png">
     <link rel="stylesheet" href="/assets/css/light-icons.css">
     <link rel="stylesheet" href="/assets/css/print.css" media="print">
@@ -920,7 +1003,10 @@
         <kbd>H</kbd> Go home
     </div>
         <nav>
-        <a href="index.html"><img src="assets/icons/shield-home-48.png" class="site-icon" alt="" width="16" height="16"> Home</a>
+        <a href="index.html" class="nav-brand"><img src="assets/icons/shield-home-48.png" class="site-icon" alt="" width="16" height="16"> Home</a>
+        <button type="button" class="hamburger" onclick="var n=this.parentElement.querySelector('.nav-links');n.classList.toggle('open');this.setAttribute('aria-expanded',n.classList.contains('open')?'true':'false');" aria-label="Open menu" aria-expanded="false">☰</button>
+        <div class="nav-links">
+<a href="index.html"><img src="assets/icons/shield-home-48.png" class="site-icon" alt="" width="16" height="16"> Home</a>
         <a href="watchman.html"><img src="assets/icons/shield-bible.png" class="site-icon" alt="" width="16" height="16"> Watchman</a>
         <a href="bible.html" class="active"><img src="assets/icons/shield-bible-cross-48.png" class="site-icon" alt="" width="16" height="16"> BTE</a>
         <a href="lexicon.html"><img src="assets/icons/shield-alpha-omega-48.png" class="site-icon" alt="" width="16" height="16"> Lexicon</a>
@@ -930,8 +1016,8 @@
         <a href="atlas.html"><img src="assets/icons/shield-map-48.png" class="site-icon" alt="" width="16" height="16"> Atlas</a>
         <a href="blog.html"><img src="assets/icons/shield-scroll-quill-48.png" class="site-icon" alt="" width="16" height="16"> Blog</a>
         <a href="connect.html"><img src="assets/icons/shield-handshake.png" class="site-icon" alt="" width="16" height="16"> Connect</a>
-        
-        <style id="lang-dd-styles">
+        </div>
+<style id="lang-dd-styles">
             .lang-dd{ position:relative; display:inline-block; margin-left:8px; font-family:inherit; }
             .lang-dd-trigger{ display:inline-flex; align-items:center; gap:7px; background:transparent; border:1px solid var(--border,#333); border-radius:8px; color:inherit; font:inherit; font-size:0.8rem; padding:4px 9px 4px 7px; cursor:pointer; line-height:1; transition:border-color .15s, background .15s; }
             .lang-dd-trigger:hover{ border-color:var(--gold,#D4AF37); }
@@ -952,7 +1038,32 @@
             .lang-dd-item.is-selected{ background:rgba(212,175,55,.16); }
             .lang-dd-item.is-selected::after{ content:'✓'; margin-left:auto; color:var(--gold,#D4AF37); font-size:.85em; }
             @media(max-width:600px){ .lang-dd-menu{ left:auto; right:0; } }
-        </style>
+        
+        /* BTE v7.2 / PJG-0008 book introductions */
+        .bte-book-intro { max-width: 720px; margin: 0 auto; padding: 12px 8px 32px; color: var(--text, #e8e4d9); }
+        .bte-intro-kicker { font-size: 0.75rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--gold, #c9a84c); margin-bottom: 6px; }
+        .bte-intro-title { font-family: Georgia, 'Times New Roman', serif; font-size: 1.55rem; line-height: 1.25; margin: 0 0 8px; color: var(--gold, #D4AF37); }
+        .bte-intro-tagline { font-size: 1.02rem; color: var(--gray, #b0a898); margin: 0 0 14px; font-style: italic; }
+        .bte-intro-meta { display: grid; gap: 6px; padding: 10px 12px; border: 1px solid var(--border, #333); border-radius: 8px; background: rgba(0,0,0,0.2); margin-bottom: 14px; font-size: 0.9rem; }
+        .bte-intro-section { margin: 16px 0; }
+        .bte-intro-section h3 { font-size: 0.95rem; color: var(--gold, #c9a84c); margin: 0 0 6px; letter-spacing: 0.03em; }
+        .bte-intro-section p, .bte-intro-section li { line-height: 1.55; font-size: 0.95rem; }
+        .bte-intro-section ul { margin: 0; padding-left: 1.2rem; }
+        .bte-intro-christ { border-left: 3px solid var(--gold, #c9a84c); padding-left: 12px; }
+        .bte-intro-watch { background: rgba(201,168,76,0.08); border-radius: 8px; padding: 10px 12px; }
+        .bte-intro-lean, .bte-intro-debate { font-size: 0.88rem; margin: 8px 0; color: var(--gray, #b0a898); }
+        .bte-intro-cta { margin: 18px 0 10px; }
+        .bte-intro-primary { background: var(--gold, #c9a84c); color: #1a1a1a; border: 0; border-radius: 8px; padding: 10px 18px; font-weight: 700; cursor: pointer; font-size: 0.95rem; }
+        .bte-intro-primary:hover { filter: brightness(1.08); }
+        .bte-ch-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+        .bte-ch-btn { min-width: 2.2rem; padding: 6px 8px; border-radius: 6px; border: 1px solid var(--border, #444); background: rgba(255,255,255,0.04); color: var(--text, #eee); cursor: pointer; }
+        .bte-ch-btn:hover { border-color: var(--gold, #c9a84c); color: var(--gold, #c9a84c); }
+        .bte-key-pass { color: var(--gold, #c9a84c); text-decoration: underline; }
+        .bte-book-intro-link { color: var(--gold, #c9a84c); text-decoration: none; font-size: 0.9rem; }
+        .bte-book-intro-link:hover { text-decoration: underline; }
+        .bte-intro-chrome-top, .bte-intro-chrome-bottom { text-align: center; margin: 8px 0 12px; padding: 6px 0; }
+        .bte-intro-chrome-bottom { margin-top: 14px; border-top: 1px solid var(--border, #333); padding-top: 12px; }
+</style>
         <div id="langDropdown" class="lang-dd">
             <button type="button" id="langTrigger" class="lang-dd-trigger" aria-haspopup="listbox" aria-expanded="false" aria-label="Reading language" title="Reading language">
                 <img class="lang-dd-flag" id="langTriggerIcon" src="assets/icons/shield-lang-en.png" alt="" width="22" height="22">
@@ -965,8 +1076,6 @@
                 <li role="option" aria-selected="false" data-lang="la" class="lang-dd-item"><img class="lang-dd-flag" src="assets/icons/shield-lang-la.png" alt=""><span>Latina · Vulgata</span></li>
                 <li role="option" aria-selected="false" data-lang="de" class="lang-dd-item"><img class="lang-dd-flag" src="assets/icons/shield-lang-de.png" alt=""><span>Deutsch · Luther</span></li>
                 <li role="option" aria-selected="false" data-lang="ja" class="lang-dd-item"><img class="lang-dd-flag" src="assets/icons/shield-lang-ja.png" alt=""><span>日本語 · 文語訳</span></li>
-                <li role="option" aria-selected="false" data-lang="es" class="lang-dd-item"><img class="lang-dd-flag" src="assets/icons/shield-lang-es.png" onerror="this.onerror=null;this.src='assets/icons/shield-bible-cross-96.png'" alt=""><span>Español · Sagradas Escrituras</span></li>
-                <li role="option" aria-selected="false" data-lang="fr" class="lang-dd-item"><img class="lang-dd-flag" src="assets/icons/shield-lang-fr.png" onerror="this.onerror=null;this.src='assets/icons/shield-bible-cross-96.png'" alt=""><span>Français · Darby</span></li>
             </ul>
         </div>
         <div class="font-controls">
@@ -982,15 +1091,31 @@
     <div class="container">
         <div id="home-panel">
             <section class="hero">
-                <img src="assets/images/usmc-emblem-shield-t2026.png" alt="Uniting, Serving, Mentoring &amp; Counseling Ministries" style="width:190px; max-width:62%; height:auto; display:block; margin:0 auto 14px;" onerror="this.style.display='none'">
+                <img src="assets/images/usmc-logo-shield-cross.png" alt="U.S.M.C. Ministries" onerror="this.style.display='none'">
                 <h1>The MOOP Bible Translation Engine</h1>
-                <p class="subtitle">V7.1.1 · 12 Translations · Interlinear Hebrew &amp; Greek · Strong's Concordance · Cross-References · MBT · Whole-Bible Dictionary</p>
+                <p class="subtitle">Look up any passage · Compare 12 translations · Dig into Greek &amp; Hebrew</p>
                 <p class="desc">
-                    Select a testament, book, and chapter to read, or type any Bible reference below.
-                    The engine blends 12 English translations with NKJV as the primary voice, surfaces
-                    meaningful divergences, and provides original-language roots with links to full word studies.
+                    Type a reference (or browse OT/NT below). The engine reads with NKJV as the primary voice,
+                    flags meaningful translation divergences, and opens Strong's roots, dictionary links,
+                    and cross-references without leaving the page.
                 </p>
             </section>
+            <div class="how-strip">
+                <h2>How to use the engine</h2>
+                <ol>
+                    <li><strong>Search or browse.</strong> Enter <em>John 3:16</em> or pick a book from the navigator.</li>
+                    <li><strong>Read the blend.</strong> Primary text first; expand tools for variants, Strong's, and cross-refs.</li>
+                    <li><strong>Go deeper.</strong> Tap Strong's numbers for lexicon studies; follow chains in Cross-Refs.</li>
+                    <li><strong>Stay on plan.</strong> Open today's Watchman watches or the chronological year from the home widgets.</li>
+                </ol>
+                <div class="how-more">
+                    <a href="watchman.html"><img src="assets/icons/shield-bible.png" alt="" width="14" height="14"> Watchman Plan</a>
+                    <a href="chronological.html"><img src="assets/icons/shield-calendar.png" alt="" width="14" height="14"> Chronological 2026</a>
+                    <a href="lexicon.html"><img src="assets/icons/shield-alpha-omega-48.png" alt="" width="14" height="14"> Lexicon</a>
+                    <a href="cross-references.html"><img src="assets/icons/shield-infinity-rope-48.png" alt="" width="14" height="14"> Cross-Refs</a>
+                    <a href="dictionary/index.html"><img src="assets/icons/shield-book-greek-48.png" alt="" width="14" height="14"> Dictionary</a>
+                </div>
+            </div>
             <!-- BTE v6.9: Bible Navigator moved above the search box for a browse-first flow -->
             <div id="bibleNav" style="text-align:center; margin:4px 0 26px;"></div>
         </div>
@@ -1196,13 +1321,12 @@
             return 'bible.html?ref=' + encodeURIComponent(display);
         }
 
-        // BTE v5.0 / PJG-0007: verse mode shows full curated list (no hard 12-cap).
-        // Range/chapter stay tight so chapter chrome does not drown the text.
+        // BTE v5.0: Get cross-references for a verse, with mode-based limit
         function getCrossRefs(bookId, chapter, verse, mode) {
             const key = bookId + '_' + chapter + '_' + verse;
             const refs = crossRefData[key];
             if (!refs || !refs.length) return [];
-            if (mode === 'verse') return refs.slice(); // full list — Adam needs Mark/John water-walking parallels visible
+            if (mode === 'verse') return refs.slice(0, 5);
             if (mode === 'range') return refs.slice(0, 2);
             // BTE v5.0: Chapter mode now returns up to 2 refs (shown as inline indicators)
             return refs.slice(0, 2);
@@ -1223,22 +1347,19 @@
                 refs.forEach(function(refKey) {
                     const display = crossRefKeyToDisplay(refKey);
                     const link = crossRefKeyToLink(refKey);
-                    itemsHtml += '<div class="crossref-item"><a href="' + link + '">' + display + '</a></div>';
+                    itemsHtml += '<div class="crossref-item"><a href="' + link + '">→ ' + display + '</a></div>';
                 });
                 groupsHtml += '<div class="crossref-verse-group">' + verseLabel + itemsHtml + '</div>';
             });
             if (!totalCount) return { html: '', count: 0 };
             const panelId = 'crossref-panel-' + Date.now();
-            // BTE v7.1.1: single-verse pages open the bottom cross-ref panel by default;
-            // multi-verse range stays collapsed so the passage stays primary.
-            var openByDefault = (mode === 'verse');
             const html = '<div class="crossref-section">' +
                 '<div class="crossref-header" onclick="toggleCrossRef(\'' + panelId + '\', this)">' +
                 '<h4><img src="assets/icons/shield-bible.png" class="site-icon" alt="book" width="18" height="18"> Cross-References</h4>' +
                 '<span class="crossref-count">(' + totalCount + ' reference' + (totalCount !== 1 ? 's' : '') + ')</span>' +
-                '<span class="crossref-toggle' + (openByDefault ? ' open' : '') + '" aria-hidden="true"></span>' +
+                '<span class="crossref-toggle" style="color:var(--gold);font-size:0.8rem;">▶</span>' +
                 '</div>' +
-                '<div class="crossref-body' + (openByDefault ? ' open' : '') + '" id="' + panelId + '">' + groupsHtml + '</div>' +
+                '<div class="crossref-body" id="' + panelId + '">' + groupsHtml + '</div>' +
                 '</div>';
             return { html: html, count: totalCount };
         }
@@ -1249,8 +1370,10 @@
             if (el) el.classList.toggle('open');
         }
 
-        // BTE v7.1.1: buildInlineCrossRef kept for optional tools, but chapter render
-        // no longer calls it. Cross-refs live at the bottom of single-verse pages only.
+        // BTE v7.1: Cross-references shown by default in verse-by-verse mode, each row
+        // carrying a lazy preview of the referenced verse (hydrated post-render from the
+        // cached chapter store — no data bloat, no per-verse-page regeneration). Up to
+        // CROSSREF_INLINE_SHOW rows inline; the rest via a "+N more" link to the verse view.
         var CROSSREF_INLINE_SHOW = 4;
         function buildInlineCrossRef(bookId, chapter, verseNum) {
             var all = (typeof crossRefData !== 'undefined' && crossRefData[bookId + '_' + chapter + '_' + verseNum]) || [];
@@ -1260,7 +1383,7 @@
                 var display = crossRefKeyToDisplay(refKey);
                 var link = crossRefKeyToLink(refKey);
                 return '<div class="crossref-row">' +
-                    '<a class="crossref-ref" href="' + link + '">' + display + '</a>' +
+                    '<a class="crossref-ref" href="' + link + '">→ ' + display + '</a>' +
                     '<span class="crossref-preview" data-xref="' + refKey + '"></span>' +
                     '</div>';
             }).join('');
@@ -2263,6 +2386,29 @@
                 }
             }
 
+            // BTE v7.2 (PJG-0008): bare-book only → book intro view (no chapter)
+            // e.g. "Ruth", "1 John", "Revelation", "Ps", "Song of Solomon"
+            const bareBook = input.match(/^(\d?\s?[a-zA-Z][a-zA-Z\s.]*[a-zA-Z])\s*$/i);
+            if (bareBook) {
+                let bName = bareBook[1].trim().toLowerCase().replace(/\./g, '');
+                let bid = BOOKS[bName];
+                if (!bid) {
+                    bid = BOOKS[bName.replace(/\s+/g, ' ')];
+                }
+                if (bid) {
+                    return {
+                        bookId: bid,
+                        chapter: null,
+                        startVerse: null,
+                        endVerse: null,
+                        isOT: bid <= 39,
+                        display: BOOK_NAMES[bid].replace(/\b\w/g, c => c.toUpperCase()),
+                        fullChapter: false,
+                        bookOnly: true
+                    };
+                }
+            }
+
             // Standard format: "Book Chapter:Verse" or "Book Chapter:Start-End"
             const m = input.match(/^(\d?\s?[a-zA-Z\s]+?)\s*(\d+)(?:\s*:\s*(\d+))?(?:\s*-\s*(\d+))?$/i);
             if (!m) return null;
@@ -2441,8 +2587,8 @@
 
         // ===== ML: foreign-language reading mode (public-domain texts in chapters-ml/) =====
         var currentLang = 'en';
-        var LANG_LABELS = { zh:'中文 · 和合本 (Public Domain)', la:'Latina · Vulgata Clementina', de:'Deutsch · Luther 1545', ja:'日本語 · 文語訳 (Meiji/Taisho)', es:'Español · Sagradas Escrituras (1569)', fr:'Français · Darby (Public Domain)' };
-        var LANG_BCP = { zh:'zh-Hans', la:'la', de:'de', ja:'ja', es:'es', fr:'fr' };
+        var LANG_LABELS = { zh:'中文 · 和合本 (Public Domain)', la:'Latina · Vulgata Clementina', de:'Deutsch · Luther 1545', ja:'日本語 · 文語訳 (Meiji/Taisho)' };
+        var LANG_BCP = { zh:'zh-Hans', la:'la', de:'de', ja:'ja' };
 
         function onLangChange(lang) {
             currentLang = lang || 'en';
@@ -2893,6 +3039,89 @@
             lookupVerse();
         }
 
+
+        // BTE v7.2 / PJG-0008 — Book introductions (assets/bible/book-intros/{id}.json)
+        var __bteIntroCache = {};
+        function bteEsc(s) {
+            return String(s == null ? '' : s)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+        function bteIntroLinkHtml(bookId, label) {
+            var name = BOOK_NAMES[bookId] ? BOOK_NAMES[bookId].replace(/\b\w/g, function(c){return c.toUpperCase();}) : 'Book';
+            var lab = label || ('Introduction to ' + name);
+            return '<a class="bte-book-intro-link" href="bible.html?ref=' + encodeURIComponent(name) + '" onclick="event.preventDefault();document.getElementById(\'refInput\').value=\'' + name.replace(/'/g, "\\'") + '\';lookupVerse();return false;">📖 ' + bteEsc(lab) + '</a>';
+        }
+        async function showBookIntro(bookId) {
+            var results = document.getElementById('results');
+            if (!results) return;
+            results.innerHTML = '<div class="loading"><img src="assets/icons/shield-bible.png" class="site-icon" alt="book" width="20" height="20"> Loading book introduction...</div>';
+            var data = __bteIntroCache[bookId];
+            if (!data) {
+                try {
+                    var resp = await fetch('assets/bible/book-intros/' + bookId + '.json?_=' + Date.now());
+                    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+                    data = await resp.json();
+                    __bteIntroCache[bookId] = data;
+                } catch (err) {
+                    var fallbackName = (BOOK_NAMES[bookId] || 'Book').replace(/\b\w/g, function(c){return c.toUpperCase();});
+                    results.innerHTML = '<div class="error">Book introduction unavailable (' + bteEsc(err.message) + '). Try a chapter, e.g. ' + bteEsc(fallbackName) + ' 1.</div>';
+                    return;
+                }
+            }
+            var name = data.name || (BOOK_NAMES[bookId] || '').replace(/\b\w/g, function(c){return c.toUpperCase();});
+            var chCount = data.chapters || ((typeof BIBLE_INDEX !== 'undefined' && BIBLE_INDEX[bookId]) ? BIBLE_INDEX[bookId].length : 0);
+            var grid = '';
+            for (var c = 1; c <= chCount; c++) {
+                grid += '<button type="button" class="bte-ch-btn" onclick="document.getElementById(\'refInput\').value=\'' + name.replace(/'/g,"\\'") + ' ' + c + '\';lookupVerse();">' + c + '</button>';
+            }
+            var outline = (data.outline || []).map(function(o){
+                return '<li><strong>' + bteEsc(o.chs || '') + '</strong> ' + bteEsc(o.title || '') + '</li>';
+            }).join('');
+            var themes = (data.key_themes || []).map(function(t){ return '<li>' + bteEsc(t) + '</li>'; }).join('');
+            var passages = (data.key_passages || []).map(function(p){
+                var full = name + ' ' + p;
+                return '<a class="bte-key-pass" href="bible.html?ref=' + encodeURIComponent(full) + '" onclick="event.preventDefault();document.getElementById(\'refInput\').value=\'' + full.replace(/'/g,"\\'") + '\';lookupVerse();return false;">' + bteEsc(p) + '</a>';
+            }).join(' · ');
+            var author = (data.author && (data.author.traditional || data.author)) || '';
+            if (typeof author === 'object') author = author.traditional || '';
+            var dateDisp = (data.date && (data.date.range_display || data.date.debate)) || '';
+            var lean = (data.date && data.date.usmc_lean) ? ('<div class="bte-intro-lean"><strong>USMC Ministries lean:</strong> ' + bteEsc(data.date.usmc_lean) + '</div>') : '';
+            var debate = (data.date && data.date.debate && data.bookId === 66) ? ('<div class="bte-intro-debate"><strong>Dating note:</strong> ' + bteEsc(data.date.debate) + '</div>') : '';
+            var html = '';
+            html += '<div class="bte-book-intro" data-book-id="' + bookId + '">';
+            html += '<div class="bte-intro-kicker">' + bteEsc(data.testament || '') + ' · ' + bteEsc(data.category || '') + ' · ' + chCount + ' chapters</div>';
+            html += '<h2 class="bte-intro-title">' + bteEsc(data.title || name) + '</h2>';
+            if (data.tagline) html += '<p class="bte-intro-tagline">' + bteEsc(data.tagline) + '</p>';
+            html += '<div class="bte-intro-meta">';
+            if (author) html += '<div><strong>Author:</strong> ' + bteEsc(author) + '</div>';
+            if (dateDisp) html += '<div><strong>Date:</strong> ' + bteEsc(dateDisp) + '</div>';
+            html += '<div><strong>Audience:</strong> ' + bteEsc(data.audience || '') + '</div>';
+            html += '</div>';
+            html += lean + debate;
+            html += '<div class="bte-intro-section"><h3>Purpose</h3><p>' + bteEsc(data.purpose || '') + '</p></div>';
+            if (outline) html += '<div class="bte-intro-section"><h3>Outline</h3><ul>' + outline + '</ul></div>';
+            if (themes) html += '<div class="bte-intro-section"><h3>Key themes</h3><ul>' + themes + '</ul></div>';
+            if (passages) html += '<div class="bte-intro-section"><h3>Key passages</h3><p>' + passages + '</p></div>';
+            html += '<div class="bte-intro-section bte-intro-christ"><h3>Christ in this book</h3><p>' + bteEsc(data.christ || '') + '</p></div>';
+            if (data.spirit) html += '<div class="bte-intro-section"><h3>Spirit / providence</h3><p>' + bteEsc(data.spirit) + '</p></div>';
+            if (data.how_to_read) html += '<div class="bte-intro-section"><h3>How to read</h3><p>' + bteEsc(data.how_to_read) + '</p></div>';
+            if (data.watchman_charge) html += '<div class="bte-intro-section bte-intro-watch"><h3>Watchman charge</h3><p>' + bteEsc(data.watchman_charge) + '</p></div>';
+            html += '<div class="bte-intro-cta">';
+            html += '<button type="button" class="bte-intro-primary" onclick="document.getElementById(\'refInput\').value=\'' + name.replace(/'/g,"\\'") + ' 1\';lookupVerse();">Read Chapter 1</button>';
+            html += '</div>';
+            html += '<div class="bte-intro-section"><h3>Chapters</h3><div class="bte-ch-grid">' + grid + '</div></div>';
+            html += '</div>';
+            results.innerHTML = html;
+            try {
+                history.replaceState(null, '', 'bible.html?ref=' + encodeURIComponent(name));
+            } catch (e) {}
+            var sb = document.getElementById('searchBtn');
+            if (sb) sb.disabled = false;
+        }
+
         function renderTopNav(rangeStr) {
             var nav;
             if (currentViewMode === 'chapter') {
@@ -2927,23 +3156,33 @@
                     '<span id="wordSearchCount" style="color:var(--gray);font-size:0.75rem;"></span>' +
                     '</div>';
             }
+            // BTE v7.2 / PJG-0008: link to book introduction (top of chapter view)
+            if (currentRef && currentRef.bookId && currentViewMode !== 'book') {
+                nav += '<div class="bte-intro-chrome-top">' + bteIntroLinkHtml(currentRef.bookId) + '</div>';
+            }
             return nav;
         }
 
         function renderBottomNav(rangeStr) {
+            var nav;
             if (currentViewMode === 'chapter') {
-                return '<div class="nav-arrows">' +
+                nav = '<div class="nav-arrows">' +
                     '<div class="nav-btn-wrap"><button class="nav-arrow" onclick="navChapter(-1)" title="Previous Chapter">' + LEFT_SVG + '</button><span class="nav-label">Prev Chapter</span></div>' +
                     '<span class="nav-ref">' + rangeStr + '</span>' +
                     '<div class="nav-btn-wrap"><button class="nav-arrow" onclick="navChapter(1)" title="Next Chapter">' + RIGHT_SVG + '</button><span class="nav-label">Next Chapter</span></div>' +
                     '</div>';
             } else {
-                return '<div class="nav-arrows">' +
+                nav = '<div class="nav-arrows">' +
                     '<div class="nav-btn-wrap"><button class="nav-arrow" onclick="nav3Verses(-1)" title="Back 3 Verses">' + LEFT_SVG + '</button><span class="nav-label">Back 3 Verses</span></div>' +
                     '<span class="nav-ref">' + rangeStr + '</span>' +
                     '<div class="nav-btn-wrap"><button class="nav-arrow" onclick="nav3Verses(1)" title="Forward 3 Verses">' + RIGHT_SVG + '</button><span class="nav-label">Fwd 3 Verses</span></div>' +
                     '</div>';
             }
+            // BTE v7.2 / PJG-0008: book intro at bottom of every chapter/passage view
+            if (currentRef && currentRef.bookId && currentViewMode !== 'book') {
+                nav += '<div class="bte-intro-chrome-bottom">' + bteIntroLinkHtml(currentRef.bookId) + '</div>';
+            }
+            return nav;
         }
 
         
@@ -2992,7 +3231,16 @@
             const input = document.getElementById('refInput').value.trim();
             if (!input) return;
             const ref = parseRef(input);
-            if (!ref) { showError('Could not parse that reference. Try "Psalm 23" or "John 3:16".'); return; }
+            if (!ref) { showError('Could not parse that reference. Try "Psalm 23", "John 3:16", or a book name like "Ruth".'); return; }
+
+            // BTE v7.2 / PJG-0008: bare book → intro landing
+            if (ref.bookOnly) {
+                showResults();
+                currentRef = ref;
+                currentViewMode = 'book';
+                showBookIntro(ref.bookId);
+                return;
+            }
 
             showResults();
 
@@ -3352,9 +3600,10 @@
                 // BTE v5.2 Phase 3: Copy verse text button
                 var copyRef = shareRef.replace(/'/g, "\\'");
                 html += ' <span class="copy-btn" onclick="copyVerseText(\'' + copyRef + '\', \'' + verseKey + '\', this)" title="Copy verse text"><img src="assets/icons/shield-about-person-24.png" class="site-icon" alt="copy" width="16" height="16"></span>';
-                // BTE v7.1.1: Chapter pages stay clean — no per-verse cross-refs.
-                // Cross-references render only at the bottom of single-verse / range views
-                // via buildCrossRefPanel(). (v7.1 auto-show under every verse was a regression.)
+                // BTE v5.0: Inline cross-ref indicator in chapter mode
+                if (currentViewMode === 'chapter') {
+                    html += buildInlineCrossRef(ref.bookId, ref.chapter, v.num);
+                }
                 v.amps.forEach(function(a) {
                     html += '<div class="amplification"><span class="amp-label">' + a.label + ':</span> ' + a.text + '</div>';
                 });
@@ -3399,7 +3648,7 @@
                         '(' + s.num + ')' + vr + '</a></span>';
                 });
                 if (hasMore) {
-                    html += '<div style="margin-top:6px;"><span class="strongs-show-more" onclick="(function(el){var extras=document.querySelectorAll(\'.strongs-extra-' + strongsId + '\');extras.forEach(function(e){e.style.display=\'inline\';});el.style.display=\'none\';})(this)" style="cursor:pointer;color:var(--gold);font-size:0.85rem;user-select:none;">Show more ' + testament + ' roots <span class="crossref-toggle" aria-hidden="true" style="display:inline-block;margin:0 4px;vertical-align:middle;"></span> (' + (limitedStrongs.length - wordLimit) + ' more)</span></div>';
+                    html += '<div style="margin-top:6px;"><span class="strongs-show-more" onclick="(function(el){var extras=document.querySelectorAll(\'.strongs-extra-' + strongsId + '\');extras.forEach(function(e){e.style.display=\'inline\';});el.style.display=\'none\';})(this)" style="cursor:pointer;color:var(--gold);font-size:0.85rem;user-select:none;">Show more ' + testament + ' roots <span style="color:var(--gold);font-size:0.8rem;">▶</span> (' + (limitedStrongs.length - wordLimit) + ' more)</span></div>';
                 }
                 html += '</div>';
             }
@@ -3440,7 +3689,7 @@
 
             // BTE v5.0: Cross-reference count in stats footer
             var crossRefStatStr = crossRefResult.count > 0 ? ' · ' + crossRefResult.count + ' cross-reference' + (crossRefResult.count !== 1 ? 's' : '') + ' found' : '';
-            html += '<div class="engine-info">The MOOP Bible Translation Engine V7.1.1 · 12 translations · Interlinear ' +
+            html += '<div class="engine-info">The MOOP Bible Translation Engine V7.1 · 12 translations · Interlinear ' +
                 (ref.isOT ? 'Hebrew' : 'Greek') + ' backbone' + crossRefStatStr + '</div>';
             html += '</div>';
             html += renderBottomNav(rangeStr);
@@ -3457,7 +3706,7 @@
             }
             // BTE v5.6: Dictionary highlighter (John pilot)
             try { enrichDictionaryLinks(ref.bookId); } catch(e){}
-            // BTE v7.1.1: hydrate only if any leftover inline previews exist
+            // BTE v7.1: fill inline cross-ref preview snippets (chapter mode)
             try { hydrateCrossRefPreviews(); } catch(e){}
             updateNavBoundaries();
             document.getElementById('searchBtn').disabled = false;
@@ -3726,7 +3975,7 @@
         });
 
         // Auto-lookup from URL parameters
-        // Supports: ?ref=Psalm+23 | ?refs=John+3:16;1+John+3:1-3 | ?book=49&chapter=6&verse=4 | ?ref=ezek22_30
+        // Supports: ?ref=Psalm+23 | ?ref=Ruth (book intro) | ?intro=ruth | ?book=8 | ?refs=... | ?book=49&chapter=6&verse=4
         (function() {
             const urlParams = new URLSearchParams(window.location.search);
             const refsParam = urlParams.get('refs');   // BTE v5.5: multi-passage
@@ -3745,19 +3994,38 @@
                 // BTE v5.5: ';'-separated passages
                 document.getElementById('refInput').value = decodeURIComponent(refsParam);
                 lookupMulti();
+            } else if (urlParams.get('intro')) {
+                // BTE v7.2 / PJG-0008: ?intro=ruth or ?intro=8
+                const introRaw = decodeURIComponent(urlParams.get('intro')).trim().toLowerCase();
+                let bidIntro = parseInt(introRaw, 10);
+                if (!BOOK_NAMES[bidIntro]) {
+                    bidIntro = BOOKS[introRaw] || BOOKS[introRaw.replace(/-/g, ' ')];
+                }
+                if (bidIntro && BOOK_NAMES[bidIntro]) {
+                    const display = BOOK_NAMES[bidIntro].replace(/\b\w/g,c=>c.toUpperCase());
+                    document.getElementById('refInput').value = display;
+                    lookupMulti();
+                }
             } else if (bookParam) {
-                // BTE v5.2: Handle ?book=49&chapter=6&verse=4 numeric format
+                // BTE v5.2 numeric ?book=49&chapter=6&verse=4
+                // BTE v7.2 bare ?book=8 (no chapter) → book intro
                 const bid = parseInt(bookParam);
+                const hasCh = urlParams.has('chapter');
                 const ch = parseInt(urlParams.get('chapter') || '1');
                 const v = urlParams.get('verse');
                 const bookName = BOOK_NAMES[bid];
                 if (bookName) {
                     const display = bookName.replace(/\b\w/g,c=>c.toUpperCase());
-                    const refStr = v ? (display + ' ' + ch + ':' + v) : (display + ' ' + ch);
+                    let refStr;
+                    if (!hasCh && !v) {
+                        refStr = display; // intro
+                    } else {
+                        refStr = v ? (display + ' ' + ch + ':' + v) : (display + ' ' + ch);
+                    }
                     document.getElementById('refInput').value = refStr;
                     lookupMulti();
                 }
-            } else if (refParam) {
+            } else if (refParam) {            } else if (refParam) {
                 document.getElementById('refInput').value = decodeURIComponent(refParam);
                 lookupMulti();
             }
@@ -4178,8 +4446,12 @@
                        String(_wd.getMonth() + 1).padStart(2, '0') + '-' +
                        String(_wd.getDate()).padStart(2, '0');
             var chronoStyle = 'display:flex;align-items:center;gap:6px;padding:9px 12px;background:rgba(255,255,255,0.02);border:1px solid var(--border,#333);border-radius:6px;color:var(--gray-light,#aaa);text-decoration:none;font-size:0.86rem;';
+            // Prefer authored /readings/<date>.html for 2026 (all 365 exist); fall back to calendar.
+            var todayReadingHref = (_wd.getFullYear() === 2026)
+                ? ('readings/' + dkey + '.html')
+                : 'chronological.html';
             html += '<div class="watchman-chrono" style="margin-top:8px;display:grid;gap:7px;">';
-            html += '<a href="readings/' + dkey + '.html" style="' + chronoStyle + '">' +
+            html += '<a href="' + todayReadingHref + '" style="' + chronoStyle + '">' +
                     '<img src="assets/icons/shield-blog-quill-48.png" class="site-icon" alt="" width="16" height="16" style="vertical-align:middle;"> ' +
                     "Today's Full Reading &amp; Commentary <span style=\"margin-left:auto;color:var(--gold,#D4AF37);\">&rarr;</span></a>";
             html += '<a href="chronological.html" style="' + chronoStyle + '">' +
@@ -4852,7 +5124,7 @@ function bteToggleTheme(){document.body.classList.toggle("light-mode");localStor
     <p><a href="index.html" style="color:var(--gray,#888);text-decoration:none;"><img src="assets/icons/shield-home-48.png" style="vertical-align:middle;opacity:0.8;" alt="" width="16" height="16"> Home</a> &middot;
         <a href="churches.html" style="color:var(--gray,#888);text-decoration:none;"><img src="assets/icons/shield-church-48.png" style="vertical-align:middle;opacity:0.8;" alt="" width="16" height="16"> Churches</a> &middot;
         <a href="blog.html" style="color:var(--gray,#888);text-decoration:none;"><img src="assets/icons/shield-scroll-quill-48.png" style="vertical-align:middle;opacity:0.8;" alt="" width="16" height="16"> Blog</a> &middot;
-        <a href="connect.html" style="color:var(--gray,#888);text-decoration:none;"><img src="assets/icons/shield-handshake.png" style="vertical-align:middle;opacity:0.8;" alt="" width="16" height="16"> Connect</a> &middot;
+        <a href="assessments.html" style="color:var(--gray,#888);text-decoration:none;"><img src="assets/icons/shield-checklist-48.png" style="vertical-align:middle;opacity:0.8;" alt="" width="16" height="16"> Assessments</a> &middot;
         <a href="sitemap.html" style="color:var(--gray,#888);text-decoration:none;"><img src="assets/icons/shield-map-48.png" style="vertical-align:middle;opacity:0.8;" alt="" width="16" height="16"> Site Map</a></p>
     <p style="margin-top:10px;"><a href="https://www.instagram.com/alj4000bc31oct1517sep78" style="color:var(--gray,#888);text-decoration:none;opacity:0.6;" target="_blank">IG</a> &middot; <a href="https://www.linkedin.com/in/uniting-serving-mentoring-and-counseling-ministries-est2022" style="color:var(--gray,#888);text-decoration:none;opacity:0.6;" target="_blank">LinkedIn</a> &middot; <a href="https://www.youtube.com/@USMC_Ministries" style="color:var(--gray,#888);text-decoration:none;opacity:0.6;" target="_blank">YouTube</a> &middot; <a href="https://x.com/Just_A_Man67" style="color:var(--gray,#888);text-decoration:none;opacity:0.6;" target="_blank">X</a></p>
     <p style="margin-top:8px;font-size:0.78rem;color:#555;">&ldquo;Iron sharpens iron.&rdquo; &mdash; <a href="bible.html?ref=Proverbs+27:17" style="color:var(--gold,#D4AF37);text-decoration:underline;">Proverbs 27:17</a> &middot; Built for the brotherhood.</p>
