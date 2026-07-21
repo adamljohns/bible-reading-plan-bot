@@ -1063,6 +1063,21 @@
         .bte-book-intro-link:hover { text-decoration: underline; }
         .bte-intro-chrome-top, .bte-intro-chrome-bottom { text-align: center; margin: 8px 0 12px; padding: 6px 0; }
         .bte-intro-chrome-bottom { margin-top: 14px; border-top: 1px solid var(--border, #333); padding-top: 12px; }
+
+        /* BTE v7.2.2 / PJG-0008B layout polish */
+        #bibleNav { margin: 10px 0 12px !important; }
+        .search-box { margin-bottom: 8px !important; }
+        .bte-book-intro { padding-bottom: 12px !important; }
+        .bte-intro-section { margin: 10px 0 !important; }
+        .bte-intro-cta { margin: 12px 0 8px !important; }
+        .how-to-card, .howto-card, #howToUse, .engine-howto { margin-top: 10px !important; }
+        #results { margin-top: 8px !important; }
+
+        .how-strip { margin-top: 8px !important; margin-bottom: 8px !important; }
+        .how-strip h2 { margin: 0 0 6px !important; }
+        .how-strip ol { margin: 0 0 6px !important; padding-left: 1.2rem; }
+        .hero-card, .engine-hero, .bte-hero { margin-bottom: 8px !important; }
+        section.lead, .lead-copy { margin-bottom: 8px !important; }
 </style>
         <div id="langDropdown" class="lang-dd">
             <button type="button" id="langTrigger" class="lang-dd-trigger" aria-haspopup="listbox" aria-expanded="false" aria-label="Reading language" title="Reading language">
@@ -1116,15 +1131,16 @@
                     <a href="dictionary/index.html"><img src="assets/icons/shield-book-greek-48.png" alt="" width="14" height="14"> Dictionary</a>
                 </div>
             </div>
-            <!-- BTE v6.9: Bible Navigator moved above the search box for a browse-first flow -->
-            <div id="bibleNav" style="text-align:center; margin:4px 0 26px;"></div>
+            <!-- BTE v7.2.2 / PJG-0008B: Search first, then Browse (Adam mobile QA) -->
         </div>
 
-        <div class="search-box">
+        <div class="search-box" style="margin-top:8px;">
             <input type="text" id="refInput" placeholder="e.g., Psalm 91 &middot; John 3:16 &middot; John 1:12-13; 3:16-21; 1 John 3:1-3"
                    autofocus autocomplete="off">
             <button class="search-btn" id="searchBtn" onclick="lookupMulti()">Look Up</button>
         </div>
+            <!-- BTE v7.2.2 / PJG-0008B: Browse below Search -->
+            <div id="bibleNav" style="text-align:center; margin:10px 0 12px;"></div>
         <!-- BTE v5.5: Multi-passage stacked-input UI (collapsed by default) -->
         <div id="multi-passage-bar" style="display:flex;justify-content:flex-end;align-items:center;gap:8px;margin:-8px 0 12px;">
             <span id="multiToggleBtn" class="reader-toggle" onclick="toggleMultiInputMode()" title="Build a list of passages with separate input boxes">+ Multi-Passage Mode</span>
@@ -2278,6 +2294,12 @@
 
         function parseRef(ref) {
             let input = ref.trim();
+            // BTE v7.2.2 / PJG-0008B: normalize fancy dashes/spaces before any pattern match
+            input = input
+                .replace(/[–—−]/g, '-')  // en / em / minus → hyphen-minus
+                .replace(/[   ]/g, ' ') // nbsp / narrow nbsp / figure space
+                .replace(/\s+/g, ' ')
+                .trim();
 
             // BTE v5.2: Handle underscore format "bookAbbrev_chapter_verse" (e.g. "ezek22_30", "deut6_7", "1cor_3_16")
             // Also handles "ezek_22_30" and "49_6_4" (pure numeric bookId_ch_v)
@@ -3052,7 +3074,7 @@
         function bteIntroLinkHtml(bookId, label) {
             var name = BOOK_NAMES[bookId] ? BOOK_NAMES[bookId].replace(/\b\w/g, function(c){return c.toUpperCase();}) : 'Book';
             var lab = label || ('Introduction to ' + name);
-            return '<a class="bte-book-intro-link" href="bible.html?ref=' + encodeURIComponent(name) + '" onclick="event.preventDefault();document.getElementById(\'refInput\').value=\'' + name.replace(/'/g, "\\'") + '\';lookupVerse();return false;">📖 ' + bteEsc(lab) + '</a>';
+            return '<a class="bte-book-intro-link" href="bible.html?ref=' + encodeURIComponent(name) + '" onclick="event.preventDefault();document.getElementById(\'refInput\').value=\'' + name.replace(/'/g, "\\'") + '\';lookupVerse();return false;"><img src="assets/icons/shield-bible.png" class="site-icon" alt="" width="16" height="16" style="vertical-align:-2px;margin-right:4px;"> ' + bteEsc(lab) + '</a>';
         }
         async function showBookIntro(bookId) {
             var results = document.getElementById('results');
@@ -3082,9 +3104,10 @@
             }).join('');
             var themes = (data.key_themes || []).map(function(t){ return '<li>' + bteEsc(t) + '</li>'; }).join('');
             var passages = (data.key_passages || []).map(function(p){
-                var full = name + ' ' + p;
-                return '<a class="bte-key-pass" href="bible.html?ref=' + encodeURIComponent(full) + '" onclick="event.preventDefault();document.getElementById(\'refInput\').value=\'' + full.replace(/'/g,"\\'") + '\';lookupVerse();return false;">' + bteEsc(p) + '</a>';
-            }).join(' · ');
+                var raw = String(p || '').replace(/[\u2013\u2014\u2212]/g, '-').replace(/\s+/g, ' ').trim();
+                var full = name + ' ' + raw;
+                return '<a class="bte-key-pass" href="bible.html?ref=' + encodeURIComponent(full) + '" onclick="event.preventDefault();document.getElementById(\'refInput\').value=\'' + full.replace(/'/g, "\\'") + '\';if(typeof lookupMulti===\'function\'){lookupMulti();}else{lookupVerse();}return false;">' + bteEsc(raw) + '</a>';
+            }).join(' · '); /* PJG-0008B keypass */
             var author = (data.author && (data.author.traditional || data.author)) || '';
             if (typeof author === 'object') author = author.traditional || '';
             var dateDisp = (data.date && (data.date.range_display || data.date.debate)) || '';
@@ -3240,6 +3263,11 @@
                 currentViewMode = 'book';
                 showBookIntro(ref.bookId);
                 return;
+            }
+
+            // BTE v7.2.2 / PJG-0008B: leaving intro/book view — clear bookOnly state so verse fetch is clean
+            if (currentViewMode === 'book' || (currentRef && currentRef.bookOnly)) {
+                currentViewMode = 'verse';
             }
 
             showResults();
@@ -3925,6 +3953,9 @@
         // Delegates to lookupVerse() for parsing, fetching, and rendering; uses
         // a scoped flag so single-passage callers keep their current behavior.
         async function lookupMulti() {
+            // BTE v7.2.2 / PJG-0008B: normalize dashes in the input box before multi-parse
+            (function(){ var el=document.getElementById('refInput'); if(!el) return; el.value=String(el.value||'').replace(/[–—−]/g,'-').replace(/[   ]/g,' ').replace(/\s+/g,' ').trim(); })();
+
             var inputEl = document.getElementById('refInput');
             var raw = inputEl.value.trim();
             if (!raw) return;
