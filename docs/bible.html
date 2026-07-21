@@ -62,11 +62,11 @@
         /* BTE v6.3: tighter reading measure (was 800/1100) for comfortable line length */
         .container { max-width: 760px; margin: 0 auto; padding: 20px; flex: 1; }
 
-        .hero { text-align: center; padding: 48px 20px 36px; }
+        .hero { text-align: center; padding: 24px 20px 12px; }
         .hero img { max-width: 96px; width: 100%; height: auto; margin-bottom: 16px; }
         .hero h1 { font-size: clamp(1.8rem, 4vw, 2.8rem); color: var(--white); margin-bottom: 10px; }
         .hero .subtitle { color: var(--gold); font-size: 1.1rem; margin-bottom: 5px; }
-        .hero .desc { color: var(--gray); font-size: 0.95rem; max-width: 600px; margin: 0 auto 30px; }
+        .hero .desc { color: var(--gray); font-size: 0.95rem; max-width: 600px; margin: 0 auto 12px; }
         /* MBT v6.9: chapter-page audio player (Ruth/Esther narration pilot) */
         .mbt-audio { background:linear-gradient(135deg,rgba(212,175,55,.08),rgba(212,175,55,.02)); border:1px solid rgba(212,175,55,.28); border-radius:12px; padding:12px 16px; margin:0 auto 18px; max-width:560px; text-align:center; }
         .mbt-audio-label { color:var(--gold,#D4AF37); font-weight:600; font-size:.9rem; margin-bottom:8px; letter-spacing:.3px; }
@@ -2296,7 +2296,7 @@
             let input = ref.trim();
             // BTE v7.2.2 / PJG-0008B: normalize fancy dashes/spaces before any pattern match
             input = input
-                .replace(/[–—−]/g, '-')  // en / em / minus → hyphen-minus
+                .replace(/[\u2010-\u2015\u2212\uFE58\uFE63\uFF0D]/g, '-') // Unicode dashes/minus → hyphen-minus
                 .replace(/[   ]/g, ' ') // nbsp / narrow nbsp / figure space
                 .replace(/\s+/g, ' ')
                 .trim();
@@ -2490,6 +2490,14 @@
             const cacheKey = `bte_v_${trans}_${bookId}_${ch}_${v}`;
             const cached = sessionStorage.getItem(cacheKey);
             if (cached) return cached;
+            // BTE v7.2.2: prefer the repository's local chapter cache. This keeps
+            // valid verses available when the external verse endpoint is slow or unavailable.
+            const localChapter = await fetchChapterData(bookId, ch, trans);
+            if (localChapter && localChapter[v]) {
+                const localText = cleanVerseText(localChapter[v]);
+                if (localText) sessionStorage.setItem(cacheKey, localText);
+                return localText;
+            }
             try {
                 const r = await fetch(`${API}/${trans}/${bookId}/${ch}/${v}/`);
                 if (!r.ok) return null;
@@ -3104,7 +3112,7 @@
             }).join('');
             var themes = (data.key_themes || []).map(function(t){ return '<li>' + bteEsc(t) + '</li>'; }).join('');
             var passages = (data.key_passages || []).map(function(p){
-                var raw = String(p || '').replace(/[\u2013\u2014\u2212]/g, '-').replace(/\s+/g, ' ').trim();
+                var raw = String(p || '').replace(/[\u2010-\u2015\u2212\uFE58\uFE63\uFF0D]/g, '-').replace(/\s+/g, ' ').trim();
                 var full = name + ' ' + raw;
                 return '<a class="bte-key-pass" href="bible.html?ref=' + encodeURIComponent(full) + '" onclick="event.preventDefault();document.getElementById(\'refInput\').value=\'' + full.replace(/'/g, "\\'") + '\';if(typeof lookupMulti===\'function\'){lookupMulti();}else{lookupVerse();}return false;">' + bteEsc(raw) + '</a>';
             }).join(' · '); /* PJG-0008B keypass */
@@ -3954,7 +3962,7 @@
         // a scoped flag so single-passage callers keep their current behavior.
         async function lookupMulti() {
             // BTE v7.2.2 / PJG-0008B: normalize dashes in the input box before multi-parse
-            (function(){ var el=document.getElementById('refInput'); if(!el) return; el.value=String(el.value||'').replace(/[–—−]/g,'-').replace(/[   ]/g,' ').replace(/\s+/g,' ').trim(); })();
+            (function(){ var el=document.getElementById('refInput'); if(!el) return; el.value=String(el.value||'').replace(/[\u2010-\u2015\u2212\uFE58\uFE63\uFF0D]/g,'-').replace(/[   ]/g,' ').replace(/\s+/g,' ').trim(); })();
 
             var inputEl = document.getElementById('refInput');
             var raw = inputEl.value.trim();
