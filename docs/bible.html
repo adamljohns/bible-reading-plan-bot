@@ -3304,9 +3304,29 @@
             }).join(' · '); /* PJG-0008B keypass */
             var author = (data.author && (data.author.traditional || data.author)) || '';
             if (typeof author === 'object') author = author.traditional || '';
-            var dateDisp = (data.date && (data.date.range_display || data.date.debate)) || '';
-            var lean = (data.date && data.date.usmc_lean) ? ('<div class="bte-intro-lean"><strong>USMC Ministries lean:</strong> ' + bteEsc(data.date.usmc_lean) + '</div>') : '';
-            var debate = (data.date && data.date.debate && data.bookId === 66) ? ('<div class="bte-intro-debate"><strong>Dating note:</strong> ' + bteEsc(data.date.debate) + '</div>') : '';
+            // PJG-0008E: say date/lean/debate/Christ once — no restatement
+            var bteNormTxt = function(s){ return String(s || '').toLowerCase().replace(/\s+/g, ' ').trim(); };
+            var dateDisp = (data.date && data.date.range_display) ? String(data.date.range_display) : '';
+            var leanRaw = (data.date && data.date.usmc_lean) ? String(data.date.usmc_lean).trim() : '';
+            var lean = '';
+            if (leanRaw) {
+                var leanN = bteNormTxt(leanRaw);
+                var dateN = bteNormTxt(dateDisp);
+                if (!dateN || dateN.indexOf(leanN) === -1) {
+                    lean = '<div class="bte-intro-lean"><strong>USMC Ministries lean:</strong> ' + bteEsc(leanRaw) + '</div>';
+                }
+            }
+            var debateRaw = (data.date && data.date.debate) ? String(data.date.debate).trim() : '';
+            var debate = '';
+            if (debateRaw) {
+                var debN = bteNormTxt(debateRaw);
+                var rdN = bteNormTxt(dateDisp);
+                var lnN = bteNormTxt(leanRaw);
+                if (debN && debN !== rdN && (!lnN || debN !== lnN) && rdN.indexOf(debN) === -1) {
+                    debate = '<div class="bte-intro-debate"><strong>Dating note:</strong> ' + bteEsc(debateRaw) + '</div>';
+                }
+            }
+            var christTxt = (data.christ || data.jesus_in_this_book || '');
             var html = '';
             html += '<div class="bte-book-intro" data-book-id="' + bookId + '">';
             html += '<div class="bte-intro-kicker">' + bteEsc(data.testament || '') + ' · ' + bteEsc(data.category || '') + ' · ' + chCount + ' chapters</div>';
@@ -3322,7 +3342,7 @@
             if (outline) html += '<div class="bte-intro-section"><h3>Outline</h3><ul>' + outline + '</ul></div>';
             if (themes) html += '<div class="bte-intro-section"><h3>Key themes</h3><ul>' + themes + '</ul></div>';
             if (passages) html += '<div class="bte-intro-section"><h3>Key passages</h3><p>' + passages + '</p></div>';
-            html += '<div class="bte-intro-section bte-intro-christ"><h3>Christ in this book</h3><p>' + bteEsc(data.christ || '') + '</p></div>';
+            if (christTxt) html += '<div class="bte-intro-section bte-intro-christ"><h3>Christ in this book</h3><p>' + bteEsc(christTxt) + '</p></div>';
             if (data.spirit) html += '<div class="bte-intro-section"><h3>Spirit / providence</h3><p>' + bteEsc(data.spirit) + '</p></div>';
             if (data.how_to_read) html += '<div class="bte-intro-section"><h3>How to read</h3><p>' + bteEsc(data.how_to_read) + '</p></div>';
             if (data.watchman_charge) html += '<div class="bte-intro-section bte-intro-watch"><h3>Watchman charge</h3><p>' + bteEsc(data.watchman_charge) + '</p></div>';

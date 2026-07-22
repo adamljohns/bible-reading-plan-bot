@@ -8,7 +8,7 @@
 // v11 (2026-07-21): cache bump after BTE book-intro deep-link boot fix (PJG-0008).
 // v10 (2026-06-25): precache the Baptist Catechism + its assets; flush stale LBCF
 //   renderer/JSON after the single-chapter proof-text fix.
-const CACHE = 'usmc-v14';
+const CACHE = 'usmc-v15';
 
 // Core "app shell": the public ministry pages + key assets. Small + high-value.
 // Big data (Bible JSON, dictionary entries) caches on first visit via network-first below.
