@@ -153,6 +153,76 @@ def location_tokens(watch_text):
     return [n for n in LOCATION_NAMES if re.search(rf"\b{re.escape(n)}\b", watch_text)]
 
 
+
+# PJG-0010 — day-level version stamp from markdown HTML comments
+_STAMP_COMMENT_RE = re.compile(r"<!--\s*stamp:\s*(.*?)\s*-->", re.I | re.S)
+_VERSION_COMMENT_RE = re.compile(r"<!--\s*version:\s*(\{.*?\})\s*-->", re.I | re.S)
+
+
+def parse_reading_version(md_text: str) -> dict:
+    """Two-tier version object for per-day JSON (prototype vs MOOP vN)."""
+    default = {
+        "label": "Original Draft Prototype",
+        "status": "prototype",
+        "note": "To be reviewed by MOOP and updated",
+    }
+    if not md_text:
+        return dict(default)
+
+    vm = _VERSION_COMMENT_RE.search(md_text)
+    if vm:
+        try:
+            data = json.loads(vm.group(1))
+            if isinstance(data, dict) and data.get("label"):
+                if str(data.get("label")).strip() == "MOPRA Vision One":
+                    return dict(default)
+                out = dict(default)
+                out.update({k: v for k, v in data.items() if v is not None})
+                return out
+        except Exception:
+            pass
+
+    sm = _STAMP_COMMENT_RE.search(md_text)
+    if not sm:
+        return dict(default)
+
+    raw = " ".join(sm.group(1).split())
+    low = raw.lower()
+    if "mopra vision one" in low:
+        return dict(default)
+
+    m_ver = re.search(r"MOOP\s+v\s*(\d+(?:\.\d+)?)", raw, re.I)
+    if m_ver:
+        ver = m_ver.group(1)
+        label = f"MOOP v{ver}"
+        m_at = re.search(r"reviewed_at:\s*([^·\n]+)", raw, re.I)
+        reviewed_at_human = m_at.group(1).strip() if m_at else None
+        m_note = re.search(r"(Reviewed and revised by Adam on [^·\n]+)", raw, re.I)
+        if m_note:
+            note = m_note.group(1).strip()
+        elif reviewed_at_human:
+            note = f"Reviewed and revised by Adam on {reviewed_at_human}"
+        else:
+            note = "Reviewed and revised by Adam"
+        out = {
+            "label": label,
+            "status": "moop_v1" if ver.startswith("1") else f"moop_v{ver.replace('.', '_')}",
+            "reviewed_by": "Adam",
+            "note": note,
+        }
+        if reviewed_at_human:
+            out["reviewed_at_display"] = reviewed_at_human
+        # ISO if present
+        m_iso = re.search(r"reviewed_at_iso:\s*([^·\s]+)", raw, re.I)
+        if m_iso:
+            out["reviewed_at"] = m_iso.group(1).strip()
+        return out
+
+    if "original draft prototype" in low:
+        return dict(default)
+    return dict(default)
+
+
 def build_day(ds, passages):
     md_path = READINGS / f"{ds}.md"
     if not md_path.exists():
@@ -181,12 +251,16 @@ def build_day(ds, passages):
             "location_tokens": location_tokens(text) if text else [],
         }
 
+    version = parse_reading_version(md)
     return {
         "date": ds,
         "weekday": dt.strftime("%A"),
         "day_of_year": dt.timetuple().tm_yday,
         "page_url": f"{SITE}/readings/{ds}.html",
         "watches": watches,
+        "version": version,
+        # backward-compatible short label for older consumers
+        "stamp": version.get("label"),
     }
 
 

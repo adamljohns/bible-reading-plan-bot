@@ -709,8 +709,14 @@ footer .draft-tag {
     padding: 4px 12px;
     border-radius: 100px;
     font-size: 0.78rem;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
     letter-spacing: 0.05em;
+}
+footer .draft-note {
+    color: var(--gray);
+    font-size: 0.78rem;
+    margin: 0 0 8px;
+    line-height: 1.35;
 }
 
 @media (max-width: 540px) {
@@ -791,11 +797,101 @@ def render_tabs():
     return "\n".join(out)
 
 
+
+# PJG-0010 two-tier reading version stamps (retire MOPRA Vision One)
+_STAMP_COMMENT_RE = re.compile(r"<!--\s*stamp:\s*(.*?)\s*-->", re.I | re.S)
+_VERSION_COMMENT_RE = re.compile(r"<!--\s*version:\s*(\{.*?\})\s*-->", re.I | re.S)
+
+
+def parse_reading_version(md_text: str) -> dict:
+    """Parse day-level version stamp from markdown HTML comments.
+
+    Supported:
+      <!-- version: {"label":"MOOP v1.0", ...} -->
+      <!-- stamp: MOOP v1.0 · reviewed_at: 2026-07-22 21:13 EDT · PJG-0010 -->
+      <!-- stamp: Original Draft Prototype · PJG-0010 -->
+
+    Default (no Principal feedback marker): Original Draft Prototype.
+    Legacy MOPRA Vision One is treated as unreviewed prototype (mis-transcription).
+    """
+    import json as _json
+    default = {
+        "label": "Original Draft Prototype",
+        "status": "prototype",
+        "note": "To be reviewed by MOOP and updated",
+    }
+    if not md_text:
+        return dict(default)
+
+    vm = _VERSION_COMMENT_RE.search(md_text)
+    if vm:
+        try:
+            data = _json.loads(vm.group(1))
+            if isinstance(data, dict) and data.get("label"):
+                out = dict(default)
+                out.update({k: v for k, v in data.items() if v is not None})
+                # never re-emit retired label
+                if str(out.get("label", "")).strip() == "MOPRA Vision One":
+                    return dict(default)
+                return out
+        except Exception:
+            pass
+
+    sm = _STAMP_COMMENT_RE.search(md_text)
+    if not sm:
+        return dict(default)
+
+    raw = " ".join(sm.group(1).split())
+    low = raw.lower()
+    # retired mis-hear
+    if "mopra vision one" in low:
+        return dict(default)
+
+    # MOOP vN.N with optional reviewed_at
+    m_ver = re.search(r"MOOP\s+v\s*(\d+(?:\.\d+)?)", raw, re.I)
+    if m_ver:
+        ver = m_ver.group(1)
+        label = f"MOOP v{ver}"
+        m_at = re.search(r"reviewed_at:\s*([^·\n]+)", raw, re.I)
+        reviewed_at_human = m_at.group(1).strip() if m_at else None
+        # also accept "Reviewed and revised by Adam on ..."
+        m_note = re.search(r"(Reviewed and revised by Adam on [^·\n]+)", raw, re.I)
+        if m_note:
+            note = m_note.group(1).strip()
+        elif reviewed_at_human:
+            note = f"Reviewed and revised by Adam on {reviewed_at_human}"
+        else:
+            note = "Reviewed and revised by Adam"
+        status = "moop_v1" if ver.startswith("1") else f"moop_v{ver.replace('.', '_')}"
+        out = {
+            "label": label,
+            "status": status,
+            "reviewed_by": "Adam",
+            "note": note,
+        }
+        if reviewed_at_human:
+            out["reviewed_at_display"] = reviewed_at_human
+        return out
+
+    if "original draft prototype" in low or raw.strip().lower().startswith("prototype"):
+        return dict(default)
+
+    # unknown explicit stamp — still never emit MOPRA; fall back to prototype
+    return dict(default)
+
+
+def footer_stamp_html(version: dict) -> str:
+    label = escape(str(version.get("label") or "Original Draft Prototype"))
+    note = version.get("note") or ""
+    note_html = f'\n<div class="draft-note">{escape(str(note))}</div>' if note else ""
+    return f'<div class="draft-tag">{label}</div>{note_html}'
+
+
 def doc_line_for(dt):
     return "MOOP's 2026 Daily Bible Readings"
 
 
-def render_page(date_str, md_text):
+def render_page(date_str, md_text, version=None):
     dt = datetime.fromisoformat(date_str)
     day_of_year = dt.timetuple().tm_yday
     date_label = dt.strftime("%A, %B ") + str(dt.day) + dt.strftime(", %Y")
@@ -810,12 +906,13 @@ def render_page(date_str, md_text):
 
     title = escape(date_label) + " — Daily Reading | U.S.M.C. Ministries"
     doc_line = doc_line_for(dt)
-    # PJG-0009: Principal feedback days stamp MOPRA Vision One (not Prototype)
-    stamp_tag = (
-        "MOPRA Vision One"
-        if ("MOPRA Vision One" in md_text or "stamp: MOPRA Vision One" in md_text)
-        else "PROTOTYPE — sign-off pending"
-    )
+    # PJG-0010: two-tier stamp (Prototype vs MOOP vN). version passed in or default prototype.
+    version = version or {
+        "label": "Original Draft Prototype",
+        "status": "prototype",
+        "note": "To be reviewed by MOOP and updated",
+    }
+    stamp_footer = footer_stamp_html(version)
 
     html = f"""<!DOCTYPE html>
 <html lang="en">
@@ -846,7 +943,7 @@ def render_page(date_str, md_text):
 {watches_html}
 
 <footer>
-<div class="draft-tag">{stamp_tag}</div>
+{stamp_footer}
 <div>U.S.M.C. Ministries · The Watchman's Chronological Plan for the Year of our Lord 2026</div>
 <div style="margin-top:6px;font-size:0.78rem;">Adam Johns &middot; rich interpretive blend &middot; divine name LORD</div>
 </footer>
@@ -886,20 +983,9 @@ def build_one(date_str):
     md_text = src.read_text()
     # Keep HTML comments for stamp detection, but do not render them into watch bodies
     stamp_src = md_text
+    version = parse_reading_version(stamp_src)
     md_body = re.sub(r"<!--.*?-->", "", md_text, flags=re.S)
-    html = render_page(date_str, md_body)
-    if html is not None and ("MOPRA Vision One" in stamp_src or "stamp: MOPRA Vision One" in stamp_src):
-        html = html.replace(
-            '<div class="draft-tag">PROTOTYPE — sign-off pending</div>',
-            '<div class="draft-tag">MOPRA Vision One</div>',
-        )
-        # if stamp_tag already MOPRA from body miss, leave; force MOPRA when marker present
-        html = re.sub(
-            r'(<div class="draft-tag">)(.*?)(</div>)',
-            r'\1MOPRA Vision One\3',
-            html,
-            count=1,
-        )
+    html = render_page(date_str, md_body, version=version)
     if html is None:
         return False
     out = OUT_DIR / f"{date_str}.html"
