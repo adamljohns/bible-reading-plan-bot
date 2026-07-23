@@ -38,11 +38,11 @@ OUT_DIR = REPO / "docs" / "readings"
 
 # Watch metadata, in time order
 WATCHES = [
-    {"key": "wisdom",  "time": "0600", "title": "Morning Wisdom",                 "emoji": "🌅", "prayer_default": "Prayer",                  "command_default": "Helm Command"},
-    {"key": "husband", "time": "0700", "title": "First Watch — The Husband's Post",  "emoji": "🕖", "prayer_default": "Prayer from the Stateroom", "command_default": "Helm Command"},
-    {"key": "father",  "time": "1100", "title": "Second Watch — The Father's Charge", "emoji": "🕚", "prayer_default": "Prayer from the Wardroom",  "command_default": "Helm Command"},
-    {"key": "citizen", "time": "1500", "title": "Third Watch — The Citizen's Stand",  "emoji": "🕒", "prayer_default": "Prayer from the Bridge",    "command_default": "Rudder Steer"},
-    {"key": "peace",   "time": "2100", "title": "Evening Peace",                    "emoji": "🌙", "prayer_default": "Prayer from the Wardroom",  "command_default": "Rudder Steer"},
+    {"key": "wisdom",  "time": "0600", "title": "Morning Wisdom",                 "emoji": "🌅", "prayer_default": "Prayer",                  "command_default": "Watch Charge"},
+    {"key": "husband", "time": "0700", "title": "First Watch — The Husband's Post",  "emoji": "🕖", "prayer_default": "Prayer from the Husband's Post", "command_default": "Watch Charge"},
+    {"key": "father",  "time": "1100", "title": "Second Watch — The Father's Charge", "emoji": "🕚", "prayer_default": "Prayer from the Father's Watch",  "command_default": "Watch Charge"},
+    {"key": "citizen", "time": "1500", "title": "Third Watch — The Citizen's Stand",  "emoji": "🕒", "prayer_default": "Prayer from the Bridge",    "command_default": "The Charge"},
+    {"key": "peace",   "time": "2100", "title": "Evening Peace",                    "emoji": "🌙", "prayer_default": "Prayer from the Wardroom",  "command_default": "The Charge"},
 ]
 WATCH_BY_TIME = {w["time"]: w for w in WATCHES}
 WATCH_BY_KEY  = {w["key"]:  w for w in WATCHES}
@@ -115,7 +115,7 @@ SECTION_PATTERNS = [
     ("application",    rf"{P}Personal\s+Application\b"),
     ("prayer",         rf"{P}Prayer(?:\s+from\s+the\s+\w+)?\s*$"),                 # heading line, not prose
     ("prayer_alt",     r"^\s*🙏\s*(?:\*\*)?\s*Prayer"),                            # belt-and-suspenders
-    ("helm",           r"^\s*⚓\s*(?:\*\*)?\s*(?:Helm Command|Rudder Steer|Set Sail|Course Correction|Steady As She Goes|Night Orders)\b"),
+    ("helm",           r"^\s*[⚓🛡]️?\s*(?:\*\*)?\s*(?:Watch Charge|The Charge|Helm Command|Rudder Steer|Set Sail|Course Correction|Steady As She Goes|Night Orders)\b"),
 ]
 SECTION_REGEX = [(key, re.compile(rx, re.IGNORECASE)) for key, rx in SECTION_PATTERNS]
 
@@ -383,14 +383,19 @@ def render_helm(marker_line, content_lines):
     """Helm Command / Rudder Steer line — may wrap to additional content lines.
     Always concatenate marker_line tail + content_lines for full command text."""
     s = marker_line.strip()
-    m = re.match(r"^\s*⚓\s*(?:\*\*)?\s*(Helm Command|Rudder Steer|Set Sail|Course Correction|Steady As She Goes|Night Orders)\s*(?:\*\*)?\s*[:\-—]?\s*(.*)$",
+    m = re.match(r"^\s*[⚓🛡]️?\s*(?:\*\*)?\s*(Watch Charge|The Charge|Helm Command|Rudder Steer|Set Sail|Course Correction|Steady As She Goes|Night Orders)\s*(?:\*\*)?\s*[:\-—]?\s*(.*)$",
                  s, re.IGNORECASE)
     if m:
-        label = m.group(1)
+        raw_label = m.group(1)
+        # PJG-0009: display locked label; never ship Helm/Rudder branding
+        if raw_label.lower() in ("helm command", "rudder steer", "the charge", "set sail", "course correction", "steady as she goes", "night orders"):
+            label = "Watch Charge"
+        else:
+            label = raw_label
         tail = m.group(2).strip()
     else:
-        label = "Helm Command"
-        tail = s.lstrip("⚓").strip()
+        label = "Watch Charge"
+        tail = s.lstrip("⚓🛡️").strip()
     # Always join continuation lines so wrapped commands aren't truncated.
     # Filter out separator lines (⸻ runs, ---) that belong between watches, not
     # inside the command itself.
@@ -407,7 +412,7 @@ def render_helm(marker_line, content_lines):
     # Strip trailing separator runs that may have hitched onto the last line
     command = re.sub(r"\s*[⸻\-—]{3,}\s*$", "", command)
     command = command.strip().strip("*").strip()
-    return f'<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">{escape(label)}:</span> {escape(command)}</div>'
+    return f'<div class="helm"><span class="helm-icon">🛡️</span> <span class="helm-label">{escape(label)}:</span> {escape(command)}</div>'
 
 
 def render_audio_slot(date, watch_key):
@@ -805,6 +810,12 @@ def render_page(date_str, md_text):
 
     title = escape(date_label) + " — Daily Reading | U.S.M.C. Ministries"
     doc_line = doc_line_for(dt)
+    # PJG-0009: Principal feedback days stamp MOPRA Vision One (not Prototype)
+    stamp_tag = (
+        "MOPRA Vision One"
+        if ("MOPRA Vision One" in md_text or "stamp: MOPRA Vision One" in md_text)
+        else "PROTOTYPE — sign-off pending"
+    )
 
     html = f"""<!DOCTYPE html>
 <html lang="en">
@@ -835,7 +846,7 @@ def render_page(date_str, md_text):
 {watches_html}
 
 <footer>
-<div class="draft-tag">PROTOTYPE — sign-off pending</div>
+<div class="draft-tag">{stamp_tag}</div>
 <div>U.S.M.C. Ministries · The Watchman's Chronological Plan for the Year of our Lord 2026</div>
 <div style="margin-top:6px;font-size:0.78rem;">Adam Johns &middot; rich interpretive blend &middot; divine name LORD</div>
 </footer>
@@ -873,7 +884,22 @@ def build_one(date_str):
         print(f"  ⚠ missing: {src}")
         return False
     md_text = src.read_text()
-    html = render_page(date_str, md_text)
+    # Keep HTML comments for stamp detection, but do not render them into watch bodies
+    stamp_src = md_text
+    md_body = re.sub(r"<!--.*?-->", "", md_text, flags=re.S)
+    html = render_page(date_str, md_body)
+    if html is not None and ("MOPRA Vision One" in stamp_src or "stamp: MOPRA Vision One" in stamp_src):
+        html = html.replace(
+            '<div class="draft-tag">PROTOTYPE — sign-off pending</div>',
+            '<div class="draft-tag">MOPRA Vision One</div>',
+        )
+        # if stamp_tag already MOPRA from body miss, leave; force MOPRA when marker present
+        html = re.sub(
+            r'(<div class="draft-tag">)(.*?)(</div>)',
+            r'\1MOPRA Vision One\3',
+            html,
+            count=1,
+        )
     if html is None:
         return False
     out = OUT_DIR / f"{date_str}.html"
