@@ -1261,6 +1261,12 @@ def render_page(date_str, md_text, version=None):
 
 {tabs_html}
 
+<div class="copy-bar">
+<button type="button" class="copy-btn" data-copy-full-day>Copy Full Day</button>
+<span class="copy-hint">Speechify / full-day link: use this page as-is (All Watches) or Copy Full Day.</span>
+</div>
+<div id="copy-toast" class="copy-toast" role="status" aria-live="polite"></div>
+
 {render_share_button('all', "All Today’s Readings", all_watches=True)}
 
 {watches_html}
