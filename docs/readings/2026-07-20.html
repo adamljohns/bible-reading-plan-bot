@@ -146,6 +146,47 @@ ul.application li { margin-bottom: 8px; }
 .helm-icon { color: var(--gold); font-size: 1.1rem; }
 .helm-label { color: var(--gold); font-weight: 600; }
 
+.share-actions { display: flex; justify-content: center; }
+.share-actions-all[hidden] { display: none; }
+.share-actions-all { margin: -4px 0 18px; }
+.share-actions-watch {
+    margin-top: 22px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+}
+.share-reading {
+    appearance: none;
+    border: 1px solid var(--gold);
+    border-radius: 8px;
+    background: transparent;
+    color: var(--gold-light);
+    cursor: pointer;
+    font: 600 0.92rem/1.2 'Inter', sans-serif;
+    padding: 11px 18px;
+    transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
+}
+.share-reading:hover,
+.share-reading:focus-visible {
+    background: var(--gold);
+    color: #000;
+    outline: none;
+}
+.share-reading:active { transform: translateY(1px); }
+.share-reading.share-success { background: #244b32; border-color: #73c98b; color: #fff; }
+.share-reading.share-error { border-color: #d36b6b; color: #ffb3b3; }
+.share-icon { font-size: 1.05em; margin-right: 3px; }
+.share-status {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
 footer {
     text-align: center;
     color: var(--gray);
@@ -161,15 +202,21 @@ footer .draft-tag {
     padding: 4px 12px;
     border-radius: 100px;
     font-size: 0.78rem;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
     letter-spacing: 0.05em;
+}
+footer .draft-note {
+    color: var(--gray);
+    font-size: 0.78rem;
+    margin: 0 0 8px;
+    line-height: 1.35;
 }
 
 
-/* PJG-0012 — Copy Full Day / Copy This Watch */
+/* PJG-0012 — Copy Full Day / Copy This Watch (plain text for Speechify paste) */
 .copy-bar {
   display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
-  margin: -6px 0 18px;
+  margin: -6px 0 14px;
 }
 .copy-btn {
   appearance: none;
@@ -203,7 +250,6 @@ footer .draft-tag {
   font-size: 0.8rem;
   flex: 1 1 220px;
 }
-.watch-header { align-items: center; }
 .copy-toast {
   position: fixed;
   left: 50%;
@@ -228,6 +274,7 @@ footer .draft-tag {
 @media (max-width: 540px) {
     .watch-tab { flex: 1 1 64px; font-size: 0.78rem; padding: 6px 4px; }
     .watch-tab .tab-time { font-size: 0.65rem; }
+    .share-reading { width: 100%; }
     .copy-btn { width: 100%; }
     .copy-btn-sm { width: auto; margin-left: 0; }
     .watch-header { gap: 10px; }
@@ -254,11 +301,7 @@ footer .draft-tag {
 <a href="#peace" class="watch-tab" data-tab="peace" role="tab"><span class="tab-time">2100</span> <span class="tab-label">Evening Peace</span></a>
 </nav>
 
-<div class="copy-bar">
-<button type="button" class="copy-btn" data-copy-full-day>Copy Full Day</button>
-<span class="copy-hint">Speechify / full-day link: use this page as-is (All Watches) or Copy Full Day.</span>
-</div>
-<div id="copy-toast" class="copy-toast" role="status" aria-live="polite"></div>
+<div class="share-actions share-actions-all"><button type="button" class="share-reading" data-share-hash="all" data-share-title="All Today’s Readings" aria-label="Share all of today’s readings"><span class="share-icon" aria-hidden="true">↗</span> Share all of today’s readings</button><span class="share-status" role="status" aria-live="polite" aria-atomic="true"></span></div>
 
 <section class="watch watch-wisdom" id="watch-wisdom" data-watch="wisdom">
 <div class="watch-header"><span class="watch-time">0600</span> <h2>Morning Wisdom</h2><button type="button" class="copy-btn copy-btn-sm" data-copy-watch>Copy This Watch</button></div>
@@ -300,6 +343,7 @@ footer .draft-tag {
 <p>Father, I thank You for the example of Nehemiah, who stood firm against the schemes of the wicked. Forgive me for the times I have been swayed by fear or the opinions of men. By the power of Your Holy Spirit, give me the courage to reject every distraction that pulls me from my post. Strengthen my hands to lead my household, to provide for my family, and to defend the truth of Your Word with boldness and love. Let my resolve be rooted in Your sovereignty, not in my own strength. In the name of Jesus Christ, my Lord and Commander, I pray this. Amen.</p>
 </div>
 <div class="helm"><span class="helm-icon">🛡️</span> <span class="helm-label">Watch Charge:</span> Ignore the siren calls of the valley and keep your hammer raised above the rubble.</div>
+<div class="share-actions share-actions-watch"><button type="button" class="share-reading" data-share-hash="wisdom" data-share-title="Morning Wisdom" aria-label="Share this reading: Morning Wisdom"><span class="share-icon" aria-hidden="true">↗</span> Share this reading</button><span class="share-status" role="status" aria-live="polite" aria-atomic="true"></span></div>
 </section>
 
 <section class="watch watch-husband" id="watch-husband" data-watch="husband">
@@ -342,6 +386,7 @@ footer .draft-tag {
 <p>Father, I come before You as a husband charged with the solemn duty of protecting my wife, Maria, as Christ protects the church. Forgive me for the times I have been passive, lukewarm, or afraid to stand firm against the encroaching darkness in our home. Grant me the courage to be a vigilant guardian of her soul, shielding her from the lies of the enemy and the pressures of this age. By the power of Your Holy Spirit, strengthen my will to lead with clarity and to love with sacrificial intensity, that Maria may rest in the security of my covenant faithfulness to You. Restore to us the joy of our salvation and make our home a beacon of Your steadfast love. In the name of Jesus Christ, my Lord and Commander, I pray. Amen.</p>
 </div>
 <div class="helm"><span class="helm-icon">🛡️</span> <span class="helm-label">Watch Charge:</span> Sound the trumpet in your heart to warn the soul of the approaching darkness, that you may stand as a faithful watchman against the day of the LORD.</div>
+<div class="share-actions share-actions-watch"><button type="button" class="share-reading" data-share-hash="husband" data-share-title="First Watch — The Husband&#x27;s Post" aria-label="Share this reading: First Watch — The Husband&#x27;s Post"><span class="share-icon" aria-hidden="true">↗</span> Share this reading</button><span class="share-status" role="status" aria-live="polite" aria-atomic="true"></span></div>
 </section>
 
 <section class="watch watch-father" id="watch-father" data-watch="father">
@@ -384,6 +429,7 @@ footer .draft-tag {
 <p>Father, we thank You for Your righteous judgment and Your steadfast love. You are the refuge for Your people and the stronghold for the people of Israel. By the power of Your Holy Spirit, give me the grace to lead my house with wisdom, firmness, and compassion. Help me to discipline my sons not in anger, but in love, that they may grow into men who fear You. In the name of Jesus Christ, my Lord and Commander, I pray. Amen.</p>
 </div>
 <div class="helm"><span class="helm-icon">🛡️</span> <span class="helm-label">Watch Charge:</span> Seize the sickle and tread the winepress with holy resolve, for the harvest of judgment is ripe and the vats of wickedness are overflowing.</div>
+<div class="share-actions share-actions-watch"><button type="button" class="share-reading" data-share-hash="father" data-share-title="Second Watch — The Father&#x27;s Charge" aria-label="Share this reading: Second Watch — The Father&#x27;s Charge"><span class="share-icon" aria-hidden="true">↗</span> Share this reading</button><span class="share-status" role="status" aria-live="polite" aria-atomic="true"></span></div>
 </section>
 
 <section class="watch watch-citizen" id="watch-citizen" data-watch="citizen">
@@ -435,6 +481,7 @@ footer .draft-tag {
 <p>On July 20, 1969, the lunar module Eagle settled onto the Sea of Tranquility, and Neil Armstrong stepped down onto the Moon with the words, &#x27;That&#x27;s one small step for man, one giant leap for mankind,&#x27; as half a billion souls watched below. On the same day in 1976, the Viking 1 lander came to rest on the red plains of Mars, the first American craft to touch another planet and send back its findings. Both were the crown of countless men&#x27;s patient toil over many years, and a Steadfast citizen labors with the same long endurance in his own appointed work, lifting his eyes in wonder to the God whose heavens declare His glory.</p>
 <p>⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻</p>
 </div>
+<div class="share-actions share-actions-watch"><button type="button" class="share-reading" data-share-hash="citizen" data-share-title="Third Watch — The Citizen&#x27;s Stand" aria-label="Share this reading: Third Watch — The Citizen&#x27;s Stand"><span class="share-icon" aria-hidden="true">↗</span> Share this reading</button><span class="share-status" role="status" aria-live="polite" aria-atomic="true"></span></div>
 </section>
 
 <section class="watch watch-peace" id="watch-peace" data-watch="peace">
@@ -465,10 +512,12 @@ footer .draft-tag {
 <p>Father, we thank You for the privilege of serving You in the sphere of our families and communities. Forgive us for the times we have allowed the knowledge of You to wane in our hearts and homes. By the power of Your Holy Spirit, strengthen us to lead with courage, love with fidelity, and stand for truth without compromise. Guard our marriages, guide our children, and give us the resolve to be faithful stewards of the trust You have placed in our hands. In the name of Jesus Christ, my Lord and Commander, we pray. Amen.</p>
 </div>
 <div class="helm"><span class="helm-icon">🛡️</span> <span class="helm-label">Watch Charge:</span> Sever the deceit that poisons your household air before the land mourns your spiritual decay.</div>
+<div class="share-actions share-actions-watch"><button type="button" class="share-reading" data-share-hash="peace" data-share-title="Evening Peace" aria-label="Share this reading: Evening Peace"><span class="share-icon" aria-hidden="true">↗</span> Share this reading</button><span class="share-status" role="status" aria-live="polite" aria-atomic="true"></span></div>
 </section>
 
 <footer>
-<div class="draft-tag">PROTOTYPE — sign-off pending</div>
+<div class="draft-tag">Original Draft Prototype</div>
+<div class="draft-note">To be reviewed by MOOP and updated</div>
 <div>U.S.M.C. Ministries · The Watchman's Chronological Plan for the Year of our Lord 2026</div>
 <div style="margin-top:6px;font-size:0.78rem;">Adam Johns &middot; rich interpretive blend &middot; divine name LORD</div>
 </footer>
@@ -503,6 +552,8 @@ footer .draft-tag {
     document.querySelectorAll('.watch-tab').forEach(t => {
       t.classList.toggle('active', t.dataset.tab === (isAll ? 'all' : slug));
     });
+    const allShare = document.querySelector('.share-actions-all');
+    if (allShare) allShare.hidden = !isAll;
   }
   document.querySelectorAll('.watch-tab').forEach(t => {
     t.addEventListener('click', function(e){
@@ -514,19 +565,93 @@ footer .draft-tag {
     });
   });
 
-  // PJG-0012: bare URL defaults to all five watches (Speechify / full-day paste).
-  // Deep links (#wisdom etc.) still filter. NOW badge remains visual-only.
+  async function copyShareLink(url) {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(url);
+      return;
+    }
+    const textArea = document.createElement('textarea');
+    textArea.value = url;
+    textArea.setAttribute('readonly', '');
+    textArea.style.position = 'fixed';
+    textArea.style.opacity = '0';
+    document.body.appendChild(textArea);
+    textArea.select();
+    textArea.setSelectionRange(0, textArea.value.length);
+    const copied = document.execCommand('copy');
+    textArea.remove();
+    if (!copied) throw new Error('Copy command failed');
+  }
+
+  function showShareStatus(button, text, className) {
+    const original = button.dataset.originalLabel || button.innerHTML;
+    button.dataset.originalLabel = original;
+    button.textContent = text;
+    button.classList.remove('share-success', 'share-error');
+    button.classList.add(className);
+    const status = button.parentElement.querySelector('.share-status');
+    if (status) {
+      if (status.textContent === text) {
+        status.textContent = '';
+        window.setTimeout(() => { status.textContent = text; }, 50);
+      } else {
+        status.textContent = text;
+      }
+    }
+    window.setTimeout(() => {
+      button.innerHTML = original;
+      button.classList.remove('share-success', 'share-error');
+    }, 2200);
+  }
+
+  document.querySelectorAll('.share-reading').forEach(button => {
+    button.addEventListener('click', async function(){
+      const slug = this.dataset.shareHash;
+      const watchTitle = this.dataset.shareTitle;
+      const shareUrl = new URL(window.location.href);
+      shareUrl.search = '';
+      shareUrl.hash = '#' + slug;
+      const isAll = slug === 'all';
+      const dateLabel = document.querySelector('.hero h1').textContent.trim();
+      const title = isAll ? `${dateLabel} — All Today’s Readings` : watchTitle;
+      const text = isAll
+        ? `All five U.S.M.C. Ministries readings for ${dateLabel}`
+        : `${watchTitle} — U.S.M.C. Ministries`;
+      try {
+        if (navigator.share) {
+          await navigator.share({title, text, url: shareUrl.toString()});
+          showShareStatus(this, '✓ Shared', 'share-success');
+        } else {
+          await copyShareLink(shareUrl.toString());
+          showShareStatus(this, '✓ Link copied', 'share-success');
+        }
+      } catch (error) {
+        if (error && error.name === 'AbortError') return;
+        try {
+          await copyShareLink(shareUrl.toString());
+          showShareStatus(this, '✓ Link copied', 'share-success');
+        } catch (_copyError) {
+          showShareStatus(this, 'Unable to share', 'share-error');
+        }
+      }
+    });
+  });
+
+  // Initial selection priority:
+  //   1. URL hash if present  (#all / #wisdom / #husband / #father / #citizen / #peace)
+  //   2. Auto-select the watch that is "live right now"
   let initial;
   if (location.hash) {
     initial = location.hash.slice(1);
   } else {
+    // PJG-0012: bare URL shows all five (Speechify / full-day paste).
+    // NOW badge remains visual-only; tabs still filter on click.
     initial = 'all';
   }
   markNowBadge();
   showOnly(initial);
-
-  // ── Copy plain text (listen-script clean) ──────────────────────────
-  function toast(msg){
+  // PJG-0012 — plain-text copy for Speechify paste
+  function copyToast(msg){
     let el = document.getElementById('copy-toast');
     if (!el) {
       el = document.createElement('div');
@@ -541,8 +666,7 @@ footer .draft-tag {
     clearTimeout(el._hideTimer);
     el._hideTimer = setTimeout(() => el.classList.remove('show'), 2000);
   }
-
-  function fallbackCopy(text){
+  function fallbackCopyText(text){
     const ta = document.createElement('textarea');
     ta.value = text;
     ta.setAttribute('readonly', '');
@@ -557,27 +681,21 @@ footer .draft-tag {
     document.body.removeChild(ta);
     return ok;
   }
-
-  async function copyText(text, okMsg){
-    const cleaned = (text || '').replace(/
-{3,}/g, '
-
-').trim() + '
-';
+  async function copyPlainText(text, okMsg){
+    const cleaned = (text || '').replace(/\n{3,}/g, '\n\n').trim() + '\n';
     let ok = false;
     if (navigator.clipboard && window.isSecureContext) {
       try {
         await navigator.clipboard.writeText(cleaned);
         ok = true;
       } catch (e) {
-        ok = fallbackCopy(cleaned);
+        ok = fallbackCopyText(cleaned);
       }
     } else {
-      ok = fallbackCopy(cleaned);
+      ok = fallbackCopyText(cleaned);
     }
-    toast(ok ? okMsg : 'Copy failed — long-press to select text');
+    copyToast(ok ? okMsg : 'Copy failed — long-press to select text');
   }
-
   function watchPlainText(section){
     if (!section) return '';
     const time = (section.querySelector('.watch-time')?.textContent || '').trim();
@@ -587,14 +705,12 @@ footer .draft-tag {
     const head = time && title
       ? `=== ${time} ${title}${passage ? ' — ' + passage : ''} ===`
       : `=== ${title || 'Watch'} ===`;
-
     const blocks = [];
     const intro = section.querySelector(':scope > .intro');
     if (intro) {
       const t = intro.innerText.trim();
       if (t) blocks.push(t);
     }
-
     section.querySelectorAll(':scope > .scripture').forEach(sc => {
       const ref = (sc.querySelector('.scripture-ref')?.innerText || '')
         .replace(/^📖\s*/, '').trim();
@@ -603,43 +719,32 @@ footer .draft-tag {
         blocks.push(['Scripture' + (ref ? ' — ' + ref : ''), body].filter(Boolean).join('\n'));
       }
     });
-
     section.querySelectorAll(':scope > .section').forEach(sec => {
       const label = (sec.querySelector('.section-label')?.innerText || '').trim();
-      // clone without label for body text
       const clone = sec.cloneNode(true);
       const lab = clone.querySelector('.section-label');
       if (lab) lab.remove();
-      // strip copy buttons if any nested
-      clone.querySelectorAll('.copy-btn').forEach(b => b.remove());
-      const body = clone.innerText.replace(/
-{3,}/g, '\n\n').trim();
+      clone.querySelectorAll('.copy-btn, .share-reading, .share-actions, .share-status').forEach(b => b.remove());
+      const body = clone.innerText.replace(/\n{3,}/g, '\n\n').trim();
       if (label && body) blocks.push(label + '\n' + body);
       else if (body) blocks.push(body);
     });
-
     section.querySelectorAll(':scope > .prayer').forEach(pr => {
       const titleEl = pr.querySelector('.prayer-title');
-      const title = (titleEl?.innerText || 'Prayer').replace(/^🙏\s*/, '').trim();
+      const ptitle = (titleEl?.innerText || 'Prayer').replace(/^🙏\s*/, '').trim();
       const clone = pr.cloneNode(true);
       const t = clone.querySelector('.prayer-title');
       if (t) t.remove();
-      clone.querySelectorAll('.copy-btn').forEach(b => b.remove());
-      const body = clone.innerText.replace(/
-{3,}/g, '\n\n').trim();
-      if (body) blocks.push(title + '\n' + body);
+      clone.querySelectorAll('.copy-btn, .share-reading, .share-actions, .share-status').forEach(b => b.remove());
+      const body = clone.innerText.replace(/\n{3,}/g, '\n\n').trim();
+      if (body) blocks.push(ptitle + '\n' + body);
     });
-
     section.querySelectorAll(':scope > .helm').forEach(h => {
       const t = h.innerText.replace(/\s+/g, ' ').trim();
-      if (!t) return;
-      // Normalize "Helm Command:" / "Watch Charge:" style labels already in text
-      blocks.push(t.replace(/^🛡️\s*/, '').replace(/^⚓\s*/, ''));
+      if (t) blocks.push(t.replace(/^🛡️\s*/, '').replace(/^⚓\s*/, ''));
     });
-
     return [head, '', ...blocks].join('\n').trim();
   }
-
   function fullDayPlainText(){
     const parts = [];
     document.querySelectorAll('section.watch').forEach(s => {
@@ -648,19 +753,19 @@ footer .draft-tag {
     });
     return parts.join('\n\n---\n\n');
   }
-
   document.querySelectorAll('[data-copy-full-day]').forEach(btn => {
     btn.addEventListener('click', function(){
-      copyText(fullDayPlainText(), 'Copied full day');
+      copyPlainText(fullDayPlainText(), 'Copied full day');
     });
   });
   document.querySelectorAll('[data-copy-watch]').forEach(btn => {
     btn.addEventListener('click', function(){
       const section = this.closest('section.watch');
       const title = (section?.querySelector('.watch-header h2')?.textContent || 'watch').trim();
-      copyText(watchPlainText(section), 'Copied ' + title);
+      copyPlainText(watchPlainText(section), 'Copied ' + title);
     });
   });
+
 })();
 </script>
 </body>
