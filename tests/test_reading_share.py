@@ -43,7 +43,9 @@ class DailyReadingShareTests(unittest.TestCase):
     def test_share_handler_uses_native_share_with_clipboard_fallback(self):
         self.assertIn("navigator.share", self.html)
         self.assertIn("navigator.clipboard.writeText", self.html)
+        self.assertIn("shareUrl.search = ''", self.html)
         self.assertIn("shareUrl.hash = '#' + slug", self.html)
+        self.assertIn("textArea.setSelectionRange", self.html)
         self.assertIn("history.replaceState", self.html)
 
     def test_share_controls_are_accessible_buttons(self):
