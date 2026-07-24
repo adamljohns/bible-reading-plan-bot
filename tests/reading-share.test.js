@@ -68,7 +68,7 @@ async function nativeShareTest(browser, baseUrl) {
   const page = await context.newPage();
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
-  await page.goto(`${baseUrl}${PAGE_PATH}#all`, { waitUntil: 'networkidle' });
+  await page.goto(`${baseUrl}${PAGE_PATH}?utm_source=private&recipient=adam#all`, { waitUntil: 'networkidle' });
 
   assert.equal(await page.locator('button.share-reading').count(), 6, 'six share buttons');
   const allButton = page.getByRole('button', { name: 'Share all of today’s readings' });
@@ -76,6 +76,7 @@ async function nativeShareTest(browser, baseUrl) {
   let payloads = await page.evaluate(() => window.__sharePayloads);
   assert.equal(payloads.length, 1, 'all-readings share invoked');
   assert.match(payloads[0].url, /\/readings\/2026-07-24\.html#all$/);
+  assert.equal(new URL(payloads[0].url).search, '', 'all-reading share strips query data');
 
   for (const slug of SLUGS) {
     await page.locator(`.watch-tab[data-tab="${slug}"]`).click();
@@ -85,6 +86,7 @@ async function nativeShareTest(browser, baseUrl) {
     await button.click();
     payloads = await page.evaluate(() => window.__sharePayloads);
     assert.match(payloads.at(-1).url, new RegExp(`#${slug}$`));
+    assert.equal(new URL(payloads.at(-1).url).search, '', `${slug} share strips query data`);
   }
 
   assert.equal(errors.length, 0, `browser errors: ${errors.join(' | ')}`);
@@ -103,11 +105,12 @@ async function clipboardFallbackTest(browser, baseUrl) {
     });
   });
   const page = await context.newPage();
-  await page.goto(`${baseUrl}${PAGE_PATH}#wisdom`, { waitUntil: 'networkidle' });
+  await page.goto(`${baseUrl}${PAGE_PATH}?utm_source=private&recipient=adam#wisdom`, { waitUntil: 'networkidle' });
   await page.locator('section[data-watch="wisdom"] button.share-reading').click();
   const copied = await page.evaluate(() => window.__copiedLinks);
   assert.equal(copied.length, 1, 'clipboard fallback invoked');
   assert.match(copied[0], /\/readings\/2026-07-24\.html#wisdom$/);
+  assert.equal(new URL(copied[0]).search, '', 'clipboard share strips query data');
   const status = page.locator('section[data-watch="wisdom"] .share-status');
   assert.equal(await status.getAttribute('aria-live'), 'polite', 'share status is announced');
   assert.equal(await status.textContent(), '✓ Link copied', 'clipboard result reaches live region');
