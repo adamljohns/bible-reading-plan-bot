@@ -432,6 +432,28 @@ def render_audio_slot(date, watch_key):
     return ""
 
 
+def render_share_button(slug, title, all_watches=False):
+    """Render an accessible share control for one watch or the full day."""
+    if all_watches:
+        button_text = "Share all of today’s readings"
+        aria_label = button_text
+        wrapper_class = "share-actions share-actions-all"
+    else:
+        button_text = "Share this reading"
+        aria_label = f"Share this reading: {title}"
+        wrapper_class = "share-actions share-actions-watch"
+    return (
+        f'<div class="{wrapper_class}">'
+        f'<button type="button" class="share-reading" '
+        f'data-share-hash="{escape(slug)}" data-share-title="{escape(title)}" '
+        f'aria-label="{escape(aria_label)}">'
+        f'<span class="share-icon" aria-hidden="true">↗</span> {escape(button_text)}'
+        f'</button>'
+        f'<span class="share-status" role="status" aria-live="polite" aria-atomic="true"></span>'
+        f'</div>'
+    )
+
+
 def render_watch(date, watch_key, intro, body_lines):
     """Render one full watch section to HTML."""
     w = WATCH_BY_KEY[watch_key]
@@ -549,6 +571,7 @@ def render_watch(date, watch_key, intro, body_lines):
             pieces.append(render_helm(marker_line, content))
         rendered_keys.add(key)
 
+    pieces.append(render_share_button(watch_key, w["title"]))
     pieces.append('</section>')
     return "\n".join(pieces)
 
@@ -694,6 +717,47 @@ ul.application li { margin-bottom: 8px; }
 .helm-icon { color: var(--gold); font-size: 1.1rem; }
 .helm-label { color: var(--gold); font-weight: 600; }
 
+.share-actions { display: flex; justify-content: center; }
+.share-actions-all[hidden] { display: none; }
+.share-actions-all { margin: -4px 0 18px; }
+.share-actions-watch {
+    margin-top: 22px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+}
+.share-reading {
+    appearance: none;
+    border: 1px solid var(--gold);
+    border-radius: 8px;
+    background: transparent;
+    color: var(--gold-light);
+    cursor: pointer;
+    font: 600 0.92rem/1.2 'Inter', sans-serif;
+    padding: 11px 18px;
+    transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
+}
+.share-reading:hover,
+.share-reading:focus-visible {
+    background: var(--gold);
+    color: #000;
+    outline: none;
+}
+.share-reading:active { transform: translateY(1px); }
+.share-reading.share-success { background: #244b32; border-color: #73c98b; color: #fff; }
+.share-reading.share-error { border-color: #d36b6b; color: #ffb3b3; }
+.share-icon { font-size: 1.05em; margin-right: 3px; }
+.share-status {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
 footer {
     text-align: center;
     color: var(--gray);
@@ -722,6 +786,7 @@ footer .draft-note {
 @media (max-width: 540px) {
     .watch-tab { flex: 1 1 64px; font-size: 0.78rem; padding: 6px 4px; }
     .watch-tab .tab-time { font-size: 0.65rem; }
+    .share-reading { width: 100%; }
 }
 """
 
@@ -754,6 +819,8 @@ TAB_JS = """
     document.querySelectorAll('.watch-tab').forEach(t => {
       t.classList.toggle('active', t.dataset.tab === (isAll ? 'all' : slug));
     });
+    const allShare = document.querySelector('.share-actions-all');
+    if (allShare) allShare.hidden = !isAll;
   }
   document.querySelectorAll('.watch-tab').forEach(t => {
     t.addEventListener('click', function(e){
@@ -762,6 +829,76 @@ TAB_JS = """
       history.replaceState(null, '', '#' + slug);
       showOnly(slug);
       window.scrollTo({top: 0, behavior:'smooth'});
+    });
+  });
+
+  async function copyShareLink(url) {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(url);
+      return;
+    }
+    const textArea = document.createElement('textarea');
+    textArea.value = url;
+    textArea.setAttribute('readonly', '');
+    textArea.style.position = 'fixed';
+    textArea.style.opacity = '0';
+    document.body.appendChild(textArea);
+    textArea.select();
+    const copied = document.execCommand('copy');
+    textArea.remove();
+    if (!copied) throw new Error('Copy command failed');
+  }
+
+  function showShareStatus(button, text, className) {
+    const original = button.dataset.originalLabel || button.innerHTML;
+    button.dataset.originalLabel = original;
+    button.textContent = text;
+    button.classList.remove('share-success', 'share-error');
+    button.classList.add(className);
+    const status = button.parentElement.querySelector('.share-status');
+    if (status) {
+      if (status.textContent === text) {
+        status.textContent = '';
+        window.setTimeout(() => { status.textContent = text; }, 50);
+      } else {
+        status.textContent = text;
+      }
+    }
+    window.setTimeout(() => {
+      button.innerHTML = original;
+      button.classList.remove('share-success', 'share-error');
+    }, 2200);
+  }
+
+  document.querySelectorAll('.share-reading').forEach(button => {
+    button.addEventListener('click', async function(){
+      const slug = this.dataset.shareHash;
+      const watchTitle = this.dataset.shareTitle;
+      const shareUrl = new URL(window.location.href);
+      shareUrl.hash = '#' + slug;
+      const isAll = slug === 'all';
+      const dateLabel = document.querySelector('.hero h1').textContent.trim();
+      const title = isAll ? `${dateLabel} — All Today’s Readings` : watchTitle;
+      const text = isAll
+        ? `All five U.S.M.C. Ministries readings for ${dateLabel}`
+        : `${watchTitle} — U.S.M.C. Ministries`;
+      try {
+        if (navigator.share) {
+          await navigator.share({title, text, url: shareUrl.toString()});
+          showShareStatus(this, '✓ Shared', 'share-success');
+        } else {
+          await copyShareLink(shareUrl.toString());
+          showShareStatus(this, '✓ Link copied', 'share-success');
+        }
+      } catch (error) {
+        if (error && error.name === 'AbortError') return;
+        try {
+          await copyShareLink(shareUrl.toString());
+          showShareStatus(this, '✓ Link copied', 'share-success');
+        } catch (_copyError) {
+          showShareStatus(this, 'Unable to share', 'share-error');
+        }
+      }
     });
   });
 
@@ -939,6 +1076,8 @@ def render_page(date_str, md_text, version=None):
 </div>
 
 {tabs_html}
+
+{render_share_button('all', "All Today’s Readings", all_watches=True)}
 
 {watches_html}
 
