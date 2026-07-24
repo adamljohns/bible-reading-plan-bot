@@ -101,7 +101,7 @@ def render_virtue_label(framework, letter, virtue):
 def render_watch(date, key, w):
     slug = WATCH_SLUGS[key]
     pieces = [f'<section class="watch watch-{slug}" id="watch-{slug}" data-watch="{slug}">']
-    pieces.append(f'<div class="watch-header"><span class="watch-time">{escape(w["time"])}</span> <h2>{escape(w["title"])}</h2></div>')
+    pieces.append(f'<div class="watch-header"><span class="watch-time">{escape(w["time"])}</span> <h2>{escape(w["title"])}</h2><button type="button" class="copy-btn copy-btn-sm" data-copy-watch>Copy This Watch</button></div>')
 
     if "intro" in w:
         pieces.append(f'<p class="intro">{escape(w["intro"])}</p>')
@@ -256,6 +256,73 @@ def render_page(date):
   // Initial: from hash, else 'all'
   const initial = (location.hash || '#all').slice(1);
   showOnly(initial);
+
+  function toast(msg){
+    let el = document.getElementById('copy-toast');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'copy-toast';
+      el.className = 'copy-toast';
+      el.setAttribute('role','status');
+      el.setAttribute('aria-live','polite');
+      document.body.appendChild(el);
+    }
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(el._hideTimer);
+    el._hideTimer = setTimeout(() => el.classList.remove('show'), 2000);
+  }
+  function fallbackCopy(text){
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.setAttribute('readonly','');
+    ta.style.position='fixed'; ta.style.top='-9999px';
+    document.body.appendChild(ta); ta.select();
+    let ok=false; try{ok=document.execCommand('copy');}catch(e){ok=false;}
+    document.body.removeChild(ta); return ok;
+  }
+  async function copyText(text, okMsg){
+    const cleaned=(text||'').replace(/\n{3,}/g,'\n\n').trim()+'\n';
+    let ok=false;
+    if (navigator.clipboard && window.isSecureContext) {
+      try { await navigator.clipboard.writeText(cleaned); ok=true; }
+      catch(e){ ok=fallbackCopy(cleaned); }
+    } else ok=fallbackCopy(cleaned);
+    toast(ok?okMsg:'Copy failed — long-press to select text');
+  }
+  function watchPlainText(section){
+    if(!section) return '';
+    const time=(section.querySelector('.watch-time')?.textContent||'').trim();
+    const title=(section.querySelector('.watch-header h2')?.textContent||'').trim();
+    const passage=(section.querySelector('.scripture-ref')?.textContent||'').replace(/^📖\s*/,'').trim();
+    const head = time && title ? `=== ${time} ${title}${passage ? ' — '+passage : ''} ===` : `=== ${title||'Watch'} ===`;
+    const blocks=[];
+    const intro=section.querySelector(':scope > .intro');
+    if(intro && intro.innerText.trim()) blocks.push(intro.innerText.trim());
+    section.querySelectorAll(':scope > .scripture').forEach(sc=>{
+      const ref=(sc.querySelector('.scripture-ref')?.innerText||'').replace(/^📖\s*/,'').trim();
+      const body=(sc.querySelector('.scripture-text')?.innerText||'').trim();
+      if(ref||body) blocks.push(['Scripture'+(ref?' — '+ref:''), body].filter(Boolean).join('\n'));
+    });
+    section.querySelectorAll(':scope > .section, :scope > .prayer, :scope > .helm').forEach(sec=>{
+      const clone=sec.cloneNode(true);
+      clone.querySelectorAll('.copy-btn').forEach(b=>b.remove());
+      const label=(clone.querySelector('.section-label, .prayer-title')?.innerText||'').trim();
+      const lab=clone.querySelector('.section-label, .prayer-title'); if(lab) lab.remove();
+      const body=clone.innerText.replace(/\n{3,}/g,'\n\n').trim();
+      if(label && body) blocks.push(label+'\n'+body); else if(body) blocks.push(body);
+    });
+    return [head,'',...blocks].join('\n').trim();
+  }
+  function fullDayPlainText(){
+    return Array.from(document.querySelectorAll('section.watch')).map(watchPlainText).filter(Boolean).join('\n\n---\n\n');
+  }
+  document.querySelectorAll('[data-copy-full-day]').forEach(btn=>btn.addEventListener('click',()=>copyText(fullDayPlainText(),'Copied full day')));
+  document.querySelectorAll('[data-copy-watch]').forEach(btn=>btn.addEventListener('click',function(){
+    const section=this.closest('section.watch');
+    const title=(section?.querySelector('.watch-header h2')?.textContent||'watch').trim();
+    copyText(watchPlainText(section),'Copied '+title);
+  }));
+
 })();
 </script>
 """
@@ -455,6 +522,9 @@ def render_page(date):
         </div>
 
         {tabs_html}
+<div class="copy-bar"><button type="button" class="copy-btn" data-copy-full-day>Copy Full Day</button>
+<span class="copy-hint">Speechify / full-day link: use this page as-is (All Watches) or Copy Full Day.</span></div>
+<div id="copy-toast" class="copy-toast" role="status" aria-live="polite"></div>
 
         {watches_html}
 
