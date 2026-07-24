@@ -378,6 +378,7 @@
   // ── Share modal ───────────────────────────────────────────────────────
   var shareModalRef = null;
   var shareModalWire = null;
+  var renderHistory = function () {};
 
   function buildShareModal(d) {
     var modalId = 'share-modal';
@@ -517,7 +518,7 @@
       ASSESSMENT_DATA.axisScores[axisIdx] = parseInt(val);
       document.getElementById('val-' + axisIdx).textContent = val;
       document.getElementById('avg-' + axisIdx).textContent = getAxisAvg(axisIdx).toFixed(1);
-      updateChart();
+      updateCurrentChart();
     };
 
     // Build DOM
@@ -620,12 +621,12 @@
     renderHistory();
 
     // Wire up updateChart
-    function updateChart() {
+    function updateCurrentChart() {
       updateChart(ASSESSMENT_DATA, ASSESSMENT_DATA.axes, getRadarData, getOverallAvg, getTier);
     }
 
     // Expose to window
-    window.updateChart = updateChart;
+    window.updateChart = updateCurrentChart;
     window.bteToggleTheme = bteToggleTheme;
     window.runAssessment = runAssessment;
     window.saveProgress = saveProgress;
