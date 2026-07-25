@@ -16,7 +16,7 @@ Priority heuristic by location:
 Excludes:
   - _archive/, _backup/, _wip/  paths
   - .git/, node_modules/        if any
-  - any page with `noindex` meta tag (sampled — slow to check all)
+  - any page whose HTML contains a noindex robots meta tag
 """
 import os
 import sys
@@ -64,10 +64,21 @@ def _redirected_slugs():
     return set()
 
 
+def _has_noindex(full_path):
+    """True if page declares noindex (skip sitemap — avoids crawl conflicts)."""
+    try:
+        with open(full_path, encoding='utf-8', errors='ignore') as f:
+            head = f.read(4096)
+        return 'noindex' in head.lower()
+    except OSError:
+        return False
+
+
 def collect_urls():
     """Walk docs/ and yield (url, lastmod_iso, priority, changefreq) tuples."""
     redirected = _redirected_slugs()
     rows = []
+    skipped_noindex = 0
     for root, dirs, files in os.walk(DOCS):
         # Skip blacklisted segments
         dirs[:] = [d for d in dirs if d not in SKIP_SEGMENTS]
@@ -75,6 +86,9 @@ def collect_urls():
             if not fn.endswith('.html'):
                 continue
             full = os.path.join(root, fn)
+            if _has_noindex(full):
+                skipped_noindex += 1
+                continue
             rel = os.path.relpath(full, DOCS).replace(os.sep, '/')
             # Skip merged-away dictionary entries — they are no-index redirect stubs
             if rel.startswith('dictionary/') and rel[len('dictionary/'):-5] in redirected:
@@ -91,6 +105,8 @@ def collect_urls():
             lastmod = mtime.strftime('%Y-%m-%d')
             prio, freq = priority_and_freq(rel)
             rows.append((url, lastmod, prio, freq))
+    if skipped_noindex:
+        print(f'Skipped {skipped_noindex} noindex pages')
     return rows
 
 

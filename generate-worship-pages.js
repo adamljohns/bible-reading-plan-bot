@@ -479,13 +479,14 @@ function detectScriptures(song) {
 
 /* ───────────────────────── shared HTML fragments ───────────────────────── */
 
-function pageHead(title, desc, canonicalPath, depth) {
+function pageHead(title, desc, canonicalPath, depth, extraHead = '') {
   const root = depth ? '../' : '';
+  const ogUrl = `https://usmcmin.org/${canonicalPath}`;
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <link rel="canonical" href="https://usmcmin.org/${canonicalPath}">
+    <link rel="canonical" href="${ogUrl}">
     <link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg">
     <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-touch-icon.png">
@@ -493,14 +494,37 @@ function pageHead(title, desc, canonicalPath, depth) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta property="og:title" content="${escapeHtml(title)}">
     <meta property="og:description" content="${escapeHtml(desc)}">
+    <meta property="og:url" content="${ogUrl}">
+    <meta property="og:type" content="website">
     <meta property="og:image" content="https://usmcmin.org/assets/og/og-lexicon.png?v=51">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="${escapeHtml(title)}">
+    <meta name="twitter:description" content="${escapeHtml(desc)}">
+    <meta name="twitter:image" content="https://usmcmin.org/assets/og/og-lexicon.png?v=51">
     <meta name="description" content="${escapeHtml(desc)}">
     <title>${escapeHtml(title)}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/css/light-icons.css">
-    <link rel="stylesheet" href="/assets/css/print.css" media="print">`;
+    <link rel="stylesheet" href="/assets/css/print.css" media="print">${extraHead}`;
+}
+
+function musicCompositionLd(song, canonicalPath) {
+  const ld = {
+    '@context': 'https://schema.org',
+    '@type': 'MusicComposition',
+    name: song.title,
+    url: `https://usmcmin.org/${canonicalPath}`,
+    inLanguage: 'en',
+    isPartOf: {
+      '@type': 'WebPage',
+      name: 'USMC Ministries Worship Directory',
+      url: 'https://usmcmin.org/worship.html',
+    },
+  };
+  if (song.key) ld.musicalKey = song.key;
+  return `<script type="application/ld+json">${JSON.stringify(ld)}</script>`;
 }
 
 function navBlock(depth) {
@@ -716,7 +740,7 @@ function songPage(song, siblings) {
 
   return `${pageHead(song.title + ' — Chords & Lyrics | USMC Ministries',
       'Chord chart and lyrics for ' + song.title + (song.key ? ' (key of ' + song.key + ')' : '') + '. Free worship leader resource from USMC Ministries.',
-      'worship/' + song.slug + '.html', 1)}
+      'worship/' + song.slug + '.html', 1, '\n    ' + musicCompositionLd(song, 'worship/' + song.slug + '.html'))}
     <style>${BASE_CSS}${SONG_CSS}</style>
 </head>
 <body>

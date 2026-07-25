@@ -48,6 +48,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import sys
 from string import Template
 
@@ -73,6 +74,7 @@ HTML_TEMPLATE = Template(r"""<!DOCTYPE html>
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="${WORD} &mdash; The MOOP Dictionary">
     <meta name="twitter:image" content="https://usmcmin.org/assets/icons/icon-512.png">
+    <script type="application/ld+json">${JSONLD}</script>
     <style>
         * { margin:0; padding:0; box-sizing:border-box; }
         :root { --bg:#000; --card:#111; --gold:#D4AF37; --gold-light:#F4D470; --white:#FFF; --gray:#888; --border:#333; }
@@ -371,6 +373,28 @@ def render_verdict_card(verdict):
 '''
 
 
+def render_jsonld(record):
+    """DefinedTerm JSON-LD for dictionary entries (head-only; no display impact)."""
+    word = record['word']
+    slug = record['slug']
+    url = f'https://usmcmin.org/dictionary/{slug}.html'
+    desc = re.sub(r'<[^>]+>', '', record.get('biblical_def', ''))[:280]
+    data = {
+        '@context': 'https://schema.org',
+        '@type': 'DefinedTerm',
+        'name': word,
+        'termCode': slug,
+        'url': url,
+        'description': desc,
+        'inDefinedTermSet': {
+            '@type': 'DefinedTermSet',
+            'name': 'The MOOP Dictionary',
+            'url': 'https://usmcmin.org/dictionary/',
+        },
+    }
+    return json.dumps(data, ensure_ascii=False)
+
+
 def render(record):
     # modern_coinage=true => the word did not exist in 1828, so render an honest
     # "Origin & Era" heading instead of a fabricated "Webster 1828 Definition".
@@ -397,6 +421,7 @@ def render(record):
         ROOTS_FULL=render_lines_block(record['roots_lines']),
         USAGE=render_usage(record['usage']),
         RELATED=render_related(record['related']),
+        JSONLD=render_jsonld(record),
     )
 
 
