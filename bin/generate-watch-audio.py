@@ -61,7 +61,7 @@ SEPARATOR = re.compile(r"^[\s⸻⸏—\-·•]+$")
 SCRIPTURE_HDR = re.compile(r"^Scripture\s*[—\-]\s*(.+?)\s*$")
 SECTION_HDR = re.compile(
     r"^(Context Summary|Briefing Summary|Field Notes|Situation Report|Reflection\b.*|"
-    r"Personal Application\b.*|Prayer\b.*|Helm Command\b.*|The Charge\b.*|Rudder Steer\b.*)")
+    r"Personal Application\b.*|Prayer\b.*|Helm Command\b.*|Watch Charge\b.*|The Charge\b.*|Rudder Steer\b.*)")
 
 def load_voice_map():
     data = json.load(open(VOICE_MAP))
