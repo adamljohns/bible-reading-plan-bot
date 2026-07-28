@@ -457,7 +457,7 @@ def render_share_button(slug, title, all_watches=False):
 def render_watch(date, watch_key, intro, body_lines):
     """Render one full watch section to HTML."""
     w = WATCH_BY_KEY[watch_key]
-    pieces = [f'<section class="watch watch-{watch_key}" id="watch-{watch_key}" data-watch="{watch_key}">']
+    pieces = [f'<section class="watch watch-{watch_key}" id="{watch_key}" data-watch="{watch_key}">']
     pieces.append(
         f'<div class="watch-header">'
         f'<span class="watch-time">{w["time"]}</span> '
@@ -875,8 +875,27 @@ TAB_JS = """
       t.classList.toggle('is-now', t.dataset.tab === NOW_SLUG);
     });
   }
+  // PJG-0014: canonical short slugs + legacy aliases
+  const ALIASES = {
+    'watch-wisdom': 'wisdom',
+    'watch-husband': 'husband',
+    'watch-father': 'father',
+    'watch-citizen': 'citizen',
+    'watch-peace': 'peace',
+    'first': 'husband',
+    'second': 'father',
+    'third': 'citizen',
+  };
+  function normalizeSlug(raw) {
+    const s = (raw || '').replace(/^#/, '').trim().toLowerCase();
+    if (!s) return 'all';
+    if (SLUGS.includes(s)) return s;
+    if (ALIASES[s]) return ALIASES[s];
+    return 'all'; // unknown → all (safe; keeps bare/Speechify path)
+  }
   function showOnly(slug){
-    const isAll = slug === 'all' || !SLUGS.includes(slug);
+    slug = normalizeSlug(slug);
+    const isAll = slug === 'all';
     document.querySelectorAll('section.watch').forEach(s => {
       s.style.display = (isAll || s.dataset.watch === slug) ? '' : 'none';
     });
@@ -886,15 +905,34 @@ TAB_JS = """
     const allShare = document.querySelector('.share-actions-all');
     if (allShare) allShare.hidden = !isAll;
   }
+  function applyHash(raw, {scroll=false} = {}) {
+    const hadHash = !!(raw && String(raw).replace(/^#/, '').trim());
+    const slug = normalizeSlug(raw);
+    // Canonicalize only when a hash is present (never force #all onto bare URLs — PJG-0012)
+    if (hadHash) {
+      const canon = '#' + slug;
+      if (location.hash.toLowerCase() !== canon) history.replaceState(null, '', canon);
+    }
+    showOnly(slug);
+    if (scroll) {
+      if (slug !== 'all') {
+        document.getElementById(slug)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+  }
   document.querySelectorAll('.watch-tab').forEach(t => {
     t.addEventListener('click', function(e){
       e.preventDefault();
-      const slug = this.dataset.tab;
+      const slug = normalizeSlug(this.dataset.tab);
       history.replaceState(null, '', '#' + slug);
       showOnly(slug);
-      window.scrollTo({top: 0, behavior:'smooth'});
+      if (slug === 'all') window.scrollTo({top: 0, behavior:'smooth'});
+      else document.getElementById(slug)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
   });
+  window.addEventListener('hashchange', () => applyHash(location.hash, {scroll: true}));
 
   async function copyShareLink(url) {
     if (navigator.clipboard && window.isSecureContext) {
@@ -968,19 +1006,19 @@ TAB_JS = """
     });
   });
 
-  // Initial selection priority:
-  //   1. URL hash if present  (#all / #wisdom / #husband / #father / #citizen / #peace)
-  //   2. Auto-select the watch that is "live right now"
-  let initial;
-  if (location.hash) {
-    initial = location.hash.slice(1);
-  } else {
-    // PJG-0012: bare URL shows all five (Speechify / full-day paste).
-    // NOW badge remains visual-only; tabs still filter on click.
-    initial = 'all';
-  }
+  // Initial selection (PJG-0012 + PJG-0014):
+  //   bare URL → all five (Speechify / Copy Full Day)
+  //   #wisdom etc → single watch; legacy #watch-wisdom aliased
+  //   NOW badge remains visual-only
   markNowBadge();
-  showOnly(initial);
+  if (location.hash) {
+    const slug = normalizeSlug(location.hash);
+    const canon = '#' + slug;
+    if (location.hash.toLowerCase() !== canon) history.replaceState(null, '', canon);
+    showOnly(slug);
+  } else {
+    showOnly('all');
+  }
   // PJG-0012 — plain-text copy for Speechify paste
   function copyToast(msg){
     let el = document.getElementById('copy-toast');

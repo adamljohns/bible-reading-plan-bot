@@ -309,7 +309,7 @@ footer .draft-note {
 
 <div class="share-actions share-actions-all"><button type="button" class="share-reading" data-share-hash="all" data-share-title="All Today’s Readings" aria-label="Share all of today’s readings"><span class="share-icon" aria-hidden="true">↗</span> Share all of today’s readings</button><span class="share-status" role="status" aria-live="polite" aria-atomic="true"></span></div>
 
-<section class="watch watch-wisdom" id="watch-wisdom" data-watch="wisdom">
+<section class="watch watch-wisdom" id="wisdom" data-watch="wisdom">
 <div class="watch-header"><span class="watch-time">0600</span> <h2>Morning Wisdom</h2><button type="button" class="copy-btn copy-btn-sm" data-copy-watch>Copy This Watch</button></div>
 <p class="intro">Solomon closes his second collection with a charge to courage — the wise man is strong, the faithful man rises, and the man with eyes open is not allowed to walk past a brother being dragged toward death.</p>
 <div class="audio-slot">
@@ -370,7 +370,7 @@ footer .draft-note {
 <div class="share-actions share-actions-watch"><button type="button" class="share-reading" data-share-hash="wisdom" data-share-title="Morning Wisdom" aria-label="Share this reading: Morning Wisdom"><span class="share-icon" aria-hidden="true">↗</span> Share this reading</button><span class="share-status" role="status" aria-live="polite" aria-atomic="true"></span></div>
 </section>
 
-<section class="watch watch-husband" id="watch-husband" data-watch="husband">
+<section class="watch watch-husband" id="husband" data-watch="husband">
 <div class="watch-header"><span class="watch-time">0700</span> <h2>First Watch — The Husband&#x27;s Post</h2><button type="button" class="copy-btn copy-btn-sm" data-copy-watch>Copy This Watch</button></div>
 <p class="intro">The first watch carries us north into Israel — Omri&#x27;s dynasty, Ahab&#x27;s marriage to Jezebel, the rebuilding of Jericho under a curse, and a hungry prophet sent to a foreign widow who has only a handful of meal left. Down south, Jehoshaphat foolishly entangles his house with Ahab&#x27;s.</p>
 <div class="audio-slot">
@@ -438,7 +438,7 @@ footer .draft-note {
 <div class="share-actions share-actions-watch"><button type="button" class="share-reading" data-share-hash="husband" data-share-title="First Watch — The Husband&#x27;s Post" aria-label="Share this reading: First Watch — The Husband&#x27;s Post"><span class="share-icon" aria-hidden="true">↗</span> Share this reading</button><span class="share-status" role="status" aria-live="polite" aria-atomic="true"></span></div>
 </section>
 
-<section class="watch watch-father" id="watch-father" data-watch="father">
+<section class="watch watch-father" id="father" data-watch="father">
 <div class="watch-header"><span class="watch-time">1100</span> <h2>Second Watch — The Father&#x27;s Charge</h2><button type="button" class="copy-btn copy-btn-sm" data-copy-watch>Copy This Watch</button></div>
 <p class="intro">The second watch shows us a prophet who refuses to leave a household until the LORD has restored its son — and then a king who refuses to let his nation drift after his own foolish alliance. Two pictures of fatherly discipline: one in a back room over a child&#x27;s body, the other in the public square setting up judges who will fear the LORD.</p>
 <div class="audio-slot">
@@ -498,7 +498,7 @@ footer .draft-note {
 <div class="share-actions share-actions-watch"><button type="button" class="share-reading" data-share-hash="father" data-share-title="Second Watch — The Father&#x27;s Charge" aria-label="Share this reading: Second Watch — The Father&#x27;s Charge"><span class="share-icon" aria-hidden="true">↗</span> Share this reading</button><span class="share-status" role="status" aria-live="polite" aria-atomic="true"></span></div>
 </section>
 
-<section class="watch watch-citizen" id="watch-citizen" data-watch="citizen">
+<section class="watch watch-citizen" id="citizen" data-watch="citizen">
 <div class="watch-header"><span class="watch-time">1500</span> <h2>Third Watch — The Citizen&#x27;s Stand</h2><button type="button" class="copy-btn copy-btn-sm" data-copy-watch>Copy This Watch</button></div>
 <p class="intro">The third watch is the day&#x27;s hinge — Elijah on Mount Carmel forcing a divided nation to choose, and Jehoshaphat at the temple forcing a frightened nation to wait. Two pictures of loyalty: the public confession, and the public dependence.</p>
 <div class="audio-slot">
@@ -573,7 +573,7 @@ footer .draft-note {
 <div class="share-actions share-actions-watch"><button type="button" class="share-reading" data-share-hash="citizen" data-share-title="Third Watch — The Citizen&#x27;s Stand" aria-label="Share this reading: Third Watch — The Citizen&#x27;s Stand"><span class="share-icon" aria-hidden="true">↗</span> Share this reading</button><span class="share-status" role="status" aria-live="polite" aria-atomic="true"></span></div>
 </section>
 
-<section class="watch watch-peace" id="watch-peace" data-watch="peace">
+<section class="watch watch-peace" id="peace" data-watch="peace">
 <div class="watch-header"><span class="watch-time">2100</span> <h2>Evening Peace</h2><button type="button" class="copy-btn copy-btn-sm" data-copy-watch>Copy This Watch</button></div>
 <p class="intro">Tonight closes the LORD&#x27;s day with the Psalmist&#x27;s quiet picture of the household that fears the LORD — wife as fruitful vine, children as olive shoots, the man eating the bread his hands earned, and peace running out from his table to his city.</p>
 <div class="audio-slot">
@@ -638,8 +638,27 @@ footer .draft-note {
       t.classList.toggle('is-now', t.dataset.tab === NOW_SLUG);
     });
   }
+  // PJG-0014: canonical short slugs + legacy aliases
+  const ALIASES = {
+    'watch-wisdom': 'wisdom',
+    'watch-husband': 'husband',
+    'watch-father': 'father',
+    'watch-citizen': 'citizen',
+    'watch-peace': 'peace',
+    'first': 'husband',
+    'second': 'father',
+    'third': 'citizen',
+  };
+  function normalizeSlug(raw) {
+    const s = (raw || '').replace(/^#/, '').trim().toLowerCase();
+    if (!s) return 'all';
+    if (SLUGS.includes(s)) return s;
+    if (ALIASES[s]) return ALIASES[s];
+    return 'all'; // unknown → all (safe; keeps bare/Speechify path)
+  }
   function showOnly(slug){
-    const isAll = slug === 'all' || !SLUGS.includes(slug);
+    slug = normalizeSlug(slug);
+    const isAll = slug === 'all';
     document.querySelectorAll('section.watch').forEach(s => {
       s.style.display = (isAll || s.dataset.watch === slug) ? '' : 'none';
     });
@@ -649,15 +668,34 @@ footer .draft-note {
     const allShare = document.querySelector('.share-actions-all');
     if (allShare) allShare.hidden = !isAll;
   }
+  function applyHash(raw, {scroll=false} = {}) {
+    const hadHash = !!(raw && String(raw).replace(/^#/, '').trim());
+    const slug = normalizeSlug(raw);
+    // Canonicalize only when a hash is present (never force #all onto bare URLs — PJG-0012)
+    if (hadHash) {
+      const canon = '#' + slug;
+      if (location.hash.toLowerCase() !== canon) history.replaceState(null, '', canon);
+    }
+    showOnly(slug);
+    if (scroll) {
+      if (slug !== 'all') {
+        document.getElementById(slug)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+  }
   document.querySelectorAll('.watch-tab').forEach(t => {
     t.addEventListener('click', function(e){
       e.preventDefault();
-      const slug = this.dataset.tab;
+      const slug = normalizeSlug(this.dataset.tab);
       history.replaceState(null, '', '#' + slug);
       showOnly(slug);
-      window.scrollTo({top: 0, behavior:'smooth'});
+      if (slug === 'all') window.scrollTo({top: 0, behavior:'smooth'});
+      else document.getElementById(slug)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
   });
+  window.addEventListener('hashchange', () => applyHash(location.hash, {scroll: true}));
 
   async function copyShareLink(url) {
     if (navigator.clipboard && window.isSecureContext) {
@@ -731,19 +769,19 @@ footer .draft-note {
     });
   });
 
-  // Initial selection priority:
-  //   1. URL hash if present  (#all / #wisdom / #husband / #father / #citizen / #peace)
-  //   2. Auto-select the watch that is "live right now"
-  let initial;
-  if (location.hash) {
-    initial = location.hash.slice(1);
-  } else {
-    // PJG-0012: bare URL shows all five (Speechify / full-day paste).
-    // NOW badge remains visual-only; tabs still filter on click.
-    initial = 'all';
-  }
+  // Initial selection (PJG-0012 + PJG-0014):
+  //   bare URL → all five (Speechify / Copy Full Day)
+  //   #wisdom etc → single watch; legacy #watch-wisdom aliased
+  //   NOW badge remains visual-only
   markNowBadge();
-  showOnly(initial);
+  if (location.hash) {
+    const slug = normalizeSlug(location.hash);
+    const canon = '#' + slug;
+    if (location.hash.toLowerCase() !== canon) history.replaceState(null, '', canon);
+    showOnly(slug);
+  } else {
+    showOnly('all');
+  }
   // PJG-0012 — plain-text copy for Speechify paste
   function copyToast(msg){
     let el = document.getElementById('copy-toast');

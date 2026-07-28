@@ -100,7 +100,7 @@ def render_virtue_label(framework, letter, virtue):
 
 def render_watch(date, key, w):
     slug = WATCH_SLUGS[key]
-    pieces = [f'<section class="watch watch-{slug}" id="watch-{slug}" data-watch="{slug}">']
+    pieces = [f'<section class="watch watch-{slug}" id="{slug}" data-watch="{slug}">']
     pieces.append(f'<div class="watch-header"><span class="watch-time">{escape(w["time"])}</span> <h2>{escape(w["title"])}</h2></div>')
 
     if "intro" in w:
