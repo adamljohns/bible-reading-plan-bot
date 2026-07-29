@@ -1,15 +1,22 @@
 #!/usr/bin/env python3
 """generate-watch-audio.py — narrate a day's five watches with Kokoro (mlx-audio),
-TWO-VOICE edition: the narrator reads the watch, and the Scripture passage is
-handed off to that BOOK's own voice from the shared map (data/book-voices.json —
-the same casting the BTE chapter audio uses), then the narrator returns.
+THREE-VOICE edition (2026-07-29 product lock):
+  - narrator (Kokoro, PJ/watch desk) = intro + context/reflection/apps + charge
+  - book voice (data/book-voices.json) = Scripture passage
+  - Adam clone (F5-TTS-MLX) = Prayer body only
 
-Segments per watch:  [narrator: intro + "Scripture — <ref>" announcement]
-                     [book voice: the passage itself]
-                     [narrator: summary/reflection/application/prayer/charge]
-A watch with no recognizable Scripture block renders entirely in the narrator.
-If a passage's book voice IS the narrator voice (Proverbs 1-30 = am_michael),
-the passage swaps to bm_george so the handoff stays audible.
+Segments per watch:
+  [narrator: intro + "Scripture — <ref>" announcement]
+  [book voice: the passage itself]
+  [narrator: summary/reflection/application]
+  [adam-clone F5: Prayer]   # when USE_ADAM_PRAYER=1 (default) and F5 ref present
+  [narrator: Watch Charge]
+
+A watch with no recognizable Scripture block renders entirely in the narrator
+(still splits prayer to Adam clone when available).
+If a passage's book voice IS the narrator voice, the passage swaps to am_michael
+so the handoff stays audible.
+Set USE_ADAM_PRAYER=0 to keep prayer on narrator (faster / offline fallback).
 
 Name pronunciation: misaki honors inline [word](/phonemes/) markup, so household
 names are locked in a lexicon (Maria = muh-REE-uh, Boaz = BOH-az, Shiloh =
@@ -22,13 +29,15 @@ names wisdom/husband/father/citizen/peace. After rendering re-run
 Run (mlx-audio venv is Python 3.11 — the TTS stack has no cp314 wheels):
   ~/.mlx-audio-venv/bin/python bin/generate-watch-audio.py 2026-07-17 2026-07-18
 """
-import json, os, re, sys, glob, tempfile, subprocess
+import json, os, re, sys, glob, tempfile, subprocess, shutil
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 READINGS_JSON = os.path.join(ROOT, "docs", "assets", "readings")
 VOICE_MAP = os.path.join(ROOT, "data", "book-voices.json")
 OUT = os.path.join(ROOT, "docs", "assets", "audio", "readings")
 MODEL_ID = os.environ.get("KOKORO_MODEL", "mlx-community/Kokoro-82M-bf16")
+
+
 def _map_narrator():
     try:
         n = json.load(open(VOICE_MAP)).get("narrator") or {}
@@ -36,9 +45,22 @@ def _map_narrator():
     except Exception:
         return "am_michael"
 
+
 NARRATOR = os.environ.get("WATCH_VOICE") or _map_narrator()
 NARRATOR_LANG = os.environ.get("WATCH_LANG") or ("b" if NARRATOR.startswith("b") else "a")
 ALT_SCRIPTURE = ("am_michael", "a")  # used when a book's voice collides with the narrator
+USE_ADAM_PRAYER = os.environ.get("USE_ADAM_PRAYER", "1") not in ("0", "false", "False", "no")
+F5_REF = os.path.expanduser(os.environ.get(
+    "F5_REF_AUDIO", "~/Documents/05-Voice/f5tts-tests/ref-calm.wav"))
+F5_REFTEXT_PATH = os.path.expanduser(os.environ.get(
+    "F5_REF_TEXT", "~/Documents/05-Voice/f5tts-tests/ref-calm.txt"))
+F5_VENV_PY = os.path.expanduser(os.environ.get(
+    "F5_VENV_PY", "~/.venvs/f5tts/bin/python"))
+F5_REF_SEC = float(os.environ.get("F5_REF_SEC", "15.0"))
+F5_CPS = float(os.environ.get("F5_CPS", "12.5"))
+F5_BUFFER = float(os.environ.get("F5_BUFFER", "0.6"))
+F5_STEPS = int(os.environ.get("F5_STEPS", "32"))
+F5_CHUNK_MAX = int(os.environ.get("F5_CHUNK_MAX", "160"))
 SAMPLE_RATE = 24000
 GAP_SECONDS = 0.5
 
@@ -61,7 +83,11 @@ SEPARATOR = re.compile(r"^[\s⸻⸏—\-·•]+$")
 SCRIPTURE_HDR = re.compile(r"^Scripture\s*[—\-]\s*(.+?)\s*$")
 SECTION_HDR = re.compile(
     r"^(Context Summary|Briefing Summary|Field Notes|Situation Report|Reflection\b.*|"
-    r"Personal Application\b.*|Prayer\b.*|Helm Command\b.*|Watch Charge\b.*|The Charge\b.*|Rudder Steer\b.*)")
+    r"Personal Application\b.*|Prayer\b.*|Helm Command\b.*|Watch Charge\b.*|"
+    r"The Charge\b.*|Rudder Steer\b.*)")
+PRAYER_HDR = re.compile(r"^Prayer\b.*", re.I)
+CHARGE_HDR = re.compile(r"^(Helm Command|Watch Charge|The Charge|Rudder Steer)\b.*", re.I)
+
 
 def load_voice_map():
     data = json.load(open(VOICE_MAP))
@@ -71,10 +97,12 @@ def load_voice_map():
             by_name[n.lower()] = b
     return by_name
 
+
 def book_for_ref(by_name, ref):
     # "Ezekiel 41", "1 Samuel 3:1-10", "Song of Solomon 2" -> map entry
     name = re.sub(r"\s+\d.*$", "", ref).strip().lower()
     return by_name.get(name)
+
 
 def clean_lines(text):
     out = []
@@ -85,13 +113,89 @@ def clean_lines(text):
         out.append(line)
     return out
 
+
 def apply_lexicon(text):
     for word, marked in LEXICON.items():
         text = re.sub(rf"\b{word}\b", marked, text)
     return text
 
+
+def f5_prep(text):
+    text = text.replace("LORD", "Lord")
+    text = re.sub(r"[—–]", ", ", text)
+    text = re.sub(r"[ \t]+", " ", text)
+    return text.strip()
+
+
+def f5_chunks(text, mx=None):
+    mx = mx or F5_CHUNK_MAX
+    sents = re.split(r"(?<=[.!?])\s+", text)
+    out, cur = [], ""
+    for s in sents:
+        cand = (cur + " " + s).strip() if cur else s
+        if len(cand) <= mx or not cur:
+            cur = cand
+        else:
+            out.append(cur)
+            cur = s
+    if cur:
+        out.append(cur)
+    final = []
+    for c in out:
+        while len(c) > mx + 60:
+            cut = c.rfind(",", 0, mx)
+            cut = cut if cut > 40 else mx
+            final.append(c[:cut].strip())
+            c = c[cut:].strip(" ,")
+        if c:
+            final.append(c)
+    return [c for c in final if c]
+
+
+def adam_prayer_ready():
+    return (USE_ADAM_PRAYER
+            and os.path.isfile(F5_REF)
+            and os.path.isfile(F5_VENV_PY)
+            and os.path.isfile(F5_REFTEXT_PATH))
+
+
+def join_lines(ls):
+    t = "\n".join(l for l in ls if l != "")
+    return re.sub(r"\n{3,}", "\n\n", t).strip()
+
+
+def split_prayer(post_lines):
+    """Split post-scripture body into before / prayer / after.
+
+    Prayer ends at the first Amen line (or Charge header). Anything after
+    Amen (e.g. "This Day in American History") returns to narrator — never
+    into Adam's clone voice.
+    """
+    before, prayer, after = [], [], []
+    st = "before"
+    amen_end = re.compile(r"\bAmen\.?\s*$", re.I)
+    for line in post_lines:
+        if st == "before" and PRAYER_HDR.match(line):
+            st = "prayer"
+            prayer.append(line)
+            continue
+        if st == "prayer" and CHARGE_HDR.match(line):
+            st = "after"
+            after.append(line)
+            continue
+        if st == "before":
+            before.append(line)
+        elif st == "prayer":
+            prayer.append(line)
+            if amen_end.search(line):
+                st = "after"
+        else:
+            after.append(line)
+    return before, prayer, after
+
+
 def segment_watch(text, by_name):
-    """Return ([(voice, lang, text), ...], handoff_info) — narrator/scripture/narrator."""
+    """Return (segs, handoff_info). segs = (voice, lang, engine, speed, text)."""
     lines = clean_lines(text)
     pre, passage, post = [], [], []
     state = "pre"
@@ -101,7 +205,8 @@ def segment_watch(text, by_name):
             m = SCRIPTURE_HDR.match(line)
             pre.append(line)
             if m:
-                ref = m.group(1); state = "passage"
+                ref = m.group(1)
+                state = "passage"
             continue
         if state == "passage":
             if SEPARATOR.match(line) or SECTION_HDR.match(line):
@@ -114,47 +219,122 @@ def segment_watch(text, by_name):
         if not SEPARATOR.match(line):
             post.append(line)
 
-    def join(ls):
-        t = "\n".join(l for l in ls if l != "")
-        return re.sub(r"\n{3,}", "\n\n", t).strip()
-
     entry = book_for_ref(by_name, ref) if ref else None
-    pre_t, pas_t, post_t = join(pre), join(passage), join(post)
+    pre_t, pas_t = join_lines(pre), join_lines(passage)
     NARR_SEG = (NARRATOR, NARRATOR_LANG, "kokoro", 1.0)
+    ADAM_SEG = ("adam-clone", "a", "f5", 1.0)
+    use_adam = adam_prayer_ready()
+
+    def append_post(segs, post_lines):
+        before, prayer, after = split_prayer(post_lines)
+        if join_lines(before):
+            segs.append(NARR_SEG + (apply_lexicon(join_lines(before)),))
+        if join_lines(prayer):
+            if use_adam:
+                segs.append(ADAM_SEG + (f5_prep(join_lines(prayer)),))
+            else:
+                segs.append(NARR_SEG + (apply_lexicon(join_lines(prayer)),))
+        if join_lines(after):
+            segs.append(NARR_SEG + (apply_lexicon(join_lines(after)),))
+        return bool(join_lines(prayer) and use_adam)
+
     if not entry or not pas_t:
-        whole = join([l for l in lines if not SEPARATOR.match(l)])
-        return [NARR_SEG + (apply_lexicon(whole),)], None
+        body_lines = [l for l in lines if not SEPARATOR.match(l)]
+        segs = []
+        had_prayer = append_post(segs, body_lines)
+        if not segs:
+            segs = [NARR_SEG + (apply_lexicon(join_lines(body_lines)),)]
+        tag = "+adam-prayer" if had_prayer else ""
+        return segs, (None, None, tag) if tag else None
+
     sv, sl = entry["voice"], entry.get("lang", "a")
     se, ssp = entry.get("engine", "kokoro"), float(entry.get("speed") or 1.0)
     if sv == NARRATOR:
         sv, sl = ALT_SCRIPTURE
         se, ssp = "kokoro", 1.0
     segs = []
-    if pre_t:  segs.append(NARR_SEG + (apply_lexicon(pre_t),))
+    if pre_t:
+        segs.append(NARR_SEG + (apply_lexicon(pre_t),))
     segs.append((sv, sl, se, ssp, apply_lexicon(pas_t)))
-    if post_t: segs.append(NARR_SEG + (apply_lexicon(post_t),))
-    return segs, (entry["name"], sv)
+    had_prayer = append_post(segs, post)
+    tag_extra = "+adam-prayer" if had_prayer else ""
+    return segs, (entry["name"], sv, tag_extra)
+
+
+def render_f5_text(text, out_wav):
+    """Render prayer text with Adam's F5 clone; write 24k mono wav."""
+    reftext = open(F5_REFTEXT_PATH).read().strip()
+    chunks = f5_chunks(text)
+    if not chunks:
+        raise RuntimeError("empty F5 prayer text")
+    tmp = tempfile.mkdtemp(prefix="f5prayer-")
+    try:
+        parts = []
+        for i, c in enumerate(chunks):
+            raw = os.path.join(tmp, f"c{i:02d}.wav")
+            dur = round(F5_REF_SEC + len(c) / F5_CPS + F5_BUFFER)
+            cmd = [F5_VENV_PY, "-m", "f5_tts_mlx.generate",
+                   "--text", c, "--ref-audio", F5_REF, "--ref-text", reftext,
+                   "--duration", str(dur), "--steps", str(F5_STEPS),
+                   "--output", raw]
+            r = subprocess.run(cmd, capture_output=True, text=True)
+            if not os.path.isfile(raw):
+                raise RuntimeError(
+                    f"F5 failed chunk {i}: {(r.stderr or r.stdout or '')[-400:]}")
+            rw = os.path.join(tmp, f"c{i:02d}_24.wav")
+            subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", raw,
+                            "-ar", str(SAMPLE_RATE), "-ac", "1", rw], check=True)
+            parts.append(rw)
+        if len(parts) == 1:
+            subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", parts[0],
+                            "-ar", str(SAMPLE_RATE), "-ac", "1", out_wav], check=True)
+        else:
+            lst = os.path.join(tmp, "list.txt")
+            open(lst, "w").write("\n".join(f"file '{p}'" for p in parts))
+            subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-f", "concat",
+                            "-safe", "0", "-i", lst, "-ar", str(SAMPLE_RATE),
+                            "-ac", "1", out_wav], check=True)
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+
 
 def render_watch(model, gen_audio, date, key, segs):
     with tempfile.TemporaryDirectory(prefix="watch-") as tmp:
         sil = os.path.join(tmp, "sil.wav")
         subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-f", "lavfi",
-                        "-i", f"anullsrc=r={SAMPLE_RATE}:cl=mono", "-t", str(GAP_SECONDS), sil], check=True)
+                        "-i", f"anullsrc=r={SAMPLE_RATE}:cl=mono",
+                        "-t", str(GAP_SECONDS), sil], check=True)
         parts = []
         for i, (voice, lang, engine, spd, text) in enumerate(segs):
-            seg_dir = os.path.join(tmp, f"s{i}"); os.makedirs(seg_dir)
+            seg_dir = os.path.join(tmp, f"s{i}")
+            os.makedirs(seg_dir)
             if engine == "piper":
                 pw = os.path.join(seg_dir, "p.wav")
-                pmodel = os.path.join(os.path.expanduser("~"), ".piper-voices", f"{voice}.onnx")
-                subprocess.run([os.path.join(os.path.expanduser("~"), ".piper-venv", "bin", "python"),
-                                "-m", "piper", "-m", pmodel, "--length-scale", str(1.0 / (spd or 1.0)),
-                                "--sentence-silence", "0.35", "-f", pw],
-                               input=text.encode(), check=True, capture_output=True)
-                # piper renders 22.05k; resample to the kokoro concat rate
+                pmodel = os.path.join(os.path.expanduser("~"),
+                                      ".piper-voices", f"{voice}.onnx")
+                subprocess.run(
+                    [os.path.join(os.path.expanduser("~"), ".piper-venv", "bin", "python"),
+                     "-m", "piper", "-m", pmodel,
+                     "--length-scale", str(1.0 / (spd or 1.0)),
+                     "--sentence-silence", "0.35", "-f", pw],
+                    input=text.encode(), check=True, capture_output=True)
                 rw = os.path.join(seg_dir, "p24.wav")
                 subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", pw,
                                 "-ar", str(SAMPLE_RATE), "-ac", "1", rw], check=True)
                 wavs = [rw]
+            elif engine == "f5":
+                fw = os.path.join(seg_dir, "p24.wav")
+                try:
+                    render_f5_text(text, fw)
+                    wavs = [fw]
+                except Exception as e:
+                    print(f"  WARN F5 prayer failed ({e}); "
+                          f"falling back to narrator for this segment", flush=True)
+                    gen_audio(text=apply_lexicon(text), model=model, voice=NARRATOR,
+                              lang_code=NARRATOR_LANG, output_path=seg_dir,
+                              file_prefix="p", join_audio=True,
+                              audio_format="wav", verbose=False)
+                    wavs = sorted(glob.glob(os.path.join(seg_dir, "*.wav")))
             else:
                 gen_audio(text=text, model=model, voice=voice, lang_code=lang,
                           output_path=seg_dir, file_prefix="p", join_audio=True,
@@ -162,26 +342,34 @@ def render_watch(model, gen_audio, date, key, segs):
                 wavs = sorted(glob.glob(os.path.join(seg_dir, "*.wav")))
             if not wavs:
                 raise RuntimeError(f"no wav for {date} {key} segment {i} ({voice})")
-            if parts: parts.append(sil)
+            if parts:
+                parts.append(sil)
             parts.append(wavs[0])
         lst = os.path.join(tmp, "list.txt")
         open(lst, "w").write("\n".join(f"file '{p}'" for p in parts))
         os.makedirs(OUT, exist_ok=True)
         mp3 = os.path.join(OUT, f"{date}-{FILE_KEY[key]}.mp3")
-        subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-f", "concat", "-safe", "0",
-                        "-i", lst, "-codec:a", "libmp3lame", "-b:a", "64k", "-ac", "1", mp3], check=True)
-    secs = float(subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration",
-                                 "-of", "default=nk=1:nw=1", mp3], capture_output=True, text=True).stdout.strip())
+        subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-f", "concat",
+                        "-safe", "0", "-i", lst, "-codec:a", "libmp3lame",
+                        "-b:a", "64k", "-ac", "1", mp3], check=True)
+    secs = float(subprocess.run(
+        ["ffprobe", "-v", "error", "-show_entries", "format=duration",
+         "-of", "default=nk=1:nw=1", mp3],
+        capture_output=True, text=True).stdout.strip())
     return os.path.basename(mp3), int(secs), os.path.getsize(mp3) // 1024
+
 
 def main():
     dates = sys.argv[1:]
     if not dates:
-        print("usage: generate-watch-audio.py <YYYY-MM-DD> [more dates]"); sys.exit(2)
+        print("usage: generate-watch-audio.py <YYYY-MM-DD> [more dates]")
+        sys.exit(2)
     from mlx_audio.tts.utils import load_model
     from mlx_audio.tts.generate import generate_audio
     by_name = load_voice_map()
-    print(f"Loading Kokoro {MODEL_ID} (once); narrator={NARRATOR}...")
+    prayer_mode = "adam-clone-F5" if adam_prayer_ready() else "narrator-fallback"
+    print(f"Loading Kokoro {MODEL_ID} (once); narrator={NARRATOR}; "
+          f"prayer={prayer_mode}...", flush=True)
     model = load_model(MODEL_ID)
     for date in dates:
         day = json.load(open(os.path.join(READINGS_JSON, f"{date}.json")))
@@ -189,11 +377,19 @@ def main():
             w = day["watches"].get(key) or {}
             text = w.get("text")
             if not text:
-                print(f"{date} {key}: NO TEXT — skipped"); continue
+                print(f"{date} {key}: NO TEXT — skipped")
+                continue
             segs, handoff = segment_watch(text, by_name)
             fname, secs, kb = render_watch(model, generate_audio, date, key, segs)
-            tag = f"scripture={handoff[0]}:{handoff[1]}" if handoff else "single-voice"
-            print(f"{date} {key:6} -> {fname}  {secs//60}:{secs%60:02d}, {kb} KB  [{tag}]")
+            if handoff and handoff[0]:
+                tag = f"scripture={handoff[0]}:{handoff[1]}{handoff[2]}"
+            elif handoff:
+                tag = f"single-voice{handoff[2]}"
+            else:
+                tag = "single-voice"
+            print(f"{date} {key:6} -> {fname}  {secs//60}:{secs%60:02d}, "
+                  f"{kb} KB  [{tag}]", flush=True)
+
 
 if __name__ == "__main__":
     main()
