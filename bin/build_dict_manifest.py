@@ -208,6 +208,35 @@ def main():
             existing.add(norm)
             alias_added += 1
 
+    # Redirect-alias layer: merged/renamed slugs (data/dictionary-redirects.txt,
+    # "<old-slug> -> <canonical>") stay SEARCHABLE, so a user who types the old
+    # phrasing still lands on the canonical entry instead of an empty result.
+    # Auto-maintained: every merge registers a redirect, and this runs in the
+    # pipeline, so aliasing never goes stale.
+    redir_path = os.path.join(DICT_DIR, '..', '..', 'data', 'dictionary-redirects.txt')
+    redir_added = 0
+    if os.path.exists(redir_path):
+        have_entry = {fn[:-5] for fn in os.listdir(DICT_DIR) if fn.endswith('.html')}
+        existing = {p[0] for p in phrases}
+        with open(redir_path, 'r', encoding='utf-8') as f:
+            for line in f:
+                if '->' not in line:
+                    continue
+                old, canon = [x.strip() for x in line.split('->', 1)]
+                if not old or canon not in have_entry:
+                    continue
+                norm = normalize(old.replace('-', ' '))
+                if not norm:
+                    continue
+                if ' ' in norm:
+                    if norm not in existing:
+                        phrases.append([norm, canon])
+                        existing.add(norm)
+                        redir_added += 1
+                elif len(norm) >= 4 and norm not in tokens:
+                    tokens[norm] = canon
+                    redir_added += 1
+
     manifest = {
         'version': 2,
         'generated_at_count': total,
@@ -222,6 +251,7 @@ def main():
     print(f"  Entries with extractable headword: {total}")
     print(f"  Single-word matches (tokens):     {len(tokens)}")
     print(f"  Multi-word matches (phrases):     {len(phrases)}  (incl. {alias_added} curated aliases)")
+    print(f"  Redirect aliases (merged terms):  {redir_added}")
     print(f"  Hover summaries captured:         {len(summaries)}")
     print(f"  Skipped (no headword found):      {skipped_no_word}")
     size_kb = os.path.getsize(OUTPUT) / 1024
