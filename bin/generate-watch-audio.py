@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """generate-watch-audio.py — narrate a day's five watches with Kokoro (mlx-audio),
-THREE-VOICE edition (2026-07-29 product lock):
+THREE-VOICE edition (2026-07-29 product lock; PJG-0018 2026-07-30 polish):
   - narrator (Kokoro, PJ/watch desk) = intro + context/reflection/apps + charge
   - book voice (data/book-voices.json) = Scripture passage
   - Adam clone (F5-TTS-MLX) = Prayer body only
@@ -62,7 +62,7 @@ F5_BUFFER = float(os.environ.get("F5_BUFFER", "0.6"))
 F5_STEPS = int(os.environ.get("F5_STEPS", "32"))
 F5_CHUNK_MAX = int(os.environ.get("F5_CHUNK_MAX", "160"))
 SAMPLE_RATE = 24000
-GAP_SECONDS = 0.5
+GAP_SECONDS = 0.65  # PJG-0018: slightly longer handoff cushion (clone/narrator)
 
 FILE_KEY = {"wisdom": "wisdom", "first": "husband", "second": "father",
             "third": "citizen", "peace": "peace"}
@@ -74,6 +74,46 @@ LEXICON = {
     "Shiloh": "[Shiloh](/ʃˈIlO/)",
     "Gideon": "[Gideon](/ɡˈɪdiən/)",
 }
+
+# PJG-0018 (2026-07-30): homage "bow" must be /baʊ/, never long-o /boʊ/.
+# Applied via context rewrite before phoneme markup (see apply_bow_homage).
+BOW_HOMAGE_RE = re.compile(
+    r"\b[Bb]ow(?:ed|ing)?\b(?=\s+(?:down|before|to|unto|low|themselves|himself|herself|myself|ourselves|yourselves))",
+    re.I,
+)
+BOW_HOMAGE_RE2 = re.compile(
+    r"\b(?:and|they|he|she|we|ye|you|I)\s+[Bb]owed\b",
+    re.I,
+)
+
+def apply_bow_homage(text: str) -> str:
+    """Force homage/bow-down readings to /baʊ/ (not /boʊ/ as in bow-and-arrow)."""
+    def _sub(m):
+        w = m.group(0)
+        low = w.lower()
+        if low == "bow":
+            return "[bow](/baʊ/)"
+        if low == "bowed":
+            return "[bowed](/baʊd/)"
+        if low == "bowing":
+            return "[bowing](/ˈbaʊɪŋ/)"
+        return w
+    text = BOW_HOMAGE_RE.sub(_sub, text)
+    # bare "bowed" after pronouns still homage in Esther narrative
+    def _sub2(m):
+        full = m.group(0)
+        return re.sub(r"[Bb]owed", "[bowed](/baʊd/)", full)
+    text = BOW_HOMAGE_RE2.sub(_sub2, text)
+    return text
+
+
+def force_declarative_amen(text: str) -> str:
+    """Final Amen must be statement, never rising question (Adam 2026-07-30)."""
+    # Strip ?/! after Amen anywhere; ensure terminal period; lock falling stress.
+    text = re.sub(r"\bAmen\b\s*[?!]+", "Amen.", text, flags=re.I)
+    text = re.sub(r"\bAmen\b(?!\s*\.|\s*\[/)", "Amen.", text, flags=re.I)
+    text = re.sub(r"\bAmen\.(?=\s|$)", "[Amen](/ˈɑːmɛn/).", text, flags=re.I)
+    return text
 
 EMOJI = re.compile(
     "[\U0001F000-\U0001FAFF\U00002600-\U000027BF\U0001F1E6-\U0001F1FF⭐✅❌️🸻]+"
@@ -91,10 +131,25 @@ CHARGE_HDR = re.compile(r"^(Helm Command|Watch Charge|The Charge|Rudder Steer)\b
 
 def load_voice_map():
     data = json.load(open(VOICE_MAP))
+    banned_voices = set(data.get("banned_voices") or [])
+    banned_agents = set(data.get("banned_scripture_agents") or ["coach-arnie"])
+    # Hard fallback if map still carries a banned agent/voice (defense in depth).
+    FALLBACK_BOOK = {
+        "voice": "am_onyx", "lang": "a", "engine": "kokoro",
+        "agent": "bg-hartwell",
+        "note": "auto-fallback: banned scripture voice/agent blocked (PJG-0018)",
+    }
     by_name = {}
     for b in data["books"]:
-        for n in [b["name"]] + b.get("aliases", []):
-            by_name[n.lower()] = b
+        bb = dict(b)
+        if bb.get("agent") in banned_agents or bb.get("voice") in banned_voices:
+            bb = {**bb, **FALLBACK_BOOK, "name": b["name"],
+                  "aliases": b.get("aliases", []), "id": b.get("id")}
+            print(f"WARN voice-map: blocked banned cast on {b.get('name')} "
+                  f"({b.get('agent')}/{b.get('voice')}) → {bb['agent']}/{bb['voice']}",
+                  flush=True)
+        for n in [bb["name"]] + bb.get("aliases", []):
+            by_name[n.lower()] = bb
     return by_name
 
 
@@ -115,8 +170,10 @@ def clean_lines(text):
 
 
 def apply_lexicon(text):
+    text = apply_bow_homage(text)
     for word, marked in LEXICON.items():
         text = re.sub(rf"\b{word}\b", marked, text)
+    text = force_declarative_amen(text)
     return text
 
 
@@ -124,6 +181,9 @@ def f5_prep(text):
     text = text.replace("LORD", "Lord")
     text = re.sub(r"[—–]", ", ", text)
     text = re.sub(r"[ \t]+", " ", text)
+    text = force_declarative_amen(text)
+    # strip misaki markup for F5 (clone stack is plain text)
+    text = re.sub(r"\[([^\]]+)\]\(/[^/)]+/\)", r"\1", text)
     return text.strip()
 
 
@@ -345,13 +405,37 @@ def render_watch(model, gen_audio, date, key, segs):
             if parts:
                 parts.append(sil)
             parts.append(wavs[0])
-        lst = os.path.join(tmp, "list.txt")
-        open(lst, "w").write("\n".join(f"file '{p}'" for p in parts))
         os.makedirs(OUT, exist_ok=True)
         mp3 = os.path.join(OUT, f"{date}-{FILE_KEY[key]}.mp3")
-        subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-f", "concat",
-                        "-safe", "0", "-i", lst, "-codec:a", "libmp3lame",
-                        "-b:a", "64k", "-ac", "1", mp3], check=True)
+        # Soft-join segments: short acrossfades reduce clone/prayer cut-outs (PJG-0018).
+        if len(parts) == 1:
+            subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", parts[0],
+                            "-codec:a", "libmp3lame", "-b:a", "64k", "-ac", "1", mp3],
+                           check=True)
+        else:
+            # Build filter: [0][1]acrossfade ... then encode.
+            # parts alternate speech, silence, speech, silence... — acrossfade only
+            # speech→speech would remove intentional pauses; keep concat + pad silence,
+            # but apply a 25ms fade-in/out on each speech file before concat.
+            faded = []
+            for i, part in enumerate(parts):
+                fw = os.path.join(tmp, f"fade{i}.wav")
+                # silence parts stay flat; speech gets tiny edge fades
+                is_sil = os.path.basename(part).startswith("sil") or part.endswith("sil.wav")
+                if is_sil:
+                    faded.append(part)
+                else:
+                    subprocess.run([
+                        "ffmpeg", "-y", "-loglevel", "error", "-i", part,
+                        "-af", "afade=t=in:st=0:d=0.035,areverse,afade=t=in:st=0:d=0.05,areverse",
+                        fw
+                    ], check=True)
+                    faded.append(fw)
+            lst = os.path.join(tmp, "list.txt")
+            open(lst, "w").write("\n".join(f"file '{p}'" for p in faded))
+            subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-f", "concat",
+                            "-safe", "0", "-i", lst, "-codec:a", "libmp3lame",
+                            "-b:a", "64k", "-ac", "1", mp3], check=True)
     secs = float(subprocess.run(
         ["ffprobe", "-v", "error", "-show_entries", "format=duration",
          "-of", "default=nk=1:nw=1", mp3],
