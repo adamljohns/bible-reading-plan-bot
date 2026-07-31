@@ -91,6 +91,12 @@ VOICE = (
     "reflection rooted in the SPECIFIC images, names, and scene of today's passage. Do NOT reach for "
     "stock closers — in particular NEVER use the worn phrase 'hold the line against the tide of "
     "compromise' or its close variants; coin a fresh nautical/military image from this text instead.\n"
+    "REFLECTION OPENER VARIETY: Do NOT default to 'Brother, look', 'Brother, look at', 'look to', "
+    "or 'look closely'. Open naturally with the text's claim, tension, scene, or question, or choose "
+    "a fitting verb such as consider, notice, think about, weigh, remember, trace, picture, hear, "
+    "mark, or reflect on. Do not repeat the same imperative opener used on the adjacent reading day. "
+    "Use 'look' only when literal sight, vision, beholding, watching, eyes, or seeing is integral to "
+    "the passage; even then, vary the syntax rather than relying on a stock formula.\n"
     "WORLDVIEW: This is explicitly patriarchal, biblical-manhood Reformed content (1689 LBCF) that "
     "celebrates and promotes biblical manhood — male headship, godly fatherhood, the protective and "
     "providing duties of a husband, and a man's covenant responsibility before God. Promote that vision "
@@ -206,6 +212,11 @@ def watch_valid(text, w):
     leaks = ["A one-sentence intro", "do NOT echo", "write the actual sentence",
              "EXACT SECTION ORDER", "VOICE LOCKS", "{TRAIT}", "{same trait}"]
     if any(lk in text for lk in leaks):
+        return False
+    # PJG-0021: retry stock reflection openings before they enter authored content.
+    # Sight-integral exceptions are judged in editorial QA; the generator should
+    # not treat the old formula as a default under any watch.
+    if re.search(r"(?im)^\s*(?:Adam,\s*)?Brother,\s+look(?:\s+(?:at|to|closely))?\b", text):
         return False
     return (w["header"][:6] in text
             and "📖 Scripture" in text

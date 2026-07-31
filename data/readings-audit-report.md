@@ -52,29 +52,39 @@
   - ×2: The day’s labor yields to the quiet watch, where the soul finds its truest rest in the sov
   - ×2: The day’s battle is done, and now we rest in the shadow of the Almighty.
 
+### Reflection opener variety (PJG-0021)
+
+- Stock look openings: **190**
+- Lexically dominant imperative openers: **4**
+  - look at: 88 (5.2%)
+  - look to: 66 (3.9%)
+  - look closely: 36 (2.1%)
+  - consider: 29 (1.7%)
+- Adjacent-day repeated imperative openers: **33**
+  - wisdom 2026-07-25 → 2026-07-26: look at
+  - first 2026-03-07 → 2026-03-08: consider
+  - first 2026-03-08 → 2026-03-09: consider
+  - first 2026-04-02 → 2026-04-03: look to
+  - first 2026-04-03 → 2026-04-04: look to
+  - first 2026-04-07 → 2026-04-08: look closely
+  - first 2026-04-08 → 2026-04-09: look closely
+  - first 2026-06-03 → 2026-06-04: look at
+  - first 2026-06-04 → 2026-06-05: look at
+  - first 2026-06-27 → 2026-06-28: look to
+  - first 2026-07-01 → 2026-07-02: look at
+  - first 2026-07-03 → 2026-07-04: consider
+  - first 2026-07-12 → 2026-07-13: consider
+  - first 2026-07-13 → 2026-07-14: consider
+  - first 2026-07-25 → 2026-07-26: look at
+  - first 2026-09-07 → 2026-09-08: look closely
+  - first 2026-09-12 → 2026-09-13: look to
+  - first 2026-09-15 → 2026-09-16: look to
+  - first 2026-09-20 → 2026-09-21: consider
+  - first 2026-10-07 → 2026-10-08: consider
+
 ## C. Application bullets duplicated across days
 
-- Distinct bullets reused (count>1): **60**
-  - ×3: Review your family’s spiritual history and identify moments where the Lord provided delive
-  - ×3: Lead your family in a brief prayer of gratitude for their safety and provision, reinforcin
-  - ×3: Stand firm in your convictions against cultural pressures, refusing to compromise biblical
-  - ×3: Prepare for future trials by strengthening your relationship with the Lord through daily S
-  - ×2: Ask your wife, “How are you doing—really?” and just listen.
-  - ×2: Then share one thing you’ve been feeling lately—not just doing.
-  - ×2: Pray out loud together. Let her see a husband who turns even his bitterness into prayer.
-  - ×2: Audit your daily communications to ensure your words match your actions, eliminating any f
-  - ×2: Accept correction from a trusted spiritual authority without defensiveness, viewing it as 
-  - ×2: Practice radical honesty in your family life, ensuring that your children see consistency 
-  - ×2: Cultivate a daily habit of examining your heart for any seeds of partiality or prejudice, 
-  - ×2: Survey the spiritual boundaries of your home this week, identifying one area where you hav
-  - ×2: Memorize the description of Caleb’s inheritance in Joshua 14 to remind yourself that faith
-  - ×2: Engage in a tangible act of protection or provision for your family that requires personal
-  - ×2: Stand firm in a recent conversation where cultural pressure demanded compromise, speaking 
-  - ×2: Review my own heart daily for any seeds of pride or compromise that could undermine my spi
-  - ×2: Establish clear, consistent boundaries for Gideon, Boaz, and Shiloh that reflect God’s mor
-  - ×2: Engage in direct, loving correction when any of my sons show signs of disobedience or disr
-  - ×2: Lead my family in regular Scripture reading to ground us in the truth that exposes sin and
-  - ×2: Audit your spiritual defenses daily; identify one area where pride or neglect has weakened
+- Distinct bullets reused (count>1): **0**
 
 ## D. History facts to verify
 
