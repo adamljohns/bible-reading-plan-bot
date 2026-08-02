@@ -112,6 +112,22 @@ function ratingIcon(r) {
   return ico('shield-chain-faith-48.png', 18);
 }
 
+// P1-P3 presentation compatibility. Keep the V7 data keys intact until the
+// separately approved P4 migration; only the public label, description, and
+// teaching-page route change here.
+const SCORE_PRESENTATION = {
+  christology: { slug: 'christology' },
+  scripture: { slug: 'scripture' },
+  mens_discipleship: { slug: 'mens-discipleship' },
+  soteriology: { slug: 'soteriology' },
+  gender: { slug: 'gender-biblical-design' },
+  leadership: { slug: 'leadership-structure' },
+  preaching: { slug: 'preaching-style' },
+  mission: { slug: 'mission-clarity' },
+  cultural: { label: 'Kingdom Alignment', slug: 'kingdom-alignment', description: "Christ's kingdom on earth as in heaven — Kingdom of Light or Kingdom of Darkness?" },
+  denominational: { label: 'Accountability Structure', slug: 'accountability-structure' },
+};
+
 function escapeHtml(str) {
   if (str == null) return '';
   if (Array.isArray(str)) str = str.join('; ');   // enrichment_notes is an array
@@ -125,10 +141,11 @@ function threatBadge(church) {
   const cls = ratingBadgeClass(church.overall_rating);
   const icon = ratingIcon(church.overall_rating);
   const label = escapeHtml(church.overall_label || church.overall_rating.toUpperCase());
-  return `<div class="threat-badge ${cls}">
+  const zone = ['green', 'yellow', 'red', 'black'].includes(church.overall_rating) ? church.overall_rating : 'yellow';
+  return `<a href="/churches/zones/${zone}.html" class="threat-badge ${cls}" aria-label="Read about the ${zone} church zone">
     <span class="threat-icon">${icon}</span>
     <span class="threat-label">${label}</span>
-  </div>`;
+  </a>`;
 }
 
 // Verification badge — shows how this church was verified.
@@ -491,6 +508,7 @@ const CSS = `
     font-weight: 700; font-size: 0.95rem;
     letter-spacing: 0.5px; margin-top: 8px;
     border: 1.5px solid;
+    text-decoration: none;
   }
   .threat-badge.rating-green { background: rgba(76,175,80,0.18); border-color: var(--green); color: #7edd80; }
   .threat-badge.rating-yellow { background: rgba(255,193,7,0.15); border-color: var(--yellow); color: #ffd85a; }
@@ -549,6 +567,8 @@ const CSS = `
   .score-row:last-child { border-bottom: none; }
   .score-info { display: flex; flex-direction: column; gap: 4px; }
   .score-label { font-weight: 600; font-size: 0.95rem; color: var(--white); }
+  .score-label a { color: inherit; text-decoration: underline; text-decoration-color: rgba(212,175,55,.45); text-underline-offset: 3px; }
+  .score-label a:hover { color: var(--gold-light); text-decoration-color: var(--gold-light); }
   .score-desc { font-size: 0.82rem; color: var(--gray-light); }
   .score-note { font-size: 0.82rem; color: #aaa; margin-top: 4px; font-style: italic; }
   .gender-detail { font-size: 0.8rem; color: #bbb; margin-top: 4px; padding: 6px 10px; background: rgba(212,175,55,0.06); border-left: 2px solid var(--gold); border-radius: 0 4px 4px 0; }
@@ -690,14 +710,15 @@ function buildPage(church) {
 
   // Build scorecard rows
   const scorecardRows = data.rubric.map(rubric => {
+    const presentation = { ...rubric, ...(SCORE_PRESENTATION[rubric.id] || {}) };
     const score = (church.scores && church.scores[rubric.id]) || 'yellow';
     const note = church.score_notes && church.score_notes[rubric.id] ? church.score_notes[rubric.id] : '';
     const gd = (rubric.id === 'gender' && church.gender_detail) ? church.gender_detail : '';
     return `
       <div class="score-row">
         <div class="score-info">
-          <div class="score-label">${escapeHtml(rubric.label)}</div>
-          <div class="score-desc">${escapeHtml(rubric.description)}</div>
+          <div class="score-label"><a href="/churches/scorecard/${presentation.slug}.html">${escapeHtml(presentation.label)}</a></div>
+          <div class="score-desc">${escapeHtml(presentation.description)}</div>
           ${note ? `<div class="score-note">${escapeHtml(note)}</div>` : ''}
           ${gd ? `<div class="gender-detail rating-${score}">${ico('shield-about-person-48.png', 14)} ${escapeHtml(gd)}</div>` : ''}
         </div>
