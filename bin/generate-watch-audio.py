@@ -108,11 +108,228 @@ def apply_bow_homage(text: str) -> str:
 
 
 def force_declarative_amen(text: str) -> str:
-    """Final Amen must be statement, never rising question (Adam 2026-07-30)."""
-    # Strip ?/! after Amen anywhere; ensure terminal period; lock falling stress.
+    """Final Amen must be statement with SECOND-syllable stress a-MEN /əˈmɛn/.
+
+    Principal ear QA 2026-07-30 + HARD reconfirm 2026-08-02: first-syllable
+    A-men punch is FAIL. Prior lock used /ˈɑːmɛn/ (stress on first) — inverted.
+    Kokoro path: misaki IPA /əˈmɛn/. F5 path: plain respell via f5_prep (markup stripped).
+    """
+    # Strip ?/! after Amen anywhere; ensure terminal period.
     text = re.sub(r"\bAmen\b\s*[?!]+", "Amen.", text, flags=re.I)
     text = re.sub(r"\bAmen\b(?!\s*\.|\s*\[/)", "Amen.", text, flags=re.I)
-    text = re.sub(r"\bAmen\.(?=\s|$)", "[Amen](/ˈɑːmɛn/).", text, flags=re.I)
+    # Second-syllable stress IPA (ə + primary stress on mɛn) — NOT /ˈɑːmɛn/
+    text = re.sub(r"\bAmen\.(?=\s|$)", "[Amen](/əˈmɛn/).", text, flags=re.I)
+    # Also catch already-wrong first-stress markup from older runs in source text
+    text = re.sub(r"\[Amen\]\(/ˈɑːmɛn/\)", "[Amen](/əˈmɛn/)", text)
+    text = re.sub(r"\[Amen\]\(/ˈɑmɛn/\)", "[Amen](/əˈmɛn/)", text)
+    return text
+
+
+def apply_homograph_context(text: str) -> str:
+    """Context-aware homograph disambiguation before synth (PJG-0802-AUD2).
+
+    Kokoro honors [word](/ipa/) markup. Expand seed list as ear QA hits.
+    Order matters: more specific patterns first.
+    """
+    # --- live: /lɪv/ dwell/reside vs /laɪv/ alive/broadcast ---
+    # dwell sense
+    text = re.sub(
+        r"\b([Ll])ive\b(?=\s+(?:in|with|among|at|on|by|under|through|as|for|out|together|alone|here|there|forever|peaceably|securely))",
+        lambda m: f"[{m.group(1)}ive](/lɪv/)",
+        text,
+    )
+    text = re.sub(
+        r"\b([Ll])ives\b(?=\s+(?:in|with|among|at|on|by|under|through|as|for|out|together|alone|here|there))",
+        lambda m: f"[{m.group(1)}ives](/lɪvz/)",
+        text,
+    )
+    text = re.sub(
+        r"\b([Ll])iving\b(?=\s+(?:in|with|among|at|on|by|under|through|as|for|out|water|God|stone))",
+        lambda m: f"[{m.group(1)}iving](/ˈlɪvɪŋ/)",
+        text,
+    )
+    # alive / broadcast sense (default for "live" is often wrong in prayer/commentary)
+    text = re.sub(
+        r"\b([Ll])ive\b(?=\s+(?:broadcast|stream|feed|wire|ammo|fire|oak|recording|audience|show|event|performance|music|band))",
+        lambda m: f"[{m.group(1)}ive](/laɪv/)",
+        text,
+    )
+    text = re.sub(
+        r"\b([Aa])live\b",
+        lambda m: f"[{m.group(1)}live](/əˈlaɪv/)",
+        text,
+    )
+
+    # --- read: past /rɛd/ vs present /riːd/ ---
+    text = re.sub(
+        r"\b([Rr])ead\b(?=\s+(?:the|this|aloud|Scripture|Word|chapter|verse|again|through|from))",
+        lambda m: f"[{m.group(1)}ead](/riːd/)",
+        text,
+    )
+    text = re.sub(
+        r"\b([Hh]ave|[Hh]as|[Hh]ad|[Bb]een)\s+([Rr])ead\b",
+        lambda m: f"{m.group(1)} [{m.group(2)}ead](/rɛd/)",
+        text,
+    )
+
+    # --- lead: /liːd/ guide vs /lɛd/ metal (rare in corpus) ---
+    text = re.sub(
+        r"\b([Ll])ead\b(?=\s+(?:me|us|them|your|the|my|our|his|her|a|an|into|out|on|away|home|well))",
+        lambda m: f"[{m.group(1)}ead](/liːd/)",
+        text,
+    )
+    text = re.sub(
+        r"\b([Ll])ead\s+(pipe|pipes|poisoning|weight|weights|bullet)\b",
+        lambda m: f"[lead](/lɛd/) {m.group(2)}",
+        text,
+        flags=re.I,
+    )
+
+    # --- tear: /tɪr/ cry vs /tɛr/ rip ---
+    text = re.sub(
+        r"\b([Tt])ears\b(?=\s+(?:of|from|in\s+his|in\s+her|in\s+my|fell|stream|down))",
+        lambda m: f"[{m.group(1)}ears](/tɪrz/)",
+        text,
+    )
+    text = re.sub(
+        r"\b([Tt])ear\b(?=\s+(?:down|apart|open|up|away|off|into))",
+        lambda m: f"[{m.group(1)}ear](/tɛr/)",
+        text,
+    )
+
+    # --- wind: /wɪnd/ air vs /waɪnd/ coil ---
+    text = re.sub(
+        r"\b([Ww])ind\b(?=\s+(?:of|from|blew|blows|blowing|howled|against|through|upon))",
+        lambda m: f"[{m.group(1)}ind](/wɪnd/)",
+        text,
+    )
+    text = re.sub(
+        r"\b([Ww])ind\b(?=\s+(?:up|down|the\s+clock|the\s+path|around))",
+        lambda m: f"[{m.group(1)}ind](/waɪnd/)",
+        text,
+    )
+
+    # --- wound: /wuːnd/ injury vs /waʊnd/ past of wind ---
+    text = re.sub(
+        r"\b([Ww])ound\b(?=\s+(?:of|from|in|up|around|tight|tightly))",
+        lambda m: f"[{m.group(1)}ound](/waʊnd/)" if "up" in m.group(0).lower() or "around" in (m.string[m.end():m.end()+10].lower()) else f"[{m.group(1)}ound](/wuːnd/)",
+        text,
+    )
+    # simpler wound injury default
+    text = re.sub(
+        r"\b([Ww])ounds\b",
+        lambda m: f"[{m.group(1)}ounds](/wuːndz/)",
+        text,
+    )
+    text = re.sub(
+        r"\b([Ww])ounded\b",
+        lambda m: f"[{m.group(1)}ounded](/ˈwuːndɪd/)",
+        text,
+    )
+
+    # --- close: /kloʊs/ near vs /kloʊz/ shut ---
+    text = re.sub(
+        r"\b([Cc])lose\b(?=\s+(?:to|by|at\s+hand|beside|with|friends|friend|quarters))",
+        lambda m: f"[{m.group(1)}lose](/kloʊs/)",
+        text,
+    )
+    text = re.sub(
+        r"\b([Cc])lose\b(?=\s+(?:the|your|his|her|my|our|this|that|up|down|out|off))",
+        lambda m: f"[{m.group(1)}lose](/kloʊz/)",
+        text,
+    )
+
+    # --- present: /ˈprɛzənt/ gift/now vs /prɪˈzɛnt/ introduce ---
+    text = re.sub(
+        r"\b([Pp])resent\b(?=\s+(?:yourself|yourselves|him|her|them|the\s+gospel|your\s+bodies))",
+        lambda m: f"[{m.group(1)}resent](/prɪˈzɛnt/)",
+        text,
+    )
+    text = re.sub(
+        r"\b([Pp])resent\b(?=\s+(?:age|moment|time|day|hour|world|help|distress))",
+        lambda m: f"[{m.group(1)}resent](/ˈprɛzənt/)",
+        text,
+    )
+
+    # --- record: /ˈrɛkərd/ noun vs /rɪˈkɔrd/ verb ---
+    text = re.sub(
+        r"\b([Rr])ecord\b(?=\s+(?:of|in|from|book|books))",
+        lambda m: f"[{m.group(1)}ecord](/ˈrɛkərd/)",
+        text,
+    )
+    text = re.sub(
+        r"\b([Rr])ecord\b(?=\s+(?:this|these|it|them|my|his|her))",
+        lambda m: f"[{m.group(1)}ecord](/rɪˈkɔrd/)",
+        text,
+    )
+
+    # --- refuse: /rɪˈfjuz/ reject vs /ˈrɛfjus/ trash ---
+    text = re.sub(
+        r"\b([Rr])efuse\b(?=\s+(?:to|him|her|them|me|us|it|this|that))",
+        lambda m: f"[{m.group(1)}efuse](/rɪˈfjuz/)",
+        text,
+    )
+
+    # --- desert: /ˈdɛzərt/ arid vs /dɪˈzɜrt/ abandon ---
+    text = re.sub(
+        r"\b([Dd])esert\b(?=\s+(?:place|places|land|lands|of|wilderness))",
+        lambda m: f"[{m.group(1)}esert](/ˈdɛzərt/)",
+        text,
+    )
+    text = re.sub(
+        r"\b([Dd])esert\b(?=\s+(?:me|us|them|him|her|the\s+post|your\s+post|the\s+watch))",
+        lambda m: f"[{m.group(1)}esert](/dɪˈzɜrt/)",
+        text,
+    )
+
+    # --- object: /ˈɑbdʒɛkt/ thing vs /əbˈdʒɛkt/ protest ---
+    text = re.sub(
+        r"\b([Oo])bject\b(?=\s+(?:to|when|if))",
+        lambda m: f"[{m.group(1)}bject](/əbˈdʒɛkt/)",
+        text,
+    )
+    text = re.sub(
+        r"\b([Oo])bject\b(?=\s+(?:of|lesson|lessons))",
+        lambda m: f"[{m.group(1)}bject](/ˈɑbdʒɛkt/)",
+        text,
+    )
+
+    # --- content: /ˈkɑntɛnt/ substance vs /kənˈtɛnt/ satisfied ---
+    text = re.sub(
+        r"\b([Cc])ontent\b(?=\s+(?:with|to))",
+        lambda m: f"[{m.group(1)}ontent](/kənˈtɛnt/)",
+        text,
+    )
+    text = re.sub(
+        r"\b([Cc])ontent\b(?=\s+(?:of|and|is|was|for))",
+        lambda m: f"[{m.group(1)}ontent](/ˈkɑntɛnt/)",
+        text,
+    )
+
+    # --- minute: /ˈmɪnɪt/ time vs /maɪˈnjuːt/ tiny ---
+    text = re.sub(
+        r"\b([Mm])inute\b(?=\s+(?:detail|details|particle|examination))",
+        lambda m: f"[{m.group(1)}inute](/maɪˈnjuːt/)",
+        text,
+    )
+    text = re.sub(
+        r"\b([Mm])inutes\b",
+        lambda m: f"[{m.group(1)}inutes](/ˈmɪnɪts/)",
+        text,
+    )
+
+    # --- attribute: noun /ˈætrɪbjuːt/ vs verb /əˈtrɪbjuːt/ ---
+    text = re.sub(
+        r"\b([Aa])ttribute\b(?=\s+(?:to|it|them|this))",
+        lambda m: f"[{m.group(1)}ttribute](/əˈtrɪbjuːt/)",
+        text,
+    )
+    text = re.sub(
+        r"\b([Aa])ttributes\b(?=\s+(?:of|and))",
+        lambda m: f"[{m.group(1)}ttributes](/ˈætrɪbjuːts/)",
+        text,
+    )
+
     return text
 
 EMOJI = re.compile(
@@ -171,6 +388,7 @@ def clean_lines(text):
 
 def apply_lexicon(text):
     text = apply_bow_homage(text)
+    text = apply_homograph_context(text)
     for word, marked in LEXICON.items():
         text = re.sub(rf"\b{word}\b", marked, text)
     text = force_declarative_amen(text)
@@ -178,12 +396,17 @@ def apply_lexicon(text):
 
 
 def f5_prep(text):
+    """Plain-text prep for F5 clone. Markup stripped; Amen forced to uh-MEN."""
     text = text.replace("LORD", "Lord")
     text = re.sub(r"[—–]", ", ", text)
     text = re.sub(r"[ \t]+", " ", text)
     text = force_declarative_amen(text)
-    # strip misaki markup for F5 (clone stack is plain text)
+    # F5 cannot use misaki IPA — strip markup first
     text = re.sub(r"\[([^\]]+)\]\(/[^/)]+/\)", r"\1", text)
+    # HARD 2026-08-02: second-syllable Amen for clone — respell after strip
+    # "uh-MEN" beats grapheme Amen (which F5 punches A-men)
+    text = re.sub(r"\bAmen\b\s*[.?!]*\s*$", "uh-MEN.", text, flags=re.I | re.M)
+    text = re.sub(r"\bAmen\b(?=\s)", "uh-MEN", text, flags=re.I)
     return text.strip()
 
 
