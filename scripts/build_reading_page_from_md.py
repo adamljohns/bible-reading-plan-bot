@@ -412,7 +412,7 @@ def render_helm(marker_line, content_lines):
     # Strip trailing separator runs that may have hitched onto the last line
     command = re.sub(r"\s*[⸻\-—]{3,}\s*$", "", command)
     command = command.strip().strip("*").strip()
-    return f'<div class="helm"><span class="helm-icon">🛡️</span> <span class="helm-label">{escape(label)}:</span> {escape(command)}</div>'
+    return f'<div class="watch-charge"><span class="watch-charge-icon">🛡️</span> <span class="watch-charge-label">{escape(label)}:</span> {escape(command)}</div>'
 
 
 def render_audio_slot(date, watch_key):
@@ -709,15 +709,15 @@ ul.application li { margin-bottom: 8px; }
 .prayer-title { color: var(--gold-light); font-weight: 600; margin-bottom: 10px; font-size: 0.95rem; }
 .prayer p { line-height: 1.85; margin-bottom: 8px; }
 
-.helm {
+.watch-charge {
     background: var(--bg-card2);
     border-radius: 6px;
     padding: 12px 18px;
     margin-top: 14px;
     font-size: 0.95rem;
 }
-.helm-icon { color: var(--gold); font-size: 1.1rem; }
-.helm-label { color: var(--gold); font-weight: 600; }
+.watch-charge-icon { color: var(--gold); font-size: 1.1rem; }
+.watch-charge-label { color: var(--gold); font-weight: 600; }
 
 .share-actions { display: flex; justify-content: center; }
 .share-actions-all[hidden] { display: none; }
@@ -1108,7 +1108,7 @@ TAB_JS = """
       const body = clone.innerText.replace(/\\n{3,}/g, '\\n\\n').trim();
       if (body) blocks.push(ptitle + '\\n' + body);
     });
-    section.querySelectorAll(':scope > .helm').forEach(h => {
+    section.querySelectorAll(':scope > .watch-charge').forEach(h => {
       const t = h.innerText.replace(/\\s+/g, ' ').trim();
       if (t) blocks.push(t.replace(/^🛡️\\s*/, '').replace(/^⚓\\s*/, ''));
     });

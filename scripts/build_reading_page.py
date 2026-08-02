@@ -82,7 +82,7 @@ def render_prayer(text, title="Prayer"):
 
 
 def render_helm(label, command):
-    return f'<div class="helm"><span class="helm-icon">⚓</span> <span class="helm-label">{escape(label)}:</span> {escape(command)}</div>'
+    return f'<div class="watch-charge"><span class="watch-charge-icon">⚓</span> <span class="watch-charge-label">{escape(label)}:</span> {escape(command)}</div>'
 
 
 def render_virtue_label(framework, letter, virtue):
@@ -407,15 +407,15 @@ def render_page(date):
         .prayer-title {{ color: var(--gold-light); font-weight: 600; margin-bottom: 10px; font-size: 0.95rem; }}
         .prayer p {{ line-height: 1.85; }}
 
-        .helm {{
+        .watch-charge {{
             background: var(--bg-card2);
             border-radius: 6px;
             padding: 12px 18px;
             margin-top: 14px;
             font-size: 0.95rem;
         }}
-        .helm-icon {{ color: var(--gold); font-size: 1.1rem; }}
-        .helm-label {{ color: var(--gold); font-weight: 600; }}
+        .watch-charge-icon {{ color: var(--gold); font-size: 1.1rem; }}
+        .watch-charge-label {{ color: var(--gold); font-weight: 600; }}
 
         footer {{
             text-align: center;
