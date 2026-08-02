@@ -31,6 +31,7 @@ import argparse
 from pathlib import Path
 from html import escape
 from datetime import datetime
+import json
 
 REPO = Path(__file__).resolve().parent.parent
 DATA_DIR = REPO / "data" / "readings"
@@ -412,7 +413,7 @@ def render_helm(marker_line, content_lines):
     # Strip trailing separator runs that may have hitched onto the last line
     command = re.sub(r"\s*[⸻\-—]{3,}\s*$", "", command)
     command = command.strip().strip("*").strip()
-    return f'<div class="watch-charge"><span class="watch-charge-icon">🛡️</span> <span class="watch-charge-label">{escape(label)}:</span> {escape(command)}</div>'
+    return f'<div class="helm"><span class="helm-icon">🛡️</span> <span class="helm-label">{escape(label)}:</span> {escape(command)}</div>'
 
 
 def render_audio_slot(date, watch_key):
@@ -709,15 +710,15 @@ ul.application li { margin-bottom: 8px; }
 .prayer-title { color: var(--gold-light); font-weight: 600; margin-bottom: 10px; font-size: 0.95rem; }
 .prayer p { line-height: 1.85; margin-bottom: 8px; }
 
-.watch-charge {
+.helm {
     background: var(--bg-card2);
     border-radius: 6px;
     padding: 12px 18px;
     margin-top: 14px;
     font-size: 0.95rem;
 }
-.watch-charge-icon { color: var(--gold); font-size: 1.1rem; }
-.watch-charge-label { color: var(--gold); font-weight: 600; }
+.helm-icon { color: var(--gold); font-size: 1.1rem; }
+.helm-label { color: var(--gold); font-weight: 600; }
 
 .share-actions { display: flex; justify-content: center; }
 .share-actions-all[hidden] { display: none; }
@@ -785,6 +786,96 @@ footer .draft-note {
     line-height: 1.35;
 }
 
+
+/* PJG-0024 — Month Ahead / Month in Review (day-boundary only; bare/#all) */
+.month-brief {
+  background: var(--bg-card);
+  border: 1px solid var(--gold);
+  border-radius: 14px;
+  padding: 18px 20px 16px;
+  margin: 0 0 20px;
+  scroll-margin-top: 80px;
+}
+.month-brief.month-review { margin-top: 8px; margin-bottom: 28px; }
+.month-brief-kicker {
+  color: var(--gold);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.month-brief h2 {
+  font-size: 1.35rem;
+  color: var(--white);
+  margin-bottom: 8px;
+  line-height: 1.15;
+}
+.month-brief .month-lede {
+  color: var(--gray);
+  font-size: 0.95rem;
+  line-height: 1.45;
+  margin-bottom: 12px;
+}
+.month-brief .month-lede strong { color: var(--gold-light); }
+.month-brief .month-bookends {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 10px 0 12px;
+}
+@media (max-width: 640px) {
+  .month-brief .month-bookends { grid-template-columns: 1fr; }
+}
+.month-brief .bookend {
+  background: var(--bg-card2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+.month-brief .bookend b {
+  display: block;
+  color: var(--gold);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.month-brief .bookend .when { color: var(--white); font-size: 0.86rem; font-weight: 600; line-height: 1.3; }
+.month-brief .chips { margin: 8px 0 10px; }
+.month-brief .chip {
+  display: inline-block;
+  border: 1px solid var(--border);
+  background: #0d0d0d;
+  color: var(--gold-light);
+  padding: 2px 8px;
+  margin: 0 4px 4px 0;
+  border-radius: 100px;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+.month-brief .beats { margin: 6px 0 10px 18px; color: var(--white); }
+.month-brief .beats li { margin-bottom: 6px; font-size: 0.9rem; line-height: 1.35; }
+.month-brief .charge {
+  background: #0a0a0a;
+  border-top: 2px solid var(--gold);
+  border-radius: 0 0 10px 10px;
+  padding: 12px 14px;
+  margin-top: 8px;
+}
+.month-brief .charge .label {
+  color: var(--gold);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.month-brief .charge p { color: var(--white); margin-top: 6px; font-size: 0.92rem; line-height: 1.4; }
+.month-brief .month-foot {
+  margin-top: 10px;
+  font-size: 0.75rem;
+  color: var(--gray);
+}
 
 /* PJG-0012 — Copy Full Day / Copy This Watch (plain text for Speechify paste) */
 .copy-bar {
@@ -898,6 +989,10 @@ TAB_JS = """
     const isAll = slug === 'all';
     document.querySelectorAll('section.watch').forEach(s => {
       s.style.display = (isAll || s.dataset.watch === slug) ? '' : 'none';
+    });
+    // PJG-0024: month Ahead/Review live outside watches; bare/#all only
+    document.querySelectorAll('.month-brief').forEach(el => {
+      el.style.display = isAll ? '' : 'none';
     });
     document.querySelectorAll('.watch-tab').forEach(t => {
       t.classList.toggle('active', t.dataset.tab === (isAll ? 'all' : slug));
@@ -1108,7 +1203,7 @@ TAB_JS = """
       const body = clone.innerText.replace(/\\n{3,}/g, '\\n\\n').trim();
       if (body) blocks.push(ptitle + '\\n' + body);
     });
-    section.querySelectorAll(':scope > .watch-charge').forEach(h => {
+    section.querySelectorAll(':scope > .helm').forEach(h => {
       const t = h.innerText.replace(/\\s+/g, ' ').trim();
       if (t) blocks.push(t.replace(/^🛡️\\s*/, '').replace(/^⚓\\s*/, ''));
     });
@@ -1239,6 +1334,90 @@ def parse_reading_version(md_text: str) -> dict:
     return dict(default)
 
 
+
+# -- PJG-0024 month boundary briefs -------------------------------------------------
+_MONTH_BRIEFS = None
+
+def load_month_briefs():
+    global _MONTH_BRIEFS
+    if _MONTH_BRIEFS is not None:
+        return _MONTH_BRIEFS
+    path = REPO / "docs" / "assets" / "month-briefs-2026.json"
+    if not path.exists():
+        _MONTH_BRIEFS = {}
+        return _MONTH_BRIEFS
+    try:
+        data = json.loads(path.read_text())
+        _MONTH_BRIEFS = data.get("months") or {}
+    except Exception:
+        _MONTH_BRIEFS = {}
+    return _MONTH_BRIEFS
+
+
+def _fmt_passages(p):
+    if not isinstance(p, dict):
+        return ""
+    w = p.get("wisdom") or ""
+    n = "; ".join(x for x in [p.get("first") or "", p.get("second") or "", p.get("third") or ""] if x)
+    pe = p.get("peace") or ""
+    bits = []
+    if w:
+        bits.append("Wisdom " + w)
+    if n:
+        bits.append("Narrative " + n)
+    if pe:
+        bits.append("Peace " + pe)
+    return " · ".join(bits)
+
+
+def render_month_brief(date_str, kind):
+    """kind: 'ahead' (day 1) or 'review' (last day). Empty string if not a boundary day."""
+    try:
+        dt = datetime.fromisoformat(date_str)
+    except Exception:
+        return ""
+    briefs = load_month_briefs()
+    key = f"{dt.month:02d}"
+    meta = briefs.get(key)
+    if not meta:
+        return ""
+    if kind == "ahead" and date_str != meta.get("first_date"):
+        return ""
+    if kind == "review" and date_str != meta.get("last_date"):
+        return ""
+    block = meta.get(kind) or {}
+    title = escape(block.get("title") or (str(meta.get("name", "")) + " · Month"))
+    lede = escape(block.get("lede") or "")
+    charge = escape(block.get("charge") or "")
+    kicker = "Month Ahead" if kind == "ahead" else "Month in Review"
+    role = "orientation before the five watches" if kind == "ahead" else "recap after the five watches"
+    open_when = escape(_fmt_passages(meta.get("open_passages") or {}))
+    close_when = escape(_fmt_passages(meta.get("close_passages") or {}))
+    chips = meta.get("chips") or []
+    beats = meta.get("beats") or []
+    chips_html = "".join(f'<span class="chip">{escape(c)}</span>' for c in chips[:10])
+    beats_html = "".join(f"<li>{escape(b)}</li>" for b in beats[:5])
+    chips_block = f'<div class="chips">{chips_html}</div>' if chips_html else ""
+    beats_block = f'<ul class="beats">{beats_html}</ul>' if beats_html else ""
+    cls = "month-brief month-ahead" if kind == "ahead" else "month-brief month-review"
+    bid = "month-ahead" if kind == "ahead" else "month-review"
+    return (
+        f'<aside class="{cls}" id="{bid}" data-month-brief="{kind}" aria-label="{escape(kicker)}">'
+        f'<div class="month-brief-kicker">{escape(kicker)} · {escape(role)}</div>'
+        f'<h2>{title}</h2>'
+        f'<p class="month-lede">{lede}</p>'
+        f'<div class="month-bookends">'
+        f'<div class="bookend"><b>Opens · {escape(meta.get("first_date", ""))}</b><div class="when">{open_when}</div></div>'
+        f'<div class="bookend"><b>Closes · {escape(meta.get("last_date", ""))}</b><div class="when">{close_when}</div></div>'
+        f'</div>'
+        f'{chips_block}'
+        f'{beats_block}'
+        f'<div class="charge"><div class="label">Watch Charge</div><p>{charge}</p></div>'
+        f'<div class="month-foot">Visible on bare URL / All Watches only · hidden on single-watch deep links · PJG-0024</div>'
+        f'</aside>'
+    )
+
+
 def footer_stamp_html(version: dict) -> str:
     label = escape(str(version.get("label") or "Original Draft Prototype"))
     note = version.get("note") or ""
@@ -1272,6 +1451,8 @@ def render_page(date_str, md_text, version=None):
         "note": "To be reviewed by MOOP and updated",
     }
     stamp_footer = footer_stamp_html(version)
+    month_ahead_html = render_month_brief(date_str, "ahead")
+    month_review_html = render_month_brief(date_str, "review")
 
     html = f"""<!DOCTYPE html>
 <html lang="en">
@@ -1307,7 +1488,11 @@ def render_page(date_str, md_text, version=None):
 
 {render_share_button('all', "All Today’s Readings", all_watches=True)}
 
+{month_ahead_html}
+
 {watches_html}
+
+{month_review_html}
 
 <footer>
 {stamp_footer}
