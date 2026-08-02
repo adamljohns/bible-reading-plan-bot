@@ -50,10 +50,27 @@ NARRATOR = os.environ.get("WATCH_VOICE") or _map_narrator()
 NARRATOR_LANG = os.environ.get("WATCH_LANG") or ("b" if NARRATOR.startswith("b") else "a")
 ALT_SCRIPTURE = ("am_michael", "a")  # used when a book's voice collides with the narrator
 USE_ADAM_PRAYER = os.environ.get("USE_ADAM_PRAYER", "1") not in ("0", "false", "False", "no")
-F5_REF = os.path.expanduser(os.environ.get(
-    "F5_REF_AUDIO", "~/Documents/05-Voice/f5tts-tests/ref-calm.wav"))
-F5_REFTEXT_PATH = os.path.expanduser(os.environ.get(
-    "F5_REF_TEXT", "~/Documents/05-Voice/f5tts-tests/ref-calm.txt"))
+# Prefer TCC-safe path under ~/.openclaw (Documents/ is often denied to agent/LaunchAgent).
+_F5_DEFAULT_WAV = os.path.expanduser("~/.openclaw/voice/f5tts-tests/ref-calm.wav")
+_F5_LEGACY_WAV = os.path.expanduser("~/Documents/05-Voice/f5tts-tests/ref-calm.wav")
+_F5_DEFAULT_TXT = os.path.expanduser("~/.openclaw/voice/f5tts-tests/ref-calm.txt")
+_F5_LEGACY_TXT = os.path.expanduser("~/Documents/05-Voice/f5tts-tests/ref-calm.txt")
+def _first_readable(*paths):
+    for pth in paths:
+        try:
+            if pth and os.path.isfile(pth) and os.access(pth, os.R_OK):
+                # probe open (TCC can exist+stat but deny read)
+                with open(pth, "rb") as fh:
+                    fh.read(16)
+                return pth
+        except OSError:
+            continue
+    return paths[0]
+
+F5_REF = os.path.expanduser(os.environ.get("F5_REF_AUDIO") or "") or _first_readable(
+    _F5_DEFAULT_WAV, _F5_LEGACY_WAV)
+F5_REFTEXT_PATH = os.path.expanduser(os.environ.get("F5_REF_TEXT") or "") or _first_readable(
+    _F5_DEFAULT_TXT, _F5_LEGACY_TXT)
 F5_VENV_PY = os.path.expanduser(os.environ.get(
     "F5_VENV_PY", "~/.venvs/f5tts/bin/python"))
 F5_REF_SEC = float(os.environ.get("F5_REF_SEC", "15.0"))
@@ -396,25 +413,54 @@ def apply_lexicon(text):
 
 
 def f5_prep(text):
-    """Plain-text prep for F5 clone. Markup stripped; Amen forced to uh-MEN."""
+    """Plain-text prep for F5 clone. Markup stripped; Amen forced to uh-MEN.
+
+    Ear QA 2026-08-02: bare uh-MEN still often lands A-men when glued to a long
+    clause. Use elongated second-syllable respell + isolate via f5_chunks.
+    """
     text = text.replace("LORD", "Lord")
     text = re.sub(r"[—–]", ", ", text)
     text = re.sub(r"[ \t]+", " ", text)
     text = force_declarative_amen(text)
     # F5 cannot use misaki IPA — strip markup first
     text = re.sub(r"\[([^\]]+)\]\(/[^/)]+/\)", r"\1", text)
-    # HARD 2026-08-02: second-syllable Amen for clone — respell after strip
-    # "uh-MEN" beats grapheme Amen (which F5 punches A-men)
-    text = re.sub(r"\bAmen\b\s*[.?!]*\s*$", "uh-MEN.", text, flags=re.I | re.M)
-    text = re.sub(r"\bAmen\b(?=\s)", "uh-MEN", text, flags=re.I)
+    # HARD 2026-08-02 AUD2: second-syllable Amen for clone after strip.
+    # Elongated "uh MENN" (space + double N) beats single-token Amen/uh-MEN.
+    text = re.sub(
+        r"\b(?:Amen|uh-MEN|uh MEN|uh MENN)\b\s*[.?!]*\s*$",
+        "uh MENN.",
+        text,
+        flags=re.I | re.M,
+    )
+    text = re.sub(
+        r"\b(?:Amen|uh-MEN)\b(?=\s)",
+        "uh MENN",
+        text,
+        flags=re.I,
+    )
     return text.strip()
 
 
 def f5_chunks(text, mx=None):
+    """Sentence pack for F5. Terminal Amen/uh MENN always its own short chunk."""
     mx = mx or F5_CHUNK_MAX
-    sents = re.split(r"(?<=[.!?])\s+", text)
+    # Peel terminal amen so it never shares a long prosody window with the clause
+    amen_tail = None
+    m = re.search(
+        r"(?:[.!?]\s+)?\b(?:uh MENN|uh-MEN|Amen)\s*[.?!]*\s*$",
+        text,
+        flags=re.I,
+    )
+    if m:
+        amen_tail = "uh MENN."
+        text = text[: m.start()].rstrip(" ,;")
+        if text and text[-1] not in ".!?":
+            text = text + "."
+    sents = re.split(r"(?<=[.!?])\s+", text) if text else []
     out, cur = [], ""
     for s in sents:
+        if not s:
+            continue
         cand = (cur + " " + s).strip() if cur else s
         if len(cand) <= mx or not cur:
             cur = cand
@@ -432,14 +478,26 @@ def f5_chunks(text, mx=None):
             c = c[cut:].strip(" ,")
         if c:
             final.append(c)
+    if amen_tail:
+        final.append(amen_tail)
     return [c for c in final if c]
 
 
 def adam_prayer_ready():
-    return (USE_ADAM_PRAYER
-            and os.path.isfile(F5_REF)
-            and os.path.isfile(F5_VENV_PY)
-            and os.path.isfile(F5_REFTEXT_PATH))
+    if not USE_ADAM_PRAYER:
+        return False
+    ok = True
+    for label, path in (("ref_wav", F5_REF), ("ref_txt", F5_REFTEXT_PATH), ("f5_py", F5_VENV_PY)):
+        try:
+            if not path or not os.path.isfile(path):
+                ok = False
+                continue
+            with open(path, "rb") as fh:
+                fh.read(8)
+        except OSError as exc:
+            print(f"WARN adam_prayer_ready: {label} unreadable ({exc})", flush=True)
+            ok = False
+    return ok
 
 
 def join_lines(ls):
@@ -456,7 +514,7 @@ def split_prayer(post_lines):
     """
     before, prayer, after = [], [], []
     st = "before"
-    amen_end = re.compile(r"\bAmen\.?\s*$", re.I)
+    amen_end = re.compile(r"\b(?:Amen|uh-MEN|uh MENN)\.?\s*$", re.I)
     for line in post_lines:
         if st == "before" and PRAYER_HDR.match(line):
             st = "prayer"
