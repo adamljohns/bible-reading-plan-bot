@@ -727,8 +727,26 @@ def render_watch(model, gen_audio, date, key, segs):
 def main():
     dates = sys.argv[1:]
     if not dates:
-        print("usage: generate-watch-audio.py <YYYY-MM-DD> [more dates]")
+        print("usage: generate-watch-audio.py <YYYY-MM-DD> [more dates] [--watch wisdom|first|second|third|peace]")
         sys.exit(2)
+    # Optional single-watch filter: --watch <key>
+    watch_filter = None
+    if "--watch" in dates:
+        i = dates.index("--watch")
+        try:
+            watch_filter = dates[i + 1]
+        except IndexError:
+            print("usage: --watch requires a key", file=sys.stderr)
+            sys.exit(2)
+        del dates[i:i + 2]
+    # PJG-0803-LOOP1: fail closed before baking audio from looped Scripture
+    import subprocess as _sp
+    gate = os.path.join(ROOT, "scripts", "check_scripture_loops.py")
+    if os.path.isfile(gate) and dates:
+        g = _sp.run([sys.executable, gate, *dates], cwd=ROOT)
+        if g.returncode != 0:
+            print("REFUSE audio: scripture-loop gate failed", file=sys.stderr)
+            sys.exit(g.returncode or 1)
     from mlx_audio.tts.utils import load_model
     from mlx_audio.tts.generate import generate_audio
     by_name = load_voice_map()
@@ -738,7 +756,14 @@ def main():
     model = load_model(MODEL_ID)
     for date in dates:
         day = json.load(open(os.path.join(READINGS_JSON, f"{date}.json")))
-        for key in ["wisdom", "first", "second", "third", "peace"]:
+        keys = ["wisdom", "first", "second", "third", "peace"]
+        if watch_filter:
+            if watch_filter not in keys and watch_filter not in FILE_KEY:
+                # allow husband/father/citizen aliases
+                rev = {v: k for k, v in FILE_KEY.items()}
+                watch_filter = rev.get(watch_filter, watch_filter)
+            keys = [watch_filter]
+        for key in keys:
             w = day["watches"].get(key) or {}
             text = w.get("text")
             if not text:

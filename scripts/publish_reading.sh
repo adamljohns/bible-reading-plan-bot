@@ -87,6 +87,16 @@ mod.write_inventory()
 fi
 
 # ─── Audio ────────────────────────────────────────────────────────────────
+
+# ─── Scripture loop gate (PJG-0803-LOOP1) ──────────────────────────────────
+echo
+echo "[2.5/5] Scripture loop / length gate"
+if [ "$DRY_RUN" -eq 1 ]; then
+  echo "  DRY-RUN: would run scripts/check_scripture_loops.py $DATE"
+else
+  python3 scripts/check_scripture_loops.py "$DATE"
+fi
+
 if [ "$NO_AUDIO" -eq 1 ]; then
   echo
   echo "[3/5] Skipping audio (--no-audio)"
