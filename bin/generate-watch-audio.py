@@ -497,7 +497,20 @@ def adam_prayer_ready():
         except OSError as exc:
             print(f"WARN adam_prayer_ready: {label} unreadable ({exc})", flush=True)
             ok = False
-    return ok
+    if not ok:
+        return False
+    # PJG-0803-PIN1: never bake Adam-clone prayer against a poisoned ref
+    gate = os.path.join(ROOT, "scripts", "check_f5_prayer_ref.py")
+    if os.path.isfile(gate):
+        r = subprocess.run(
+            [sys.executable, gate, "--wav", F5_REF, "--txt", F5_REFTEXT_PATH],
+            capture_output=True, text=True,
+        )
+        if r.returncode != 0:
+            msg = (r.stderr or r.stdout or "").strip()
+            print(f"REFUSE adam-prayer: F5 ref ban-gate failed rc={r.returncode} {msg[:300]}", flush=True)
+            return False
+    return True
 
 
 def join_lines(ls):
@@ -604,6 +617,27 @@ def segment_watch(text, by_name):
 
 def render_f5_text(text, out_wav):
     """Render prayer text with Adam's F5 clone; write 24k mono wav."""
+    # PJG-0803-PIN1 hard gate at bake time (ref + prayer body)
+    gate = os.path.join(ROOT, "scripts", "check_f5_prayer_ref.py")
+    if os.path.isfile(gate):
+        import tempfile as _tf
+        with _tf.NamedTemporaryFile("w", suffix="-prayer.txt", delete=False) as fh:
+            fh.write(text or "")
+            prayer_path = fh.name
+        try:
+            r = subprocess.run(
+                [sys.executable, gate, "--wav", F5_REF, "--txt", F5_REFTEXT_PATH,
+                 "--text", prayer_path],
+                capture_output=True, text=True,
+            )
+        finally:
+            try:
+                os.unlink(prayer_path)
+            except OSError:
+                pass
+        if r.returncode != 0:
+            raise RuntimeError(
+                f"F5 ban-gate refused prayer bake: {(r.stderr or r.stdout or '')[-500:]}")
     reftext = open(F5_REFTEXT_PATH).read().strip()
     chunks = f5_chunks(text)
     if not chunks:
@@ -753,6 +787,8 @@ def main():
     prayer_mode = "adam-clone-F5" if adam_prayer_ready() else "narrator-fallback"
     print(f"Loading Kokoro {MODEL_ID} (once); narrator={NARRATOR}; "
           f"prayer={prayer_mode}...", flush=True)
+    if prayer_mode.startswith("adam"):
+        print(f"F5 ref wav={F5_REF}\nF5 ref txt={F5_REFTEXT_PATH}", flush=True)
     model = load_model(MODEL_ID)
     for date in dates:
         day = json.load(open(os.path.join(READINGS_JSON, f"{date}.json")))
