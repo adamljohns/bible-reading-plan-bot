@@ -50,10 +50,27 @@ NARRATOR = os.environ.get("WATCH_VOICE") or _map_narrator()
 NARRATOR_LANG = os.environ.get("WATCH_LANG") or ("b" if NARRATOR.startswith("b") else "a")
 ALT_SCRIPTURE = ("am_michael", "a")  # used when a book's voice collides with the narrator
 USE_ADAM_PRAYER = os.environ.get("USE_ADAM_PRAYER", "1") not in ("0", "false", "False", "no")
-F5_REF = os.path.expanduser(os.environ.get(
-    "F5_REF_AUDIO", "~/Documents/05-Voice/f5tts-tests/ref-calm.wav"))
-F5_REFTEXT_PATH = os.path.expanduser(os.environ.get(
-    "F5_REF_TEXT", "~/Documents/05-Voice/f5tts-tests/ref-calm.txt"))
+# Prefer TCC-safe path under ~/.openclaw (Documents/ is often denied to agent/LaunchAgent).
+_F5_DEFAULT_WAV = os.path.expanduser("~/.openclaw/voice/f5tts-tests/ref-calm.wav")
+_F5_LEGACY_WAV = os.path.expanduser("~/Documents/05-Voice/f5tts-tests/ref-calm.wav")
+_F5_DEFAULT_TXT = os.path.expanduser("~/.openclaw/voice/f5tts-tests/ref-calm.txt")
+_F5_LEGACY_TXT = os.path.expanduser("~/Documents/05-Voice/f5tts-tests/ref-calm.txt")
+def _first_readable(*paths):
+    for pth in paths:
+        try:
+            if pth and os.path.isfile(pth) and os.access(pth, os.R_OK):
+                # probe open (TCC can exist+stat but deny read)
+                with open(pth, "rb") as fh:
+                    fh.read(16)
+                return pth
+        except OSError:
+            continue
+    return paths[0]
+
+F5_REF = os.path.expanduser(os.environ.get("F5_REF_AUDIO") or "") or _first_readable(
+    _F5_DEFAULT_WAV, _F5_LEGACY_WAV)
+F5_REFTEXT_PATH = os.path.expanduser(os.environ.get("F5_REF_TEXT") or "") or _first_readable(
+    _F5_DEFAULT_TXT, _F5_LEGACY_TXT)
 F5_VENV_PY = os.path.expanduser(os.environ.get(
     "F5_VENV_PY", "~/.venvs/f5tts/bin/python"))
 F5_REF_SEC = float(os.environ.get("F5_REF_SEC", "15.0"))
@@ -108,11 +125,228 @@ def apply_bow_homage(text: str) -> str:
 
 
 def force_declarative_amen(text: str) -> str:
-    """Final Amen must be statement, never rising question (Adam 2026-07-30)."""
-    # Strip ?/! after Amen anywhere; ensure terminal period; lock falling stress.
+    """Final Amen must be statement with SECOND-syllable stress a-MEN /əˈmɛn/.
+
+    Principal ear QA 2026-07-30 + HARD reconfirm 2026-08-02: first-syllable
+    A-men punch is FAIL. Prior lock used /ˈɑːmɛn/ (stress on first) — inverted.
+    Kokoro path: misaki IPA /əˈmɛn/. F5 path: plain respell via f5_prep (markup stripped).
+    """
+    # Strip ?/! after Amen anywhere; ensure terminal period.
     text = re.sub(r"\bAmen\b\s*[?!]+", "Amen.", text, flags=re.I)
     text = re.sub(r"\bAmen\b(?!\s*\.|\s*\[/)", "Amen.", text, flags=re.I)
-    text = re.sub(r"\bAmen\.(?=\s|$)", "[Amen](/ˈɑːmɛn/).", text, flags=re.I)
+    # Second-syllable stress IPA (ə + primary stress on mɛn) — NOT /ˈɑːmɛn/
+    text = re.sub(r"\bAmen\.(?=\s|$)", "[Amen](/əˈmɛn/).", text, flags=re.I)
+    # Also catch already-wrong first-stress markup from older runs in source text
+    text = re.sub(r"\[Amen\]\(/ˈɑːmɛn/\)", "[Amen](/əˈmɛn/)", text)
+    text = re.sub(r"\[Amen\]\(/ˈɑmɛn/\)", "[Amen](/əˈmɛn/)", text)
+    return text
+
+
+def apply_homograph_context(text: str) -> str:
+    """Context-aware homograph disambiguation before synth (PJG-0802-AUD2).
+
+    Kokoro honors [word](/ipa/) markup. Expand seed list as ear QA hits.
+    Order matters: more specific patterns first.
+    """
+    # --- live: /lɪv/ dwell/reside vs /laɪv/ alive/broadcast ---
+    # dwell sense
+    text = re.sub(
+        r"\b([Ll])ive\b(?=\s+(?:in|with|among|at|on|by|under|through|as|for|out|together|alone|here|there|forever|peaceably|securely))",
+        lambda m: f"[{m.group(1)}ive](/lɪv/)",
+        text,
+    )
+    text = re.sub(
+        r"\b([Ll])ives\b(?=\s+(?:in|with|among|at|on|by|under|through|as|for|out|together|alone|here|there))",
+        lambda m: f"[{m.group(1)}ives](/lɪvz/)",
+        text,
+    )
+    text = re.sub(
+        r"\b([Ll])iving\b(?=\s+(?:in|with|among|at|on|by|under|through|as|for|out|water|God|stone))",
+        lambda m: f"[{m.group(1)}iving](/ˈlɪvɪŋ/)",
+        text,
+    )
+    # alive / broadcast sense (default for "live" is often wrong in prayer/commentary)
+    text = re.sub(
+        r"\b([Ll])ive\b(?=\s+(?:broadcast|stream|feed|wire|ammo|fire|oak|recording|audience|show|event|performance|music|band))",
+        lambda m: f"[{m.group(1)}ive](/laɪv/)",
+        text,
+    )
+    text = re.sub(
+        r"\b([Aa])live\b",
+        lambda m: f"[{m.group(1)}live](/əˈlaɪv/)",
+        text,
+    )
+
+    # --- read: past /rɛd/ vs present /riːd/ ---
+    text = re.sub(
+        r"\b([Rr])ead\b(?=\s+(?:the|this|aloud|Scripture|Word|chapter|verse|again|through|from))",
+        lambda m: f"[{m.group(1)}ead](/riːd/)",
+        text,
+    )
+    text = re.sub(
+        r"\b([Hh]ave|[Hh]as|[Hh]ad|[Bb]een)\s+([Rr])ead\b",
+        lambda m: f"{m.group(1)} [{m.group(2)}ead](/rɛd/)",
+        text,
+    )
+
+    # --- lead: /liːd/ guide vs /lɛd/ metal (rare in corpus) ---
+    text = re.sub(
+        r"\b([Ll])ead\b(?=\s+(?:me|us|them|your|the|my|our|his|her|a|an|into|out|on|away|home|well))",
+        lambda m: f"[{m.group(1)}ead](/liːd/)",
+        text,
+    )
+    text = re.sub(
+        r"\b([Ll])ead\s+(pipe|pipes|poisoning|weight|weights|bullet)\b",
+        lambda m: f"[lead](/lɛd/) {m.group(2)}",
+        text,
+        flags=re.I,
+    )
+
+    # --- tear: /tɪr/ cry vs /tɛr/ rip ---
+    text = re.sub(
+        r"\b([Tt])ears\b(?=\s+(?:of|from|in\s+his|in\s+her|in\s+my|fell|stream|down))",
+        lambda m: f"[{m.group(1)}ears](/tɪrz/)",
+        text,
+    )
+    text = re.sub(
+        r"\b([Tt])ear\b(?=\s+(?:down|apart|open|up|away|off|into))",
+        lambda m: f"[{m.group(1)}ear](/tɛr/)",
+        text,
+    )
+
+    # --- wind: /wɪnd/ air vs /waɪnd/ coil ---
+    text = re.sub(
+        r"\b([Ww])ind\b(?=\s+(?:of|from|blew|blows|blowing|howled|against|through|upon))",
+        lambda m: f"[{m.group(1)}ind](/wɪnd/)",
+        text,
+    )
+    text = re.sub(
+        r"\b([Ww])ind\b(?=\s+(?:up|down|the\s+clock|the\s+path|around))",
+        lambda m: f"[{m.group(1)}ind](/waɪnd/)",
+        text,
+    )
+
+    # --- wound: /wuːnd/ injury vs /waʊnd/ past of wind ---
+    text = re.sub(
+        r"\b([Ww])ound\b(?=\s+(?:of|from|in|up|around|tight|tightly))",
+        lambda m: f"[{m.group(1)}ound](/waʊnd/)" if "up" in m.group(0).lower() or "around" in (m.string[m.end():m.end()+10].lower()) else f"[{m.group(1)}ound](/wuːnd/)",
+        text,
+    )
+    # simpler wound injury default
+    text = re.sub(
+        r"\b([Ww])ounds\b",
+        lambda m: f"[{m.group(1)}ounds](/wuːndz/)",
+        text,
+    )
+    text = re.sub(
+        r"\b([Ww])ounded\b",
+        lambda m: f"[{m.group(1)}ounded](/ˈwuːndɪd/)",
+        text,
+    )
+
+    # --- close: /kloʊs/ near vs /kloʊz/ shut ---
+    text = re.sub(
+        r"\b([Cc])lose\b(?=\s+(?:to|by|at\s+hand|beside|with|friends|friend|quarters))",
+        lambda m: f"[{m.group(1)}lose](/kloʊs/)",
+        text,
+    )
+    text = re.sub(
+        r"\b([Cc])lose\b(?=\s+(?:the|your|his|her|my|our|this|that|up|down|out|off))",
+        lambda m: f"[{m.group(1)}lose](/kloʊz/)",
+        text,
+    )
+
+    # --- present: /ˈprɛzənt/ gift/now vs /prɪˈzɛnt/ introduce ---
+    text = re.sub(
+        r"\b([Pp])resent\b(?=\s+(?:yourself|yourselves|him|her|them|the\s+gospel|your\s+bodies))",
+        lambda m: f"[{m.group(1)}resent](/prɪˈzɛnt/)",
+        text,
+    )
+    text = re.sub(
+        r"\b([Pp])resent\b(?=\s+(?:age|moment|time|day|hour|world|help|distress))",
+        lambda m: f"[{m.group(1)}resent](/ˈprɛzənt/)",
+        text,
+    )
+
+    # --- record: /ˈrɛkərd/ noun vs /rɪˈkɔrd/ verb ---
+    text = re.sub(
+        r"\b([Rr])ecord\b(?=\s+(?:of|in|from|book|books))",
+        lambda m: f"[{m.group(1)}ecord](/ˈrɛkərd/)",
+        text,
+    )
+    text = re.sub(
+        r"\b([Rr])ecord\b(?=\s+(?:this|these|it|them|my|his|her))",
+        lambda m: f"[{m.group(1)}ecord](/rɪˈkɔrd/)",
+        text,
+    )
+
+    # --- refuse: /rɪˈfjuz/ reject vs /ˈrɛfjus/ trash ---
+    text = re.sub(
+        r"\b([Rr])efuse\b(?=\s+(?:to|him|her|them|me|us|it|this|that))",
+        lambda m: f"[{m.group(1)}efuse](/rɪˈfjuz/)",
+        text,
+    )
+
+    # --- desert: /ˈdɛzərt/ arid vs /dɪˈzɜrt/ abandon ---
+    text = re.sub(
+        r"\b([Dd])esert\b(?=\s+(?:place|places|land|lands|of|wilderness))",
+        lambda m: f"[{m.group(1)}esert](/ˈdɛzərt/)",
+        text,
+    )
+    text = re.sub(
+        r"\b([Dd])esert\b(?=\s+(?:me|us|them|him|her|the\s+post|your\s+post|the\s+watch))",
+        lambda m: f"[{m.group(1)}esert](/dɪˈzɜrt/)",
+        text,
+    )
+
+    # --- object: /ˈɑbdʒɛkt/ thing vs /əbˈdʒɛkt/ protest ---
+    text = re.sub(
+        r"\b([Oo])bject\b(?=\s+(?:to|when|if))",
+        lambda m: f"[{m.group(1)}bject](/əbˈdʒɛkt/)",
+        text,
+    )
+    text = re.sub(
+        r"\b([Oo])bject\b(?=\s+(?:of|lesson|lessons))",
+        lambda m: f"[{m.group(1)}bject](/ˈɑbdʒɛkt/)",
+        text,
+    )
+
+    # --- content: /ˈkɑntɛnt/ substance vs /kənˈtɛnt/ satisfied ---
+    text = re.sub(
+        r"\b([Cc])ontent\b(?=\s+(?:with|to))",
+        lambda m: f"[{m.group(1)}ontent](/kənˈtɛnt/)",
+        text,
+    )
+    text = re.sub(
+        r"\b([Cc])ontent\b(?=\s+(?:of|and|is|was|for))",
+        lambda m: f"[{m.group(1)}ontent](/ˈkɑntɛnt/)",
+        text,
+    )
+
+    # --- minute: /ˈmɪnɪt/ time vs /maɪˈnjuːt/ tiny ---
+    text = re.sub(
+        r"\b([Mm])inute\b(?=\s+(?:detail|details|particle|examination))",
+        lambda m: f"[{m.group(1)}inute](/maɪˈnjuːt/)",
+        text,
+    )
+    text = re.sub(
+        r"\b([Mm])inutes\b",
+        lambda m: f"[{m.group(1)}inutes](/ˈmɪnɪts/)",
+        text,
+    )
+
+    # --- attribute: noun /ˈætrɪbjuːt/ vs verb /əˈtrɪbjuːt/ ---
+    text = re.sub(
+        r"\b([Aa])ttribute\b(?=\s+(?:to|it|them|this))",
+        lambda m: f"[{m.group(1)}ttribute](/əˈtrɪbjuːt/)",
+        text,
+    )
+    text = re.sub(
+        r"\b([Aa])ttributes\b(?=\s+(?:of|and))",
+        lambda m: f"[{m.group(1)}ttributes](/ˈætrɪbjuːts/)",
+        text,
+    )
+
     return text
 
 EMOJI = re.compile(
@@ -171,6 +405,7 @@ def clean_lines(text):
 
 def apply_lexicon(text):
     text = apply_bow_homage(text)
+    text = apply_homograph_context(text)
     for word, marked in LEXICON.items():
         text = re.sub(rf"\b{word}\b", marked, text)
     text = force_declarative_amen(text)
@@ -178,20 +413,54 @@ def apply_lexicon(text):
 
 
 def f5_prep(text):
+    """Plain-text prep for F5 clone. Markup stripped; Amen forced to uh-MEN.
+
+    Ear QA 2026-08-02: bare uh-MEN still often lands A-men when glued to a long
+    clause. Use elongated second-syllable respell + isolate via f5_chunks.
+    """
     text = text.replace("LORD", "Lord")
     text = re.sub(r"[—–]", ", ", text)
     text = re.sub(r"[ \t]+", " ", text)
     text = force_declarative_amen(text)
-    # strip misaki markup for F5 (clone stack is plain text)
+    # F5 cannot use misaki IPA — strip markup first
     text = re.sub(r"\[([^\]]+)\]\(/[^/)]+/\)", r"\1", text)
+    # HARD 2026-08-02 AUD2: second-syllable Amen for clone after strip.
+    # Elongated "uh MENN" (space + double N) beats single-token Amen/uh-MEN.
+    text = re.sub(
+        r"\b(?:Amen|uh-MEN|uh MEN|uh MENN)\b\s*[.?!]*\s*$",
+        "uh MENN.",
+        text,
+        flags=re.I | re.M,
+    )
+    text = re.sub(
+        r"\b(?:Amen|uh-MEN)\b(?=\s)",
+        "uh MENN",
+        text,
+        flags=re.I,
+    )
     return text.strip()
 
 
 def f5_chunks(text, mx=None):
+    """Sentence pack for F5. Terminal Amen/uh MENN always its own short chunk."""
     mx = mx or F5_CHUNK_MAX
-    sents = re.split(r"(?<=[.!?])\s+", text)
+    # Peel terminal amen so it never shares a long prosody window with the clause
+    amen_tail = None
+    m = re.search(
+        r"(?:[.!?]\s+)?\b(?:uh MENN|uh-MEN|Amen)\s*[.?!]*\s*$",
+        text,
+        flags=re.I,
+    )
+    if m:
+        amen_tail = "uh MENN."
+        text = text[: m.start()].rstrip(" ,;")
+        if text and text[-1] not in ".!?":
+            text = text + "."
+    sents = re.split(r"(?<=[.!?])\s+", text) if text else []
     out, cur = [], ""
     for s in sents:
+        if not s:
+            continue
         cand = (cur + " " + s).strip() if cur else s
         if len(cand) <= mx or not cur:
             cur = cand
@@ -209,14 +478,39 @@ def f5_chunks(text, mx=None):
             c = c[cut:].strip(" ,")
         if c:
             final.append(c)
+    if amen_tail:
+        final.append(amen_tail)
     return [c for c in final if c]
 
 
 def adam_prayer_ready():
-    return (USE_ADAM_PRAYER
-            and os.path.isfile(F5_REF)
-            and os.path.isfile(F5_VENV_PY)
-            and os.path.isfile(F5_REFTEXT_PATH))
+    if not USE_ADAM_PRAYER:
+        return False
+    ok = True
+    for label, path in (("ref_wav", F5_REF), ("ref_txt", F5_REFTEXT_PATH), ("f5_py", F5_VENV_PY)):
+        try:
+            if not path or not os.path.isfile(path):
+                ok = False
+                continue
+            with open(path, "rb") as fh:
+                fh.read(8)
+        except OSError as exc:
+            print(f"WARN adam_prayer_ready: {label} unreadable ({exc})", flush=True)
+            ok = False
+    if not ok:
+        return False
+    # PJG-0803-PIN1: never bake Adam-clone prayer against a poisoned ref
+    gate = os.path.join(ROOT, "scripts", "check_f5_prayer_ref.py")
+    if os.path.isfile(gate):
+        r = subprocess.run(
+            [sys.executable, gate, "--wav", F5_REF, "--txt", F5_REFTEXT_PATH],
+            capture_output=True, text=True,
+        )
+        if r.returncode != 0:
+            msg = (r.stderr or r.stdout or "").strip()
+            print(f"REFUSE adam-prayer: F5 ref ban-gate failed rc={r.returncode} {msg[:300]}", flush=True)
+            return False
+    return True
 
 
 def join_lines(ls):
@@ -233,7 +527,7 @@ def split_prayer(post_lines):
     """
     before, prayer, after = [], [], []
     st = "before"
-    amen_end = re.compile(r"\bAmen\.?\s*$", re.I)
+    amen_end = re.compile(r"\b(?:Amen|uh-MEN|uh MENN)\.?\s*$", re.I)
     for line in post_lines:
         if st == "before" and PRAYER_HDR.match(line):
             st = "prayer"
@@ -323,6 +617,27 @@ def segment_watch(text, by_name):
 
 def render_f5_text(text, out_wav):
     """Render prayer text with Adam's F5 clone; write 24k mono wav."""
+    # PJG-0803-PIN1 hard gate at bake time (ref + prayer body)
+    gate = os.path.join(ROOT, "scripts", "check_f5_prayer_ref.py")
+    if os.path.isfile(gate):
+        import tempfile as _tf
+        with _tf.NamedTemporaryFile("w", suffix="-prayer.txt", delete=False) as fh:
+            fh.write(text or "")
+            prayer_path = fh.name
+        try:
+            r = subprocess.run(
+                [sys.executable, gate, "--wav", F5_REF, "--txt", F5_REFTEXT_PATH,
+                 "--text", prayer_path],
+                capture_output=True, text=True,
+            )
+        finally:
+            try:
+                os.unlink(prayer_path)
+            except OSError:
+                pass
+        if r.returncode != 0:
+            raise RuntimeError(
+                f"F5 ban-gate refused prayer bake: {(r.stderr or r.stdout or '')[-500:]}")
     reftext = open(F5_REFTEXT_PATH).read().strip()
     chunks = f5_chunks(text)
     if not chunks:
@@ -446,18 +761,45 @@ def render_watch(model, gen_audio, date, key, segs):
 def main():
     dates = sys.argv[1:]
     if not dates:
-        print("usage: generate-watch-audio.py <YYYY-MM-DD> [more dates]")
+        print("usage: generate-watch-audio.py <YYYY-MM-DD> [more dates] [--watch wisdom|first|second|third|peace]")
         sys.exit(2)
+    # Optional single-watch filter: --watch <key>
+    watch_filter = None
+    if "--watch" in dates:
+        i = dates.index("--watch")
+        try:
+            watch_filter = dates[i + 1]
+        except IndexError:
+            print("usage: --watch requires a key", file=sys.stderr)
+            sys.exit(2)
+        del dates[i:i + 2]
+    # PJG-0803-LOOP1: fail closed before baking audio from looped Scripture
+    import subprocess as _sp
+    gate = os.path.join(ROOT, "scripts", "check_scripture_loops.py")
+    if os.path.isfile(gate) and dates:
+        g = _sp.run([sys.executable, gate, *dates], cwd=ROOT)
+        if g.returncode != 0:
+            print("REFUSE audio: scripture-loop gate failed", file=sys.stderr)
+            sys.exit(g.returncode or 1)
     from mlx_audio.tts.utils import load_model
     from mlx_audio.tts.generate import generate_audio
     by_name = load_voice_map()
     prayer_mode = "adam-clone-F5" if adam_prayer_ready() else "narrator-fallback"
     print(f"Loading Kokoro {MODEL_ID} (once); narrator={NARRATOR}; "
           f"prayer={prayer_mode}...", flush=True)
+    if prayer_mode.startswith("adam"):
+        print(f"F5 ref wav={F5_REF}\nF5 ref txt={F5_REFTEXT_PATH}", flush=True)
     model = load_model(MODEL_ID)
     for date in dates:
         day = json.load(open(os.path.join(READINGS_JSON, f"{date}.json")))
-        for key in ["wisdom", "first", "second", "third", "peace"]:
+        keys = ["wisdom", "first", "second", "third", "peace"]
+        if watch_filter:
+            if watch_filter not in keys and watch_filter not in FILE_KEY:
+                # allow husband/father/citizen aliases
+                rev = {v: k for k, v in FILE_KEY.items()}
+                watch_filter = rev.get(watch_filter, watch_filter)
+            keys = [watch_filter]
+        for key in keys:
             w = day["watches"].get(key) or {}
             text = w.get("text")
             if not text:

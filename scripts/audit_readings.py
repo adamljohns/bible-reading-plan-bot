@@ -46,6 +46,12 @@ BULLET_RE = re.compile(r"^\s*•\s+(.*\S)\s*$")
 HELM_RE = re.compile(r"^\s*⚓\s*(?:Helm Command|Rudder Steer)\s*[:：]\s*(.+?)\s*$")
 HIST_HDR_RE = re.compile(r"🦅\s*This Day in American History")
 HIST_EVENT_RE = re.compile(r"^\s*•\s*(\d{3,4})\s*[—\-–]\s*(.+?)\s*$")
+REFLECTION_HDR_RE = re.compile(r"Reflection for\b|Reflection\s*[—-]\s*Man at Home", re.I)
+SECTION_HDR_RE = re.compile(r"^(?:⛏️|🙏|⚓|🦅|🧭|🗺️|🛰️|🌾|🛡️|❤️|👨)")
+OPENER_VERBS = (
+    "look", "consider", "notice", "think", "weigh", "remember", "trace",
+    "picture", "hear", "mark", "reflect",
+)
 
 # Divine-name epithets that may stand in for YHWH ("the LORD") in a drifted render.
 EPITHETS = [
@@ -125,6 +131,19 @@ def parse_watch(text):
         mh = HELM_RE.match(ln)
         if mh:
             helm = mh.group(1).strip()
+    # Reflection prose: first non-empty prose after a Reflection header, until
+    # the next named section. This is enough to classify the opening phrase
+    # without coupling the audit to one historical heading variant.
+    in_reflection = False
+    for ln in lines:
+        s = ln.strip()
+        if REFLECTION_HDR_RE.search(s):
+            in_reflection = True
+            continue
+        if in_reflection and SECTION_HDR_RE.match(s):
+            break
+        if in_reflection and s and not SEP_RE.match(s):
+            reflection.append(s)
     # history events
     in_hist = False
     for ln in lines:
@@ -138,7 +157,26 @@ def parse_watch(text):
             elif ln.strip() and not ln.strip().startswith("•") and "⛏" in ln:
                 in_hist = False
     return {"intro": intro, "ref": ref, "scripture": " ".join(scripture),
+            "reflection": " ".join(reflection),
             "bullets": bullets, "helm": helm, "history": history}
+
+
+def reflection_opener(text):
+    """Return normalized imperative opener and a short evidence excerpt."""
+    s = re.sub(r"^(?:Adam,\s*)?Brother,\s*", "", (text or "").strip(), flags=re.I)
+    first = re.split(r"[.!?]", s, maxsplit=1)[0].strip()
+    low = first.lower()
+    for verb in OPENER_VERBS:
+        if re.match(rf"^{verb}\b", low):
+            if verb == "look":
+                m = re.match(r"^look(?:\s+(?:at|to|closely))?\b", low)
+                return (m.group(0) if m else "look"), first[:140]
+            if verb == "think" and low.startswith("think about"):
+                return "think about", first[:140]
+            if verb == "reflect" and low.startswith("reflect on"):
+                return "reflect on", first[:140]
+            return verb, first[:140]
+    return "direct/other", first[:140]
 
 
 def ref_to_keys(ref):
@@ -167,6 +205,8 @@ def main():
     c_generic = []
     d_history = []
     yahweh_hits = []
+    reflection_openers = Counter()
+    reflection_opener_rows = []
 
     cur, end = date(2026, 1, 1), date(2026, 12, 31)
     days = []
@@ -210,6 +250,10 @@ def main():
                 b_sentences[w["intro"]] += 1
             if w["helm"]:
                 b_helms[w["helm"]] += 1
+            opener, excerpt = reflection_opener(w["reflection"])
+            reflection_openers[opener] += 1
+            reflection_opener_rows.append({"date": ds, "watch": wk,
+                                           "opener": opener, "excerpt": excerpt})
             # C. application bullets
             passage_words = set(re.findall(r"[a-z]{5,}", (w["ref"] or "").lower()))
             for b in w["bullets"]:
@@ -223,6 +267,24 @@ def main():
     b_top_sentences = [(s, c) for s, c in b_sentences.most_common(40) if c > 1]
     b_top_helms = [(s, c) for s, c in b_helms.most_common(40) if c > 1]
     c_dupe_bullets = [(b, c) for b, c in c_bullets.most_common(60) if c > 1]
+    adjacent_opener_repeats = []
+    by_watch = defaultdict(list)
+    for row in reflection_opener_rows:
+        by_watch[row["watch"]].append(row)
+    for wk, rows in by_watch.items():
+        rows.sort(key=lambda x: x["date"])
+        for prev, cur in zip(rows, rows[1:]):
+            if ((date.fromisoformat(cur["date"]) - date.fromisoformat(prev["date"])).days == 1
+                    and cur["opener"] != "direct/other"
+                    and cur["opener"] == prev["opener"]):
+                adjacent_opener_repeats.append({"watch": wk, "dates": [prev["date"], cur["date"]],
+                                                "opener": cur["opener"]})
+    lexical_dominance = []
+    for opener, count in reflection_openers.most_common():
+        share = count / max(1, len(reflection_opener_rows))
+        if opener != "direct/other" and (count >= 10 or share >= 0.08):
+            lexical_dominance.append({"opener": opener, "count": count,
+                                      "share": round(share, 4)})
 
     findings = {
         "n_days": len([d for d in days if (READINGS / f"{d}.md").exists()]),
@@ -235,6 +297,10 @@ def main():
         "B_voice_variety": {
             "repeated_intro_sentences": b_top_sentences,
             "repeated_helm_lines": b_top_helms,
+            "reflection_openers": dict(reflection_openers.most_common()),
+            "lexical_dominance": lexical_dominance,
+            "adjacent_day_imperative_repeats": adjacent_opener_repeats,
+            "stock_look_openings": [r for r in reflection_opener_rows if r["opener"].startswith("look")],
         },
         "C_application": {
             "duplicate_bullets": c_dupe_bullets,
@@ -264,6 +330,14 @@ def main():
     L.append(f"\n- Repeated intro sentences (count>1): **{len(b_top_sentences)}**")
     for s, c in b_top_sentences[:15]:
         L.append(f"  - ×{c}: {s[:90]}")
+    L.append("\n### Reflection opener variety (PJG-0021)\n")
+    L.append(f"- Stock look openings: **{sum(c for o, c in reflection_openers.items() if o.startswith('look'))}**")
+    L.append(f"- Lexically dominant imperative openers: **{len(lexical_dominance)}**")
+    for item in lexical_dominance:
+        L.append(f"  - {item['opener']}: {item['count']} ({item['share']:.1%})")
+    L.append(f"- Adjacent-day repeated imperative openers: **{len(adjacent_opener_repeats)}**")
+    for item in adjacent_opener_repeats[:20]:
+        L.append(f"  - {item['watch']} {item['dates'][0]} → {item['dates'][1]}: {item['opener']}")
     L.append("\n## C. Application bullets duplicated across days\n")
     L.append(f"- Distinct bullets reused (count>1): **{len(c_dupe_bullets)}**")
     for b, c in c_dupe_bullets[:20]:
