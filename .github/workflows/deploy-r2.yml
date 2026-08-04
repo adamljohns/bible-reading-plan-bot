@@ -52,3 +52,19 @@ jobs:
             --transfers 64 --checkers 64 \
             --s3-upload-cutoff 200M --s3-chunk-size 32M \
             --stats-one-line --stats 30s
+      - name: Purge Cloudflare cache
+        run: |
+          CF_ZONE=$(curl -s -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}" \
+            "https://api.cloudflare.com/client/v4/zones?name=usmcmin.org" \
+            | python3 -c "import sys,json;r=json.load(sys.stdin).get('result') or [];print(r[0]['id'] if r else '')")
+          if [ -n "$CF_ZONE" ]; then
+            curl -s -X POST \
+              -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}" \
+              -H "Content-Type: application/json" \
+              --data '{"files":["https://usmcmin.org/"]}' \
+              "https://api.cloudflare.com/client/v4/zones/$CF_ZONE/purge_cache" \
+              | python3 -c "import sys,json;d=json.load(sys.stdin);print('CF cache purge:', 'OK' if d.get('success') else 'FAIL: '+str(d.get('errors',[])))"
+          else
+            echo "WARNING: could not resolve CF zone for usmcmin.org"
+            exit 1
+          fi
