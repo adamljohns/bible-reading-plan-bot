@@ -20,7 +20,7 @@ const path = require('path');
 
 const CHURCHES = path.join(__dirname, '..', 'docs', 'data', 'churches.json');
 const TODAY = new Date().toISOString().slice(0, 10);
-const PLATFORMS = ['facebook', 'youtube', 'instagram', 'x_twitter', 'tiktok'];
+const PLATFORMS = ['facebook', 'youtube', 'instagram', 'twitter', 'tiktok'];
 
 const args = process.argv.slice(2);
 const inputs = [];
@@ -70,7 +70,9 @@ for (const c of db.churches) {
 
   const added = [];
   for (const p of PLATFORMS) {
-    const val = r[p];
+    // Early scrape runs emitted `x_twitter`; the schema's canonical field
+    // (and the only one generate-church-pages.js renders) is `twitter`.
+    const val = p === 'twitter' ? (r.twitter || r.x_twitter) : r[p];
     if (!val) continue;
     if (!c[p]) {
       c[p] = val;

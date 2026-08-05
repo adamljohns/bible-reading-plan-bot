@@ -32,7 +32,7 @@ const DEFAULT_JSONL = '/tmp/social-scrapes.jsonl';
 const UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36 MOOP-Church-Directory/1.0 (+https://usmcmin.org/churches.html)';
 const FETCH_TIMEOUT_MS = 9000;
 const MAX_BODY = 500_000;
-const PLATFORMS = ['facebook', 'youtube', 'instagram', 'x_twitter', 'tiktok'];
+const PLATFORMS = ['facebook', 'youtube', 'instagram', 'twitter', 'tiktok'];
 
 // ---------------------------------------------------------------------------
 // Handles that are never a specific church's own profile. A church site that
@@ -196,7 +196,7 @@ const NORMALIZERS = {
   facebook: normFacebook,
   youtube: normYouTube,
   instagram: normInstagram,
-  x_twitter: normX,
+  twitter: normX,
   tiktok: normTikTok,
 };
 
