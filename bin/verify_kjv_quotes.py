@@ -39,6 +39,100 @@ BOOKNUM = {'Gen':1,'Exo':2,'Lev':3,'Num':4,'Deu':5,'Josh':6,'Jos':6,'Jdg':7,'Rut
            'Phm':57,'Heb':58,'Jas':59,'1Pe':60,'2Pe':61,'1Jn':62,'2Jn':63,'3Jn':64,
            'Jud':65,'Rev':66}
 
+# The corpus overwhelmingly cites scripture the way a human writes it —
+# "John 1:14", "Acts 2:38", "Psalm 22:1", "1 Corinthians 13:4" — and the
+# original 3-letter-only table could read none of it. That is not an authoring
+# defect; it is the verifier being unable to read its own corpus, and it is
+# what left 10,973 of 20,780 scripture slots silently unexamined. Resolve the
+# ordinary forms instead of demanding everything be rewritten.
+_FULL = {
+    'genesis':1,'exodus':2,'leviticus':3,'numbers':4,'deuteronomy':5,'joshua':6,
+    'judges':7,'ruth':8,'1samuel':9,'2samuel':10,'1kings':11,'2kings':12,
+    '1chronicles':13,'2chronicles':14,'ezra':15,'nehemiah':16,'esther':17,
+    'job':18,'psalm':19,'psalms':19,'proverbs':20,'ecclesiastes':21,
+    'songofsolomon':22,'songofsongs':22,'canticles':22,'isaiah':23,
+    'jeremiah':24,'lamentations':25,'ezekiel':26,'daniel':27,'hosea':28,
+    'joel':29,'amos':30,'obadiah':31,'jonah':32,'micah':33,'nahum':34,
+    'habakkuk':35,'zephaniah':36,'haggai':37,'zechariah':38,'malachi':39,
+    'matthew':40,'mark':41,'luke':42,'john':43,'acts':44,'romans':45,
+    '1corinthians':46,'2corinthians':47,'galatians':48,'ephesians':49,
+    'philippians':50,'colossians':51,'1thessalonians':52,'2thessalonians':53,
+    '1timothy':54,'2timothy':55,'titus':56,'philemon':57,'hebrews':58,
+    'james':59,'1peter':60,'2peter':61,'1john':62,'2john':63,'3john':64,
+    'jude':65,'revelation':66,'revelations':66,
+}
+_ABBR = {
+    'gen':1,'ge':1,'exo':2,'ex':2,'exod':2,'lev':3,'le':3,'num':4,'nu':4,
+    'deu':5,'dt':5,'deut':5,'jos':6,'josh':6,'jdg':7,'judg':7,'jg':7,
+    'rut':8,'ru':8,'1sa':9,'1sam':9,'2sa':10,'2sam':10,'1ki':11,'1kg':11,
+    '1kgs':11,'2ki':12,'2kg':12,'2kgs':12,'1ch':13,'1chr':13,'2ch':14,
+    '2chr':14,'ezr':15,'neh':16,'ne':16,'est':17,'es':17,'psa':19,'ps':19,
+    'psalm':19,'pss':19,'pro':20,'prov':20,'pr':20,'ecc':21,'eccl':21,
+    'son':22,'song':22,'sos':22,'isa':23,'is':23,'jer':24,'je':24,'lam':25,
+    'la':25,'eze':26,'ezek':26,'dan':27,'da':27,'hos':28,'ho':28,'joe':29,
+    'joel':29,'amo':30,'am':30,'oba':31,'ob':31,'jon':32,'mic':33,'mi':33,
+    'nah':34,'na':34,'hab':35,'zep':36,'zeph':36,'hag':37,'zec':38,'zech':38,
+    'mal':39,'mat':40,'matt':40,'mt':40,'mar':41,'mk':41,'mrk':41,'luk':42,
+    'lk':42,'luke':42,'joh':43,'jn':43,'jno':43,'act':44,'ac':44,'rom':45,
+    'ro':45,'1co':46,'1cor':46,'2co':47,'2cor':47,'gal':48,'ga':48,'eph':49,
+    'php':50,'phil':50,'phili':50,'col':51,'1th':52,'1thes':52,'1thess':52,
+    '2th':53,'2thes':53,'2thess':53,'1ti':54,'1tim':54,'2ti':55,'2tim':55,
+    'tit':56,'phm':57,'philem':57,'phlm':57,'heb':58,'jas':59,'jam':59,
+    '1pe':60,'1pet':60,'1pt':60,'2pe':61,'2pet':61,'2pt':61,'1jn':62,'1jo':62,
+    '1joh':62,'2jn':63,'2jo':63,'2joh':63,'3jn':64,'3jo':64,'3joh':64,
+    'jud':65,'jude':65,'rev':66,'re':66,'rv':66,
+}
+
+def resolve_book(token):
+    """Map any reasonable rendering of a book name to its cache number."""
+    k = re.sub(r'[\s.]+', '', token).lower()
+    if k in _FULL:
+        return _FULL[k]
+    if k in _ABBR:
+        return _ABBR[k]
+    return BOOKNUM.get(token)
+
+# Leading book portion may carry a number and internal spaces
+# ("1 Corinthians", "Song of Solomon"), then chapter:verse, optionally a
+# range ("1Pe 2:2-3"). Entries legitimately quote across two or three verses.
+REF_RE = re.compile(r'^\s*([1-3]?\s*[A-Za-z][A-Za-z\s]*?)\.?\s*(\d+):(\d+)(?:\s*[-–]\s*(\d+))?')
+
+def cache_text(cache, bn, chap, v1, v2=None):
+    """KJV text for a verse, or the joined text of a verse range."""
+    out = []
+    for n in range(int(v1), int(v2 or v1) + 1):
+        e = cache.get(f'{bn}_{chap}_{n}')
+        if not e or 'KJV' not in e:
+            return None if n == int(v1) else ' '.join(out)
+        out.append(e['KJV'])
+    return ' '.join(out) if out else None
+
+def quote_matches(quoted, kjv):
+    """A quote matches if it is a substring of the KJV text — or, when it
+    elides with an ellipsis, if every fragment appears in order. Entries
+    deliberately elide ('and Gideon made an ephod thereof... and all Israel
+    went thither a whoring'), and a flat substring test cannot span that."""
+    q, k = norm(quoted), norm(kjv)
+    if q[:100] in k:
+        return True
+    # A quote may open or close mid-verse ("...and David said"). Strip the
+    # outer ellipses first, or the split below yields a single fragment and
+    # never reaches the in-order check.
+    q = re.sub(r'^\s*(?:\.{3}|…)\s*', '', q)
+    q = re.sub(r'\s*(?:\.{3}|…)\s*$', '', q)
+    if q[:100] in k:
+        return True
+    parts = [p.strip() for p in re.split(r'\.{3}|…', q) if p.strip()]
+    if len(parts) < 2:
+        return False
+    pos = 0
+    for p in parts:
+        i = k.find(p[:60], pos)
+        if i < 0:
+            return False
+        pos = i + len(p[:60])
+    return True
+
 def norm(s):
     s = html.unescape(s).lower()
     s = re.sub(r'<sup>.*?</sup>', '', s, flags=re.S)   # translator margin notes
@@ -61,23 +155,23 @@ def main():
             for ref, text in e.get('scriptures', []):
                 if 'title' in ref:
                     titles += 1; continue
-                m = re.match(r'(\d?[A-Za-z]+)\s+(\d+):(\d+)', ref)
-                bn = BOOKNUM.get(m.group(1)) if m else None
+                m = REF_RE.match(ref)
+                bn = resolve_book(m.group(1)) if m else None
                 if not bn:
                     # The author wrote a ref this verifier cannot resolve. That
                     # is an authoring defect, not a cache gap — it must fail.
                     unresolvable.append((e.get('slug', '?'), ref))
                     continue
-                v = cache.get(f'{bn}_{m.group(2)}_{m.group(3)}')
-                if not v or 'KJV' not in v:
+                kjv = cache_text(cache, bn, m.group(2), m.group(3), m.group(4))
+                if not kjv:
                     uncached.append((e.get('slug', '?'), ref))
                     continue
                 checked += 1
-                if norm(text)[:100] not in norm(v['KJV']):
+                if not quote_matches(text, kjv):
                     bad += 1
                     print(f'MISMATCH {e["slug"]} {ref}')
                     print(f'  quoted: {norm(text)[:110]}')
-                    print(f'  KJV   : {norm(v["KJV"])[:110]}')
+                    print(f'  KJV   : {norm(kjv)[:110]}')
 
     if unresolvable:
         print(f'\nUNRESOLVABLE REFERENCES ({len(unresolvable)}) — these were never checked.')
