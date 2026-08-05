@@ -73,15 +73,17 @@ Meanwhile the corpus carries **249 `-ism` slugs**, 127 `-doctrine` slugs, and en
 theology and never came back to cover the plainest vocabulary of the text — a reader looking up
 **God** finds `attributes-of-god` and `city-of-god` but no `god`. **BLOCK 0 fixes this first.**
 
-### Open questions that remain Adam's alone
+### ★ `sevenfold` — RULED 2026-08-05: it is the **70,000th** word
 
-1. **`sevenfold`** is still OPEN, un-authored and un-redirected — reserved since 2026-07-16 as the
-   ceremonial 7,777th word. The corpus passed 7,777 on 7/30 without ceremony (fleet batches
-   417–436 ran straight through it), so the moment it was reserved for has already gone by.
-   **Does `sevenfold` now become the 17,777th word, get authored as an ordinary entry, or stay
-   reserved for another marker?** Nothing may author it until Adam rules.
-2. The 19 pre-empted "crown capstone" entries (batches 412–413) stand as ordinary entries unless
-   Adam says otherwise.
+Adam's decision: *"the sevenfold number is going to be the 70,000th word, since we've got such
+expansive usage now to continue to rewrite the dictionary."*
+
+`sevenfold` is **RESERVED at 70,000** — the Webster's-1828-parity mark, not 7,777 and not 17,777.
+It stays OPEN, un-authored and un-redirected until the corpus reaches 69,999. **No batch may
+author it**, and no milestone ceremony is scheduled before then. 17,777 is now a waypoint on the
+way to 70,000 rather than a finish line.
+
+The 19 pre-empted "crown capstone" entries (batches 412–413) stand as ordinary entries.
 
 ---
 
