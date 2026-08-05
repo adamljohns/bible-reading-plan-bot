@@ -39,6 +39,31 @@ if (!inputs.length) {
   process.exit(1);
 }
 
+// Two URLs can name the same profile while differing as strings: a stored
+// trailing slash, http vs https, a www, or YouTube's three interchangeable
+// handle forms (/user/x, /c/x, /@x). Comparing raw strings reports thousands
+// of "conflicts" that are nothing of the kind, which would bury the handful
+// of real disagreements worth a human's time.
+function canonical(url) {
+  if (!url || typeof url !== 'string') return '';
+  let u = url.trim().toLowerCase();
+  u = u.replace(/^http:\/\//, 'https://');
+  u = u.replace(/^https:\/\/(www\.|m\.|web\.|mobile\.)/, 'https://');
+  u = u.split('?')[0].split('#')[0].replace(/\/+$/, '');
+  // YouTube: compare the bare handle, not which of the three prefixes was used.
+  u = u.replace(/^https:\/\/youtube\.com\/(?:user|c)\/(.+)$/, 'https://youtube.com/@$1');
+  u = u.replace(/^https:\/\/youtube\.com\/@/, 'https://youtube.com/@');
+  return u;
+}
+
+function sameProfile(a, b) {
+  const ca = canonical(a), cb = canonical(b);
+  if (!ca || !cb) return false;
+  if (ca === cb) return true;
+  // /@handle vs /channel/UC... cannot be compared — treat as a real conflict.
+  return false;
+}
+
 // Last record for a given id wins — a rerun supersedes an earlier attempt.
 const recs = new Map();
 for (const p of inputs) {
@@ -79,7 +104,7 @@ for (const c of db.churches) {
       added.push(p);
       byPlatform[p]++;
       stats.filled++;
-    } else if (c[p] !== val) {
+    } else if (!sameProfile(c[p], val)) {
       stats.conflict++;
       conflicts.push({ id: c.id, platform: p, existing: c[p], scraped: val });
     } else {
