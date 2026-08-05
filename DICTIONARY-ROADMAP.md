@@ -85,15 +85,20 @@ theology and never came back to cover the plainest vocabulary of the text — a 
 
 ---
 
-## 1. Where we stand (refreshed 2026-07-01, Fable critical review)
+## 1. Where we stand (refreshed 2026-08-05)
 
 | Metric | Value |
 |---|---|
-| Real word-entry count (rebuild "Total entries" = `data/dictionary-slugs.txt`) | **6,765** |
+| Real word-entry count (rebuild "Total entries" = `data/dictionary-slugs.txt`) | **7,879** |
 | Redirect stubs (dedupe registry `data/dictionary-redirects.txt`) | 300 (278 campaign + 22 nightly same-person dups merged 7/1) |
 | Featured section pages | 10 (doctrinal-anchors, biblical-order, expressly-prohibited, most-corrupted, gen-z/millennial/gen-x/boomer/christianese-decoded, jesus-generation) |
-| **Target** | **7,777** |
-| **Gap remaining** | **1,012 ≈ 10-12 nightly runs ≈ mid-July 2026** |
+| **Target** | **17,777** (see §0) |
+| **Gap remaining** | **9,898 ≈ 99 nightly runs at 100/run** |
+| Uncovered KJV words available to author | **10,120** (`bin/kjv_wordlist.py`) |
+| Last authoring commit | batch-436, **2026-07-30** — six nights frozen by the retired ceiling |
+
+*(Historical: the 2026-07-01 Fable review recorded 6,765 entries against a 7,777 target with
+1,012 remaining. The corpus passed that target on 7/30 and the target itself moved on 8/05.)*
 
 > As of 2026-07-01 the headline count is HONEST: rebuild-dictionary.py excludes the
 > 14 special/section pages from "Total entries", so the displayed number equals the
