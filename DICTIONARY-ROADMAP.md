@@ -399,12 +399,16 @@ redefinition, use the caveat template in `corruption_summary`.
 >    This is the rule the fleet did not have, and its absence is why **207 live entries across
 >    batches 415–436 carry non-KJV text** (NASB/LSB/ESV renderings where VOICE-LOCK §5.3 requires
 >    the Authorized Version verbatim). Non-negotiable for every writer — nightly, cloud, or human:
->    - Every scripture reference is written in the verifier's 3-letter book form (`Psa`, `Joh`,
->      `Php`), **never** `Psalm 22:1` / `John 1:14` / `2 Tim.`. A batch in the wrong ref style
->      reports `0 verified, 0 mismatched` — **a PASS that means nothing was examined.** That is
+>    - **APPLIED 2026-08-05.** The gate now runs inside `bin/batch_pipeline.sh`, before
+>      generation, so a failing batch reaches nothing. It had never been wired in at all — the
+>      root cause behind the 207.
+>    - **An unresolvable reference is a FAILURE, not a skip, and a run that verifies nothing
+>      FAILS explicitly.** Previously a batch the verifier could not parse reported
+>      `0 verified, 0 mismatched` and exited 0 — a PASS meaning nothing was examined, which is
 >      precisely how batches 417, 423–426 and 430–436 cleared the pipeline.
->    - **An unparseable reference is a FAILURE, not a skip.** (The 8/03 guard fix — still
->      unapplied; apply it before the next authoring run.)
+>    - Refs may be written naturally (`John 1:14`, `Psalm 22:1`, `1Pe 2:2-3`); the verifier was
+>      taught the full book names, standard abbreviations, verse ranges and `...` elisions on
+>      2026-08-05, taking corpus visibility from 9,725 verified quotes to **20,382**.
 >    - Pull verse text with `bin/kjv_lookup.py` and paste it **verbatim**. Do not quote scripture
 >      from memory; that is the exact mechanism that produced the 207.
 >    - Gate `batch_pipeline.sh` on the verifier. **Audit-FAIL = no commit, no push, no exceptions.**
