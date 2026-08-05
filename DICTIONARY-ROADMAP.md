@@ -1,13 +1,87 @@
-# MOOP Dictionary Roadmap — to 7,777 (Word-Study Completeness)
+# MOOP Dictionary Roadmap — to 17,777 (Biblical-Vocabulary Completeness)
 
-> **Mission:** grow the MOOP Dictionary from its current state to **7,777 entries**, pivoting
-> toward *the actual vocabulary of the biblical text* so that **every meaningful word in the
-> Bible** is covered for word study. At 7,777 the dictionary reaches the territory of a complete
-> expository word-study Bible dictionary (think *Vine's*, ~6,000 entries — but larger and in the
-> MOOP voice).
+> **Mission:** grow the MOOP Dictionary toward **17,777 entries**, pivoting toward *the actual
+> vocabulary of the biblical text* so that **every meaningful word in the Bible** is covered for
+> word study. Long horizon: **Webster's 1828** (~70,000 entries) — the reference work this
+> dictionary is ultimately answering in the MOOP voice.
 >
 > **This is a living document.** Update the Progress Tracker at the bottom after every session.
 > *(Standing preference: any multi-week plan like this gets saved as a tracked `.md`.)*
+
+---
+
+## 0. TARGET CHANGE — 7,777 → 17,777 (Adam's order, 2026-08-05)
+
+**The 7,777 constant is retired as a ceiling.** Adam's direction on 2026-08-05: *"let's even
+expand our dictionary and start targeting 17,777 words… eventually I want to match the Webster's
+1828 dictionary which I think has 70,000 words."*
+
+This supersedes the **LIVING CANON / permanent constant** doctrine of 2026-07-16 (one-out-one-in
+exchange at a fixed 7,777) and the **LANDING PROTOCOL** ceiling of 7,767. Both are struck. See
+BLOCK E below for what replaces them.
+
+**Why this had to change to make any progress at all.** The corpus has sat at **7,879 for six
+straight nights (7/30 – 8/05) authoring exactly nothing.** That was not slowness; it was the
+protocol working as written. The rule *"count ≥ 7,767 → author nothing, maintenance only"*
+combined with a corpus already 102 entries **above** the permanent constant meant the nightly was
+structurally forbidden from ever authoring again, and the six maintenance rows below say so
+explicitly. Raising the target is what unlocks the pipeline; nothing else in the stack was broken.
+
+**The overrun dissolves.** 7,879 is no longer 112-over-a-ceiling requiring a 102-entry merge
+inventory that the duplicate scans kept proving does not honestly exist. It is simply **progress
+toward 17,777**, and the three 8/01 decisions about *how to get back down to 7,777* are moot.
+(The KJV-fidelity decisions are **not** moot — see BLOCK F.)
+
+### Why 17,777 is the right number — it is a finish line, not a round figure
+
+`bin/kjv_wordlist.py` (added 2026-08-05) reads the 30,706 cached KJV verses in
+`docs/assets/verse-cache.json`, extracts the entire vocabulary, and diffs it against
+`data/dictionary-slugs.txt` plus the redirect registry:
+
+| Measure | Count |
+|---|---|
+| Distinct KJV words (stopwords removed) | **12,619** |
+| …already covered by an entry | 2,499 |
+| **…NOT yet covered** | **10,120** |
+| &nbsp;&nbsp;of which probable proper nouns | 2,635 |
+| &nbsp;&nbsp;of which common vocabulary | 7,485 |
+| Live entries today | 7,879 |
+| **7,879 + 10,120 =** | **17,999** |
+
+**17,777 is very nearly the exact point at which the biblical vocabulary is completely covered.**
+That is the mission statement made countable. Regenerate any time:
+
+```
+python3 bin/kjv_wordlist.py --json data/kjv-gap.json --out data/kjv-gap-candidates.txt
+```
+
+### ⚠ What the gap analysis exposed — the corpus was built inside-out
+
+The uncovered list is topped by the words the Bible says *most*:
+
+| Word | KJV occurrences | Entry? |
+|---|---|---|
+| **god** | 4,367 | **none** |
+| **man** | 2,641 | **none** |
+| **people** | 2,151 | **none** |
+| **house** | 2,052 | **none** |
+| **land** | 1,727 | **none** |
+| **earth** | 975 | **none** |
+
+Meanwhile the corpus carries **249 `-ism` slugs**, 127 `-doctrine` slugs, and entries for
+`grace-prevenient` and `dualism-cartesian`. The dictionary was grown outward from systematic
+theology and never came back to cover the plainest vocabulary of the text — a reader looking up
+**God** finds `attributes-of-god` and `city-of-god` but no `god`. **BLOCK 0 fixes this first.**
+
+### Open questions that remain Adam's alone
+
+1. **`sevenfold`** is still OPEN, un-authored and un-redirected — reserved since 2026-07-16 as the
+   ceremonial 7,777th word. The corpus passed 7,777 on 7/30 without ceremony (fleet batches
+   417–436 ran straight through it), so the moment it was reserved for has already gone by.
+   **Does `sevenfold` now become the 17,777th word, get authored as an ordinary entry, or stay
+   reserved for another marker?** Nothing may author it until Adam rules.
+2. The 19 pre-empted "crown capstone" entries (batches 412–413) stand as ordinary entries unless
+   Adam says otherwise.
 
 ---
 
@@ -303,32 +377,45 @@ redefinition, use the caveat template in `corruption_summary`.
 > related-chips (bin/fix_dangling_chips.py --dry-run surfaces them) + phrases readers hit in
 > Psalms/Proverbs/Gospels chapter pages with no entry. Fresh crawl each run; author what the
 > corpus itself is asking for.
-> **BLOCK E — LANDING PROTOCOL (hard rules).**
-> 1. **STOP AT 7,767.** When ≤110 remain, author exactly (remainder − 10) and halt. NEVER exceed
->    7,767 by authoring; the count must land on 7,777 exactly via the crown batch.
-> 2. **The CROWN BATCH (final 10) is hand-curated with Adam** — capstone words chosen by the
->    editor, ending on a deliberately chosen 7,777th entry. Do not author it in a nightly.
->    ★ ADAM HAS CHOSEN (2026-07-16): **the 7,777th entry is `sevenfold`** — the number of
->    completion, multiplied (Psa 12:6; Gen 4:15; Isa 30:26). Slug verified open and RESERVED:
->    no batch may author `sevenfold` before the crown batch.
-> 3. Before the crown batch ships: full integrity audit; corpus drift audit; fresh
->    find_duplicates.py pass (human review of any new clusters); verify_kjv_quotes.py over the
->    final 10 batches; sitemap + manifest regen (pipeline does this); version bump decision
->    (proposal: V7.0 &ldquo;7,777 Jubilee Edition&rdquo;) — Adam's call.
-> 4. **After 7,777: THE LIVING CANON (Adam's doctrine, 2026-07-16).** 7,777 becomes a
->    PERMANENT CONSTANT, not a high-water mark. The count never moves; the CONTENT keeps
->    improving by exchange — **one out, one in**:
->    - MERGE a true same-concept twin (via bin/merge_entries.py; redirect stub preserves the
->      old URL) → that opens exactly one vacancy → fill it with a genuinely new word IN THE
->      SAME session, landing back on 7,777 before pushing. Never push an off-count corpus.
->    - The MERGE INVENTORY: bin/find_duplicates.py tier-1 (currently 48 clusters). True twins
->      confirmed by eye so far: iron-bible/iron, tappuah/tappuah-town, babylon-city/babylon,
->      new-jerusalem/jerusalem-new/new-jerusalem-city, idolatry-modern/idolatry. KEEP the
->      intentional theological disambiguations (grace-prevenient/common, dualism-cartesian/
->      gnostic, confession-auricular/mutual, israel-name/people, ephraim variants, etc.) —
->      human review decides every merge; nothing auto-merges.
->    - Weekly maintenance run: integrity + drift + duplicate scan + dead-link check + Amen
->      leaderboard glance. Era-debt (601 lacking Usage; 176 lacking Webster) is exchange-free
->      polish — enriching an entry in place never touches the count.
-> - Standing rules unchanged: one-entity rule, never recreate redirected slugs, disambiguators
->   are not duplicates, commit+push fast, stage dictionary paths only, audit-FAIL = no push.
+> **BLOCK E — AUTHORING PROTOCOL (replaces the LANDING PROTOCOL, 2026-08-05).**
+>
+> The old BLOCK E is struck in full. It said *"STOP AT 7,767 — author nothing"* and it did
+> exactly that for six consecutive nights against a corpus already past the ceiling. There is
+> **no count ceiling any more.** The target is 17,777 and the corpus is at 7,879, so the nightly
+> **authors every run** until told otherwise.
+>
+> 1. **NO CEILING. AUTHOR EVERY NIGHT.** Standard nightly is 60–100 entries. Never halt on count
+>    alone; the only thing that stops a run is a failed quality gate (rule 3).
+> 2. **WORK THE BLOCKS IN ORDER.** BLOCK 0 first — it is the embarrassment. Then A–D, which still
+>    stand, then the KJV gap list, which is now the long runway and is machine-generated:
+>    `python3 bin/kjv_wordlist.py --out data/kjv-gap-candidates.txt`. Slug-check every candidate;
+>    the one-entity rule and the never-recreate-a-redirected-slug rule are unchanged.
+> 3. **★ THE HARD GATE — `verify_kjv_quotes.py` MUST PASS, AND A RUN THAT FAILS SHIPS NOTHING.**
+>    This is the rule the fleet did not have, and its absence is why **207 live entries across
+>    batches 415–436 carry non-KJV text** (NASB/LSB/ESV renderings where VOICE-LOCK §5.3 requires
+>    the Authorized Version verbatim). Non-negotiable for every writer — nightly, cloud, or human:
+>    - Every scripture reference is written in the verifier's 3-letter book form (`Psa`, `Joh`,
+>      `Php`), **never** `Psalm 22:1` / `John 1:14` / `2 Tim.`. A batch in the wrong ref style
+>      reports `0 verified, 0 mismatched` — **a PASS that means nothing was examined.** That is
+>      precisely how batches 417, 423–426 and 430–436 cleared the pipeline.
+>    - **An unparseable reference is a FAILURE, not a skip.** (The 8/03 guard fix — still
+>      unapplied; apply it before the next authoring run.)
+>    - Pull verse text with `bin/kjv_lookup.py` and paste it **verbatim**. Do not quote scripture
+>      from memory; that is the exact mechanism that produced the 207.
+>    - Gate `batch_pipeline.sh` on the verifier. **Audit-FAIL = no commit, no push, no exceptions.**
+>      A night that authors nothing because the gate failed is a *good* night.
+> 4. **NO MILESTONE CEREMONY IS SCHEDULED.** `sevenfold` stays RESERVED and unauthored pending
+>    Adam's ruling (§0). No batch may author it. There is no crown batch on the calendar.
+> 5. **GROWTH IS NOW ADDITIVE, NOT AN EXCHANGE.** The one-out-one-in Living Canon rule is
+>    retired with the constant. Merging true duplicates is still good hygiene — it just no longer
+>    has to be paid for with a new entry in the same session, and no longer has to balance to a
+>    number before pushing.
+> 6. **Standing rules unchanged:** one-entity rule, never recreate redirected slugs,
+>    disambiguators are not duplicates, commit+push fast, stage dictionary paths only.
+>
+> **BLOCK 0 — THE PLAINEST WORDS IN THE BIBLE (~150; DO THIS FIRST).** The bare, highest-frequency
+> vocabulary that has no entry at all: **god** (4,367 occurrences), **man**, **people**, **house**,
+> **land**, **earth**, and the rest of the 379 uncovered words appearing 100+ times. These are the
+> most-looked-up words in the corpus and the most conspicuous absence in it. Highest KJV density in
+> the whole plan, so they are also the cheapest to source verbatim. Check each bare form against
+> `data/dictionary-slugs.txt` first — several will collide with an existing compound.
