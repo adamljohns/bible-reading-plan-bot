@@ -871,6 +871,12 @@ footer .draft-note {
   text-transform: uppercase;
 }
 .month-brief .charge p { color: var(--white); margin-top: 6px; font-size: 0.92rem; line-height: 1.4; }
+.month-brief a.month-print {
+  color: var(--gold-light);
+  text-decoration: underline;
+  font-weight: 600;
+}
+.month-brief a.month-print:hover { color: var(--white); }
 .month-brief .month-foot {
   margin-top: 10px;
   font-size: 0.75rem;
@@ -1413,7 +1419,7 @@ def render_month_brief(date_str, kind):
         f'{chips_block}'
         f'{beats_block}'
         f'<div class="charge"><div class="label">Watch Charge</div><p>{charge}</p></div>'
-        f'<div class="month-foot">Visible on bare URL / All Watches only · hidden on single-watch deep links · PJG-0024</div>'
+        f'<div class="month-foot">Visible on bare URL / All Watches only · hidden on single-watch deep links · PJG-0024<br><a class="month-print" href="/assets/downloads/2026-Watchmans-Year-MONTH-BRIEFS-RevB.pdf">Print companion · Watchman’s Year Month Briefs (Rev B)</a></div>'
         f'</aside>'
     )
 
