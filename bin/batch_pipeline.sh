@@ -99,6 +99,19 @@ if errs:
 print(f'pre-flight OK: {len(data)} entries, schema/slugs/entities/related all clean')
 PY
 
+echo "== KJV fidelity gate =="
+# Runs BEFORE generation: a batch quoting non-KJV text must never reach the
+# corpus. Its absence here is why 207 live entries across batches 415-436
+# carry NASB/LSB/ESV renderings against VOICE-LOCK 5.3, and why a batch
+# written in an unparseable ref style ("Psalm 22:1") used to sail through
+# reporting "0 verified, 0 mismatched" — a pass that examined nothing.
+if ! python3 bin/verify_kjv_quotes.py "$BATCH"; then
+  echo "ABORT: KJV fidelity gate failed. Quote the Authorized Version verbatim"
+  echo "       (pull text with bin/kjv_lookup.py) and write refs in 3-letter"
+  echo "       form (Psa 22:1, Joh 1:14, Php 2:6). Nothing was generated."
+  exit 1
+fi
+
 echo "== drift audit =="
 if ! python3 bin/dict_drift_audit.py "$BATCH" 2>&1 | grep -qE "0 HARD hit|CLEAN"; then
   echo "ABORT: hard hits present. Fix before generating."
