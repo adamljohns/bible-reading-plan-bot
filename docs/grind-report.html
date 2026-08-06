@@ -42,6 +42,7 @@
 <div class="wrap">
   <h1>⚙️ Local Grind Report</h1>
   <div class="sub">The zero-cloud-usage enrichment pipeline (local Qwen on this Mac) vs. the 2026-07-03 baseline. Data: <a href="/data/grind-stats.json" style="color:var(--gray)">grind-stats.json</a> · newest finds: <a href="/data/qa-sample.json" style="color:var(--gray)">qa-sample.json</a></div>
+  <div id="freshness"></div>
   <div class="cards" id="cards"><div class="card"><div class="label">Loading…</div></div></div>
   <h2>Pastors found per day <span style="font-size:.7rem;color:var(--gray);font-weight:400">(gold = fresh pool · blue = retry pool)</span></h2>
   <div class="bars" id="bars"></div>
@@ -65,6 +66,44 @@
   const base = s[0], last = s[s.length - 1];
   const attempted = s.reduce((a, r) => a + (r.attempted || 0), 0);
   const found = s.reduce((a, r) => a + (r.found || 0), 0);
+
+  // FRESHNESS GATE (2026-08-05). This page only ever showed the last recorded
+  // round, never how old it was — so when the launchd job died on 2026-07-22
+  // the report kept rendering a healthy-looking wall of numbers for fourteen
+  // days and the outage was spotted by eye, not by the dashboard. A report that
+  // cannot say "I am stale" is worse than no report.
+  (function () {
+    const ts = last && last.ts;
+    if (!ts) return;
+    // Rows are recorded in UTC (the Recent-rounds header says so) but carry no
+    // zone suffix, so new Date() would read them as local — a 4–5 hour error
+    // against an 8 hour threshold, enough to call a live grind stale.
+    const then = new Date(ts.replace(' ', 'T') + 'Z');
+    if (isNaN(then)) return;
+    const hours = (Date.now() - then.getTime()) / 36e5;
+    const ageTxt = hours < 48
+      ? Math.round(hours) + ' hours ago'
+      : Math.floor(hours / 24) + ' days ago';
+    let level, msg;
+    if (hours <= 8) {
+      level = 'ok';
+      msg = `Grind is live — last round ${ageTxt}.`;
+    } else if (hours <= 30) {
+      level = 'warn';
+      msg = `Last round ${ageTxt}. Sessions run 03:00 / 09:00 / 15:00 / 21:00, so a gap this long means one was missed.`;
+    } else {
+      level = 'bad';
+      msg = `THE GRIND IS NOT RUNNING — last round ${ageTxt}. Every number below is frozen at that moment and is not current.`;
+    }
+    const colour = level === 'ok' ? '#3f7d55' : level === 'warn' ? '#8a6d1f' : '#8c2f2f';
+    const fix = level === 'bad'
+      ? `<div style="margin-top:8px;font-size:.78rem;opacity:.85">Check the job: <code>launchctl list | grep pastor-refine</code> — if it is absent, the LaunchAgent is missing and must be reloaded with <code>launchctl load -w ~/Library/LaunchAgents/com.moop.pastor-refine-local.plist</code>.</div>`
+      : '';
+    $('freshness').innerHTML =
+      `<div style="border:1px solid ${colour};background:${colour}22;border-radius:10px;` +
+      `padding:12px 14px;margin:0 0 16px;font-size:.9rem;line-height:1.45">` +
+      `<strong>${level === 'ok' ? 'Current' : level === 'warn' ? 'Stale' : 'STALLED'}</strong> · ${msg}${fix}</div>`;
+  })();
   const card = (label, val, delta, baseTxt) =>
     `<div class="card"><div class="label">${label}</div><div class="big">${val.toLocaleString()}</div>` +
     (delta > 0 ? `<div class="delta">▲ +${delta.toLocaleString()} since baseline</div>` : '') +
