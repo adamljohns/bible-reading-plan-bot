@@ -80,8 +80,12 @@ const noPastorStrikes = c => (notesText(c).match(/no parseable pastor/gi) || [])
 // here; the extractor harvests socials deterministically (regex, no LLM) on the fetch.
 const SOCIAL = args.includes('--social');
 const hasWebsite = c => typeof c.website === 'string' && /^https?:\/\//i.test(c.website);
+// _social_scraped (2026-08-06) is the marker left by scripts/scrape-church-social.js,
+// which harvested 10,200 church sites directly. Without honouring it the grind
+// re-fetches every site that harvest already visited and found nothing on —
+// thousands of churches whose only possible outcome is another empty round.
 const socialEligible = c => hasWebsite(c) && !c.facebook && !c.youtube && !c.instagram &&
-  isEnglish(c.name) && isUS(c) && !c._social_attempted;
+  isEnglish(c.name) && isUS(c) && !c._social_attempted && !c._social_scraped;
 
 // _hold_review (2026-07-11): the merge guard HELD an extracted name (junk-looking or
 // typically-female lead) for manual MOOP-rubric review. Re-fetching would only re-extract

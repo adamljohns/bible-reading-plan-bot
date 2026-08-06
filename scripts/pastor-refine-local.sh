@@ -92,7 +92,18 @@ if [ "$N_BATCH" -eq 0 ] || { [ -n "$POOL" ] && [ "$POOL" -lt "$MIN_FRESH" ]; }; 
 fi
 # Third tier: SOCIAL-fill (churches with a website but no social link). Keeps the
 # local sessions productive for a week after the pastor pools dry.
-SOCIAL_FLAG=""
+#
+# 2026-08-06: this reset used to be unconditional, which silently destroyed the
+# flag set by the cold-retry escalation above. A round that entered social mode
+# at that branch kept MODE=social — so the log read "mode=social" and looked
+# healthy — but reached the merge WITHOUT --social. Without that flag
+# merge-pastor-enrichments.js never stamps _social_attempted, so the very same
+# 50 churches were re-selected every round: 18 rounds overnight, pool frozen at
+# 5043, zero applied, ~3.6 hours of the machine re-fetching identical sites.
+# (Same class of failure as the 2026-07-17 stamp-placement bug, from the
+# opposite direction.) Only clear the flag if a social tier was NOT already
+# chosen.
+[ "$MODE" = "social" ] || SOCIAL_FLAG=""
 if [ "$N_BATCH" -eq 0 ]; then
   MODE="social"; SOCIAL_FLAG="--social"
   node scripts/select-enrichment-batch.js --social --count "$BATCH" --batches 1 --out "$WORK" >"$WORK/selector.txt" 2>&1 \
