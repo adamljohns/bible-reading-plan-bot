@@ -1,6 +1,9 @@
 # Reversed-word-order duplicate slugs — 49 pairs
 
-**Found:** 2026-08-06 · **Status:** awaiting Adam's approval, nothing merged yet
+**Found:** 2026-08-06 · **Status:** the 49 merges below have since been applied
+(corpus settled at 7,873; every merge-away slug is now a redirect stub in
+`data/dictionary-redirects.txt`). Two of the three awkward survivors were
+renamed on 2026-08-06 — see "Three where BOTH slugs read wrong" below.
 
 Hermes flagged "158 words with multiple slugs — potential duplicates from
 different model generations." Most of that number is **intentional
@@ -71,13 +74,41 @@ which is a judgment call, so it is listed for review rather than applied.
 | progressive-sanctification | sanctification-progressive | |
 | rejected-stone | stone-rejected | Psa 118:22 |
 
-## Three where BOTH slugs read wrong
+## Three where BOTH slugs read wrong — two fixed, one blocked
 
 `land-promise` / `promise-land`, `nations-table` / `table-nations`, and
 `babel-tower` / `tower-babel` are all awkward. The natural forms are
-**promised-land**, **table-of-nations** and **tower-of-babel**. Merging into
-either existing slug preserves a bad title. Recommend merging to the better of
-the two and renaming after, or authoring the correct slug and redirecting both.
+**promised-land**, **table-of-nations** and **tower-of-babel**.
+
+**Done 2026-08-06 — the two clean ones.** `tower-babel` → **tower-of-babel** and
+`table-nations` → **table-of-nations**. Both pages already *displayed* the right
+title ("Tower of Babel", "Table of Nations"); only the slug read wrong. Each was
+copied to the correct slug, self-references (canonical, og:url, ld+json) fixed,
+then `bin/merge_entries.py <new> <old> --apply` repointed inbound links and left
+a no-index stub, so all four old URLs still resolve:
+
+| Old URL | Resolves to |
+|---|---|
+| `tower-babel.html` | tower-of-babel.html |
+| `babel-tower.html` | tower-of-babel.html |
+| `table-nations.html` | table-of-nations.html |
+| `nations-table.html` | table-of-nations.html |
+
+The two legacy sibling stubs were de-chained to point straight at the new
+canonical (a stub pointing at a stub costs a hop and confuses SEO), and
+`dictionary-redirects.txt` was rewritten to match. Derived artifacts were
+hand-patched, not regenerated: `manifest.json`, `search-index.json`,
+`sitemap-dictionary.xml`, `dictionary-slugs.txt`. Verified in Chromium — all six
+URLs land on the right page in one hop. Integrity audit: PASS.
+
+**Blocked — `promise-land` needs Adam's call.** This one is NOT a rename. A
+separate live entry **`promised-land` already exists** (24.3 KB, title "Promised
+Land") alongside `promise-land` (18.5 KB, title "Promise Land"). So the natural
+slug is already taken by a real, longer entry, and this is a three-way merge of
+two substantive pages, not a rename. Per the rule at the bottom of this file —
+the wrong survivor is worse than the duplicate — nothing was touched. Adam
+decides which body text survives (or whether they are genuinely two ideas:
+the land promised to Abraham vs. Canaan itself).
 
 ## Applying
 
