@@ -61,9 +61,14 @@ const alreadyAttempted = c => {
 // (2026-07-03: the needs_review===true gate was dropped — it was an accident of
 // which import wave set the flag, not a statement about enrichability, and it
 // hid ~600 fetchable churches.)
+// _dead_site (2026-08-07): the live fetch already returned 404 / timeout /
+// ssl_error / redirect_loop / not_a_church. No pastor can be scraped from a
+// site that does not answer, so such a church is not fetchable in ANY mode.
+// Without this the retry pool recycled the same 50 dead sites indefinitely.
 const fetchable = c =>
   isPlaceholderPastor(c.pastor) &&
   typeof c.website === 'string' && /^https?:\/\//i.test(c.website) &&
+  !c._dead_site &&
   isEnglish(c.name) &&
   isUS(c);
 

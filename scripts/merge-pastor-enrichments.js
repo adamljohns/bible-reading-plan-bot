@@ -145,6 +145,16 @@ for (const c of d.churches) {
       c.enrichment_notes = c.enrichment_notes ? c.enrichment_notes + '\n' + noteAppend : noteAppend;
     }
     c.needs_review = true;
+    // 2026-08-07: stamp the dead site so it LEAVES the pastor pools. Without
+    // this the branch below never runs, no "no parseable pastor" strike is
+    // recorded, and the church sits at one strike forever — so the selector
+    // hands back the identical 50 dead sites every round. Observed all
+    // morning: mode=retry, pool frozen at 2428, "Broken websites noted: 50",
+    // zero applied, round after round. Same failure the social tier had on
+    // 2026-07-17, in a different branch.
+    // Dated rather than boolean so a future pass can re-check sites that may
+    // have come back up.
+    c._dead_site = TODAY;
     continue;
   }
 
