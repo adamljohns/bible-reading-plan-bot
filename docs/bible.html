@@ -255,27 +255,28 @@
         .share-btn { cursor: pointer; opacity: 0.7; font-size: 0.85rem; transition: opacity 0.2s; user-select: none; }
         .share-btn:hover { opacity: 1; }
         .share-btn.copied { opacity: 1; }
-        /* BTE v5.0: Inline cross-ref indicators for chapter mode */
-        .crossref-inline-toggle { cursor: pointer; font-size: 0.85rem; margin-left: 4px; opacity: 0.6; transition: opacity 0.2s; user-select: none; vertical-align: middle; }
-        .crossref-inline-toggle:hover { opacity: 1; }
-        .crossref-inline-body { display: none; margin: 4px 0 8px 24px; padding: 6px 10px; background: rgba(212,175,55,0.06); border-left: 2px solid var(--gold); border-radius: 0 6px 6px 0; font-size: 0.85rem; }
-        .crossref-inline-body.open { display: block; }
-        .crossref-inline-body a { color: var(--gold); text-decoration: none; border-bottom: 1px dotted var(--gold); }
-        .crossref-inline-body a:hover { color: var(--gold-light); border-bottom-style: solid; }
-        /* BTE v7.1: cross-references shown by default in verse-by-verse mode, each
-           with a lazy verse-text preview. Still gated to Show Tools + verse view via
-           the body.reader-mode / body.paragraph-mode rules below. */
-        .crossref-inline-body.crossref-shown { display: block; }
-        .crossref-inline-label {
-            font-size: 0.68rem; font-weight: 600; letter-spacing: 0.08em;
-            text-transform: uppercase; color: var(--gold); opacity: 0.75; margin-bottom: 3px;
+        /* BTE v8.0: mid-stream fat xref cards retired. Tiny gold count = single-verse only. */
+        .crossref-inline-count {
+            display: inline-block; min-width: 1.1rem; padding: 0 5px; margin-left: 4px;
+            font-size: 0.72rem; font-weight: 700; line-height: 1.35; text-align: center;
+            color: #000; background: var(--gold); border-radius: 999px; text-decoration: none;
+            vertical-align: middle; user-select: none;
         }
-        .crossref-row { display: block; line-height: 1.5; margin: 2px 0; }
-        .crossref-row .crossref-ref { white-space: nowrap; font-weight: 500; border-bottom: none; }
-        .crossref-row .crossref-ref:hover { border-bottom: 1px solid var(--gold-light); }
-        .crossref-preview { color: #9a9a9a; font-style: italic; }
-        body.light-mode .crossref-preview { color: #6b6b6b; }
-        .crossref-more { display: inline-block; margin-top: 4px; font-size: 0.8rem; opacity: 0.85; border-bottom: none !important; }
+        .crossref-inline-count:hover { background: var(--gold-light); color: #000; }
+        .crossref-inline-body { display: none !important; }
+        .crossref-verse-label {
+            font-size: 0.75rem; font-weight: 600; letter-spacing: 0.04em;
+            color: var(--gold); margin: 10px 0 4px;
+        }
+        .crossref-row { display: block; line-height: 1.55; margin: 4px 0; }
+        .crossref-row .crossref-ref { color: var(--gold); text-decoration: none; font-weight: 500; border-bottom: none; }
+        .crossref-row .crossref-ref:hover { color: var(--gold-light); border-bottom: 1px solid var(--gold-light); }
+        .crossref-item { margin: 4px 0; }
+        .crossref-preview { color: #b0b0b0; font-style: italic; }
+        body.light-mode .crossref-preview { color: #555; }
+        .crossref-section { margin: 16px 0 12px; padding-bottom: 8px; }
+        .crossref-toggle { color: var(--gold) !important; }
+        .crossref-more { display: inline-block; margin-top: 4px; font-size: 0.8rem; opacity: 0.85; border-bottom: none !important; color: var(--gold); }
         .share-toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: var(--gold); color: #000; padding: 10px 24px; border-radius: 8px; font-weight: 600; font-size: 0.95rem; z-index: 9999; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
         .share-toast.show { opacity: 1; }
 
@@ -1384,45 +1385,48 @@
             return 'bible.html?ref=' + encodeURIComponent(display);
         }
 
-        // BTE v5.0: Get cross-references for a verse, with mode-based limit
+        // BTE v8.0 (PJG-0806-XREF1): bottom-panel limits. Chapter/range cap 5 per source verse.
         function getCrossRefs(bookId, chapter, verse, mode) {
             const key = bookId + '_' + chapter + '_' + verse;
             const refs = crossRefData[key];
             if (!refs || !refs.length) return [];
-            if (mode === 'verse') return refs.slice(0, 5);
-            if (mode === 'range') return refs.slice(0, 2);
-            // BTE v5.0: Chapter mode now returns up to 2 refs (shown as inline indicators)
-            return refs.slice(0, 2);
+            if (mode === 'verse') return refs.slice(0, 8);
+            return refs.slice(0, 5);
         }
 
-        // BTE v5.0: Build cross-reference HTML panel
+        // BTE v8.0 (PJG-0806-XREF1 / Adam 2026-07-29 lock): bottom panel for ALL modes.
+        // Chapter + range: one panel after verse stream (no mid-stream cards). Previews via hydrateCrossRefPreviews.
         function buildCrossRefPanel(allVerseRefs, bookId, chapter, mode) {
-            // BTE v5.0: Chapter mode cross-refs are shown inline per verse, not as bottom panel
-            if (mode === 'chapter') return { html: '', count: 0 };
             let totalCount = 0;
             let groupsHtml = '';
             allVerseRefs.forEach(function(vn) {
                 const refs = getCrossRefs(bookId, chapter, vn, mode);
                 if (!refs.length) return;
                 totalCount += refs.length;
-                const verseLabel = (allVerseRefs.length > 1) ? '<div class="crossref-verse-label">Verse ' + vn + '</div>' : '';
+                const multi = allVerseRefs.length > 1 || mode === 'chapter' || mode === 'range';
+                const verseLabel = multi
+                    ? '<div class="crossref-verse-label">From ' + chapter + ':' + vn + '</div>'
+                    : '';
                 let itemsHtml = '';
                 refs.forEach(function(refKey) {
                     const display = crossRefKeyToDisplay(refKey);
                     const link = crossRefKeyToLink(refKey);
-                    itemsHtml += '<div class="crossref-item"><a href="' + link + '">→ ' + display + '</a></div>';
+                    itemsHtml += '<div class="crossref-item crossref-row">' +
+                        '<a class="crossref-ref" href="' + link + '">→ ' + display + '</a>' +
+                        '<span class="crossref-preview" data-xref="' + refKey + '"></span>' +
+                        '</div>';
                 });
                 groupsHtml += '<div class="crossref-verse-group">' + verseLabel + itemsHtml + '</div>';
             });
             if (!totalCount) return { html: '', count: 0 };
-            const panelId = 'crossref-panel-' + Date.now();
-            const html = '<div class="crossref-section">' +
+            const panelId = 'bte-xrefs';
+            const html = '<div class="crossref-section" id="bte-xrefs-section">' +
                 '<div class="crossref-header" onclick="toggleCrossRef(\'' + panelId + '\', this)">' +
                 '<h4><img src="assets/icons/shield-bible.png" class="site-icon" alt="book" width="18" height="18"> Cross-References</h4>' +
                 '<span class="crossref-count">(' + totalCount + ' reference' + (totalCount !== 1 ? 's' : '') + ')</span>' +
-                '<span class="crossref-toggle" style="color:var(--gold);font-size:0.8rem;">▶</span>' +
+                '<span class="crossref-toggle open" style="color:var(--gold);font-size:0.8rem;">▶</span>' +
                 '</div>' +
-                '<div class="crossref-body" id="' + panelId + '">' + groupsHtml + '</div>' +
+                '<div class="crossref-body open" id="' + panelId + '">' + groupsHtml + '</div>' +
                 '</div>';
             return { html: html, count: totalCount };
         }
@@ -1433,33 +1437,21 @@
             if (el) el.classList.toggle('open');
         }
 
-        // BTE v7.1: Cross-references shown by default in verse-by-verse mode, each row
-        // carrying a lazy preview of the referenced verse (hydrated post-render from the
-        // cached chapter store — no data bloat, no per-verse-page regeneration). Up to
-        // CROSSREF_INLINE_SHOW rows inline; the rest via a "+N more" link to the verse view.
-        var CROSSREF_INLINE_SHOW = 4;
-        function buildInlineCrossRef(bookId, chapter, verseNum) {
+        // BTE v8.0 (PJG-0806-XREF1): fat inline CROSS-REFERENCES cards removed from chapter/range.
+        // Single-verse mode may show a tiny gold count that scrolls to #bte-xrefs.
+        var CROSSREF_INLINE_SHOW = 0;
+        function buildInlineCrossRefTinyCount(bookId, chapter, verseNum) {
             var all = (typeof crossRefData !== 'undefined' && crossRefData[bookId + '_' + chapter + '_' + verseNum]) || [];
             if (!all.length) return '';
-            var shown = all.slice(0, CROSSREF_INLINE_SHOW);
-            var rowsHtml = shown.map(function(refKey) {
-                var display = crossRefKeyToDisplay(refKey);
-                var link = crossRefKeyToLink(refKey);
-                return '<div class="crossref-row">' +
-                    '<a class="crossref-ref" href="' + link + '">→ ' + display + '</a>' +
-                    '<span class="crossref-preview" data-xref="' + refKey + '"></span>' +
-                    '</div>';
-            }).join('');
-            var moreHtml = '';
-            if (all.length > CROSSREF_INLINE_SHOW) {
-                var n = all.length - CROSSREF_INLINE_SHOW;
-                var selfLink = crossRefKeyToLink(bookId + '_' + chapter + '_' + verseNum);
-                moreHtml = '<a class="crossref-more" href="' + selfLink + '">+' + n +
-                    ' more cross-reference' + (n !== 1 ? 's' : '') + ' →</a>';
-            }
-            return '<div class="crossref-inline-body crossref-shown">' +
-                '<div class="crossref-inline-label">Cross-references</div>' +
-                rowsHtml + moreHtml + '</div>';
+            var n = all.length;
+            var label = n > 99 ? '99+' : String(n);
+            return ' <a class="crossref-inline-count" href="#bte-xrefs" title="' + n +
+                ' cross-reference' + (n !== 1 ? 's' : '') + ' — jump to list" ' +
+                'onclick="var el=document.getElementById(\'bte-xrefs\');if(el){el.scrollIntoView({behavior:\'smooth\',block:\'start\'});}return false;">' +
+                label + '</a>';
+        }
+        function buildInlineCrossRef(bookId, chapter, verseNum) {
+            return '';
         }
 
         // BTE v7.1: Fill cross-ref preview snippets from the (cached) chapter store.
@@ -3843,9 +3835,9 @@
                 // BTE v5.2 Phase 3: Copy verse text button
                 var copyRef = shareRef.replace(/'/g, "\\'");
                 html += ' <span class="copy-btn" onclick="copyVerseText(\'' + copyRef + '\', \'' + verseKey + '\', this)" title="Copy verse text"><img src="assets/icons/shield-about-person-24.png" class="site-icon" alt="copy" width="16" height="16"></span>';
-                // BTE v5.0: Inline cross-ref indicator in chapter mode
-                if (currentViewMode === 'chapter') {
-                    html += buildInlineCrossRef(ref.bookId, ref.chapter, v.num);
+                // BTE v8.0: no mid-stream xref cards in chapter/range; tiny count on single-verse only.
+                if (currentViewMode === 'verse' && !ref.crossChapter) {
+                    html += buildInlineCrossRefTinyCount(ref.bookId, ref.chapter, v.num);
                 }
                 v.amps.forEach(function(a) {
                     html += '<div class="amplification"><span class="amp-label">' + a.label + ':</span> ' + a.text + '</div>';
@@ -3860,7 +3852,36 @@
                 html += '</div>';
             });
 
-            // BTE v5.1: Clarity Notes shown BEFORE Interlinear roots for better reading flow
+            // BTE v8.0 placement: verse stream → Cross-References → Clarity → Interlinear
+            // BTE v8.0 (PJG-0806-XREF1): bottom Cross-References before Clarity Notes
+            // BTE v5.7: in cross-chapter mode, group cross-refs by their actual chapter
+            let crossRefResult = { html: '', count: 0 };
+            if (ref.crossChapter) {
+                const chSet = [];
+                allVerses.forEach(function(v) {
+                    var c = v.chapter || ref.chapter;
+                    if (chSet.indexOf(c) === -1) chSet.push(c);
+                });
+                let mergedHtml = '';
+                let mergedCount = 0;
+                chSet.forEach(function(c) {
+                    const verseNumsCh = allVerses.filter(function(v){ return (v.chapter || ref.chapter) === c; }).map(function(v){ return v.num; });
+                    const partial = buildCrossRefPanel(verseNumsCh, ref.bookId, c, currentViewMode);
+                    if (partial.html) {
+                        mergedHtml += partial.html;
+                        mergedCount += partial.count;
+                    }
+                });
+                crossRefResult = { html: mergedHtml, count: mergedCount };
+            } else {
+                const verseNums = allVerses.map(function(v) { return v.num; });
+                crossRefResult = buildCrossRefPanel(verseNums, ref.bookId, ref.chapter, currentViewMode);
+            }
+            if (crossRefResult.html) {
+                html += crossRefResult.html;
+            }
+
+            // Clarity Notes (after cross-refs)
             if (limitedClarity.length) {
                 html += '<div class="clarity-section"><h4><img src="assets/icons/shield-star.png" class="site-icon" alt="star" width="20" height="20"> Clarity Notes</h4>';
                 limitedClarity.forEach(function(c) {
@@ -3894,34 +3915,6 @@
                     html += '<div style="margin-top:6px;"><span class="strongs-show-more" onclick="(function(el){var extras=document.querySelectorAll(\'.strongs-extra-' + strongsId + '\');extras.forEach(function(e){e.style.display=\'inline\';});el.style.display=\'none\';})(this)" style="cursor:pointer;color:var(--gold);font-size:0.85rem;user-select:none;">Show more ' + testament + ' roots <span style="color:var(--gold);font-size:0.8rem;">▶</span> (' + (limitedStrongs.length - wordLimit) + ' more)</span></div>';
                 }
                 html += '</div>';
-            }
-
-            // BTE v5.0: Cross-reference panel (verse and range modes only)
-            // BTE v5.7: in cross-chapter mode, group cross-refs by their actual chapter
-            let crossRefResult = { html: '', count: 0 };
-            if (ref.crossChapter) {
-                const chSet = [];
-                allVerses.forEach(function(v) {
-                    var c = v.chapter || ref.chapter;
-                    if (chSet.indexOf(c) === -1) chSet.push(c);
-                });
-                let mergedHtml = '';
-                let mergedCount = 0;
-                chSet.forEach(function(c) {
-                    const verseNumsCh = allVerses.filter(function(v){ return (v.chapter || ref.chapter) === c; }).map(function(v){ return v.num; });
-                    const partial = buildCrossRefPanel(verseNumsCh, ref.bookId, c, currentViewMode);
-                    if (partial.html) {
-                        mergedHtml += partial.html;
-                        mergedCount += partial.count;
-                    }
-                });
-                crossRefResult = { html: mergedHtml, count: mergedCount };
-            } else {
-                const verseNums = allVerses.map(function(v) { return v.num; });
-                crossRefResult = buildCrossRefPanel(verseNums, ref.bookId, ref.chapter, currentViewMode);
-            }
-            if (crossRefResult.html) {
-                html += crossRefResult.html;
             }
 
             if (ref.isOT) {
