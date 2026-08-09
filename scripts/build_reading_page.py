@@ -58,10 +58,16 @@ def render_audio_slot(date, watch_key):
     abs_path = REPO / f"docs/assets/audio/readings/{date}-{slug}.mp3"
     if abs_path.exists():
         return f'''<div class="audio-slot">
-  <audio controls preload="metadata" style="width:100%;max-width:560px;">
+  <audio class="watch-audio" controls preload="metadata" style="width:100%;max-width:560px;">
     <source src="{rel}" type="audio/mpeg">
     Your browser does not support audio.
   </audio>
+  <div class="audio-speed" role="group" aria-label="Playback speed">
+    <button type="button" class="audio-speed-btn is-active" data-rate="1" aria-pressed="true">1×</button>
+    <button type="button" class="audio-speed-btn" data-rate="1.25" aria-pressed="false">1.25×</button>
+    <button type="button" class="audio-speed-btn" data-rate="1.5" aria-pressed="false">1.5×</button>
+    <button type="button" class="audio-speed-btn" data-rate="2" aria-pressed="false">2×</button>
+  </div>
   <div class="audio-cap">ElevenLabs voiceover -- {WATCH_LABELS[watch_key][1]}</div>
 </div>'''
     return f'''<div class="audio-slot audio-pending">
@@ -364,7 +370,33 @@ def render_page(date):
             border: 1px dashed var(--border);
         }}
         .audio-slot.audio-pending {{ opacity: 0.55; }}
-        .audio-cap {{ font-size: 0.8rem; color: var(--gray); margin-top: 4px; }}
+        .audio-cap {{ font-size: 0.8rem; color: var(--gray); margin-top: 6px; }}
+        .audio-speed {{
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+            align-items: center;
+        }}
+        .audio-speed-btn {{
+            min-width: 48px;
+            min-height: 40px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            color: var(--gray);
+            font-family: 'Inter', system-ui, sans-serif;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            touch-action: manipulation;
+        }}
+        .audio-speed-btn.is-active {{
+            background: linear-gradient(135deg, var(--gold), var(--gold-light, #d4af37));
+            border-color: var(--gold);
+            color: #111;
+        }}
 
         .scripture {{
             background: var(--bg-card2);
@@ -466,6 +498,20 @@ def render_page(date):
 
     </div>
     {tab_js}
+
+<script>
+(function(){
+  const KEY='moop-readings-playback-rate';
+  const RATES=[1,1.25,1.5,2];
+  function norm(v){const n=parseFloat(v); if(!Number.isFinite(n)) return 1; let b=1,d=1e9; for(const r of RATES){const x=Math.abs(r-n); if(x<d){b=r;d=x;}} return b;}
+  function read(){try{return norm(localStorage.getItem(KEY)||'1');}catch(e){return 1;}}
+  function write(r){try{localStorage.setItem(KEY,String(r));}catch(e){}}
+  function apply(slot,rate){const a=slot.querySelector('audio'); if(a){try{a.playbackRate=rate;}catch(e){}} slot.querySelectorAll('.audio-speed-btn').forEach(btn=>{const on=Math.abs(norm(btn.dataset.rate)-rate)<0.001; btn.classList.toggle('is-active',on); btn.setAttribute('aria-pressed',on?'true':'false');});}
+  let rate=read();
+  document.querySelectorAll('.audio-slot').forEach(s=>apply(s,rate));
+  document.querySelectorAll('.audio-speed').forEach(g=>g.addEventListener('click',ev=>{const b=ev.target.closest('.audio-speed-btn'); if(!b) return; rate=norm(b.dataset.rate); write(rate); document.querySelectorAll('.audio-slot').forEach(s=>apply(s,rate));}));
+})();
+</script>
 </body>
 </html>
 """

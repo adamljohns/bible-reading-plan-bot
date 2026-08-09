@@ -420,11 +420,18 @@ def render_audio_slot(date, watch_key):
     rel = f"../assets/audio/readings/{date}-{watch_key}.mp3"
     abs_path = REPO / f"docs/assets/audio/readings/{date}-{watch_key}.mp3"
     if abs_path.exists():
+        # PJG-0809-SPD1: explicit playback-rate chips (1 / 1.25 / 1.5 / 2)
         return f"""<div class="audio-slot">
-  <audio controls preload="metadata" style="width:100%;max-width:560px;">
+  <audio class="watch-audio" controls preload="metadata" style="width:100%;max-width:560px;">
     <source src="{rel}" type="audio/mpeg">
     Your browser does not support audio.
   </audio>
+  <div class="audio-speed" role="group" aria-label="Playback speed">
+    <button type="button" class="audio-speed-btn is-active" data-rate="1" aria-pressed="true">1×</button>
+    <button type="button" class="audio-speed-btn" data-rate="1.25" aria-pressed="false">1.25×</button>
+    <button type="button" class="audio-speed-btn" data-rate="1.5" aria-pressed="false">1.5×</button>
+    <button type="button" class="audio-speed-btn" data-rate="2" aria-pressed="false">2×</button>
+  </div>
   <div class="audio-cap">🎙️ Audio — {WATCH_BY_KEY[watch_key]['title']}</div>
 </div>"""
     # No audio yet → render nothing (avoids a visible placeholder that TTS
@@ -673,7 +680,41 @@ a:hover { color: var(--gold-light); text-decoration: underline; }
     border: 1px dashed var(--border);
 }
 .audio-slot.audio-pending { opacity: 0.55; }
-.audio-cap { font-size: 0.8rem; color: var(--gray); margin-top: 4px; }
+.audio-cap { font-size: 0.8rem; color: var(--gray); margin-top: 6px; }
+.audio-speed {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+    align-items: center;
+}
+.audio-speed-btn {
+    min-width: 48px;
+    min-height: 40px;
+    padding: 8px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--gray);
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+.audio-speed-btn:hover,
+.audio-speed-btn:focus-visible {
+    border-color: var(--gold);
+    color: var(--white);
+    outline: none;
+}
+.audio-speed-btn.is-active {
+    background: linear-gradient(135deg, var(--gold), var(--gold-light, #d4af37));
+    border-color: var(--gold);
+    color: #111;
+}
 
 .scripture {
     background: var(--bg-card2);
@@ -1233,6 +1274,57 @@ TAB_JS = """
       const section = this.closest('section.watch');
       const title = (section?.querySelector('.watch-header h2')?.textContent || 'watch').trim();
       copyPlainText(watchPlainText(section), 'Copied ' + title);
+    });
+  });
+
+  // PJG-0809-SPD1 — explicit playback speed chips (1 / 1.25 / 1.5 / 2)
+  const SPEED_KEY = 'moop-readings-playback-rate';
+  const SPEED_RATES = [1, 1.25, 1.5, 2];
+  function normalizeRate(v) {
+    const n = parseFloat(v);
+    if (!Number.isFinite(n)) return 1;
+    let best = 1, bestD = Infinity;
+    for (const r of SPEED_RATES) {
+      const d = Math.abs(r - n);
+      if (d < bestD) { best = r; bestD = d; }
+    }
+    return best;
+  }
+  function readSavedRate() {
+    try { return normalizeRate(localStorage.getItem(SPEED_KEY) || '1'); }
+    catch (_) { return 1; }
+  }
+  function writeSavedRate(rate) {
+    try { localStorage.setItem(SPEED_KEY, String(rate)); } catch (_) {}
+  }
+  function applyRateToSlot(slot, rate) {
+    const audio = slot.querySelector('audio.watch-audio, audio');
+    if (audio) {
+      try { audio.playbackRate = rate; } catch (_) {}
+      const reassert = () => { try { if (Math.abs(audio.playbackRate - rate) > 0.01) audio.playbackRate = rate; } catch (_) {} };
+      audio.addEventListener('loadedmetadata', reassert, { once: true });
+      audio.addEventListener('play', reassert);
+    }
+    slot.querySelectorAll('.audio-speed-btn').forEach(btn => {
+      const br = normalizeRate(btn.getAttribute('data-rate'));
+      const on = Math.abs(br - rate) < 0.001;
+      btn.classList.toggle('is-active', on);
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+  }
+  function applyRateAll(rate) {
+    document.querySelectorAll('.audio-slot').forEach(slot => applyRateToSlot(slot, rate));
+  }
+  let currentRate = readSavedRate();
+  applyRateAll(currentRate);
+  document.querySelectorAll('.audio-speed').forEach(group => {
+    group.addEventListener('click', function(ev){
+      const btn = ev.target.closest('.audio-speed-btn');
+      if (!btn || !group.contains(btn)) return;
+      ev.preventDefault();
+      currentRate = normalizeRate(btn.getAttribute('data-rate'));
+      writeSavedRate(currentRate);
+      applyRateAll(currentRate);
     });
   });
 
