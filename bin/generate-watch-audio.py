@@ -149,6 +149,18 @@ def apply_homograph_context(text: str) -> str:
     Order matters: more specific patterns first.
     """
     # --- live: /lɪv/ dwell/reside vs /laɪv/ alive/broadcast ---
+    # PJG-0809-PRAY1: Prov 9 "Forsake foolishness and live" = dwell/lɪv (not broadcast/laɪv)
+    text = re.sub(
+        r"\b([Aa]nd)\s+live\b(?=\s*[,;:.?!]|$)",
+        lambda m: f"{m.group(1)} [live](/lɪv/)",
+        text,
+    )
+    text = re.sub(
+        r"\bForsake\s+foolishness\s+and\s+live\b",
+        "Forsake foolishness and [live](/lɪv/)",
+        text,
+        flags=re.I,
+    )
     # dwell sense
     text = re.sub(
         r"\b([Ll])ive\b(?=\s+(?:in|with|among|at|on|by|under|through|as|for|out|together|alone|here|there|forever|peaceably|securely))",
