@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Men’s Prayer Wall (Gated) | U.S.M.C. Ministries</title>
+<meta name="robots" content="noindex,nofollow">
+<meta name="description" content="Gated men’s prayer board — invited brothers only.">
+<link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#000;--card:#111;--card2:#161616;--gold:#D4AF37;--gold2:#F4D470;--white:#fff;--gray:#888;--border:#333;--ok:#3d8b5a;--warn:#b08d2a}
+body{font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--white);min-height:100vh;line-height:1.55}
+h1,h2,h3{font-family:"Playfair Display",serif}
+.wrap{max-width:820px;margin:0 auto;padding:20px 16px 72px}
+.hidden{display:none!important}
+.kicker{color:var(--gold);font-size:.8rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+h1{font-size:clamp(1.5rem,4.5vw,2rem);margin:8px 0 6px}
+.sub{color:var(--gray);font-size:.92rem;margin-bottom:16px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px 16px;margin:14px 0}
+label{display:block;font-size:.85rem;color:var(--gold);font-weight:600;margin-bottom:6px}
+input,textarea,select{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:10px;color:var(--white);padding:12px 14px;font:inherit;min-height:48px}
+textarea{min-height:110px;resize:vertical}
+.row{display:grid;gap:12px;margin-bottom:12px}
+@media(min-width:640px){.row.two{grid-template-columns:1fr 1fr}}
+.btn{appearance:none;border:0;cursor:pointer;border-radius:999px;padding:12px 18px;font-weight:700;font:inherit;min-height:44px}
+.btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#111}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--white)}
+.btn-sm{padding:8px 12px;font-size:.85rem;min-height:40px}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.err{color:#f5a8a8;font-size:.9rem;margin-top:8px}
+.ok{color:#a8e0b8;font-size:.9rem;margin-top:8px}
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;margin:8px 0 4px}
+.pill{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:4px 8px;border-radius:999px;border:1px solid var(--border);color:var(--gray)}
+.pill.open{color:#f0d78c;border-color:#6a5a20}
+.pill.praying{color:#9fd0ff;border-color:#2a4a6a}
+.pill.answered{color:#a8e0b8;border-color:#2a5a3a}
+.item{background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:14px;margin:10px 0}
+.item .meta{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:8px}
+.item .name{font-weight:700;color:var(--white)}
+.item .when{color:var(--gray);font-size:.8rem}
+.item .text{color:#ddd;white-space:pre-wrap}
+.item .praise{margin-top:10px;padding-top:10px;border-top:1px dashed var(--border);color:#cfe9d4;font-size:.92rem}
+.empty{color:var(--gray);font-style:italic;padding:8px 0}
+details.answered-block{margin-top:18px}
+details.answered-block>summary{cursor:pointer;color:var(--gold);font-weight:600;list-style:none}
+details.answered-block>summary::-webkit-details-marker{display:none}
+.crisis{margin-top:22px;padding:12px 14px;background:var(--card);border-left:3px solid var(--gold);border-radius:8px;color:#bbb;font-size:.86rem}
+footer{margin-top:28px;color:var(--gray);font-size:.8rem}
+footer a{color:var(--gold)}
+.hint{color:var(--gray);font-size:.82rem;margin-top:6px}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="kicker">U.S.M.C. Ministries · Men’s Prayer Group</div>
+  <h1>Prayer Wall</h1>
+  <p class="sub">Invited brothers only. Session stays on this device. PIN is never placed in the URL.</p>
+
+  <!-- GATE -->
+  <section id="gate" class="card">
+    <label for="pin">Men’s Prayer Group access — enter the group PIN</label>
+    <div class="row two">
+      <input id="pin" type="password" inputmode="text" autocomplete="current-password" placeholder="Group PIN" maxlength="64">
+      <button class="btn btn-gold" id="btnLogin" type="button">Unlock wall</button>
+    </div>
+    <p class="hint">Wrong PIN fails closed. No requests are loaded until you unlock.</p>
+    <p class="err hidden" id="gateErr"></p>
+    <p class="ok hidden" id="gateOk"></p>
+  </section>
+
+  <!-- WALL -->
+  <section id="wall" class="hidden">
+    <div class="toolbar">
+      <div style="color:var(--gray);font-size:.9rem">Signed in · mens-prayer</div>
+      <div class="actions">
+        <button class="btn btn-ghost btn-sm" id="btnExport" type="button">Export JSON</button>
+        <button class="btn btn-ghost btn-sm" id="btnLogout" type="button">Lock</button>
+      </div>
+    </div>
+
+    <section class="card">
+      <h2 style="font-size:1.15rem;margin-bottom:12px;color:var(--gold)">Add a request</h2>
+      <div class="row two">
+        <div>
+          <label for="name">Name or initials</label>
+          <input id="name" maxlength="80" placeholder="e.g. M.J. or Brother Tom">
+        </div>
+        <div>
+          <label for="tag">Tag</label>
+          <select id="tag">
+            <option>Family</option>
+            <option>Work</option>
+            <option>Health</option>
+            <option>Church</option>
+            <option selected>Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label for="text">Request (keep it shareable)</label>
+          <textarea id="text" maxlength="500" placeholder="Short request the brothers can stand with…"></textarea>
+          <p class="hint">Keep marital, abuse, addiction detail, and medical particulars with elders or a private message to Adam — not on the shared wall.</p>
+        </div>
+      </div>
+      <button class="btn btn-gold" id="btnAdd" type="button">Post to wall</button>
+      <p class="err hidden" id="addErr"></p>
+      <p class="ok hidden" id="addOk"></p>
+    </section>
+
+    <section>
+      <h2 style="font-size:1.2rem;color:var(--gold);margin:18px 0 8px">Open & praying</h2>
+      <div id="openList"></div>
+    </section>
+
+    <details class="answered-block">
+      <summary>Answered & praise ▾</summary>
+      <div id="answeredList" style="margin-top:10px"></div>
+    </details>
+  </section>
+
+  <div class="crisis">
+    <strong style="color:var(--white)">Not a crisis line.</strong>
+    If you or someone else is in immediate danger, call local emergency services.
+    In the U.S., dial <strong style="color:var(--white)">988</strong> (Suicide & Crisis Lifeline).
+    For deep personal warfare, contact elders or Adam privately — not the open wall.
+  </div>
+  <footer>
+    <div>U.S.M.C. Ministries · Galatians 6:2</div>
+    <div style="margin-top:6px"><a href="/prayer/">Prayer hub</a> · <a href="/">Home</a></div>
+  </footer>
+</main>
+<script>
+(function(){
+  const $ = (id) => document.getElementById(id);
+  const gate = $('gate'), wall = $('wall');
+  const gateErr = $('gateErr'), gateOk = $('gateOk');
+  const addErr = $('addErr'), addOk = $('addOk');
+
+  function show(el, on){ el.classList.toggle('hidden', !on); }
+  function msg(el, text){ el.textContent = text || ''; show(el, !!text); }
+    function esc(s){
+    return String(s==null?'':s)
+      .replace(/&/g,'&').replace(/</g,'<').replace(/>/g,'>').replace(/"/g,'"');
+  }
+  function when(iso){
+    if(!iso) return '';
+    try { return new Date(iso).toLocaleString(); } catch { return iso; }
+  }
+
+  async function api(path, opts){
+    const r = await fetch('/api/prayer/' + path, Object.assign({
+      credentials: 'same-origin',
+      headers: { 'content-type': 'application/json' }
+    }, opts || {}));
+    let data = null;
+    try { data = await r.json(); } catch { data = { success:false, error:'Bad response' }; }
+    return { r, data };
+  }
+
+  function itemHTML(it, answered){
+    const st = esc(it.status || 'open');
+    const praise = it.praise ? '<div class="praise"><strong>Praise:</strong> ' + esc(it.praise) + '</div>' : '';
+    const answeredWhen = it.answeredAt ? '<span class="when">answered ' + esc(when(it.answeredAt)) + '</span>' : '';
+    let acts = '';
+    if (!answered) {
+      acts = '<div class="actions">' +
+        '<button class="btn btn-ghost btn-sm" data-act="praying" data-id="'+esc(it.id)+'">Mark praying</button>' +
+        '<button class="btn btn-ghost btn-sm" data-act="answered" data-id="'+esc(it.id)+'">Mark answered</button>' +
+        '<button class="btn btn-ghost btn-sm" data-act="delete" data-id="'+esc(it.id)+'">Remove</button>' +
+        '</div>';
+    } else {
+      acts = '<div class="actions">' +
+        '<button class="btn btn-ghost btn-sm" data-act="open" data-id="'+esc(it.id)+'">Reopen</button>' +
+        '<button class="btn btn-ghost btn-sm" data-act="delete" data-id="'+esc(it.id)+'">Remove</button>' +
+        '</div>';
+    }
+    return '<article class="item">' +
+      '<div class="meta"><span class="pill '+st+'">'+st+'</span>' +
+      '<span class="pill">'+esc(it.tag||'Other')+'</span>' +
+      '<span class="name">'+esc(it.name)+'</span>' +
+      '<span class="when">'+esc(when(it.createdAt))+'</span>' + answeredWhen +
+      '</div>' +
+      '<div class="text">'+esc(it.text)+'</div>' + praise + acts +
+      '</article>';
+  }
+
+  async function refresh(){
+    const { r, data } = await api('list', { method:'GET', headers:{} });
+    if (r.status === 401) { lockUI(); return; }
+    if (!data.success) { msg(addErr, data.error || 'Could not load'); return; }
+    const open = data.open || [];
+    const answered = data.answered || [];
+    $('openList').innerHTML = open.length
+      ? open.map(it => itemHTML(it, false)).join('')
+      : '<p class="empty">No open requests — be the first to put a brother’s need on the wall.</p>';
+    $('answeredList').innerHTML = answered.length
+      ? answered.map(it => itemHTML(it, true)).join('')
+      : '<p class="empty">No answered items yet.</p>';
+  }
+
+  function unlockUI(){
+    show(gate, false); show(wall, true);
+    refresh();
+  }
+  function lockUI(){
+    show(wall, false); show(gate, true);
+    $('openList').innerHTML = '';
+    $('answeredList').innerHTML = '';
+  }
+
+  async function boot(){
+    const { r, data } = await api('session', { method:'GET', headers:{} });
+    if (r.ok && data && data.success) unlockUI();
+    else lockUI();
+  }
+
+  $('btnLogin').addEventListener('click', async () => {
+    msg(gateErr,''); msg(gateOk,'');
+    const pin = $('pin').value;
+    const { r, data } = await api('login', { method:'POST', body: JSON.stringify({ pin }) });
+    if (!r.ok || !data.success) {
+      msg(gateErr, (data && data.error) || 'Incorrect PIN.');
+      return;
+    }
+    $('pin').value = '';
+    msg(gateOk, 'Unlocked.');
+    unlockUI();
+  });
+  $('pin').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') $('btnLogin').click();
+  });
+
+  $('btnLogout').addEventListener('click', async () => {
+    await api('logout', { method:'POST', body:'{}' });
+    lockUI();
+  });
+
+  $('btnAdd').addEventListener('click', async () => {
+    msg(addErr,''); msg(addOk,'');
+    const body = {
+      name: $('name').value,
+      text: $('text').value,
+      tag: $('tag').value
+    };
+    const { r, data } = await api('add', { method:'POST', body: JSON.stringify(body) });
+    if (!r.ok || !data.success) {
+      msg(addErr, (data && data.error) || 'Could not add');
+      if (r.status === 401) lockUI();
+      return;
+    }
+    $('text').value = '';
+    msg(addOk, 'Posted.');
+    refresh();
+  });
+
+  document.addEventListener('click', async (ev) => {
+    const btn = ev.target.closest('[data-act]');
+    if (!btn) return;
+    const id = btn.getAttribute('data-id');
+    const action = btn.getAttribute('data-act');
+    let praise = '';
+    if (action === 'answered') {
+      praise = window.prompt('Short praise note (optional):', '') || '';
+    }
+    if (action === 'delete') {
+      if (!window.confirm('Remove this request from the wall?')) return;
+    }
+    const { r, data } = await api('update', { method:'POST', body: JSON.stringify({ id, action, praise }) });
+    if (!r.ok || !data.success) {
+      alert((data && data.error) || 'Update failed');
+      if (r.status === 401) lockUI();
+      return;
+    }
+    refresh();
+  });
+
+  $('btnExport').addEventListener('click', async () => {
+    const { r, data } = await api('export.json', { method:'GET', headers:{} });
+    if (!r.ok || !data.success) {
+      alert((data && data.error) || 'Export failed');
+      return;
+    }
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type:'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'mens-prayer-wall-export.json';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  });
+
+  boot();
+})();
+</script>
+</body>
+</html>
