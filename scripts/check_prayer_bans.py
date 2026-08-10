@@ -43,12 +43,24 @@ PRAYER_BANS = [
     ("brother_adam", re.compile(r"\bBrother Adam\b")),
     ("vocative_adam", re.compile(r"\bGrant me,\s*Adam\b|\bAdam,\s+the courage", re.I)),
     ("this_father", re.compile(r"\bthis father\b", re.I)),
-    ("we_thank", re.compile(r"\bwe thank\b", re.I)),
-    ("we_ask", re.compile(r"\bwe ask\b", re.I)),
+    # Corporate first-person bans (subject/object of the pray-er). Narrow:
+    # allow "our God/Lord/Father/King/Savior/Redeemer" as divine possession.
+    ("we_subject", re.compile(
+        r"\b(?:we|We)\s+(?:thank|ask|pray|praise|confess|come|stand|bow|seek|need|"
+        r"rely|trust|forgive|have|are|were|will|shall|must|can|cannot|do|did)\b")),
     ("we_pray", re.compile(r"\bwe pray\b", re.I)),
-    ("grant_us", re.compile(r"\bGrant us\b")),
-    ("our_homes_subj", re.compile(r"\bstrengthen our\b|\bkeep us\b|\bour hearts\b", re.I)),
+    ("grant_us", re.compile(r"\bGrant us\b|\bgive us\b|\bkeep us\b|\blead us\b|"
+                            r"\bbring us\b|\bmake us\b|\bforgive us\b|\bprove us\b|"
+                            r"\bcall(?:s|ed)? us\b|\bpoints us\b", re.I)),
+    ("our_subject", re.compile(
+        r"\b(?:our|Our)\s+(?:voices?|hearts?|homes?|households?|families?|lives?|"
+        r"hands?|knees?|sins?|pride|faith|children|daily|standing|performance|"
+        r"illusions?|souls?|minds?|whole hearts?)\b")),
+    ("father_we_praise", re.compile(r"Father,\s+we\b", re.I)),
 ]
+
+# Divine "our" exceptions are handled by not listing them in our_subject.
+# Bare residual we/us still caught below after exclusions.
 
 WATCH_SPLIT = re.compile(r"\n(?=🌅|🕖|🕚|🕒|🌙)")
 PRAYER_BLOCK = re.compile(
@@ -129,6 +141,17 @@ def check_md(path: Path) -> list[str]:
                 hits.append(f"{path.name}:{head}:PRAYER:close_ban")
             if re.search(r"Jesus Christ,.+(?:Lord Jesus|my Lord)", pray, re.I):
                 hits.append(f"{path.name}:{head}:PRAYER:double_title")
+            # Residual bare we/us (not divine our God/Lord/...)
+            residual = pray
+            residual = re.sub(
+                r"\b(?:our|Our)\s+(?:God|Lord|Father|King|Savior|Saviour|Redeemer|"
+                r"Master|Shepherd|Rock|Refuge|Deliverer|Son|Christ|Holy Spirit)\b",
+                "DIVINE", residual)
+            residual = re.sub(
+                r"\b(?:your|Your|His|his|God'?s)\s+(?:people|children|servant|house)\b",
+                "OK", residual)
+            if re.search(r"\b(?:we|us|our|ours)\b", residual, re.I):
+                hits.append(f"{path.name}:{head}:PRAYER:residual_we_us_our")
     return hits
 
 
