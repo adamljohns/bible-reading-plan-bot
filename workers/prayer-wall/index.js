@@ -16,14 +16,15 @@
  *   wrangler secret put SESSION_SECRET   # any long random string
  *   wrangler secret put MOD_PIN          # moderator (Adam); enables mark/delete/export
  *
- * API
- *   POST /api/prayer/session   {pin}                -> sets HttpOnly cookie
- *   DELETE /api/prayer/session                      -> sign out
- *   GET  /api/prayer/requests                       -> {requests:[...]}      (auth)
- *   POST /api/prayer/requests  {name,text,tag}      -> {ok,id}               (auth)
- *   POST /api/prayer/requests/:id/status {status,praise}                     (moderator)
- *   DELETE /api/prayer/requests/:id                                          (moderator)
- *   GET  /api/prayer/export                         -> JSON download         (moderator)
+ * API (contract set by docs/prayer/wall.html, which Max shipped UI-first)
+ *   GET  /api/prayer/session      -> {success} — does this browser hold one?
+ *   POST /api/prayer/login  {pin} -> {success} + HttpOnly session cookie
+ *   POST /api/prayer/logout       -> {success} + cleared cookie
+ *   GET  /api/prayer/list         -> {success, open[], answered[], role}   (auth)
+ *   POST /api/prayer/add    {name,text,tag}                                 (auth)
+ *   POST /api/prayer/update {id,action,praise}  action: praying|answered|open|delete
+ *                                                                     (moderator)
+ *   GET  /api/prayer/export.json  -> JSON download                    (moderator)
  *
  * Storage (KV binding PRAYER):
  *   r:<groupId>:<ts>-<rand>  -> request JSON
@@ -49,6 +50,21 @@ const JSON_HEADERS = {
 
 function json(obj, status = 200, extra = {}) {
   return new Response(JSON.stringify(obj), { status, headers: { ...JSON_HEADERS, ...extra } });
+}
+
+/* The wall UI (docs/prayer/wall.html) branches on `success` and renders
+ * `error` straight to the operator, so every response carries both. */
+const ok = (obj = {}, status = 200, extra = {}) =>
+  json({ success: true, ...obj }, status, extra);
+const fail = (error, status) => json({ success: false, error }, status);
+
+async function readAll(env) {
+  const list = await env.PRAYER.list({ prefix: `r:${GROUP_ID}:`, limit: 1000 });
+  const rows = await Promise.all(list.keys.map(async k => {
+    try { return JSON.parse(await env.PRAYER.get(k.name)); } catch { return null; }
+  }));
+  return rows.filter(Boolean)
+    .sort((a, b) => String(b.createdAt || '').localeCompare(String(a.createdAt || '')));
 }
 
 const enc = new TextEncoder();
@@ -121,140 +137,144 @@ function configured(env) {
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
-    const p = url.pathname;
+    const p = url.pathname.replace(/^\/api\/prayer\/?/, '');
     const ip = request.headers.get('CF-Connecting-IP') || '0.0.0.0';
+    const method = request.method;
 
-    if (!p.startsWith('/api/prayer')) return json({ error: 'not found' }, 404);
+    if (!url.pathname.startsWith('/api/prayer')) return fail('Not found', 404);
 
     if (!configured(env)) {
-      return json({ error: 'not_configured',
-                    message: 'The prayer wall is not wired up yet.' }, 503);
+      return fail('The prayer wall is not wired up yet — the group PIN has not been set.', 503);
     }
 
-    /* ---------- POST /api/prayer/session : exchange PIN for a session ---------- */
-    if (p === '/api/prayer/session' && request.method === 'POST') {
+    /* ---------- GET session : does this browser already hold one? ---------- */
+    if (p === 'session' && method === 'GET') {
+      const s = await readSession(env, request);
+      return s ? ok({ role: s.role }) : fail('Locked', 401);
+    }
+
+    /* ---------- POST login ---------- */
+    if (p === 'login' && method === 'POST') {
       const failKey = 'fa:' + await sha256Hex(ip);
       const fails = parseInt(await env.PRAYER.get(failKey), 10) || 0;
       if (fails >= MAX_PIN_FAILS) {
-        return json({ error: 'locked', message: 'Too many attempts. Try again later.' }, 429);
+        return fail('Too many attempts from here. Give it a few minutes.', 429);
       }
 
       let body;
-      try { body = await request.json(); } catch { return json({ error: 'bad json' }, 400); }
+      try { body = await request.json(); } catch { return fail('Bad request', 400); }
       const pin = String(body.pin || '');
 
-      const isMod = env.MOD_PIN && timingSafeEqual(pin, env.MOD_PIN);
+      const isMod = Boolean(env.MOD_PIN) && timingSafeEqual(pin, env.MOD_PIN);
       const isMember = timingSafeEqual(pin, env.WALL_PIN);
 
       if (!isMod && !isMember) {
-        // Count the failure, and say nothing about which part was wrong.
+        // Count it, and say nothing about which PIN was close.
         ctx.waitUntil(env.PRAYER.put(failKey, String(fails + 1), { expirationTtl: 900 }));
-        return json({ error: 'denied' }, 401);
+        return fail('Incorrect PIN.', 401);
       }
 
       const role = isMod ? 'moderator' : 'member';
       const token = await mintSession(env, role);
-      return json({ ok: true, role },
-                  200, { 'Set-Cookie': sessionCookie(token, SESSION_TTL) });
+      return ok({ role }, 200, { 'Set-Cookie': sessionCookie(token, SESSION_TTL) });
     }
 
-    /* ---------- DELETE /api/prayer/session ---------- */
-    if (p === '/api/prayer/session' && request.method === 'DELETE') {
-      return json({ ok: true }, 200, { 'Set-Cookie': sessionCookie('', 0) });
+    /* ---------- POST logout ---------- */
+    if (p === 'logout' && method === 'POST') {
+      return ok({}, 200, { 'Set-Cookie': sessionCookie('', 0) });
     }
 
-    /* ---------- everything below requires a valid session ---------- */
+    /* ---------- everything below needs a valid session ---------- */
     const session = await readSession(env, request);
-    if (!session) return json({ error: 'unauthorized' }, 401);
+    if (!session) return fail('Locked', 401);
+    const isMod = session.role === 'moderator';
 
-    const needsMod = () => session.role === 'moderator';
-
-    /* ---------- GET /api/prayer/requests ---------- */
-    if (p === '/api/prayer/requests' && request.method === 'GET') {
-      const list = await env.PRAYER.list({ prefix: `r:${GROUP_ID}:`, limit: 1000 });
-      const rows = await Promise.all(list.keys.map(async k => {
-        try { return JSON.parse(await env.PRAYER.get(k.name)); } catch { return null; }
-      }));
-      const requests = rows.filter(Boolean)
-        .sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''));
-      return json({ requests, role: session.role });
+    /* ---------- GET list ---------- */
+    if (p === 'list' && method === 'GET') {
+      const all = await readAll(env);
+      return ok({
+        open: all.filter(r => r.status !== 'answered'),
+        answered: all.filter(r => r.status === 'answered'),
+        role: session.role,
+      });
     }
 
-    /* ---------- POST /api/prayer/requests ---------- */
-    if (p === '/api/prayer/requests' && request.method === 'POST') {
+    /* ---------- POST add ---------- */
+    if (p === 'add' && method === 'POST') {
       const window = Math.floor(Date.now() / 3600000);
       const rlKey = 'rl:' + await sha256Hex(`${ip}|${window}`);
       const used = parseInt(await env.PRAYER.get(rlKey), 10) || 0;
       if (used >= SUBMITS_PER_HOUR) {
-        return json({ error: 'rate_limited',
-                      message: 'That is a lot of requests in one hour. Try again shortly.' }, 429);
+        return fail('That is a lot of requests in one hour. Try again shortly.', 429);
       }
 
       let body;
-      try { body = await request.json(); } catch { return json({ error: 'bad json' }, 400); }
+      try { body = await request.json(); } catch { return fail('Bad request', 400); }
 
       const text = clean(body.text, MAX_TEXT);
-      const name = clean(body.name, MAX_NAME) || 'A brother';
-      const tag = TAGS.includes(body.tag) ? body.tag : 'Other';
-      if (text.length < 3) return json({ error: 'empty', message: 'Add a short request.' }, 400);
+      if (text.length < 3) return fail('Add a short request first.', 400);
 
-      const id = `${Date.now()}-${crypto.randomUUID().slice(0, 8)}`;
       const rec = {
-        id, group_id: GROUP_ID, name, text, tag,
-        status: 'open', praise: '',
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
+        id: `${Date.now()}-${crypto.randomUUID().slice(0, 8)}`,
+        groupId: GROUP_ID,
+        name: clean(body.name, MAX_NAME) || 'A brother',
+        text,
+        tag: TAGS.includes(body.tag) ? body.tag : 'Other',
+        status: 'open',
+        praise: '',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       };
-      await env.PRAYER.put(`r:${GROUP_ID}:${id}`, JSON.stringify(rec));
+      await env.PRAYER.put(`r:${GROUP_ID}:${rec.id}`, JSON.stringify(rec));
       ctx.waitUntil(env.PRAYER.put(rlKey, String(used + 1), { expirationTtl: 3600 }));
-      return json({ ok: true, request: rec }, 201);
+      return ok({ request: rec }, 201);
     }
 
-    /* ---------- POST /api/prayer/requests/:id/status  (moderator) ---------- */
-    let m = p.match(/^\/api\/prayer\/requests\/([A-Za-z0-9-]+)\/status$/);
-    if (m && request.method === 'POST') {
-      if (!needsMod()) return json({ error: 'forbidden' }, 403);
+    /* ---------- POST update  {id, action, praise} ---------- */
+    if (p === 'update' && method === 'POST') {
+      // Marking and removing another man's request is Adam's lane, not the
+      // group's. The wall UI shows these buttons to everyone, so a member who
+      // presses one gets this sentence back rather than a silent success.
+      if (!isMod) return fail('Only a moderator can change requests on the wall.', 403);
+
       let body;
-      try { body = await request.json(); } catch { return json({ error: 'bad json' }, 400); }
-      const status = STATUSES.includes(body.status) ? body.status : null;
-      if (!status) return json({ error: 'bad status' }, 400);
+      try { body = await request.json(); } catch { return fail('Bad request', 400); }
+      const id = String(body.id || '');
+      if (!/^[A-Za-z0-9-]{1,64}$/.test(id)) return fail('Bad request', 400);
+      const action = String(body.action || '');
+      const key = `r:${GROUP_ID}:${id}`;
 
-      const key = `r:${GROUP_ID}:${m[1]}`;
-      const raw = await env.PRAYER.get(key);
-      if (!raw) return json({ error: 'not found' }, 404);
-      const rec = JSON.parse(raw);
-      rec.status = status;
-      if (status === 'answered') {
-        rec.praise = clean(body.praise, MAX_TEXT);
-        rec.answered_at = new Date().toISOString();
+      if (action === 'delete') {
+        await env.PRAYER.delete(key);
+        return ok({ deleted: id });
       }
-      rec.updated_at = new Date().toISOString();
+      if (!STATUSES.includes(action)) return fail('Unknown action.', 400);
+
+      const raw = await env.PRAYER.get(key);
+      if (!raw) return fail('That request is no longer on the wall.', 404);
+      const rec = JSON.parse(raw);
+      rec.status = action;
+      if (action === 'answered') {
+        rec.praise = clean(body.praise, MAX_TEXT);
+        rec.answeredAt = new Date().toISOString();
+      } else {
+        // Reopening clears the answered stamp so the card stops reading as done.
+        delete rec.answeredAt;
+      }
+      rec.updatedAt = new Date().toISOString();
       await env.PRAYER.put(key, JSON.stringify(rec));
-      return json({ ok: true, request: rec });
+      return ok({ request: rec });
     }
 
-    /* ---------- DELETE /api/prayer/requests/:id  (moderator) ---------- */
-    m = p.match(/^\/api\/prayer\/requests\/([A-Za-z0-9-]+)$/);
-    if (m && request.method === 'DELETE') {
-      if (!needsMod()) return json({ error: 'forbidden' }, 403);
-      await env.PRAYER.delete(`r:${GROUP_ID}:${m[1]}`);
-      return json({ ok: true });
-    }
-
-    /* ---------- GET /api/prayer/export  (moderator) ---------- */
-    if (p === '/api/prayer/export' && request.method === 'GET') {
-      if (!needsMod()) return json({ error: 'forbidden' }, 403);
-      const list = await env.PRAYER.list({ prefix: `r:${GROUP_ID}:`, limit: 1000 });
-      const rows = await Promise.all(list.keys.map(async k => {
-        try { return JSON.parse(await env.PRAYER.get(k.name)); } catch { return null; }
-      }));
+    /* ---------- GET export.json ---------- */
+    if (p === 'export.json' && method === 'GET') {
+      if (!isMod) return fail('Only a moderator can export the wall.', 403);
+      const all = await readAll(env);
       const stamp = new Date().toISOString().slice(0, 10);
-      return json({ exported_at: new Date().toISOString(), group_id: GROUP_ID,
-                    requests: rows.filter(Boolean) },
-                  200, { 'Content-Disposition':
-                         `attachment; filename="prayer-wall-${stamp}.json"` });
+      return ok({ exportedAt: new Date().toISOString(), groupId: GROUP_ID, requests: all },
+                200, { 'Content-Disposition': `attachment; filename="prayer-wall-${stamp}.json"` });
     }
 
-    return json({ error: 'not found' }, 404);
+    return fail('Not found', 404);
   },
 };

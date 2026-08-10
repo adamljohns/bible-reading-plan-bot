@@ -100,8 +100,10 @@ Step-by-step guide: `~/.openclaw/workspace/email-autopilot/GMAIL-APP-PASSWORDS.m
 
 ## PJG-0809-MEISTER1 — 2026-08-10
 
-- [ ] **Prayer wall needs Adam + Max to finish the wire-up.** Code is in
-  `workers/prayer-wall/`; pages are live at `/prayer/` and `/prayer/wall.html`.
+- [ ] **Prayer wall needs Adam + Max to finish the wire-up.** Max shipped the UI
+  (`/prayer/`, `/prayer/wall.html`); this ticket added the backend it calls,
+  `workers/prayer-wall/`. Until the Worker is deployed the wall shows the gate and
+  says it is not wired up yet.
   Until the Worker is deployed the wall answers "not wired up yet" and stores
   nothing — that is intentional fail-closed, not a bug. Four steps, all out of band:
   1. `wrangler kv namespace create PRAYER` → paste the id into `wrangler.toml`
@@ -118,3 +120,8 @@ Step-by-step guide: `~/.openclaw/workspace/email-autopilot/GMAIL-APP-PASSWORDS.m
 - [ ] **`/readings/*.html` has `href="#all"` with no matching `id="all"`.** Pre-existing
   broken anchor, unrelated to this ticket; whoever owns PJG-0012/0014 should confirm
   whether `#all` was meant to be a real target or a copy-scope keyword.
+- [ ] **Wall UI shows moderator buttons to every signed-in brother.** Mark
+  praying / mark answered / remove render for members too, but the Worker answers
+  403 "Only a moderator can change requests on the wall." Nothing leaks and nothing
+  breaks — the man just gets an alert. Max should hide those buttons unless
+  `list` comes back with `role === "moderator"`, which it now does.
