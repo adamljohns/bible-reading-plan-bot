@@ -61,6 +61,18 @@ fi
 
 echo "==[ publish $DATE ]=========================================="
 
+# ─── Prayer / voice ban gate (PJG-0810-PRAYSWEEP1) ─────────────────────────
+echo
+echo "[0/5] Prayer ban gate (Name-stack / Brother Adam / we-pray / apps / charge labels)"
+if [ "$DRY_RUN" -eq 1 ]; then
+  echo "  DRY-RUN: would run scripts/check_prayer_bans.py $DATE"
+else
+  python3 scripts/check_prayer_bans.py "$DATE" || {
+    echo "REFUSE publish: prayer ban gate failed for $DATE" >&2
+    exit 2
+  }
+fi
+
 # ─── Render ───────────────────────────────────────────────────────────────
 echo
 echo "[1/5] Render MD -> HTML"

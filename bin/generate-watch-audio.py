@@ -817,6 +817,8 @@ def main():
             if not text:
                 print(f"{date} {key}: NO TEXT — skipped")
                 continue
+            # Never speak HTML stamp/version comments (PJG-0810).
+            text = re.sub(r"<!--.*?-->", "", text, flags=re.S).strip()
             segs, handoff = segment_watch(text, by_name)
             fname, secs, kb = render_watch(model, generate_audio, date, key, segs)
             if handoff and handoff[0]:

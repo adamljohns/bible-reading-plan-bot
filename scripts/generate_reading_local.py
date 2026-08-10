@@ -31,6 +31,32 @@ MONTHS = ["", "January", "February", "March", "April", "May", "June",
           "July", "August", "September", "October", "November", "December"]
 SEP = "⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻"
 
+# One-title prayer closes (PJG-0810-PRAYSWEEP1 / rewrite-rules item 8).
+# NEVER emit "Jesus Christ, my Lord Jesus Christ" or "my Lord and Commander".
+PRAYER_CLOSES = {
+    "wisdom": "In Jesus' name, I pray. Amen.",
+    "first": "In the name of Jesus Christ, I pray. Amen.",
+    "second": "Through Christ our Savior, I pray. Amen.",
+    "third": "In the name of the risen Lord Jesus, I pray. Amen.",
+    "peace": "For the sake of Christ our King, I pray. Amen.",
+}
+
+# Household birthdays for age math (do not hardcode stale ages).
+BIRTHDAYS = {
+    "Gideon": date(2006, 8, 16),
+    "Boaz": date(2011, 7, 19),
+    "Shiloh": date(2021, 1, 13),
+}
+
+
+def age_on(name: str, on: date) -> int:
+    b = BIRTHDAYS[name]
+    years = on.year - b.year
+    if (on.month, on.day) < (b.month, b.day):
+        years -= 1
+    return years
+
+
 # Per-watch structural spec. order matters.
 WATCHES = [
     {"key": "wisdom", "passage": "wisdom",
@@ -38,38 +64,41 @@ WATCHES = [
      "summary": "🧭 Context Summary",
      "refl": "🛡️ Reflection for a REAL MAN — {TRAIT}",
      "traitset": "a fitting one- or two-word virtue drawn from the passage (e.g. Treasures Wisdom, Walks Uprightly, Receives Correction)",
-     "prayer": "🙏 Prayer", "close": "⚓ Helm Command:", "extra": ""},
+     "prayer": "🙏 Prayer", "close": "🛡️ Watch Charge:", "extra": ""},
     {"key": "first", "passage": "first",
      "header": "🕖 0700 First Watch — The Husband's Post",
      "summary": "🗺️ Briefing Summary",
      "refl": "❤️ Reflection for Your Wife — H.A.P.P.Y. Husband — {TRAIT}",
      "traitset": "exactly one of: Honest, Abiding, Protecting, Providing, Yielding",
-     "prayer": "🙏 Prayer from the Stateroom", "close": "⚓ Helm Command:",
-     "extra": "Speak to Adam's marriage to his wife Maria."},
+     "prayer": "🙏 Prayer", "close": "🛡️ Watch Charge:",
+     "extra": "Speak to Adam's marriage to his wife Maria. In reflection, address the HUSBAND as 'you' "
+              "(the man reading). Maria is protected/served — never the headship addressee. "
+              "NEVER write 'As the head of your home, Maria' or any line that makes Maria the 'you' of headship."},
     {"key": "second", "passage": "second",
      "header": "🕚 1100 Second Watch — The Father's Charge",
      "summary": "🗺️ Field Notes",
      "refl": "👨‍👧 Reflection for Your Children — F.U.L.F.I.L.L.E.D. Father — {TRAIT}",
      "traitset": "exactly one of: Faithful, Understanding, Leading, Forgiving, Instructing, Loving, Listening, Encouraging, Disciplining",
-     "prayer": "🙏 Prayer from the Wardroom", "close": "⚓ Rudder Steer:",
-     "extra": "Touch each child by name, correctly gendered: SONS Gideon (19) and Boaz (14); "
-              "DAUGHTER Shiloh (5). Use she/her for Shiloh and aim her guidance at godly young "
+     "prayer": "🙏 Prayer", "close": "🛡️ Watch Charge:",
+     "extra": "Touch each child by name, correctly gendered: SONS Gideon ({GIDEON_AGE}) and Boaz ({BOAZ_AGE}); "
+              "DAUGHTER Shiloh ({SHILOH_AGE}). Use she/her for Shiloh and aim her guidance at godly young "
               "womanhood and feminine flourishing (gentleness, modesty, a quiet and gentle spirit), "
-              "never manhood. When grouping all three, say 'sons and daughter' or 'children', never 'sons'."},
+              "never manhood. When grouping all three, say 'sons and daughter' or 'children', never 'sons'. "
+              "Compute ages from birthdays only; do not invent ages."},
     {"key": "third", "passage": "third",
      "header": "🕒 1500 Third Watch — The Citizen's Stand",
      "summary": "🛰️ Situation Report",
      "refl": "🛡️ Reflection for a R.E.S.O.L.U.T.E. Citizen — {TRAIT}",
      "traitset": "exactly one of: Responsible, Engaged, Steadfast, Obedient, Loyal, Upright, Trustworthy, Enduring",
-     "prayer": "🙏 Prayer from the Bridge", "close": "⚓ Rudder Steer:",
+     "prayer": "🙏 Prayer", "close": "🛡️ Watch Charge:",
      "extra": "The reflection has THREE sub-paragraphs headed exactly 'Fredericksburg (local)', 'Virginia (state)', 'United States (nation)'. After the Personal Application place '🦅 This Day in American History — {MD}' with two accurate, well-documented historical events you are confident are real and correctly dated. Prefer edifying, encouraging, providential events (courage, faith, sacrifice, founding virtue, godly men and their deeds). When the honest event for this date is tragic or dark, give it a REDEMPTIVE spin — frame it under God's sovereignty, the call to repentance, or enduring hope. NEVER frame history through a social-justice, grievance, victimhood, or 'woke' lens. Do NOT choose civil-rights-movement, racial-liberation, feminist, labor-agitation, or protest-movement events or figures (such as Malcolm X, marches, or 'liberation' movements). Choose instead from founding and constitutional milestones, military valor and sacrifice, exploration and the frontier, invention and honest industry, Christian missions and revival, conservation of God's creation, or acts of personal courage and faith. Verify the date and facts are correct."},
     {"key": "peace", "passage": "peace",
      "header": "🌙 2100 Evening Peace",
      "summary": None,
      "refl": "🌾 Reflection for a Man at Home and in Community",
      "traitset": None,
-     "prayer": "🙏 Prayer from the Stateroom", "close": "⚓ Rudder Steer:",
-     "extra": "No summary block and no Personal Application bullets. After the scripture and a ⸻ rule, write the 🌾 reflection weaving the three roles in three short paragraphs (one each beginning 'As a HAPPY husband,', 'As a FULFILLED father,', 'As a RESOLUTE citizen,'), then the prayer, then the rudder steer."},
+     "prayer": "🙏 Prayer", "close": "🛡️ Watch Charge:",
+     "extra": "No summary block and no Personal Application bullets. After the scripture and a ⸻ rule, write the 🌾 reflection weaving the three roles in three short paragraphs (one each beginning 'As a HAPPY husband,', 'As a FULFILLED father,', 'As a RESOLUTE citizen,'), then the prayer, then the Watch Charge."},
 ]
 
 VOICE = (
@@ -87,7 +116,7 @@ VOICE = (
     "wooden word-for-word literalism, never loose paraphrase that drifts from the meaning); let the "
     "wording land with the interpretive clarity that drives a man toward obedience, and never soften the "
     "hard edge of the text. POETRY in sense-lines, NARRATIVE in clean prose; NO verse numbers.\n"
-    "FRESH LANGUAGE: write THIS watch's closing imperative (Helm Command / Rudder Steer) and its "
+    "FRESH LANGUAGE: write THIS watch's closing imperative (Watch Charge only) and its "
     "reflection rooted in the SPECIFIC images, names, and scene of today's passage. Do NOT reach for "
     "stock closers — in particular NEVER use the worn phrase 'hold the line against the tide of "
     "compromise' or its close variants; coin a fresh nautical/military image from this text instead.\n"
@@ -132,12 +161,16 @@ VOICE = (
 )
 
 
-def build_watch_messages(w, ref, month, daynum):
+def build_watch_messages(w, ref, month, daynum, on_date: date):
     system = (
         "You are a Reformed Baptist pastor-writer composing ONE section of a daily devotional for a "
         "Marine-veteran father. You write reverent, wholesome content. Output ONLY the finished markdown "
         "for this one section — no preamble, no commentary, no code fences, no reasoning, no notes."
     )
+    g_age = age_on("Gideon", on_date)
+    b_age = age_on("Boaz", on_date)
+    s_age = age_on("Shiloh", on_date)
+    close_line = PRAYER_CLOSES[w["key"]]
     parts = []
     parts.append(f"Write ONE watch of a daily Bible reading. Output ONLY its markdown, starting with the exact header line below and ending with the {w['close']} line.\n")
     parts.append("EXACT SECTION ORDER:")
@@ -156,13 +189,24 @@ def build_watch_messages(w, ref, month, daynum):
         parts.append(f"8. The reflection header exactly: {trait_line}")
     parts.append("9. 2-4 paragraphs of reflection in the voice below.")
     if w["key"] != "peace":
-        parts.append("10. A line exactly: ⛏️ Personal Application — {same trait}  then four '• ' bulleted concrete actions. "
+        parts.append("10. A line exactly: ⛏️ Personal Application — {same trait}  then EXACTLY THREE '• ' bulleted concrete actions (never 4+). "
                      "Each bullet must be rooted in a SPECIFIC image, name, command, or scene from TODAY's passage "
                      "(not generic spiritual advice that could attach to any text), and name a concrete, doable step.")
-    parts.append(f"11. The prayer: a line exactly '{w['prayer']}' then a Trinitarian prayer that opens to 'Father', includes a line beginning 'By the power of Your Holy Spirit', and closes 'In the name of Jesus Christ, my Lord and Commander, ...' then 'Amen.'")
-    parts.append(f"12. A final line beginning '{w['close']}' with a one-line nautical imperative.")
+    parts.append(
+        f"11. The prayer: a line exactly '{w['prayer']}' then a PERSONAL first-person prayer (I/me/my only — "
+        f"never we/us/our as the praying subject; never 'Brother Adam' or any self-vocative; never 'this father'). "
+        f"Open to 'Father', include a line beginning 'By the power of Your Holy Spirit', and close with EXACTLY: "
+        f"'{close_line}' — one Christ title only. BANNED closes: 'my Lord Jesus Christ', 'my Lord and Commander', "
+        f"any double full Christ title stack, 'we pray'."
+    )
+    parts.append(f"12. A final line beginning '{w['close']}' with a one-line charge imperative (not Helm/Rudder/Course Set).")
     if w["extra"]:
-        parts.append("\nWATCH-SPECIFIC: " + w["extra"].replace("{MD}", f"{month} {daynum}"))
+        extra = (w["extra"]
+                 .replace("{MD}", f"{month} {daynum}")
+                 .replace("{GIDEON_AGE}", str(g_age))
+                 .replace("{BOAZ_AGE}", str(b_age))
+                 .replace("{SHILOH_AGE}", str(s_age)))
+        parts.append("\nWATCH-SPECIFIC: " + extra)
     parts.append("\n" + VOICE)
     parts.append("\nWrite ORIGINAL prose for THIS passage. Do not reuse phrasing from any prior reading. Begin now with the header line.")
     return [{"role": "system", "content": system}, {"role": "user", "content": "\n".join(parts)}]
@@ -218,11 +262,38 @@ def watch_valid(text, w):
     # not treat the old formula as a default under any watch.
     if re.search(r"(?im)^\s*(?:Adam,\s*)?Brother,\s+look(?:\s+(?:at|to|closely))?\b", text):
         return False
+    # PJG-0810-PRAYSWEEP1 hard bans — refuse before file write.
+    ban_res = [
+        r"my Lord Jesus Christ",
+        r"my Lord and Commander",
+        r"Brother Adam",
+        r"\bHelm Command\b",
+        r"\bRudder Steer\b",
+        r"\bCourse Set\b",
+        r"Prayer from the (?:Stateroom|Wardroom|Bridge)",
+        r"As the head of your home,\s*Maria",
+    ]
+    for pat in ban_res:
+        if re.search(pat, text, re.I):
+            return False
+    # Prayer person: corporate subject banned (fail closed).
+    pray_m = re.search(r"🙏[^\n]*\n([\s\S]*?)(?=\n🛡️|\n⚓|\Z)", text)
+    if pray_m:
+        pray = pray_m.group(1)
+        if re.search(r"\b(we thank|we ask|we pray|Grant us|give this father)\b", pray, re.I):
+            return False
+        if re.search(r"\bBrother Adam\b|\bAdam,", pray):
+            return False
+    # Apps cap 3 (peace has none)
+    if w["key"] != "peace":
+        apps = re.findall(r"^[•\-]\s+\S", text, re.M)
+        if len(apps) > 3:
+            return False
     return (w["header"][:6] in text
             and "📖 Scripture" in text
             and "By the power of Your Holy Spirit" in text
             and "Amen." in text
-            and "⚓" in text
+            and ("🛡️ Watch Charge:" in text or "Watch Charge:" in text)
             and "Yahweh" not in text)
 
 
@@ -250,7 +321,8 @@ def main():
         ok = False
         for attempt in range(1, 4):
             try:
-                raw = call_llm(build_watch_messages(w, ref, month, daynum), args.model, args.port)
+                raw = call_llm(build_watch_messages(w, ref, month, daynum, dt),
+                               args.model, args.port)
             except (urllib.error.HTTPError, urllib.error.URLError) as e:
                 print(f"  [{w['key']}] attempt {attempt} error: {e}", flush=True)
                 continue
