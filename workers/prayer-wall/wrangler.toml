@@ -1,0 +1,25 @@
+name = "prayer-wall"
+main = "index.js"
+compatibility_date = "2026-06-01"
+
+routes = [
+  { pattern = "usmcmin.org/api/prayer*", zone_name = "usmcmin.org" },
+  { pattern = "www.usmcmin.org/api/prayer*", zone_name = "usmcmin.org" }
+]
+
+# Create the namespace, then paste its id here — it is an identifier, not a secret:
+#   wrangler kv namespace create PRAYER
+[[kv_namespaces]]
+binding = "PRAYER"
+id = "REPLACE_WITH_KV_NAMESPACE_ID"
+
+# Secrets are NOT set here. `vars` in this file would be committed to a public
+# repo. Set all three out of band, once:
+#
+#   wrangler secret put WALL_PIN        # the group PIN Adam gives the men
+#   wrangler secret put SESSION_SECRET  # e.g. `openssl rand -hex 32`
+#   wrangler secret put MOD_PIN         # Adam's moderator PIN — must differ from WALL_PIN
+#
+# Until WALL_PIN and SESSION_SECRET exist the Worker answers 503 not_configured
+# to every route, which is the correct fail-closed posture: an unconfigured
+# deploy must refuse everyone, never admit everyone.

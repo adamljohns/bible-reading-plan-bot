@@ -97,3 +97,24 @@ Step-by-step guide: `~/.openclaw/workspace/email-autopilot/GMAIL-APP-PASSWORDS.m
 - [ ] **(2 min)** PIN rotation decision — currently `5683` is the same across pages AND is documented in plaintext within moop-context.html itself, so if moop-context leaks, the PIN leaks. Options: (a) leave as-is since it's a single-ring perimeter, (b) remove the PIN from the moop-context text and store it only in your head + 1Password, (c) rotate to a fresh 4-6 digit PIN now that the old one may have been seen in chat transcripts today.
 
 *Maintained by autonomous Claude sessions. File is not consumed by site generator.*
+
+## PJG-0809-MEISTER1 — 2026-08-10
+
+- [ ] **Prayer wall needs Adam + Max to finish the wire-up.** Code is in
+  `workers/prayer-wall/`; pages are live at `/prayer/` and `/prayer/wall.html`.
+  Until the Worker is deployed the wall answers "not wired up yet" and stores
+  nothing — that is intentional fail-closed, not a bug. Four steps, all out of band:
+  1. `wrangler kv namespace create PRAYER` → paste the id into `wrangler.toml`
+     (the id is an identifier, not a secret).
+  2. `wrangler secret put WALL_PIN` — Adam chooses the group PIN. **Do not put it
+     in git, Telegram, or the WhatsApp group history.** Hand it out directly.
+  3. `wrangler secret put SESSION_SECRET` — `openssl rand -hex 32`.
+  4. `wrangler secret put MOD_PIN` — Adam's moderator PIN, different from WALL_PIN.
+     This is what unlocks mark-praying / mark-answered / delete / export.
+  Then `wrangler deploy` from `workers/prayer-wall/`.
+- [ ] **Worship: 15 of 40 listen links are re-upload channels, not the official
+  artist/label.** PJ's seed rule prefers official. Not auto-changed — that is PJ's
+  editorial lane. List is reproducible by re-running the oEmbed author check.
+- [ ] **`/readings/*.html` has `href="#all"` with no matching `id="all"`.** Pre-existing
+  broken anchor, unrelated to this ticket; whoever owns PJG-0012/0014 should confirm
+  whether `#all` was meant to be a real target or a copy-scope keyword.
