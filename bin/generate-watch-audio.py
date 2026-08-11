@@ -129,7 +129,7 @@ def force_declarative_amen(text: str) -> str:
 
     Principal ear QA 2026-07-30 + HARD reconfirm 2026-08-02: first-syllable
     A-men punch is FAIL. Prior lock used /ˈɑːmɛn/ (stress on first) — inverted.
-    Kokoro path: misaki IPA /əˈmɛn/. F5 path: dash respell a-MEN via f5_prep (PJG-0811-AMEN1).
+    Kokoro path: misaki IPA /əˈmɛn/. F5 path: attached plain Amen via f5_prep (PJG-0811-AMEN1 r3; no isolate).
     """
     # Strip ?/! after Amen anywhere; ensure terminal period.
     text = re.sub(r"\bAmen\b\s*[?!]+", "Amen.", text, flags=re.I)
@@ -425,14 +425,14 @@ def apply_lexicon(text):
 
 
 def f5_prep(text):
-    """Plain-text prep for F5 clone. Markup stripped; Amen forced to a-MEN.
+    """Plain-text prep for F5 clone. Markup stripped; Amen kept attached.
 
-    PJG-0811-AMEN1 (2026-08-11 Principal video): bare Amen collapses (heard as
-    ~"Ian"); first-syllable A-men is FAIL; uh MENN still inconsistent on ear.
+    PJG-0811-AMEN1 r3: r1 isolated a-MEN → Ian collapse; r2 attached Ah men →
+    ASR "Ash men" (period stripped when gluing). Candidate matrix winner:
+    attached plain "I pray. Amen." / peace close with plain Amen → ASR "Amen."
+
     Listen-script only — published page/JSON stays human "Amen."
-
-    Force order (Principal candidates): a-MEN · uh-MEN · a MEN · IPA · uh MENN.
-    Ship default = dash form a-MEN, isolated as its own final chunk.
+    Never isolate Amen as its own F5 chunk. Keep sentence pause before Amen.
     """
     text = text.replace("LORD", "Lord")
     text = re.sub(r"[—–]", ", ", text)
@@ -440,42 +440,54 @@ def f5_prep(text):
     text = force_declarative_amen(text)
     # F5 cannot use misaki IPA — strip markup first
     text = re.sub(r"\[([^\]]+)\]\(/[^/)]+/\)", r"\1", text)
-    # HARD 2026-08-11 AMEN1: second-syllable dash respell after strip.
-    # Match prior forces + bare Amen; terminal always "a-MEN."
+    # Undo prior force tokens (a-MEN / uh MENN / Ah men) → plain Amen
     text = re.sub(
-        r"\b(?:Amen|a-MEN|uh-MEN|uh MEN|a MEN|uh MENN)\b\s*[.?!]*\s*$",
-        "a-MEN.",
-        text,
-        flags=re.I | re.M,
-    )
-    text = re.sub(
-        r"\b(?:Amen|uh-MEN|uh MEN|uh MENN)\b(?=\s)",
-        "a-MEN",
+        r"\b(?:a-MEN|uh-MEN|uh MENN|uh MEN|a MEN|Ah men)\b",
+        "Amen",
         text,
         flags=re.I,
+    )
+    # Terminal Amen declarative with period (attached to prior clause in chunks)
+    text = re.sub(
+        r"\bAmen\b\s*[.?!]*\s*$",
+        "Amen.",
+        text,
+        flags=re.I | re.M,
     )
     return text.strip()
 
 
 def f5_chunks(text, mx=None):
-    """Sentence pack for F5. Terminal a-MEN always its own short chunk."""
+    """Sentence pack for F5. NEVER isolate terminal Amen as its own chunk.
+
+    Keep "I pray. Amen." as ONE chunk (period pause preserved). Solo Amen
+    sentences glue to previous with ". Amen." not " Amen".
+    """
     mx = mx or F5_CHUNK_MAX
-    # Peel terminal amen so it never shares a long prosody window with the clause
-    amen_tail = None
-    m = re.search(
-        r"(?:[.!?]\s+)?\b(?:a-MEN|a MEN|uh MENN|uh-MEN|uh MEN|Amen)\s*[.?!]*\s*$",
-        text,
-        flags=re.I,
-    )
-    if m:
-        amen_tail = "a-MEN."
-        text = text[: m.start()].rstrip(" ,;")
-        if text and text[-1] not in ".!?":
-            text = text + "."
     sents = re.split(r"(?<=[.!?])\s+", text) if text else []
     out, cur = [], ""
+    amen_only = re.compile(
+        r"(?:Ah men|a-MEN|uh MENN|uh-MEN|uh MEN|a MEN|Amen)\s*[.?!]*$",
+        flags=re.I,
+    )
     for s in sents:
         if not s:
+            continue
+        if amen_only.fullmatch(s.strip()):
+            amen = "Amen."
+            if cur:
+                # preserve sentence boundary pause
+                base = cur.rstrip()
+                if not base.endswith((".", "!", "?")):
+                    base += "."
+                cur = f"{base} {amen}".strip()
+            elif out:
+                base = out[-1].rstrip()
+                if not base.endswith((".", "!", "?")):
+                    base += "."
+                out[-1] = f"{base} {amen}".strip()
+            else:
+                cur = amen
             continue
         cand = (cur + " " + s).strip() if cur else s
         if len(cand) <= mx or not cur:
@@ -488,15 +500,20 @@ def f5_chunks(text, mx=None):
     final = []
     for c in out:
         while len(c) > mx + 60:
+            # do not split inside a trailing "Amen."
             cut = c.rfind(",", 0, mx)
             cut = cut if cut > 40 else mx
+            # if remaining would be only Amen, don't cut
+            rest = c[cut:].strip(" ,")
+            if re.fullmatch(r"Amen\.?", rest, flags=re.I):
+                break
             final.append(c[:cut].strip())
-            c = c[cut:].strip(" ,")
+            c = rest
         if c:
             final.append(c)
-    if amen_tail:
-        final.append(amen_tail)
     return [c for c in final if c]
+
+
 
 
 def adam_prayer_ready():
@@ -663,7 +680,10 @@ def render_f5_text(text, out_wav):
         parts = []
         for i, c in enumerate(chunks):
             raw = os.path.join(tmp, f"c{i:02d}.wav")
-            dur = round(F5_REF_SEC + len(c) / F5_CPS + F5_BUFFER)
+            # Floor duration so tiny tails cannot bake as ~0.04s silence/garbage
+            dur = max(4, round(F5_REF_SEC + len(c) / F5_CPS + F5_BUFFER))
+            if len(c) < 24:
+                dur = max(dur, 6)
             cmd = [F5_VENV_PY, "-m", "f5_tts_mlx.generate",
                    "--text", c, "--ref-audio", F5_REF, "--ref-text", reftext,
                    "--duration", str(dur), "--steps", str(F5_STEPS),
