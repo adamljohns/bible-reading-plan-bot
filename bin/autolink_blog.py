@@ -71,6 +71,21 @@ STOPLIST = {
     # --- generic noise ---
     'the-man', 'night', 'three', 'keep', 'cast', 'work', 'name', 'call',
     'giving', 'door', 'lead', 'watch', 'duty', 'seed', 'sowing',
+    # 2026-08-11: the dictionary is now large enough that ordinary English
+    # collides with it constantly, and a post was linking "back", "thing",
+    # "remember" and "winter" in its opening sentence. These carry no doctrinal
+    # weight in running prose; the theological vocabulary (abide, vine, branch,
+    # pruning, grace, righteousness, longsuffering...) is deliberately NOT here.
+    'able', 'abound', 'ambition', 'back', 'banner', 'bare', 'be-strong',
+    'build', 'camp', 'careful', 'chain', 'clothes', 'conversation', 'corner',
+    'cutting', 'eight', 'error', 'family', 'feet', 'field', 'find', 'four',
+    'generations', 'genuine', 'give', 'good', 'government', 'hand', 'hast',
+    'hath', 'hour', 'increase', 'kneeling', 'know', 'labor', 'legacy', 'lift',
+    'lips', 'means', 'mood', 'mouth', 'occupy', 'order', 'part', 'pattern',
+    'people', 'read', 'remain', 'remember', 'responsibility', 'rest', 'save',
+    'saying', 'season', 'seven', 'study', 'thine', 'thing', 'thou', 'time',
+    'week', 'weight', 'well', 'whatsoever', 'white', 'whole', 'winter', 'wise',
+    'wood', 'write', 'grapes', 'experience',
     # --- redundant alias-slugs (canonical kept elsewhere) ---
     'great-commission-event', 'sower-parable',
 }
