@@ -77,7 +77,7 @@ F5_REF_SEC = float(os.environ.get("F5_REF_SEC", "15.0"))
 F5_CPS = float(os.environ.get("F5_CPS", "12.5"))
 F5_BUFFER = float(os.environ.get("F5_BUFFER", "0.6"))
 F5_STEPS = int(os.environ.get("F5_STEPS", "32"))
-F5_CHUNK_MAX = int(os.environ.get("F5_CHUNK_MAX", "160"))
+F5_CHUNK_MAX = int(os.environ.get("F5_CHUNK_MAX", "120"))  # PJG-0811: tighter chunks vs prayer dropout
 SAMPLE_RATE = 24000
 GAP_SECONDS = 0.65  # PJG-0018: slightly longer handoff cushion (clone/narrator)
 
@@ -129,7 +129,7 @@ def force_declarative_amen(text: str) -> str:
 
     Principal ear QA 2026-07-30 + HARD reconfirm 2026-08-02: first-syllable
     A-men punch is FAIL. Prior lock used /ˈɑːmɛn/ (stress on first) — inverted.
-    Kokoro path: misaki IPA /əˈmɛn/. F5 path: plain respell via f5_prep (markup stripped).
+    Kokoro path: misaki IPA /əˈmɛn/. F5 path: dash respell a-MEN via f5_prep (PJG-0811-AMEN1).
     """
     # Strip ?/! after Amen anywhere; ensure terminal period.
     text = re.sub(r"\bAmen\b\s*[?!]+", "Amen.", text, flags=re.I)
@@ -425,10 +425,14 @@ def apply_lexicon(text):
 
 
 def f5_prep(text):
-    """Plain-text prep for F5 clone. Markup stripped; Amen forced to uh-MEN.
+    """Plain-text prep for F5 clone. Markup stripped; Amen forced to a-MEN.
 
-    Ear QA 2026-08-02: bare uh-MEN still often lands A-men when glued to a long
-    clause. Use elongated second-syllable respell + isolate via f5_chunks.
+    PJG-0811-AMEN1 (2026-08-11 Principal video): bare Amen collapses (heard as
+    ~"Ian"); first-syllable A-men is FAIL; uh MENN still inconsistent on ear.
+    Listen-script only — published page/JSON stays human "Amen."
+
+    Force order (Principal candidates): a-MEN · uh-MEN · a MEN · IPA · uh MENN.
+    Ship default = dash form a-MEN, isolated as its own final chunk.
     """
     text = text.replace("LORD", "Lord")
     text = re.sub(r"[—–]", ", ", text)
@@ -436,17 +440,17 @@ def f5_prep(text):
     text = force_declarative_amen(text)
     # F5 cannot use misaki IPA — strip markup first
     text = re.sub(r"\[([^\]]+)\]\(/[^/)]+/\)", r"\1", text)
-    # HARD 2026-08-02 AUD2: second-syllable Amen for clone after strip.
-    # Elongated "uh MENN" (space + double N) beats single-token Amen/uh-MEN.
+    # HARD 2026-08-11 AMEN1: second-syllable dash respell after strip.
+    # Match prior forces + bare Amen; terminal always "a-MEN."
     text = re.sub(
-        r"\b(?:Amen|uh-MEN|uh MEN|uh MENN)\b\s*[.?!]*\s*$",
-        "uh MENN.",
+        r"\b(?:Amen|a-MEN|uh-MEN|uh MEN|a MEN|uh MENN)\b\s*[.?!]*\s*$",
+        "a-MEN.",
         text,
         flags=re.I | re.M,
     )
     text = re.sub(
-        r"\b(?:Amen|uh-MEN)\b(?=\s)",
-        "uh MENN",
+        r"\b(?:Amen|uh-MEN|uh MEN|uh MENN)\b(?=\s)",
+        "a-MEN",
         text,
         flags=re.I,
     )
@@ -454,17 +458,17 @@ def f5_prep(text):
 
 
 def f5_chunks(text, mx=None):
-    """Sentence pack for F5. Terminal Amen/uh MENN always its own short chunk."""
+    """Sentence pack for F5. Terminal a-MEN always its own short chunk."""
     mx = mx or F5_CHUNK_MAX
     # Peel terminal amen so it never shares a long prosody window with the clause
     amen_tail = None
     m = re.search(
-        r"(?:[.!?]\s+)?\b(?:uh MENN|uh-MEN|Amen)\s*[.?!]*\s*$",
+        r"(?:[.!?]\s+)?\b(?:a-MEN|a MEN|uh MENN|uh-MEN|uh MEN|Amen)\s*[.?!]*\s*$",
         text,
         flags=re.I,
     )
     if m:
-        amen_tail = "uh MENN."
+        amen_tail = "a-MEN."
         text = text[: m.start()].rstrip(" ,;")
         if text and text[-1] not in ".!?":
             text = text + "."
@@ -539,7 +543,7 @@ def split_prayer(post_lines):
     """
     before, prayer, after = [], [], []
     st = "before"
-    amen_end = re.compile(r"\b(?:Amen|uh-MEN|uh MENN)\.?\s*$", re.I)
+    amen_end = re.compile(r"\b(?:Amen|a-MEN|a MEN|uh-MEN|uh MEN|uh MENN)\.?\s*$", re.I)
     for line in post_lines:
         if st == "before" and PRAYER_HDR.match(line):
             st = "prayer"
