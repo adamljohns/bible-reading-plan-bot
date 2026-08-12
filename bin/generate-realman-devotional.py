@@ -74,12 +74,36 @@ def page(n, d, style):
     next_href = "index.html" if n >= 31 else f"{n+1}.html"
     next_label = "All Chapters →" if n >= 31 else f"Day {n+1} →"
     kv = d["keyVerse"]
+    base = f"https://usmcmin.org/proverbs/{n}.html"
+    ld = {"@context": "https://schema.org", "@graph": [
+        {"@type": "BreadcrumbList", "itemListElement": [
+            {"@type": "ListItem", "position": 1, "name": "USMC Ministries", "item": "https://usmcmin.org/"},
+            {"@type": "ListItem", "position": 2, "name": "REAL MAN Proverbs Devotional", "item": "https://usmcmin.org/proverbs.html"},
+            {"@type": "ListItem", "position": 3, "name": f"Day {n}: Proverbs {n}", "item": base},
+        ]},
+        {"@type": "Article",
+         "headline": f"REAL MAN Devotional — Day {n}: Proverbs {n} ({qual})",
+         "description": f"Day {n} of the REAL MAN Proverbs Devotional. {letter} = {qual}. Proverbs {n}.",
+         "articleSection": qual,
+         "inLanguage": "en",
+         "author": {"@type": "Organization", "name": "USMC Ministries", "url": "https://usmcmin.org/"},
+         "publisher": {"@type": "Organization", "name": "USMC Ministries",
+                       "logo": {"@type": "ImageObject", "url": "https://usmcmin.org/assets/icons/icon-512.png"}},
+         "isPartOf": {"@type": "CreativeWorkSeries", "name": "REAL MAN Proverbs Devotional — 31 Days",
+                      "numberOfItems": 31, "url": "https://usmcmin.org/proverbs.html"},
+         "mainEntityOfPage": {"@type": "WebPage", "@id": base}},
+    ]}
+    jsonld = '<script type="application/ld+json">' + json.dumps(ld, ensure_ascii=False) + '</script>'
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <link rel="canonical" href="https://usmcmin.org/proverbs/{n}.html">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-touch-icon.png">
   <title>Proverbs {n} — REAL MAN Devotional Day {n}</title>
 
   <!-- Open Graph / Social Sharing -->
@@ -92,6 +116,9 @@ def page(n, d, style):
   <meta name="twitter:title" content="Proverbs {n} — REAL MAN Devotional Day {n}">
   <meta name="twitter:description" content="Day {n} of the REAL MAN Proverbs Devotional. {letter} = {qual}.">
   <meta name="description" content="Day {n} of the REAL MAN Proverbs Devotional — Proverbs {n}, {qual}. USMC Ministries.">
+
+  <!-- Structured data: breadcrumb + article in the 31-day series -->
+  {jsonld}
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -209,6 +236,9 @@ def page(n, d, style):
     <p><a href="index.html">Proverbs</a> · <a href="../bible.html">Bible Training Environment</a> · <a href="https://usmcmin.org">USMC Ministries</a></p>
     <p style="margin-top:0.4rem;">REAL MAN Proverbs Devotional — 31 Days of Wisdom</p>
   </footer>
+
+  <!-- 31-day progress tracker (localStorage; self-wiring) -->
+  <script defer src="../assets/js/realman-progress.js"></script>
 
 </body>
 </html>
