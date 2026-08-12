@@ -103,7 +103,12 @@ try {
   const files = new Set(fs.readdirSync(dir)
     .filter((f) => f.endsWith('.html') && f !== 'index.html').map((f) => f.slice(0, -5)));
   const missing = churches.filter((c) => !files.has(c.id)).map((c) => c.id);
-  const orphan = diff(ids, files);
+  // Redirect stubs from merged duplicates (merge-duplicate-churches.js) are
+  // deliberate orphans — old URLs must keep resolving. Identified by marker.
+  const orphan = diff(ids, files).filter((id) => {
+    try { return !fs.readFileSync(path.join(dir, id + '.html'), 'utf8').includes('merged-redirect'); }
+    catch (_) { return true; }
+  });
   record('per-church HTML pages', !missing.length && !orphan.length,
     `${files.size} pages | missing ${missing.length}, orphan ${orphan.length}`,
     [...missing, ...orphan.map((x) => 'orphan:' + x)]);
