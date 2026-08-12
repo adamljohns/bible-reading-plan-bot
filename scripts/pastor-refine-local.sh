@@ -120,7 +120,24 @@ if [ "$N_BATCH" -eq 0 ] && [ "$N_FRESH_TRICKLE" -gt 0 ]; then
   cat "$WORK/selector.txt" >>"$LOG"
   N_BATCH=$(node -e 'console.log(require("'"$WORK"'/enrich-batch-1.json").length)' 2>/dev/null || echo 0)
 fi
-if [ "$N_BATCH" -eq 0 ]; then say "fresh, retry AND social pools all empty — grind complete, nothing to do"; exit 0; fi
+if [ "$N_BATCH" -eq 0 ]; then
+  # A dry pool is a successful terminal state, not a dead pipeline. Publish a
+  # zero-work heartbeat so the live report does not mistake "complete" for
+  # "stalled" and keep displaying the last productive round's stale pool count.
+  say "fresh, retry AND social pools all empty — grind complete, publishing heartbeat"
+  node scripts/append-grind-stats.js --mode complete --attempted 0 --found 0 \
+    >>"$LOG" 2>&1 || die "grind-stats completion heartbeat failed"
+  git add docs/data/grind-stats.json
+  git commit -qm "Local pastor refine: completion heartbeat (all enrichment pools dry)" \
+    || die "completion heartbeat commit failed"
+  if ! git push -q origin HEAD:main; then
+    say "heartbeat push rejected — rebasing onto fresh origin/main and retrying"
+    git fetch -q origin main && git rebase -q FETCH_HEAD && git push -q origin HEAD:main \
+      || die "heartbeat push failed after rebase retry"
+  fi
+  say "grind complete heartbeat pushed"
+  exit 0
+fi
 POOL=$(grep -oE 'pastor-fetchable\): [0-9]+' "$WORK/selector.txt" | grep -oE '[0-9]+$' | head -1)
 say "mode=$MODE pool=${POOL:-?} batch=$N_BATCH"
 

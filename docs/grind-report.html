@@ -85,7 +85,10 @@
       ? Math.round(hours) + ' hours ago'
       : Math.floor(hours / 24) + ' days ago';
     let level, msg;
-    if (hours <= 8) {
+    if (last.mode === 'complete' && hours <= 8) {
+      level = 'complete';
+      msg = `Enrichment complete — all current fresh, retry, and social pools are empty. A scheduled check succeeded ${ageTxt}.`;
+    } else if (hours <= 8) {
       level = 'ok';
       msg = `Grind is live — last round ${ageTxt}.`;
     } else if (hours <= 30) {
@@ -95,14 +98,14 @@
       level = 'bad';
       msg = `THE GRIND IS NOT RUNNING — last round ${ageTxt}. Every number below is frozen at that moment and is not current.`;
     }
-    const colour = level === 'ok' ? '#3f7d55' : level === 'warn' ? '#8a6d1f' : '#8c2f2f';
+    const colour = (level === 'ok' || level === 'complete') ? '#3f7d55' : level === 'warn' ? '#8a6d1f' : '#8c2f2f';
     const fix = level === 'bad'
       ? `<div style="margin-top:8px;font-size:.78rem;opacity:.85">Check the job: <code>launchctl list | grep pastor-refine</code> — if it is absent, the LaunchAgent is missing and must be reloaded with <code>launchctl load -w ~/Library/LaunchAgents/com.moop.pastor-refine-local.plist</code>.</div>`
       : '';
     $('freshness').innerHTML =
       `<div style="border:1px solid ${colour};background:${colour}22;border-radius:10px;` +
       `padding:12px 14px;margin:0 0 16px;font-size:.9rem;line-height:1.45">` +
-      `<strong>${level === 'ok' ? 'Current' : level === 'warn' ? 'Stale' : 'STALLED'}</strong> · ${msg}${fix}</div>`;
+      `<strong>${level === 'complete' ? 'COMPLETE / MONITORING' : level === 'ok' ? 'Current' : level === 'warn' ? 'Stale' : 'STALLED'}</strong> · ${msg}${fix}</div>`;
   })();
   const card = (label, val, delta, baseTxt) =>
     `<div class="card"><div class="label">${label}</div><div class="big">${val.toLocaleString()}</div>` +
@@ -121,6 +124,7 @@
   // pastors found per day
   const byDay = {};
   for (const r of s) { if (r.mode === 'baseline') continue; const day = (r.ts || '').slice(5, 10); if (!day) continue;
+    if (r.mode === 'complete') continue;
     byDay[day] = byDay[day] || { fresh: 0, retry: 0 }; byDay[day][r.mode === 'retry' ? 'retry' : 'fresh'] += (r.found || 0); }
   const days = Object.keys(byDay);
   const max = Math.max(1, ...days.map(d => byDay[d].fresh + byDay[d].retry));
