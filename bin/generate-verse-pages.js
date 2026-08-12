@@ -99,7 +99,7 @@ function buildSsrBlock(ref, p) {
   html += `          <div class="ssr-ref" style="${S.ref}">${esc(ref)}</div>\n`;
   if (web) html += `          <blockquote style="${S.bq}">${renderVerses(web, range)}<cite style="${S.cite}">— World English Bible (public domain)</cite></blockquote>\n`;
   if (kjv) html += `          <blockquote style="${S.bq}">${renderVerses(kjv, range)}<cite style="${S.cite}">— King James Version (public domain)</cite></blockquote>\n`;
-  html += `          <p class="ssr-loading" style="${S.load}">Loading the full interlinear word study and 9-translation blend…</p>\n`;
+  html += `          <p class="ssr-loading" style="${S.load}">Loading the full interlinear word study and 12-translation blend…</p>\n`;
   html += '        </div>\n        <!-- /SSR-VERSE -->';
   // Snippet for the meta description: prefer modern WEB, fall back to KJV.
   const snippetArr = web || kjv;
@@ -110,7 +110,7 @@ function buildSsrBlock(ref, p) {
 
 function rebuildMeta(html, ref, snippet, isOT) {
   const tongue = isOT ? 'Hebrew' : 'Greek';
-  const desc = `${ref} — “${snippet}” Interlinear ${tongue} word study with Strong's Concordance and a 9-translation blend at the MOOP Bible Translation Engine.`;
+  const desc = `${ref} — “${snippet}” Interlinear ${tongue} word study with Strong's Concordance and a 12-translation blend at the MOOP Bible Translation Engine.`;
   const twDesc = `${ref}: “${snippet}” — interlinear word study + Strong's on usmcmin.org.`;
   const set = (h, attrKind, attrName, value) => {
     const re = new RegExp('(<meta ' + attrKind + '="' + attrName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '" content=")[^"]*(">)');
