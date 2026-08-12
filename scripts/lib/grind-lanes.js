@@ -29,10 +29,11 @@ const socialEligible = c => hasWebsite(c) && !c.facebook && !c.youtube && !c.ins
   isEnglish(c.name) && isUS(c) && !c._social_attempted && !c._social_scraped;
 const websiteDiscoveryEligible = c => !hasWebsite(c) && isEnglish(c.name) && isUS(c) && !c._website_searched &&
   !String(c.source_url || '').includes('churches.sbc.net');
-const sourceRecoveryEligible = c => String(c.source_url || '').includes('churches.sbc.net') &&
+const isSbcSource = c => { try { return new URL(String(c.source_url || '')).hostname === 'churches.sbc.net'; } catch (_) { return false; } };
+const sourceRecoveryEligible = c => isSbcSource(c) &&
   (!hasWebsite(c) || typeof c.latitude !== 'number' || typeof c.longitude !== 'number') && !c.sbc_detail_fetched_at &&
   Number(c._sbc_detail_failures || 0) < 3;
-const sourceRecoveryExhausted = c => String(c.source_url || '').includes('churches.sbc.net') &&
+const sourceRecoveryExhausted = c => isSbcSource(c) &&
   (!hasWebsite(c) || typeof c.latitude !== 'number' || typeof c.longitude !== 'number') && !c.sbc_detail_fetched_at &&
   Number(c._sbc_detail_failures || 0) >= 3;
 const pastorExhausted = c => pastorFetchable(c) && !c._hold_review && alreadyAttempted(c) && noPastorStrikes(c) >= 2;
@@ -63,10 +64,8 @@ function chooseLane(counts, lastMode) {
   if (counts.fresh > 0) return 'fresh';
   if (counts.retry > 0) return 'retry';
   if (counts.social > 0) return 'social';
-  if (counts.website_discovery > 0 && counts.source_recovery > 0) {
-    return lastMode === 'website-discovery' ? 'source-recovery' : 'website-discovery';
-  }
-  if (counts.website_discovery > 0) return 'website-discovery';
+  // Website discovery remains a measured review backlog, not an unattended
+  // apply lane, until candidates are TLS-fetched and page/geo corroborated.
   if (counts.source_recovery > 0) return 'source-recovery';
   return 'monitoring';
 }
@@ -74,5 +73,5 @@ function chooseLane(counts, lastMode) {
 module.exports = {
   isPlaceholderPastor, isUS, isEnglish, hasWebsite, notesText, alreadyAttempted,
   noPastorStrikes, pastorFetchable, freshEligible, retryEligible, socialEligible,
-  websiteDiscoveryEligible, sourceRecoveryEligible, sourceRecoveryExhausted, pastorExhausted, countLanes, chooseLane,
+  websiteDiscoveryEligible, isSbcSource, sourceRecoveryEligible, sourceRecoveryExhausted, pastorExhausted, countLanes, chooseLane,
 };

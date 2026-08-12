@@ -31,7 +31,7 @@ counts = lanes.countLanes([
 assert.strictEqual(counts.website_discovery, 1);
 assert.strictEqual(counts.source_recovery, 1);
 assert.strictEqual(lanes.chooseLane(counts, 'website-discovery'), 'source-recovery');
-assert.strictEqual(lanes.chooseLane(counts, 'source-recovery'), 'website-discovery');
+assert.strictEqual(lanes.chooseLane(counts, 'source-recovery'), 'source-recovery');
 
 // Completed markers prevent quota burn and repeated authoritative-source fetches.
 counts = lanes.countLanes([
@@ -44,6 +44,7 @@ assert.strictEqual(lanes.chooseLane(counts, null), 'monitoring');
 
 // Authoritative-source failures retry, then leave the automated lane after the cap.
 assert.strictEqual(lanes.sourceRecoveryEligible(c({ source_url: 'https://churches.sbc.net/church/retry', _sbc_detail_failures: 2 })), true);
+assert.strictEqual(lanes.sourceRecoveryEligible(c({ source_url: 'https://churches.sbc.net.evil.example/church/lookalike' })), false, 'source recovery must require the exact SBC hostname');
 assert.strictEqual(lanes.sourceRecoveryEligible(c({ source_url: 'https://churches.sbc.net/church/capped', _sbc_detail_failures: 3 })), false);
 counts = lanes.countLanes([c({ id: 'source-capped', source_url: 'https://churches.sbc.net/church/capped', _sbc_detail_failures: 3 })]);
 assert.strictEqual(counts.source_recovery_exhausted, 1);
@@ -61,6 +62,11 @@ assert.strictEqual(counts.pastor_exhausted, 1);
 assert.strictEqual(counts.dead_site_recovery, 1);
 assert.strictEqual(counts.human_review, 1);
 assert.ok(counts.product_backlog >= 3);
+
+// Website discovery is review-only until page/geo corroboration and guarded merge exist.
+counts = lanes.countLanes([c({ id: 'discover-only' })]);
+assert.strictEqual(counts.website_discovery, 1);
+assert.strictEqual(lanes.chooseLane(counts, null), 'monitoring');
 
 const html = fs.readFileSync(path.join(ROOT, 'docs/grind-report.html'), 'utf8');
 const runner = fs.readFileSync(path.join(ROOT, 'scripts/pastor-refine-local.sh'), 'utf8');

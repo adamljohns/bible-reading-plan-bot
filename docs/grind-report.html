@@ -87,11 +87,11 @@
       : Math.floor(hours / 24) + ' days ago';
     let level, msg;
     const oldPassDry = (last.pool_fresh || 0) + (last.pool_retry || 0) + (last.pool_social || 0) === 0;
-    const frontier = (last.pool_website_discovery || 0) + (last.pool_source_recovery || 0);
+    const frontier = last.pool_source_recovery || 0;
     if (oldPassDry && hours <= 8) {
       level = 'continuing';
       const lane = String(last.mode || '').replaceAll('-', ' ');
-      msg = `Current extraction pass exhausted; ${frontier > 0 ? `the scheduler is continuing through bounded frontier lanes (latest: ${lane || 'status check'})` : 'only dead-site and human-review queues remain'}. Latest recorded lane result ${ageTxt}.`;
+      msg = `Current extraction pass exhausted; ${frontier > 0 ? `the scheduler is continuing through bounded source-recovery work (latest: ${lane || 'status check'})` : 'only website-discovery, dead-site, and human-review queues remain'}. Latest recorded lane result ${ageTxt}.`;
     } else if (hours <= 8) {
       level = 'ok';
       msg = `Grind is live — last round ${ageTxt}.`;
