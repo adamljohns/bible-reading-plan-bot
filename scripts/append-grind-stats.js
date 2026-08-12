@@ -22,12 +22,15 @@ const hasWebsite = c => typeof c.website === 'string' && /^https?:\/\//i.test(c.
 const notesText = c => Array.isArray(c.enrichment_notes) ? c.enrichment_notes.join(' ') : String(c.enrichment_notes || '');
 const attempted = c => { const n = notesText(c); if (n.lastIndexOf('junk-pastor-reset') > n.lastIndexOf('Phase 6f')) return false; return !!c._loop_round_attempted || !!c._verify_round_attempted || /Phase 6f/i.test(n); };
 const strikes = c => (notesText(c).match(/no parseable pastor/gi) || []).length;
-const fetchable = c => isPh(c.pastor) && hasWebsite(c) && isEnglish(c.name) && isUS(c);
+// Keep these predicates exactly aligned with select-enrichment-batch.js. Dead
+// sites cannot yield a pastor, and the direct social scraper's completed marker
+// removes a church from the automated social pool even when no link was found.
+const fetchable = c => isPh(c.pastor) && hasWebsite(c) && !c._dead_site && isEnglish(c.name) && isUS(c);
 
 // !._hold_review mirrors select-enrichment-batch.js — held names leave the pastor pools
 const pool_fresh = d.filter(c => fetchable(c) && !c._hold_review && !attempted(c)).length;
 const pool_retry = d.filter(c => fetchable(c) && !c._hold_review && attempted(c) && strikes(c) === 1).length;
-const pool_social = d.filter(c => hasWebsite(c) && !c.facebook && !c.youtube && !c.instagram && isEnglish(c.name) && isUS(c) && !c._social_attempted).length;
+const pool_social = d.filter(c => hasWebsite(c) && !c.facebook && !c.youtube && !c.instagram && isEnglish(c.name) && isUS(c) && !c._social_attempted && !c._social_scraped).length;
 
 const US_UNIVERSE = 350000; // ~congregations, 2020 U.S. Religion Census
 const us_total = d.filter(c => c.country_code === 'US' || !c.country_code).length;
