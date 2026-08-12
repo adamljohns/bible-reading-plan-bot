@@ -50,7 +50,9 @@ const cleanText = (s) => stripStrongs(String(s).replace(/<[^>]+>/g, '').replace(
 // WEB is public domain, so normalizing is a free editorial choice for on-brand display.
 const normalizeDivineNames = (s) => s
   .replace(/\bYahweh of Armies\b/g, 'the LORD of Hosts')
-  .replace(/\bYahweh\b/g, 'the LORD');
+  .replace(/\bYahweh\b/g, 'the LORD')
+  // Sentence-initial occurrences keep the capital ("David. The LORD is my shepherd").
+  .replace(/(^|[.!?…”]\s+)the LORD\b/g, '$1The LORD');
 
 function parseRef(ref) {
   const m = ref.match(/^(.+?)\s+(\d+):(\d+)(?:[-–](\d+))?$/);
