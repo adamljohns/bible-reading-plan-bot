@@ -2,6 +2,7 @@
 // App-shell precache + network-first runtime caching (installable, offline-capable).
 // Scope "/" controls the whole site, including /dictionary/* once registered from any page.
 // v9 (2026-06-11): cache bump to flush any stale tacc.html after the double-PIN-gate fix.
+// v17 (2026-08-12): precache the Verse Studies directory (46 curated verse pages live).
 // v16 (2026-08-06): PJG-0806-XREF1 BTE cross-refs bottom-only (no mid-chapter cards).
 // v14 (2026-07-21): PJG-0008D multi-pass load + layout.
 // v13 (2026-07-21): PJG-0008C Bible TOC + browse intro card.
@@ -9,7 +10,7 @@
 // v11 (2026-07-21): cache bump after BTE book-intro deep-link boot fix (PJG-0008).
 // v10 (2026-06-25): precache the Baptist Catechism + its assets; flush stale LBCF
 //   renderer/JSON after the single-chapter proof-text fix.
-const CACHE = 'usmc-v16';
+const CACHE = 'usmc-v17';
 
 // Core "app shell": the public ministry pages + key assets. Small + high-value.
 // Big data (Bible JSON, dictionary entries) caches on first visit via network-first below.
@@ -18,6 +19,7 @@ const SHELL = [
   '/bible.html', '/bible-plan.html', '/proverbs.html', '/mbt.html',
   '/dictionary/', '/dictionary/index.html',
   '/lexicon.html', '/cross-references.html', '/watchman.html',
+  '/verse/', '/verse/index.html', // Verse Studies directory (pages cache on visit)
   '/institutes.html', '/lbcf.html', '/lbcf-full.html', '/catechism.html', '/blog.html', '/connect.html', '/about.html',
   // LBCF shared assets (chapter shells/JSON cache on first visit via network-first).
   // The ?v= must match the query string the pages request with, or the precache never hits.
