@@ -125,7 +125,7 @@ for (const [a, b, via] of pairs) {
 
   let cls = 'review';
   if (!conflictingPastors && !famMismatch && !bothStreetsDiffer) {
-    if (sameDomain && (sameZip || sameCity || sigEqual)) cls = 'auto';
+    if (sameDomain && (sigEqual || samePastor || sameStreet || sameFB)) cls = 'auto'; // domain+geography alone is NOT enough — a mis-scraped domain on a neighbor church caused a bad merge (Stafford 2026-08-12)
     else if (sigEqual && sameZip && (sameStreet || samePastor || sameFB || distinctive(a.name))) cls = 'auto';
     else if (sigEqual && sameCity && (sameStreet || samePastor || sameFB)) cls = 'auto';
     else if (idSuffix && (sameZip || sameCity)) cls = 'auto';
