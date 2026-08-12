@@ -81,7 +81,7 @@ if [ "$ATTEMPTED" -gt 0 ]; then
 fi
 
 if [ -n "$(git status --porcelain)" ]; then
-  git add docs/data/churches.json docs/data/grind-stats.json docs/churches/ docs/data/churches-index.json docs/data/churches-index-slim.json docs/data/churches/ docs/data/directory-map-points.json docs/sitemap-churches.xml 2>/dev/null || die "frontier git add failed"
+  git add docs/data/churches.json docs/data/grind-stats.json docs/churches/ docs/data/churches-index.json docs/data/churches-index-slim.json docs/data/churches/ docs/data/directory-map-points.json docs/directory-map.html docs/sitemap-churches.xml 2>/dev/null || die "frontier git add failed"
   git commit -qm "Directory enrichment: $LANE ($APPLIED fields from $ATTEMPTED records)" || die "frontier commit failed"
   if ! git push -q origin HEAD:main; then
     say "frontier push rejected — rebasing and retrying"

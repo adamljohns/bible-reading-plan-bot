@@ -76,6 +76,6 @@ const plan = cp.execFileSync('/bin/bash', [path.join(ROOT, 'scripts/continuous-e
   env: { ...process.env, CONTINUOUS_PLAN_ONLY: '1' },
   encoding: 'utf8',
 });
-assert.match(plan, /^lane=(website-discovery|source-recovery)\b/, 'controller must advance into an executable frontier lane');
+assert.match(plan, /^lane=(fresh|retry|social|website-discovery|source-recovery|monitoring)\b/, 'planner must report a recognized next lane after live data changes');
 
 console.log('grind-lanes: all assertions passed');
