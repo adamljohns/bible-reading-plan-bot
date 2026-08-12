@@ -23,6 +23,7 @@
  */
 const fs = require('fs');
 const path = require('path');
+const lanes = require('./lib/grind-lanes.js');
 
 const args = process.argv.slice(2);
 const opt = (name, def) => { const i = args.indexOf(name); return i >= 0 && args[i + 1] ? args[i + 1] : def; };
@@ -33,29 +34,6 @@ const OUT = opt('--out', '/tmp');
 const CHURCHES = path.join(__dirname, '..', 'docs', 'data', 'churches.json');
 const churches = JSON.parse(fs.readFileSync(CHURCHES, 'utf8')).churches;
 
-const AB = new Set('AL AK AZ AR CA CO CT DE FL GA HI ID IL IN IA KS KY LA ME MD MA MI MN MS MO MT NE NV NH NJ NM NY NC ND OH OK OR PA RI SC SD TN TX UT VT VA WA WV WI WY DC'.split(' '));
-const FULL = new Set(['ALABAMA', 'ALASKA', 'ARIZONA', 'ARKANSAS', 'CALIFORNIA', 'COLORADO', 'CONNECTICUT', 'DELAWARE', 'FLORIDA', 'GEORGIA', 'HAWAII', 'IDAHO', 'ILLINOIS', 'INDIANA', 'IOWA', 'KANSAS', 'KENTUCKY', 'LOUISIANA', 'MAINE', 'MARYLAND', 'MASSACHUSETTS', 'MICHIGAN', 'MINNESOTA', 'MISSISSIPPI', 'MISSOURI', 'MONTANA', 'NEBRASKA', 'NEVADA', 'NEW HAMPSHIRE', 'NEW JERSEY', 'NEW MEXICO', 'NEW YORK', 'NORTH CAROLINA', 'NORTH DAKOTA', 'OHIO', 'OKLAHOMA', 'OREGON', 'PENNSYLVANIA', 'RHODE ISLAND', 'SOUTH CAROLINA', 'SOUTH DAKOTA', 'TENNESSEE', 'TEXAS', 'UTAH', 'VERMONT', 'VIRGINIA', 'WASHINGTON', 'WEST VIRGINIA', 'WISCONSIN', 'WYOMING']);
-
-// A pastor field is a PLACEHOLDER (safe to overwrite with a researched name) when it's
-// empty, a bare honorific/word, or a "look it up" phrase. Mirrors merge-pastor-enrichments.js.
-function isPlaceholderPastor(p) {
-  if (!p || !String(p).trim()) return true;
-  const s = String(p).trim();
-  if (/^(pastors?|tbd|n\/?a|none|unknown|various|staff)\.?$/i.test(s)) return true;
-  if (/verify|see website|see site|not published|search in progress|to be (announced|determined)|coming soon|^unknown/i.test(s)) return true;
-  return false;
-}
-const isUS = c => { const s = String(c.state || '').toUpperCase().trim(); return AB.has(s) || FULL.has(s); };
-const isEnglish = n => typeof n === 'string' && !/[^\x00-\x7F]/.test(n);
-const notesText = c => Array.isArray(c.enrichment_notes) ? c.enrichment_notes.join(' ') : String(c.enrichment_notes || '');
-// A junk-pastor-reset stamped AFTER the last Phase-6f attempt re-opens the record for
-// research (the prior "attempt" landed a scraper artifact, not a real answer). A fresh
-// Phase-6f note after the reset closes it again.
-const alreadyAttempted = c => {
-  const n = notesText(c);
-  if (n.lastIndexOf('junk-pastor-reset') > n.lastIndexOf('Phase 6f')) return false;
-  return !!c._loop_round_attempted || !!c._verify_round_attempted || /Phase 6f/i.test(n);
-};
 
 // Base fetchability: placeholder pastor + real website + US + ASCII name.
 // (2026-07-03: the needs_review===true gate was dropped — it was an accident of
@@ -65,32 +43,26 @@ const alreadyAttempted = c => {
 // ssl_error / redirect_loop / not_a_church. No pastor can be scraped from a
 // site that does not answer, so such a church is not fetchable in ANY mode.
 // Without this the retry pool recycled the same 50 dead sites indefinitely.
-const fetchable = c =>
-  isPlaceholderPastor(c.pastor) &&
-  typeof c.website === 'string' && /^https?:\/\//i.test(c.website) &&
-  !c._dead_site &&
-  isEnglish(c.name) &&
-  isUS(c);
+const fetchable = lanes.pastorFetchable;
 
 // --retry mode (2026-07-03): second pass over churches attempted EXACTLY once
 // that came back "no parseable pastor" — the extractor's smarter page discovery
 // (homepage link-following) often finds the staff page the fixed paths missed.
 // Two strikes and the record leaves the automated pool for good.
 const RETRY = args.includes('--retry');
-const noPastorStrikes = c => (notesText(c).match(/no parseable pastor/gi) || []).length;
+const noPastorStrikes = lanes.noPastorStrikes;
 
 // --social mode (2026-07-04): fill social links (fb/yt/ig) for churches that have a
 // website but no social on file — a huge second tranche (~7k) so the local sessions
 // stay productive for a week after the pastor pool dries. Pastor status is irrelevant
 // here; the extractor harvests socials deterministically (regex, no LLM) on the fetch.
 const SOCIAL = args.includes('--social');
-const hasWebsite = c => typeof c.website === 'string' && /^https?:\/\//i.test(c.website);
+
 // _social_scraped (2026-08-06) is the marker left by scripts/scrape-church-social.js,
 // which harvested 10,200 church sites directly. Without honouring it the grind
 // re-fetches every site that harvest already visited and found nothing on —
 // thousands of churches whose only possible outcome is another empty round.
-const socialEligible = c => hasWebsite(c) && !c.facebook && !c.youtube && !c.instagram &&
-  isEnglish(c.name) && isUS(c) && !c._social_attempted && !c._social_scraped;
+const socialEligible = lanes.socialEligible;
 
 // _hold_review (2026-07-11): the merge guard HELD an extracted name (junk-looking or
 // typically-female lead) for manual MOOP-rubric review. Re-fetching would only re-extract
@@ -99,7 +71,7 @@ const socialEligible = c => hasWebsite(c) && !c.facebook && !c.youtube && !c.ins
 // for 5 days (500 rounds, zero net pastors).
 const eligible = churches.filter(c =>
   SOCIAL ? socialEligible(c)
-    : (fetchable(c) && !c._hold_review && (RETRY ? (alreadyAttempted(c) && noPastorStrikes(c) === 1) : !alreadyAttempted(c))));
+    : (RETRY ? lanes.retryEligible(c) : lanes.freshEligible(c)));
 eligible.sort((a, b) => String(a.id).localeCompare(String(b.id)));
 
 const mode = SOCIAL ? 'SOCIAL: website + no social link' : RETRY ? 'RETRY: one no-pastor strike' : 'never-attempted';

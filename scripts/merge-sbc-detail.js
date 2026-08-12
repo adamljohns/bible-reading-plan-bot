@@ -43,7 +43,12 @@ function main() {
     let r; try { r = JSON.parse(line); } catch (e) { continue; }
     const c = byId.get(r.id);
     if (!c) { missing++; continue; }
-    if (r.sbc_detail_error) { errored++; }
+    if (r.sbc_detail_error) {
+      errored++;
+      c._sbc_detail_failures = Number(c._sbc_detail_failures || 0) + 1;
+      c.sbc_detail_failed_at = r.sbc_detail_failed_at || new Date().toISOString();
+      c.sbc_detail_error = r.sbc_detail_error;
+    }
     // Apply website only if missing AND the URL actually has a host (the scraper
     // also guards this; defense in depth here in case an older JSONL still has
     // scheme-only artifacts).
@@ -63,7 +68,12 @@ function main() {
       c.phone = r.phone;
       addedPhone++;
     }
-    if (r.sbc_detail_fetched_at) c.sbc_detail_fetched_at = r.sbc_detail_fetched_at;
+    if (r.sbc_detail_fetched_at) {
+      c.sbc_detail_fetched_at = r.sbc_detail_fetched_at;
+      delete c._sbc_detail_failures;
+      delete c.sbc_detail_failed_at;
+      delete c.sbc_detail_error;
+    }
     applied++;
   }
   fs.writeFileSync(CHURCHES, JSON.stringify(data, null, 2));

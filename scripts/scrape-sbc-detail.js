@@ -18,6 +18,7 @@
 const fs = require('fs');
 const path = require('path');
 const https = require('https');
+const lanes = require('./lib/grind-lanes.js');
 
 const CHURCHES = path.join(__dirname, '..', 'docs', 'data', 'churches.json');
 const DEFAULT_JSONL = '/tmp/sbc-detail.jsonl';
@@ -90,17 +91,16 @@ async function main() {
     console.log(`Already in JSONL: ${alreadyDone.size}`);
   }
 
-  // Build queue: SBC records with sbc.net source_url and missing website
+  // Build queue from the same source-recovery predicate used by the controller
+  // and dashboard. Each result gets a fetched marker during merge, preventing
+  // repeated attempts against an exhausted source page.
   const stateFilter = args.state === 'ALL' ? null : args.state;
   const todo = [];
   for (const c of data.churches) {
-    if (!c.source_url || !c.source_url.includes('churches.sbc.net')) continue;
+    if (!lanes.sourceRecoveryEligible(c)) continue;
     const cid = c.id || c.slug;
     if (alreadyDone.has(cid)) continue;
-    // Skip if record already has BOTH website and lat/lng — nothing to add
-    const hasWebsite = c.website && /^https?:/i.test(c.website);
-    const hasGeo = typeof c.latitude === 'number' && typeof c.longitude === 'number';
-    if (hasWebsite && hasGeo) continue;
+
     if (stateFilter && !new RegExp(`,\\s*${stateFilter}\\b`).test(c.address || '')) continue;
     todo.push(c);
   }
@@ -137,7 +137,7 @@ async function main() {
       const got = [detail.website ? 'web' : null, detail.latitude ? 'geo' : null, detail.phone ? 'ph' : null].filter(Boolean).join('+') || 'no-data';
       console.log(`OK [${got}]`);
     } catch (e) {
-      fs.appendFileSync(args.jsonl, JSON.stringify({ id: cid, sbc_detail_fetched_at: new Date().toISOString(), sbc_detail_error: e.message.slice(0,60) }) + '\n');
+      fs.appendFileSync(args.jsonl, JSON.stringify({ id: cid, sbc_detail_failed_at: new Date().toISOString(), sbc_detail_error: e.message.slice(0,60) }) + '\n');
       fail++;
       console.log(`FAIL ${e.message}`);
     }

@@ -121,21 +121,12 @@ if [ "$N_BATCH" -eq 0 ] && [ "$N_FRESH_TRICKLE" -gt 0 ]; then
   N_BATCH=$(node -e 'console.log(require("'"$WORK"'/enrich-batch-1.json").length)' 2>/dev/null || echo 0)
 fi
 if [ "$N_BATCH" -eq 0 ]; then
-  # A dry pool is a successful terminal state, not a dead pipeline. Publish a
-  # zero-work heartbeat so the live report does not mistake "complete" for
-  # "stalled" and keep displaying the last productive round's stale pool count.
-  say "fresh, retry AND social pools all empty — grind complete, publishing heartbeat"
-  node scripts/append-grind-stats.js --mode complete --attempted 0 --found 0 \
-    >>"$LOG" 2>&1 || die "grind-stats completion heartbeat failed"
-  git add docs/data/grind-stats.json
-  git commit -qm "Local pastor refine: completion heartbeat (all enrichment pools dry)" \
-    || die "completion heartbeat commit failed"
-  if ! git push -q origin HEAD:main; then
-    say "heartbeat push rejected — rebasing onto fresh origin/main and retrying"
-    git fetch -q origin main && git rebase -q FETCH_HEAD && git push -q origin HEAD:main \
-      || die "heartbeat push failed after rebase retry"
-  fi
-  say "grind complete heartbeat pushed"
+  # The current extraction pass is exhausted, not the product. Hand the same
+  # single-writer lock/worktree to exactly one bounded frontier lane. Recovered
+  # websites re-enter the fresh pastor lane on the next scheduled round.
+  say "fresh, retry AND social pools empty — advancing to frontier enrichment"
+  /bin/bash scripts/continuous-enrichment-lane.sh "$WORK" "$LOG" \
+    || die "continuous frontier lane failed"
   exit 0
 fi
 POOL=$(grep -oE 'pastor-fetchable\): [0-9]+' "$WORK/selector.txt" | grep -oE '[0-9]+$' | head -1)
@@ -185,7 +176,7 @@ fs.writeFileSync(P,JSON.stringify({updated:new Date().toISOString().slice(0,10),
 # for the live before/after dashboard at usmcmin.org/grind-report.html. Records the
 # TOTAL remaining enrichment work (fresh+retry+social) + US coverage, not just the
 # current tier (so the dashboard never falsely shows "0 remaining").
-node scripts/append-grind-stats.js --mode "$MODE" --attempted "$N_BATCH" --found "$FOUND" \
+node scripts/append-grind-stats.js --mode "$MODE" --attempted "$N_BATCH" --found "$APPLIED" --applied "$APPLIED" \
   >>"$LOG" 2>&1 || say "grind-stats update failed (non-fatal)"
 node generate-church-pages.js >>"$LOG" 2>&1 \
   || { git reset -q --hard; die "regen failed — working tree reset"; }

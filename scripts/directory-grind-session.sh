@@ -48,8 +48,9 @@ while [ "$(date +%s)" -lt "$DEADLINE" ]; do
     FAILS=$((FAILS+1)); say "round FAILED (consecutive=$FAILS)"
     [ "$FAILS" -ge 2 ] && { say "two consecutive failures — ending early (alerts already sent)"; break; }
   fi
-  # pastor-refine-local.sh prints "grind complete" to its own log when both pools dry.
-  tail -6 "$HOME/Library/Logs/pastor-refine-local.log" 2>/dev/null | grep -q "grind complete" && { say "pools dry — nothing left to enrich, ending session early"; break; }
+  # Extraction-pool exhaustion now advances into bounded frontier lanes. Only a
+  # true monitoring heartbeat (no executable automated lane remains) ends early.
+  tail -8 "$HOME/Library/Logs/pastor-refine-local.log" 2>/dev/null | grep -q "frontier lane done: monitoring" && { say "automated lanes exhausted — review/dead-site queues remain"; break; }
   [ "$(date +%s)" -ge "$DEADLINE" ] && break
   say "cooldown ${COOLDOWN}s…"
   sleep "$COOLDOWN"

@@ -17,19 +17,17 @@ const http = require('http');
 const https = require('https');
 const { braveSearch } = require('./lib/brave.js');
 const { makeWriter } = require('./lib/format-preserving-write.js');
+const lanes = require('./lib/grind-lanes.js');
 
 const TODAY = new Date().toISOString().slice(0, 10);
 const arg = (k, d) => { const i = process.argv.indexOf(k); return i >= 0 && process.argv[i + 1] ? process.argv[i + 1] : d; };
 const COUNT = parseInt(arg('--count', '40'), 10);
 const APPLY = process.argv.includes('--apply');
+const ATTEMPT_LOG = arg('--attempt-log', '');
 
 const CHURCHES = path.join(__dirname, '..', 'docs', 'data', 'churches.json');
 const { data: d, write } = makeWriter(CHURCHES);
 
-const AB = new Set('AL AK AZ AR CA CO CT DE FL GA HI ID IL IN IA KS KY LA ME MD MA MI MN MS MO MT NE NV NH NJ NM NY NC ND OH OK OR PA RI SC SD TN TX UT VT VA WA WV WI WY DC'.split(' '));
-const isUS = c => AB.has(String(c.state || '').toUpperCase().trim());
-const isEnglish = n => typeof n === 'string' && !/[^\x00-\x7F]/.test(n);
-const hasSite = c => typeof c.website === 'string' && /^https?:\/\//i.test(c.website);
 
 // Domains that are directories/aggregators/socials — never "the church's website".
 const AGG = /facebook\.|instagram\.|twitter\.|x\.com|yelp\.|yellowpages\.|churchfinder\.|faithstreet\.|ag\.org|sbc\.net|thegospelcoalition|9marks\.|pcaac\.|opc\.org|lcms\.org|mapquest\.|tripadvisor\.|foursquare\.|manta\.|bbb\.org|wikipedia\.|linkedin\.|youtube\.|google\.|apple\.com|eventbrite\.|patch\.com|niche\.com|uschurches\.|churchangel\.|localchurchguide|findachurch|worshiptimes|tithe\.ly|subsplash\.com|churchcenter\.com|buzzfile\.|joinmychurch\.|crossmap\.|usachurches|church-?listing|churchreport|churches-?near|placeofworship|hometownlocator|city-data|homefacts|zoominfo|dnb\.com|opencorporates|chamberofcommerce|dexknows|superpages|citysearch|nextdoor\.|glassdoor|indeed\.|instagram|tiktok\.|pinterest\.|amazonaws\.com|wixsite\.com\/?$|godaddysites|weebly\.com\/?$|unitedstateschurches|churchspot|churchupdate|ourchurch\.com|find-?a-?church|churchusa|church-?directory|churchdb|\.gov\/|\.gov$|360\.org|updateourchurch|wheree\.|hub\.biz|\.hub\.|business\.site|cmac\.ws|edan\.io|elocal\.|americantowns|bizapedia|corporationwiki|company-target|mapcarta|reformedpresbyterian\.org|opc\.org|pcanet|topchurches|churchupdate|placedigger|n49\.|cylex|brownbook|ezlocal|expressupdate/i;
@@ -83,7 +81,7 @@ function fetchText(url, depth = 0) {
 const MATCH = arg('--match', ''); // optional NAME filter (e.g. --match "first baptist")
 const matchRe = MATCH ? new RegExp(MATCH, 'i') : null;
 const STATES_F = (arg('--states', '') || '').toUpperCase().split(',').map(s => s.trim()).filter(Boolean); // e.g. --states VA,DC,MD
-const eligible = d.churches.filter(c => !hasSite(c) && isEnglish(c.name) && isUS(c) && !c._website_searched
+const eligible = d.churches.filter(c => lanes.websiteDiscoveryEligible(c)
   && (!matchRe || matchRe.test(c.name))
   && (!STATES_F.length || STATES_F.includes(String(c.state || '').toUpperCase())))
   .sort((a, b) => String(a.id).localeCompare(String(b.id))).slice(0, COUNT);
@@ -96,6 +94,7 @@ let found = 0, none = 0;
     const city = cityOf(c), st = String(c.state || '').toUpperCase();
     const qName = String(c.name).replace(/,?\s*(inc\.?|incorporated|llc)\b/gi, '').replace(/\([^)]*\)/g, '').trim();
     let results = [];
+    if (ATTEMPT_LOG) fs.appendFileSync(ATTEMPT_LOG, `${TODAY}\t${c.id}\n`);
     try { results = await braveSearch(`${qName} ${city} ${st} church website`, { count: 8 }); }
     catch (e) { console.log(`  ! ${c.id}: Brave error ${e.message.slice(0, 60)}`); await sleep(1200); continue; }
 
