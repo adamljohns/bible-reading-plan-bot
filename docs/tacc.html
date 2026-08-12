@@ -11,7 +11,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
     <meta property="og:title" content="TACC Dashboard — U.S.M.C. Ministries">
-    <meta property="og:description" content="Daily command center for the Family SWO. Weather, calendar, markets, Airbnb, Bible, fitness, and action items.">
+    <meta property="og:description" content="Daily command center for the Family SWO. Weather, calendar, markets, Bible, fitness, and action items.">
     <meta property="og:image" content="https://usmcmin.org/assets/og/og-main.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
@@ -19,7 +19,7 @@
     <meta property="og:url" content="https://usmcmin.org/tacc.html">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="TACC Dashboard — U.S.M.C. Ministries">
-    <meta name="twitter:description" content="Daily command center for the Family SWO. Weather, calendar, markets, Airbnb, Bible, fitness, and action items.">
+    <meta name="twitter:description" content="Daily command center for the Family SWO. Weather, calendar, markets, Bible, fitness, and action items.">
     <meta name="twitter:image" content="https://usmcmin.org/assets/og/og-main.png">
     <title>TACC Dashboard — USMC Ministries</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -379,6 +379,10 @@
         }
         body.light-mode .site-icon { filter: brightness(0.6); }
 
+        /* Principal 2026-08-12 (SMT-0812-TACC1): quiet routine Sally/B&A on daily TACC.
+           Separate B&A dashboard later. Keep card markup for future restore; hide on screen. */
+        #card-airbnb { display: none !important; }
+
         /* ── Print-Optimized Layout ── */
         .print-only { display: none; }
         @media print {
@@ -618,20 +622,10 @@
           var card=document.getElementById('card-'+key);
           if(!card||!c) return;
           var a=ago(c.ts);
-          // Airbnb: render live reservation detail into the card brief (replaces the old static Apr-4 block)
+          // Airbnb/Sally routine telemetry QUIET on TACC (Principal 2026-08-12).
+          // Separate B&A dashboard later. Do not revive feed-driven reservation filler here.
           if(key==='airbnb'){
-            var ab=document.getElementById('airbnb-today-brief');
-            if(ab&&Array.isArray(c.rows)&&c.rows.length){
-              var rh=c.rows.map(function(r){
-                var st=(r.status||''); var sl=st.toLowerCase();
-                var co=sl.indexOf('host')>=0?'var(--gold)':(sl.indexOf('confirm')>=0?'var(--green)':'#aaa');
-                return '<div class="schedule-row"><span class="schedule-time">'+esc(st.replace('Currently ',''))+'</span><span class="schedule-event"><strong style="color:'+co+'">'+esc(r.guest)+'</strong> · '+esc(r.listing)+' · '+esc(r.checkin)+'→'+esc(r.checkout)+'</span></div>';
-              }).join('');
-              rh+='<div class="schedule-row" style="color:var(--gray);font-size:0.75rem;"><span class="schedule-time">Updated</span><span class="schedule-event">'+esc(c.stamp||a)+' · Sally ✓</span></div>';
-              ab.innerHTML=rh;
-            }
-            var bad=document.getElementById('airbnb-badge');
-            if(bad&&c.metrics&&c.metrics[0]) bad.textContent=c.metrics[0].value+' upcoming';
+            return;
           }
           var fresh=/m ago$|h ago$/.test(a); // <48h = fresh
           var color=(c.ok!==false&&fresh)?'var(--green,#4caf50)':'var(--gold,#d4af37)';
@@ -909,14 +903,14 @@
             </div>
         </div>
 
-        <!-- Airbnb -->
-        <div class="card" onclick="toggleCard(this)" id="card-airbnb">
+        <!-- Airbnb · QUIET on TACC 2026-08-12 (Principal: less Sally on daily TACC; separate B&A dashboard later). Hidden via CSS. -->
+        <div class="card" onclick="toggleCard(this)" id="card-airbnb" hidden aria-hidden="true">
             <div class="card-icon"><img src="assets/icons/shield-anchor.png" class="site-icon" alt="home" width="20" height="20"></div>
             <div class="card-title">Airbnb · Bow & Arrow</div>
-            <div class="card-badge" id="airbnb-badge">7 listings</div>
+            <div class="card-badge" id="airbnb-badge">quiet</div>
             <div class="card-brief" id="airbnb-brief">
                 <div id="airbnb-today-brief">
-                    <div style="color:var(--gray);font-size:0.85rem;">Loading reservations…</div>
+                    <div style="color:var(--gray);font-size:0.85rem;">B&A ops moved off daily TACC — exception/on-demand only.</div>
                 </div>
             </div>
             <div class="card-detail" id="airbnb-detail">
@@ -1047,7 +1041,7 @@
                 <div class="schedule-row"><span class="schedule-time">Machines</span><span class="schedule-event">MBP <img src="assets/icons/shield-star.png" class="site-icon" alt="star" width="20" height="20"> (gateway) · Mac Mini <img src="assets/icons/shield-gear.png" class="site-icon" alt="gear" width="20" height="20"> · iMac ⚠</span></div>
                 <div class="schedule-row"><span class="schedule-time">Google Accounts</span><span class="schedule-event">Personal <img src="assets/icons/shield-star.png" class="site-icon" alt="star" width="20" height="20"> · B&amp;A <img src="assets/icons/shield-star.png" class="site-icon" alt="star" width="20" height="20"> · USMC <img src="assets/icons/shield-star.png" class="site-icon" alt="star" width="20" height="20"> · fit20 <img src="assets/icons/shield-star.png" class="site-icon" alt="star" width="20" height="20"></span></div>
                 <div class="schedule-row"><span class="schedule-time">Budget</span><span class="schedule-event">20x Max plan (active) · 5x Max (standby for Thu) · Resets Sat 6AM</span></div>
-                <div class="schedule-row"><span class="schedule-time">Airbnb</span><span class="schedule-event">5 active listings · 5.00★ · Daily digest 9AM</span></div>
+                <div class="schedule-row"><span class="schedule-time">Airbnb</span><span class="schedule-event">B&A on separate dashboard path · exception/on-demand only</span></div>
                 <p style="color:var(--gray); font-size:0.75rem; margin-top:8px;">Live agent feed (tacc-feed.json) rebuilds every 30 min. Feed publishing is mid branch-reconciliation, so the "updated by" stamps on cards may lag until that lands — gold dots below mean the strip is older than 48h, not that the agent is down.</p>
                 <p style="color:var(--gray); font-size:0.8rem; margin-top:10px;">
                     <a href="bible.html" style="color:var(--gold);"><img src="assets/icons/shield-bible.png" class="site-icon" alt="bible" width="20" height="20"> MOOP Bible V5.2</a> ·
