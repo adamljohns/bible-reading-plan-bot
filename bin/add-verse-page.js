@@ -80,7 +80,33 @@ function rebuildIndex() {
   if (!re.test(idx)) throw new Error('index.html: listing block not found');
   idx = idx.replace(re, items.join('\n') + '\n');
   fs.writeFileSync(idxPath, idx);
-  return files.length;
+  return entries;
+}
+
+// Emit the verse→study map: docs/verse/studies.json plus the baked VERSE_STUDIES
+// object in bible.html (between VERSE-STUDIES-MAP markers) that powers the
+// "Go deeper" pill on covered verses. Range refs expand to one key per verse.
+function emitStudiesMap(entries) {
+  const map = {};
+  entries.forEach((e) => {
+    const m = e.ref.match(/^(.+?)\s+(\d+):(\d+)(?:[-–](\d+))?$/);
+    if (!m) return;
+    const b = BOOK_IDS[m[1].trim().toLowerCase()];
+    if (!b) return;
+    const v2 = m[4] ? parseInt(m[4], 10) : parseInt(m[3], 10);
+    for (let v = parseInt(m[3], 10); v <= v2; v++) map[`${b}:${m[2]}:${v}`] = e.f;
+  });
+  fs.writeFileSync(path.join(VERSE_DIR, 'studies.json'), JSON.stringify(map, null, 1));
+  const biblePath = path.join(ROOT, 'docs', 'bible.html');
+  let bh = fs.readFileSync(biblePath, 'utf8');
+  const re = /(\/\/ VERSE-STUDIES-MAP[^\n]*\n)[\s\S]*?(\n[ \t]*\/\/ \/VERSE-STUDIES-MAP)/;
+  if (re.test(bh)) {
+    bh = bh.replace(re, (_, a, z) => `${a}        var VERSE_STUDIES = ${JSON.stringify(map)};${z}`);
+    fs.writeFileSync(biblePath, bh);
+    console.log(`bible.html VERSE_STUDIES: ${Object.keys(map).length} verse keys baked.`);
+  } else {
+    console.log('bible.html: VERSE-STUDIES-MAP markers not found — map not baked.');
+  }
 }
 
 const refs = process.argv.slice(2);
@@ -90,5 +116,6 @@ if (refs.length) {
   execFileSync('node', [path.join(__dirname, 'generate-verse-pages.js')], { stdio: 'inherit' });
 }
 // Index rebuild runs after the bake so snippets read the fresh meta descriptions.
-const n = rebuildIndex();
-console.log(`index.html rebuilt: ${n} verse pages listed.`);
+const entries = rebuildIndex();
+console.log(`index.html rebuilt: ${entries.length} verse pages listed.`);
+emitStudiesMap(entries);
