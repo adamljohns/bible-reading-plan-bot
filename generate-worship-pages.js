@@ -973,13 +973,14 @@ const INDEX_CSS = `
         .no-results { text-align:center; color:var(--gray); padding:40px 20px; display:none; }`;
 
 function indexPage(songs, slidesCount) {
-  // Hero counts reflect the WORSHIP directory (the default view) — songs the
-  // audit marked non-worship are excluded here, though still searchable.
-  const shown = songs.filter(s => !isOtherSong(s));
-  const total = shown.length;
-  const praise = shown.filter(s => s.type === 'praise' && !s.christmas).length;
-  const tabs = shown.filter(s => s.type === 'tab').length;
-  const xmas = shown.filter(s => s.christmas).length;
+  // Full Christian songbook by default (Adam, 8/12): the hero counts EVERYTHING,
+  // split honestly into worship vs Christian contemporary; the "Worship only"
+  // chip narrows to congregational worship on demand.
+  const total = songs.length;
+  const worshipCount = songs.filter(s => !isOtherSong(s)).length;
+  const praise = songs.filter(s => s.type === 'praise' && !s.christmas).length;
+  const tabs = songs.filter(s => s.type === 'tab').length;
+  const xmas = songs.filter(s => s.christmas).length;
   // Lightweight client index:
   // [slug, title, type(p/t), christmas(0/1), letter, key, artist, score, wellKnown(0/1), isOther(0/1), themes[]]
   const idx = songs.map(s => [s.slug, s.title, s.type === 'tab' ? 't' : 'p', s.christmas ? 1 : 0,
@@ -990,7 +991,7 @@ function indexPage(songs, slidesCount) {
   const otherCount = songs.filter(isOtherSong).length;
 
   return `${pageHead('Worship — Chords & Lyrics | USMC Ministries',
-      'A searchable library of ' + total + ' worship songs with chords charted over the lyrics — the ultimate worship leader resource. Praise & worship, guitar tabs, and Christmas songs.',
+      'A searchable library of ' + total + ' Christian songs with chords charted over the lyrics — praise & worship, Christian contemporary, guitar tabs, and Christmas.',
       'worship.html', 0)}
     <style>${BASE_CSS}${INDEX_CSS}</style>
 </head>
@@ -999,7 +1000,7 @@ function indexPage(songs, slidesCount) {
     <div class="hero">
         <img src="assets/icons/shield-quill-note-96.png" alt="Worship" width="84" height="84">
         <h1>Worship Songbook</h1>
-        <p>Chords charted right over the words — the way they should be. <span class="stat">${total}</span> songs from decades of leading worship: <span class="stat">${praise}</span> praise &amp; worship, <span class="stat">${tabs}</span> guitar tabs, <span class="stat">${xmas}</span> Christmas. Transpose to any key, hide the chords, print a clean sheet.</p>
+        <p>Chords charted right over the words — the way they should be. <span class="stat">${total}</span> songs from decades of leading worship: <span class="stat">${worshipCount}</span> worship &amp; praise, <span class="stat">${otherCount}</span> Christian contemporary &amp; rock, <span class="stat">${xmas}</span> Christmas. Transpose to any key, hide the chords, print a clean sheet.</p>
         ${slidesCount ? `<p style="margin-top:12px;"><a href="worship-slides.html" style="color:var(--gold);text-decoration:none;font-weight:600;">📽 Projection slides library</a> &middot; <span class="stat">${slidesCount}</span> lyric decks (PDF)</p>` : ''}
         <p style="margin-top:6px;"><a href="worship-setlist.html" style="color:var(--gold);text-decoration:none;font-weight:600;">🗒 Set List Builder</a> &middot; build, share &amp; print a worship set</p>
     </div>
@@ -1021,7 +1022,7 @@ function indexPage(songs, slidesCount) {
             <button class="ctrl-btn active" data-sort="az" onclick="setSort('az')">A–Z</button>
             <button class="ctrl-btn" data-sort="pop" onclick="setSort('pop')">Best known</button>
             <button class="ctrl-btn wk-toggle" id="wkBtn" onclick="toggleWK()" title="Hide deep cuts — show only songs with a video or slides">★ Well-known only (${wkCount})</button>
-            <button class="ctrl-btn wk-toggle active" id="woBtn" onclick="toggleWorship()" title="Hide ${otherCount} non-worship rock/alt charts from the archive">🎵 Worship only</button>
+            <button class="ctrl-btn wk-toggle" id="woBtn" onclick="toggleWorship()" title="Show only the ${worshipCount} congregational worship songs">🎵 Worship only</button>
         </div>
         <div class="theme-row" id="themeRow"></div>
         <div class="alpha-bar" id="alpha"></div>
@@ -1035,7 +1036,7 @@ function indexPage(songs, slidesCount) {
     <script>
     var SONGS=${JSON.stringify(idx)};
     var THEME_DEFS=${JSON.stringify(themeDefs)};
-    var PAGE=120, shown=PAGE, filter='all', letter='', term='', sort='az', wkOnly=false, worshipOnly=true, theme='', LYR=null;
+    var PAGE=120, shown=PAGE, filter='all', letter='', term='', sort='az', wkOnly=false, worshipOnly=false, theme='', LYR=null;
     var OTHER_TOTAL=SONGS.filter(function(s){return s[9];}).length;
     var grid=document.getElementById('grid'), countEl=document.getElementById('count'),
         moreEl=document.getElementById('more'), nr=document.getElementById('noResults');
