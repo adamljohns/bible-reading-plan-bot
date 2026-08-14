@@ -59,10 +59,32 @@
     btn.title = 'Print/PDF — dense cream paper, charcoal text, bronze accents (one-page study sheet when possible)';
     btn.innerHTML = '<span class="pk-icon" aria-hidden="true">🖨</span><span>Print / PDF</span>';
     btn.addEventListener('click', function () {
+      var href = window.location && window.location.href ? window.location.href : '';
+      var path = window.location && window.location.pathname ? window.location.pathname : '';
+      var isTelegram = /Telegram/i.test(navigator.userAgent || '') || /\bWV\b/.test(navigator.userAgent || '');
+      var canPrint = typeof window.print === 'function';
+      var pdfHref = '';
+      if (path.indexOf('/blog/the-easy-yoke-is-not-an-easy-exit') !== -1) {
+        pdfHref = '/assets/blog/the-easy-yoke-is-not-an-easy-exit.pdf';
+      }
+      // Telegram / in-app browsers swallow window.print(). Open a cream print view,
+      // and offer a static PDF when this page has one.
+      if (!canPrint || isTelegram) {
+        if (pdfHref) {
+          window.location.href = pdfHref;
+          return;
+        }
+        var next = href.split('#')[0];
+        next += (next.indexOf('?') === -1 ? '?' : '&') + 'print=1';
+        window.location.href = next;
+        return;
+      }
       var hadLight = document.body.classList.contains('light-mode');
       if (!hadLight) document.body.classList.add('light-mode');
       window.setTimeout(function () {
-        window.print();
+        try { window.print(); } catch (e) {
+          if (pdfHref) window.location.href = pdfHref;
+        }
         if (!hadLight) document.body.classList.remove('light-mode');
       }, 30);
     });
