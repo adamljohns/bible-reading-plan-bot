@@ -428,7 +428,7 @@
             <button class="pin-key" onclick="pinKey('8')">8</button>
             <button class="pin-key" onclick="pinKey('9')">9</button>
             <button class="pin-key" onclick="pinKey('0')" style="grid-column:2">0</button>
-            <button class="pin-key del" onclick="pinDel()">&#9003;</button>
+            <button class="pin-key del" onclick="pinDel()">⌫</button>
         </div>
         <div class="pin-error" id="pin-error"></div>
     </div>
@@ -437,12 +437,12 @@
 <div id="main-content" style="display:none">
     <div class="page-header">
         <h1>🗄 Workflow Archive</h1>
-        <div class="subtitle">Completed &amp; retired flight plans &mdash; <span id="arch-count">0</span> archived</div>
+        <div class="subtitle">Completed & retired flight plans — <span id="arch-count">0</span> archived</div>
     </div>
     <nav class="nav-links">
-        <a href="workflows.html" class="nav-link">&larr; Active Board</a>
-        <a href="tacc.html" class="nav-link">&#9875; Captain's Wheelhouse</a>
-        <a href="index.html" class="nav-link">&#127968; Home</a>
+        <a href="workflows.html" class="nav-link">← Active Board</a>
+        <a href="tacc.html" class="nav-link">⚓ Captain's Wheelhouse</a>
+        <a href="index.html" class="nav-link">🏠 Home</a>
     </nav>
     <div class="workflow-grid" id="archive-grid"></div>
 </div>
@@ -478,14 +478,14 @@ function renderArchive(){
     const arch=MERGED.filter(w=>w.archived);
     document.getElementById('arch-count').textContent=arch.length;
     const grid=document.getElementById('archive-grid');
-    if(!arch.length){ grid.innerHTML='<div style="grid-column:1/-1; text-align:center; color:var(--gray); padding:48px 20px;">Nothing archived yet. Complete a workflow on the board and tap &#128451; Archive to retire it here.</div>'; return; }
+    if(!arch.length){ grid.innerHTML='<div style="grid-column:1/-1; text-align:center; color:var(--gray); padding:48px 20px;">Nothing archived yet. Complete a workflow on the board and tap 🗃 Archive to retire it here.</div>'; return; }
     grid.innerHTML=arch.map(w=>{
         const st=STATUS_LABELS[w.status]||STATUS_LABELS.complete;
         const steps=w.steps.map((s,i)=>'<li class="step-item '+(i<w.currentStep?'step-done':'')+'"><div class="step-num">'+(i+1)+'</div><div class="step-body"><div class="step-name">'+s.name+'</div></div></li>').join('');
         return '<div class="workflow-card expanded">'
           +'<div class="card-header"><div class="card-icon">'+w.icon+'</div><div class="card-meta"><div class="card-title">'+w.title+'</div><div class="card-category">'+w.category+'</div></div><div class="status-badge '+st.cls+'">'+st.icon+' '+st.label+'</div></div>'
           +'<ul class="steps-list">'+steps+'</ul>'
-          +'<div class="card-actions"><button onclick="unarchive(\''+w.id+'\')" style="background:transparent; border:1px solid var(--border); color:var(--gray-light); border-radius:8px; padding:7px 14px; cursor:pointer; font-size:0.82rem; font-family:\'Inter\',sans-serif;">&#8617; Restore to board</button></div>'
+          +'<div class="card-actions"><button onclick="unarchive(\''+w.id+'\')" style="background:transparent; border:1px solid var(--border); color:var(--gray-light); border-radius:8px; padding:7px 14px; cursor:pointer; font-size:0.82rem; font-family:\'Inter\',sans-serif;">↩ Restore to board</button></div>'
           +'</div>';
     }).join('');
 }
