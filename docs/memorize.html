@@ -65,8 +65,7 @@ select{font:inherit;background:var(--bg-raise);color:var(--white);border:1px sol
 .pack .meta{font-size:.7rem;color:var(--gold);letter-spacing:.08em;text-transform:uppercase}
 
 /* The card. Flip is a real 3D rotate so the "check yourself" beat feels like
-   turning a physical card over, which is the motion every man in the thread
-   already performs with an index card. */
+   turning a physical card over — the motion an index card already teaches. */
 .card-outer{perspective:1200px;margin:1rem 0}
 .card{position:relative;transform-style:preserve-3d;-webkit-transform-style:preserve-3d;
   transition:transform .5s cubic-bezier(.4,0,.2,1);min-height:210px}
@@ -128,10 +127,9 @@ footer{border-top:1px solid var(--border);margin-top:2.5rem;padding-top:1rem;
   font-size:.78rem;white-space:pre-wrap;color:var(--gray)}
 
 /* ---------- printable cards ------------------------------------------- */
-/* Two of the men who actually keep a practice use index cards, and one said
-   plainly that paper beats his phone. So the tool's job is to make a better
-   card, not to argue him out of carrying one. 3x5 at real size, cut lines,
-   reference fore and aft exactly as it is drilled. */
+/* Many who keep a real practice use index cards and find paper beats a phone.
+   The tool's job is to make a better card, not to argue anyone out of carrying
+   one. 3x5 at real size, cut lines, reference fore and aft as drilled. */
 .sheet{display:none}
 @media print{
   @page{margin:.4in}
@@ -191,6 +189,8 @@ footer{border-top:1px solid var(--border);margin-top:2.5rem;padding-top:1rem;
       Start review &mdash; <span id="dueLabel">nothing due</span>
     </button>
 
+    <button id="btnBrowse" style="width:100%;margin-bottom:.6rem">Browse verses &amp; build a stack</button>
+
     <div class="row" style="margin-bottom:1.25rem">
       <button id="btnPrint">Print cards</button>
       <button id="btnShare">Share progress</button>
@@ -200,6 +200,44 @@ footer{border-top:1px solid var(--border);margin-top:2.5rem;padding-top:1rem;
 
     <h2 style="font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:.6rem">Packs</h2>
     <div id="packs"></div>
+  </section>
+
+  <!-- ============ BROWSE ============ -->
+  <!-- Reading before committing. Nothing here grades you and nothing enters the
+       stack until you add it, so a man can look through every verse first. -->
+  <section id="browse" class="hidden">
+    <div class="row spread" style="margin-bottom:.5rem">
+      <button class="ghost" id="btnBrowseBack">&larr; Done</button>
+      <span class="muted" id="browseCount"></span>
+    </div>
+
+    <div class="row" style="margin-bottom:.75rem">
+      <select id="browsePack" aria-label="Which verses to browse"></select>
+    </div>
+
+    <div class="card-outer">
+      <div class="card" id="bcard">
+        <div class="sizer" aria-hidden="true">
+          <div class="ref">&nbsp;</div><div class="vtext" id="bSizer"></div><div class="ref aft">&nbsp;</div>
+        </div>
+        <div class="face front">
+          <div class="ref" id="bRefFore"></div>
+          <div class="vtext" id="bText"></div>
+          <div class="ref aft" id="bRefAft"></div>
+        </div>
+        <div class="face back"></div>
+      </div>
+    </div>
+
+    <div class="row spread">
+      <div class="row">
+        <button id="btnPrev">&larr; Prev</button>
+        <button id="btnNextV">Next &rarr;</button>
+      </div>
+      <button id="btnListenB">Listen</button>
+    </div>
+    <button class="primary" id="btnAdd" style="width:100%;margin-top:.7rem">Add to my stack</button>
+    <p class="muted" style="margin-top:.6rem">Your stack lives on this device. Nothing is shared and no name is attached to it.</p>
   </section>
 
   <!-- Rendered only for print. Filled on demand so the DOM stays light. -->
@@ -259,7 +297,7 @@ footer{border-top:1px solid var(--border);margin-top:2.5rem;padding-top:1rem;
 
     <div class="row" style="margin-top:.6rem">
       <button class="primary" id="btnCheck">Check</button>
-      <button class="ghost" id="btnSkip">Skip</button>
+      <button class="ghost" id="btnSkip">Next &rarr;</button>
     </div>
 
     <div id="result" class="hidden"></div>
@@ -284,7 +322,7 @@ let S=Object.assign({cards:{},streak:0,lastDay:null,tr:'KJV',mins:7},load());
 const today=()=>new Date().toLocaleDateString('en-CA');
 const dayNum=d=>Math.floor(new Date(d+'T00:00:00').getTime()/864e5);
 
-/* A card lives in one of two review buckets, per Adam: daily, then weekly.
+/* A card lives in one of two review buckets: daily, then weekly.
    No monthly tier — a verse you only see twelve times a year is not chambered. */
 function card(slug){
   return S.cards[slug] || (S.cards[slug]={bucket:'daily',due:today(),best:0,reps:0,passedTo:''});
@@ -297,7 +335,7 @@ function schedule(c,pct){
   }else if(pct>=80){                  // close enough to hold its place
     d.setDate(d.getDate()+(c.bucket==='weekly'?7:1));
   }else{
-    /* Soft demotion (Adam's call): a weekly verse drops back to daily rather
+    /* Soft demotion: a weekly verse drops back to daily rather
        than losing all its history. Never resets reps or best. */
     c.bucket='daily'; d.setDate(d.getDate()+1);
   }
@@ -330,7 +368,7 @@ function align(want,got){
 
 /* Split what the man said into reference / verse / reference. He may give the
    reference fore only, or neither; a missing reference costs points but never
-   fails the verse outright (Adam: "no — percentage wise"). */
+   fails the verse outright — it is scored, not failed. */
 function splitAttempt(raw,ref){
   const rx=new RegExp(ref.replace(/[.*+?^${}()|[\]\\]/g,'\\$&').replace(/\s+/g,'\\s*'),'ig');
   const hits=[...raw.matchAll(rx)];
@@ -406,7 +444,12 @@ function paint(){
 }
 
 function renderPacks(){
-  $('packs').innerHTML=PACKS.map(p=>{
+  /* Verses added by hand are their own drillable set, listed first. */
+  const mine=allVerses().filter(v=>S.cards[v.slug]);
+  const stackCard = mine.length ? `<div class="pack" data-pack="__stack" role="button" tabindex="0">
+      <h3>My Stack</h3><p>Everything you have added or started, in one place.</p>
+      <div class="meta">${mine.length} verse${mine.length===1?'':'s'}</div></div>` : '';
+  $('packs').innerHTML=stackCard+PACKS.map(p=>{
     const started=p.verses.filter(v=>S.cards[v.slug]).length;
     return `<div class="pack" data-pack="${p.id}" role="button" tabindex="0">
       <h3>${esc(p.name)}</h3><p>${esc(p.blurb)}</p>
@@ -420,9 +463,14 @@ function renderPacks(){
 
 /* ---------- session ---------------------------------------------------- */
 function startPack(id){
+  if(id==='__stack'){
+    queue=allVerses().filter(v=>S.cards[v.slug]).slice(0,20);
+    if(queue.length) begin();
+    return;
+  }
   const p=PACKS.find(x=>x.id===id);
   /* A passage pack is presented in order and in chunks of five so a man
-     extends the way Ward does, rather than facing 16 verses at once. */
+     extends a passage gradually, rather than facing 16 verses at once. */
   const notSolid=p.verses.filter(v=>!S.cards[v.slug]||S.cards[v.slug].bucket!=='weekly');
   queue=(p.mode==='passage'? notSolid.slice(0,5) : notSolid).slice(0,20);
   if(!queue.length) queue=p.verses.slice(0,5);
@@ -505,8 +553,8 @@ function check(){
   $('btnNext').onclick=()=>{ qi++; (Date.now()>endAt||qi>=queue.length)?finish():show(); };
   $('btnAgain').onclick=()=>{ $('answer').value=''; $('result').classList.add('hidden');
                               $('card').classList.remove('flipped'); $('answer').focus(); };
-  /* Kenny hands a finished card to his daughter so she can challenge him on it.
-     Recording who holds a verse keeps that accountability inside the tool. */
+  /* A finished card is often handed to a family member who then challenges you
+     on it. Recording who holds a verse keeps that accountability in the tool. */
   $('btnPass').onclick=()=>{
     const who=prompt('Passed to whom? (they hold the card and challenge you on it)',c.passedTo||'');
     if(who!==null){ c.passedTo=who.trim(); save(S);
@@ -534,11 +582,54 @@ function initVoice(){
   $('btnSpeak').onclick=()=>{ try{ $('btnSpeak').textContent==='Stop'?recog.stop():recog.start(); }catch(e){} };
 }
 
+/* ---------- browse + stack ---------------------------------------------- */
+/* Browsing is deliberately separate from drilling. Skip used to be the only way
+   past a verse, which meant the only way to see what a pack held was to be
+   graded on it. Here Next just turns the page. */
+let bList=[], bi=0;
+
+function openBrowse(){
+  const sel=$('browsePack');
+  sel.innerHTML='<option value="*">All verses</option>'
+    + PACKS.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('');
+  sel.onchange=()=>{ bi=0; loadBrowse(); };
+  bi=0; loadBrowse();
+  $('home').classList.add('hidden'); $('browse').classList.remove('hidden');
+}
+function loadBrowse(){
+  const id=$('browsePack').value;
+  bList = id==='*' ? allVerses() : (PACKS.find(p=>p.id===id)?.verses||[]);
+  showBrowse();
+}
+function showBrowse(){
+  const v=bList[bi]; if(!v) return;
+  const t=verseText(v);
+  $('bRefFore').textContent=v.ref; $('bRefAft').textContent=v.ref;
+  $('bText').textContent=t; $('bSizer').textContent=t;
+  $('browseCount').textContent=`${bi+1} of ${bList.length}`;
+  const inStack=!!S.cards[v.slug];
+  $('btnAdd').textContent=inStack?'In your stack — remove':'Add to my stack';
+  $('btnAdd').classList.toggle('primary',!inStack);
+}
+function stepBrowse(d){
+  if(!bList.length) return;
+  bi=(bi+d+bList.length)%bList.length;   // wraps, so Next never dead-ends
+  showBrowse();
+}
+/* Adding is what creates a card. Before this, a verse only entered the stack by
+   being graded, so there was no way to say "I want this one" without a test. */
+function toggleStack(){
+  const v=bList[bi]; if(!v) return;
+  if(S.cards[v.slug]) delete S.cards[v.slug];
+  else card(v.slug);
+  save(S); showBrowse(); paint(); renderPacks();
+}
+
 /* ---------- listen ------------------------------------------------------ */
-/* Versify ships a listen mode and it is the one thing a man can use driving.
-   SpeechSynthesis is on-device, so this costs nothing and works offline. */
-function listen(){
-  const v=cur(); if(!v||!window.speechSynthesis) return;
+/* Listen mode is the one thing usable while driving. SpeechSynthesis is
+   on-device, so it costs nothing and works offline. */
+function listen(v){
+  v = v || cur(); if(!v||!window.speechSynthesis) return;
   speechSynthesis.cancel();
   const u=new SpeechSynthesisUtterance(`${v.ref}. ${verseText(v)}. ${v.ref}.`);
   u.rate=.92; speechSynthesis.speak(u);
@@ -576,8 +667,7 @@ function printCards(){
 }
 
 /* ---------- share -------------------------------------------------------- */
-/* Adam was ambivalent about men looking in on each other, so this pushes a
-   summary he chooses to send rather than standing up a server that watches
+/* A summary the user chooses to send, rather than a server that watches
    everybody. Nothing leaves the device unless he taps share. */
 function shareText(){
   const cards=Object.entries(S.cards);
@@ -630,10 +720,16 @@ function fireNudge(force){
 }
 
 /* ---------- wiring ----------------------------------------------------- */
+$('btnBrowse').onclick=openBrowse;
+$('btnBrowseBack').onclick=()=>{ $('browse').classList.add('hidden'); $('home').classList.remove('hidden'); };
+$('btnPrev').onclick=()=>stepBrowse(-1);
+$('btnNextV').onclick=()=>stepBrowse(1);
+$('btnAdd').onclick=toggleStack;
+$('btnListenB').onclick=()=>listen(bList[bi]);
 $('btnPrint').onclick=printCards;
 $('btnShare').onclick=share;
 $('btnNudge').onclick=nudge;
-$('btnListen').onclick=listen;
+$('btnListen').onclick=()=>listen();
 $('btnFlag').onclick=toggleFlag;
 document.querySelectorAll('[data-step]').forEach(b=>b.onclick=()=>setStep(b.dataset.step));
 document.querySelectorAll('[data-blank]').forEach(b=>b.onclick=()=>{

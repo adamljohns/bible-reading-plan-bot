@@ -21,7 +21,7 @@ const CACHE = path.join(REPO, 'docs/assets/verse-cache.json');
 const OUT = path.join(REPO, 'docs/data/memory-packs.json');
 
 /* Translations offered for memorization. KJV first: it is public domain and is
-   what Adam memorized under the Navigators. The rest ride along because BTE
+   the text the Navigators method was built on. The rest ride along because BTE
    already serves them from this same cache. */
 const TRANSLATIONS = ['KJV', 'ESV', 'NKJV', 'NASB', 'NIV', 'NLT', 'CSB17', 'WEB'];
 
@@ -45,8 +45,8 @@ const FULLNAME = {
 };
 
 /* A pack is an ordered list. `mode:'verse'` drills each entry on its own;
-   `mode:'passage'` still grades verse by verse (Adam's call) but presents them
-   in sequence so a man can extend the way Ward works Matthew 5-7. */
+   `mode:'passage'` still grades verse by verse but presents them in sequence so
+   a long passage can be extended a chunk at a time. */
 const PACKS = [
   {
     id: 'in-the-chamber',
@@ -72,8 +72,11 @@ const PACKS = [
     id: 'the-gospel-unashamed',
     name: 'Unashamed',
     mode: 'verse',
-    blurb: "Kenny's card. The gospel you are not ashamed of, and the righteousness that comes by faith.",
-    refs: ['Rom 1:16','Rom 1:17','1Pe 3:15','Mat 28:19','Mat 28:20','Act 1:8'],
+    blurb: 'The gospel you are not ashamed of, and the righteousness that comes by faith.',
+    /* Ranges are one card. Some verses only preach as a pair — Romans 1:16
+       without 17 loses the "for therein", and the Great Commission is one
+       sentence — so they are drilled the way they are quoted. */
+    refs: ['Rom 1:16-17','1Pe 3:15','Mat 28:19-20','Act 1:8'],
   },
   {
     id: 'family-captain',
@@ -87,7 +90,7 @@ const PACKS = [
     id: 'sermon-on-the-mount',
     name: 'Sermon on the Mount',
     mode: 'passage',
-    blurb: "Ward's long haul. Matthew 5 start to finish, a chunk at a time.",
+    blurb: 'The long haul. Matthew 5 start to finish, a chunk at a time.',
     refs: Array.from({ length: 16 }, (_, i) => `Mat 5:${i + 1}`),
   },
 ];
@@ -122,15 +125,22 @@ function assertClean(ref, tr, text) {
     throw new Error(`${ref} ${tr}: KJV margin note survived -> ${text.slice(-60)}`);
 }
 
+/* "Rom 1:16" or "Rom 1:16-17". A range is ONE card: some verses only preach as
+   a pair, and a man quotes them together, so he should drill them together. */
 function parseRef(ref) {
-  const m = ref.match(/^(\d?[A-Za-z]+)\s+(\d+):(\d+)$/);
+  const m = ref.match(/^(\d?[A-Za-z]+)\s+(\d+):(\d+)(?:-(\d+))?$/);
   if (!m) throw new Error(`bad ref: ${ref}`);
   const bn = BOOKNUM[m[1]];
   if (!bn) throw new Error(`unknown book in ref: ${ref}`);
-  return { key: `${bn}_${m[2]}_${m[3]}`, book: m[1], ch: +m[2], v: +m[3] };
+  const from = +m[3], to = m[4] ? +m[4] : from;
+  if (to < from) throw new Error(`reversed range: ${ref}`);
+  const keys = [];
+  for (let v = from; v <= to; v++) keys.push(`${bn}_${m[2]}_${v}`);
+  return { keys, book: m[1], ch: +m[2], from, to };
 }
 
-const display = (p) => `${FULLNAME[p.book] || p.book} ${p.ch}:${p.v}`;
+const display = (p) =>
+  `${FULLNAME[p.book] || p.book} ${p.ch}:${p.from}${p.to > p.from ? `-${p.to}` : ''}`;
 
 function main() {
   console.log('reading verse cache (49 MB)…');
@@ -143,20 +153,21 @@ function main() {
     const verses = [];
     for (const ref of pack.refs) {
       const p = parseRef(ref);
-      const entry = cache[p.key];
-      if (!entry) { console.warn(`  MISS ${ref}`); missing++; continue; }
+      const entries = p.keys.map(k => cache[k]);
+      if (entries.some(e => !e)) { console.warn(`  MISS ${ref}`); missing++; continue; }
 
       const text = {};
       for (const t of TRANSLATIONS) {
-        const raw = (entry[t] || '').trim();
-        if (!raw) continue;
-        const cleaned = cleanVerse(raw);
+        const parts = entries.map(e => (e[t] || '').trim());
+        if (parts.some(x => !x)) continue;      // all-or-nothing per translation
+        const cleaned = parts.map(cleanVerse).join(' ');
         assertClean(ref, t, cleaned);
         text[t] = cleaned;
       }
       if (!text.KJV) { console.warn(`  MISS KJV ${ref}`); missing++; continue; }
 
-      verses.push({ ref: display(p), slug: `${p.book}-${p.ch}-${p.v}`.toLowerCase(), text });
+      verses.push({ ref: display(p),
+        slug: `${p.book}-${p.ch}-${p.from}${p.to > p.from ? `-${p.to}` : ''}`.toLowerCase(), text });
     }
     out.packs.push({ id: pack.id, name: pack.name, mode: pack.mode, blurb: pack.blurb, verses });
     console.log(`  ${pack.name.padEnd(24)} ${verses.length}/${pack.refs.length} verses`);
