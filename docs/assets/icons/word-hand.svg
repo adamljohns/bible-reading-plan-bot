@@ -1,35 +1,111 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 420" role="img" aria-labelledby="whTitle whDesc">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 596" role="img" aria-labelledby="whTitle whDesc">
   <title id="whTitle">The Word Hand</title>
-  <desc id="whDesc">Original USMC-styled Word Hand. Pinky hear, ring read, middle study, index memorize, thumb meditate. Not a NavPress scan.</desc>
-  <rect width="360" height="420" fill="#000"/>
-  <!-- palm -->
-  <path d="M132 248c0 58 34 96 72 96s72-38 72-96v-58H132v58z" fill="#111" stroke="#D4AF37" stroke-width="2.4"/>
-  <!-- pinky HEAR -->
-  <g class="finger" data-part="pinky" tabindex="0" role="button" aria-label="Hearing — pinky">
-    <rect x="136" y="148" width="26" height="108" rx="13" fill="#171717" stroke="#D4AF37" stroke-width="2"/>
-    <text x="149" y="132" text-anchor="middle" fill="#D4AF37" font-size="11" font-family="system-ui,sans-serif" font-weight="700">HEAR</text>
+  <desc id="whDesc">Original U.S.M.C. Ministries drawing of the Word Hand. Left hand, palm forward. Pinky hearing, ring reading, middle studying, index memorizing, thumb meditating — the thumb touches every finger. Not a NavPress scan.</desc>
+
+  <!-- Themed so the drawing survives a light background. --dia-ink is the
+       linework, --dia-fill the body. Fallbacks keep the file correct when it is
+       opened on its own, outside the page. -->
+  <style>
+    .hand   { fill: var(--dia-fill, #101010); stroke: var(--dia-ink, #D4AF37);
+              stroke-width: 2.8; stroke-linejoin: round; stroke-linecap: round; }
+    .crease { stroke: var(--dia-accent, #8a6f22); fill: none; stroke-linecap: round; }
+    .lbl    { fill: var(--dia-ink, #D4AF37); font-family: "Playfair Display", Georgia, "Times New Roman", serif;
+              font-weight: 700; letter-spacing: .05em; }
+    .sub    { fill: var(--dia-muted, #8a8a8a); font-family: Inter, system-ui, sans-serif;
+              font-weight: 600; font-size: 12px; letter-spacing: .04em; }
+    .lead   { stroke: var(--dia-accent, #8a6f22); stroke-width: 1; opacity: .5; fill: none; }
+    /* Hit shapes are invisible until chosen; then a quiet gold wash. No bounce. */
+    .hit    { fill: transparent; stroke: none; cursor: pointer; }
+    [data-part].is-on .hit { fill: var(--dia-on, rgba(212,175,55,.16)); }
+    [data-part].is-on .lbl { fill: var(--dia-ink-on, #F4D470); }
+  </style>
+
+  <!-- ================= THE HAND =================
+       One continuous outline: wrist, up the pinky side, around each finger with
+       a web between, out over the thumb, back to the wrist. Drawing it as a
+       single path is what removes the hard horizontal knuckle line that made
+       the first attempt read as a bucket with five rectangles standing in it. -->
+  <path class="hand" d="
+    M156 540
+    C140 500 128 438 126 372
+    C125 350 124 330 124 312
+    C124 262 126 240 129 224
+    C131 209 143 201 154 204
+    C164 207 168 217 167 229
+    C165 251 164 292 165 338
+    C170 346 176 346 181 338
+    C179 292 180 236 183 206
+    C185 190 197 182 208 185
+    C218 188 222 198 221 210
+    C219 240 218 292 219 340
+    C224 348 230 348 235 340
+    C233 288 234 222 237 190
+    C239 173 251 165 263 168
+    C273 171 277 181 276 194
+    C274 226 273 288 274 342
+    C279 350 285 350 290 342
+    C288 296 289 244 292 216
+    C294 200 306 192 317 195
+    C327 198 331 208 330 220
+    C328 248 327 296 329 340
+    C338 356 352 366 368 372
+    C386 379 404 372 414 358
+    C424 344 440 342 448 352
+    C456 362 452 378 440 390
+    C412 418 384 442 360 456
+    C352 484 340 516 328 540
+    C300 556 184 556 156 540 Z"/>
+
+  <!-- Joint creases. Two per finger reads as a knuckle; three reads as a diagram. -->
+  <g class="crease" stroke-width="1.6" opacity=".85">
+    <path d="M127 300 C136 296 156 296 165 300"/>
+    <path d="M128 262 C137 258 157 258 166 262"/>
+    <path d="M182 288 C191 284 212 284 221 288"/>
+    <path d="M183 240 C192 236 213 236 222 240"/>
+    <path d="M236 284 C245 280 267 280 276 284"/>
+    <path d="M237 228 C246 224 268 224 277 228"/>
+    <path d="M291 292 C300 288 322 288 331 292"/>
+    <path d="M292 244 C301 240 323 240 332 244"/>
+    <!-- thumb joints -->
+    <path d="M372 396 C384 386 398 374 408 364"/>
+    <!-- palm: the two long creases and the thenar mass -->
+    <path stroke-width="1.9" d="M146 400 C186 424 244 428 288 412"/>
+    <path stroke-width="1.9" d="M150 436 C192 462 252 464 296 446"/>
+    <path stroke-width="1.6" opacity=".7" d="M330 400 C316 436 312 480 322 512"/>
   </g>
-  <!-- ring READ -->
-  <g class="finger" data-part="ring" tabindex="0" role="button" aria-label="Reading — ring">
-    <rect x="170" y="118" width="26" height="138" rx="13" fill="#171717" stroke="#D4AF37" stroke-width="2"/>
-    <text x="183" y="102" text-anchor="middle" fill="#D4AF37" font-size="11" font-family="system-ui,sans-serif" font-weight="700">READ</text>
+
+  <!-- ================= LABELS + HIT TARGETS =================
+       Every label sits in the margin above or beside the ink, in its own well,
+       so nothing clips at 390px. Hit shapes are generous (>=44px). -->
+
+  <g data-part="pinky" tabindex="0" role="button" aria-label="Hearing — pinky finger">
+    <rect class="hit" x="116" y="196" width="60" height="152" rx="26"/>
+    <text class="lbl" x="128" y="180" font-size="18" text-anchor="middle">HEAR</text>
+    <line class="lead" x1="128" y1="188" x2="140" y2="204"/>
   </g>
-  <!-- middle STUDY -->
-  <g class="finger" data-part="middle" tabindex="0" role="button" aria-label="Studying — middle">
-    <rect x="204" y="98" width="26" height="158" rx="13" fill="#171717" stroke="#D4AF37" stroke-width="2"/>
-    <text x="217" y="82" text-anchor="middle" fill="#D4AF37" font-size="11" font-family="system-ui,sans-serif" font-weight="700">STUDY</text>
+
+  <g data-part="ring" tabindex="0" role="button" aria-label="Reading — ring finger">
+    <rect class="hit" x="172" y="176" width="60" height="170" rx="26"/>
+    <text class="lbl" x="196" y="154" font-size="18" text-anchor="middle">READ</text>
+    <line class="lead" x1="196" y1="162" x2="196" y2="184"/>
   </g>
-  <!-- index MEMORIZE / Hide it. -->
-  <g class="finger" data-part="index" tabindex="0" role="button" aria-label="Memorizing — index">
-    <rect x="238" y="122" width="26" height="134" rx="13" fill="#171717" stroke="#D4AF37" stroke-width="2"/>
-    <text x="251" y="96" text-anchor="middle" fill="#D4AF37" font-size="11" font-family="system-ui,sans-serif" font-weight="700">MEMORIZE</text>
-    <text x="251" y="110" text-anchor="middle" fill="#888" font-size="8" font-family="system-ui,sans-serif">Hide it.</text>
+
+  <g data-part="middle" tabindex="0" role="button" aria-label="Studying — middle finger">
+    <rect class="hit" x="228" y="160" width="60" height="186" rx="26"/>
+    <text class="lbl" x="252" y="134" font-size="18" text-anchor="middle">STUDY</text>
+    <line class="lead" x1="252" y1="142" x2="252" y2="166"/>
   </g>
-  <!-- thumb MEDITATE -->
-  <g class="finger" data-part="thumb" tabindex="0" role="button" aria-label="Meditating — thumb">
-    <path d="M132 236c-36-8-52-36-46-66 6-28 32-42 58-34" fill="none" stroke="#D4AF37" stroke-width="20" stroke-linecap="round"/>
-    <path d="M132 236c-36-8-52-36-46-66 6-28 32-42 58-34" fill="none" stroke="#171717" stroke-width="15" stroke-linecap="round"/>
-    <text x="78" y="148" text-anchor="middle" fill="#D4AF37" font-size="11" font-family="system-ui,sans-serif" font-weight="700">MEDITATE</text>
+
+  <g data-part="index" tabindex="0" role="button" aria-label="Memorizing — index finger">
+    <rect class="hit" x="284" y="186" width="60" height="160" rx="26"/>
+    <text class="lbl" x="368" y="180" font-size="18" text-anchor="middle">MEMORIZE</text>
+    <text class="sub" x="368" y="200" text-anchor="middle">Hide it.</text>
+    <line class="lead" x1="340" y1="190" x2="326" y2="204"/>
   </g>
-  <text x="180" y="398" text-anchor="middle" fill="#888" font-size="11" font-family="system-ui,sans-serif">Tap a finger</text>
+
+  <g data-part="thumb" tabindex="0" role="button" aria-label="Meditating — thumb">
+    <rect class="hit" x="352" y="342" width="104" height="72" rx="30"/>
+    <text class="lbl" x="452" y="322" font-size="18" text-anchor="end">MEDITATE</text>
+    <line class="lead" x1="424" y1="330" x2="418" y2="348"/>
+  </g>
 </svg>
