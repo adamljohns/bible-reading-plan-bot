@@ -1,5 +1,23 @@
 # 201 entries are on a second page template
 
+> **STATUS: DONE — closed 2026-08-07. Nothing here is outstanding.**
+> Pilot (`amos`, `alien-righteousness`, `athanasius`) shipped in `b6c10b4ea12`;
+> Adam approved; the remaining 198 shipped in `b0d3d29e227`. Template B is gone
+> from the corpus — **0 pages carry "Biblical Meaning"**, where 201 did.
+> Converter: `bin/convert_template_b.py` (idempotent, `--dry-run` by default).
+>
+> **Re-verified 2026-08-14** (after the later regeneration batches 443–482 rewrote
+> many of these files — the anchor-stripping trap below did *not* recur):
+> `--all` dry run reports `already-house=194, not-template-b=7`; the 7 are
+> legitimate `noindex` redirect stubs from earlier merges, correctly skipped.
+> All 194 pass house-nav / prev-next / centred-title / etymology / boxed
+> `#definition` / no-"Biblical Meaning" / `moop-tools.js` checks. Confirmed in
+> Chromium at 900px against `wrath.html`: identical shell, all six buttons
+> present. `bin/dict_integrity_audit.py`: **PASS**.
+>
+> The analysis below is kept as the record of what was wrong and why it was
+> fixed this way. **Do not re-run this as new work.**
+
 **Found:** 2026-08-06 · **List:** `data/template-b-entries.txt`
 
 Adam: *"find entries that don't fit our framework, our theme, our look — we want

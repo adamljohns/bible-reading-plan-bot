@@ -110,6 +110,23 @@ the wrong survivor is worse than the duplicate — nothing was touched. Adam
 decides which body text survives (or whether they are genuinely two ideas:
 the land promised to Abraham vs. Canaan itself).
 
+*Read side by side 2026-08-14 — they are NOT two ideas.* Both open on the same
+definition (the land sworn to Abraham, Gen 15:18, inherited under Joshua) and
+both run the same typology out to the greater rest in Hebrews. This is one
+concept written twice by two model generations. Decision-ready recommendation,
+**not applied**:
+
+| | `promised-land` (recommend KEEP) | `promise-land` (recommend MERGE AWAY) |
+|---|---|---|
+| Display title | "Promised Land" — correct | "Promise Land" — a common misspelling |
+| Size | 25.0 KB | 19.6 KB |
+| Has | Hebrew Roots | In the Text (chapter links) |
+
+`promised-land` wins on slug, title and depth. **One merge detail if approved:**
+`promise-land` carries an *In the Text* section that `promised-land` lacks —
+port those chapter links across before merging, or the reading-Bible links are
+lost. Then it is one `bin/merge_entries.py promised-land promise-land --apply`.
+
 ## Applying
 
 Each is one `bin/merge_entries.py <keep> <drop> --apply`, which repoints inbound
