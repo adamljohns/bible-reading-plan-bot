@@ -103,6 +103,12 @@ function cleanVerse(s) {
     .replace(/&nbsp;/g, ' ')
     .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
     .replace(/\s+([,.;:!?])/g, '$1')       // space pushed before punctuation by tag removal
+    /* KJV translators' marginal glosses ride at the end of the verse text:
+       "...that ye may be able to bear it. common: or, moderate" and
+       "...to the obedience of Christ; imaginations: or, reasonings".
+       They are apparatus, not Scripture, and a man drilling word-perfect would
+       dutifully memorize them. Same rule as bin/kjv_lookup.py's clean(). */
+    .replace(/\s+[A-Za-z][\w-]*:\s+(?:or|Heb|Gr|Gk|Chald|Chal|Called)\b.*$/, '')
     .replace(/\s+/g, ' ')
     .trim();
 }
@@ -112,6 +118,8 @@ function assertClean(ref, tr, text) {
   if (/[<>]/.test(text)) throw new Error(`${ref} ${tr}: markup survived cleaning -> ${text.slice(0, 80)}`);
   if (/\s{2,}/.test(text)) throw new Error(`${ref} ${tr}: doubled whitespace`);
   if (/\s[,.;:]/.test(text)) throw new Error(`${ref} ${tr}: space before punctuation`);
+  if (/\b[a-z][\w-]*:\s+(or|Heb|Gr|Gk|Chald|Chal|Called)\b/.test(text))
+    throw new Error(`${ref} ${tr}: KJV margin note survived -> ${text.slice(-60)}`);
 }
 
 function parseRef(ref) {

@@ -121,6 +121,32 @@ textarea:focus{outline:none;border-color:var(--gold)}
 footer{border-top:1px solid var(--border);margin-top:2.5rem;padding-top:1rem;
   color:var(--gray);font-size:.75rem}
 @media(max-width:560px){ .stats{grid-template-columns:repeat(2,minmax(0,1fr))} h1{font-size:1.3rem} }
+
+.flagged{color:var(--warn)}
+#share{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;
+  padding:.8rem;margin-top:.8rem;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  font-size:.78rem;white-space:pre-wrap;color:var(--gray)}
+
+/* ---------- printable cards ------------------------------------------- */
+/* Two of the men who actually keep a practice use index cards, and one said
+   plainly that paper beats his phone. So the tool's job is to make a better
+   card, not to argue him out of carrying one. 3x5 at real size, cut lines,
+   reference fore and aft exactly as it is drilled. */
+.sheet{display:none}
+@media print{
+  @page{margin:.4in}
+  body{background:#fff;color:#000}
+  .site-nav,.wrap>section,footer,#drill{display:none!important}
+  .sheet{display:grid!important;grid-template-columns:repeat(2,3in);gap:.25in;justify-content:center}
+  .pcard{width:3in;height:5in;border:1px dashed #999;padding:.22in;
+    display:flex;flex-direction:column;justify-content:space-between;
+    page-break-inside:avoid;break-inside:avoid;font-family:Georgia,'Times New Roman',serif}
+  .pcard .pref{font-weight:700;font-size:10.5pt;letter-spacing:.04em}
+  .pcard .pref.aft{text-align:right}
+  .pcard .ptext{font-size:11.5pt;line-height:1.42;flex:1;display:flex;align-items:center}
+  .pcard .pfoot{font-size:7.5pt;color:#666;text-align:center;letter-spacing:.06em;
+    text-transform:uppercase;border-top:.5pt solid #ccc;padding-top:.06in}
+}
 </style>
 </head>
 <body>
@@ -165,9 +191,19 @@ footer{border-top:1px solid var(--border);margin-top:2.5rem;padding-top:1rem;
       Start review &mdash; <span id="dueLabel">nothing due</span>
     </button>
 
+    <div class="row" style="margin-bottom:1.25rem">
+      <button id="btnPrint">Print cards</button>
+      <button id="btnShare">Share progress</button>
+      <button id="btnNudge">Daily nudge</button>
+    </div>
+    <div id="share" class="hidden"></div>
+
     <h2 style="font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:.6rem">Packs</h2>
     <div id="packs"></div>
   </section>
+
+  <!-- Rendered only for print. Filled on demand so the DOM stays light. -->
+  <div class="sheet" id="sheet" aria-hidden="true"></div>
 
   <!-- ============ DRILL ============ -->
   <section id="drill" class="hidden">
@@ -212,6 +248,8 @@ footer{border-top:1px solid var(--border);margin-top:2.5rem;padding-top:1rem;
     <div class="row" style="margin-bottom:.6rem">
       <button id="btnFlip">Flip card</button>
       <button id="btnSpeak">Speak it</button>
+      <button id="btnListen">Listen</button>
+      <button id="btnFlag" title="Mark this one tricky so it comes back sooner">Flag</button>
       <span class="muted" id="micNote"></span>
     </div>
 
@@ -351,6 +389,7 @@ async function boot(){
   $('mins').value=String(S.mins);
   $('mins').onchange=()=>{S.mins=+$('mins').value;save(S);};
   renderPacks(); paint();
+  if(S.nudge){ $('btnNudge').textContent='Nudge on'; $('btnNudge').setAttribute('aria-pressed','true'); fireNudge(false); }
 }
 
 function allVerses(){ return PACKS.flatMap(p=>p.verses.map(v=>({...v,pack:p.id}))); }
@@ -432,6 +471,7 @@ function show(){
   $('card').classList.remove('flipped');
   $('answer').value=''; $('result').classList.add('hidden');
   $('progress').textContent=`${qi+1} of ${queue.length}`;
+  paintFlag();
   $('bar').style.width=`${(qi/queue.length)*100}%`;
 }
 
@@ -494,7 +534,107 @@ function initVoice(){
   $('btnSpeak').onclick=()=>{ try{ $('btnSpeak').textContent==='Stop'?recog.stop():recog.start(); }catch(e){} };
 }
 
+/* ---------- listen ------------------------------------------------------ */
+/* Versify ships a listen mode and it is the one thing a man can use driving.
+   SpeechSynthesis is on-device, so this costs nothing and works offline. */
+function listen(){
+  const v=cur(); if(!v||!window.speechSynthesis) return;
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(`${v.ref}. ${verseText(v)}. ${v.ref}.`);
+  u.rate=.92; speechSynthesis.speak(u);
+}
+
+/* ---------- flag tricky -------------------------------------------------- */
+/* A flagged verse is pulled back to daily no matter how well it scored — the
+   man knows it is shaky before the algorithm does. */
+function toggleFlag(){
+  const v=cur(); if(!v) return;
+  const c=card(v.slug); c.flagged=!c.flagged;
+  if(c.flagged){ c.bucket='daily'; c.due=today(); }
+  save(S); paintFlag();
+}
+function paintFlag(){
+  const v=cur(); if(!v) return;
+  const on=!!(S.cards[v.slug]&&S.cards[v.slug].flagged);
+  $('btnFlag').textContent=on?'Flagged':'Flag';
+  $('btnFlag').classList.toggle('flagged',on);
+}
+
+/* ---------- printable cards --------------------------------------------- */
+/* Every verse a man has started, at real 3x5 size, reference fore and aft so
+   the paper drills the same shape the screen does. */
+function printCards(){
+  const started=allVerses().filter(v=>S.cards[v.slug]);
+  const list=started.length?started:allVerses().slice(0,12);
+  $('sheet').innerHTML=list.map(v=>`<div class="pcard">
+      <div class="pref">${esc(v.ref)}</div>
+      <div class="ptext">${esc(verseText(v))}</div>
+      <div class="pref aft">${esc(v.ref)}</div>
+      <div class="pfoot">${esc(S.tr)} &middot; usmcmin.org/memorize</div>
+    </div>`).join('');
+  setTimeout(()=>window.print(),60);
+}
+
+/* ---------- share -------------------------------------------------------- */
+/* Adam was ambivalent about men looking in on each other, so this pushes a
+   summary he chooses to send rather than standing up a server that watches
+   everybody. Nothing leaves the device unless he taps share. */
+function shareText(){
+  const cards=Object.entries(S.cards);
+  const solid=cards.filter(([,c])=>c.bucket==='weekly');
+  const held=cards.filter(([,c])=>c.passedTo);
+  const name=s=>{const v=allVerses().find(x=>x.slug===s);return v?v.ref:s;};
+  return [
+    `Pressure Check — ${S.streak} day streak`,
+    `${solid.length} verse${solid.length===1?'':'s'} solid, ${cards.length} in progress`,
+    solid.length?`Chambered: ${solid.slice(0,8).map(([s])=>name(s)).join(', ')}`:'',
+    held.length?`Held by family: ${held.map(([s,c])=>`${name(s)} (${c.passedTo})`).join(', ')}`:'',
+    `usmcmin.org/memorize`,
+  ].filter(Boolean).join('\n');
+}
+async function share(){
+  const t=shareText();
+  /* Always render the summary first. Handing off to the native sheet and
+     returning left a man who cancelled it staring at a button that did
+     nothing — and on desktop there is no sheet at all. The text on screen is
+     the reliable path; the share sheet is a convenience on top of it. */
+  const el=$('share'); el.textContent=t; el.classList.remove('hidden');
+  let copied=false;
+  try{ await navigator.clipboard.writeText(t); copied=true; }catch(e){}
+  el.textContent=t+(copied?'\n\n(copied — paste it to your squad)':'\n\n(select and copy to send)');
+  if(navigator.share){ try{ await navigator.share({text:t}); }catch(e){} }
+}
+
+/* ---------- daily nudge -------------------------------------------------- */
+/* A local notification, fired when the page is open and something is due.
+   Honest limit: with no push server this cannot reach him when the tab is
+   closed, so it is a reminder for a man who already installed the PWA, not a
+   guarantee. Recorded here so nobody later mistakes it for real push. */
+async function nudge(){
+  if(!('Notification' in window)){ alert('This browser cannot show notifications.'); return; }
+  let p=Notification.permission;
+  if(p==='default') p=await Notification.requestPermission();
+  S.nudge=(p==='granted'); save(S);
+  $('btnNudge').setAttribute('aria-pressed',String(S.nudge));
+  $('btnNudge').textContent=S.nudge?'Nudge on':'Daily nudge';
+  if(S.nudge) fireNudge(true);
+}
+function fireNudge(force){
+  if(!S.nudge||Notification.permission!=='granted') return;
+  const due=dueList().length; if(!due) return;
+  if(!force && S.nudgedOn===today()) return;
+  S.nudgedOn=today(); save(S);
+  try{ new Notification('Pressure Check',{
+    body:`${due} verse${due===1?'':'s'} due. ${S.streak} day streak.`,
+    icon:'/assets/icons/shield-anchor.png', tag:'moop-memorize'}); }catch(e){}
+}
+
 /* ---------- wiring ----------------------------------------------------- */
+$('btnPrint').onclick=printCards;
+$('btnShare').onclick=share;
+$('btnNudge').onclick=nudge;
+$('btnListen').onclick=listen;
+$('btnFlag').onclick=toggleFlag;
 document.querySelectorAll('[data-step]').forEach(b=>b.onclick=()=>setStep(b.dataset.step));
 document.querySelectorAll('[data-blank]').forEach(b=>b.onclick=()=>{
   blankLvl=+b.dataset.blank;
