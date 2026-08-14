@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pressure Check — Scripture Memory | USMC Ministries</title>
+<meta name="description" content="Word-perfect Scripture memory, reference fore and aft. The Navigators discipline with a word-level check, daily and weekly review, and eight translations.">
+<meta name="theme-color" content="#000000">
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/assets/icons/shield-anchor.png">
+<meta property="og:title" content="Pressure Check — Scripture Memory">
+<meta property="og:description" content="A round chambered before you need it. Word-perfect memory work, reference fore and aft.">
+<meta property="og:type" content="website">
+<style>
+:root{
+  --bg-dark:#000; --bg-card:#111; --bg-raise:#171717;
+  --gold:#D4AF37; --gold-light:#F4D470;
+  --white:#fff; --gray:#888; --border:#333;
+  --good:#4ade80; --bad:#f87171; --warn:#fbbf24;
+  --nav-h:52px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{background:var(--bg-dark);color:var(--white);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,sans-serif;
+  line-height:1.55;padding-bottom:env(safe-area-inset-bottom)}
+
+.site-nav{height:var(--nav-h);display:flex;align-items:center;gap:.5rem;
+  padding:0 1rem;border-bottom:1px solid var(--border);font-size:.82rem;color:var(--gray)}
+.site-nav a{color:var(--gray);text-decoration:none}
+.site-nav a:hover{color:var(--gold)}
+.site-logo{color:var(--white);font-weight:600;display:flex;align-items:center;gap:.4rem}
+.site-icon{width:18px;height:18px}
+.sep{opacity:.5}
+
+.wrap{max-width:760px;margin:0 auto;padding:1.25rem 1rem 3rem}
+h1{font-size:1.5rem;letter-spacing:.01em;margin-bottom:.15rem}
+.kicker{color:var(--gold);font-size:.7rem;font-weight:700;letter-spacing:.22em;
+  text-transform:uppercase;margin-bottom:.5rem}
+.lede{color:var(--gray);font-size:.92rem;margin-bottom:1.5rem}
+
+.row{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
+.spread{justify-content:space-between}
+button{font:inherit;cursor:pointer;border:1px solid var(--border);background:var(--bg-raise);
+  color:var(--white);border-radius:8px;padding:.55rem .85rem;min-height:44px}
+button:hover{border-color:var(--gold)}
+button.primary{background:var(--gold);color:#000;border-color:var(--gold);font-weight:700}
+button.primary:hover{background:var(--gold-light)}
+button.ghost{background:transparent}
+button[aria-pressed="true"]{border-color:var(--gold);color:var(--gold)}
+select{font:inherit;background:var(--bg-raise);color:var(--white);border:1px solid var(--border);
+  border-radius:8px;padding:.5rem .6rem;min-height:44px}
+
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.5rem;margin-bottom:1.25rem}
+.stat{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;
+  padding:.6rem .5rem;text-align:center}
+.stat b{display:block;font-size:1.25rem;color:var(--gold);line-height:1.2}
+.stat span{font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gray)}
+
+.pack{background:var(--bg-card);border:1px solid var(--border);border-left:3px solid var(--gold);
+  border-radius:10px;padding:.85rem 1rem;margin-bottom:.6rem;cursor:pointer}
+.pack:hover{border-color:var(--gold)}
+.pack h3{font-size:1rem;margin-bottom:.2rem}
+.pack p{color:var(--gray);font-size:.82rem;margin-bottom:.45rem}
+.pack .meta{font-size:.7rem;color:var(--gold);letter-spacing:.08em;text-transform:uppercase}
+
+/* The card. Flip is a real 3D rotate so the "check yourself" beat feels like
+   turning a physical card over, which is the motion every man in the thread
+   already performs with an index card. */
+.card-outer{perspective:1200px;margin:1rem 0}
+.card{position:relative;transform-style:preserve-3d;-webkit-transform-style:preserve-3d;
+  transition:transform .5s cubic-bezier(.4,0,.2,1);min-height:210px}
+.card.flipped{transform:rotateY(180deg)}
+/* Do not trust backface-visibility alone. WebKit ignored it here and painted
+   the back face — mirrored — straight over the front, which is worse than no
+   flip at all: the man reads the answer he was supposed to recall. Visibility
+   is switched explicitly at the halfway point of the turn, so correctness
+   never depends on 3D support. */
+.card .face.back{visibility:hidden}
+.card.flipped .face.back{visibility:visible}
+.card.flipped .face.front{visibility:hidden}
+.face{transition:visibility 0s linear .25s}
+/* No overflow on a face. In WebKit an `overflow` value other than visible
+   forces the element into its own paint context, which silently defeats
+   backface-visibility — the back face then shows through mirrored on top of
+   the front. The card grows to fit the verse instead of scrolling. */
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:1.1rem;
+  display:flex;flex-direction:column;justify-content:center}
+.face.back{transform:rotateY(180deg)}
+/* Both faces are absolutely positioned, so the card has no intrinsic height.
+   This invisible copy of the longest content (the full verse on the back) is
+   what gives it one, so a 60-word verse is never clipped. */
+.sizer{position:relative;visibility:hidden;padding:1.1rem;pointer-events:none}
+.ref{color:var(--gold);font-weight:700;letter-spacing:.06em;font-size:.9rem}
+.ref.aft{margin-top:.85rem;text-align:right;opacity:.85}
+.vtext{font-size:1.08rem;line-height:1.6;margin-top:.6rem}
+.blank{display:inline-block;border-bottom:1.5px solid var(--gold);min-width:2.2em;
+  margin:0 .1em;color:transparent}
+.firstletter{letter-spacing:.06em;word-spacing:.35em}
+
+textarea{width:100%;min-height:120px;background:var(--bg-raise);color:var(--white);
+  border:1px solid var(--border);border-radius:10px;padding:.7rem;font:inherit;line-height:1.5;
+  resize:vertical}
+textarea:focus{outline:none;border-color:var(--gold)}
+
+.score{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;
+  padding:.9rem 1rem;margin:.85rem 0}
+.pct{font-size:2rem;font-weight:700;line-height:1}
+.pct.perfect{color:var(--good)} .pct.ok{color:var(--warn)} .pct.poor{color:var(--bad)}
+.diff{margin-top:.7rem;font-size:1rem;line-height:1.75}
+.diff .hit{color:var(--white)}
+.diff .miss{color:var(--bad);text-decoration:line-through;opacity:.75}
+.diff .want{color:var(--good);border-bottom:1px dashed var(--good)}
+.legend{font-size:.7rem;color:var(--gray);margin-top:.5rem}
+
+.hidden{display:none!important}
+.muted{color:var(--gray);font-size:.8rem}
+.bar{height:5px;background:var(--border);border-radius:3px;overflow:hidden;margin:.5rem 0 1rem}
+.bar>i{display:block;height:100%;background:var(--gold);transition:width .3s}
+footer{border-top:1px solid var(--border);margin-top:2.5rem;padding-top:1rem;
+  color:var(--gray);font-size:.75rem}
+@media(max-width:560px){ .stats{grid-template-columns:repeat(2,minmax(0,1fr))} h1{font-size:1.3rem} }
+</style>
+</head>
+<body>
+<nav class="site-nav">
+  <span class="site-logo"><img src="/assets/icons/shield-anchor.png" class="site-icon" alt="" width="18" height="18"> USMC Ministries</span>
+  <a href="/">Home</a><span class="sep">·</span>
+  <a href="/bible.html">Bible Engine</a><span class="sep">·</span>
+  <a href="/verse/">Verse Studies</a>
+</nav>
+
+<div class="wrap">
+
+  <!-- ============ HOME ============ -->
+  <section id="home">
+    <div class="kicker">Pressure Check</div>
+    <h1>Scripture Memory</h1>
+    <p class="lede">A round chambered before you need it. Reference fore, verse word perfect,
+      reference aft &mdash; the way the Navigators taught it.</p>
+
+    <div class="stats">
+      <div class="stat"><b id="sStreak">0</b><span>Day streak</span></div>
+      <div class="stat"><b id="sDue">0</b><span>Due now</span></div>
+      <div class="stat"><b id="sSolid">0</b><span>Solid</span></div>
+      <div class="stat"><b id="sTotal">0</b><span>In progress</span></div>
+    </div>
+
+    <div class="row spread" style="margin-bottom:1rem">
+      <div class="row">
+        <label class="muted" for="tr">Translation</label>
+        <select id="tr" aria-label="Translation"></select>
+      </div>
+      <div class="row">
+        <label class="muted" for="mins">Session</label>
+        <select id="mins" aria-label="Session length">
+          <option value="7">7 min</option>
+          <option value="17">17 min</option>
+        </select>
+      </div>
+    </div>
+
+    <button class="primary" id="btnDue" style="width:100%;margin-bottom:1.25rem">
+      Start review &mdash; <span id="dueLabel">nothing due</span>
+    </button>
+
+    <h2 style="font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:.6rem">Packs</h2>
+    <div id="packs"></div>
+  </section>
+
+  <!-- ============ DRILL ============ -->
+  <section id="drill" class="hidden">
+    <div class="row spread" style="margin-bottom:.4rem">
+      <button class="ghost" id="btnQuit">&larr; Done</button>
+      <span class="muted" id="progress"></span>
+    </div>
+    <div class="bar"><i id="bar" style="width:0"></i></div>
+
+    <div class="row" style="margin-bottom:.25rem" role="group" aria-label="Difficulty">
+      <button data-step="read"  aria-pressed="false">Read</button>
+      <button data-step="blank" aria-pressed="false">Fill blank</button>
+      <button data-step="first" aria-pressed="false">First letter</button>
+      <button data-step="recall" aria-pressed="false">Recall</button>
+    </div>
+    <div class="row hidden" id="blankRow" style="margin-bottom:.25rem" role="group" aria-label="Blank difficulty">
+      <button data-blank="1" aria-pressed="false">Easy</button>
+      <button data-blank="2" aria-pressed="false">Medium</button>
+      <button data-blank="3" aria-pressed="false">Hard</button>
+    </div>
+
+    <div class="card-outer">
+      <div class="card" id="card">
+        <div class="sizer" aria-hidden="true">
+          <div class="ref">&nbsp;</div>
+          <div class="vtext" id="sizerText"></div>
+          <div class="ref aft">&nbsp;</div>
+        </div>
+        <div class="face front">
+          <div class="ref" id="refFore"></div>
+          <div class="vtext" id="vFront"></div>
+          <div class="ref aft" id="refAftF"></div>
+        </div>
+        <div class="face back">
+          <div class="ref" id="refForeB"></div>
+          <div class="vtext" id="vBack"></div>
+          <div class="ref aft" id="refAftB"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row" style="margin-bottom:.6rem">
+      <button id="btnFlip">Flip card</button>
+      <button id="btnSpeak">Speak it</button>
+      <span class="muted" id="micNote"></span>
+    </div>
+
+    <label class="muted" for="answer">Say or type it &mdash; reference, verse, reference</label>
+    <textarea id="answer" placeholder="John 3:16  For God so loved the world&hellip;  John 3:16"
+      autocapitalize="sentences" autocomplete="off" spellcheck="false"></textarea>
+
+    <div class="row" style="margin-top:.6rem">
+      <button class="primary" id="btnCheck">Check</button>
+      <button class="ghost" id="btnSkip">Skip</button>
+    </div>
+
+    <div id="result" class="hidden"></div>
+  </section>
+
+  <footer>
+    U.S.M.C. Ministries &middot; Bible Engine &middot; Word-perfect means every word, in order,
+    with punctuation, reference fore and aft. Progress is stored on this device only.
+  </footer>
+</div>
+
+<script>
+(function(){
+'use strict';
+
+/* ---------- storage ---------------------------------------------------- */
+const LS='moop.memorize.v1';
+const load=()=>{ try{return JSON.parse(localStorage.getItem(LS))||{}}catch(e){return{}} };
+const save=s=>{ try{localStorage.setItem(LS,JSON.stringify(s))}catch(e){} };
+let S=Object.assign({cards:{},streak:0,lastDay:null,tr:'KJV',mins:7},load());
+
+const today=()=>new Date().toLocaleDateString('en-CA');
+const dayNum=d=>Math.floor(new Date(d+'T00:00:00').getTime()/864e5);
+
+/* A card lives in one of two review buckets, per Adam: daily, then weekly.
+   No monthly tier — a verse you only see twelve times a year is not chambered. */
+function card(slug){
+  return S.cards[slug] || (S.cards[slug]={bucket:'daily',due:today(),best:0,reps:0,passedTo:''});
+}
+function schedule(c,pct){
+  c.reps++; c.best=Math.max(c.best,pct);
+  const d=new Date();
+  if(pct>=100){                       // word perfect promotes
+    c.bucket='weekly'; d.setDate(d.getDate()+7);
+  }else if(pct>=80){                  // close enough to hold its place
+    d.setDate(d.getDate()+(c.bucket==='weekly'?7:1));
+  }else{
+    /* Soft demotion (Adam's call): a weekly verse drops back to daily rather
+       than losing all its history. Never resets reps or best. */
+    c.bucket='daily'; d.setDate(d.getDate()+1);
+  }
+  c.due=d.toLocaleDateString('en-CA');
+}
+const isDue=c=>dayNum(c.due)<=dayNum(today());
+
+/* ---------- word-perfect scoring --------------------------------------- */
+/* Compare on tokens, aligned by LCS so a dropped word shifts everything after
+   it by one slot instead of scoring the rest of the verse as wrong — the
+   failure mode that makes naive index-by-index diffing useless here. */
+const tokenize=s=>(s||'').trim().split(/\s+/).filter(Boolean);
+const bare=t=>t.toLowerCase().replace(/[^a-z0-9']/g,'');
+
+function align(want,got){
+  const n=want.length,m=got.length;
+  const dp=Array.from({length:n+1},()=>new Int32Array(m+1));
+  for(let i=n-1;i>=0;i--)for(let j=m-1;j>=0;j--)
+    dp[i][j]=bare(want[i])===bare(got[j])?dp[i+1][j+1]+1:Math.max(dp[i+1][j],dp[i][j+1]);
+  const out=[];let i=0,j=0;
+  while(i<n&&j<m){
+    if(bare(want[i])===bare(got[j])){ out.push({t:want[i],k:want[i]===got[j]?'hit':'punct'}); i++;j++; }
+    else if(dp[i+1][j]>=dp[i][j+1]){ out.push({t:want[i],k:'want'}); i++; }
+    else { out.push({t:got[j],k:'miss'}); j++; }
+  }
+  while(i<n) out.push({t:want[i++],k:'want'});
+  while(j<m) out.push({t:got[j++],k:'miss'});
+  return out;
+}
+
+/* Split what the man said into reference / verse / reference. He may give the
+   reference fore only, or neither; a missing reference costs points but never
+   fails the verse outright (Adam: "no — percentage wise"). */
+function splitAttempt(raw,ref){
+  const rx=new RegExp(ref.replace(/[.*+?^${}()|[\]\\]/g,'\\$&').replace(/\s+/g,'\\s*'),'ig');
+  const hits=[...raw.matchAll(rx)];
+  let body=raw, fore=false, aft=false;
+  if(hits.length){
+    const first=hits[0], last=hits[hits.length-1];
+    fore = first.index < raw.length*0.35;
+    aft  = hits.length>1 && last.index > raw.length*0.6;
+    body = raw.replace(rx,' ');
+  }
+  return {body:body.trim(),fore,aft};
+}
+
+function grade(said,verse,ref){
+  const {body,fore,aft}=splitAttempt(said,ref);
+  const want=tokenize(verse), got=tokenize(body);
+  const parts=align(want,got);
+  const exact=parts.filter(p=>p.k==='hit').length;
+  const soft =parts.filter(p=>p.k==='punct').length;   // right word, wrong punctuation/case
+  const versePct = want.length? Math.round(((exact+soft*0.9)/want.length)*100) : 0;
+  const refPct   = (fore?50:0)+(aft?50:0);
+  const perfect  = versePct===100 && soft===0 && fore && aft && got.length===want.length;
+  /* Verse is the work; reference is the handle. Weighted 85/15 so a man who
+     nails the text but forgets to close with the reference still scores well. */
+  const total = Math.round(versePct*0.85 + refPct*0.15);
+  return {parts,versePct,refPct,total,perfect,fore,aft};
+}
+
+/* ---------- render helpers --------------------------------------------- */
+const $=id=>document.getElementById(id);
+const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+function maskBlank(text,level){
+  const every=[0,6,3,2][level]||3;         // easy≈1/6, medium≈1/3, hard≈1/2
+  let n=0;
+  return tokenize(text).map(w=>{
+    const keepShort=w.replace(/[^a-zA-Z]/g,'').length<=2;
+    return (!keepShort && (++n % every===0))
+      ? `<span class="blank">${esc(w)}</span>` : esc(w);
+  }).join(' ');
+}
+const firstLetters=text=>tokenize(text)
+  .map(w=>{const m=w.match(/[A-Za-z]/);return (m?m[0]:w[0])+(/[.,;:!?"']$/.test(w)?w.slice(-1):'');})
+  .join(' ');
+
+/* ---------- state ------------------------------------------------------ */
+let PACKS=[], queue=[], qi=0, step='read', blankLvl=2, endAt=0, recog=null;
+
+async function boot(){
+  const r=await fetch('/data/memory-packs.json',{cache:'force-cache'});
+  const d=await r.json();
+  PACKS=d.packs;
+  const sel=$('tr');
+  sel.innerHTML=d.translations.map(t=>`<option${t===S.tr?' selected':''}>${t}</option>`).join('');
+  sel.onchange=()=>{S.tr=sel.value;save(S);paint();};
+  $('mins').value=String(S.mins);
+  $('mins').onchange=()=>{S.mins=+$('mins').value;save(S);};
+  renderPacks(); paint();
+}
+
+function allVerses(){ return PACKS.flatMap(p=>p.verses.map(v=>({...v,pack:p.id}))); }
+function dueList(){ return allVerses().filter(v=>S.cards[v.slug]&&isDue(S.cards[v.slug])); }
+
+function paint(){
+  const inProg=Object.keys(S.cards).length;
+  const solid=Object.values(S.cards).filter(c=>c.bucket==='weekly').length;
+  const due=dueList().length;
+  $('sStreak').textContent=S.streak; $('sDue').textContent=due;
+  $('sSolid').textContent=solid; $('sTotal').textContent=inProg;
+  $('dueLabel').textContent = due? `${due} verse${due===1?'':'s'} due` : 'nothing due';
+  $('btnDue').disabled = !due;
+}
+
+function renderPacks(){
+  $('packs').innerHTML=PACKS.map(p=>{
+    const started=p.verses.filter(v=>S.cards[v.slug]).length;
+    return `<div class="pack" data-pack="${p.id}" role="button" tabindex="0">
+      <h3>${esc(p.name)}</h3><p>${esc(p.blurb)}</p>
+      <div class="meta">${p.verses.length} verses${p.mode==='passage'?' · passage':''}${started?` · ${started} started`:''}</div>
+    </div>`;}).join('');
+  $('packs').querySelectorAll('.pack').forEach(el=>{
+    const go=()=>startPack(el.dataset.pack);
+    el.onclick=go; el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go();}};
+  });
+}
+
+/* ---------- session ---------------------------------------------------- */
+function startPack(id){
+  const p=PACKS.find(x=>x.id===id);
+  /* A passage pack is presented in order and in chunks of five so a man
+     extends the way Ward does, rather than facing 16 verses at once. */
+  const notSolid=p.verses.filter(v=>!S.cards[v.slug]||S.cards[v.slug].bucket!=='weekly');
+  queue=(p.mode==='passage'? notSolid.slice(0,5) : notSolid).slice(0,20);
+  if(!queue.length) queue=p.verses.slice(0,5);
+  begin();
+}
+function startDue(){ queue=dueList().slice(0,20); if(queue.length) begin(); }
+
+function begin(){
+  qi=0; endAt=Date.now()+S.mins*60000;
+  $('home').classList.add('hidden'); $('drill').classList.remove('hidden');
+  setStep('read'); show();
+}
+function finish(){
+  const t=today();
+  if(S.lastDay!==t){
+    S.streak = (S.lastDay && dayNum(t)-dayNum(S.lastDay)===1) ? S.streak+1 : 1;
+    S.lastDay=t;
+  }
+  save(S);
+  $('drill').classList.add('hidden'); $('home').classList.remove('hidden');
+  renderPacks(); paint();
+}
+
+function setStep(s){
+  step=s;
+  document.querySelectorAll('[data-step]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.step===s)));
+  $('blankRow').classList.toggle('hidden',s!=='blank');
+  show();
+}
+
+function cur(){ return queue[qi]; }
+function verseText(v){ return v.text[S.tr] || v.text.KJV; }
+
+function show(){
+  const v=cur(); if(!v) return finish();
+  const t=verseText(v);
+  $('refFore').textContent=v.ref; $('refAftF').textContent=v.ref;
+  $('refForeB').textContent=v.ref; $('refAftB').textContent=v.ref;
+  $('vBack').textContent=t;                                  // back is always the truth
+  $('sizerText').textContent=t;                              // and sets the card's height
+  $('vFront').innerHTML =
+      step==='read'  ? esc(t)
+    : step==='blank' ? maskBlank(t,blankLvl)
+    : step==='first' ? `<span class="firstletter">${esc(firstLetters(t))}</span>`
+    : `<span class="muted">Reference is above. Say it, then flip.</span>`;
+  $('card').classList.remove('flipped');
+  $('answer').value=''; $('result').classList.add('hidden');
+  $('progress').textContent=`${qi+1} of ${queue.length}`;
+  $('bar').style.width=`${(qi/queue.length)*100}%`;
+}
+
+function check(){
+  const v=cur(); if(!v) return;
+  const said=$('answer').value.trim();
+  if(!said){ $('answer').focus(); return; }
+  const g=grade(said,verseText(v),v.ref);
+  const c=card(v.slug); schedule(c,g.total); save(S);
+
+  const cls=g.perfect?'perfect':g.total>=80?'ok':'poor';
+  const html=g.parts.map(p=>
+      p.k==='hit'  ? `<span class="hit">${esc(p.t)}</span>`
+    : p.k==='punct'? `<span class="hit" title="right word, punctuation or case off">${esc(p.t)}</span>`
+    : p.k==='want' ? `<span class="want" title="you missed this">${esc(p.t)}</span>`
+    :               `<span class="miss" title="not in the verse">${esc(p.t)}</span>`).join(' ');
+
+  $('result').innerHTML=`<div class="score">
+      <div class="pct ${cls}">${g.total}%</div>
+      <div class="muted">${g.perfect?'Word perfect.':`Verse ${g.versePct}% · reference ${g.refPct}%`}
+        ${g.fore?'':' · missed the reference up front'}${g.aft?'':' · missed it on the close'}</div>
+      <div class="diff">${html}</div>
+      <div class="legend">Struck red was not in the verse. Green underlined is what you missed.
+        ${c.bucket==='weekly'?'Moved to weekly review.':'Stays in daily review.'}</div>
+    </div>
+    <div class="row"><button class="primary" id="btnNext">Next verse</button>
+      <button class="ghost" id="btnAgain">Try again</button>
+      <button class="ghost" id="btnPass">Pass to family</button></div>`;
+  $('result').classList.remove('hidden');
+  $('card').classList.add('flipped');
+  $('btnNext').onclick=()=>{ qi++; (Date.now()>endAt||qi>=queue.length)?finish():show(); };
+  $('btnAgain').onclick=()=>{ $('answer').value=''; $('result').classList.add('hidden');
+                              $('card').classList.remove('flipped'); $('answer').focus(); };
+  /* Kenny hands a finished card to his daughter so she can challenge him on it.
+     Recording who holds a verse keeps that accountability inside the tool. */
+  $('btnPass').onclick=()=>{
+    const who=prompt('Passed to whom? (they hold the card and challenge you on it)',c.passedTo||'');
+    if(who!==null){ c.passedTo=who.trim(); save(S);
+      $('btnPass').textContent = c.passedTo? `Held by ${c.passedTo}` : 'Pass to family'; }
+  };
+}
+
+/* ---------- voice ------------------------------------------------------ */
+/* Reciting aloud is the practice every man in the thread actually uses, so
+   speech is a first-class input, not a novelty. Transcript lands in the same
+   box as typing and is graded identically. */
+function initVoice(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){ $('btnSpeak').disabled=true; $('micNote').textContent='Voice not supported in this browser'; return; }
+  recog=new SR(); recog.continuous=true; recog.interimResults=true; recog.lang='en-US';
+  let base='';
+  recog.onstart=()=>{ base=$('answer').value?$('answer').value+' ':''; $('btnSpeak').textContent='Stop'; $('micNote').textContent='Listening'; };
+  recog.onresult=e=>{
+    let out='';
+    for(let i=e.resultIndex;i<e.results.length;i++) out+=e.results[i][0].transcript;
+    $('answer').value=base+out;
+  };
+  recog.onerror=e=>{ $('micNote').textContent = e.error==='not-allowed'?'Microphone blocked':'Voice error'; };
+  recog.onend=()=>{ $('btnSpeak').textContent='Speak it'; $('micNote').textContent=''; };
+  $('btnSpeak').onclick=()=>{ try{ $('btnSpeak').textContent==='Stop'?recog.stop():recog.start(); }catch(e){} };
+}
+
+/* ---------- wiring ----------------------------------------------------- */
+document.querySelectorAll('[data-step]').forEach(b=>b.onclick=()=>setStep(b.dataset.step));
+document.querySelectorAll('[data-blank]').forEach(b=>b.onclick=()=>{
+  blankLvl=+b.dataset.blank;
+  document.querySelectorAll('[data-blank]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));
+  show();
+});
+$('btnFlip').onclick=()=>$('card').classList.toggle('flipped');
+$('btnCheck').onclick=check;
+$('btnSkip').onclick=()=>{ qi++; (qi>=queue.length)?finish():show(); };
+$('btnQuit').onclick=finish;
+$('btnDue').onclick=startDue;
+$('answer').addEventListener('keydown',e=>{ if(e.key==='Enter'&&(e.metaKey||e.ctrlKey)) check(); });
+
+initVoice();
+boot().catch(()=>{ $('packs').innerHTML='<p class="muted">Could not load packs. Check your connection once, then this page works offline.</p>'; });
+})();
+</script>
+</body>
+</html>
