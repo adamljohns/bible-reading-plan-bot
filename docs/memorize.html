@@ -99,12 +99,16 @@ select{font:inherit;background:var(--bg-raise);color:var(--white);border:1px sol
 .firstletter{letter-spacing:.06em;word-spacing:.35em}
 .nav-illus{margin:1.6rem 0 1rem}
 .nav-illus h2{font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:.6rem}
-.svg-host svg{width:100%;max-width:320px;height:auto;display:block;margin:0 auto}
-.svg-host [data-part]{cursor:pointer}
+.svg-host{overflow:visible}
+.svg-host svg{width:100%;max-width:360px;height:auto;display:block;margin:0 auto;overflow:visible}
+.svg-host [data-part]{cursor:pointer;min-width:44px;min-height:44px}
 .svg-host [data-part]:hover rect,.svg-host [data-part]:hover circle,.svg-host [data-part]:hover path,.svg-host [data-part]:hover line{filter:brightness(1.25)}
 .nav-attr{font-size:.72rem;color:var(--gray);margin:1rem 0 0;line-height:1.45}
 .nav-attr a{color:var(--gold)}
 .add-fail{color:var(--bad);font-size:.85rem;margin:.6rem 0}
+.elstrip{color:var(--gold);font-size:.68rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:.45rem}
+.elstrip.hidden-strip{display:none}
+.elstrip .kind-companion{color:var(--gray);letter-spacing:.08em;font-weight:600}
 
 textarea{width:100%;min-height:120px;background:var(--bg-raise);color:var(--white);
   border:1px solid var(--border);border-radius:10px;padding:.7rem;font:inherit;line-height:1.5;
@@ -147,6 +151,7 @@ footer{border-top:1px solid var(--border);margin-top:2.5rem;padding-top:1rem;
   .pcard{width:3in;height:5in;border:1px dashed #999;padding:.22in;
     display:flex;flex-direction:column;justify-content:space-between;
     page-break-inside:avoid;break-inside:avoid;font-family:Georgia,'Times New Roman',serif}
+  .pcard .elstrip{font-weight:700;font-size:7.5pt;letter-spacing:.1em;text-transform:uppercase;color:#8a7018;margin-bottom:.08in}
   .pcard .pref{font-weight:700;font-size:10.5pt;letter-spacing:.04em}
   .pcard .pref.aft{text-align:right}
   .pcard .ptext{font-size:11.5pt;line-height:1.42;flex:1;display:flex;align-items:center}
@@ -239,9 +244,11 @@ footer{border-top:1px solid var(--border);margin-top:2.5rem;padding-top:1rem;
     <div class="card-outer">
       <div class="card" id="bcard">
         <div class="sizer" aria-hidden="true">
+          <div class="elstrip" id="bSizerEl">&nbsp;</div>
           <div class="ref">&nbsp;</div><div class="vtext" id="bSizer"></div><div class="ref aft">&nbsp;</div>
         </div>
         <div class="face front">
+          <div class="elstrip" id="bEl"></div>
           <div class="ref" id="bRefFore"></div>
           <div class="vtext" id="bText"></div>
           <div class="ref aft" id="bRefAft"></div>
@@ -287,16 +294,19 @@ footer{border-top:1px solid var(--border);margin-top:2.5rem;padding-top:1rem;
     <div class="card-outer">
       <div class="card" id="card">
         <div class="sizer" aria-hidden="true">
+          <div class="elstrip" id="sizerEl">&nbsp;</div>
           <div class="ref">&nbsp;</div>
           <div class="vtext" id="sizerText"></div>
           <div class="ref aft">&nbsp;</div>
         </div>
         <div class="face front">
+          <div class="elstrip" id="elFore"></div>
           <div class="ref" id="refFore"></div>
           <div class="vtext" id="vFront"></div>
           <div class="ref aft" id="refAftF"></div>
         </div>
         <div class="face back">
+          <div class="elstrip" id="elBack"></div>
           <div class="ref" id="refForeB"></div>
           <div class="vtext" id="vBack"></div>
           <div class="ref aft" id="refAftB"></div>
@@ -440,7 +450,7 @@ const firstLetters=text=>tokenize(text)
 let PACKS=[], queue=[], qi=0, step='read', blankLvl=2, endAt=0, recog=null;
 
 async function boot(){
-  const r=await fetch('/data/memory-packs.json?v=20260814',{cache:'force-cache'});
+  const r=await fetch('/data/memory-packs.json?v=20260814b',{cache:'force-cache'});
   const d=await r.json();
   PACKS=d.packs;
   if(!S.tr) S.tr='NKJV';
@@ -550,12 +560,42 @@ function setStep(s){
 
 function cur(){ return queue[qi]; }
 function verseText(v){ return (v.text&& (v.text[S.tr] || v.text.NKJV || v.text.KJV)) || ''; }
+const PART_TOKEN={
+  pinky:'PINKY', ring:'RING', middle:'MIDDLE', index:'INDEX', thumb:'THUMB',
+  hub:'HUB', rim:'RIM', word:'SPOKE · WORD', prayer:'SPOKE · PRAYER',
+  fellowship:'SPOKE · FELLOWSHIP', witness:'SPOKE · WITNESS'
+};
+function packTitle(v){
+  if(v.pack==='word-hand' || (!v.pack && v.part && ['pinky','ring','middle','index','thumb'].includes(v.part))) return 'THE WORD HAND';
+  if(v.pack==='the-wheel' || (!v.pack && v.part && ['hub','rim','word','prayer','fellowship','witness'].includes(v.part))) return 'THE WHEEL';
+  const p=PACKS.find(x=>x.id===v.pack);
+  if(p && p.id==='word-hand') return 'THE WORD HAND';
+  if(p && p.id==='the-wheel') return 'THE WHEEL';
+  return '';
+}
+function elementStrip(v){
+  if(!v || !v.part || !v.method) return '';
+  const pack=packTitle(v); if(!pack) return '';
+  const token=PART_TOKEN[v.part] || String(v.part).toUpperCase();
+  const method=String(v.method).toUpperCase();
+  const kind = v.kind==='companion'
+    ? ' · <span class="kind-companion">Companion</span>'
+    : ' · Official';
+  return `${pack} · ${token} · ${method}${kind}`;
+}
+function paintStrip(id, v){
+  const el=$(id); if(!el) return;
+  const html=elementStrip(v);
+  el.innerHTML=html;
+  el.classList.toggle('hidden-strip', !html);
+}
 
 function show(){
   const v=cur(); if(!v) return finish();
   const t=verseText(v);
   $('refFore').textContent=v.ref; $('refAftF').textContent=v.ref;
   $('refForeB').textContent=v.ref; $('refAftB').textContent=v.ref;
+  paintStrip('elFore', v); paintStrip('elBack', v); paintStrip('sizerEl', v);
   $('vBack').textContent=t;                                  // back is always the truth
   $('sizerText').textContent=t;                              // and sets the card's height
   $('vFront').innerHTML =
@@ -652,6 +692,7 @@ function showBrowse(){
   const v=bList[bi]; if(!v) return;
   const t=verseText(v);
   $('bRefFore').textContent=v.ref; $('bRefAft').textContent=v.ref;
+  paintStrip('bEl', v); paintStrip('bSizerEl', v);
   $('bText').textContent=t; $('bSizer').textContent=t;
   $('browseCount').textContent=`${bi+1} of ${bList.length}`;
   const inStack=!!S.cards[v.slug];
@@ -704,12 +745,15 @@ function paintFlag(){
 function printCards(){
   const started=allVerses().filter(v=>S.cards[v.slug]);
   const list=started.length?started:allVerses().slice(0,12);
-  $('sheet').innerHTML=list.map(v=>`<div class="pcard">
+  $('sheet').innerHTML=list.map(v=>{
+      const strip=elementStrip(v);
+      return `<div class="pcard">
+      ${strip?`<div class="elstrip">${strip}</div>`:''}
       <div class="pref">${esc(v.ref)}</div>
       <div class="ptext">${esc(verseText(v))}</div>
       <div class="pref aft">${esc(v.ref)}</div>
       <div class="pfoot">${esc(S.tr)} &middot; usmcmin.org/memorize</div>
-    </div>`).join('');
+    </div>`;}).join('');
   setTimeout(()=>window.print(),60);
 }
 

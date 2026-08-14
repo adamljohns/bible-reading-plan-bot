@@ -150,11 +150,13 @@ function cleanVerse(s) {
     .replace(/&nbsp;/g, ' ')
     .replace(/&/g, '&').replace(/</g, '<').replace(/>/g, '>')
     .replace(/[\u24B6-\u24FF\u2460-\u2473]/g, '')
-    .replace(/\s*\[[a-z0-9]+\]/gi, '')
+    .replace(/\s*\[[a-z]\]/gi, '')  // single-letter footnotes only
+    .replace(/\[([A-Za-z]{2,})\]/g, '$1')  // unwrap supplied words like [life]
     .replace(/\s*\([a-z]\)/g, '')
     .replace(/\[\d+\]/g, '')
     .replace(/(\w) [a-c](?= [A-Z])/g, '$1')
     .replace(/([a-zA-Z])(\d{2,5})(?=[\s,;:.!?'")\-]|$)/g, '$1')
+    .replace(/\s+\S+:\s+(?:or|Heb|Gr|Gk|Chald|Chal|Called)\b.*$/i, '')
     .replace(/\s*[;:]\s*(Heb\.|Gr\.|or,|that is,)[^;:.]*(?=[;:.]|$)/g, '')
     .replace(/\s+[A-Za-z][\w-]*:\s+(?:or|Heb|Gr|Gk|Chald|Chal|Called)\b.*$/, '')
     .replace(/\s+a bushel:\s+the word in the original.*$/i, '')
