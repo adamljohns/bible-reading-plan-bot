@@ -69,17 +69,33 @@ const BEATS = [
 
 const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 
-function durations(total) {
-  const text = fs.readFileSync(NARR, 'utf8');
-  const idx = BEATS.map(b => (b.marker ? text.indexOf(b.marker) : 0));
-  idx.forEach((v, i) => { if (v === -1) throw new Error(`marker not found: ${BEATS[i].marker}`); });
-  const words = idx.map((s, i) => {
-    const e = i + 1 < idx.length ? idx[i + 1] : text.length;
-    return text.slice(s, e).split(/\s+/).filter(Boolean).length;
-  });
-  const sum = words.reduce((a, b) => a + b, 0);
-  /* Every beat needs to outlast one crossfade on each side, or xfade eats it. */
-  return words.map(w => Math.max(XF * 2 + 1.2, (w / sum) * total));
+/* Beat boundaries come from the ACTUAL audio, not a word-count proxy.
+   whisper gives every word a timestamp; scripts/align-narration.js finds when
+   each marker phrase is really spoken. The old word-share model assumed a
+   uniform speaking rate and ran the picture up to 2.9s ahead of the voice,
+   which is exactly what "the slides advance too quickly" felt like.
+
+   Each beat is its spoken length plus one crossfade, which makes the xfade
+   offset for beat i fall naturally on cut[i]; the offset is then pulled back
+   half a fade so the dissolve straddles the line rather than starting on it. */
+function cutTimes(total) {
+  const markers = BEATS.map(b => b.marker);
+  fs.writeFileSync(path.join(WORK, 'markers.json'), JSON.stringify(markers));
+  const wordsJson = process.env.PC_WORDS || '/tmp/pc2-words.json';
+  if (!fs.existsSync(wordsJson)) {
+    throw new Error(`no word timings at ${wordsJson}. Run:\n` +
+      `  ffmpeg -y -i ${AUDIO} -ar 16000 -ac 1 -c:a pcm_s16le /tmp/pc2.wav\n` +
+      `  whisper-cli -m ~/.openclaw/whisper_models/ggml-large-v3.bin -f /tmp/pc2.wav -oj -ml 1 -of /tmp/pc2-words`);
+  }
+  const out = execFileSync('node',
+    [path.join(__dirname, 'align-narration.js'), wordsJson, path.join(WORK, 'markers.json')]).toString();
+  const cuts = JSON.parse(out);
+  if (cuts.length !== BEATS.length) throw new Error('cut count does not match beat count');
+  for (let i = 1; i < cuts.length; i++) {
+    if (cuts[i] <= cuts[i - 1]) throw new Error(`cuts not increasing at beat ${i}`);
+  }
+  const segs = cuts.map((c, i) => (i + 1 < cuts.length ? cuts[i + 1] : total) - c);
+  return { cuts, durs: segs.map(d => d + XF) };
 }
 
 async function capture() {
@@ -169,8 +185,8 @@ function slideHTML(beat, uri) {
 
   const audioSecs = parseFloat(execFileSync('ffprobe',
     ['-v','error','-show_entries','format=duration','-of','default=nw=1:nk=1', AUDIO]).toString().trim());
-  const durs = durations(audioSecs);
-  console.log(`audio ${audioSecs.toFixed(1)}s across ${BEATS.length} beats`);
+  const { cuts, durs } = cutTimes(audioSecs);
+  console.log(`audio ${audioSecs.toFixed(1)}s across ${BEATS.length} beats, cut to the spoken word`);
 
   const b = await webkit.launch({ headless: true });
   const page = await (await b.newContext({ viewport:{width:1920,height:1080} })).newPage();
@@ -184,7 +200,7 @@ function slideHTML(beat, uri) {
     await page.setContent(slideHTML(beat, uri), { waitUntil:'load' });
     await page.waitForTimeout(750);                    // let the webfonts land
     await page.screenshot({ path: path.join(WORK, `slide-${String(i).padStart(2,'0')}.png`) });
-    console.log(`  ${String(durs[i].toFixed(1)).padStart(6)}s  ${beat.push.padEnd(3)}  ${beat.t.slice(0,42)}`);
+    console.log(`  cut ${String(cuts[i].toFixed(1)).padStart(6)}s  hold ${String((durs[i]-XF).toFixed(1)).padStart(5)}s  ${beat.t.slice(0,38)}`);
   }
   await b.close();
 
@@ -218,11 +234,13 @@ function slideHTML(beat, uri) {
     fc += `[${i}:v]scale=3840:-1,zoompan=z='${z}':d=${frames}:` +
           `x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s=1920x1080:fps=${FPS},setsar=1[v${i}];`;
   });
-  let prev = 'v0', off = durs[0] - XF;
+  let prev = 'v0';
   for (let i = 1; i < BEATS.length; i++) {
     const out = i === BEATS.length - 1 ? 'vout' : `x${i}`;
+    // Straddle the line: the dissolve is centred on the moment it is spoken.
+    const off = Math.max(0.1, cuts[i] - XF / 2);
     fc += `[${prev}][v${i}]xfade=transition=fade:duration=${XF}:offset=${off.toFixed(3)}[${out}];`;
-    prev = out; off += durs[i] - XF;
+    prev = out;
   }
   fc = fc.replace(/;$/, '');
 
