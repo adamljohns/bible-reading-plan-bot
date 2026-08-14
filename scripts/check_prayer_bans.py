@@ -41,6 +41,7 @@ GLOBAL_BANS = [
 
 PRAYER_BANS = [
     ("brother_adam", re.compile(r"\bBrother Adam\b")),
+    ("vocative_brother", re.compile(r"\b[Bb]rother\b")),
     ("vocative_adam", re.compile(r"\bGrant me,\s*Adam\b|\bAdam,\s+the courage", re.I)),
     ("this_father", re.compile(r"\bthis father\b", re.I)),
     # Corporate first-person bans (subject/object of the pray-er). Narrow:

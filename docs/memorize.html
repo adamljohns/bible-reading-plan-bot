@@ -729,13 +729,49 @@ function toggleStack(){
 }
 
 /* ---------- listen ------------------------------------------------------ */
-/* Listen mode is the one thing usable while driving. SpeechSynthesis is
-   on-device, so it costs nothing and works offline. */
-function listen(v){
-  v = v || cur(); if(!v||!window.speechSynthesis) return;
+/* Assigned Bible-book narrators from live book-voices.json (PJG-0814-MEM4).
+   Play existing chapter audio when it is already published. Browser TTS is
+   fallback only on 404 — do not invent a highlighter or bake the pack set. */
+let BOOK_VOICES=null, listenAudio=null;
+async function loadBookVoices(){
+  if(BOOK_VOICES) return BOOK_VOICES;
+  try{
+    const r=await fetch('/data/book-voices.json',{cache:'force-cache'});
+    if(!r.ok) return null;
+    BOOK_VOICES=await r.json();
+    return BOOK_VOICES;
+  }catch(e){ return null; }
+}
+function bookMetaFromRef(ref){
+  const parsed=parseAddRef(ref);
+  if(!parsed) return null;
+  const id=bookIdOf(parsed.book);
+  if(!id) return null;
+  const map=BOOK_VOICES && Array.isArray(BOOK_VOICES.books) ? BOOK_VOICES.books : [];
+  const rec=map.find(b=>Number(b.id)===Number(id)) || null;
+  return { id, ch: parsed.ch, rec, parsed };
+}
+function fallbackSpeak(v){
+  if(!window.speechSynthesis) return;
   speechSynthesis.cancel();
   const u=new SpeechSynthesisUtterance(`${v.ref}. ${verseText(v)}. ${v.ref}.`);
   u.rate=.92; speechSynthesis.speak(u);
+}
+async function listen(v){
+  v = v || cur(); if(!v) return;
+  if(listenAudio){ try{ listenAudio.pause(); }catch(e){} listenAudio=null; }
+  if(window.speechSynthesis) speechSynthesis.cancel();
+  await loadBookVoices();
+  const meta=bookMetaFromRef(v.ref);
+  if(!meta){ fallbackSpeak(v); return; }
+  const url=`https://audio.usmcmin.org/bible/${meta.id}-${meta.ch}.mp3`;
+  try{
+    const head=await fetch(url,{method:'HEAD'});
+    if(!head.ok){ fallbackSpeak(v); return; }
+  }catch(e){ fallbackSpeak(v); return; }
+  const a=new Audio(url);
+  listenAudio=a;
+  a.play().catch(()=>fallbackSpeak(v));
 }
 
 /* ---------- flag tricky -------------------------------------------------- */
