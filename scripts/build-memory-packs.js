@@ -93,6 +93,44 @@ const PACKS = [
     blurb: 'The long haul. Matthew 5 start to finish, a chunk at a time.',
     refs: Array.from({ length: 16 }, (_, i) => `Mat 5:${i + 1}`),
   },
+  {
+    id: 'word-hand',
+    name: 'The Word Hand',
+    mode: 'verse',
+    blurb: 'Hear, read, study, memorize, meditate. Official US Nav verses plus attested companions.',
+    refs: [
+      { ref: 'Rom 10:17', part: 'pinky', method: 'Hearing', kind: 'official' },
+      { ref: 'Luk 11:28', part: 'pinky', method: 'Hearing', kind: 'companion' },
+      { ref: 'Rev 1:3', part: 'ring', method: 'Reading', kind: 'official' },
+      { ref: 'Deu 17:19', part: 'ring', method: 'Reading', kind: 'companion' },
+      { ref: 'Act 17:11', part: 'middle', method: 'Studying', kind: 'official' },
+      { ref: '2Ti 2:15', part: 'middle', method: 'Studying', kind: 'companion' },
+      { ref: 'Psa 119:9', part: 'index', method: 'Memorizing', kind: 'official' },
+      { ref: 'Psa 119:11', part: 'index', method: 'Memorizing', kind: 'official' },
+      { ref: 'Psa 1:2-3', part: 'thumb', method: 'Meditating', kind: 'official' },
+      { ref: 'Jos 1:8', part: 'thumb', method: 'Meditating', kind: 'companion' },
+    ],
+  },
+  {
+    id: 'the-wheel',
+    name: 'The Wheel',
+    mode: 'verse',
+    blurb: 'Christ the Center, obedience as the rim, four spokes: Word, Prayer, Fellowship, Witness.',
+    refs: [
+      { ref: '2Co 5:17', part: 'hub', method: 'Christ the Center', kind: 'official' },
+      { ref: 'Gal 2:20', part: 'hub', method: 'Christ the Center', kind: 'official' },
+      { ref: 'Rom 12:1', part: 'rim', method: 'Obedience to Christ', kind: 'official' },
+      { ref: 'Joh 14:21', part: 'rim', method: 'Obedience to Christ', kind: 'official' },
+      { ref: '2Ti 3:16', part: 'word', method: 'The Word', kind: 'official' },
+      { ref: 'Jos 1:8', part: 'word', method: 'The Word', kind: 'official' },
+      { ref: 'Joh 15:7', part: 'prayer', method: 'Prayer', kind: 'official' },
+      { ref: 'Php 4:6-7', part: 'prayer', method: 'Prayer', kind: 'official' },
+      { ref: 'Mat 18:20', part: 'fellowship', method: 'Fellowship', kind: 'official' },
+      { ref: 'Heb 10:24-25', part: 'fellowship', method: 'Fellowship', kind: 'official' },
+      { ref: 'Mat 4:19', part: 'witness', method: 'Witnessing', kind: 'official' },
+      { ref: 'Rom 1:16', part: 'witness', method: 'Witnessing', kind: 'official' },
+    ],
+  },
 ];
 
 /* The cache stores KJV with inline Strong's markup — "yourselves<S>5293</S>
@@ -100,18 +138,32 @@ const PACKS = [
    raw would ask a man to memorize concordance numbers, so every translation is
    scrubbed and then gated below. Mirrors bin/kjv_lookup.py's clean(). */
 function cleanVerse(s) {
+  /* Mirrors BTE cleanVerseText() plus NIV heading-glue / KJV translator-note scrub. */
   return s
-    .replace(/<S>\d+<\/S>/g, '')           // Strong's tags
-    .replace(/<[^>]+>/g, '')               // any other markup (italics for supplied words)
+    .replace(/<sup>[^<]*<\/sup>/gi, '')
+    .replace(/<S>\d+<\/S>/gi, '')
+    .replace(/<s>[^<]*<\/s>/gi, '')
+    .replace(/<strike>[^<]*<\/strike>/gi, '')
+    .replace(/[\u0336]/g, '')
+    .replace(/<br\s*\/?>/gi, ' ')
+    .replace(/<[^>]+>/g, '')
     .replace(/&nbsp;/g, ' ')
-    .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
-    .replace(/\s+([,.;:!?])/g, '$1')       // space pushed before punctuation by tag removal
-    /* KJV translators' marginal glosses ride at the end of the verse text:
-       "...that ye may be able to bear it. common: or, moderate" and
-       "...to the obedience of Christ; imaginations: or, reasonings".
-       They are apparatus, not Scripture, and a man drilling word-perfect would
-       dutifully memorize them. Same rule as bin/kjv_lookup.py's clean(). */
+    .replace(/&/g, '&').replace(/</g, '<').replace(/>/g, '>')
+    .replace(/[\u24B6-\u24FF\u2460-\u2473]/g, '')
+    .replace(/\s*\[[a-z0-9]+\]/gi, '')
+    .replace(/\s*\([a-z]\)/g, '')
+    .replace(/\[\d+\]/g, '')
+    .replace(/(\w) [a-c](?= [A-Z])/g, '$1')
+    .replace(/([a-zA-Z])(\d{2,5})(?=[\s,;:.!?'")\-]|$)/g, '$1')
+    .replace(/\s*[;:]\s*(Heb\.|Gr\.|or,|that is,)[^;:.]*(?=[;:.]|$)/g, '')
     .replace(/\s+[A-Za-z][\w-]*:\s+(?:or|Heb|Gr|Gk|Chald|Chal|Called)\b.*$/, '')
+    .replace(/\s+a bushel:\s+the word in the original.*$/i, '')
+    .replace(/:?\s*the word in the original[^.]*\.?/gi, '')
+    .replace(/\b(The Beatitudes|Life Through the Spirit|Salt and Light)\s*/g, '')
+    .replace(/^(?:[A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)\s+(?=Therefore|Now |[“"]|Blessed)/, '')
+    .replace(/heartthat/g, 'heart that')
+    .replace(/([,;:.!?])([A-Za-z])/g, '$1 $2')
+    .replace(/\s+([,.;:!?])/g, '$1')
     .replace(/\s+/g, ' ')
     .trim();
 }
@@ -123,6 +175,13 @@ function assertClean(ref, tr, text) {
   if (/\s[,.;:]/.test(text)) throw new Error(`${ref} ${tr}: space before punctuation`);
   if (/\b[a-z][\w-]*:\s+(or|Heb|Gr|Gk|Chald|Chal|Called)\b/.test(text))
     throw new Error(`${ref} ${tr}: KJV margin note survived -> ${text.slice(-60)}`);
+  if (/[\u24B6-\u24FF\u2460-\u2473]/.test(text))
+    throw new Error(`${ref} ${tr}: circled glyph survived`);
+  if (/\[\d+\]/.test(text)) throw new Error(`${ref} ${tr}: [n] footnote survived`);
+  if (/The BeatitudesNow|Life Through the SpiritTherefore|heartthat /.test(text))
+    throw new Error(`${ref} ${tr}: NIV heading-glue survived`);
+  if (/bushel:\s*the word/i.test(text))
+    throw new Error(`${ref} ${tr}: KJV translator note survived`);
 }
 
 /* "Rom 1:16" or "Rom 1:16-17". A range is ONE card: some verses only preach as
@@ -151,7 +210,9 @@ function main() {
 
   for (const pack of PACKS) {
     const verses = [];
-    for (const ref of pack.refs) {
+    for (const entry of pack.refs) {
+      const meta = typeof entry === 'string' ? { ref: entry } : entry;
+      const ref = meta.ref;
       const p = parseRef(ref);
       const entries = p.keys.map(k => cache[k]);
       if (entries.some(e => !e)) { console.warn(`  MISS ${ref}`); missing++; continue; }
@@ -166,8 +227,12 @@ function main() {
       }
       if (!text.KJV) { console.warn(`  MISS KJV ${ref}`); missing++; continue; }
 
-      verses.push({ ref: display(p),
-        slug: `${p.book}-${p.ch}-${p.from}${p.to > p.from ? `-${p.to}` : ''}`.toLowerCase(), text });
+      const verse = { ref: display(p),
+        slug: `${p.book}-${p.ch}-${p.from}${p.to > p.from ? `-${p.to}` : ''}`.toLowerCase(), text };
+      if (meta.part) verse.part = meta.part;
+      if (meta.method) verse.method = meta.method;
+      if (meta.kind) verse.kind = meta.kind;
+      verses.push(verse);
     }
     out.packs.push({ id: pack.id, name: pack.name, mode: pack.mode, blurb: pack.blurb, verses });
     console.log(`  ${pack.name.padEnd(24)} ${verses.length}/${pack.refs.length} verses`);

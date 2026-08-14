@@ -926,6 +926,13 @@
             transition: border-color 0.2s, color 0.2s;
         }
         .how-strip .how-more a:hover { color: var(--gold, #D4AF37); border-color: var(--gold, #D4AF37); }
+        .how-strip .how-more a.how-gold {
+            color: #000;
+            background: var(--gold, #D4AF37);
+            border-color: var(--gold, #D4AF37);
+            font-weight: 700;
+        }
+        .how-strip .how-more a.how-gold:hover { color: #000; filter: brightness(1.08); }
         body.light-mode .how-strip { background: #fff !important; border-color: #d4d0c8 !important; }
         body.light-mode .how-strip li strong { color: #1a1a1a !important; }
         body.light-mode .hamburger { border-color: #d4d0c8; }
@@ -1167,9 +1174,10 @@
                     <li><strong>Read the blend.</strong> Primary text first; expand tools for variants, Strong's, and cross-refs.</li>
                     <li><strong>Go deeper.</strong> Tap Strong's numbers for lexicon studies; follow chains in Cross-Refs.</li>
                     <li><strong>Stay on plan.</strong> Open today's Watchman watches or the chronological year from the home widgets.</li>
+                    <li><strong>Hide it.</strong> Chamber this verse in Pressure Check.</li>
                 </ol>
                 <div class="how-more">
-                    <a href="watchman.html"><img src="assets/icons/shield-bible.png" alt="" width="14" height="14"> Watchman Plan</a>
+                    <a class="how-gold" href="memorize.html"><img src="assets/icons/shield-star.png" alt="" width="14" height="14"> Memorize</a>
                     <a href="chronological.html"><img src="assets/icons/shield-calendar.png" alt="" width="14" height="14"> Chronological 2026</a>
                     <a href="lexicon.html"><img src="assets/icons/shield-alpha-omega-48.png" alt="" width="14" height="14"> Lexicon</a>
                     <a href="cross-references.html"><img src="assets/icons/shield-infinity-rope-48.png" alt="" width="14" height="14"> Cross-Refs</a>
@@ -3389,7 +3397,7 @@
                 '<input type="text" class="goto-input" id="gotoInput" placeholder="ch:verse" onkeydown="if(event.key===\'Enter\')gotoChapterVerse()" style="width:80px;">' +
                 '<button class="goto-btn" onclick="gotoChapterVerse()">Go</button>' +
                 '<span style="color:var(--border);margin:0 6px;">|</span>' +
-                '<span class="bookmark-btn' + bmActive + '" onclick="toggleBookmark(\'' + bmRef.replace(/'/g, "\\'") + '\')" title="Bookmark this passage" style="display:inline-flex;align-items:center;gap:4px;cursor:pointer;"><img src="assets/icons/' + bmIcon + '" class="site-icon" alt="bookmark" width="20" height="20"><span style="font-size:0.75rem;color:var(--gray);">' + (isBookmarked(bmRef) ? 'Saved' : 'Bookmark') + '</span></span>' +
+                '<span class="bookmark-btn' + bmActive + '" onclick="toggleBookmark(\'' + bmRef.replace(/'/g, "\\'") + '\')" title="Bookmark / Memorize this passage" style="display:inline-flex;align-items:center;gap:4px;cursor:pointer;"><img src="assets/icons/' + bmIcon + '" class="site-icon" alt="bookmark" width="20" height="20"><span style="font-size:0.75rem;color:var(--gray);">' + (isBookmarked(bmRef) ? 'Saved' : 'Bookmark / Memorize') + '</span></span>' +
                 '</div>';
             // BTE v5.2: Word search (chapter mode only)
             if (currentViewMode === 'chapter') {
@@ -4344,16 +4352,39 @@
         function isBookmarked(ref) {
             return getBookmarks().some(function(b) { return b.ref === ref; });
         }
+        function upsertMemorizeCard(ref) {
+            /* PJG-0814-MEM1: bookmark also chambers the verse in Pressure Check.
+               Key: moop.memorize.v1. Un-bookmark must not wipe reps/best. */
+            var LS = 'moop.memorize.v1';
+            var S;
+            try { S = JSON.parse(localStorage.getItem(LS) || '{}') || {}; } catch (e) { S = {}; }
+            if (!S.cards) S.cards = {};
+            if (!S.tr) S.tr = 'NKJV';
+            var today = new Date().toLocaleDateString('en-CA');
+            var slug = String(ref || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+            if (!slug) return false;
+            var existing = S.cards[slug];
+            if (existing) {
+                existing.due = existing.due || today;
+                existing.bucket = existing.bucket || 'daily';
+                existing.source = existing.source || 'bte-bookmark';
+                existing.ref = existing.ref || ref;
+            } else {
+                S.cards[slug] = { bucket: 'daily', due: today, best: 0, reps: 0, passedTo: '', source: 'bte-bookmark', ref: ref };
+            }
+            try { localStorage.setItem(LS, JSON.stringify(S)); return true; } catch (e) { return false; }
+        }
         function toggleBookmark(ref) {
             var bm = getBookmarks();
             var idx = bm.findIndex(function(b) { return b.ref === ref; });
             if (idx >= 0) {
                 bm.splice(idx, 1);
-                showToast('Bookmark removed: ' + ref);
+                showToast('Bookmark removed: ' + ref + ' (stack history kept)');
             } else {
                 bm.unshift({ ref: ref, ts: Date.now() });
                 if (bm.length > 50) bm = bm.slice(0, 50); // cap at 50
-                showToast('Bookmarked: ' + ref);
+                var stacked = upsertMemorizeCard(ref);
+                showToast(stacked ? ('Bookmarked / memorized: ' + ref) : ('Bookmarked: ' + ref));
             }
             saveBookmarks(bm);
             // Re-render top nav bookmark icon

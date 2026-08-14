@@ -97,6 +97,14 @@ select{font:inherit;background:var(--bg-raise);color:var(--white);border:1px sol
 .blank{display:inline-block;border-bottom:1.5px solid var(--gold);min-width:2.2em;
   margin:0 .1em;color:transparent}
 .firstletter{letter-spacing:.06em;word-spacing:.35em}
+.nav-illus{margin:1.6rem 0 1rem}
+.nav-illus h2{font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:.6rem}
+.svg-host svg{width:100%;max-width:320px;height:auto;display:block;margin:0 auto}
+.svg-host [data-part]{cursor:pointer}
+.svg-host [data-part]:hover rect,.svg-host [data-part]:hover circle,.svg-host [data-part]:hover path,.svg-host [data-part]:hover line{filter:brightness(1.25)}
+.nav-attr{font-size:.72rem;color:var(--gray);margin:1rem 0 0;line-height:1.45}
+.nav-attr a{color:var(--gold)}
+.add-fail{color:var(--bad);font-size:.85rem;margin:.6rem 0}
 
 textarea{width:100%;min-height:120px;background:var(--bg-raise);color:var(--white);
   border:1px solid var(--border);border-radius:10px;padding:.7rem;font:inherit;line-height:1.5;
@@ -200,6 +208,19 @@ footer{border-top:1px solid var(--border);margin-top:2.5rem;padding-top:1rem;
 
     <h2 style="font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:.6rem">Packs</h2>
     <div id="packs"></div>
+    <p id="addFail" class="add-fail hidden"></p>
+
+    <section id="hand" class="nav-illus">
+      <h2>The Word Hand</h2>
+      <div id="handSvg" class="svg-host"></div>
+    </section>
+    <section id="wheel" class="nav-illus">
+      <h2>The Wheel</h2>
+      <div id="wheelSvg" class="svg-host"></div>
+    </section>
+    <p class="nav-attr">The Word Hand and The Wheel are discipleship tools of The Navigators.
+      Used with gratitude. <a href="https://www.navigators.org/resources/">navigators.org</a>.
+      Diagrams are original USMC-styled drawings, not NavPress card art.</p>
   </section>
 
   <!-- ============ BROWSE ============ -->
@@ -306,6 +327,7 @@ footer{border-top:1px solid var(--border);margin-top:2.5rem;padding-top:1rem;
   <footer>
     U.S.M.C. Ministries &middot; Bible Engine &middot; Word-perfect means every word, in order,
     with punctuation, reference fore and aft. Progress is stored on this device only.
+    The Word Hand and The Wheel &copy; The Navigators. Used with gratitude.
   </footer>
 </div>
 
@@ -317,7 +339,7 @@ footer{border-top:1px solid var(--border);margin-top:2.5rem;padding-top:1rem;
 const LS='moop.memorize.v1';
 const load=()=>{ try{return JSON.parse(localStorage.getItem(LS))||{}}catch(e){return{}} };
 const save=s=>{ try{localStorage.setItem(LS,JSON.stringify(s))}catch(e){} };
-let S=Object.assign({cards:{},streak:0,lastDay:null,tr:'KJV',mins:7},load());
+let S=Object.assign({cards:{},extras:{},streak:0,lastDay:null,tr:'NKJV',mins:7},load());
 
 const today=()=>new Date().toLocaleDateString('en-CA');
 const dayNum=d=>Math.floor(new Date(d+'T00:00:00').getTime()/864e5);
@@ -418,19 +440,33 @@ const firstLetters=text=>tokenize(text)
 let PACKS=[], queue=[], qi=0, step='read', blankLvl=2, endAt=0, recog=null;
 
 async function boot(){
-  const r=await fetch('/data/memory-packs.json',{cache:'force-cache'});
+  const r=await fetch('/data/memory-packs.json?v=20260814',{cache:'force-cache'});
   const d=await r.json();
   PACKS=d.packs;
+  if(!S.tr) S.tr='NKJV';
   const sel=$('tr');
   sel.innerHTML=d.translations.map(t=>`<option${t===S.tr?' selected':''}>${t}</option>`).join('');
   sel.onchange=()=>{S.tr=sel.value;save(S);paint();};
   $('mins').value=String(S.mins);
   $('mins').onchange=()=>{S.mins=+$('mins').value;save(S);};
+  await mountDiagrams();
+  await addFromQuery();
+  if(location.hash==='#hand'||location.hash==='#wheel'){
+    const el=$(location.hash.slice(1)); if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
+  }
   renderPacks(); paint();
   if(S.nudge){ $('btnNudge').textContent='Nudge on'; $('btnNudge').setAttribute('aria-pressed','true'); fireNudge(false); }
 }
 
-function allVerses(){ return PACKS.flatMap(p=>p.verses.map(v=>({...v,pack:p.id}))); }
+function extraVerses(){
+  return Object.entries(S.extras||{}).map(([slug,e])=>({slug,ref:e.ref,text:e.text,pack:'__extra'}));
+}
+function allVerses(){
+  const packV=PACKS.flatMap(p=>p.verses.map(v=>({...v,pack:p.id})));
+  const extra=extraVerses().filter(v=>!packV.some(p=>p.slug===v.slug||normRef(p.ref)===normRef(v.ref)));
+  return packV.concat(extra);
+}
+function normRef(r){ return String(r||'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim(); }
 function dueList(){ return allVerses().filter(v=>S.cards[v.slug]&&isDue(S.cards[v.slug])); }
 
 function paint(){
@@ -462,9 +498,20 @@ function renderPacks(){
 }
 
 /* ---------- session ---------------------------------------------------- */
+function stackVerses(){
+  const bookmarked=[], rest=[];
+  for(const [slug,c] of Object.entries(S.cards||{})){
+    let v=allVerses().find(x=>x.slug===slug);
+    if(!v && c.ref) v=allVerses().find(x=>normRef(x.ref)===normRef(c.ref));
+    if(!v && S.extras && S.extras[slug]) v={slug,...S.extras[slug],pack:'__extra'};
+    if(!v) continue;
+    (c.source==='bte-bookmark'?bookmarked:rest).push(v);
+  }
+  return bookmarked.concat(rest);
+}
 function startPack(id){
   if(id==='__stack'){
-    queue=allVerses().filter(v=>S.cards[v.slug]).slice(0,20);
+    queue=stackVerses().slice(0,20);
     if(queue.length) begin();
     return;
   }
@@ -502,7 +549,7 @@ function setStep(s){
 }
 
 function cur(){ return queue[qi]; }
-function verseText(v){ return v.text[S.tr] || v.text.KJV; }
+function verseText(v){ return (v.text&& (v.text[S.tr] || v.text.NKJV || v.text.KJV)) || ''; }
 
 function show(){
   const v=cur(); if(!v) return finish();
@@ -743,6 +790,127 @@ $('btnSkip').onclick=()=>{ qi++; (qi>=queue.length)?finish():show(); };
 $('btnQuit').onclick=finish;
 $('btnDue').onclick=startDue;
 $('answer').addEventListener('keydown',e=>{ if(e.key==='Enter'&&(e.metaKey||e.ctrlKey)) check(); });
+
+function failAdd(msg){
+  const el=$('addFail'); if(!el) return;
+  el.textContent=msg; el.classList.remove('hidden');
+}
+function parseAddRef(raw){
+  const s=decodeURIComponent(String(raw||'').replace(/\+/g,' ')).trim();
+  const m=s.match(/^((?:\d\s*)?[A-Za-z]+)\s+(\d+):(\d+)(?:-(\d+))?$/);
+  if(!m) return null;
+  const book=m[1].replace(/\s+/g,'');
+  return { raw:s, book, ch:+m[2], from:+m[3], to:m[4]?+m[4]:+m[3] };
+}
+const BOOK_ID={Genesis:1,Exodus:2,Leviticus:3,Numbers:4,Deuteronomy:5,Joshua:6,Judges:7,Ruth:8,
+  '1Samuel':9,'2Samuel':10,'1Kings':11,'2Kings':12,'1Chronicles':13,'2Chronicles':14,Ezra:15,Nehemiah:16,
+  Esther:17,Job:18,Psalm:19,Psalms:19,Proverbs:20,Ecclesiastes:21,Isaiah:23,Jeremiah:24,Lamentations:25,
+  Ezekiel:26,Daniel:27,Hosea:28,Joel:29,Amos:30,Obadiah:31,Jonah:32,Micah:33,Nahum:34,Habakkuk:35,
+  Zephaniah:36,Haggai:37,Zechariah:38,Malachi:39,Matthew:40,Mark:41,Luke:42,John:43,Acts:44,Romans:45,
+  '1Corinthians':46,'2Corinthians':47,Galatians:48,Ephesians:49,Philippians:50,Colossians:51,
+  '1Thessalonians':52,'2Thessalonians':53,'1Timothy':54,'2Timothy':55,Titus:56,Philemon:57,Hebrews:58,
+  James:59,'1Peter':60,'2Peter':61,'1John':62,'2John':63,'3John':64,Jude:65,Revelation:66,
+  Gen:1,Exo:2,Lev:3,Num:4,Deu:5,Jos:6,Jdg:7,Rut:8,'1Sa':9,'2Sa':10,'1Ki':11,'2Ki':12,'1Ch':13,'2Ch':14,
+  Psa:19,Pro:20,Ecc:21,Isa:23,Jer:24,Eze:26,Dan:27,Mat:40,Mar:41,Luk:42,Joh:43,Act:44,Rom:45,'1Co':46,
+  '2Co':47,Gal:48,Eph:49,Php:50,Col:51,'1Th':52,'2Th':53,'1Ti':54,'2Ti':55,Heb:58,Jas:59,'1Pe':60,'2Pe':61,
+  '1Jn':62,Rev:66};
+function bookIdOf(name){
+  const k=String(name||'').replace(/\s+/g,'');
+  return BOOK_ID[k] || BOOK_ID[k.replace(/^(\d)/,'$1 ')] || null;
+}
+async function fetchChapterJson(bookId, ch){
+  const r=await fetch(`/assets/chapters/${bookId}_${ch}.json`);
+  if(!r.ok) return null;
+  try{ return await r.json(); }catch(e){ return null; }
+}
+function cleanFetched(t){
+  if(!t) return '';
+  return String(t)
+    .replace(/<[^>]+>/g,' ')
+    .replace(/[\u24B6-\u24FF\u2460-\u2473]/g,'')
+    .replace(/\s*\[[a-z0-9]+\]/gi,'')
+    .replace(/\[\d+\]/g,'')
+    .replace(/\b(The Beatitudes|Life Through the Spirit|Salt and Light)\s*/g,'')
+    .replace(/heartthat/g,'heart that')
+    .replace(/\s+/g,' ').trim();
+}
+async function lookupVerseTexts(parsed){
+  const id=bookIdOf(parsed.book);
+  if(!id) return null;
+  const ch=await fetchChapterJson(id, parsed.ch);
+  if(!ch) return null;
+  const want=['NKJV','KJV','ESV','NASB','NIV','NLT','CSB17','WEB'];
+  const text={};
+  for(const tr of want){
+    const bag=ch[tr]; if(!bag) continue;
+    const parts=[];
+    for(let v=parsed.from; v<=parsed.to; v++){
+      const raw=bag[String(v)];
+      const cleaned=cleanFetched(raw);
+      if(!cleaned){ parts.length=0; break; }
+      parts.push(cleaned);
+    }
+    if(parts.length) text[tr]=parts.join(' ');
+  }
+  if(!text.NKJV && !text.KJV) return null;
+  return text;
+}
+function slugFromParsed(p){
+  return `${p.book}-${p.ch}-${p.from}${p.to>p.from?'-'+p.to:''}`.toLowerCase().replace(/[^a-z0-9-]+/g,'-');
+}
+async function addFromQuery(){
+  const q=new URLSearchParams(location.search).get('add');
+  if(!q) return;
+  const parsed=parseAddRef(q);
+  if(!parsed){ failAdd('Could not add that reference. Use a verse like John 3:16.'); return; }
+  let v=allVerses().find(x=>normRef(x.ref)===normRef(parsed.raw) || x.slug===slugFromParsed(parsed));
+  if(!v){
+    const text=await lookupVerseTexts(parsed);
+    if(!text){ failAdd('Verse text missing — not invented. Try the Bible Engine, then bookmark.'); return; }
+    const slug=slugFromParsed(parsed);
+    const ref=parsed.to>parsed.from ? `${parsed.book} ${parsed.ch}:${parsed.from}-${parsed.to}` : `${parsed.book} ${parsed.ch}:${parsed.from}`;
+    S.extras=S.extras||{};
+    S.extras[slug]={ref, text};
+    v={slug, ref, text, pack:'__extra'};
+  }
+  const c=card(v.slug);
+  c.ref=v.ref; c.source=c.source||'deep-link'; c.due=c.due||today(); c.bucket=c.bucket||'daily';
+  save(S);
+  history.replaceState({}, '', location.pathname + location.hash);
+  openBrowse();
+  const sel=$('browsePack');
+  if(sel){ sel.value='*'; loadBrowse(); }
+  const idx=bList.findIndex(x=>x.slug===v.slug);
+  if(idx>=0){ bi=idx; showBrowse(); }
+}
+async function mountDiagrams(){
+  async function put(id, url, packId){
+    const host=$(id); if(!host) return;
+    try{
+      const r=await fetch(url);
+      if(!r.ok) return;
+      host.innerHTML=await r.text();
+      host.querySelectorAll('[data-part]').forEach(el=>{
+        const go=()=>{
+          const part=el.getAttribute('data-part');
+          const pack=PACKS.find(p=>p.id===packId);
+          if(!pack) return;
+          const hit=pack.verses.find(v=>v.part===part);
+          if(!hit) return;
+          openBrowse();
+          const sel=$('browsePack');
+          if(sel){ sel.value=packId; loadBrowse(); }
+          const idx=bList.findIndex(x=>x.slug===hit.slug);
+          if(idx>=0){ bi=idx; showBrowse(); }
+        };
+        el.addEventListener('click', go);
+        el.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); go(); } });
+      });
+    }catch(e){}
+  }
+  await put('handSvg','/assets/icons/word-hand.svg','word-hand');
+  await put('wheelSvg','/assets/icons/the-wheel.svg','the-wheel');
+}
 
 initVoice();
 boot().catch(()=>{ $('packs').innerHTML='<p class="muted">Could not load packs. Check your connection once, then this page works offline.</p>'; });
