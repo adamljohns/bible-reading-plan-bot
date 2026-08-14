@@ -2,6 +2,7 @@
 // App-shell precache + network-first runtime caching (installable, offline-capable).
 // Scope "/" controls the whole site, including /dictionary/* once registered from any page.
 // v9 (2026-06-11): cache bump to flush any stale tacc.html after the double-PIN-gate fix.
+// v18 (2026-08-14): PJG-0814-MEM3 flush stale memorize.html placeholder (John 3:16 demo).
 // v17 (2026-08-12): precache the Verse Studies directory (46 curated verse pages live).
 // v16 (2026-08-06): PJG-0806-XREF1 BTE cross-refs bottom-only (no mid-chapter cards).
 // v14 (2026-07-21): PJG-0008D multi-pass load + layout.
@@ -10,7 +11,7 @@
 // v11 (2026-07-21): cache bump after BTE book-intro deep-link boot fix (PJG-0008).
 // v10 (2026-06-25): precache the Baptist Catechism + its assets; flush stale LBCF
 //   renderer/JSON after the single-chapter proof-text fix.
-const CACHE = 'usmc-v17';
+const CACHE = 'usmc-v18';
 
 // Core "app shell": the public ministry pages + key assets. Small + high-value.
 // Big data (Bible JSON, dictionary entries) caches on first visit via network-first below.
