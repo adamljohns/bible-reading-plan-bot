@@ -48,7 +48,25 @@ LENGTH_RATIO_WARN = 6.0  # soft only; long OT chapters are real
 BLEED_RULES = [
     ("malachi 2", "polluted food", "malachi1_polluted_food_in_mal2"),
     ("malachi 2", "blind animals for sacrifice", "malachi1_blind_animals_in_mal2"),
+    # PJG-0815-WIS1 — named Proverbs 15 must not carry foreign-chapter mash
+    ("proverbs 15", "pleasing words are a honeycomb", "prov16_honeycomb_in_prov15"),
+    ("proverbs 15", "way that seems right to a man", "prov14_16_way_seems_right_in_prov15"),
+    ("proverbs 15", "hear counsel and receive instruction", "prov19_counsel_in_prov15"),
+    ("proverbs 15", "many are the plans in a man", "prov19_plans_in_prov15"),
+    ("proverbs 15", "chasten your son while there is hope", "prov19_chasten_in_prov15"),
+    ("proverbs 15", "servant will not be spared from scourging", "foreign_scourging_in_prov15"),
+    ("proverbs 15", "lord’s eyes are on the righteous", "ps34_eyes_in_prov15"),
+    ("proverbs 15", "lords eyes are on the righteous", "ps34_eyes_in_prov15"),
+    ("proverbs 15", "face of the lord is against those who do evil", "ps34_face_in_prov15"),
 ]
+
+# Consecutive / near translation-doublets (soft vs gentle answer, etc.)
+DOUBLET_PAIRS = [
+    ("soft answer", "gentle answer"),
+    ("soft answer turns away wrath", "gentle answer turns away wrath"),
+    ("turns away wrath", "turns wrath aside"),
+]
+DOUBLET_NEAR_RATIO = 0.86
 
 
 def normalize(s: str) -> str:
@@ -109,6 +127,46 @@ def para_triples(scripture: str) -> list[tuple[int, str]]:
     paras = [p.strip() for p in re.split(r"\n\s*\n", scripture) if len(normalize(p)) >= MIN_SUB_LEN]
     pc = Counter(normalize(p) for p in paras)
     return [(c, p[:100]) for p, c in pc.items() if c >= MIN_OCC]
+
+
+def _tokens(s: str) -> list[str]:
+    return [t for t in normalize(s).split() if t]
+
+
+def _jaccard(a: list[str], b: list[str]) -> float:
+    sa, sb = set(a), set(b)
+    if not sa or not sb:
+        return 0.0
+    return len(sa & sb) / len(sa | sb)
+
+
+def doublet_hits(scripture: str) -> list[str]:
+    """Refuse consecutive/near translation-doublets (PJG-0815-WIS1)."""
+    sl = scripture.lower()
+    hits: list[str] = []
+    for a, b in DOUBLET_PAIRS:
+        if a in sl and b in sl:
+            hits.append(f"pair:{a[:24]}/{b[:24]}")
+    lines = [ln.strip() for ln in scripture.splitlines() if ln.strip()]
+    norms = [_tokens(ln) for ln in lines]
+    for i, left in enumerate(norms):
+        if len(left) < 6:
+            continue
+        for j in range(i + 1, min(i + 4, len(norms))):
+            right = norms[j]
+            if len(right) < 6:
+                continue
+            if _jaccard(left, right) >= DOUBLET_NEAR_RATIO:
+                sample = " ".join(left[:8])
+                hits.append(f"near:{sample}")
+    # unique preserve order
+    seen: set[str] = set()
+    out: list[str] = []
+    for h in hits:
+        if h not in seen:
+            seen.add(h)
+            out.append(h)
+    return out
 
 
 def bleed_hits(passage: str, scripture: str) -> list[str]:
@@ -247,6 +305,18 @@ def check_watch(date: str, wkey: str, passage: str, text: str, median: float | N
                 "code": "chapter_bleed",
                 "chars": len(scr),
                 "bleed": bleeds,
+            }
+        )
+    doubles = doublet_hits(scr)
+    if doubles:
+        fails.append(
+            {
+                "date": date,
+                "watch": wkey,
+                "passage": passage,
+                "code": "translation_doublet",
+                "chars": len(scr),
+                "bleed": doubles,
             }
         )
     # Length is soft: many single OT chapters legitimately exceed 3× median.

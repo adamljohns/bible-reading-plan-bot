@@ -440,17 +440,21 @@ def f5_prep(text):
     text = force_declarative_amen(text)
     # F5 cannot use misaki IPA — strip markup first
     text = re.sub(r"\[([^\]]+)\]\(/[^/)]+/\)", r"\1", text)
-    # Undo prior force tokens (a-MEN / uh MENN / Ah men) → plain Amen
+    # PJG-0815 / PJG-0811 reopen: keep Amen ATTACHED to "I pray." — never isolate.
+    # Principal ear wants second-syllable a-MEN /əˈmɛn/. Isolated F5 Amen → Ian.
+    # Attached respell on the same clause: "I pray. uh-MEN."
     text = re.sub(
-        r"\b(?:a-MEN|uh-MEN|uh MENN|uh MEN|a MEN|Ah men)\b",
-        "Amen",
+        r"\b(?:a-MEN|uh-MEN|uh MENN|uh MEN|a MEN|Ah men|Amen)\b\s*[.?!]*\s*$",
+        "uh-MEN.",
         text,
-        flags=re.I,
+        flags=re.I | re.M,
     )
-    # Terminal Amen declarative with period (attached to prior clause in chunks)
+    # If prayer already ends "I pray. uh-MEN." leave it; else glue Amen to I pray.
+    if re.search(r"I pray\.?\s+uh-MEN\.", text, flags=re.I):
+        return text.strip()
     text = re.sub(
-        r"\bAmen\b\s*[.?!]*\s*$",
-        "Amen.",
+        r"I pray\.?\s*(?:Amen|uh-MEN)?\.?\s*$",
+        "I pray. uh-MEN.",
         text,
         flags=re.I | re.M,
     )
@@ -474,7 +478,7 @@ def f5_chunks(text, mx=None):
         if not s:
             continue
         if amen_only.fullmatch(s.strip()):
-            amen = "Amen."
+            amen = "uh-MEN."
             if cur:
                 # preserve sentence boundary pause
                 base = cur.rstrip()

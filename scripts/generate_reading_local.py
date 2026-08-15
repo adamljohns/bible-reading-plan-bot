@@ -177,7 +177,12 @@ def build_watch_messages(w, ref, month, daynum, on_date: date):
     parts.append(f"1. Header line, exactly: {w['header']}")
     parts.append("2. Then ONE original sentence introducing today's theme — write the actual sentence; do NOT echo this instruction text.")
     parts.append(f"3. A line exactly: 📖 Scripture — {ref}")
-    parts.append(f"4. The scripture text of {ref} ONLY. Render only this reference. Do NOT import text from any other passage.")
+    parts.append(
+        f"4. The scripture text of {ref} ONLY. Named passage owns Scripture. "
+        "ONE translation pass, BTE NKJV primary. Do NOT dump a second English dress "
+        "of the same verse (e.g. soft answer then gentle answer). Do NOT import "
+        "unlabeled verses from any other chapter. Cross-refs belong in Context/Reflection only."
+    )
     parts.append("5. A line with a single ⸻ character.")
     if w["summary"]:
         parts.append(f"6. A line exactly: {w['summary']}\n   then 2-4 sentences placing the passage.")
