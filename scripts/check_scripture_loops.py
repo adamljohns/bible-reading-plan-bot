@@ -141,13 +141,21 @@ def _jaccard(a: list[str], b: list[str]) -> float:
 
 
 def doublet_hits(scripture: str) -> list[str]:
-    """Refuse consecutive/near translation-doublets (PJG-0815-WIS1)."""
-    sl = scripture.lower()
+    """Refuse stacked translation-doublets (PJG-0815-WIS1 / MBT1).
+
+    One fused MBT line may legally contain both 'soft' and 'gentle'
+    (Principal Prov 15:1). FAIL only when those dresses appear as
+    separate verses / lines.
+    """
     hits: list[str] = []
-    for a, b in DOUBLET_PAIRS:
-        if a in sl and b in sl:
-            hits.append(f"pair:{a[:24]}/{b[:24]}")
     lines = [ln.strip() for ln in scripture.splitlines() if ln.strip()]
+    # Pair check is line-scoped: same proverb dumped twice in two dresses.
+    lows = [ln.lower() for ln in lines]
+    for a, b in DOUBLET_PAIRS:
+        a_lines = [i for i, ln in enumerate(lows) if a in ln]
+        b_lines = [i for i, ln in enumerate(lows) if b in ln]
+        if a_lines and b_lines and set(a_lines) != set(b_lines):
+            hits.append(f"pair:{a[:24]}/{b[:24]}")
     norms = [_tokens(ln) for ln in lines]
     for i, left in enumerate(norms):
         if len(left) < 6:
