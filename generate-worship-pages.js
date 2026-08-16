@@ -255,6 +255,14 @@ function ingest() {
     if (firstLine && norm(firstLine) === norm(title)) {
       bodyClean = body.replace(/^[^\n]*\n?/, '').replace(/^\n+/, '');
     }
+    // Some archive charts picked up HTML-entity contamination somewhere in their
+    // decades of copy-paste life (&amp;, &quot;, ...). Decode back to plain text —
+    // the .crd/.tab sources are plain text, entities are never intentional.
+    if (/&(amp|quot|apos|lt|gt|#\d+);/.test(bodyClean)) {
+      bodyClean = bodyClean.replace(/&amp;/g, '&').replace(/&quot;/g, '"')
+        .replace(/&apos;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+        .replace(/&#(\d+);/g, (m, n) => String.fromCharCode(+n));
+    }
 
     songs.push({
       slug, title, type, christmas,
