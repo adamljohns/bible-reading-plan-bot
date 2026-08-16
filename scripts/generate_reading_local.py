@@ -63,7 +63,7 @@ WATCHES = [
      "header": "🌅 0600 Morning Wisdom",
      "summary": "🧭 Context Summary",
      "refl": "🛡️ Reflection for a REAL MAN — {TRAIT}",
-     "traitset": "a fitting one- or two-word virtue drawn from the passage (e.g. Treasures Wisdom, Walks Uprightly, Receives Correction)",
+     "traitset": "exactly one REAL MAN spine item that fits THIS passage: Rejects Passivity, Engages Intentionally, Accepts Responsibility, Leads Courageously, Manages Faithfully, Accounts Accurately, Never Quits — NOT a unisex virtue such as Trusts God / Studies Scripture / Is Grateful",
      "prayer": "🙏 Prayer", "close": "🛡️ Watch Charge:", "extra": ""},
     {"key": "first", "passage": "first",
      "header": "🕖 0700 First Watch — The Husband's Post",
@@ -157,7 +157,10 @@ VOICE = (
     "where Scripture does, in the suppression of truth, idolatry, and the debased mind of a fallen "
     "world (Rom 1), NOT in any ethnic group or bloodline.\n"
     "SCOPE GUARD: Raise the covenant/Israel and sexual-ethics themes ONLY when today's passage "
-    "naturally raises them; never force them into a reading that does not call for them."
+    "naturally raises them; never force them into a reading that does not call for them.\n"
+    "MEN-ONLY APPS (PJG-0816-MEN1 / rewrite-rules item 15 — HARD from 2026-08-17): Personal Application "
+    "is for men. Unisex virtue belongs in another devotion, not this Watch. If a bullet would preach "
+    "unchanged to a women's study, rewrite it on the REAL MAN spine before ship."
 )
 
 
@@ -196,7 +199,17 @@ def build_watch_messages(w, ref, month, daynum, on_date: date):
     if w["key"] != "peace":
         parts.append("10. A line exactly: ⛏️ Personal Application — {same trait}  then EXACTLY THREE '• ' bulleted concrete actions (never 4+). "
                      "Each bullet must be rooted in a SPECIFIC image, name, command, or scene from TODAY's passage "
-                     "(not generic spiritual advice that could attach to any text), and name a concrete, doable step.")
+                     "(not generic spiritual advice that could attach to any text), and name a concrete, doable step. "
+                     "MEN-ONLY REAL MAN GATE (rewrite-rules item 15 / PJG-0816-MEN1 — HARD from 2026-08-17): "
+                     "every Personal Application bullet must be specifically for men. Prefer the REAL MAN spine as the MOVE: "
+                     "Reject passivity · Engage consistently/intentionally · Accept responsibility · Lead courageously · "
+                     "Manage faithfully · Account accurately · Never quit. "
+                     "QA: if a bullet would preach unchanged to a women's Bible study, it FAILS — rewrite. "
+                     "Fail class: generic trust-God / Strong Tower / unisex virtue (women should trust God too). "
+                     "Husband/father nouns are not enough if the MOVE is still a unisex devotion. "
+                     "PROVEN overlap: do not target traits women already commonly carry (Principal example: open / honest). "
+                     "Exhort what men must be told to become. Role-aware still holds (husband / father / citizen by watch). "
+                     "Wisdom uses REAL MAN, not a gender-neutral virtue as the application heading.")
     parts.append(
         f"11. The prayer: a line exactly '{w['prayer']}' then a PERSONAL first-person prayer (I/me/my only — "
         f"never we/us/our as the praying subject; never 'Brother Adam' or any self-vocative; never 'this father'). "
