@@ -61,11 +61,19 @@ function rebuildIndex() {
   const files = fs.readdirSync(VERSE_DIR).filter((f) => f.endsWith('.html') && f !== 'index.html');
   const entries = files.map((f) => {
     const html = fs.readFileSync(path.join(VERSE_DIR, f), 'utf8');
+    // Hand-authored deep studies have no refInput and no baked description; they
+    // declare their ref and snippet directly so the index (and studies.json) can
+    // still place them. They're flagged so the listing can mark them.
+    const dr = html.match(/<meta name="verse-ref" content="([^"]*)"/);
+    if (dr) {
+      const ds = html.match(/<meta name="verse-snippet" content="([^"]*)"/);
+      return { f, ref: dr[1], snippet: ds ? ds[1] : '', deep: true };
+    }
     const rm = html.match(/id="refInput"\s+value="([^"]+)"/);
     const ref = rm ? rm[1] : f;
     // Verse text lives in the baked meta description: `REF — “SNIPPET” Interlinear…`.
     const sm = html.match(/name="description" content="[^"]*?— “([^”]+)”/);
-    return { f, ref, snippet: sm ? sm[1] : '' };
+    return { f, ref, snippet: sm ? sm[1] : '', deep: false };
   });
   entries.sort((a, b) => {
     const ka = sortKey(a.ref), kb = sortKey(b.ref);
@@ -73,10 +81,12 @@ function rebuildIndex() {
   });
   const items = entries.map((e) => {
     const sub = e.snippet ? `<br><span class="inst-sub">“${e.snippet}”</span>` : '';
-    return `    <li><a href="${e.f}">${e.ref}</a>${sub}</li>`;
+    const badge = e.deep ? ' <span class="inst-badge">Deep study</span>' : '';
+    return `    <li><a href="${e.f}">${e.ref}</a>${badge}${sub}</li>`;
   });
   // Replace the contiguous <li><a href="*.html"> block with the regenerated list.
-  const re = /(?:^[ \t]*<li><a href="[^"]+\.html">[^<]+<\/a>(?:<br><span class="inst-sub">[^<]*<\/span>)?<\/li>\n)+/m;
+  // Kept shape-agnostic past the anchor so adding a badge doesn't break the match.
+  const re = /(?:^[ \t]*<li><a href="[^"]+\.html">[^\n]*?<\/li>\n)+/m;
   if (!re.test(idx)) throw new Error('index.html: listing block not found');
   idx = idx.replace(re, items.join('\n') + '\n');
   fs.writeFileSync(idxPath, idx);

@@ -127,6 +127,12 @@ function rebuildMeta(html, ref, snippet, isOT) {
 function processFile(fp) {
   const fn = path.basename(fp);
   let html = fs.readFileSync(fp, 'utf8');
+  // Hand-authored deep studies declare <meta name="verse-ref"> instead of the
+  // template's refInput. They carry their own exposition, so the baker must not
+  // touch them — otherwise a re-run silently rewrites a full study back into a
+  // generated landing shell.
+  const deep = html.match(/<meta name="verse-ref" content="([^"]*)"/);
+  if (deep) return { fn, status: 'skip-deep-study(' + deep[1] + ')' };
   const rm = html.match(/id="refInput"\s+value="([^"]+)"/);
   if (!rm) return { fn, status: 'no-ref' };
   const ref = rm[1].trim();
@@ -152,13 +158,16 @@ function processFile(fp) {
 function main() {
   const files = fs.readdirSync(VERSE_DIR).filter((f) => f.endsWith('.html'));
   let ok = 0;
+  const skipped = [];
   const problems = [];
   files.forEach((f) => {
     const r = processFile(path.join(VERSE_DIR, f));
     if (r.status.startsWith('ok')) ok++;
+    else if (r.status.startsWith('skip-deep-study')) skipped.push(r.fn);
     else problems.push(r.fn + ': ' + r.status);
   });
   console.log(`Verse-page SSG: ${ok}/${files.length} pages baked.`);
+  if (skipped.length) console.log(`  Deep studies left untouched (${skipped.length}): ${skipped.join(', ')}`);
   if (problems.length) { console.log('  Problems:'); problems.forEach((p) => console.log('   - ' + p)); }
 }
 
