@@ -1,0 +1,184 @@
+#!/usr/bin/env node
+/**
+ * Denominational-directory harvester — the coverage-ladder engine.
+ *
+ * Adam's ladder (2026-08-12): every church in Fredericksburg, then every church
+ * in DC, then every church in Virginia. Brave domain-guessing cannot get there:
+ * it only finds churches that already have a findable website, and it cannot
+ * tell you a church's actual affiliation. Denominations publish authoritative
+ * rosters of their own congregations -- name, address, and often the pastor --
+ * which is both broader coverage and better provenance than anything scraped
+ * off a church's own site.
+ *
+ * Two products from one crawl:
+ *   1. NEW churches the directory is missing        -> discovered-<source>.json
+ *      (feeds scripts/add-discovered-churches.js)
+ *   2. PASTOR/affiliation leads for churches we      -> leads-<source>.json
+ *      ALREADY have but left blank
+ *
+ * (2) matters as much as (1): the enrichment lanes ran dry on 2026-08-16 with
+ * ~17.7k churches still carrying no pastor. A denominational roster fills those
+ * from the denomination's own records.
+ *
+ * NO GUESSING. Every field is copied verbatim out of the fetched roster page,
+ * and every record carries the exact URL it came from. Nothing is inferred, so
+ * there is no hallucination surface at all -- this is a parser, not a model.
+ *
+ * Polite by construction: sequential fetches, a delay between them, an on-disk
+ * cache so re-runs and resumes cost the source nothing, and a hard --max cap.
+ *
+ * Usage:
+ *   node scripts/harvest-denominational-directory.js --source sbcv [--max 40]
+ *        [--delay 1500] [--pages 3] [--out /tmp] [--no-detail] [--refresh]
+ */
+const fs = require('fs');
+const path = require('path');
+
+const args = process.argv.slice(2);
+const opt = (n, d) => { const i = args.indexOf(n); return i >= 0 && args[i + 1] ? args[i + 1] : d; };
+const has = n => args.includes(n);
+
+const SOURCE = opt('--source', 'sbcv');
+const MAX = parseInt(opt('--max', '0'), 10) || Infinity;   // cap on DETAIL fetches
+const PAGES = parseInt(opt('--pages', '0'), 10) || Infinity; // cap on list pages
+const DELAY = parseInt(opt('--delay', '1500'), 10);
+const OUT = opt('--out', '/tmp');
+const NO_DETAIL = has('--no-detail');
+const REFRESH = has('--refresh');
+
+const UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126 Safari/537.36';
+const CACHE = path.join('/tmp', `denom-cache-${SOURCE}`);
+fs.mkdirSync(CACHE, { recursive: true });
+
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const cacheKey = url => path.join(CACHE, Buffer.from(url).toString('base64url').slice(0, 180) + '.html');
+
+async function fetchPage(url) {
+  const ck = cacheKey(url);
+  if (!REFRESH && fs.existsSync(ck)) return { html: fs.readFileSync(ck, 'utf8'), cached: true };
+  const res = await fetch(url, { headers: { 'User-Agent': UA, 'Accept': 'text/html' }, redirect: 'follow' });
+  if (!res.ok) throw new Error(`HTTP ${res.status} on ${url}`);
+  const html = await res.text();
+  fs.writeFileSync(ck, html);
+  await sleep(DELAY);
+  return { html, cached: false };
+}
+
+const decode = s => String(s || '')
+  .replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]+>/g, '')
+  .replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&#8217;|&rsquo;/g, "'")
+  .replace(/&#8216;|&lsquo;/g, "'").replace(/&quot;|&#8220;|&#8221;/g, '"')
+  .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(+n))
+  .replace(/[ \t]+/g, ' ').trim();
+
+/* ------------------------------------------------------------------ adapters */
+
+const ADAPTERS = {
+  /**
+   * Southern Baptists of Virginia. FacetWP listing, ?_paged=N, 50 per page.
+   * Detail pages carry "Pastor:", "Phone:", "E-Mail:" and the mailing address.
+   */
+  sbcv: {
+    label: 'Southern Baptists of Virginia (SBCV)',
+    denomination: 'Southern Baptist Convention (SBCV)',
+    listUrl: p => `https://www.sbcv.org/churches/?_paged=${p}`,
+    parseList(html) {
+      const out = [];
+      const re = /<a class="church" href="([^"]+)">\s*<h6 class="church-name">(.*?)<\/h6>\s*<span class="church-address">(.*?)<\/span>/gs;
+      let m;
+      while ((m = re.exec(html))) {
+        const addrLines = decode(m[3]).split('\n').map(s => s.trim()).filter(Boolean);
+        const cityLine = addrLines[addrLines.length - 1] || '';
+        let cm = cityLine.match(/^(.*?),\s*([A-Z]{2})\s+(\d{5})/);
+        let street = addrLines.slice(0, -1).join(', ');
+        // Some rows carry the whole address on ONE line with no <br> ("85 Summit
+        // View Dr, Ruckersville, VA 22968-2786"), which left city and zip empty
+        // and broke the matcher's city blocking. Recover city/state/zip from the
+        // tail and keep whatever precedes it as the street.
+        if (!cm) {
+          const one = cityLine.match(/^(.*),\s*([A-Za-z .'-]+),\s*([A-Z]{2})\s+(\d{5})/);
+          if (one) { street = one[1].trim(); cm = [null, one[2], one[3], one[4]]; }
+        }
+        out.push({
+          detail_url: m[1],
+          name: decode(m[2]),
+          street: street || '',
+          city: cm ? cm[1].trim() : '',
+          state: cm ? cm[2] : 'VA',
+          zip: cm ? cm[3] : '',
+        });
+      }
+      return out;
+    },
+    parseDetail(html) {
+      const body = html.replace(/<(script|style)[^>]*>[\s\S]*?<\/\1>/gi, '');
+      const txt = decode(body).replace(/\n+/g, ' ');
+      const grab = re => { const m = txt.match(re); return m ? m[1].trim() : ''; };
+      // NO website. SBCV detail pages carry no church website field -- the only
+      // external link is the site developer's footer credit, and a first pass
+      // that grabbed "the first non-social external link" stamped
+      // innovativefaith.org onto all 6 test records. A wrong website is how the
+      // Stafford mis-merge happened (a church carrying another church's URL), so
+      // this adapter returns an honest blank and lets the website-discovery lane
+      // do that job properly.
+      return {
+        pastor: grab(/Pastor:\s*([A-Za-z.'\- ]{3,60}?)\s*(?:Phone:|E-Mail:|Email:|Meeting|Address|$)/i),
+        phone: grab(/Phone:\s*([\d\-().+ ]{7,20})/),
+        email: grab(/E-?Mail:\s*([^\s]+@[^\s]+)/i),
+        website: '',
+      };
+    },
+  },
+};
+
+/* --------------------------------------------------------------------- main */
+
+(async () => {
+  const A = ADAPTERS[SOURCE];
+  if (!A) { console.error(`unknown --source ${SOURCE}. known: ${Object.keys(ADAPTERS).join(', ')}`); process.exit(1); }
+
+  console.log(`Harvesting ${A.label}`);
+  console.log(`  cache ${CACHE}${REFRESH ? ' (refreshing)' : ''} | delay ${DELAY}ms | detail cap ${MAX === Infinity ? 'none' : MAX}\n`);
+
+  // ---- stage 1: paginate the roster
+  const roster = [];
+  const seenUrl = new Set();
+  for (let p = 1; p <= PAGES; p++) {
+    let html;
+    try { ({ html } = await fetchPage(A.listUrl(p))); }
+    catch (e) { console.log(`  page ${p}: ${e.message} — stopping`); break; }
+    const rows = A.parseList(html);
+    const fresh = rows.filter(r => !seenUrl.has(r.detail_url));
+    fresh.forEach(r => seenUrl.add(r.detail_url));
+    console.log(`  page ${p}: ${rows.length} parsed, ${fresh.length} new`);
+    roster.push(...fresh);
+    if (!rows.length || !fresh.length) break;
+  }
+  console.log(`\nRoster: ${roster.length} congregations\n`);
+
+  // ---- stage 2: detail pages (pastor / phone / website)
+  if (!NO_DETAIL) {
+    const n = Math.min(roster.length, MAX);
+    for (let i = 0; i < n; i++) {
+      const r = roster[i];
+      try {
+        const { html, cached } = await fetchPage(r.detail_url);
+        Object.assign(r, A.parseDetail(html));
+        if ((i + 1) % 25 === 0 || i === n - 1) console.log(`  detail ${i + 1}/${n}${cached ? ' (cached)' : ''}`);
+      } catch (e) { r.detail_error = e.message; }
+    }
+  }
+
+  const withPastor = roster.filter(r => r.pastor).length;
+  const withSite = roster.filter(r => r.website).length;
+  console.log(`\nDetail: ${withPastor} with pastor, ${withSite} with website\n`);
+
+  const f = path.join(OUT, `roster-${SOURCE}.json`);
+  fs.writeFileSync(f, JSON.stringify({
+    source: A.label, source_key: SOURCE, denomination: A.denomination,
+    harvested: new Date().toISOString().slice(0, 10),
+    count: roster.length, churches: roster,
+  }, null, 2));
+  console.log(`Wrote ${f}`);
+  console.log(`Next: node scripts/match-roster-to-directory.js --roster ${f}`);
+})();
