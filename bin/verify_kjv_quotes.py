@@ -81,7 +81,34 @@ _ABBR = {
     '1pe':60,'1pet':60,'1pt':60,'2pe':61,'2pet':61,'2pt':61,'1jn':62,'1jo':62,
     '1joh':62,'2jn':63,'2jo':63,'2joh':63,'3jn':64,'3jo':64,'3joh':64,
     'jud':65,'jude':65,'rev':66,'re':66,'rv':66,
+    # Old concordance-style forms the corpus actually uses (Lu 4:26, Mr 5:9,
+    # De 25:15, Obad 1:10, 2 Chron 36:20) — absent from the table above, they
+    # made 90 already-KJV quotes report as unresolvable.
+    'lu':42,'mr':41,'de':5,'obad':31,'1chron':13,'2chron':14,
+    'phi':50,'sng':22,'ec':21,'esth':17,
 }
+
+# Obadiah, Philemon, 2 John, 3 John, Jude — one chapter each, so the corpus
+# legitimately cites them verse-only ("Jude 3"). Treat that as chapter 1.
+SINGLE_CHAPTER = {31, 57, 63, 64, 65}
+VERSE_ONLY_RE = re.compile(
+    r'^\s*([1-3]?\s*[A-Za-z][A-Za-z\s]*?)\.?\s+(\d+)(?:\s*[-–]\s*(\d+))?\s*$')
+
+def parse_ref(ref):
+    """Resolve a reference to (book_number, chapter, v1, v2) or None."""
+    m = REF_RE.match(ref)
+    if m:
+        bn = resolve_book(m.group(1))
+        if bn == 65 and (int(m.group(2)) > 1 or int(m.group(3)) > 25):
+            bn = 7   # 'Jud 20:1'/'Jud 1:33' are Judges — Jude is 1 chapter, 25 verses
+        if bn:
+            return bn, m.group(2), m.group(3), m.group(4)
+    m = VERSE_ONLY_RE.match(ref)
+    if m:
+        bn = resolve_book(m.group(1))
+        if bn in SINGLE_CHAPTER:
+            return bn, '1', m.group(2), m.group(3)
+    return None
 
 def resolve_book(token):
     """Map any reasonable rendering of a book name to its cache number."""
@@ -155,14 +182,14 @@ def main():
             for ref, text in e.get('scriptures', []):
                 if 'title' in ref:
                     titles += 1; continue
-                m = REF_RE.match(ref)
-                bn = resolve_book(m.group(1)) if m else None
-                if not bn:
+                parsed = parse_ref(ref)
+                if not parsed:
                     # The author wrote a ref this verifier cannot resolve. That
                     # is an authoring defect, not a cache gap — it must fail.
                     unresolvable.append((e.get('slug', '?'), ref))
                     continue
-                kjv = cache_text(cache, bn, m.group(2), m.group(3), m.group(4))
+                bn, chap, v1, v2 = parsed
+                kjv = cache_text(cache, bn, chap, v1, v2)
                 if not kjv:
                     uncached.append((e.get('slug', '?'), ref))
                     continue

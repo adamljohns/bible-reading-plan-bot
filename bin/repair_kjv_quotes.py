@@ -56,6 +56,91 @@ def hard(s):
     return re.sub(r'\s+', ' ', re.sub(r'[^a-z0-9 ]', '', V.norm(s))).strip()
 
 
+def hard_ordered(fixed, kjv_raw):
+    """Self-check that survives the cache's space-before-punctuation artifacts:
+    every ellipsis-separated fragment of `fixed` must appear, in order, in the
+    punctuation-stripped cache text. quote_matches() compares WITH punctuation,
+    so a verse whose cache text carries 'footstool ?' failed the round-trip and
+    the repair was silently refused — 30 real mismatches never got fixed."""
+    k = hard(kjv_raw)
+    pos = 0
+    for f in re.split(r'\.{3}|…', fixed):
+        fh = hard(f)
+        if not fh:
+            continue
+        i = k.find(fh[:80], pos)
+        if i < 0:
+            return False
+        pos = i + len(fh[:80])
+    return True
+
+
+def _h(w):
+    return re.sub(r'[^a-z0-9]', '', w.lower())
+
+
+def _find_window(chard, fh, start):
+    m = len(fh)
+    if not m:
+        return None
+    for i in range(start, len(chard) - m + 1):
+        if chard[i:i + m] == fh:
+            return i, i + m
+    return None
+
+
+def rebuild_elision(text, kjv_raw):
+    """Rebuild an elided quote as verbatim AV spans joined by '... '.
+
+    Most failing elisions are near-KJV with a lightly adapted seam word
+    ('and pitched his tent' quoted as 'he pitched his tent', a dropped
+    parenthesis, a period where the AV has a comma). Each fragment is located
+    word-for-word in the cleaned cache text — tolerating one adapted word at
+    a fragment's edge — and re-emitted in the AV's own words. A fragment that
+    cannot be located is a true paraphrase: return None and let the caller
+    fall back to the full verse."""
+    clean = clean_kjv(kjv_raw)
+    ctoks = clean.split()
+    chard = [_h(w) for w in ctoks]
+    plain = strip_tags(html.unescape(text))
+    frags = [f.strip(' "“”‘’') for f in re.split(r'\.{3}|…', plain)]
+    frags = [f for f in frags if f]
+    if not frags:
+        return None
+    spans, pos = [], 0
+    for f in frags:
+        fh = [w for w in (_h(w) for w in f.split()) if w]
+        if not fh:
+            return None
+        loc = _find_window(chard, fh, pos)
+        if loc is None and len(fh) > 3:
+            loc = _find_window(chard, fh[1:], pos)     # adapted opening word
+        if loc is None and len(fh) > 3:
+            loc = _find_window(chard, fh[:-1], pos)    # adapted closing word
+        if loc is None:
+            return None
+        i, j = loc
+        # trim seam punctuation so joins read "tent... and" not "tent,... and"
+        spans.append(re.sub(r'[,;:]$', '', ' '.join(ctoks[i:j])))
+        pos = j
+    out = '... '.join(spans)
+    return re.sub(r'[,;:]\s*$', '.', out)   # never end a quote on a comma
+
+
+def clipped_verse(kjv_raw):
+    """Full AV text of the cited ref, clause-clipped when very long so a
+    replacement quote stays a quote and not a wall."""
+    full = clean_kjv(kjv_raw)
+    words = full.split()
+    if len(words) <= 60:
+        return full
+    head = ' '.join(words[:45])
+    cut = max(head.rfind(';'), head.rfind(':'), head.rfind(','), head.rfind('.'))
+    if cut > 40:
+        head = head[:cut]
+    return re.sub(r'[,;:.\s]+$', '', head) + '...'
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--apply', action='store_true')
@@ -67,7 +152,7 @@ def main():
         args.dry_run = True
 
     cache = json.load(open(CACHE))
-    stats = dict(files=0, repaired=0, cosmetic=0, elision=0, unresolved=0, ok=0)
+    stats = dict(files=0, repaired=0, cosmetic=0, refused=0, unresolved=0, ok=0)
     samples, touched = [], 0
 
     for path in sorted(glob.glob(os.path.join(BATCHES, '*.json'))):
@@ -89,28 +174,33 @@ def main():
                 ref, text = pair[0], pair[1]
                 if 'title' in ref:
                     continue
-                mm = V.REF_RE.match(ref)
-                bn = V.resolve_book(mm.group(1)) if mm else None
-                if not bn:
+                parsed = V.parse_ref(ref)
+                if not parsed:
                     stats['unresolved'] += 1
                     continue
-                kjv_raw = V.cache_text(cache, bn, mm.group(2), mm.group(3), mm.group(4))
+                bn, chap, v1, v2 = parsed
+                kjv_raw = V.cache_text(cache, bn, chap, v1, v2)
                 if not kjv_raw:
                     stats['unresolved'] += 1
                     continue
                 if V.quote_matches(text, kjv_raw):
                     stats['ok'] += 1
                     continue
-                if re.search(r'\.{3}|…', text):
-                    stats['elision'] += 1      # intentional partial quote — leave it
-                    continue
-                if hard(text)[:90] in hard(kjv_raw):
+                if hard_ordered(strip_tags(html.unescape(text)), kjv_raw):
                     stats['cosmetic'] += 1     # artifact, not wrong text
                     continue
 
-                fixed = clean_kjv(kjv_raw)
-                if not fixed or not V.quote_matches(fixed, kjv_raw):
-                    continue                   # refuse to write something unverified
+                if re.search(r'\.{3}|…', text):
+                    # An elided quote whose fragments are NOT the AV's words.
+                    # Rebuild the elision verbatim from the cache; a fragment
+                    # that cannot be located is a true paraphrase and gets the
+                    # full (clause-clipped) verse instead.
+                    fixed = rebuild_elision(text, kjv_raw) or clipped_verse(kjv_raw)
+                else:
+                    fixed = clean_kjv(kjv_raw)
+                if not fixed or not hard_ordered(fixed, kjv_raw):
+                    stats['refused'] += 1      # never write something unverified
+                    continue
                 if args.limit and stats['repaired'] >= args.limit:
                     continue
                 if len(samples) < 8:
@@ -146,8 +236,8 @@ def main():
     print(f"batch files scanned : {stats['files']}")
     print(f"quotes already OK   : {stats['ok']}")
     print(f"REPAIRED            : {stats['repaired']}   (files touched: {touched})")
-    print(f"left — elisions     : {stats['elision']}   (intentional partial quotes)")
     print(f"left — cosmetic     : {stats['cosmetic']}   (normalisation artifacts, text is fine)")
+    print(f"left — refused      : {stats['refused']}   (rebuild failed self-check; untouched)")
     print(f"left — unresolvable : {stats['unresolved']}")
     print(f"live pages patched  : {stats.get('pages', 0)}"
           f"   (quote not found on page: {stats.get('page_miss', 0)})")
