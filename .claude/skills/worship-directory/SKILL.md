@@ -95,6 +95,12 @@ It refuses malformed IDs, unknown slugs, duplicates, and anything the agent mark
 **Let it refuse.** A wrong video on a worship song is worse than no video — never loosen the gate,
 never hand-add an ID you have not seen, and never paste a full URL where an ID belongs.
 
+One known-good exception to the duplicate rule: the directory carries some songs twice under
+alternate titles (*You Are My All in All* / *All in All*) and some carols as both chart and tab, so a
+shared ID there is correct, not a mistake. Those pairs are listed in
+`reports/alternate-title-pairs.json`; add such a link by hand after confirming the pair, and keep the
+gate strict for everything else.
+
 If agent capacity is dry, the batch still ships — leave the videos for the next burst and note the
 backlog in state. That's the only acceptable reason to skip step 3.
 
