@@ -15,7 +15,9 @@ const fs = require('fs');
 const path = require('path');
 const REPO = path.resolve(__dirname, '..');
 const DATA = path.join(REPO, 'docs/data');
-const slugify = (s) => s.toLowerCase().replace(/[’']/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+// Transliterate accents so Spanish titles slug cleanly (cuan-grande-es-el).
+const deaccent = (s) => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/ø/gi, 'o').replace(/æ/gi, 'ae').replace(/ß/g, 'ss');
+const slugify = (s) => deaccent(s).toLowerCase().replace(/[’']/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
 const [songbookF, hymnsF, removalsF] = process.argv.slice(2);
 const live = new Set(JSON.parse(fs.readFileSync(path.join(DATA, 'worship-songs.json'), 'utf8')).map((s) => s.slug));

@@ -5,7 +5,9 @@
 //   node build-linksonly.js <list.json> <out-songs.json> [out-nonworship-slugs.json] [comma,separated,worship,exception,slugs]
 const fs = require('fs');
 const [listF, outSongs, outSlugs, exceptions] = process.argv.slice(2);
-const slugify = (s) => s.toLowerCase().replace(/[’']/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+// Transliterate accents so Spanish titles slug cleanly (cuan-grande-es-el).
+const deaccent = (s) => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/ø/gi, 'o').replace(/æ/gi, 'ae').replace(/ß/g, 'ss');
+const slugify = (s) => deaccent(s).toLowerCase().replace(/[’']/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 const EXCEPT = new Set((exceptions || '').split(',').filter(Boolean));
 
 const NOTICE = 'This song is under copyright, so the full lyrics are not reproduced here.\n\n'

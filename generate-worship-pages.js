@@ -94,8 +94,14 @@ function escapeHtml(s) {
                   .replace(/"/g,'&quot;');
 }
 
+// Accented letters transliterate rather than becoming separators, so Spanish
+// titles slug as "cuan-grande-es-el", not "cu-n-grande-es-l".
+function deaccent(s) {
+  return s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/ø/gi, 'o').replace(/æ/gi, 'ae').replace(/ß/g, 'ss');
+}
+
 function slugify(s) {
-  return s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,80) || 'song';
+  return deaccent(s).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,80) || 'song';
 }
 
 function prettyName(base) {

@@ -6,7 +6,9 @@
 const fs = require('fs');
 const [inp, nStr, out] = process.argv.slice(2);
 const N = parseInt(nStr, 10);
-const slugify = (s) => s.toLowerCase().replace(/[’']/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+// Transliterate accents so Spanish titles slug cleanly (cuan-grande-es-el).
+const deaccent = (s) => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/ø/gi, 'o').replace(/æ/gi, 'ae').replace(/ß/g, 'ss');
+const slugify = (s) => deaccent(s).toLowerCase().replace(/[’']/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
 const live = new Set(JSON.parse(fs.readFileSync('docs/data/worship-songs.json', 'utf8')).map((s) => s.slug));
 const extras = new Set(JSON.parse(fs.readFileSync('docs/data/worship-extra-songs.json', 'utf8')).map((s) => s.slug));
