@@ -12,8 +12,16 @@ const songs = JSON.parse(fs.readFileSync('docs/data/worship-songs.json', 'utf8')
 // Eno3, C STEP annotations, E15, D6/9, F#15/E, trailing *, (add4), arrows
 // between chords (E <---> G), x2 / 2x / (x2) repeats. Only flag what NO
 // notation system explains.
-const CHORD = /^[\(\[]?([A-G][#b]?)((?:maj|min|m|sus|aug|dim|add|no|M)?\d{0,2}(?:[#b]?\d{1,2})?(?:sus|add|maj|min|dim|aug|no)?\d{0,2}(?:\/\d{1,2})?)\*?(\/[A-G][#b]?)?\*?[\)\],]?$/;
-const NOISE_TOKEN = /^(x\d+|\d+x|\(x?\d+x?\)|\||%|N\.?C\.?|\([^)]*\)|\/+|-+|\.+|<?-{1,}>?|<-+>|STEP|riff|Riff|RIFF|intro|Intro|chorus|Chorus|verse|Verse|bridge|Bridge|end|End|hold|Hold|mute|Mute|palm|let|ring)$/i;
+const CHORD = /^[\(\[]?([A-G][#b]?)((?:maj|min|m|sus|aug|dim|add|no|M)?[+]?\d{0,2}(?:[#b+]?\d{1,2})?(?:sus|add|maj|min|dim|aug|no)?\d{0,2}(?:\/\d{1,2})?)\*?(\/[A-G][#b]?(?:m|maj|min|sus|add|M)?\d{0,2})?\*?[\)\],]?$/;
+// Bass-run notation ("/C#  /B  /A"), fret diagrams ("320033", "X02010"),
+// and section labels with or without a colon.
+const BASS_ONLY = /^\/[A-G][#b]?$/;
+const FRET = /^[xX0-9]{4,6}$/;
+const LABEL = /^(chords?|intro|outro|chorus|verse|bridge|tag|coda|solo|instrumental|interlude|pre-?chorus|refrain|ending|repeat|capo|key|riff|vamp|turnaround)\d*:?$/i;
+const NOISE_TOKEN = new RegExp(
+  '^(x\\d+|\\d+x|\\(x?\\d+x?\\)|\\||%|N\\.?C\\.?|\\([^)]*\\)|\\/+|-+|\\.+|<?-{1,}>?|<-+>|STEP|hold|mute|palm|let|ring|end|'
+  + '\\/[A-G][#b]?|[xX0-9]{4,6}|'
+  + '(chords?|intro|outro|chorus|verse|bridge|tag|coda|solo|instrumental|interlude|pre-?chorus|refrain|ending|repeat|capo|key|riff|vamp|turnaround)\\d*:?)$', 'i');
 
 function lintSong(s) {
   const issues = { garbledChordLines: 0, encodingJunk: 0, thin: false, samples: [] };
@@ -24,16 +32,31 @@ function lintSong(s) {
   // A token is chord-valid if, after stripping parenthesized suffixes, every
   // hyphen-joined part is a chord or noise (covers F6*-F*-F6*, D2(add4)(2x)).
   const tokOk = (t) => {
-    const bare = t.replace(/\([^)]*\)/g, '');
+    // Strip an attached fret diagram: G-(320033) -> G
+    const bare = t.replace(/-?\([^)]*\)/g, '');
     if (!bare) return true;
-    return bare.split('-').filter(Boolean).every((p) => CHORD.test(p) || NOISE_TOKEN.test(p));
+    return bare.split('-').filter(Boolean)
+      .every((p) => CHORD.test(p) || NOISE_TOKEN.test(p) || BASS_ONLY.test(p) || FRET.test(p) || LABEL.test(p));
   };
+  // A chart's own shorthand repeats; corruption doesn't. Tokens used 3+ times in
+  // one song (Adam's "Gs" for Gsus, a tabber's "Emag7") are that chart's
+  // convention — count them as valid rather than flagging every line they touch.
+  const freq = new Map();
+  for (const l of lines) for (const t of l.trim().split(/\s+/).filter(Boolean)) freq.set(t, (freq.get(t) || 0) + 1);
+  // Chord suffixes are lowercase or symbolic (Gs, Emag7, D2sus) — an all-caps
+  // repeated word like GOD or GLORY is a lyric, not a chord, so require the
+  // shape to actually look like a chord before honoring it as convention.
+  // The suffix must be real chord shorthand (m, sus, maj, s, mag…) and/or
+  // digits and symbols — otherwise "God", "For" and "Crown" read as chords.
+  const CONV = /^[A-G][#b]?(?:m|M|s|sus|maj|min|add|dim|aug|no|mag)?[0-9#b+\/()*.-]*$/;
+  const convention = (t) => (freq.get(t) || 0) >= 3 && t.length <= 8 && CONV.test(t);
+
   for (const raw of lines) {
     // Bracketed chord runs inside lyric lines ([Em D A D]) are intentional style.
     const line = raw.replace(/\[[^\]]*\]/g, '');
     const toks = line.trim().split(/\s+/).filter(Boolean);
     if (toks.length < 2 || toks.length > 24) continue;
-    const chordish = toks.filter((t) => tokOk(t) && !NOISE_TOKEN.test(t)).length;
+    const chordish = toks.filter((t) => (tokOk(t) || convention(t)) && !NOISE_TOKEN.test(t)).length;
     const noise = toks.filter((t) => NOISE_TOKEN.test(t)).length;
     const ratio = chordish / toks.length;
     // Lines that are mostly-but-not-all chords are the classic garble signature.
@@ -42,7 +65,19 @@ function lintSong(s) {
       if (issues.samples.length < 2) issues.samples.push(line.trim().slice(0, 80));
     }
   }
-  if (!s.linksOnly && body.replace(/\s/g, '').length < 120) issues.thin = true;
+  // "Thin" means TRUNCATED, not short. Adam's archive is full of legitimate
+  // one-page praise choruses ("I Just Came to Praise the Lord") that are
+  // complete at 200 characters. A real chorus still has several lyric lines
+  // under its chord lines; a truncated chart has almost none.
+  if (!s.linksOnly) {
+    const lyricLines = lines.filter((l) => {
+      const t = l.trim();
+      if (t.length < 3) return false;
+      const toks = t.split(/\s+/).filter(Boolean);
+      return !toks.every((x) => tokOk(x));
+    }).length;
+    if (lyricLines < 3) issues.thin = true;
+  }
   return issues;
 }
 
