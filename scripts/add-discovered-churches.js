@@ -64,6 +64,9 @@ function famOf(den) {
     [/\bpca\b|presbyterian church in america/, 'Presbyterian (PCA)'],
     [/presbyterian|pcusa|\bopc\b|\barp\b/, 'Presbyterian'],
     [/anglican|\bacna\b/, 'Anglican (ACNA)'],
+    // AME / AME Zion / CME contain "Episcopal" but are Methodist bodies, so they
+    // must be matched before the Episcopal rule.
+    [/african methodist|a\.?m\.?e\.?\b|\bamez\b|christian methodist/, 'Methodist (AME)'],
     [/episcopal/, 'Episcopal'],
     [/methodist|\bumc\b|\bgmc\b/, 'Methodist'],
     [/lcms|lutheran.*missouri/, 'Lutheran (LCMS)'],

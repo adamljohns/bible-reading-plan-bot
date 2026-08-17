@@ -178,6 +178,63 @@ const ADAPTERS = {
   },
 
   /**
+   * African Methodist Episcopal, 2nd Episcopal District -- DC, Maryland,
+   * Virginia and North Carolina, which covers two rungs of the ladder at once.
+   *
+   * AME publishes no national roster: ame-church.com/directory/find-a-church is
+   * only a map linking to 14 district sites, so the districts are the real
+   * sources. The 2nd District posts a plain HTML table:
+   *   [County] | Church | Address | City | State | Zip | website | Pastor
+   * The website and Pastor columns exist but are empty for every one of the 360
+   * rows, so this adapter yields location only -- honestly blank, and the
+   * website-discovery lane can work them later.
+   *
+   * Names are the short forms AME itself uses ('Metropolitan', 'St. Paul',
+   * 'Allen Chapel'). They are kept verbatim rather than expanded to
+   * '<name> A.M.E. Church', which would be inventing a name the source does not
+   * state; the denomination field carries the affiliation instead.
+   */
+  'ame-2nd': {
+    label: 'AME Church, 2nd Episcopal District',
+    denomination: 'African Methodist Episcopal (AME)',
+    async collect(ctx) {
+      const html = await ctx.fetchRaw('https://ame2.com/churches-list/', 'ame2-list');
+      const out = [];
+      for (const r of html.match(/<tr>[\s\S]*?<\/tr>/g) || []) {
+        const tds = [...r.matchAll(/<td[^>]*>([\s\S]*?)<\/td>/g)]
+          .map(c => ctx.decode(c[1]).replace(/\s+/g, ' ').trim());
+        // Data rows carry a church in column 1 and a 2-letter state in column 4;
+        // county headers and the header row fail one of those tests.
+        if (tds.length < 6 || !tds[1] || /^church$/i.test(tds[1])) continue;
+        const state = (tds[4] || '').toUpperCase();
+        if (!/^[A-Z]{2}$/.test(state)) continue;
+        const zip = (String(tds[5] || '').match(/\b(\d{5})\b/) || [])[1] || '';
+        // The roster's short forms ('First', 'Bethel', 'Mission') are unusable as
+        // directory entries on their own and collide by substring with the
+        // Baptist and Lutheran churches of the same name in the same city. AME
+        // names every congregation '<name> A.M.E. Church', and this table states
+        // the affiliation for every row, so the suffix is the source's own fact
+        // rather than an inference. The verbatim roster name is preserved in
+        // roster_name so the transformation stays auditable and reversible.
+        const short = tds[1];
+        const name = /a\.?m\.?e\.?\b/i.test(short) ? short : `${short} A.M.E. Church`;
+        out.push({
+          detail_url: 'https://ame2.com/churches-list/',
+          name, roster_name: short, street: tds[2] || '', city: tds[3] || '', state,
+          // The roster has real ZIP errors -- Allen Chapel in DC is listed with
+          // 21223, a Baltimore ZIP. Keep only ZIPs the state can actually have.
+          zip: ctx.zipFitsState(zip, state) ? zip : '',
+          website: '', pastor: '',
+        });
+      }
+      const byState = out.reduce((a, c) => (a[c.state] = (a[c.state] || 0) + 1, a), {});
+      console.log(`  ${out.length} congregations: ${Object.entries(byState).map(([k, v]) => k + ' ' + v).join(', ')}`);
+      console.log(`  ${out.filter(c => !c.zip).length} with no usable ZIP (blank or failed the state check)`);
+      return out;
+    },
+  },
+
+  /**
    * Archdiocese of Washington -- the Catholic body covering DC and five
    * Maryland counties. FacetWP again, but with NO pagination: all 147 parishes
    * render on the single finder page, each with coordinates and a detail link.
