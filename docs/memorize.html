@@ -41,6 +41,24 @@ h1{font-size:1.5rem;letter-spacing:.01em;margin-bottom:.15rem}
 .kicker{color:var(--gold);font-size:.7rem;font-weight:700;letter-spacing:.22em;
   text-transform:uppercase;margin-bottom:.5rem}
 .lede{color:var(--gray);font-size:.92rem;margin-bottom:1.5rem}
+.explainer{margin:0 0 1.35rem}
+.video-frame{position:relative;width:100%;aspect-ratio:16/9;background:var(--bg-card);
+  border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.video-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.explainer-note{color:var(--gray);font-size:.78rem;margin-top:.45rem}
+.explainer-note a{color:var(--gold)}
+.pack-hint{color:var(--gray);font-size:.78rem;margin:-.2rem 0 .7rem;line-height:1.4}
+.pack{display:flex;align-items:stretch;gap:.55rem}
+.pack-body{flex:1;min-width:0}
+.pack-tools{display:flex;flex-direction:column;justify-content:center;gap:.25rem;flex-shrink:0}
+.pack-grip{display:flex;align-items:center;justify-content:center;width:2.1rem;
+  color:var(--gray);font-size:1rem;letter-spacing:-.08em;cursor:grab;user-select:none;
+  border-right:1px solid var(--border);margin:-.85rem .15rem -.85rem -1rem;padding:0 .15rem}
+.pack-grip:active{cursor:grabbing}
+.pack-move{min-height:36px;padding:.2rem .45rem;font-size:.72rem;letter-spacing:.06em;
+  text-transform:uppercase}
+.pack.dragging{opacity:.55}
+.pack.drag-over{border-color:var(--gold)}
 
 .row{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
 .spread{justify-content:space-between}
@@ -160,7 +178,7 @@ footer{border-top:1px solid var(--border);margin-top:2.5rem;padding-top:1rem;
 @media print{
   @page{margin:.4in}
   body{background:#fff;color:#000}
-  .site-nav,.wrap>section,footer,#drill{display:none!important}
+  .site-nav,.wrap>section,footer,#drill,.explainer{display:none!important}
   .sheet{display:grid!important;grid-template-columns:repeat(2,3in);gap:.25in;justify-content:center}
   .pcard{width:3in;height:5in;border:1px dashed #999;padding:.22in;
     display:flex;flex-direction:column;justify-content:space-between;
@@ -190,6 +208,21 @@ footer{border-top:1px solid var(--border);margin-top:2.5rem;padding-top:1rem;
     <h1>Scripture Memory</h1>
     <p class="lede">A round chambered before you need it. Reference fore, verse word perfect,
       reference aft &mdash; the way the Navigators taught it.</p>
+
+    <div class="explainer" aria-labelledby="explainer-label">
+      <p id="explainer-label" class="kicker" style="margin-bottom:.55rem">How this works</p>
+      <div class="video-frame">
+        <iframe
+          src="https://www.youtube-nocookie.com/embed/RFbFbSM3YuA"
+          title="The Word Hand & The Wheel — Scripture Memory That Sticks | U.S.M.C. Ministries"
+          allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          referrerpolicy="strict-origin-when-cross-origin"
+          allowfullscreen
+          loading="lazy"></iframe>
+      </div>
+      <p class="explainer-note">Watch first if you are new. Then pick a pack and start a stack.
+        <a href="https://youtu.be/RFbFbSM3YuA">Open on YouTube</a></p>
+    </div>
 
     <div class="stats">
       <div class="stat"><b id="sStreak">0</b><span>Day streak</span></div>
@@ -226,6 +259,7 @@ footer{border-top:1px solid var(--border);margin-top:2.5rem;padding-top:1rem;
     <div id="share" class="hidden"></div>
 
     <h2 style="font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:.6rem">Packs</h2>
+    <p class="pack-hint">Drag the grip to reorder. On a phone, use Up / Down. Tap the card to review — even a pack you have not saved yet.</p>
     <div id="packs"></div>
     <p id="addFail" class="add-fail hidden"></p>
 
@@ -364,7 +398,7 @@ footer{border-top:1px solid var(--border);margin-top:2.5rem;padding-top:1rem;
 const LS='moop.memorize.v1';
 const load=()=>{ try{return JSON.parse(localStorage.getItem(LS))||{}}catch(e){return{}} };
 const save=s=>{ try{localStorage.setItem(LS,JSON.stringify(s))}catch(e){} };
-let S=Object.assign({cards:{},extras:{},streak:0,lastDay:null,tr:'NKJV',mins:7},load());
+let S=Object.assign({cards:{},extras:{},streak:0,lastDay:null,tr:'NKJV',mins:7,packOrder:[]},load());
 
 const today=()=>new Date().toLocaleDateString('en-CA');
 const dayNum=d=>Math.floor(new Date(d+'T00:00:00').getTime()/864e5);
@@ -504,21 +538,71 @@ function paint(){
   $('btnDue').disabled = !due;
 }
 
+function orderedPacks(){
+  const known=new Set(PACKS.map(p=>p.id));
+  const keep=(Array.isArray(S.packOrder)?S.packOrder:[]).filter(id=>known.has(id));
+  PACKS.forEach(p=>{ if(!keep.includes(p.id)) keep.push(p.id); });
+  S.packOrder=keep;
+  return keep.map(id=>PACKS.find(p=>p.id===id)).filter(Boolean);
+}
+function movePack(id, dir){
+  const o=orderedPacks().map(p=>p.id);
+  const i=o.indexOf(id); if(i<0) return;
+  const j=i+dir; if(j<0||j>=o.length) return;
+  [o[i],o[j]]=[o[j],o[i]];
+  S.packOrder=o; save(S); renderPacks();
+}
 function renderPacks(){
   /* Verses added by hand are their own drillable set, listed first. */
   const mine=allVerses().filter(v=>S.cards[v.slug]);
   const stackCard = mine.length ? `<div class="pack" data-pack="__stack" role="button" tabindex="0">
-      <h3>My Stack</h3><p>Everything you have added or started, in one place.</p>
-      <div class="meta">${mine.length} verse${mine.length===1?'':'s'}</div></div>` : '';
-  $('packs').innerHTML=stackCard+PACKS.map(p=>{
+      <div class="pack-body"><h3>My Stack</h3><p>Everything you have added or started, in one place.</p>
+      <div class="meta">${mine.length} verse${mine.length===1?'':'s'}</div></div></div>` : '';
+  const packs=orderedPacks();
+  $('packs').innerHTML=stackCard+packs.map((p,i)=>{
     const started=p.verses.filter(v=>S.cards[v.slug]).length;
     return `<div class="pack" data-pack="${p.id}" role="button" tabindex="0">
-      <h3>${esc(p.name)}</h3><p>${esc(p.blurb)}</p>
-      <div class="meta">${p.verses.length} verses${p.mode==='passage'?' · passage':''}${started?` · ${started} started`:''}</div>
+      <div class="pack-grip" draggable="true" aria-label="Reorder pack" title="Drag to reorder">::</div>
+      <div class="pack-body">
+        <h3>${esc(p.name)}</h3><p>${esc(p.blurb)}</p>
+        <div class="meta">${p.verses.length} verses${p.mode==='passage'?' · passage':''}${started?` · ${started} started`:''}</div>
+      </div>
+      <div class="pack-tools">
+        <button type="button" class="ghost pack-move" data-move="-1" ${i===0?'disabled':''} aria-label="Move ${esc(p.name)} up">Up</button>
+        <button type="button" class="ghost pack-move" data-move="1" ${i===packs.length-1?'disabled':''} aria-label="Move ${esc(p.name)} down">Down</button>
+      </div>
     </div>`;}).join('');
   $('packs').querySelectorAll('.pack').forEach(el=>{
     const go=()=>startPack(el.dataset.pack);
-    el.onclick=go; el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go();}};
+    el.onclick=e=>{ if(e.target.closest('.pack-grip,.pack-move,.pack-tools')) return; go(); };
+    el.onkeydown=e=>{ if(e.target.closest('.pack-grip,.pack-move,.pack-tools')) return; if(e.key==='Enter'||e.key===' '){e.preventDefault();go();}};
+  });
+  $('packs').querySelectorAll('.pack-move').forEach(btn=>{
+    btn.onclick=e=>{ e.preventDefault(); e.stopPropagation(); movePack(btn.closest('.pack').dataset.pack, +btn.dataset.move); };
+  });
+  $('packs').querySelectorAll('.pack-grip').forEach(grip=>{
+    const card=grip.closest('.pack');
+    grip.addEventListener('click', e=>{ e.preventDefault(); e.stopPropagation(); });
+    grip.addEventListener('dragstart', e=>{
+      e.stopPropagation();
+      e.dataTransfer.effectAllowed='move';
+      e.dataTransfer.setData('text/plain', card.dataset.pack);
+      card.classList.add('dragging');
+    });
+    grip.addEventListener('dragend', ()=> card.classList.remove('dragging'));
+    card.addEventListener('dragover', e=>{ e.preventDefault(); card.classList.add('drag-over'); });
+    card.addEventListener('dragleave', ()=> card.classList.remove('drag-over'));
+    card.addEventListener('drop', e=>{
+      e.preventDefault(); e.stopPropagation(); card.classList.remove('drag-over');
+      const from=e.dataTransfer.getData('text/plain');
+      const to=card.dataset.pack;
+      if(!from||from===to) return;
+      const o=orderedPacks().map(p=>p.id);
+      const i=o.indexOf(from), j=o.indexOf(to);
+      if(i<0||j<0) return;
+      o.splice(i,1); o.splice(j,0,from);
+      S.packOrder=o; save(S); renderPacks();
+    });
   });
 }
 
