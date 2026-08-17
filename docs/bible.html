@@ -69,6 +69,12 @@
         .hero .desc { color: var(--gray); font-size: 0.95rem; max-width: 600px; margin: 0 auto 12px; }
         /* MBT v6.9: chapter-page audio player (Ruth/Esther narration pilot) */
         .mbt-audio { background:linear-gradient(135deg,rgba(212,175,55,.08),rgba(212,175,55,.02)); border:1px solid rgba(212,175,55,.28); border-radius:12px; padding:12px 16px; margin:0 auto 18px; max-width:560px; text-align:center; }
+        /* Proverbs -> REAL MAN devotional cross-link (chapter view) */
+        .devotional-cta { display:flex; align-items:center; justify-content:center; gap:.6rem; max-width:560px; margin:0 auto 18px; padding:12px 16px; background:linear-gradient(135deg,rgba(212,175,55,.10),rgba(212,175,55,.02)); border:1px solid rgba(212,175,55,.28); border-radius:12px; color:var(--gold,#D4AF37); text-decoration:none; font-size:.92rem; transition:border-color .15s, background .15s; }
+        .devotional-cta:hover { border-color:var(--gold,#D4AF37); background:rgba(212,175,55,.09); }
+        .devotional-cta img { flex:0 0 auto; }
+        .devotional-cta strong { color:var(--white,#e6edf3); }
+        .devotional-cta .devotional-cta-sub { color:var(--gray,#8b949e); font-size:.8rem; }
         .mbt-audio-label { color:var(--gold,#D4AF37); font-weight:600; font-size:.9rem; margin-bottom:8px; letter-spacing:.3px; }
         .mbt-audio audio { width:100%; max-width:520px; }
 
@@ -997,6 +1003,7 @@
     <meta name="twitter:title" content="The MOOP Bible Translation Engine V7.1">
     <meta name="twitter:image" content="https://usmcmin.org/assets/icons/icon-512.png">
     <link rel="stylesheet" href="/assets/css/light-icons.css">
+    <link rel="stylesheet" href="/assets/css/listen.css">
     <link rel="stylesheet" href="/assets/css/print.css" media="print">
 </head>
 <body>
@@ -2725,18 +2732,40 @@
                     var mnt = document.getElementById('mbtAudioMount');
                     if (!mnt) return;  // user navigated away mid-probe
                     mnt.innerHTML =
-                        '<div class="mbt-audio">' +
-                            '<div class="mbt-audio-label">' +
-                                '<img src="assets/icons/shield-quill-note-48.png" alt="" width="18" height="18" style="vertical-align:middle;margin-right:6px;filter:drop-shadow(0 0 5px rgba(212,175,55,.4));">' +
+                        '<div class="moop-listen">' +
+                            '<div class="moop-listen-label">' +
+                                '<img src="assets/icons/shield-headphones.png" alt="" width="20" height="20">' +
                                 'Listen — ' + bk.name + ' ' + ref.chapter + ' · ' + label +
                             '</div>' +
                             '<audio controls preload="none"><source src="' + url + '" type="audio/mpeg">' +
-                                'Your browser cannot play this audio. <a href="' + url + '" download>Download the MP3</a>.</audio>' +
+                                'Your browser cannot play this audio.</audio>' +
+                            '<a class="moop-listen-dl" href="' + url + '" download>Download the MP3</a>' +
                         '</div>';
                 };
                 probe.onerror = function(){ /* not uploaded yet — leave the mount empty */ };
                 probe.src = url;
             });
+        }
+
+        // BTE v7.0: reciprocal navigation — when reading a Proverbs chapter, offer the
+        // matching REAL MAN devotional day (the day pages link back here to read the MBT).
+        var REALMAN_QUALITIES = ['Reject Passivity','Engage Consistently','Accept Responsibility',
+            'Lead Courageously','Manage Faithfully','Account Accurately','Never Quit'];
+        function mountProverbsDevotional(ref) {
+            var mnt = document.getElementById('mbtDevotionalMount');
+            if (!mnt) return;
+            mnt.innerHTML = '';
+            if (currentViewMode !== 'chapter' || currentLang !== 'en' || !ref) return;
+            if (ref.bookId !== 20 || !ref.chapter || ref.chapter < 1 || ref.chapter > 31) return;
+            var n = ref.chapter;
+            var qual = REALMAN_QUALITIES[(n - 1) % 7];
+            mnt.innerHTML =
+                '<a class="devotional-cta" href="proverbs/' + n + '.html" ' +
+                   'title="Open the REAL MAN devotional for Proverbs ' + n + '">' +
+                    '<img src="assets/icons/shield-target.png" alt="" width="20" height="20">' +
+                    '<span><strong>REAL MAN Devotional</strong> · Day ' + n + ' — ' + qual +
+                    ' <span class="devotional-cta-sub">(read + reflect &rarr;)</span></span>' +
+                '</a>';
         }
 
         // BTE v6.9: custom gold-shield language dropdown (replaces native <select>).
@@ -3824,6 +3853,7 @@
             // mountChapterAudio() once the R2 file is confirmed present.
             if (currentViewMode === 'chapter' && currentLang === 'en') {
                 html += '<div id="mbtAudioMount"></div>';
+                html += '<div id="mbtDevotionalMount"></div>';
             }
 
             // BTE v3.4: Verse blocks — verse numbers always clickable
@@ -3971,6 +4001,7 @@
             if (document.body.classList.contains('paragraph-mode')) applyParagraphBreaks();
             try { applyRedLetter(); } catch(e){}
             try { mountChapterAudio(ref); } catch(e){}
+            try { mountProverbsDevotional(ref); } catch(e){}
             if (!(window.__bteMulti && window.__bteMulti.active)) {
                 document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
