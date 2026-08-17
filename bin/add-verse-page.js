@@ -79,9 +79,30 @@ function rebuildIndex() {
     const ka = sortKey(a.ref), kb = sortKey(b.ref);
     return ka[0] - kb[0] || ka[1] - kb[1] || ka[2] - kb[2];
   });
+  // Drafts are listed too, at Adam's call — clearly badged and pointing at
+  // /drafts/verse/. The draft pages carry their own noindex, so linking them
+  // from an indexed page exposes them to readers without exposing them to search.
+  const draftDir = path.join(ROOT, 'docs', 'drafts', 'verse');
+  if (fs.existsSync(draftDir)) {
+    fs.readdirSync(draftDir).filter((f) => f.endsWith('.html') && f !== 'index.html').forEach((f) => {
+      if (entries.some((e) => e.f === f)) return; // a published study wins
+      const html = fs.readFileSync(path.join(draftDir, f), 'utf8');
+      const ref = (html.match(/<meta name="verse-ref" content="([^"]*)"/) || [])[1];
+      if (!ref) return;
+      const snip = (html.match(/<meta name="verse-snippet" content="([^"]*)"/) || [])[1] || '';
+      const written = !/class="vs-todo"/.test(html);
+      entries.push({ f: '/drafts/verse/' + f, ref, snippet: snip, deep: false, draft: true, written });
+    });
+    entries.sort((a, b) => {
+      const ka = sortKey(a.ref), kb = sortKey(b.ref);
+      return ka[0] - kb[0] || ka[1] - kb[1] || ka[2] - kb[2];
+    });
+  }
+
   const items = entries.map((e) => {
     const sub = e.snippet ? `<br><span class="inst-sub">“${e.snippet}”</span>` : '';
-    const badge = e.deep ? ' <span class="inst-badge">Deep study</span>' : '';
+    const badge = e.deep ? ' <span class="inst-badge">Deep study</span>'
+      : e.draft ? ` <span class="inst-badge draft">${e.written ? 'Draft study' : 'Draft — scaffold'}</span>` : '';
     return `    <li><a href="${e.f}">${e.ref}</a>${badge}${sub}</li>`;
   });
   // Replace the contiguous <li><a href="*.html"> block with the regenerated list.
@@ -98,7 +119,10 @@ function rebuildIndex() {
 // "Go deeper" pill on covered verses. Range refs expand to one key per verse.
 function emitStudiesMap(entries) {
   const map = {};
-  entries.forEach((e) => {
+  // Drafts stay out of this map. It powers the "Go deeper" pill inside the Bible
+  // Translation Engine — a far more prominent surface than the verse index — and
+  // an unreviewed draft should not be what the reading tool recommends.
+  entries.filter((e) => !e.draft).forEach((e) => {
     const m = e.ref.match(/^(.+?)\s+(\d+):(\d+)(?:[-–](\d+))?$/);
     if (!m) return;
     const b = BOOK_IDS[m[1].trim().toLowerCase()];
