@@ -17,7 +17,7 @@ const { checkPage } = require('./verse-study-gate.js');
 
 const ROOT = path.resolve(__dirname, '..');
 const DOCS = path.join(ROOT, 'docs');
-const DRAFTS = path.join(ROOT, 'drafts', 'verse');
+const DRAFTS = path.join(DOCS, 'drafts', 'verse');
 
 function memorizeRefs() {
   const fp = path.join(DOCS, 'data', 'memory-packs.json');
@@ -55,7 +55,7 @@ function classify(ref) {
 function draftState(draft) {
   {
     const html = fs.readFileSync(draft, 'utf8');
-    const todos = (html.match(/vs-todo/g) || []).length;
+    const todos = (html.match(/class="vs-todo"/g) || []).length;
     const r = checkPage(draft);
     return todos
       ? { state: 'draft-scaffolded', detail: `${todos} slots unwritten`, words: r.words }

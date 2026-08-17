@@ -166,13 +166,17 @@ function checkPage(fp) {
   if (status === 'approved' && /<meta name="robots" content="[^"]*noindex/.test(html)) {
     fails.push('approved study still carries noindex');
   }
-  const todos = (html.match(/vs-todo/g) || []).length;
+  // Count real slots only — the draft stylesheet and its comments mention the
+  // class too, and counting those reports a finished page as unfinished forever.
+  const todos = (html.match(/class="vs-todo"/g) || []).length;
   if (status === 'approved' && todos) fails.push(`approved study still has ${todos} unwritten [WRITE …] slot(s)`);
   if (status === 'approved' && /vs-draft-banner/.test(html)) fails.push('approved study still shows the draft banner');
   if (status === 'draft' && todos) warns.push(`${todos} [WRITE …] slot(s) still unwritten — this draft is not finished`);
 
   // ── substance ───────────────────────────────────────────────────────────
-  const body = html.replace(/<(script|style)[^>]*>[\s\S]*?<\/\1>/g, '');
+  // Strip comments too: the draft files carry a long quote-candidates comment,
+  // and counting it would let a thin study clear the word floor on invisible text.
+  const body = html.replace(/<(script|style)[^>]*>[\s\S]*?<\/\1>/g, '').replace(/<!--[\s\S]*?-->/g, '');
   const words = squash(body).split(/\s+/).filter(Boolean).length;
   if (words < MIN_WORDS) fails.push(`body is ${words} words, below the ${MIN_WORDS}-word floor for a deep study`);
   const headings = [...body.matchAll(/<h2[^>]*>([\s\S]*?)<\/h2>/g)].map((m) => squash(m[1]).toLowerCase());
@@ -266,7 +270,7 @@ function main() {
   let targets = argv.filter((a) => !a.startsWith('--'));
   if (argv.includes('--all')) {
     const dirs = [path.join(DOCS, 'verse')];
-    if (argv.includes('--drafts')) dirs.push(path.join(ROOT, 'drafts', 'verse'));
+    if (argv.includes('--drafts')) dirs.push(path.join(DOCS, 'drafts', 'verse'));
     targets = [];
     dirs.forEach((d) => {
       if (!fs.existsSync(d)) return;

@@ -34,7 +34,7 @@ function main() {
     const html = fs.readFileSync(path.join(DRAFTS, f), 'utf8');
     const ref = (html.match(/<meta name="verse-ref" content="([^"]*)"/) || [])[1] || f;
     const snippet = (html.match(/<meta name="verse-snippet" content="([^"]*)"/) || [])[1] || '';
-    const todos = (html.match(/vs-todo/g) || []).length;
+    const todos = (html.match(/class="vs-todo"/g) || []).length;
     const words = html.replace(/<(script|style)[^>]*>[\s\S]*?<\/\1>/g, '').replace(/<!--[\s\S]*?-->/g, '')
       .replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().split(' ').length;
     return { f, ref, snippet, todos, words, packs: packMap.get(ref) || [] };
