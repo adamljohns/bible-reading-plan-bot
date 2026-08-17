@@ -47,9 +47,11 @@ function audioPlayer(chapterNum) {
   const base = (AUDIO_MANIFEST.base || 'https://audio.usmcmin.org').replace(/\/$/, '');
   const url = base + '/' + key;
   const who = AUDIO_MANIFEST.label || 'Mr. Pemberton';
-  return '<!-- LBCF-AUDIO --><div class="lbcf-audio"><div class="lbcf-audio-label">▶ Listen — AI narration by ' + who +
+  return '<!-- LBCF-AUDIO --><div class="moop-listen"><div class="moop-listen-label">' +
+    '<img src="/assets/icons/shield-headphones.png" alt="" width="20" height="20"> Listen — AI narration by ' + who +
     '</div><audio controls preload="none"><source src="' + url + '" type="audio/mpeg">' +
-    'Your browser cannot play this audio. <a href="' + url + '" download>Download the MP3</a>.</audio></div><!-- /LBCF-AUDIO -->';
+    'Your browser cannot play this audio.</audio>' +
+    '<a class="moop-listen-dl" href="' + url + '" download>Download the MP3</a></div><!-- /LBCF-AUDIO -->';
 }
 
 // ---- Load the live renderer's pure functions (one source of truth) ----------
@@ -175,6 +177,11 @@ function processChapterShell(chapter) {
     );
   }
 
+  // Ensure the shared listen.css is linked so the .moop-listen audio player is styled (idempotent).
+  if (html.indexOf('/assets/css/listen.css') === -1) {
+    html = html.replace('</head>', '    <link rel="stylesheet" href="/assets/css/listen.css">\n</head>');
+  }
+
   fs.writeFileSync(file, html);
   return body.length;
 }
@@ -255,6 +262,7 @@ function pageHead(title, desc, canonical) {
     '    <link rel="preconnect" href="https://fonts.googleapis.com">\n' +
     '    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">\n' +
     '    <link rel="stylesheet" href="assets/css/lbcf.css">\n' +
+    '    <link rel="stylesheet" href="/assets/css/listen.css">\n' +
     '    <link rel="manifest" href="/manifest.json">\n' +
     '    <link rel="stylesheet" href="/assets/css/light-icons.css">\n' +
     '    <link rel="stylesheet" href="/assets/css/print.css" media="print">\n' +

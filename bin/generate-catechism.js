@@ -69,9 +69,11 @@ function sectionPlayer(idx1) {
   const base = (AUDIO_MANIFEST.base || 'https://audio.usmcmin.org').replace(/\/$/, '');
   const url = base + '/' + key;
   const who = AUDIO_MANIFEST.label || 'Mr. Pemberton';
-  return '<div class="cat-audio"><div class="cat-audio-label">▶ Listen — AI narration by ' + who +
+  return '<div class="moop-listen"><div class="moop-listen-label">' +
+    '<img src="/assets/icons/shield-headphones.png" alt="" width="20" height="20"> Listen — AI narration by ' + who +
     '</div><audio controls preload="none"><source src="' + url + '" type="audio/mpeg">' +
-    'Your browser cannot play this audio. <a href="' + url + '" download>Download the MP3</a>.</audio></div>';
+    'Your browser cannot play this audio.</audio>' +
+    '<a class="moop-listen-dl" href="' + url + '" download>Download the MP3</a></div>';
 }
 
 function navHtml() {
@@ -195,6 +197,7 @@ function build(data) {
     '    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">\n' +
     '    <link rel="stylesheet" href="assets/css/lbcf.css">\n' +
     '    <link rel="stylesheet" href="assets/css/catechism.css">\n' +
+    '    <link rel="stylesheet" href="/assets/css/listen.css">\n' +
     '    <link rel="stylesheet" href="assets/css/study-progress.css">\n' +
     '    <link rel="manifest" href="/manifest.json">\n' +
     '    <link rel="stylesheet" href="/assets/css/light-icons.css">\n' +

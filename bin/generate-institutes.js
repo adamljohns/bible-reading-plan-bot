@@ -128,6 +128,7 @@ function chapterPage(ch, prev, next) {
     '    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">\n' +
     '    <link rel="stylesheet" href="../assets/css/lbcf.css">\n' +
     '    <link rel="stylesheet" href="../assets/css/institutes.css">\n' +
+    '    <link rel="stylesheet" href="/assets/css/listen.css">\n' +
     '    <link rel="manifest" href="/manifest.json">\n' +
     '    <link rel="stylesheet" href="/assets/css/light-icons.css">\n' +
     '    <link rel="stylesheet" href="/assets/css/print.css" media="print">\n' +
@@ -147,10 +148,12 @@ function chapterPage(ch, prev, next) {
     '</header>';
 
   if (audUrl) {
-    h += '<div class="inst-audio"><div class="inst-audio-label">▶ Listen — AI narration by Mr. Pemberton' +
+    h += '<div class="moop-listen"><div class="moop-listen-label">' +
+      '<img src="/assets/icons/shield-headphones.png" alt="" width="20" height="20"> Listen — AI narration by Mr. Pemberton' +
       (isModern ? ' (modernized for 2026)' : '') + '</div>' +
       '<audio controls preload="none"><source src="' + audUrl + '" type="audio/mpeg">' +
-      'Your browser cannot play this audio. <a href="' + audUrl + '" download>Download the MP3</a>.</audio></div>';
+      'Your browser cannot play this audio.</audio>' +
+      '<a class="moop-listen-dl" href="' + audUrl + '" download>Download the MP3</a></div>';
   }
 
   if (ch.sectionSummaries && ch.sectionSummaries.length) {
