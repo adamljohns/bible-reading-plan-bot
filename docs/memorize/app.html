@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pressure Check — App | USMC Ministries</title>
+<meta name="description" content="Word-perfect Scripture memory, reference fore and aft. The Navigators discipline with a word-level check, daily and weekly review, and eight translations.">
+<meta name="theme-color" content="#000000">
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/assets/icons/shield-anchor.png">
+<meta property="og:title" content="Pressure Check — Scripture Memory">
+<meta property="og:description" content="A round chambered before you need it. Word-perfect memory work, reference fore and aft.">
+<meta property="og:type" content="website">
+<style>
+:root{
+  /* Diagram ink. The Hand and Wheel read these, so one place controls both. */
+  --dia-ink:#D4AF37; --dia-ink-on:#F4D470; --dia-fill:#101010;
+  --dia-accent:#8a6f22; --dia-muted:#8a8a8a; --dia-on:rgba(212,175,55,.16);
+  --bg-dark:#000; --bg-card:#111; --bg-raise:#171717;
+  --gold:#D4AF37; --gold-light:#F4D470;
+  --white:#fff; --gray:#888; --border:#333;
+  --good:#4ade80; --bad:#f87171; --warn:#fbbf24;
+  --nav-h:52px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{background:var(--bg-dark);color:var(--white);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,sans-serif;
+  line-height:1.55;padding-bottom:env(safe-area-inset-bottom)}
+
+.site-nav{height:var(--nav-h);display:flex;align-items:center;gap:.5rem;
+  padding:0 1rem;border-bottom:1px solid var(--border);font-size:.82rem;color:var(--gray)}
+.site-nav a{color:var(--gray);text-decoration:none}
+.site-nav a:hover{color:var(--gold)}
+.site-logo{color:var(--white);font-weight:600;display:flex;align-items:center;gap:.4rem}
+.site-icon{width:18px;height:18px}
+.sep{opacity:.5}
+
+.wrap{max-width:760px;margin:0 auto;padding:1.25rem 1rem 3rem}
+h1{font-size:1.5rem;letter-spacing:.01em;margin-bottom:.15rem}
+.kicker{color:var(--gold);font-size:.7rem;font-weight:700;letter-spacing:.22em;
+  text-transform:uppercase;margin-bottom:.5rem}
+.lede{color:var(--gray);font-size:.92rem;margin-bottom:1.5rem}
+.explainer{margin:0 0 1.35rem}
+.video-frame{position:relative;width:100%;aspect-ratio:16/9;background:var(--bg-card);
+  border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.video-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.explainer-note{color:var(--gray);font-size:.78rem;margin-top:.45rem}
+.explainer-note a{color:var(--gold)}
+.pack-hint{color:var(--gray);font-size:.78rem;margin:-.2rem 0 .7rem;line-height:1.4}
+.pack{display:flex;align-items:stretch;gap:.55rem}
+.pack-body{flex:1;min-width:0}
+.pack-tools{display:flex;flex-direction:column;justify-content:center;gap:.25rem;flex-shrink:0}
+.pack-grip{display:flex;align-items:center;justify-content:center;width:2.1rem;
+  color:var(--gray);font-size:1rem;letter-spacing:-.08em;cursor:grab;user-select:none;
+  border-right:1px solid var(--border);margin:-.85rem .15rem -.85rem -1rem;padding:0 .15rem}
+.pack-grip:active{cursor:grabbing}
+.pack-move{min-height:36px;padding:.2rem .45rem;font-size:.72rem;letter-spacing:.06em;
+  text-transform:uppercase}
+.pack.dragging{opacity:.55}
+.pack.drag-over{border-color:var(--gold)}
+
+.row{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
+.spread{justify-content:space-between}
+button{font:inherit;cursor:pointer;border:1px solid var(--border);background:var(--bg-raise);
+  color:var(--white);border-radius:8px;padding:.55rem .85rem;min-height:44px}
+button:hover{border-color:var(--gold)}
+button.primary{background:var(--gold);color:#000;border-color:var(--gold);font-weight:700}
+button.primary:hover{background:var(--gold-light)}
+button.ghost{background:transparent}
+button[aria-pressed="true"]{border-color:var(--gold);color:var(--gold)}
+select{font:inherit;background:var(--bg-raise);color:var(--white);border:1px solid var(--border);
+  border-radius:8px;padding:.5rem .6rem;min-height:44px}
+
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.5rem;margin-bottom:1.25rem}
+.stat{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;
+  padding:.6rem .5rem;text-align:center}
+.stat b{display:block;font-size:1.25rem;color:var(--gold);line-height:1.2}
+.stat span{font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gray)}
+
+.pack{background:var(--bg-card);border:1px solid var(--border);border-left:3px solid var(--gold);
+  border-radius:10px;padding:.85rem 1rem;margin-bottom:.6rem;cursor:pointer}
+.pack:hover{border-color:var(--gold)}
+.pack h3{font-size:1rem;margin-bottom:.2rem}
+.pack p{color:var(--gray);font-size:.82rem;margin-bottom:.45rem}
+.pack .meta{font-size:.7rem;color:var(--gold);letter-spacing:.08em;text-transform:uppercase}
+
+/* The card. Flip is a real 3D rotate so the "check yourself" beat feels like
+   turning a physical card over — the motion an index card already teaches. */
+.card-outer{perspective:1200px;margin:1rem 0}
+.card{position:relative;transform-style:preserve-3d;-webkit-transform-style:preserve-3d;
+  transition:transform .5s cubic-bezier(.4,0,.2,1);min-height:210px}
+.card.flipped{transform:rotateY(180deg)}
+/* Do not trust backface-visibility alone. WebKit ignored it here and painted
+   the back face — mirrored — straight over the front, which is worse than no
+   flip at all: the man reads the answer he was supposed to recall. Visibility
+   is switched explicitly at the halfway point of the turn, so correctness
+   never depends on 3D support. */
+.card .face.back{visibility:hidden}
+.card.flipped .face.back{visibility:visible}
+.card.flipped .face.front{visibility:hidden}
+.face{transition:visibility 0s linear .25s}
+/* No overflow on a face. In WebKit an `overflow` value other than visible
+   forces the element into its own paint context, which silently defeats
+   backface-visibility — the back face then shows through mirrored on top of
+   the front. The card grows to fit the verse instead of scrolling. */
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:1.1rem;
+  display:flex;flex-direction:column;justify-content:center}
+.face.back{transform:rotateY(180deg)}
+/* Both faces are absolutely positioned, so the card has no intrinsic height.
+   This invisible copy of the longest content (the full verse on the back) is
+   what gives it one, so a 60-word verse is never clipped. */
+.sizer{position:relative;visibility:hidden;padding:1.1rem;pointer-events:none}
+.ref{color:var(--gold);font-weight:700;letter-spacing:.06em;font-size:.9rem}
+.ref.aft{margin-top:.85rem;text-align:right;opacity:.85}
+.vtext{font-size:1.08rem;line-height:1.6;margin-top:.6rem}
+.blank{display:inline-block;border-bottom:1.5px solid var(--gold);min-width:2.2em;
+  margin:0 .1em;color:transparent}
+.firstletter{letter-spacing:.06em;word-spacing:.35em}
+.nav-illus{margin:1.6rem 0 1rem}
+.nav-illus h2{font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:.6rem}
+.svg-host{overflow:visible}
+.svg-host svg{width:100%;max-width:360px;height:auto;display:block;margin:0 auto;overflow:visible}
+.svg-host [data-part]{cursor:pointer;min-width:44px;min-height:44px}
+.svg-host [data-part]:hover rect,.svg-host [data-part]:hover circle,.svg-host [data-part]:hover path,.svg-host [data-part]:hover line{filter:brightness(1.25)}
+.nav-attr{font-size:.72rem;color:var(--gray);margin:1rem 0 0;line-height:1.45}
+.nav-attr a{color:var(--gold)}
+.add-fail{color:var(--bad);font-size:.85rem;margin:.6rem 0}
+.elstrip{color:var(--gold);font-size:.68rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:.45rem}
+.elstrip.hidden-strip{display:none}
+.elstrip .kind-companion{color:var(--gray);letter-spacing:.08em;font-weight:600}
+
+textarea{width:100%;min-height:120px;background:var(--bg-raise);color:var(--white);
+  border:1px solid var(--border);border-radius:10px;padding:.7rem;font:inherit;line-height:1.5;
+  resize:vertical}
+textarea:focus{outline:none;border-color:var(--gold)}
+
+.score{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;
+  padding:.9rem 1rem;margin:.85rem 0}
+.pct{font-size:2rem;font-weight:700;line-height:1}
+.pct.perfect{color:var(--good)} .pct.ok{color:var(--warn)} .pct.poor{color:var(--bad)}
+.diff{margin-top:.7rem;font-size:1rem;line-height:1.75}
+.diff .hit{color:var(--white)}
+.diff .miss{color:var(--bad);text-decoration:line-through;opacity:.75}
+.diff .want{color:var(--good);border-bottom:1px dashed var(--good)}
+.legend{font-size:.7rem;color:var(--gray);margin-top:.5rem}
+
+.hidden{display:none!important}
+.muted{color:var(--gray);font-size:.8rem}
+.bar{height:5px;background:var(--border);border-radius:3px;overflow:hidden;margin:.5rem 0 1rem}
+.bar>i{display:block;height:100%;background:var(--gold);transition:width .3s}
+footer{border-top:1px solid var(--border);margin-top:2.5rem;padding-top:1rem;
+  color:var(--gray);font-size:.75rem}
+@media(max-width:560px){ .stats{grid-template-columns:repeat(2,minmax(0,1fr))} h1{font-size:1.3rem} }
+
+/* The diagrams are themable, but this page has no light theme — the shell is
+   black at every setting. A prefers-color-scheme block here fired on any
+   light-mode phone and painted a cream hand onto a still-black page, which is
+   worse than the problem it was meant to solve. The tokens above stay so the
+   drawings flip in one place the day the page itself gains a light shell:
+     --dia-ink:#8B5A1F  --dia-fill:#F5F3EF  --dia-accent:#A98544
+   Gold on cream is ~2.2:1 and unreadable, which is why the light values drop
+   to bronze rather than keeping #D4AF37. */
+.svg-host [data-part]{transition:opacity .25s ease}
+.svg-host [data-part].is-on{animation:diaSettle 1.1s ease-out 1}
+@keyframes diaSettle{0%{opacity:.55}55%{opacity:1}100%{opacity:1}}
+.flagged{color:var(--warn)}
+#share{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;
+  padding:.8rem;margin-top:.8rem;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  font-size:.78rem;white-space:pre-wrap;color:var(--gray)}
+
+/* ---------- printable cards ------------------------------------------- */
+/* Many who keep a real practice use index cards and find paper beats a phone.
+   The tool's job is to make a better card, not to argue anyone out of carrying
+   one. 3x5 at real size, cut lines, reference fore and aft as drilled. */
+.sheet{display:none}
+@media print{
+  @page{margin:.4in}
+  body{background:#fff;color:#000}
+  .site-nav,.wrap>section,footer,#drill,.explainer{display:none!important}
+  .sheet{display:grid!important;grid-template-columns:repeat(2,3in);gap:.25in;justify-content:center}
+  .pcard{width:3in;height:5in;border:1px dashed #999;padding:.22in;
+    display:flex;flex-direction:column;justify-content:space-between;
+    page-break-inside:avoid;break-inside:avoid;font-family:Georgia,'Times New Roman',serif}
+  .pcard .elstrip{font-weight:700;font-size:7.5pt;letter-spacing:.1em;text-transform:uppercase;color:#8a7018;margin-bottom:.08in}
+  .pcard .pref{font-weight:700;font-size:10.5pt;letter-spacing:.04em}
+  .pcard .pref.aft{text-align:right}
+  .pcard .ptext{font-size:11.5pt;line-height:1.42;flex:1;display:flex;align-items:center}
+  .pcard .pfoot{font-size:7.5pt;color:#666;text-align:center;letter-spacing:.06em;
+    text-transform:uppercase;border-top:.5pt solid #ccc;padding-top:.06in}
+}
+</style>
+</head>
+<body>
+<nav class="site-nav">
+  <span class="site-logo"><img src="/assets/icons/shield-anchor.png" class="site-icon" alt="" width="18" height="18"> USMC Ministries</span>
+  <a href="/">Home</a><span class="sep">·</span>
+  <a href="/bible.html">Bible Engine</a><span class="sep">·</span>
+  <a href="/verse/">Verse Studies</a>
+</nav>
+
+<div class="wrap">
+
+  <!-- ============ HOME ============ -->
+  <section id="home">
+    <p class="muted" style="margin-bottom:.75rem"><a href="/memorize.html">&larr; Pressure Check</a></p>
+    <div class="kicker">Pressure Check</div>
+    <h1>Scripture Memory</h1>
+    <p class="lede">A round chambered before you need it. Reference fore, verse word perfect,
+      reference aft &mdash; the way the Navigators taught it.</p>
+
+    <div class="stats">
+      <div class="stat"><b id="sStreak">0</b><span>Day streak</span></div>
+      <div class="stat"><b id="sDue">0</b><span>Due now</span></div>
+      <div class="stat"><b id="sSolid">0</b><span>Solid</span></div>
+      <div class="stat"><b id="sTotal">0</b><span>In progress</span></div>
+    </div>
+
+    <div class="row spread" style="margin-bottom:1rem">
+      <div class="row">
+        <label class="muted" for="tr">Translation</label>
+        <select id="tr" aria-label="Translation"></select>
+      </div>
+      <div class="row">
+        <label class="muted" for="mins">Session</label>
+        <select id="mins" aria-label="Session length">
+          <option value="7">7 min</option>
+          <option value="17">17 min</option>
+        </select>
+      </div>
+    </div>
+
+    <button class="primary" id="btnDue" style="width:100%;margin-bottom:1.25rem">
+      Start review &mdash; <span id="dueLabel">nothing due</span>
+    </button>
+
+    <button id="btnBrowse" style="width:100%;margin-bottom:.6rem">Browse verses &amp; build a stack</button>
+
+    <div class="row" style="margin-bottom:1.25rem">
+      <button id="btnPrint">Print cards</button>
+      <button id="btnShare">Share progress</button>
+      <button id="btnNudge">Daily nudge</button>
+    </div>
+    <div id="share" class="hidden"></div>
+
+    <h2 style="font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:.6rem">Packs</h2>
+    <p class="pack-hint">Drag the grip to reorder. On a phone, use Up / Down. Tap the card to review — even a pack you have not saved yet.</p>
+    <div id="packs"></div>
+    <p id="addFail" class="add-fail hidden"></p>
+
+  </section>
+
+  <!-- ============ BROWSE ============ -->
+  <!-- Reading before committing. Nothing here grades you and nothing enters the
+       stack until you add it, so a man can look through every verse first. -->
+  <section id="browse" class="hidden">
+    <div class="row spread" style="margin-bottom:.5rem">
+      <button class="ghost" id="btnBrowseBack">&larr; Done</button>
+      <span class="muted" id="browseCount"></span>
+    </div>
+
+    <div class="row" style="margin-bottom:.75rem">
+      <select id="browsePack" aria-label="Which verses to browse"></select>
+    </div>
+
+    <div class="card-outer">
+      <div class="card" id="bcard">
+        <div class="sizer" aria-hidden="true">
+          <div class="elstrip" id="bSizerEl">&nbsp;</div>
+          <div class="ref">&nbsp;</div><div class="vtext" id="bSizer"></div><div class="ref aft">&nbsp;</div>
+        </div>
+        <div class="face front">
+          <div class="elstrip" id="bEl"></div>
+          <div class="ref" id="bRefFore"></div>
+          <div class="vtext" id="bText"></div>
+          <div class="ref aft" id="bRefAft"></div>
+        </div>
+        <div class="face back"></div>
+      </div>
+    </div>
+
+    <div class="row spread">
+      <div class="row">
+        <button id="btnPrev">&larr; Prev</button>
+        <button id="btnNextV">Next &rarr;</button>
+      </div>
+      <button id="btnListenB">Listen</button>
+    </div>
+    <button class="primary" id="btnAdd" style="width:100%;margin-top:.7rem">Add to my stack</button>
+    <p class="muted" style="margin-top:.6rem">Your stack lives on this device. Nothing is shared and no name is attached to it.</p>
+  </section>
+
+  <!-- Rendered only for print. Filled on demand so the DOM stays light. -->
+  <div class="sheet" id="sheet" aria-hidden="true"></div>
+
+  <!-- ============ DRILL ============ -->
+  <section id="drill" class="hidden">
+    <div class="row spread" style="margin-bottom:.4rem">
+      <button class="ghost" id="btnQuit">&larr; Done</button>
+      <span class="muted" id="progress"></span>
+    </div>
+    <div class="bar"><i id="bar" style="width:0"></i></div>
+
+    <div class="row" style="margin-bottom:.25rem" role="group" aria-label="Difficulty">
+      <button data-step="read"  aria-pressed="false">Read</button>
+      <button data-step="blank" aria-pressed="false">Fill blank</button>
+      <button data-step="first" aria-pressed="false">First letter</button>
+      <button data-step="recall" aria-pressed="false">Recall</button>
+    </div>
+    <div class="row hidden" id="blankRow" style="margin-bottom:.25rem" role="group" aria-label="Blank difficulty">
+      <button data-blank="1" aria-pressed="false">Easy</button>
+      <button data-blank="2" aria-pressed="false">Medium</button>
+      <button data-blank="3" aria-pressed="false">Hard</button>
+    </div>
+
+    <div class="card-outer">
+      <div class="card" id="card">
+        <div class="sizer" aria-hidden="true">
+          <div class="elstrip" id="sizerEl">&nbsp;</div>
+          <div class="ref">&nbsp;</div>
+          <div class="vtext" id="sizerText"></div>
+          <div class="ref aft">&nbsp;</div>
+        </div>
+        <div class="face front">
+          <div class="elstrip" id="elFore"></div>
+          <div class="ref" id="refFore"></div>
+          <div class="vtext" id="vFront"></div>
+          <div class="ref aft" id="refAftF"></div>
+        </div>
+        <div class="face back">
+          <div class="elstrip" id="elBack"></div>
+          <div class="ref" id="refForeB"></div>
+          <div class="vtext" id="vBack"></div>
+          <div class="ref aft" id="refAftB"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row" style="margin-bottom:.6rem">
+      <button id="btnFlip">Flip card</button>
+      <button id="btnSpeak">Speak it</button>
+      <button id="btnListen">Listen</button>
+      <button id="btnFlag" title="Mark this one tricky so it comes back sooner">Flag</button>
+      <span class="muted" id="micNote"></span>
+    </div>
+
+    <label class="muted" for="answer">Say or type it &mdash; reference, verse, reference</label>
+    <textarea id="answer" placeholder="[Ref Ch:vs]  [verse word for word]  [Ref again]"
+      autocapitalize="sentences" autocomplete="off" spellcheck="false"></textarea>
+
+    <div class="row" style="margin-top:.6rem">
+      <button class="primary" id="btnCheck">Check</button>
+      <button class="ghost" id="btnSkip">Next &rarr;</button>
+    </div>
+
+    <div id="result" class="hidden"></div>
+  </section>
+
+  <footer>
+    U.S.M.C. Ministries &middot; Bible Engine &middot; Word-perfect means every word, in order,
+    with punctuation, reference fore and aft. Progress is stored on this device only.
+    The Word Hand and The Wheel &copy; The Navigators. Used with gratitude.
+  </footer>
+</div>
+
+<script>
+(function(){
+'use strict';
+
+/* ---------- storage ---------------------------------------------------- */
+const LS='moop.memorize.v1';
+const load=()=>{ try{return JSON.parse(localStorage.getItem(LS))||{}}catch(e){return{}} };
+const save=s=>{ try{localStorage.setItem(LS,JSON.stringify(s))}catch(e){} };
+let S=Object.assign({cards:{},extras:{},streak:0,lastDay:null,tr:'NKJV',mins:7,packOrder:[]},load());
+
+const today=()=>new Date().toLocaleDateString('en-CA');
+const dayNum=d=>Math.floor(new Date(d+'T00:00:00').getTime()/864e5);
+
+/* A card lives in one of two review buckets: daily, then weekly.
+   No monthly tier — a verse you only see twelve times a year is not chambered. */
+function card(slug){
+  return S.cards[slug] || (S.cards[slug]={bucket:'daily',due:today(),best:0,reps:0,passedTo:''});
+}
+function schedule(c,pct){
+  c.reps++; c.best=Math.max(c.best,pct);
+  const d=new Date();
+  if(pct>=100){                       // word perfect promotes
+    c.bucket='weekly'; d.setDate(d.getDate()+7);
+  }else if(pct>=80){                  // close enough to hold its place
+    d.setDate(d.getDate()+(c.bucket==='weekly'?7:1));
+  }else{
+    /* Soft demotion: a weekly verse drops back to daily rather
+       than losing all its history. Never resets reps or best. */
+    c.bucket='daily'; d.setDate(d.getDate()+1);
+  }
+  c.due=d.toLocaleDateString('en-CA');
+}
+const isDue=c=>dayNum(c.due)<=dayNum(today());
+
+/* ---------- word-perfect scoring --------------------------------------- */
+/* Compare on tokens, aligned by LCS so a dropped word shifts everything after
+   it by one slot instead of scoring the rest of the verse as wrong — the
+   failure mode that makes naive index-by-index diffing useless here. */
+const tokenize=s=>(s||'').trim().split(/\s+/).filter(Boolean);
+const bare=t=>t.toLowerCase().replace(/[^a-z0-9']/g,'');
+
+function align(want,got){
+  const n=want.length,m=got.length;
+  const dp=Array.from({length:n+1},()=>new Int32Array(m+1));
+  for(let i=n-1;i>=0;i--)for(let j=m-1;j>=0;j--)
+    dp[i][j]=bare(want[i])===bare(got[j])?dp[i+1][j+1]+1:Math.max(dp[i+1][j],dp[i][j+1]);
+  const out=[];let i=0,j=0;
+  while(i<n&&j<m){
+    if(bare(want[i])===bare(got[j])){ out.push({t:want[i],k:want[i]===got[j]?'hit':'punct'}); i++;j++; }
+    else if(dp[i+1][j]>=dp[i][j+1]){ out.push({t:want[i],k:'want'}); i++; }
+    else { out.push({t:got[j],k:'miss'}); j++; }
+  }
+  while(i<n) out.push({t:want[i++],k:'want'});
+  while(j<m) out.push({t:got[j++],k:'miss'});
+  return out;
+}
+
+/* Split what the man said into reference / verse / reference. He may give the
+   reference fore only, or neither; a missing reference costs points but never
+   fails the verse outright — it is scored, not failed. */
+function splitAttempt(raw,ref){
+  const rx=new RegExp(ref.replace(/[.*+?^${}()|[\]\\]/g,'\\$&').replace(/\s+/g,'\\s*'),'ig');
+  const hits=[...raw.matchAll(rx)];
+  let body=raw, fore=false, aft=false;
+  if(hits.length){
+    const first=hits[0], last=hits[hits.length-1];
+    fore = first.index < raw.length*0.35;
+    aft  = hits.length>1 && last.index > raw.length*0.6;
+    body = raw.replace(rx,' ');
+  }
+  return {body:body.trim(),fore,aft};
+}
+
+function grade(said,verse,ref){
+  const {body,fore,aft}=splitAttempt(said,ref);
+  const want=tokenize(verse), got=tokenize(body);
+  const parts=align(want,got);
+  const exact=parts.filter(p=>p.k==='hit').length;
+  const soft =parts.filter(p=>p.k==='punct').length;   // right word, wrong punctuation/case
+  const versePct = want.length? Math.round(((exact+soft*0.9)/want.length)*100) : 0;
+  const refPct   = (fore?50:0)+(aft?50:0);
+  const perfect  = versePct===100 && soft===0 && fore && aft && got.length===want.length;
+  /* Verse is the work; reference is the handle. Weighted 85/15 so a man who
+     nails the text but forgets to close with the reference still scores well. */
+  const total = Math.round(versePct*0.85 + refPct*0.15);
+  return {parts,versePct,refPct,total,perfect,fore,aft};
+}
+
+/* ---------- render helpers --------------------------------------------- */
+const $=id=>document.getElementById(id);
+const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+function maskBlank(text,level){
+  const every=[0,6,3,2][level]||3;         // easy≈1/6, medium≈1/3, hard≈1/2
+  let n=0;
+  return tokenize(text).map(w=>{
+    const keepShort=w.replace(/[^a-zA-Z]/g,'').length<=2;
+    return (!keepShort && (++n % every===0))
+      ? `<span class="blank">${esc(w)}</span>` : esc(w);
+  }).join(' ');
+}
+const firstLetters=text=>tokenize(text)
+  .map(w=>{const m=w.match(/[A-Za-z]/);return (m?m[0]:w[0])+(/[.,;:!?"']$/.test(w)?w.slice(-1):'');})
+  .join(' ');
+
+/* ---------- state ------------------------------------------------------ */
+let PACKS=[], queue=[], qi=0, step='read', blankLvl=2, endAt=0, recog=null;
+
+async function boot(){
+  const r=await fetch('/data/memory-packs.json?v=20260814b',{cache:'force-cache'});
+  const d=await r.json();
+  PACKS=d.packs;
+  if(!S.tr) S.tr='NKJV';
+  const sel=$('tr');
+  sel.innerHTML=d.translations.map(t=>`<option${t===S.tr?' selected':''}>${t}</option>`).join('');
+  sel.onchange=()=>{S.tr=sel.value;save(S);paint();};
+  $('mins').value=String(S.mins);
+  $('mins').onchange=()=>{S.mins=+$('mins').value;save(S);};
+  await mountDiagrams();
+  await addFromQuery();
+  openPackQuery();
+  if(location.hash==='#hand'||location.hash==='#wheel'){
+    const el=$(location.hash.slice(1)); if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
+  }
+  renderPacks(); paint();
+  if(S.nudge){ $('btnNudge').textContent='Nudge on'; $('btnNudge').setAttribute('aria-pressed','true'); fireNudge(false); }
+}
+
+function extraVerses(){
+  return Object.entries(S.extras||{}).map(([slug,e])=>({slug,ref:e.ref,text:e.text,pack:'__extra'}));
+}
+function allVerses(){
+  const packV=PACKS.flatMap(p=>p.verses.map(v=>({...v,pack:p.id})));
+  const extra=extraVerses().filter(v=>!packV.some(p=>p.slug===v.slug||normRef(p.ref)===normRef(v.ref)));
+  return packV.concat(extra);
+}
+function normRef(r){ return String(r||'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim(); }
+function dueList(){ return allVerses().filter(v=>S.cards[v.slug]&&isDue(S.cards[v.slug])); }
+
+function paint(){
+  const inProg=Object.keys(S.cards).length;
+  const solid=Object.values(S.cards).filter(c=>c.bucket==='weekly').length;
+  const due=dueList().length;
+  $('sStreak').textContent=S.streak; $('sDue').textContent=due;
+  $('sSolid').textContent=solid; $('sTotal').textContent=inProg;
+  $('dueLabel').textContent = due? `${due} verse${due===1?'':'s'} due` : 'nothing due';
+  $('btnDue').disabled = !due;
+}
+
+function orderedPacks(){
+  const known=new Set(PACKS.map(p=>p.id));
+  const keep=(Array.isArray(S.packOrder)?S.packOrder:[]).filter(id=>known.has(id));
+  PACKS.forEach(p=>{ if(!keep.includes(p.id)) keep.push(p.id); });
+  S.packOrder=keep;
+  return keep.map(id=>PACKS.find(p=>p.id===id)).filter(Boolean);
+}
+function movePack(id, dir){
+  const o=orderedPacks().map(p=>p.id);
+  const i=o.indexOf(id); if(i<0) return;
+  const j=i+dir; if(j<0||j>=o.length) return;
+  [o[i],o[j]]=[o[j],o[i]];
+  S.packOrder=o; save(S); renderPacks();
+}
+function renderPacks(){
+  /* Verses added by hand are their own drillable set, listed first. */
+  const mine=allVerses().filter(v=>S.cards[v.slug]);
+  const stackCard = mine.length ? `<div class="pack" data-pack="__stack" role="button" tabindex="0">
+      <div class="pack-body"><h3>My Stack</h3><p>Everything you have added or started, in one place.</p>
+      <div class="meta">${mine.length} verse${mine.length===1?'':'s'}</div></div></div>` : '';
+  const packs=orderedPacks();
+  $('packs').innerHTML=stackCard+packs.map((p,i)=>{
+    const started=p.verses.filter(v=>S.cards[v.slug]).length;
+    return `<div class="pack" data-pack="${p.id}" role="button" tabindex="0">
+      <div class="pack-grip" draggable="true" aria-label="Reorder pack" title="Drag to reorder">::</div>
+      <div class="pack-body">
+        <h3>${esc(p.name)}</h3><p>${esc(p.blurb)}</p>
+        <div class="meta">${p.verses.length} verses${p.mode==='passage'?' · passage':''}${started?` · ${started} started`:''}</div>
+      </div>
+      <div class="pack-tools">
+        <button type="button" class="ghost pack-move" data-move="-1" ${i===0?'disabled':''} aria-label="Move ${esc(p.name)} up">Up</button>
+        <button type="button" class="ghost pack-move" data-move="1" ${i===packs.length-1?'disabled':''} aria-label="Move ${esc(p.name)} down">Down</button>
+      </div>
+    </div>`;}).join('');
+  $('packs').querySelectorAll('.pack').forEach(el=>{
+    const go=()=>startPack(el.dataset.pack);
+    el.onclick=e=>{ if(e.target.closest('.pack-grip,.pack-move,.pack-tools')) return; go(); };
+    el.onkeydown=e=>{ if(e.target.closest('.pack-grip,.pack-move,.pack-tools')) return; if(e.key==='Enter'||e.key===' '){e.preventDefault();go();}};
+  });
+  $('packs').querySelectorAll('.pack-move').forEach(btn=>{
+    btn.onclick=e=>{ e.preventDefault(); e.stopPropagation(); movePack(btn.closest('.pack').dataset.pack, +btn.dataset.move); };
+  });
+  $('packs').querySelectorAll('.pack-grip').forEach(grip=>{
+    const card=grip.closest('.pack');
+    grip.addEventListener('click', e=>{ e.preventDefault(); e.stopPropagation(); });
+    grip.addEventListener('dragstart', e=>{
+      e.stopPropagation();
+      e.dataTransfer.effectAllowed='move';
+      e.dataTransfer.setData('text/plain', card.dataset.pack);
+      card.classList.add('dragging');
+    });
+    grip.addEventListener('dragend', ()=> card.classList.remove('dragging'));
+    card.addEventListener('dragover', e=>{ e.preventDefault(); card.classList.add('drag-over'); });
+    card.addEventListener('dragleave', ()=> card.classList.remove('drag-over'));
+    card.addEventListener('drop', e=>{
+      e.preventDefault(); e.stopPropagation(); card.classList.remove('drag-over');
+      const from=e.dataTransfer.getData('text/plain');
+      const to=card.dataset.pack;
+      if(!from||from===to) return;
+      const o=orderedPacks().map(p=>p.id);
+      const i=o.indexOf(from), j=o.indexOf(to);
+      if(i<0||j<0) return;
+      o.splice(i,1); o.splice(j,0,from);
+      S.packOrder=o; save(S); renderPacks();
+    });
+  });
+}
+
+/* ---------- session ---------------------------------------------------- */
+function stackVerses(){
+  const bookmarked=[], rest=[];
+  for(const [slug,c] of Object.entries(S.cards||{})){
+    let v=allVerses().find(x=>x.slug===slug);
+    if(!v && c.ref) v=allVerses().find(x=>normRef(x.ref)===normRef(c.ref));
+    if(!v && S.extras && S.extras[slug]) v={slug,...S.extras[slug],pack:'__extra'};
+    if(!v) continue;
+    (c.source==='bte-bookmark'?bookmarked:rest).push(v);
+  }
+  return bookmarked.concat(rest);
+}
+function startPack(id){
+  if(id==='__stack'){
+    queue=stackVerses().slice(0,20);
+    if(queue.length) begin();
+    return;
+  }
+  const p=PACKS.find(x=>x.id===id);
+  /* A passage pack is presented in order and in chunks of five so a man
+     extends a passage gradually, rather than facing 16 verses at once. */
+  const notSolid=p.verses.filter(v=>!S.cards[v.slug]||S.cards[v.slug].bucket!=='weekly');
+  queue=(p.mode==='passage'? notSolid.slice(0,5) : notSolid).slice(0,20);
+  if(!queue.length) queue=p.verses.slice(0,5);
+  begin();
+}
+function startDue(){ queue=dueList().slice(0,20); if(queue.length) begin(); }
+
+function begin(){
+  qi=0; endAt=Date.now()+S.mins*60000;
+  $('home').classList.add('hidden'); $('drill').classList.remove('hidden');
+  setStep('read'); show();
+}
+function finish(){
+  const t=today();
+  if(S.lastDay!==t){
+    S.streak = (S.lastDay && dayNum(t)-dayNum(S.lastDay)===1) ? S.streak+1 : 1;
+    S.lastDay=t;
+  }
+  save(S);
+  $('drill').classList.add('hidden'); $('home').classList.remove('hidden');
+  renderPacks(); paint();
+}
+
+function setStep(s){
+  step=s;
+  document.querySelectorAll('[data-step]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.step===s)));
+  $('blankRow').classList.toggle('hidden',s!=='blank');
+  show();
+}
+
+function cur(){ return queue[qi]; }
+function verseText(v){ return (v.text&& (v.text[S.tr] || v.text.NKJV || v.text.KJV)) || ''; }
+const PART_TOKEN={
+  pinky:'PINKY', ring:'RING', middle:'MIDDLE', index:'INDEX', thumb:'THUMB',
+  hub:'HUB', rim:'RIM', word:'SPOKE · WORD', prayer:'SPOKE · PRAYER',
+  fellowship:'SPOKE · FELLOWSHIP', witness:'SPOKE · WITNESS'
+};
+function packTitle(v){
+  if(v.pack==='word-hand' || (!v.pack && v.part && ['pinky','ring','middle','index','thumb'].includes(v.part))) return 'THE WORD HAND';
+  if(v.pack==='the-wheel' || (!v.pack && v.part && ['hub','rim','word','prayer','fellowship','witness'].includes(v.part))) return 'THE WHEEL';
+  const p=PACKS.find(x=>x.id===v.pack);
+  if(p && p.id==='word-hand') return 'THE WORD HAND';
+  if(p && p.id==='the-wheel') return 'THE WHEEL';
+  return '';
+}
+function elementStrip(v){
+  if(!v || !v.part || !v.method) return '';
+  const pack=packTitle(v); if(!pack) return '';
+  const token=PART_TOKEN[v.part] || String(v.part).toUpperCase();
+  const method=String(v.method).toUpperCase();
+  const kind = v.kind==='companion'
+    ? ' · <span class="kind-companion">Companion</span>'
+    : ' · Official';
+  return `${pack} · ${token} · ${method}${kind}`;
+}
+function paintStrip(id, v){
+  const el=$(id); if(!el) return;
+  const html=elementStrip(v);
+  el.innerHTML=html;
+  el.classList.toggle('hidden-strip', !html);
+}
+
+function show(){
+  const v=cur(); if(!v) return finish();
+  const t=verseText(v);
+  $('refFore').textContent=v.ref; $('refAftF').textContent=v.ref;
+  $('refForeB').textContent=v.ref; $('refAftB').textContent=v.ref;
+  paintStrip('elFore', v); paintStrip('elBack', v); paintStrip('sizerEl', v);
+  $('vBack').textContent=t;                                  // back is always the truth
+  $('sizerText').textContent=t;                              // and sets the card's height
+  $('vFront').innerHTML =
+      step==='read'  ? esc(t)
+    : step==='blank' ? maskBlank(t,blankLvl)
+    : step==='first' ? `<span class="firstletter">${esc(firstLetters(t))}</span>`
+    : `<span class="muted">Reference is above. Say it, then flip.</span>`;
+  $('card').classList.remove('flipped');
+  $('answer').value=''; $('result').classList.add('hidden');
+  $('progress').textContent=`${qi+1} of ${queue.length}`;
+  paintFlag();
+  $('bar').style.width=`${(qi/queue.length)*100}%`;
+}
+
+function check(){
+  const v=cur(); if(!v) return;
+  const said=$('answer').value.trim();
+  if(!said){ $('answer').focus(); return; }
+  const g=grade(said,verseText(v),v.ref);
+  const c=card(v.slug); schedule(c,g.total); save(S);
+
+  const cls=g.perfect?'perfect':g.total>=80?'ok':'poor';
+  const html=g.parts.map(p=>
+      p.k==='hit'  ? `<span class="hit">${esc(p.t)}</span>`
+    : p.k==='punct'? `<span class="hit" title="right word, punctuation or case off">${esc(p.t)}</span>`
+    : p.k==='want' ? `<span class="want" title="you missed this">${esc(p.t)}</span>`
+    :               `<span class="miss" title="not in the verse">${esc(p.t)}</span>`).join(' ');
+
+  $('result').innerHTML=`<div class="score">
+      <div class="pct ${cls}">${g.total}%</div>
+      <div class="muted">${g.perfect?'Word perfect.':`Verse ${g.versePct}% · reference ${g.refPct}%`}
+        ${g.fore?'':' · missed the reference up front'}${g.aft?'':' · missed it on the close'}</div>
+      <div class="diff">${html}</div>
+      <div class="legend">Struck red was not in the verse. Green underlined is what you missed.
+        ${c.bucket==='weekly'?'Moved to weekly review.':'Stays in daily review.'}</div>
+    </div>
+    <div class="row"><button class="primary" id="btnNext">Next verse</button>
+      <button class="ghost" id="btnAgain">Try again</button>
+      <button class="ghost" id="btnPass">Pass to family</button></div>`;
+  $('result').classList.remove('hidden');
+  $('card').classList.add('flipped');
+  $('btnNext').onclick=()=>{ qi++; (Date.now()>endAt||qi>=queue.length)?finish():show(); };
+  $('btnAgain').onclick=()=>{ $('answer').value=''; $('result').classList.add('hidden');
+                              $('card').classList.remove('flipped'); $('answer').focus(); };
+  /* A finished card is often handed to a family member who then challenges you
+     on it. Recording who holds a verse keeps that accountability in the tool. */
+  $('btnPass').onclick=()=>{
+    const who=prompt('Passed to whom? (they hold the card and challenge you on it)',c.passedTo||'');
+    if(who!==null){ c.passedTo=who.trim(); save(S);
+      $('btnPass').textContent = c.passedTo? `Held by ${c.passedTo}` : 'Pass to family'; }
+  };
+}
+
+/* ---------- voice ------------------------------------------------------ */
+/* Reciting aloud is the practice every man in the thread actually uses, so
+   speech is a first-class input, not a novelty. Transcript lands in the same
+   box as typing and is graded identically. */
+function initVoice(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){ $('btnSpeak').disabled=true; $('micNote').textContent='Voice not supported in this browser'; return; }
+  recog=new SR(); recog.continuous=true; recog.interimResults=true; recog.lang='en-US';
+  let base='';
+  recog.onstart=()=>{ base=$('answer').value?$('answer').value+' ':''; $('btnSpeak').textContent='Stop'; $('micNote').textContent='Listening'; };
+  recog.onresult=e=>{
+    let out='';
+    for(let i=e.resultIndex;i<e.results.length;i++) out+=e.results[i][0].transcript;
+    $('answer').value=base+out;
+  };
+  recog.onerror=e=>{ $('micNote').textContent = e.error==='not-allowed'?'Microphone blocked':'Voice error'; };
+  recog.onend=()=>{ $('btnSpeak').textContent='Speak it'; $('micNote').textContent=''; };
+  $('btnSpeak').onclick=()=>{ try{ $('btnSpeak').textContent==='Stop'?recog.stop():recog.start(); }catch(e){} };
+}
+
+/* ---------- browse + stack ---------------------------------------------- */
+/* Browsing is deliberately separate from drilling. Skip used to be the only way
+   past a verse, which meant the only way to see what a pack held was to be
+   graded on it. Here Next just turns the page. */
+let bList=[], bi=0;
+
+function openBrowse(){
+  const sel=$('browsePack');
+  sel.innerHTML='<option value="*">All verses</option>'
+    + PACKS.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('');
+  sel.onchange=()=>{ bi=0; loadBrowse(); };
+  bi=0; loadBrowse();
+  $('home').classList.add('hidden'); $('browse').classList.remove('hidden');
+}
+function loadBrowse(){
+  const id=$('browsePack').value;
+  bList = id==='*' ? allVerses() : (PACKS.find(p=>p.id===id)?.verses||[]);
+  showBrowse();
+}
+function showBrowse(){
+  const v=bList[bi]; if(!v) return;
+  const t=verseText(v);
+  $('bRefFore').textContent=v.ref; $('bRefAft').textContent=v.ref;
+  paintStrip('bEl', v); paintStrip('bSizerEl', v);
+  $('bText').textContent=t; $('bSizer').textContent=t;
+  $('browseCount').textContent=`${bi+1} of ${bList.length}`;
+  const inStack=!!S.cards[v.slug];
+  $('btnAdd').textContent=inStack?'In your stack — remove':'Add to my stack';
+  $('btnAdd').classList.toggle('primary',!inStack);
+}
+function stepBrowse(d){
+  if(!bList.length) return;
+  bi=(bi+d+bList.length)%bList.length;   // wraps, so Next never dead-ends
+  showBrowse();
+}
+/* Adding is what creates a card. Before this, a verse only entered the stack by
+   being graded, so there was no way to say "I want this one" without a test. */
+function toggleStack(){
+  const v=bList[bi]; if(!v) return;
+  if(S.cards[v.slug]) delete S.cards[v.slug];
+  else card(v.slug);
+  save(S); showBrowse(); paint(); renderPacks();
+}
+
+/* ---------- listen ------------------------------------------------------ */
+/* Assigned Bible-book narrators from live book-voices.json (PJG-0814-MEM4).
+   Play existing chapter audio when it is already published. Browser TTS is
+   fallback only on 404 — do not invent a highlighter or bake the pack set. */
+let BOOK_VOICES=null, listenAudio=null;
+async function loadBookVoices(){
+  if(BOOK_VOICES) return BOOK_VOICES;
+  try{
+    const r=await fetch('/data/book-voices.json',{cache:'force-cache'});
+    if(!r.ok) return null;
+    BOOK_VOICES=await r.json();
+    return BOOK_VOICES;
+  }catch(e){ return null; }
+}
+function bookMetaFromRef(ref){
+  const parsed=parseAddRef(ref);
+  if(!parsed) return null;
+  const id=bookIdOf(parsed.book);
+  if(!id) return null;
+  const map=BOOK_VOICES && Array.isArray(BOOK_VOICES.books) ? BOOK_VOICES.books : [];
+  const rec=map.find(b=>Number(b.id)===Number(id)) || null;
+  return { id, ch: parsed.ch, rec, parsed };
+}
+function fallbackSpeak(v){
+  if(!window.speechSynthesis) return;
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(`${v.ref}. ${verseText(v)}. ${v.ref}.`);
+  u.rate=.92; speechSynthesis.speak(u);
+}
+async function listen(v){
+  v = v || cur(); if(!v) return;
+  if(listenAudio){ try{ listenAudio.pause(); }catch(e){} listenAudio=null; }
+  if(window.speechSynthesis) speechSynthesis.cancel();
+  await loadBookVoices();
+  const meta=bookMetaFromRef(v.ref);
+  if(!meta){ fallbackSpeak(v); return; }
+  const url=`https://audio.usmcmin.org/bible/${meta.id}-${meta.ch}.mp3`;
+  try{
+    const head=await fetch(url,{method:'HEAD'});
+    if(!head.ok){ fallbackSpeak(v); return; }
+  }catch(e){ fallbackSpeak(v); return; }
+  const a=new Audio(url);
+  listenAudio=a;
+  a.play().catch(()=>fallbackSpeak(v));
+}
+
+/* ---------- flag tricky -------------------------------------------------- */
+/* A flagged verse is pulled back to daily no matter how well it scored — the
+   man knows it is shaky before the algorithm does. */
+function toggleFlag(){
+  const v=cur(); if(!v) return;
+  const c=card(v.slug); c.flagged=!c.flagged;
+  if(c.flagged){ c.bucket='daily'; c.due=today(); }
+  save(S); paintFlag();
+}
+function paintFlag(){
+  const v=cur(); if(!v) return;
+  const on=!!(S.cards[v.slug]&&S.cards[v.slug].flagged);
+  $('btnFlag').textContent=on?'Flagged':'Flag';
+  $('btnFlag').classList.toggle('flagged',on);
+}
+
+/* ---------- printable cards --------------------------------------------- */
+/* Every verse a man has started, at real 3x5 size, reference fore and aft so
+   the paper drills the same shape the screen does. */
+function printCards(){
+  const started=allVerses().filter(v=>S.cards[v.slug]);
+  const list=started.length?started:allVerses().slice(0,12);
+  $('sheet').innerHTML=list.map(v=>{
+      const strip=elementStrip(v);
+      return `<div class="pcard">
+      ${strip?`<div class="elstrip">${strip}</div>`:''}
+      <div class="pref">${esc(v.ref)}</div>
+      <div class="ptext">${esc(verseText(v))}</div>
+      <div class="pref aft">${esc(v.ref)}</div>
+      <div class="pfoot">${esc(S.tr)} &middot; usmcmin.org/memorize</div>
+    </div>`;}).join('');
+  setTimeout(()=>window.print(),60);
+}
+
+/* ---------- share -------------------------------------------------------- */
+/* A summary the user chooses to send, rather than a server that watches
+   everybody. Nothing leaves the device unless he taps share. */
+function shareText(){
+  const cards=Object.entries(S.cards);
+  const solid=cards.filter(([,c])=>c.bucket==='weekly');
+  const held=cards.filter(([,c])=>c.passedTo);
+  const name=s=>{const v=allVerses().find(x=>x.slug===s);return v?v.ref:s;};
+  return [
+    `Pressure Check — ${S.streak} day streak`,
+    `${solid.length} verse${solid.length===1?'':'s'} solid, ${cards.length} in progress`,
+    solid.length?`Chambered: ${solid.slice(0,8).map(([s])=>name(s)).join(', ')}`:'',
+    held.length?`Held by family: ${held.map(([s,c])=>`${name(s)} (${c.passedTo})`).join(', ')}`:'',
+    `usmcmin.org/memorize`,
+  ].filter(Boolean).join('\n');
+}
+async function share(){
+  const t=shareText();
+  /* Always render the summary first. Handing off to the native sheet and
+     returning left a man who cancelled it staring at a button that did
+     nothing — and on desktop there is no sheet at all. The text on screen is
+     the reliable path; the share sheet is a convenience on top of it. */
+  const el=$('share'); el.textContent=t; el.classList.remove('hidden');
+  let copied=false;
+  try{ await navigator.clipboard.writeText(t); copied=true; }catch(e){}
+  el.textContent=t+(copied?'\n\n(copied — paste it to your squad)':'\n\n(select and copy to send)');
+  if(navigator.share){ try{ await navigator.share({text:t}); }catch(e){} }
+}
+
+/* ---------- daily nudge -------------------------------------------------- */
+/* A local notification, fired when the page is open and something is due.
+   Honest limit: with no push server this cannot reach him when the tab is
+   closed, so it is a reminder for a man who already installed the PWA, not a
+   guarantee. Recorded here so nobody later mistakes it for real push. */
+async function nudge(){
+  if(!('Notification' in window)){ alert('This browser cannot show notifications.'); return; }
+  let p=Notification.permission;
+  if(p==='default') p=await Notification.requestPermission();
+  S.nudge=(p==='granted'); save(S);
+  $('btnNudge').setAttribute('aria-pressed',String(S.nudge));
+  $('btnNudge').textContent=S.nudge?'Nudge on':'Daily nudge';
+  if(S.nudge) fireNudge(true);
+}
+function fireNudge(force){
+  if(!S.nudge||Notification.permission!=='granted') return;
+  const due=dueList().length; if(!due) return;
+  if(!force && S.nudgedOn===today()) return;
+  S.nudgedOn=today(); save(S);
+  try{ new Notification('Pressure Check',{
+    body:`${due} verse${due===1?'':'s'} due. ${S.streak} day streak.`,
+    icon:'/assets/icons/shield-anchor.png', tag:'moop-memorize'}); }catch(e){}
+}
+
+/* ---------- wiring ----------------------------------------------------- */
+$('btnBrowse').onclick=openBrowse;
+$('btnBrowseBack').onclick=()=>{ $('browse').classList.add('hidden'); $('home').classList.remove('hidden'); };
+$('btnPrev').onclick=()=>stepBrowse(-1);
+$('btnNextV').onclick=()=>stepBrowse(1);
+$('btnAdd').onclick=toggleStack;
+$('btnListenB').onclick=()=>listen(bList[bi]);
+$('btnPrint').onclick=printCards;
+$('btnShare').onclick=share;
+$('btnNudge').onclick=nudge;
+$('btnListen').onclick=()=>listen();
+$('btnFlag').onclick=toggleFlag;
+document.querySelectorAll('[data-step]').forEach(b=>b.onclick=()=>setStep(b.dataset.step));
+document.querySelectorAll('[data-blank]').forEach(b=>b.onclick=()=>{
+  blankLvl=+b.dataset.blank;
+  document.querySelectorAll('[data-blank]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));
+  show();
+});
+$('btnFlip').onclick=()=>$('card').classList.toggle('flipped');
+$('btnCheck').onclick=check;
+$('btnSkip').onclick=()=>{ qi++; (qi>=queue.length)?finish():show(); };
+$('btnQuit').onclick=finish;
+$('btnDue').onclick=startDue;
+$('answer').addEventListener('keydown',e=>{ if(e.key==='Enter'&&(e.metaKey||e.ctrlKey)) check(); });
+
+function failAdd(msg){
+  const el=$('addFail'); if(!el) return;
+  el.textContent=msg; el.classList.remove('hidden');
+}
+function parseAddRef(raw){
+  const s=decodeURIComponent(String(raw||'').replace(/\+/g,' ')).trim();
+  const m=s.match(/^((?:\d\s*)?[A-Za-z]+)\s+(\d+):(\d+)(?:-(\d+))?$/);
+  if(!m) return null;
+  const book=m[1].replace(/\s+/g,'');
+  return { raw:s, book, ch:+m[2], from:+m[3], to:m[4]?+m[4]:+m[3] };
+}
+const BOOK_ID={Genesis:1,Exodus:2,Leviticus:3,Numbers:4,Deuteronomy:5,Joshua:6,Judges:7,Ruth:8,
+  '1Samuel':9,'2Samuel':10,'1Kings':11,'2Kings':12,'1Chronicles':13,'2Chronicles':14,Ezra:15,Nehemiah:16,
+  Esther:17,Job:18,Psalm:19,Psalms:19,Proverbs:20,Ecclesiastes:21,Isaiah:23,Jeremiah:24,Lamentations:25,
+  Ezekiel:26,Daniel:27,Hosea:28,Joel:29,Amos:30,Obadiah:31,Jonah:32,Micah:33,Nahum:34,Habakkuk:35,
+  Zephaniah:36,Haggai:37,Zechariah:38,Malachi:39,Matthew:40,Mark:41,Luke:42,John:43,Acts:44,Romans:45,
+  '1Corinthians':46,'2Corinthians':47,Galatians:48,Ephesians:49,Philippians:50,Colossians:51,
+  '1Thessalonians':52,'2Thessalonians':53,'1Timothy':54,'2Timothy':55,Titus:56,Philemon:57,Hebrews:58,
+  James:59,'1Peter':60,'2Peter':61,'1John':62,'2John':63,'3John':64,Jude:65,Revelation:66,
+  Gen:1,Exo:2,Lev:3,Num:4,Deu:5,Jos:6,Jdg:7,Rut:8,'1Sa':9,'2Sa':10,'1Ki':11,'2Ki':12,'1Ch':13,'2Ch':14,
+  Psa:19,Pro:20,Ecc:21,Isa:23,Jer:24,Eze:26,Dan:27,Mat:40,Mar:41,Luk:42,Joh:43,Act:44,Rom:45,'1Co':46,
+  '2Co':47,Gal:48,Eph:49,Php:50,Col:51,'1Th':52,'2Th':53,'1Ti':54,'2Ti':55,Heb:58,Jas:59,'1Pe':60,'2Pe':61,
+  '1Jn':62,Rev:66};
+function bookIdOf(name){
+  const k=String(name||'').replace(/\s+/g,'');
+  return BOOK_ID[k] || BOOK_ID[k.replace(/^(\d)/,'$1 ')] || null;
+}
+async function fetchChapterJson(bookId, ch){
+  const r=await fetch(`/assets/chapters/${bookId}_${ch}.json`);
+  if(!r.ok) return null;
+  try{ return await r.json(); }catch(e){ return null; }
+}
+function cleanFetched(t){
+  if(!t) return '';
+  return String(t)
+    .replace(/<[^>]+>/g,' ')
+    .replace(/[\u24B6-\u24FF\u2460-\u2473]/g,'')
+    .replace(/\s*\[[a-z0-9]+\]/gi,'')
+    .replace(/\[\d+\]/g,'')
+    .replace(/\b(The Beatitudes|Life Through the Spirit|Salt and Light)\s*/g,'')
+    .replace(/heartthat/g,'heart that')
+    .replace(/\s+/g,' ').trim();
+}
+async function lookupVerseTexts(parsed){
+  const id=bookIdOf(parsed.book);
+  if(!id) return null;
+  const ch=await fetchChapterJson(id, parsed.ch);
+  if(!ch) return null;
+  const want=['NKJV','KJV','ESV','NASB','NIV','NLT','CSB17','WEB'];
+  const text={};
+  for(const tr of want){
+    const bag=ch[tr]; if(!bag) continue;
+    const parts=[];
+    for(let v=parsed.from; v<=parsed.to; v++){
+      const raw=bag[String(v)];
+      const cleaned=cleanFetched(raw);
+      if(!cleaned){ parts.length=0; break; }
+      parts.push(cleaned);
+    }
+    if(parts.length) text[tr]=parts.join(' ');
+  }
+  if(!text.NKJV && !text.KJV) return null;
+  return text;
+}
+function slugFromParsed(p){
+  return `${p.book}-${p.ch}-${p.from}${p.to>p.from?'-'+p.to:''}`.toLowerCase().replace(/[^a-z0-9-]+/g,'-');
+}
+function openPackQuery(){
+  const packId=new URLSearchParams(location.search).get('pack');
+  if(!packId) return;
+  if(!PACKS.some(p=>p.id===packId)) return;
+  openBrowse();
+  const sel=$('browsePack');
+  if(sel){ sel.value=packId; loadBrowse(); }
+  history.replaceState({}, '', location.pathname + location.hash);
+}
+async function addFromQuery(){
+  const q=new URLSearchParams(location.search).get('add');
+  if(!q) return;
+  const parsed=parseAddRef(q);
+  if(!parsed){ failAdd('Could not add that reference. Use a verse like John 3:16.'); return; }
+  let v=allVerses().find(x=>normRef(x.ref)===normRef(parsed.raw) || x.slug===slugFromParsed(parsed));
+  if(!v){
+    const text=await lookupVerseTexts(parsed);
+    if(!text){ failAdd('Verse text missing — not invented. Try the Bible Engine, then bookmark.'); return; }
+    const slug=slugFromParsed(parsed);
+    const ref=parsed.to>parsed.from ? `${parsed.book} ${parsed.ch}:${parsed.from}-${parsed.to}` : `${parsed.book} ${parsed.ch}:${parsed.from}`;
+    S.extras=S.extras||{};
+    S.extras[slug]={ref, text};
+    v={slug, ref, text, pack:'__extra'};
+  }
+  const c=card(v.slug);
+  c.ref=v.ref; c.source=c.source||'deep-link'; c.due=c.due||today(); c.bucket=c.bucket||'daily';
+  save(S);
+  history.replaceState({}, '', location.pathname + location.hash);
+  openBrowse();
+  const sel=$('browsePack');
+  if(sel){ sel.value='*'; loadBrowse(); }
+  const idx=bList.findIndex(x=>x.slug===v.slug);
+  if(idx>=0){ bi=idx; showBrowse(); }
+}
+async function mountDiagrams(){
+  async function put(id, url, packId){
+    const host=$(id); if(!host) return;
+    try{
+      const r=await fetch(url);
+      if(!r.ok) return;
+      host.innerHTML=await r.text();
+      host.querySelectorAll('[data-part]').forEach(el=>{
+        const go=()=>{
+          const part=el.getAttribute('data-part');
+          const pack=PACKS.find(p=>p.id===packId);
+          if(!pack) return;
+          const hit=pack.verses.find(v=>v.part===part);
+          if(!hit) return;
+          /* One quiet mark on the chosen digit or spoke — the diagram should
+             show which element it just opened, not silently jump. */
+          host.querySelectorAll('[data-part].is-on').forEach(x=>x.classList.remove('is-on'));
+          el.classList.add('is-on');
+          openBrowse();
+          const sel=$('browsePack');
+          if(sel){ sel.value=packId; loadBrowse(); }
+          const idx=bList.findIndex(x=>x.slug===hit.slug);
+          if(idx>=0){ bi=idx; showBrowse(); }
+        };
+        el.addEventListener('click', go);
+        el.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); go(); } });
+      });
+    }catch(e){}
+  }
+  await put('handSvg','/assets/icons/word-hand.svg','word-hand');
+  await put('wheelSvg','/assets/icons/the-wheel.svg','the-wheel');
+}
+
+initVoice();
+boot().catch(()=>{ $('packs').innerHTML='<p class="muted">Could not load packs. Check your connection once, then this page works offline.</p>'; });
+})();
+</script>
+</body>
+</html>
