@@ -41,7 +41,7 @@ SLUGS_FILE = os.path.join(ROOT, 'data', 'dictionary-slugs.txt')
 MANIFEST = os.path.join(DICT_DIR, 'manifest.json')
 LEX_INDEX = os.path.join(ROOT, 'docs', 'lexicon.html')
 
-SPECIAL = {'index', 'template', 'names', 'baby-names', 'by-topic',
+SPECIAL = {'index', 'template', 'manifest', 'names', 'baby-names', 'by-topic',
            'doctrinal-anchors', 'biblical-order', 'expressly-prohibited',
            'most-corrupted', 'gen-z-decoded', 'millennial-decoded',
            'gen-x-decoded', 'boomer-decoded', 'christianese-decoded',

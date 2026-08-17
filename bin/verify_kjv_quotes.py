@@ -167,6 +167,11 @@ def norm(s):
     s = re.sub(r'\d+', '', s)                           # inline Strong's numbers
     s = s.replace('’', "'").replace('‘', "'")
     s = re.sub(r'[“”]', '"', s)
+    # Stripping inline Strong's tags leaves a gap before punctuation ("run
+    # all , but"). kjv_lookup.py and the fill helper both clean it, so a
+    # correctly generated quote failed against the raw cache text. Collapse
+    # it on BOTH sides: a paraphrase still cannot pass.
+    s = re.sub(r'\s+([,.;:!?])', r'\1', s)
     return re.sub(r'\s+', ' ', s).strip()
 
 def main():

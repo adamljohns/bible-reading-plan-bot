@@ -77,6 +77,9 @@ def unwrap(emtext):
 
 def main():
     apply_ = '--apply' in sys.argv
+    review_out = None
+    if '--review' in sys.argv:
+        review_out = sys.argv[sys.argv.index('--review') + 1]
     cache = json.load(open(os.path.join(ROOT, 'docs/assets/verse-cache.json')))
     ok = fixed = prose_ok = prose_fixed = 0
     skipped, uncached, unfixable, prose_manual = [], [], [], []
@@ -184,6 +187,16 @@ def main():
         print('\nprose samples:')
         for name, ref, before, after in prose_samples:
             print(f'  {name}  {ref}\n     was: {before}\n     now: {after}')
+    if review_out:
+        with open(review_out, 'w') as f:
+            f.write('# Prose phrase-quotes needing editorial review — short quoted\n'
+                    '# phrases woven into sentence grammar that do not match the AV.\n'
+                    '# Two populations: (a) modern-version phrase quotes to re-render\n'
+                    '# or version-label, (b) etymology/name-meaning glosses the pattern\n'
+                    '# over-captured — skip those.\n')
+            for name, ref, q in prose_manual:
+                f.write(f'{name} | {ref} | {q}\n')
+        print(f'\nwrote {len(prose_manual)} review items -> {review_out}')
     if not apply_:
         print('\n(report only — pass --apply to write)')
 
