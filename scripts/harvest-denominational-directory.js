@@ -178,6 +178,80 @@ const ADAPTERS = {
   },
 
   /**
+   * Archdiocese of Washington -- the Catholic body covering DC and five
+   * Maryland counties. FacetWP again, but with NO pagination: all 147 parishes
+   * render on the single finder page, each with coordinates and a detail link.
+   * Detail pages carry Pastor, Phone and the parish's own website.
+   *
+   * Scope note: the directory is already ecumenically broad (40 Catholic and 28
+   * Episcopal parishes were present before this adapter), so these are in scope.
+   * Intake does not rate anything -- the MOOP rubric is applied downstream.
+   */
+  adw: {
+    label: 'Archdiocese of Washington (Catholic)',
+    denomination: 'Roman Catholic',
+    listUrl: () => 'https://adw.org/parishes-masses/parish-mass-finder/',
+    parseList(html) {
+      const out = [];
+      const re = /data-lat="([-\d.]*)"\s+data-lng="([-\d.]*)">\s*<h4[^>]*>\s*<a href="([^"]+)">([\s\S]*?)<\/a>[\s\S]*?<em>Address:<\/em>\s*([\s\S]*?)<\/p>/g;
+      let m;
+      while ((m = re.exec(html))) {
+        const addr = decode(m[5]).replace(/\s+/g, ' ').trim();
+        // "<street> <City>, <ST>, <ZIP>" -- but the street may itself contain a
+        // comma before a DC quadrant ("... Avenue, SE Washington, DC, 20032"),
+        // so a naive comma split yields the city "SE Washington". Cut the street
+        // at its suffix (plus optional quadrant) and take the rest as the city.
+        // Tolerant of ADW's own malformed tails: a truncated or space-split
+        // ZIP+4 ("20774-370", "20735- 4564") and a missing comma before the ZIP.
+        const tail = addr.match(/^(.*?),\s*([A-Z]{2}),?\s*(\d{5})(?:\s*-\s*\d{1,4})?$/);
+        let street = '', city = '', state = '', zip = '';
+        if (tail) {
+          state = tail[2]; zip = tail[3];
+          const head = tail[1];
+          const cut = head.match(/^(.*?(?:Road|Street|Avenue|Drive|Lane|Place|Boulevard|Court|Terrace|Way|Circle|Highway|Pike|Parkway|Rd|St|Ave|Dr|Ln|Pl|Blvd|Ct)\.?(?:,\s*(?:NW|NE|SE|SW))?)\s+(.+)$/i);
+          if (cut) { street = cut[1].trim(); city = cut[2].trim(); }
+          else { city = head.trim(); }
+        } else {
+          // 24 of the 147 use a second, Google-Places-shaped format instead:
+          // a trailing ", USA", commas after the street, an optional leading
+          // parish name, and sometimes no ZIP at all --
+          //   "Holy Redeemer Church, 4902 Berwyn Road, College Park, MD 20740, USA"
+          //   "6330 Linway Terrace, McLean, VA, USA"
+          const g = addr.replace(/,\s*USA\s*$/i, '')
+            .match(/^(.*),\s*([^,]+),\s*([A-Z]{2})(?:\s+(\d{5})(?:-\d{4})?)?$/);
+          if (g) {
+            city = g[2].trim(); state = g[3]; zip = g[4] || '';
+            // Drop any leading chunks that are not the street itself (the parish
+            // name); the street is the first chunk that begins with a number.
+            const parts = g[1].split(',').map(s => s.trim()).filter(Boolean);
+            const i = parts.findIndex(p => /^\d/.test(p));
+            street = (i >= 0 ? parts.slice(i) : parts).join(', ');
+          }
+        }
+        out.push({
+          detail_url: m[3], name: decode(m[4]).replace(/\s+/g, ' ').trim(),
+          street, city, state, zip,
+          latitude: m[1] || '', longitude: m[2] || '',
+        });
+      }
+      return out;
+    },
+    parseDetail(html) {
+      const body = html.replace(/<(script|style)[^>]*>[\s\S]*?<\/\1>/gi, '');
+      const txt = decode(body).replace(/\n+/g, ' ');
+      const grab = re => { const m = txt.match(re); return m ? m[1].trim() : ''; };
+      // Prefer the anchor's href for the website: the visible text is a bare
+      // hostname ("stmatthewscathedral.org") with no scheme.
+      const site = (html.match(/href="(https?:\/\/(?!(?:www\.)?adw\.org|adwcatholicschools|adwyouth|highland\.tools|secure\.ethicspoint)[^"]+)"[^>]*>\s*(?:https?:\/\/)?[\w.-]+\.(?:org|com|net)/i) || [])[1] || '';
+      return {
+        pastor: grab(/\bPastor:\s*((?:Rev\.|Msgr\.|Fr\.|Father|Very Rev\.)?[^:]{3,60}?)\s*(?:Parochial|Canonically|Deacon|In Residence|Phone|Email|Website|Weekend|Mass|$)/i),
+        phone: grab(/Phone:\s*([\d\-().+ ]{7,20})/),
+        website: /^https?:\/\//i.test(site) ? site : '',
+      };
+    },
+  },
+
+  /**
    * Orthodox Presbyterian Church. A plain POST form (search_go=Y, state=XX)
    * whose results come back as AddPointQ('lat','lng','address','html',...)
    * JavaScript calls. Richest source so far: name, street, coordinates, phone,
