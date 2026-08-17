@@ -63,19 +63,69 @@ SONGS (JSON): ${batch}
 
 Return per the schema: for each song, set title = the song title, source = URL you checked, publicDomain = true if the published text is faithful (minor punctuation/spelling variance OK), false if it has REAL errors (wrong words, invented lines, missing famous verses, wrong author/year), and put a one-line description of any problem found in the lyrics field (or "OK" if faithful). Do not rewrite lyrics.`
 
+// Video mode: research the official recording for each song in a worklist batch.
+// Returns {videos:[{slug, youtube, confidence, why}]} — apply-video-ids.js is the
+// gatekeeper that validates and merges them.
+const VIDEO_SCHEMA = {
+  type: 'object',
+  properties: {
+    videos: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          slug: { type: 'string' },
+          youtube: { type: 'string' },
+          confidence: { type: 'string' },
+          why: { type: 'string' },
+        },
+        required: ['slug', 'youtube', 'confidence', 'why'],
+      },
+    },
+  },
+  required: ['videos'],
+}
+
+const videoPrompt = (batch) => `Find the best YouTube video for each worship song below, so a worship leader can hear it.
+
+SONGS (JSON): ${batch}
+
+For EACH song, WebSearch (and WebFetch the YouTube watch page when useful) to identify the video, then return:
+- slug: EXACTLY the slug given — never invent or alter it
+- youtube: the 11-character video ID only (from watch?v=<ID> or youtu.be/<ID>), NOT a full URL
+- confidence: "high" only if you are confident the video is that exact song by that artist; "low" otherwise
+- why: the video title + channel you matched, so a human can audit it
+
+Rules that matter more than coverage:
+- **Prefer the official artist/label channel**, then a well-known lyric video, then a reputable live worship recording.
+- **Right song, right artist.** Many worship songs share titles (there are a dozen different "Great Are You Lord"). Match the writers/artist given.
+- For public-domain hymns, a well-produced hymn recording or congregational singing video is ideal; avoid random amateur uploads.
+- **A wrong video is worse than no video.** If you cannot confirm, set confidence "low" — it will be discarded, and that is the correct outcome.
+- Never reuse one video ID for multiple songs.
+
+Return JSON per the schema. Skip nothing — return an entry per song, using low confidence where unsure.`
+
 phase('Source')
 const results = await parallel(
   CATS.map((c, i) => () =>
     agent(
-      c.type === 'psalter' ? psalterPrompt(c.range) : c.type === 'verify' ? verifyPrompt(c.batch) : catPrompt(c.name),
+      c.type === 'psalter' ? psalterPrompt(c.range)
+        : c.type === 'verify' ? verifyPrompt(c.batch)
+        : c.type === 'video' ? videoPrompt(c.batch)
+        : catPrompt(c.name),
       {
-        label: `r${ROUND}:${c.type === 'psalter' ? 'ps' + c.range : c.type === 'verify' ? 'verify' + i : c.name.slice(0, 28)}`,
+        label: `r${ROUND}:${c.type === 'psalter' ? 'ps' + c.range : c.type === 'verify' ? 'verify' + i : c.type === 'video' ? 'video' + i : c.name.slice(0, 28)}`,
         phase: 'Source',
-        schema: SCHEMA,
+        schema: c.type === 'video' ? VIDEO_SCHEMA : SCHEMA,
       }
     )
   )
 )
+if (A.mode === 'video') {
+  const videos = results.filter(Boolean).flatMap((r) => r.videos || [])
+  log(`round ${ROUND}: ${videos.length} video candidates`)
+  return { round: ROUND, videos }
+}
 const hymns = results.filter(Boolean).flatMap((r) => r.hymns || [])
 const pd = hymns.filter((h) => h && h.publicDomain !== undefined && h.lyrics && h.lyrics.length > (A.mode === 'verify' ? 1 : 60))
 const seen = new Set(); const unique = []
