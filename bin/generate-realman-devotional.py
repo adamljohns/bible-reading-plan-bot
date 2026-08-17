@@ -124,6 +124,7 @@ def page(n, d, style):
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/listen.css">
 
   {style}
 </head>
@@ -201,15 +202,14 @@ def page(n, d, style):
       </div>
     </div>
 
-    <!-- AUDIO PLAYER -->
-    <div class="audio-section">
-      <h3>{icon("shield-open-book")} Listen to Day {n}</h3>
-      <p style="color:var(--gray); font-size:0.85rem; margin-bottom:1rem;">Read by Adam Johns</p>
-      <audio controls style="width:100%; max-width:500px;" id="day{n}-audio">
+    <!-- AUDIO PLAYER (canonical .moop-listen component — assets/css/listen.css) -->
+    <div class="moop-listen">
+      <div class="moop-listen-label">{icon("shield-headphones", 20, mr=False)} Listen — Day {n} · Read by Adam Johns</div>
+      <audio controls preload="none" id="day{n}-audio">
         <source src="../assets/audio/proverbs-day{nn}.mp3" type="audio/mpeg">
-        Your browser does not support the audio element.
+        Your browser cannot play this audio.
       </audio>
-      <p id="audio-coming" style="color:var(--gray); font-size:0.8rem; font-style:italic; margin-top:0.5rem;">Audio coming soon</p>
+      <p id="audio-coming" class="moop-listen-soon">Audio coming soon</p>
     </div>
 
     <script>
