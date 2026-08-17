@@ -62,6 +62,13 @@ node .claude/skills/worship-directory/scripts/build-linksonly.js reports/batch-<
 
 Get the writers right — the credits are the whole point of these pages ("give credit where credit is due").
 
+⚠️ **Do not build these batches from memory alone.** A batch written from recall put *Cuán Bello Es el Señor*
+and *Dios de Pactos* under the wrong artists, credited Marcela Gandara's *Digno Es el Señor* to Marcos Witt,
+called a traditional Pentecostal coro a Miel San Marcos song, and invented a Hillsong en Español title that
+does not exist. The video wave caught all five, because researching a recording forces a real check of
+artist and title. Verify attributions when the batch is outside your solid knowledge — non-English
+repertoire especially — or expect step 3 to hand you a correction list.
+
 ### 2. Assemble
 
 ```bash
