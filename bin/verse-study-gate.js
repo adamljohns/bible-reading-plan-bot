@@ -210,7 +210,11 @@ function checkPage(fp) {
   });
 
   // ── word study integrity ────────────────────────────────────────────────
-  const codes = [...new Set([...body.matchAll(/\b([GH]\d{1,4})\b/g)].map((m) => m[1]))];
+  /* Only codes the page actually cites as its own word study — that is, the ones
+   * it links to the lexicon. Lexicon definitions routinely mention related codes
+   * in passing ("the related noun hamartia (G266)"), and flagging those would fail
+   * a page for a word it never claimed to study. */
+  const codes = [...new Set([...body.matchAll(/href="\/lexicon\/([GH]\d{1,4})\.html"/g)].map((m) => m[1]))];
   codes.forEach((code) => {
     const lp = path.join(DOCS, 'lexicon', code + '.html');
     if (!fs.existsSync(lp)) { fails.push(`cites Strong's ${code}, which has no lexicon page`); return; }
