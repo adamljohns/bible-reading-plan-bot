@@ -64,8 +64,55 @@ async function fetchPage(url) {
   return { html, cached: false };
 }
 
+// USPS 3-digit ZIP prefix ranges, used to reject a ZIP that cannot belong to the
+// state a record claims. Only the states the adapters actually harvest need an
+// entry; an unknown state accepts anything rather than silently dropping data.
+const ZIP_RANGES = {
+  VA: [[201, 201], [220, 246]], DC: [[200, 200], [202, 205]], MD: [[206, 219]],
+  WV: [[247, 268]], NC: [[269, 289]], PA: [[150, 196]], DE: [[197, 199]],
+  SC: [[290, 299]], TN: [[370, 385]], GA: [[300, 319], [398, 399]],
+};
+function zipFitsState(zip, state) {
+  const r = ZIP_RANGES[String(state || '').toUpperCase()];
+  if (!r) return true;
+  const p = parseInt(String(zip).slice(0, 3), 10);
+  return r.some(([lo, hi]) => p >= lo && p <= hi);
+}
+
+/** GET a URL, returning the body as text, cached under an explicit key. */
+async function fetchRaw(url, key) {
+  const ck = path.join(CACHE, key.replace(/[^a-z0-9_-]/gi, '_') + '.txt');
+  if (!REFRESH && fs.existsSync(ck)) return fs.readFileSync(ck, 'utf8');
+  const res = await fetch(url, { headers: { 'User-Agent': UA, 'Accept': 'application/json, text/html' } });
+  if (!res.ok) throw new Error(`HTTP ${res.status} on ${url}`);
+  const body = await res.text();
+  fs.writeFileSync(ck, body);
+  await sleep(DELAY);
+  return body;
+}
+
+/** POST a form-encoded body (the OPC locator's interface). */
+async function postForm(url, fields, key) {
+  const ck = path.join(CACHE, key.replace(/[^a-z0-9_-]/gi, '_') + '.html');
+  if (!REFRESH && fs.existsSync(ck)) return fs.readFileSync(ck, 'utf8');
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'User-Agent': UA, 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams(fields).toString(),
+    redirect: 'follow',
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status} on ${url}`);
+  const html = await res.text();
+  fs.writeFileSync(ck, html);
+  await sleep(DELAY);
+  return html;
+}
+
 const decode = s => String(s || '')
-  .replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]+>/g, '')
+  // OPC's locator emits a malformed CLOSING break tag ("</br >") between address
+  // lines. Without matching it the lines run together and produce streets like
+  // "FOP Thompson Hall974 Michie Tavern Lane".
+  .replace(/<\/?br\s*\/?\s*>/gi, '\n').replace(/<[^>]+>/g, '')
   .replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&#8217;|&rsquo;/g, "'")
   .replace(/&#8216;|&lsquo;/g, "'").replace(/&quot;|&#8220;|&#8221;/g, '"')
   .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(+n))
@@ -129,6 +176,122 @@ const ADAPTERS = {
       };
     },
   },
+
+  /**
+   * Orthodox Presbyterian Church. A plain POST form (search_go=Y, state=XX)
+   * whose results come back as AddPointQ('lat','lng','address','html',...)
+   * JavaScript calls. Richest source so far: name, street, coordinates, phone,
+   * email AND website all in one response, no per-church fetch needed.
+   *
+   * OPC is small (~380 congregations nationally), so one POST per state covers
+   * the whole denomination cheaply.
+   */
+  opc: {
+    label: 'Orthodox Presbyterian Church (OPC)',
+    denomination: 'Orthodox Presbyterian Church (OPC)',
+    async collect(ctx) {
+      const states = (ctx.opt('--states', 'VA,DC,MD,WV,NC') || '').split(',').map(s => s.trim().toUpperCase()).filter(Boolean);
+      const out = [];
+      for (const st of states) {
+        const html = await ctx.postForm('https://opc.org/locator.html', { search_go: 'Y', zipcode: '', state: st, presbytery_id: '' }, `opc-${st}`);
+        // AddPointQ('lat','lng','address','<html>','C','color','City, ST','NAME');
+        const re = /AddPointQ\('([-\d.]*)','([-\d.]*)','((?:[^'\\]|\\.)*)','((?:[^'\\]|\\.)*)','[^']*','[^']*','((?:[^'\\]|\\.)*)','((?:[^'\\]|\\.)*)'\)/g;
+        let m, n = 0;
+        while ((m = re.exec(html))) {
+          const unesc = s => String(s).replace(/\\"/g, '"').replace(/\\'/g, "'").replace(/\\\//g, '/').replace(/\\n/g, ' ');
+          const block = unesc(m[4]);
+          const rawAddr = ctx.decode(unesc(m[3]));
+          const cityState = ctx.decode(unesc(m[5]));
+          // The final AddPointQ argument is an ALL-CAPS sort key ("BETHEL
+          // REFORMED"); the <h5> inside the popup carries the church's real
+          // capitalisation. Prefer the <h5> and keep the caps form as fallback.
+          const h5 = (block.match(/<h5>([\s\S]*?)<\/h5>/i) || [])[1];
+          const name = ctx.decode(h5 || unesc(m[6]));
+          // "Meeting At" paragraph holds the street lines; the map's own address
+          // string is the geocoder input and is often mangled, so prefer the
+          // paragraph and keep the map string only as a fallback.
+          const meet = block.match(/Meeting At<\/h6>\s*<p[^>]*>([\s\S]*?)<\/p>/i);
+          // Congregations meeting in rented venues have their SERVICE TIME folded
+          // into the same paragraph ("10 a.m.:, Bennett's Funeral Home, ..."),
+          // which otherwise ends up inside the street address.
+          const lines = (meet ? ctx.decode(meet[1]).split('\n') : [])
+            .map(s => s.replace(/^\s*\d{1,2}(:\d{2})?\s*[ap]\.?m\.?\s*:?\s*/i, '').trim())
+            .filter(s => s && !/^\d{1,2}(:\d{2})?\s*[ap]\.?m\.?$/i.test(s));
+          const cm = cityState.match(/^(.*?),\s*([A-Z]{2})$/);
+          const stAbbr = cm ? cm[2] : st;
+          // The map's address string is a geocoder INPUT and sometimes carries a
+          // stray number that looks like a ZIP: West Creek (Henrico VA) came back
+          // as 11020, a New York ZIP. Take every 5-digit candidate and keep only
+          // one whose prefix actually belongs to the state.
+          const zm = [...rawAddr.matchAll(/\b(\d{5})(?:-\d{4})?\b/g)]
+            .map(x => x[1]).find(z => ctx.zipFitsState(z, stAbbr));
+          const site = (block.match(/Website:\s*<a[^>]*href="([^"]+)"/i) || [])[1] || '';
+          out.push({
+            detail_url: 'https://opc.org/locator.html',
+            name: name.replace(/\s+/g, ' ').trim(),
+            street: lines.length > 1 ? lines.slice(0, -1).join(', ') : (lines[0] || ''),
+            city: cm ? cm[1].trim() : '',
+            state: cm ? cm[2] : st,
+            zip: zm || '',
+            phone: (block.match(/Phone:\s*([\d\-().+ ]{7,20})/) || [])[1] || '',
+            website: /^https?:\/\//i.test(site) ? site : '',
+            pastor: '',                       // OPC's locator does not publish it
+            latitude: m[1] || '', longitude: m[2] || '',
+          });
+          n++;
+        }
+        console.log(`  ${st}: ${n} congregations`);
+      }
+      return out;
+    },
+  },
+
+  /**
+   * ACNA, Diocese of the Mid-Atlantic — the diocese covering Virginia, DC and
+   * Maryland, which is exactly the coverage ladder's territory.
+   *
+   * ACNA publishes no national roster: anglicanchurch.net/find-a-church is a
+   * navigation page with no data in it, and the denomination is organised by
+   * diocese. DOMA runs on Squarespace, whose documented ?format=json returns the
+   * collection behind the map, paginated 20 at a time via nextPageOffset.
+   */
+  'acna-doma': {
+    label: 'ACNA Diocese of the Mid-Atlantic',
+    denomination: 'Anglican Church in North America (ACNA)',
+    async collect(ctx) {
+      const out = [];
+      let url = 'https://www.anglicandoma.org/map-of-churches?format=json';
+      for (let page = 1; page <= 20; page++) {
+        const j = JSON.parse(await ctx.fetchRaw(url, `doma-p${page}`));
+        for (const it of (j.items || [])) {
+          const loc = it.location || {};
+          const body = ctx.decode(it.body || '').replace(/\n+/g, ' ');
+          const line2 = String(loc.addressLine2 || '');
+          const cm = line2.match(/^(.*?),\s*([A-Z]{2})(?:,\s*(\d{5}))?/);
+          const site = (String(it.body || '').match(/Website:\s*(?:<a[^>]*href="([^"]+)"|([^\s<]+))/i) || []);
+          const rawSite = site[1] || site[2] || '';
+          out.push({
+            detail_url: `https://www.anglicandoma.org/map-of-churches/${it.urlId}`,
+            name: String(it.title || '').trim(),
+            street: String(loc.addressLine1 || '').trim(),
+            city: cm ? cm[1].trim() : '',
+            state: cm ? cm[2] : '',
+            zip: cm && cm[3] ? cm[3] : ((line2.match(/\b(\d{5})\b/) || [])[1] || ''),
+            phone: (body.match(/Phone:\s*([\d\-().+ ]{7,20})/) || [])[1] || '',
+            email: (body.match(/([\w.+-]+@[\w.-]+\.\w{2,})/) || [])[1] || '',
+            website: rawSite ? (/^https?:\/\//i.test(rawSite) ? rawSite : `https://${rawSite.replace(/^\/+/, '')}`) : '',
+            pastor: '',                       // DOMA lists clergy per-parish, not here
+            latitude: loc.markerLat || '', longitude: loc.markerLng || '',
+          });
+        }
+        const p = j.pagination || {};
+        console.log(`  page ${page}: ${(j.items || []).length} parishes${p.nextPage ? '' : ' (last)'}`);
+        if (!p.nextPage || !p.nextPageOffset) break;
+        url = `https://www.anglicandoma.org/map-of-churches?format=json&offset=${p.nextPageOffset}`;
+      }
+      return out;
+    },
+  },
 };
 
 /* --------------------------------------------------------------------- main */
@@ -139,6 +302,30 @@ const ADAPTERS = {
 
   console.log(`Harvesting ${A.label}`);
   console.log(`  cache ${CACHE}${REFRESH ? ' (refreshing)' : ''} | delay ${DELAY}ms | detail cap ${MAX === Infinity ? 'none' : MAX}\n`);
+
+  // Adapters whose source is not a paginated HTML list (a POST form, a JSON
+  // collection) implement collect() and return the whole roster themselves.
+  if (typeof A.collect === 'function') {
+    const rows = await A.collect({ fetchRaw, postForm, fetchPage, decode, sleep, opt, DELAY, zipFitsState });
+    const seen = new Set();
+    const roster = rows.filter(r => {
+      if (!r.name) return false;
+      const k = `${r.name}|${r.city}|${r.state}`.toLowerCase();
+      if (seen.has(k)) return false;
+      seen.add(k); return true;
+    });
+    console.log(`\nRoster: ${roster.length} congregations (${rows.length - roster.length} dup/blank dropped)`);
+    console.log(`  ${roster.filter(r => r.website).length} with website, ${roster.filter(r => r.pastor).length} with pastor\n`);
+    const f = path.join(OUT, `roster-${SOURCE}.json`);
+    fs.writeFileSync(f, JSON.stringify({
+      source: A.label, source_key: SOURCE, denomination: A.denomination,
+      harvested: new Date().toISOString().slice(0, 10),
+      count: roster.length, churches: roster,
+    }, null, 2));
+    console.log(`Wrote ${f}`);
+    console.log(`Next: node scripts/match-roster-to-directory.js --roster ${f}`);
+    return;
+  }
 
   // ---- stage 1: paginate the roster
   const roster = [];
