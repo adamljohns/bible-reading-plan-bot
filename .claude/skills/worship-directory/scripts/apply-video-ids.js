@@ -25,8 +25,12 @@ const usedIds = new Set();
 for (const k of Object.keys(ov)) if (ov[k] && ov[k].youtube) usedIds.add(ov[k].youtube);
 for (const s of songs) if (s.youtube) usedIds.add(s.youtube);
 
+// Accepts a bare array, a {videos:[…]} object, or a workflow task .output file
+// (whose `result` is itself a JSON string).
 let raw = JSON.parse(fs.readFileSync(inp, 'utf8'));
-if (raw && !Array.isArray(raw)) raw = raw.videos || raw.result || [];
+if (raw && !Array.isArray(raw) && raw.result != null) raw = raw.result;
+if (typeof raw === 'string') raw = JSON.parse(raw);
+if (raw && !Array.isArray(raw)) raw = raw.videos || [];
 
 const ID = /^[A-Za-z0-9_-]{11}$/;
 let added = 0; const rejected = [];
