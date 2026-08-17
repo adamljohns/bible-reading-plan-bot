@@ -91,6 +91,34 @@ for e in data:
         errs.append(f'{s}: VARIANT-FORM of existing entr(ies) {hits} — if the SAME '
                     f'person/thing, SKIP (never define twice); if genuinely distinct, '
                     f'add "distinct_from": {hits} to this entry')
+# INFLECTION GUARD (2026-08-16): the guard above only knows person-name
+# suffixes, so it waved through come/cometh, draw/drew and appear/appearance —
+# a new lemma authored beside an inflection of itself that was already live.
+# Both directions must be checked: the new slug may be an inflection of a live
+# entry, OR a live entry may be an inflection of the new slug. Reuses the same
+# morphology table the gap miner uses, so the two stay in step. This is a
+# PROMPT, not a prohibition — the dictionary deliberately covers archaic forms
+# (dureth, cometh, asketh) — but the author must say so with distinct_from.
+import importlib.util as _ilu
+_ws = 'bin/kjv_wordlist.py'
+if os.path.exists(_ws):
+    _sp = _ilu.spec_from_file_location('kw', _ws)
+    _kw = _ilu.module_from_spec(_sp); _sp.loader.exec_module(_kw)
+    _live_lemmas = {}
+    for _l in slugs:
+        for _lem in _kw.lemma_slugs(_l):
+            _live_lemmas.setdefault(_lem, []).append(_l)
+    for e in data:
+        s = e.get('slug', '')
+        ack = set(e.get('distinct_from', []))
+        hits = {c for c in _kw.lemma_slugs(s) if c in slugs}          # new is inflection of live
+        hits |= {l for l in _live_lemmas.get(s, [])}                   # live is inflection of new
+        hits = sorted(h for h in hits if h != s and h not in ack and h not in own)
+        if hits:
+            errs.append(f'{s}: INFLECTION of / inflected by existing entr(ies) {hits} — '
+                        f'if the SAME word, SKIP and enrich the existing entry; if the '
+                        f'archaic form deserves its own study, add "distinct_from": '
+                        f'{hits} and cross-link them in "related"')
 if errs:
     print('PRE-FLIGHT FAIL:')
     for x in errs:
