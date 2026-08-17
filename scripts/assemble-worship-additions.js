@@ -47,7 +47,15 @@ if (hymnsF && fs.existsSync(hymnsF)) {
     if (!title) continue;
     const slug = slugify(title);
     const letter = (title.match(/[A-Za-z]/) || ['#'])[0].toUpperCase();
-    const yr = (h.year || '').toString().replace(/[^0-9c.\-–]/gi, '').slice(0, 12);
+    // Agent-sourced years arrive in prose forms like "c. 8th cent.; tr. 1862" or
+    // "c. 410; tr. 1876". Keep the composition date (the part before "tr."),
+    // preserving "c." and century wording, so credits don't read "c.410.1876".
+    const yr = (h.year || '').toString()
+      .split(/;|\btr\.|\btrans\./i)[0]
+      .replace(/[^0-9a-z.\s\-–]/gi, '')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .slice(0, 18);
     const cop = h.author ? ('Public domain' + (yr ? ' · ' + yr : '') + (h.author ? ' · ' + h.author : '')) : 'Public domain';
     if (tryAdd({
       slug, title, type: 'praise', christmas: CH.test(title),

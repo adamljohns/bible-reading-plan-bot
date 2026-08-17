@@ -89,7 +89,7 @@ for (const s of songs) {
   }
 }
 report.sort((a, b) => (b.garbledChordLines + b.encodingJunk * 2) - (a.garbledChordLines + a.encodingJunk * 2));
-const outDir = path.join('tools/worship-sprint/reports');
+const outDir = path.join(__dirname, '..', 'reports');
 fs.mkdirSync(outDir, { recursive: true });
 fs.writeFileSync(path.join(outDir, 'chord-lint.json'), JSON.stringify(report, null, 1));
 const enc = report.filter((r) => r.encodingJunk).length;
