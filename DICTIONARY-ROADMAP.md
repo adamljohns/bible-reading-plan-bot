@@ -87,17 +87,39 @@ The 19 pre-empted "crown capstone" entries (batches 412–413) stand as ordinary
 
 ---
 
-## 1. Where we stand (refreshed 2026-08-05)
+## 0b. TRANSLATION POLICY — verbatim, not KJV-only (Adam's order, 2026-08-16)
+
+The dictionary is **no longer strictly KJV-only**. Adam's order: *"don't be strictly too tied to
+KJV — I'm open to all the versions in the BTE!"* Any version carried in the Bible Translation
+Engine may be quoted.
+
+**What has NOT changed is the verbatim requirement, and it is the whole of the standard:** a quote
+must match the version it claims, word for word. A quote labelled KJV must be the Authorized
+Version exactly; a quote drawn from another BTE version must be attributed to it. What is forbidden
+is unlabelled modern wording presented as the Bible's text — which is precisely what the July
+cloud batches shipped, and why those 207 entries were re-quoted to the AV rather than relabelled.
+
+Enforcement remains `bin/verify_kjv_quotes.py`, wired into `bin/batch_pipeline.sh` **before**
+generation. `bin/audit_page_quotes.py` applies the same standard to the published pages.
+
+---
+
+## 1. Where we stand (refreshed 2026-08-16)
 
 | Metric | Value |
 |---|---|
-| Real word-entry count (rebuild "Total entries" = `data/dictionary-slugs.txt`) | **7,879** |
-| Redirect stubs (dedupe registry `data/dictionary-redirects.txt`) | 300 (278 campaign + 22 nightly same-person dups merged 7/1) |
+| Real word-entry count (rebuild "Total entries" = `data/dictionary-slugs.txt`) | **8,353** |
+| Redirect stubs (dedupe registry `data/dictionary-redirects.txt`) | 305 |
 | Featured section pages | 10 (doctrinal-anchors, biblical-order, expressly-prohibited, most-corrupted, gen-z/millennial/gen-x/boomer/christianese-decoded, jesus-generation) |
 | **Target** | **17,777** (see §0) |
-| **Gap remaining** | **9,898 ≈ 99 nightly runs at 100/run** |
-| Uncovered KJV words available to author | **10,120** (`bin/kjv_wordlist.py`) |
-| Last authoring commit | batch-436, **2026-07-30** — six nights frozen by the retired ceiling |
+| **Gap remaining** | **9,424** |
+| Uncovered KJV lemmas available to author | **5,204** after the morphology filter demotes 1,823 inflections (`bin/kjv_wordlist.py`); bands: 25–99 → 343, 10–24 → 618 |
+| Last authoring commit | **batch-492, 2026-08-16** |
+| Scripture fidelity | **30,137 quote blocks + 8,233 prose quotes verify verbatim**; 0 unresolvable, 0 uncached |
+
+> **Counts before 2026-08-16 were one too high.** `docs/dictionary/manifest.html` was being counted
+> as an entry by the slug regen. Fixed in both `batch_pipeline.sh` and `bin/dict_integrity_audit.py`
+> (the audit needs `manifest` in `SPECIAL` too, or it fails hard). The true 8/14 figure was 8,323.
 
 *(Historical: the 2026-07-01 Fable review recorded 6,765 entries against a 7,777 target with
 1,012 remaining. The corpus passed that target on 7/30 and the target itself moved on 8/05.)*
