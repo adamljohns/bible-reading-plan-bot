@@ -135,6 +135,8 @@ for (const r of roster.churches) {
       website: r.website || '', denomination: roster.denomination,
       pastor: r.pastor || '', phone: r.phone || '',
       evidence_url: r.detail_url, confidence: 'high',
+      source_label: `the ${roster.source} roster`,
+      source_tag: `roster-${roster.source_key || 'roster'}-${roster.harvested}`,
     });
   }
 }

@@ -10,6 +10,7 @@
 const fs = require('fs');
 const path = require('path');
 const { makeWriter } = require('./lib/format-preserving-write.js');
+const { regionOf: vaRegion } = require('./lib/va-regions.js');
 
 const TODAY = new Date().toISOString().slice(0, 10);
 const args = process.argv.slice(2);
@@ -21,15 +22,35 @@ const CHURCHES = path.join(__dirname, '..', 'docs', 'data', 'churches.json');
 const { data: d, write } = makeWriter(CHURCHES);
 const existingIds = new Set(d.churches.map(c => String(c.id)));
 const normName = s => String(s || '').toLowerCase().replace(/\b(the|a)\b/g, '').replace(/church|chapel|fellowship|ministries|ministry|inc|congregation/g, '').replace(/[^a-z0-9]+/g, '').trim();
-// Region-aware dedup: a discovered church is a duplicate ONLY if an existing church
-// with the same normalized name is itself in the Fredericksburg region. Same name in
-// another VA city (Northside Baptist Charlottesville vs Stafford) is a DIFFERENT church.
-const FXBG_RE = /fredericksburg|spotsylvania|stafford|partlow|falmouth|thornburg|garrisonville|aquia|snell|hartwood|woodford|\b224(0[1-8]|1[2-9])\b|\b225(5[1-6]|34|65)\b/i;
+
+// Duplicate detection, generalized 2026-08-16.
+//
+// This gate used to ask only "is there a same-named church in the FREDERICKSBURG
+// region?" — correct while every discovery wave was an FXBG sweep, and silently
+// unsafe the moment one is not: a Roanoke or DC discovery could not collide with
+// anything, so a genuine duplicate would sail straight in. That is precisely the
+// failure Adam called out (2026-08-12: same church, slightly different name).
+//
+// Now: same state, same normalized name, corroborated by city or ZIP or street.
+// Same name in a different VA city (Northside Baptist Charlottesville vs Stafford)
+// is still a DIFFERENT church, which was the original rule's real insight.
+const ID = require('./lib/church-identity.js');
 const existingByName = new Map();
-d.churches.forEach(c => { const k = normName(c.name); if (!existingByName.has(k)) existingByName.set(k, []); existingByName.get(k).push(c); });
-function existingFxbgDup(r) {
-  const matches = existingByName.get(normName(r.name)) || [];
-  const hit = matches.find(c => FXBG_RE.test(String(c.address || '') + ' ' + String(c.id) + ' ' + String(c.name || '')));
+d.churches.forEach(c => {
+  const k = String(c.state || '').toUpperCase() + '|' + normName(c.name);
+  if (!existingByName.has(k)) existingByName.set(k, []);
+  existingByName.get(k).push(c);
+});
+function existingDup(r) {
+  const st = String(r.state || '').toUpperCase();
+  const cands = existingByName.get(st + '|' + normName(r.name)) || [];
+  const rCity = ID.norm(r.city || ''), rZip = ID.zipOf(r);
+  const hit = cands.find(c => {
+    if (ID.streetsDiffer(r, c)) return false;              // different building -> different church
+    if (rCity && ID.cityOfLoose(c) === rCity) return true;
+    if (rZip && ID.zipOf(c) === rZip) return true;
+    return ID.streetFull(r) && ID.streetFull(r) === ID.streetFull(c);
+  });
   return hit ? hit.id : null;
 }
 
@@ -84,21 +105,27 @@ function build(r) {
     signatures_aggregate: 'none',
     url_research_status: conf === 'high' ? 'verified' : 'unverified',
     name: r.name,
-    address: r.address || `${r.city || 'Fredericksburg'}, ${state}`,
-    pastor: '',
+    address: r.address || `${r.city || ''}, ${state}`.replace(/^, /, ''),
+    // A pastor named by the denomination's own roster is verbatim source data,
+    // not a guess. Blank otherwise, which drops the record into the local
+    // enrichment pool exactly as before.
+    pastor: (typeof r.pastor === 'string' && r.pastor.trim()) ? r.pastor.trim() : '',
     founded: '', type: r.denomination || '',
     denomination: r.denomination || 'Unverified',
     denomination_family: famOf(r.denomination),
     website: (typeof r.website === 'string' && /^https?:\/\//i.test(r.website)) ? r.website : '',
     has_mens_ministry: false, has_kids_ministry: false,
     overall_rating: 'yellow',
-    overall_label: `YELLOW — Newly added ${TODAY} from Fredericksburg-area discovery (${r.city || 'region'}, ${state}); existence ${conf}-confidence-verified via an online listing. Doctrine, leadership & complementarian polity NOT yet reviewed — assessment pending.`,
-    region: state.toLowerCase(), state, country: 'United States', country_code: 'US',
+    overall_label: `YELLOW — Newly added ${TODAY} from ${r.source_label || 'local discovery'} (${r.city || 'region'}, ${state}); existence ${conf}-confidence-verified via ${r.source_label ? 'the denomination\'s own roster' : 'an online listing'}. Doctrine, leadership & complementarian polity NOT yet reviewed — assessment pending.`,
+    // VA gets a real sub-region so the church lands on the right regional page
+    // instead of the bare state bucket; everything else keeps the state code.
+    region: state === 'VA' ? vaRegion({ address: r.address || '', city: r.city || '' }) : state.toLowerCase(),
+    state, country: 'United States', country_code: 'US',
     scores: {}, assessment: '',
-    enrichment_notes: `[${TODAY}] Added via Fredericksburg-area local discovery pass (${conf} confidence). Existence evidence: ${r.evidence_url || 'n/a'}. Pastor + doctrine pending (empty pastor → enters the local enrichment pool).`,
+    enrichment_notes: `[${TODAY}] Added via ${r.source_label || 'local discovery pass'} (${conf} confidence). Existence evidence: ${r.evidence_url || 'n/a'}.${r.pastor ? ` Pastor "${r.pastor}" taken verbatim from that roster entry.` : ' Pastor pending (empty pastor → enters the local enrichment pool).'}${r.phone ? ` Phone on roster: ${r.phone}.` : ''} Doctrine not yet reviewed.`,
     enrichment_sources: r.evidence_url ? [r.evidence_url] : [],
     last_reviewed: TODAY,
-    tags: ['local-discovery-2026-07'],
+    tags: r.source_tag ? [r.source_tag] : ['local-discovery-2026-07'],
     needs_review: true,
   };
 }
@@ -114,9 +141,17 @@ for (const r of incoming) {
   // and honest blanks beat unverifiable listings. (Facebook-only is acceptable.)
   const hasSite = typeof r.website === 'string' && /^https?:\/\//i.test(r.website);
   const hasSocial = !!(r.facebook || r.youtube || r.instagram);
-  if (!hasSite && !hasSocial) { skipped.push(`${r.name} — zero web presence (no website, no social); not added per 2026-07-11 policy`); continue; }
-  const dupId = existingFxbgDup(r);
-  if (dupId) { skipped.push(`${r.name} — already in FXBG directory (${dupId})`); continue; }
+  // A denominational roster entry satisfies the presence test on its own (Adam,
+  // 2026-08-16). SBCV publishes no church websites, so the original gate would
+  // have rejected all 663 of its congregations we are missing — yet each arrives
+  // with the denomination's own roster URL, a full street address and often a
+  // named pastor. That is stronger provenance than a Facebook page, and it is
+  // verifiable: the evidence_url can be re-fetched and checked at any time.
+  const hasRoster = typeof r.evidence_url === 'string' && /^https?:\/\//i.test(r.evidence_url)
+    && typeof r.address === 'string' && /\d/.test(r.address);
+  if (!hasSite && !hasSocial && !hasRoster) { skipped.push(`${r.name} — zero web presence (no website, no social, no roster evidence); not added per 2026-07-11 policy`); continue; }
+  const dupId = existingDup(r);
+  if (dupId) { skipped.push(`${r.name} — already in the directory (${dupId})`); continue; }
   const key = normName(r.name) + '|' + String(r.city || '').toLowerCase().replace(/[^a-z]/g, '');
   if (seen.has(key)) { skipped.push(`${r.name} — dup within discovery batch`); continue; }
   seen.add(key);
