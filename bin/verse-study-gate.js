@@ -233,7 +233,14 @@ function checkPage(fp) {
         const t = data[trans]; if (!t) return '';
         let s = '';
         for (let v = p.v1; v <= p.v2; v++) if (t[String(v)]) s += ' ' + t[String(v)];
-        return norm(s.replace(/<S>\d+<\/S>/g, ''));
+        s = s.replace(/<S>\d+<\/S>/g, '');
+        // WEB prints the divine name as "Yahweh"; the scaffold renders it "the LORD"
+        // to match house style, so compare against the same normalization or every
+        // Old Testament verse containing the Name fails for no reason.
+        if (trans === 'WEB') {
+          s = s.replace(/\bYahweh of Armies\b/g, 'the LORD of Hosts').replace(/\bYahweh\b/g, 'the LORD');
+        }
+        return norm(s);
       };
       const kjv = has('KJV'), web = has('WEB');
       const primary = squash((body.match(/class="vs-text"[^>]*>([\s\S]*?)<\/(?:div|blockquote)>/) || [])[1] || '');
