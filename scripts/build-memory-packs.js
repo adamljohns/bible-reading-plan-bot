@@ -131,6 +131,15 @@ const PACKS = [
       { ref: 'Rom 1:16', part: 'witness', method: 'Witnessing', kind: 'official' },
     ],
   },
+  {
+    id: 'proven-men',
+    name: 'PROVEN Men',
+    mode: 'verse',
+    blurb: 'Twelve weeks. One verse (or short range) a week. Chamber it before you need it.',
+    refs: ['Mat 22:36-39','Php 4:8','Gal 2:20','Jas 1:21-22','1Th 5:16-18','Rom 12:1-2',
+           'Jas 1:19-20','2Co 7:10','2Co 10:5','Heb 13:5','Eph 4:2','Eph 5:3'],
+  },
+
 ];
 
 /* The cache stores KJV with inline Strong's markup — "yourselves<S>5293</S>
