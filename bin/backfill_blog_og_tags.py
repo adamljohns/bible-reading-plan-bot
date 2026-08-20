@@ -51,7 +51,12 @@ def extract_title(html):
         return None
     t = html_lib.unescape(m.group(1).strip())
     # Strip the standard suffix
-    for suffix in (' — U.S.M.C. Ministries', ' - U.S.M.C. Ministries', ' | USMC Ministries', ' | U.S.M.C. Ministries'):
+    # Both brand forms: 35k legacy pages still carry the initials, while newly
+    # generated pages carry the full name (P2#2b, 2026-08-20).
+    for suffix in (' — U.S.M.C. Ministries', ' - U.S.M.C. Ministries',
+                   ' | USMC Ministries', ' | U.S.M.C. Ministries',
+                   ' — Uniting, Serving, Mentoring & Counseling Ministries', ' - Uniting, Serving, Mentoring & Counseling Ministries',
+                   ' — Uniting, Serving, Mentoring and Counseling Ministries', ' - Uniting, Serving, Mentoring and Counseling Ministries'):
         if t.endswith(suffix):
             t = t[:-len(suffix)].strip()
             break
@@ -112,7 +117,7 @@ def main():
             continue
 
         title = extract_title(html) or 'Adam "MOOP" Johns'
-        desc = extract_first_paragraph(html) or 'Faith, discipline, family, and mission. Writings from Adam "MOOP" Johns, U.S.M.C. Ministries.'
+        desc = extract_first_paragraph(html) or 'Faith, discipline, family, and mission. Writings from Adam "MOOP" Johns, Uniting, Serving, Mentoring and Counseling Ministries.'
         desc = truncate_for_meta(desc, 200)
         img = extract_first_img(html, os.path.basename(fp)) or DEFAULT_OG_IMAGE
         url = f'{SITE_BASE}/blog/{os.path.basename(fp)}'

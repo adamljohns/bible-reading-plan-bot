@@ -395,10 +395,10 @@ const html = `<!DOCTYPE html>
   </div>
 
   <footer>
-    <a href="/usmc-ministries.html">U.S.M.C. Ministries</a> &middot;
+    <a href="/usmc-ministries.html">Uniting, Serving, Mentoring and Counseling Ministries</a> &middot;
     <a href="/churches.html">Church Directory</a> &middot;
     <a href="/blog.html">Blog</a><br>
-    <span style="margin-top:6px;display:block;">&copy; 2026 U.S.M.C. Ministries &middot; Fredericksburg, VA</span>
+    <span style="margin-top:6px;display:block;">&copy; 2026 Uniting, Serving, Mentoring and Counseling Ministries &middot; Fredericksburg, VA</span>
   </footer>
 </body>
 </html>

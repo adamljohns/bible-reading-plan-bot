@@ -83,7 +83,7 @@ function slideHTML(s, artDataUri) {
   <h1>${esc(s.title)}</h1>
   <div class="sub">${esc(s.sub)}</div>
   <img class="art" src="${artDataUri}">
-  <div class="brand">U.S.M.C. Ministries · usmcmin.org</div>
+  <div class="brand">Uniting, Serving, Mentoring and Counseling Ministries · usmcmin.org</div>
 </body></html>`;
 }
 

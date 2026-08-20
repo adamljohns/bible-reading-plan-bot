@@ -2,7 +2,7 @@
 """Generate section-specific 1200x630 Open Graph cards for usmcmin.org.
 
 Each major surface gets its own hero mark for share-preview variety:
-- Homepage keeps the main U.S.M.C. Ministries crest
+- Homepage keeps the main Uniting, Serving, Mentoring and Counseling Ministries crest
 - Bible/BTE/verse pages use the BTE lighthouse hero
 - Lexicon, Dictionary, Cross-Refs, Worship, etc. use their page heroes
 """

@@ -273,7 +273,7 @@ def render_page(date):
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
     <link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg">
-    <title>{escape(date_label)} -- Daily Reading | U.S.M.C. Ministries</title>
+    <title>{escape(date_label)} -- Daily Reading | Uniting, Serving, Mentoring & Counseling Ministries</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -492,7 +492,7 @@ def render_page(date):
 
         <footer>
             <div class="draft-tag">PROTOTYPE -- sign-off pending</div>
-            <div>U.S.M.C. Ministries · The Watchman's Chronological Plan for the Year of our Lord 2026</div>
+            <div>Uniting, Serving, Mentoring and Counseling Ministries · The Watchman's Chronological Plan for the Year of our Lord 2026</div>
             <div style="margin-top:6px;font-size:0.78rem;">{escape(data['meta']['voice_anchor'])}</div>
         </footer>
 

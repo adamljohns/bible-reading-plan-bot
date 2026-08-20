@@ -982,7 +982,7 @@ def render_page(church):
   <a href="/churches.html">← Church Directory</a>
   <a href="/index.html">Home</a>
   <a href="/bible.html">Bible Translation Engine</a>
-  <a href="/usmc-ministries.html">U.S.M.C. Ministries</a>
+  <a href="/usmc-ministries.html">Uniting, Serving, Mentoring and Counseling Ministries</a>
   <a href="/about.html">About</a>
   <a href="/connect.html">Connect</a>
 </nav>

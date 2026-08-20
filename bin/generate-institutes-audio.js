@@ -65,7 +65,7 @@ function chapterAudio(ch) {
   const src = (ch.modernized && ch.sectionsModern) ? ch.sectionsModern : ch.sections;
   segs.push('Calvin’s Institutes of the Christian Religion. Book ' + ch.book + ', Chapter ' + ch.chapter + '. ' + ch.title + '.');
   src.forEach((s) => segs.push('Section ' + s.n + '. ' + s.paragraphs.join(' ')));
-  if (ch.application) segs.push('A word for 2026, from U.S.M.C. Ministries. ' + ch.application);
+  if (ch.application) segs.push('A word for 2026, from Uniting, Serving, Mentoring and Counseling Ministries. ' + ch.application);
 
   // synth each segment, build a concat list interleaving silence
   const sil = path.join(tmp, 'sil.wav');

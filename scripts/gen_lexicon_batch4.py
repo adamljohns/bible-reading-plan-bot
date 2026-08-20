@@ -169,7 +169,7 @@ def make_html(entry):
 
     <footer>
         <p><strong>USMC Ministries Greek &amp; Hebrew Lexicon</strong></p>
-        <p style="margin-top:8px;">© 2026 <a href="../index.html">U.S.M.C. Ministries</a> · <a href="../bible.html">Bible Translation Engine</a></p>
+        <p style="margin-top:8px;">© 2026 <a href="../index.html">Uniting, Serving, Mentoring and Counseling Ministries</a> · <a href="../bible.html">Bible Translation Engine</a></p>
     </footer>
 {JS}</body>
 </html>"""

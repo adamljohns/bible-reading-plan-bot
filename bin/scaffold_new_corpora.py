@@ -27,6 +27,20 @@ REF = 'docs/institutes/b1-c01.html'
 
 ref = open(REF, encoding='utf-8').read()
 HEAD = ref[:ref.find('</head>')]
+
+# A scaffold is unfinished work. It must be born hidden, not hidden later by
+# somebody remembering. On 2026-08-07 this script minted 33 pages that went
+# live in the sitemap still reading "Text pending"; they sat publicly indexable
+# for 13 days. The reference head lifted above carries no noindex because the
+# Institutes pages it comes from are finished, so inject one here.
+# bin/generate_sitemap.py skips any page with a noindex meta, so this also keeps
+# scaffolds out of the sitemap automatically. Remove the tag only via
+# `bin/approval_gate.py --release`, which refuses while the text is still TODO.
+NOINDEX = '    <meta name="robots" content="noindex, nofollow">'
+if 'noindex' not in HEAD.lower():
+    _m = re.search(r'<meta\s+charset=[^>]*>', HEAD, re.I)
+    _at = _m.end() if _m else HEAD.find('<head>') + len('<head>')
+    HEAD = HEAD[:_at] + '\n' + NOINDEX + HEAD[_at:]
 NAV = re.search(r'<nav.*?</nav>', ref, re.S).group(0)
 FOOT = re.search(r'<footer.*?</footer>', ref, re.S).group(0)
 
@@ -91,14 +105,14 @@ for i, (n, t, sub) in enumerate(CONF):
     nxt  = (f'book-{CONF[i+1][0]:02d}.html', f'Book {CONF[i+1][0]}') if i < len(CONF)-1 else None
     p = f'docs/confessions/book-{n:02d}.html'
     made.append((p, page(f'Confessions {n}: {t} — Augustine (Pusey)',
-                         f'Book {n} of 13 · USMC modern English',
+                         f'Book {n} of 13 · modern English',
                          t, sub, TODO, prev, nxt, 'index.html', 'All 13 Books')))
 
 conf_idx = '\n'.join(
     f'    <li><a href="book-{n:02d}.html"><strong>Book {n}</strong> — {html.escape(t)}</a>'
     f'<br><span class="inst-sub">{html.escape(s)}</span></li>' for n, t, s in CONF)
 made.append(('docs/confessions/index.html',
-             page('The Confessions of Augustine — U.S.M.C. Ministries',
+             page('The Confessions of Augustine — Uniting, Serving, Mentoring & Counseling Ministries',
                   'Augustine of Hippo · c. AD 397–400',
                   'The Confessions',
                   'Thirteen books of prayer, memory and argument — read as one man talking to God.',

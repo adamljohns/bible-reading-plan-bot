@@ -36,7 +36,7 @@ CARD_URLS = {
 HOME_CARD_URL = f"{SITE}/assets/og/og-home-{HOME_CARD_VERSION}.png"
 
 SECTION_LABELS = {
-    "default": "U.S.M.C. Ministries",
+    "default": "Uniting, Serving, Mentoring and Counseling Ministries",
     "bible": "MOOP Bible Translation Engine",
     "lexicon": "MOOP Lexicon",
     "dictionary": "The MOOP Dictionary",
@@ -47,22 +47,22 @@ SECTION_LABELS = {
     "assessments": "Biblical Assessments",
     "blog": "Ministry Blog",
     "resources": "Ministry Resources",
-    "connect": "Connect with U.S.M.C. Ministries",
+    "connect": "Connect with Uniting, Serving, Mentoring and Counseling Ministries",
 }
 
 GENERIC_DESCRIPTIONS = {
-    "default": "Christ-centered tools for faith, family, freedom, and fraternity from U.S.M.C. Ministries.",
+    "default": "Christ-centered tools for faith, family, freedom, and fraternity from Uniting, Serving, Mentoring and Counseling Ministries.",
     "bible": "MOOP Bible Translation Engine: 12 translations, interlinear Hebrew & Greek, Strong’s, cross-references, and verse study tools.",
-    "lexicon": "Hebrew and Greek lexicon entries with Strong’s numbers, original roots, and Scripture links from U.S.M.C. Ministries.",
+    "lexicon": "Hebrew and Greek lexicon entries with Strong’s numbers, original roots, and Scripture links from Uniting, Serving, Mentoring and Counseling Ministries.",
     "dictionary": "Biblical definitions, theological context, word origins, and Scripture references from the MOOP Dictionary.",
-    "crossrefs": "Scripture cross-references, thematic links, and study paths from U.S.M.C. Ministries.",
-    "atlas": "Biblical maps, charts, and journey overviews from U.S.M.C. Ministries.",
+    "crossrefs": "Scripture cross-references, thematic links, and study paths from Uniting, Serving, Mentoring and Counseling Ministries.",
+    "atlas": "Biblical maps, charts, and journey overviews from Uniting, Serving, Mentoring and Counseling Ministries.",
     "churches": "Church profile and directory information—including location, doctrine, leadership, and ministry details when available.",
-    "worship": "Christ-centered worship, songs, Scripture connections, prayer, and devotional resources from U.S.M.C. Ministries.",
+    "worship": "Christ-centered worship, songs, Scripture connections, prayer, and devotional resources from Uniting, Serving, Mentoring and Counseling Ministries.",
     "assessments": "Biblical self-assessments for husbands, fathers, men, and citizens—built for honest reflection and practical action.",
-    "blog": "Faith, family, freedom, fraternity, and ministry field notes from Adam ‘MOOP’ Johns and U.S.M.C. Ministries.",
-    "resources": "Practical ministry tools, studies, downloads, and biblical resources from U.S.M.C. Ministries.",
-    "connect": "Connect with U.S.M.C. Ministries for mentoring, counseling, brotherhood, and service opportunities.",
+    "blog": "Faith, family, freedom, fraternity, and ministry field notes from Adam ‘MOOP’ Johns and Uniting, Serving, Mentoring and Counseling Ministries.",
+    "resources": "Practical ministry tools, studies, downloads, and biblical resources from Uniting, Serving, Mentoring and Counseling Ministries.",
+    "connect": "Connect with Uniting, Serving, Mentoring and Counseling Ministries for mentoring, counseling, brotherhood, and service opportunities.",
 }
 
 META_RE = re.compile(r"<meta\b[^>]*>", re.I)
@@ -208,14 +208,14 @@ def esc(value: str) -> str:
 
 def normalized_block(title: str, description: str, url: str, image: str, section: str,
                      og_type: str = "website") -> str:
-    alt = f"{SECTION_LABELS[section]} — U.S.M.C. Ministries"
+    alt = f"{SECTION_LABELS[section]} — Uniting, Serving, Mentoring and Counseling Ministries"
     return "\n".join([
         f'    <meta name="description" content="{esc(description)}">',
         f'    <meta property="og:title" content="{esc(title)}">',
         f'    <meta property="og:description" content="{esc(description)}">',
         f'    <meta property="og:type" content="{og_type}">',
         f'    <meta property="og:url" content="{esc(url)}">',
-        '    <meta property="og:site_name" content="U.S.M.C. Ministries">',
+        '    <meta property="og:site_name" content="Uniting, Serving, Mentoring & Counseling Ministries">',
         f'    <meta property="og:image" content="{esc(image)}">',
         f'    <meta property="og:image:secure_url" content="{esc(image)}">',
         '    <meta property="og:image:type" content="image/png">',

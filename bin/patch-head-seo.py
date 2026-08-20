@@ -94,7 +94,14 @@ def patch_blog(path: str, dry_run: bool) -> bool:
     if not url:
         slug = os.path.basename(path)[:-5]
         url = f'{BASE}/blog/{slug}.html'
-    title = (_meta(content, 'og:title', 'property') or _title(content) or '').replace(' — U.S.M.C. Ministries', '').replace(' &mdash; U.S.M.C. Ministries', '').strip()
+    title = _meta(content, 'og:title', 'property') or _title(content) or ''
+    # Strip whichever brand suffix the page carries — legacy initials or the
+    # full name newly generated pages use (P2#2b, 2026-08-20).
+    for _suffix in (' — U.S.M.C. Ministries', ' &mdash; U.S.M.C. Ministries',
+                    ' — Uniting, Serving, Mentoring & Counseling Ministries', ' &mdash; Uniting, Serving, Mentoring & Counseling Ministries',
+                    ' — Uniting, Serving, Mentoring and Counseling Ministries', ' &mdash; Uniting, Serving, Mentoring and Counseling Ministries'):
+        title = title.replace(_suffix, '')
+    title = title.strip()
     desc = _meta(content, 'description') or _meta(content, 'og:description', 'property') or ''
     modified = _meta(content, 'article:modified_time') or _meta(content, 'article:published_time')
     image = _meta(content, 'og:image', 'property') or f'{BASE}/assets/usmc-ministries-full-crest.png'
@@ -108,7 +115,7 @@ def patch_blog(path: str, dry_run: bool) -> bool:
         'author': {'@type': 'Person', 'name': 'Adam Johns', 'alternateName': "Adam 'MOOP' Johns"},
         'publisher': {
             '@type': 'Organization',
-            'name': 'U.S.M.C. Ministries',
+            'name': 'Uniting, Serving, Mentoring and Counseling Ministries',
             'url': BASE,
             'logo': {'@type': 'ImageObject', 'url': f'{BASE}/assets/icons/icon-512.png'},
         },

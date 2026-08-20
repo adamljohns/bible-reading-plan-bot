@@ -31,7 +31,7 @@ fs.mkdirSync(WORK, { recursive: true });
 /* marker = the phrase in the narration where this beat starts.
    push  = 'in' | 'out' — alternating keeps the motion from feeling mechanical. */
 const BEATS = [
-  { id:'title',  k:'U.S.M.C. Ministries', t:'Pressure Check',
+  { id:'title',  k:'Uniting, Serving, Mentoring & Counseling Ministries', t:'Pressure Check',
     s:'Scripture memory, word perfect', marker:null, shot:null, push:'in' },
   { id:'why',    k:'The Question', t:'A round in the chamber',
     s:'Why walk out with the weapon loaded and the word empty?', marker:'So here is the question', shot:null, push:'out' },
@@ -175,7 +175,7 @@ function slideHTML(beat, uri) {
     <p>${esc(beat.s)}</p>
   </div>
   ${art}
-  <div class="brand">U.S.M.C. Ministries &middot; usmcmin.org</div>
+  <div class="brand">Uniting, Serving, Mentoring and Counseling Ministries &middot; usmcmin.org</div>
 </body></html>`;
 }
 

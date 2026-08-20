@@ -50,6 +50,7 @@ def extract_word(html):
         return None
     t = html_lib.unescape(m.group(1).strip())
     for suffix in (' — The MOOP Dictionary', ' - The MOOP Dictionary', ' — U.S.M.C. Ministries',
+                   ' — Uniting, Serving, Mentoring & Counseling Ministries', ' — Uniting, Serving, Mentoring and Counseling Ministries',
                    ' | MOOP Dictionary', ' — MOOP Dictionary'):
         if t.endswith(suffix):
             t = t[:-len(suffix)].strip()

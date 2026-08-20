@@ -868,7 +868,7 @@ def main():
     </div>
     <footer>
         <p>Baby Names from the Bible &middot; Part of <a href="index.html">The MOOP Dictionary</a> &middot; <a href="../bible.html">Bible Translation Engine</a></p>
-        <p style="margin-top:8px;font-size:0.78rem;">&copy; 2026 U.S.M.C. Ministries</p>
+        <p style="margin-top:8px;font-size:0.78rem;">&copy; 2026 Uniting, Serving, Mentoring and Counseling Ministries</p>
     </footer>
 
     <script>

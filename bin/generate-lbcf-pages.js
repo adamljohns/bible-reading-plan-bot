@@ -154,7 +154,7 @@ function processChapterShell(chapter) {
   if (player) html = html.replace('<!-- LBCF-PRERENDER -->', player + '\n        <!-- LBCF-PRERENDER -->');
 
   // Real <title> + meta for SEO / link previews
-  const titleStr = 'LBCF Chapter ' + n + ': ' + chapter.title + ' — U.S.M.C. Ministries';
+  const titleStr = 'LBCF Chapter ' + n + ': ' + chapter.title + ' — Uniting, Serving, Mentoring & Counseling Ministries';
   const ogTitle = 'LBCF Chapter ' + n + ': ' + chapter.title;
   const desc = (chapter.subtitle || ('Chapter ' + n + ' of the 1689 London Baptist Confession of Faith.')) +
     ' — 1689 London Baptist Confession of Faith, in modern English with linked Scripture proofs.';
@@ -227,7 +227,7 @@ function navHtml(active) {
     '<a href="' + href + '"' + (isActive ? ' class="active"' : '') + '><img src="assets/icons/' + icon +
     '" class="site-icon" alt="' + label + '" width="16" height="16"> ' + label + '</a>';
   return '<nav>' +
-    item('index.html', 'shield-home-48.png', 'U.S.M.C. Ministries Home', false) +
+    item('index.html', 'shield-home-48.png', 'Uniting, Serving, Mentoring and Counseling Ministries Home', false) +
     item('watchman.html', 'shield-bible.png', 'Watchman Bible Plan', false) +
     item('bible.html', 'shield-bible-cross-48.png', 'Bible Translation Engine', false) +
     item('lexicon.html', 'shield-alpha-omega-48.png', 'Lexicon', false) +
@@ -369,7 +369,7 @@ function fullChapterSection(chapter) {
 function buildFullPage(meta, chapters, front) {
   const canonical = 'https://usmcmin.org/lbcf-full.html';
   let h = pageHead(
-    'The 1689 Baptist Confession — Complete Text — U.S.M.C. Ministries',
+    'The 1689 Baptist Confession — Complete Text — Uniting, Serving, Mentoring & Counseling Ministries',
     'The complete Second London Baptist Confession of Faith (1689) on one page — all 32 chapters in modern English with linked Scripture proofs, the preface, and the signatories. Printer-friendly.',
     canonical
   );
@@ -440,7 +440,7 @@ function buildPrefacePage(front) {
   const canonical = 'https://usmcmin.org/lbcf/preface.html';
   // preface lives under /lbcf/ so asset paths need ../ — reuse head but fix relative refs
   let head = pageHead(
-    'The Preface to the 1689 Baptist Confession — U.S.M.C. Ministries',
+    'The Preface to the 1689 Baptist Confession — Uniting, Serving, Mentoring & Counseling Ministries',
     'The preface to the Second London Baptist Confession of Faith (1689) — "To the Judicious and Impartial Reader" — in modern English.',
     canonical
   ).replace(/href="assets\//g, 'href="../assets/');

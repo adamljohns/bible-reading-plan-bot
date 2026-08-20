@@ -86,7 +86,7 @@ function render(data) {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Listen Directory — Worship | U.S.M.C. Ministries</title>
+<title>Listen Directory — Worship | Uniting, Serving, Mentoring & Counseling Ministries</title>
 <meta name="description" content="Curated worship listen list for daily devotion — hymns and solid modern songs with outbound YouTube and Amazon Music links.">
 <meta name="robots" content="index,follow">
 <link rel="canonical" href="https://usmcmin.org/worship/directory.html">
@@ -135,7 +135,7 @@ footer a{color:var(--gold)}
 </head>
 <body>
 <main class="wrap">
-  <div class="kicker">U.S.M.C. Ministries · Worship</div>
+  <div class="kicker">Uniting, Serving, Mentoring and Counseling Ministries · Worship</div>
   <h1>Listen Directory</h1>
   <p class="lede">A curated listen list for the three-legged stool of daily devotion — <strong>Bible + prayer + worship</strong>. Outbound links only (YouTube / Amazon Music). Not a firehose; not every chord-chart deep cut.</p>
   <p class="note">Doctrinal seed: Pastor John · CID PJG-0809-WORSHIP1 · ${songs.length} approved · ${withYt} with YouTube · ${withAmz} with Amazon Music · No copyrighted full-track hosting on this site.</p>

@@ -1126,8 +1126,8 @@ TAB_JS = """
       const dateLabel = document.querySelector('.hero h1').textContent.trim();
       const title = isAll ? `${dateLabel} — All Today’s Readings` : watchTitle;
       const text = isAll
-        ? `All five U.S.M.C. Ministries readings for ${dateLabel}`
-        : `${watchTitle} — U.S.M.C. Ministries`;
+        ? `All five Uniting, Serving, Mentoring and Counseling Ministries readings for ${dateLabel}`
+        : `${watchTitle} — Uniting, Serving, Mentoring and Counseling Ministries`;
       try {
         if (navigator.share) {
           await navigator.share({title, text, url: shareUrl.toString()});
@@ -1540,7 +1540,7 @@ def render_page(date_str, md_text, version=None):
     watches_html = "\n\n".join(render_watch(date_str, key, intro, body) for key, intro, body in watches)
     tabs_html = render_tabs()
 
-    title = escape(date_label) + " — Daily Reading | U.S.M.C. Ministries"
+    title = escape(date_label) + " — Daily Reading | Uniting, Serving, Mentoring & Counseling Ministries"
     doc_line = doc_line_for(dt)
     # PJG-0010: two-tier stamp (Prototype vs MOOP vN). version passed in or default prototype.
     version = version or {
@@ -1594,7 +1594,7 @@ def render_page(date_str, md_text, version=None):
 
 <footer>
 {stamp_footer}
-<div>U.S.M.C. Ministries · The Watchman's Chronological Plan for the Year of our Lord 2026</div>
+<div>Uniting, Serving, Mentoring and Counseling Ministries · The Watchman's Chronological Plan for the Year of our Lord 2026</div>
 <div style="margin-top:6px;font-size:0.78rem;">Adam Johns &middot; rich interpretive blend &middot; divine name LORD</div>
 </footer>
 

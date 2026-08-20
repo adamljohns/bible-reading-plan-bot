@@ -58,7 +58,7 @@ function nav() {
     '<a href="' + href + '"' + (active ? ' class="active"' : '') + '><img src="../assets/icons/' + icon +
     '" class="site-icon" alt="' + label + '" width="16" height="16"> ' + label + '</a>';
   return '<nav>' +
-    item('../index.html', 'shield-home-48.png', 'U.S.M.C. Ministries Home', false) +
+    item('../index.html', 'shield-home-48.png', 'Uniting, Serving, Mentoring and Counseling Ministries Home', false) +
     item('../watchman.html', 'shield-bible.png', 'Watchman Bible Plan', false) +
     item('../bible.html', 'shield-bible-cross-48.png', 'Bible Translation Engine', false) +
     item('../lexicon.html', 'shield-alpha-omega-48.png', 'Lexicon', false) +
@@ -177,7 +177,7 @@ function chapterPage(ch, prev, next) {
   h += '</div>';
 
   if (ch.application) {
-    h += '<aside class="inst-application"><div class="inst-application-head">A Word for 2026 · U.S.M.C. Ministries</div><p>' + escText(ch.application) + '</p></aside>';
+    h += '<aside class="inst-application"><div class="inst-application-head">A Word for 2026 · Uniting, Serving, Mentoring and Counseling Ministries</div><p>' + escText(ch.application) + '</p></aside>';
   }
 
   const prevLink = prev ? '<a class="inst-prev" href="' + chFile(prev.book, prev.chapter) + '">← ' + (prev.book !== ch.book ? 'Book ' + prev.book + ' ' : '') + 'Ch. ' + prev.chapter + '</a>' : '<span></span>';
