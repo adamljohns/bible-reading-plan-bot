@@ -26,12 +26,29 @@ NOTE = re.compile(
     r'(?<=[;.,:])\s+[A-Za-z][^.;:]{0,45}:\s+'
     r'(?:that is|Heb\.|Gr\.|Chal\.|or,|to wit)\b.*$')
 
+# Third shape: the margin note is a bare CATCHWORD repeated from the verse,
+# left dangling after the final stop with no punctuation of its own
+# ("...make cakes upon the hearth. Make"). Requiring the word to occur
+# earlier in the verse is what makes this safe.
+CATCH = re.compile(r'(?<=[.!?])\s+([A-Za-z]{2,12})\s*$')
+
+def _strip_catchword(text):
+    m = CATCH.search(text)
+    if not m:
+        return text
+    word = m.group(1)
+    body = text[:m.start()]
+    if re.search(r'\b%s\b' % re.escape(word), body):
+        return body.rstrip()
+    return text
+
 def trim(text):
     prev = None
     out = text
     while prev != out:
         prev = out
         out = NOTE.sub('', out).rstrip()
+        out = _strip_catchword(out)
         out = TAIL.sub('', out).rstrip()
     return out
 
