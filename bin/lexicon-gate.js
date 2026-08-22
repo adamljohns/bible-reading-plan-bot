@@ -68,11 +68,16 @@ function chapter(bookId, ch) {
 }
 
 /* Does <ref> actually carry this Strong's number in the tagged KJV? */
-function verseCarriesCode(ref, num) {
+function verseCarriesCode(ref, num, prefix) {
   const m = String(ref).match(/^([1-3]?\s*[A-Za-z ]+?)\s+(\d+):(\d+)/);
   if (!m) return null;                       // unparseable — reported separately
   const id = BOOK_IDS[m[1].trim().toLowerCase()];
   if (!id) return null;
+  // The tagged KJV writes bare numbers: <S>4434</S> means H4434 in the Old
+  // Testament and G4434 in the New. Without this guard a Greek code can
+  // "confirm" itself from Job, which is how G4434 picked up Job 18:10.
+  if (prefix === 'G' && id <= 39) return null;
+  if (prefix === 'H' && id > 39) return null;
   const data = chapter(id, parseInt(m[2], 10));
   if (!data || !data.KJV) return null;       // no local text — cannot check
   const v = data.KJV[String(parseInt(m[3], 10))];
@@ -127,7 +132,7 @@ function checkPage(fp) {
   let checked = 0, confirmed = 0;
   const contradicted = [];
   refs.forEach((r) => {
-    const res = verseCarriesCode(r, num);
+    const res = verseCarriesCode(r, num, codeM[1]);
     if (res === null) return;
     checked++;
     if (res) confirmed++; else contradicted.push(r);
