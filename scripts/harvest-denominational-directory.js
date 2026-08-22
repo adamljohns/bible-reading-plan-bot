@@ -568,6 +568,118 @@ const ADAPTERS = {
       return out;
     },
   },
+
+  /**
+   * A.M.E. Zion. Official locator is a Digital Church map; the public wp-json
+   * location CPT is the real roster (816 published). Address/lat/lng/phone live
+   * on meta.location_address (JSON string) and meta.location_phone. Pastor,
+   * website, and email live on meta_box. Phase-1 filter: DC / MD / VA only.
+   */
+  amez: {
+    label: 'A.M.E. Zion Church',
+    denomination: 'African Methodist Episcopal Zion (AME Zion)',
+    async collect(ctx) {
+      const states = new Set((ctx.opt('--states', 'DC,MD,VA') || '').split(',').map(s => s.trim().toUpperCase()).filter(Boolean));
+      const all = [];
+      for (let page = 1; page <= 20; page++) {
+        const url = `https://amezion.org/wp-json/wp/v2/location?per_page=100&page=${page}`;
+        const { html, cached } = await ctx.fetchPage(url);
+        const rows = JSON.parse(html);
+        if (!Array.isArray(rows) || !rows.length) break;
+        all.push(...rows);
+        console.log(`  page ${page}: ${rows.length}${cached ? ' (cached)' : ''}`);
+        if (rows.length < 100) break;
+      }
+      // OSM strings put the house number in its own comma slot, then the road,
+      // then neighborhood / ward / county, then city. The LAST 5-digit token is
+      // the ZIP. A standalone 5-digit part is never a house number.
+      const zipState = (z) => {
+        if (/^20[0-5]\d{2}$/.test(z)) return 'DC';
+        if (/^(20[6-9]|21[0-9])\d{2}$/.test(z)) return 'MD';
+        if (/^(22[0-9]|23[0-9]|24[0-6])\d{2}$/.test(z)) return 'VA';
+        return '';
+      };
+      const parseAddr = (raw, lat, lng) => {
+        const s = String(raw || '').replace(/\s+/g, ' ').trim().replace(/,?\s*United States\s*$/i, '');
+        if (/\b(North Carolina|South Carolina|Michigan|West Virginia|Tennessee|Pennsylvania)\b|,\s*(NC|SC|MI|WV|TN|PA)\b/i.test(s)) {
+          return { street: '', city: '', state: '', zip: '' };
+        }
+        const zips = [...s.matchAll(/\b(\d{5})(?:-\d{4})?\b/g)].map(m => m[1]);
+        const zip = zips.length ? zips[zips.length - 1] : '';
+        let state = '';
+        if (/\bDistrict of Columbia\b|,\s*DC\b/i.test(s)) state = 'DC';
+        else if (/\bMaryland\b|,\s*MD\b/i.test(s)) state = 'MD';
+        else if (/\bVirginia\b|,\s*VA\b/i.test(s)) state = 'VA';
+        const zs = zipState(zip);
+        if (!state) state = zs;
+        if (state && zs && state !== zs) return { street: '', city: '', state: '', zip: '' };
+        const la = Number(lat), ln = Number(lng);
+        if (Number.isFinite(la) && Number.isFinite(ln) && la && ln && !(la >= 36.5 && la <= 39.75 && ln >= -83.7 && ln <= -75.0)) {
+          return { street: '', city: '', state: '', zip: '' };
+        }
+        if (!state) return { street: '', city: '', state: '', zip: '' };
+        const ROAD = /\b(street|st|avenue|ave|road|rd|drive|dr|lane|ln|blvd|boulevard|way|place|pl|circle|cir|highway|hwy|court|ct)\b/i;
+        const SKIP = /county|ward\b|circle\/|shaw|houston|eisenhower|district of columbia|maryland|virginia|^[A-Z]{2}$|united states|church|chapel|temple|zion|memorial/i;
+        let street = '', city = '';
+        const clay = s.match(/^(\d{1,5}\s+(?:[NEWS]\s+)?[^,]+?\b(?:Street|St|Avenue|Ave|Road|Rd|Drive|Dr|Lane|Ln|Boulevard|Blvd))\s+([A-Za-z .']+),\s*(VA|MD|DC)\s+(\d{5})/i);
+        if (clay && (s.match(/,/g) || []).length <= 1) {
+          street = clay[1].trim();
+          city = clay[2].trim();
+        } else {
+          const parts = s.split(',').map(p => p.trim()).filter(Boolean);
+          const house = parts.find(p => /^\d{1,4}$/.test(p));
+          const road = parts.find(p => ROAD.test(p) && !/^\d{5}$/.test(p));
+          if (house && road) street = `${house} ${road.replace(/^\d+\s+/, '')}`;
+          else if (parts[0] && /^\d+\s+\S/.test(parts[0])) street = parts[0];
+          else if (road) street = road;
+          if (state === 'DC') city = 'Washington';
+          else {
+            const named = parts.find(p => !SKIP.test(p) && !/^\d/.test(p) && !ROAD.test(p));
+            city = named || '';
+          }
+        }
+        if (state === 'DC') city = 'Washington';
+        return { street, city, state, zip };
+      };
+      const out = [];
+      for (const it of all) {
+        let loc = {};
+        try { loc = JSON.parse((it.meta && it.meta.location_address) || '{}') || {}; } catch (_) { loc = {}; }
+        const parsed = parseAddr(loc.address || '', loc.lat, loc.lng);
+        const state = parsed.state;
+        if (states.size && !states.has(state)) continue;
+        const street = parsed.street;
+        const city = parsed.city;
+        const zip = parsed.zip;
+        if (!street || !city) continue;
+        const mb = it.meta_box || {};
+        const pastor = String(mb.location_pastor || '').replace(/\s+/g, ' ').trim();
+        let website = String(mb.location_website || '').trim();
+        if (/amezion\.org\/location\//i.test(website) || /facebook/i.test(website)) website = '';
+        if (website && !/^https?:\/\//i.test(website)) website = `https://${website.replace(/^\/+/, '')}`;
+        let name = decode((it.title && it.title.rendered) || '').replace(/\s+/g, ' ').trim();
+        if (name && !/\b(church|chapel|temple|memorial|zion|mission)\b/i.test(name)) {
+          name = `${name} A.M.E. Zion Church`;
+        }
+        if (!name) continue;
+        out.push({
+          detail_url: it.link || `https://amezion.org/location/${it.slug}/`,
+          name,
+          street,
+          city,
+          state,
+          zip: ctx.zipFitsState(zip, state) ? zip : '',
+          phone: String((it.meta && it.meta.location_phone) || '').trim(),
+          website,
+          email: String(mb.location_email || '').trim(),
+          pastor: pastor && !/^(n\/?a|none|vacant|tbd|-+)$/i.test(pastor) ? pastor : '',
+          latitude: loc.lat || '', longitude: loc.lng || '',
+        });
+      }
+      console.log(`  ${all.length} published; ${out.length} in ${[...states].join('/') || 'all states'}`);
+      return out;
+    },
+  },
 };
 
 /* --------------------------------------------------------------------- main */
