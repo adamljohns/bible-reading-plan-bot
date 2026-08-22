@@ -751,6 +751,64 @@ const ADAPTERS = {
       };
     },
   },
+
+  /**
+   * Episcopal Diocese of Virginia. Official finder at episcopalvirginia.org/churches
+   * is an Episcopal Asset Map embed. The diocese list is server-rendered HTML at
+   * episcopalassetmap.org/dioceses/virginia/list?type[church]=church&page=N
+   * (10 per page, 181 churches). Detail pages are /node/<nid> and carry street,
+   * city, ZIP, phone, website, and sometimes a named rector.
+   */
+  edova: {
+    label: 'Episcopal Diocese of Virginia',
+    denomination: 'The Episcopal Church (Diocese of Virginia)',
+    listUrl: p => `https://www.episcopalassetmap.org/dioceses/virginia/list?type%5Bchurch%5D=church&page=${Math.max(0, p - 1)}`,
+    parseList(html) {
+      const out = [];
+      const re = /search-info--place nid--(\d+)">([\s\S]*?)<\/span>[\s\S]*?address-line1-unmodified"><span class="field-content">([\s\S]*?)<\/span>[\s\S]*?locality-unmodified"><span class="field-content">([\s\S]*?)<\/span>[\s\S]*?administrative-area-unmodified"><span class="field-content">([\s\S]*?)<\/span>/g;
+      let m;
+      while ((m = re.exec(html))) {
+        const nid = m[1];
+        const name = decode(m[2]);
+        const street = decode(m[3]).replace(/,\s*$/, '');
+        const city = decode(m[4]).replace(/,\s*$/, '');
+        const state = decode(m[5]).replace(/,\s*$/, '') || 'VA';
+        if (!name || /preschool|school|canterbury|camp |center$/i.test(name)) continue;
+        out.push({
+          detail_url: `https://www.episcopalassetmap.org/node/${nid}`,
+          name, street, city, state, zip: '',
+          pastor: '', phone: '', website: '',
+        });
+      }
+      return out;
+    },
+    parseDetail(html) {
+      const street = decode((html.match(/class="address-line1">([\s\S]*?)<\/span>/) || [])[1] || '');
+      const city = decode((html.match(/class="locality">([\s\S]*?)<\/span>/) || [])[1] || '');
+      const state = decode((html.match(/class="administrative-area">([\s\S]*?)<\/span>/) || [])[1] || '') || 'VA';
+      const zip = ((html.match(/class="postal-code">([\s\S]*?)<\/span>/) || [])[1] || '').trim();
+      let phone = decode((html.match(/href="tel:([^"]+)"/) || [])[1] || '');
+      phone = phone.replace(/^%C2%A0|^\u00a0/, '').replace(/[\u00a0]/g, ' ').trim();
+      let website = (html.match(/field--name-field-external-url[\s\S]{0,400}?href="(https?:\/\/[^"]+)"/) || [])[1] || '';
+      if (/episcopalassetmap|episcopalchurch\.org\/?$|episcopalrelief|facebook\.com\/sharer/i.test(website)) website = '';
+      const people = [...html.matchAll(/field--name-field-person-name[^>]*>\s*([^<]+)/g)].map(x => decode(x[1]));
+      let pastor = '';
+      for (const p of people) {
+        if (/tanzania|maimbo|most revd|bishop of|archbishop/i.test(p)) continue;
+        const bare = p.replace(/,\s*(rector|vicar|priest-in-charge|interim|associate|assistant|chaplain).*$/i, '').trim();
+        if (bare && bare.split(/\s+/).length >= 2) { pastor = p; break; }
+      }
+      return {
+        street: street || undefined,
+        city: city || undefined,
+        state: state || undefined,
+        zip: zip && zipFitsState(zip, state || 'VA') ? zip : '',
+        phone,
+        website,
+        pastor: pastor && !/^(n\/?a|none|vacant|tbd|-+)$/i.test(pastor) ? pastor : '',
+      };
+    },
+  },
 };
 
 /* --------------------------------------------------------------------- main */
