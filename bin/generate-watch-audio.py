@@ -125,20 +125,20 @@ def apply_bow_homage(text: str) -> str:
 
 
 def force_declarative_amen(text: str) -> str:
-    """Final Amen must be statement with SECOND-syllable stress a-MEN /əˈmɛn/.
+    """Final Amen must be statement with first-syllable AH-men (PJG-0822-AMEN2).
 
-    Principal ear QA 2026-07-30 + HARD reconfirm 2026-08-02: first-syllable
-    A-men punch is FAIL. Prior lock used /ˈɑːmɛn/ (stress on first) — inverted.
-    Kokoro path: misaki IPA /əˈmɛn/. F5 path: attached plain Amen via f5_prep (PJG-0811-AMEN1 r3; no isolate).
+    Principal 2026-08-22 ~16:02 SUPERSEDES uh-MEN /əˈmɛn/. Target is AH-men —
+    first syllable AH as in father, settled period, not AY-men, not a question.
+    Kokoro path: misaki IPA /ˈɑmɛn/. F5 path: attached AH-men via f5_prep.
+    Never isolate Amen as its own chunk.
     """
     # Strip ?/! after Amen anywhere; ensure terminal period.
     text = re.sub(r"\bAmen\b\s*[?!]+", "Amen.", text, flags=re.I)
     text = re.sub(r"\bAmen\b(?!\s*\.|\s*\[/)", "Amen.", text, flags=re.I)
-    # Second-syllable stress IPA (ə + primary stress on mɛn) — NOT /ˈɑːmɛn/
-    text = re.sub(r"\bAmen\.(?=\s|$)", "[Amen](/əˈmɛn/).", text, flags=re.I)
-    # Also catch already-wrong first-stress markup from older runs in source text
-    text = re.sub(r"\[Amen\]\(/ˈɑːmɛn/\)", "[Amen](/əˈmɛn/)", text)
-    text = re.sub(r"\[Amen\]\(/ˈɑmɛn/\)", "[Amen](/əˈmɛn/)", text)
+    # First-syllable AH as in father — NOT schwa-first /əˈmɛn/, NOT AY-men /ˈeɪmɛn/
+    text = re.sub(r"\bAmen\.(?=\s|$)", "[Amen](/ˈɑmɛn/).", text, flags=re.I)
+    text = re.sub(r"\[Amen\]\(/əˈmɛn/\)", "[Amen](/ˈɑmɛn/)", text)
+    text = re.sub(r"\[Amen\]\(/ˈeɪmɛn/\)", "[Amen](/ˈɑmɛn/)", text)
     return text
 
 
@@ -427,12 +427,9 @@ def apply_lexicon(text):
 def f5_prep(text):
     """Plain-text prep for F5 clone. Markup stripped; Amen kept attached.
 
-    PJG-0811-AMEN1 r3: r1 isolated a-MEN → Ian collapse; r2 attached Ah men →
-    ASR "Ash men" (period stripped when gluing). Candidate matrix winner:
-    attached plain "I pray. Amen." / peace close with plain Amen → ASR "Amen."
-
-    Listen-script only — published page/JSON stays human "Amen."
-    Never isolate Amen as its own F5 chunk. Keep sentence pause before Amen.
+    PJG-0822-AMEN2: Principal SUPERSEDES uh-MEN. Listen-script target is
+    attached "I pray. AH-men." First syllable AH as in father. Isolated
+    Amen still banned (r1 Ian scar). Published page/JSON stays human "Amen."
     """
     text = text.replace("LORD", "Lord")
     text = re.sub(r"[—–]", ", ", text)
@@ -440,21 +437,19 @@ def f5_prep(text):
     text = force_declarative_amen(text)
     # F5 cannot use misaki IPA — strip markup first
     text = re.sub(r"\[([^\]]+)\]\(/[^/)]+/\)", r"\1", text)
-    # PJG-0815 / PJG-0811 reopen: keep Amen ATTACHED to "I pray." — never isolate.
-    # Principal ear wants second-syllable a-MEN /əˈmɛn/. Isolated F5 Amen → Ian.
-    # Attached respell on the same clause: "I pray. uh-MEN."
+    # Keep Amen ATTACHED to "I pray." — never isolate.
+    # New lock: AH-men. Banned: uh-MEN / AY-men / emeen / a mien.
     text = re.sub(
-        r"\b(?:a-MEN|uh-MEN|uh MENN|uh MEN|a MEN|Ah men|Amen)\b\s*[.?!]*\s*$",
-        "uh-MEN.",
+        r"\b(?:AH-men|AH men|Ah men|a-MEN|uh-MEN|uh MENN|uh MEN|a MEN|Amen)\b\s*[.?!]*\s*$",
+        "AH-men.",
         text,
         flags=re.I | re.M,
     )
-    # If prayer already ends "I pray. uh-MEN." leave it; else glue Amen to I pray.
-    if re.search(r"I pray\.?\s+uh-MEN\.", text, flags=re.I):
+    if re.search(r"I pray\.?\s+AH-men\.", text, flags=re.I):
         return text.strip()
     text = re.sub(
-        r"I pray\.?\s*(?:Amen|uh-MEN)?\.?\s*$",
-        "I pray. uh-MEN.",
+        r"I pray\.?\s*(?:Amen|AH-men|uh-MEN)?\.?\s*$",
+        "I pray. AH-men.",
         text,
         flags=re.I | re.M,
     )
@@ -464,21 +459,21 @@ def f5_prep(text):
 def f5_chunks(text, mx=None):
     """Sentence pack for F5. NEVER isolate terminal Amen as its own chunk.
 
-    Keep "I pray. Amen." as ONE chunk (period pause preserved). Solo Amen
-    sentences glue to previous with ". Amen." not " Amen".
+    Keep "I pray. AH-men." as ONE chunk (period pause preserved). Solo Amen
+    sentences glue to previous with ". AH-men." not a new chunk.
     """
     mx = mx or F5_CHUNK_MAX
     sents = re.split(r"(?<=[.!?])\s+", text) if text else []
     out, cur = [], ""
     amen_only = re.compile(
-        r"(?:Ah men|a-MEN|uh MENN|uh-MEN|uh MEN|a MEN|Amen)\s*[.?!]*$",
+        r"(?:AH-men|AH men|Ah men|a-MEN|uh MENN|uh-MEN|uh MEN|a MEN|Amen)\s*[.?!]*$",
         flags=re.I,
     )
     for s in sents:
         if not s:
             continue
         if amen_only.fullmatch(s.strip()):
-            amen = "uh-MEN."
+            amen = "AH-men."
             if cur:
                 # preserve sentence boundary pause
                 base = cur.rstrip()
@@ -564,7 +559,7 @@ def split_prayer(post_lines):
     """
     before, prayer, after = [], [], []
     st = "before"
-    amen_end = re.compile(r"\b(?:Amen|a-MEN|a MEN|uh-MEN|uh MEN|uh MENN)\.?\s*$", re.I)
+    amen_end = re.compile(r"\b(?:Amen|AH-men|AH men|a-MEN|a MEN|uh-MEN|uh MEN|uh MENN)\.?\s*$", re.I)
     for line in post_lines:
         if st == "before" and PRAYER_HDR.match(line):
             st = "prayer"
