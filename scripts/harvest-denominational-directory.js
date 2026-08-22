@@ -680,6 +680,77 @@ const ADAPTERS = {
       return out;
     },
   },
+
+  /**
+   * Baptist General Association of Virginia. Webflow CMS directory at
+   * /find-a-church-directory?9a15e0c3_page=N (~24 per page, 52 pages).
+   * Each card already carries name, street+city+ZIP, pastor, and phone, so the
+   * list pass is the roster. Detail pages add website/email when present;
+   * most are empty. "Pastor" as a placeholder name is dropped.
+   */
+  bgav: {
+    label: 'Baptist General Association of Virginia (BGAV)',
+    denomination: 'Baptist General Association of Virginia (BGAV)',
+    listUrl: p => p <= 1
+      ? 'https://www.bgav.org/find-a-church-directory'
+      : `https://www.bgav.org/find-a-church-directory?9a15e0c3_page=${p}`,
+    parseList(html) {
+      const out = [];
+      for (const card of html.split('church-dirctory-item w-dyn-item').slice(1)) {
+        const name = decode((card.match(/<div class="church-directory-church-name">([\s\S]*?)<\/div>/) || [])[1] || '');
+        const addr = decode((card.match(/<div class="church-directory-church-address">([\s\S]*?)<\/div>/) || [])[1] || '');
+        const href = (card.match(/href="(\/church-directory\/[^"]+)"/) || [])[1];
+        if (!name || !href) continue;
+        const phones = [...card.matchAll(/<div class="church-directory-church-address phone">([\s\S]*?)<\/div>/g)].map(m => decode(m[1]));
+        let pastor = '', phone = '';
+        for (const p of phones) {
+          if (/[\d]{3}/.test(p) && /[\d\-().+ ]{7,}/.test(p) && !/[A-Za-z]{3,}/.test(p.replace(/ext\.?\s*\d+/i, ''))) phone = p;
+          else if (p && !/^(pastor|senior pastor|n\/?a|none|tbd|-+)$/i.test(p)) pastor = p;
+        }
+        // Cards are "11058 Dutch Hollow Rd  Culpeper, Virginia 22701".
+        // decode() collapses the double space, so take everything before
+        // ", Virginia ZIP" and split street/city on the last road suffix.
+        const loc = addr.match(/^(.*?),\s*(Virginia|VA)\s+(\d{5})(?:-\d{4})?$/i);
+        if (!loc) continue; // Tennessee / New York / malformed — not VA
+        const left = loc[1].trim();
+        const zip = loc[3];
+        // Greedy so we split on the LAST road suffix, not the first ("Creek Rd").
+        // Hollow/Ridge/Point are not suffixes — they are place-name words.
+        const sm = left.match(/^(.*\b(?:Road|Rd|Street|St|Avenue|Ave|Boulevard|Blvd|Drive|Dr|Lane|Ln|Way|Court|Ct|Place|Pl|Parkway|Pkwy|Highway|Hwy|Turnpike|Tpk|Circle|Cir|Pike|Trail|Terrace|Ter|Square|Sq)\.?(?:\s+(?:Northeast|Northwest|Southeast|Southwest|NE|NW|SE|SW))?)\s+(.+)$/i);
+        let street = sm ? sm[1].trim() : left;
+        let city = sm ? sm[2].trim() : '';
+        if (!city) {
+          const fb = left.match(/^(.+)\s+([A-Z][A-Za-z .']+)$/);
+          if (fb) { street = fb[1].trim(); city = fb[2].trim(); }
+        }
+        out.push({
+          detail_url: `https://www.bgav.org${href}`,
+          name, street, city, state: 'VA', zip,
+          pastor, phone, website: '',
+        });
+      }
+      return out;
+    },
+    parseDetail(html) {
+      const grab = (label) => {
+        const re = new RegExp(`>${label}<\\/div>\\s*(?:<div class="strategitst-name directory">([\\s\\S]*?)<\\/div>|<a href="([^"]*)" class="strategitst-name directory">([\\s\\S]*?)<\\/a>)`, 'i');
+        const m = html.match(re);
+        if (!m) return { text: '', href: '' };
+        return { text: decode(m[1] || m[3] || ''), href: m[2] || '' };
+      };
+      const site = grab('WEBSITE');
+      let website = site.href && site.href !== '#' ? site.href : site.text;
+      if (/w-dyn-bind-empty|#|^$/.test(website) || /facebook/i.test(website)) website = '';
+      if (website && !/^https?:\/\//i.test(website)) website = `https://${website.replace(/^\/+/, '')}`;
+      const pastor = grab('PASTOR').text;
+      const phone = grab('Phone').text || grab('PHONE').text;
+      return {
+        pastor: pastor && !/^(pastor|senior pastor|n\/?a|none|tbd|-+)$/i.test(pastor) ? pastor : '',
+        phone: phone || '',
+        website,
+      };
+    },
+  },
 };
 
 /* --------------------------------------------------------------------- main */
