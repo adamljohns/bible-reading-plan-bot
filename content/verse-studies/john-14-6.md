@@ -29,8 +29,8 @@ So the sentence does not open with a claim about function. It opens with a claim
 @word G3962
 *Pater* appears more than four hundred times in the New Testament, and John's Gospel is saturated with it. The destination named here is not a location or a state. It is a Father, and the exclusive clause is exclusive about access to Him.
 
-@h3 The word this page will not quote
-The second noun is *aletheia*, truth, and our lexicon's page for it is one of the stubs with no usable definition, so nothing here is drawn from it. What is worth saying stands on the Gospel itself: John has already told us the Word became flesh, full of grace and *truth*. So when Jesus says He is the truth, He is not claiming to teach accurately. He is claiming that reality, in its final form, has a face.
+@word G225
+*Aletheia* is truth — and John has already told us the Word became flesh, full of grace and truth. So when Jesus says He is the truth, He is not claiming to teach accurately. He is claiming that reality, in its final form, has a face.
 
 @section 2. Where It Sits
 

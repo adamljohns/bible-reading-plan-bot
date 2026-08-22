@@ -24,12 +24,13 @@ Note also the *us*. Paul does not stand outside this and prescribe. He includes 
 @word G1411
 *Dynamis* — power, ability, might. It heads the list, and in Paul it is almost always God's power operating rather than a quality a man possesses. Which is why the verse is not a pep talk: the antidote to shrinking back is not self-confidence but the actual working power of God in a weak man.
 
-@h3 Two words this page cannot source
-The second and third items in Paul's list deserve comment and neither can be drawn from our lexicon, so they are described here rather than quoted. *Agape* is love that originates in the lover rather than in the worth of the beloved — and its placement in the middle is deliberate. Power without love produces a bully, and Timothy's problem was never that he might become domineering; the pairing is Paul's guard on how the power gets used.
+@word G26
+Second in Paul's list, and its placement is deliberate. *Agape* is love that originates in the lover rather than in the worth of the beloved. Power without love produces a bully — and Timothy's problem was never that he might become domineering. The pairing is Paul's guard on how the power gets used.
 
-The third is *sophronismos*, and it is nearly untranslatable. The King James has "a sound mind," modern versions "self-control" or "self-discipline." The word carries the sense of a mind that is sober and rightly ordered — the opposite of a mind running away with itself. That is exactly what fear does. It is not a defect of courage so much as a disordering of judgment, in which the threat swells and everything true shrinks.
+@word G4995
+The third, and nearly untranslatable. The King James has "a sound mind," modern versions "self-control" or "self-discipline." *Sophronismos* carries the sense of a mind soberly ordered — the opposite of a mind running away with itself.
 
-Our lexicon has no page for *sophronismos* and its page for *agape* is one of the stubs with no real definition, so nothing above is drawn from either. It comes from the words' use elsewhere in the New Testament, which you can check.
+Which is exactly what fear does. Timidity is not only a failure of nerve; it is a disordering of judgment, in which the threat swells and everything true shrinks. What Paul says was issued against it is a mind put back in proportion.
 
 @section 2. Where It Sits
 

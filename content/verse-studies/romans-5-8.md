@@ -19,8 +19,11 @@ The smallest word in the verse and the one carrying it. *Eti* means still, yet, 
 @word G599
 *Apothnesko* is the ordinary, complete word for dying. It is worth noticing that Paul's evidence is not a feeling, a promise, or a gesture. The demonstration is a death, an event with a date, and the verb carries no softening.
 
-@h3 On two words this page does not quote
-Two terms in this verse deserve comment and cannot be sourced from our lexicon, so they are described rather than quoted. The verb behind *commendeth* is *sunistemi*, which means to prove or establish -- to place things together so a conclusion follows. It is an evidence word, closer to entering an exhibit than to expressing affection. And the noun is *agape*, the love that originates in the lover rather than being drawn out by the worth of the beloved. That definition is the whole verse: the timing clause exists precisely to rule out the idea that something attractive in us called it forth. Our lexicon's page for *agape* is one of the stubs with no real definition, so nothing here is drawn from it.
+@word G4921
+*Sunistemi* means to commend, to prove, to establish — to place things together so a conclusion follows. It is an evidence word, closer to entering an exhibit than to expressing affection. God is not confessing a feeling here; He is producing proof.
+
+@word G26
+*Agape* is love originating in the lover rather than in the worth of the beloved. That definition is the verse: the timing clause exists precisely to rule out the idea that something attractive in us called it forth.
 
 @h3 The clause that does the work
 *While we were yet sinners.* Every other religion and most of our instincts put a different word there -- *once* we were no longer sinners, or *because* we might stop being sinners. Paul says *while*. The death happened during the condition, not after its resolution, and not on condition of its resolution.

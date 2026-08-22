@@ -19,12 +19,10 @@ Note the tense in the second clause. Every other beatitude promises something fu
 @word G932
 *Basileia* is kingdom, reign, royal power — and it is the central theme of Jesus' preaching, appearing 162 times. Worth hearing as *reign* rather than *realm*. The promise is not primarily real estate. It is that these people are the ones under the government of God.
 
-@h3 The word this page cannot source
-Everything turns on *ptochos*, and our lexicon has no page for it at all, so what follows is drawn from its use in the New Testament rather than from any entry here.
+@word G4434
+Everything turns on this word, and the lexicon now carries it. Greek has two words for poor. *Penēs* is the working poor — a man with nothing spare who still earns his bread. *Ptōchos* comes from a root meaning to crouch or cower: a beggar, someone with nothing and no prospect of getting it, living on what is handed to him.
 
-Greek has two words for poor. *Penes* is the working poor — a man who has nothing spare but earns his bread. *Ptochos* is the other kind: the word comes from a root meaning to crouch or cower, and it means a beggar, someone who has nothing and no prospect of getting it, dependent entirely on what is handed to him.
-
-Jesus chose the second. That is the difference between a man who is short of resources and a man who has none. Poor in spirit is not modesty about your spiritual attainments. It is the recognition that you are holding out an empty hand.
+Jesus chose the second. Note how the King James itself renders the word elsewhere — *beggar*, *beggarly* — which settles the sense from the text rather than from a dictionary. Poor in spirit is not modesty about your spiritual attainments. It is an empty hand held out.
 
 @section 2. Where It Sits
 

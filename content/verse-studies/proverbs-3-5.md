@@ -21,8 +21,11 @@ Here is the honest complication. *Binah* is a good word. It is the discernment t
 
 That is a harder teaching than the anti-intellectual reading. Solomon is not warning the fool off his stupidity. He is warning the wise man off his wisdom.
 
-@h3 On "with all your heart"
-The Hebrew is *leb* -- not the emotions as opposed to the intellect, but the whole inner man, where decisions actually get made. So "with all your heart" is not asking for more feeling. It is asking for the undivided thing: the part of you that reasons, wants, and chooses, aimed one direction. Our lexicon entry for this word is a stub with no usable definition, so this note is drawn from the word's usage across the Old Testament rather than from that page.
+@word H3820
+*Leb* does not mean what our word "heart" means. It is not the emotions as distinct from the intellect; in Hebrew it is closer to the whole inner man — mind, will and affection together, the place decisions actually get made. So "with all your heart" is not asking for more feeling. It is asking for the undivided thing: the part of you that reasons, wants and chooses, aimed one direction.
+
+@word H8172
+And here is the verse's own picture, in the verb Solomon chose for *lean*. *Shaʿan* is to lean or support oneself on something — to rest your weight on a prop. Which is why the second clause is not anti-intellectual. You will put your weight somewhere. The command is about what is underneath you when it matters.
 
 @section 2. Where It Sits
 

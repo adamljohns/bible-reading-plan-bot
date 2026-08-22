@@ -228,6 +228,34 @@ function checkPage(fp) {
     }
   });
 
+  /* ── stale lexicon disclaimers ──────────────────────────────────────────
+   * A study that says "our lexicon has no page for ptochos" is telling the
+   * truth on the day it is written and lying the day someone fills that page.
+   * These disclaimers are load-bearing honesty, so they must expire when the gap
+   * closes. Matching on the code alone is too narrow — the disclaiming sentence
+   * usually names the word, not the number. So: if the page disclaims anything,
+   * check whether any content word IN THIS VERSE now has a real lexicon entry
+   * that the page is not using. That is the condition the disclaimer described. */
+  const disclaimRe = /(?:no (?:real )?(?:lexicon )?page(?: for)?|one of the stubs|cannot (?:be )?source|is a stub|no usable definition)/i;
+  /* Require the disclaiming sentence to actually be about the lexicon. Without
+   * this, a study saying "there is no page of it you get to discount" — about
+   * the Bible — trips the rule. */
+  const disclaimsLexicon = squash(body).split(/(?<=[.?!])\s+/)
+    .some((sent) => disclaimRe.test(sent) && /lexicon|stub/i.test(sent));
+  if (p && disclaimsLexicon) {
+    let kit = null;
+    try { kit = require('./verse-study-scaffold.js').buildKit(ref); } catch (e) { /* non-fatal */ }
+    if (kit && !kit.error) {
+      const used = new Set([...body.matchAll(/href="\/lexicon\/([GH]\d{1,4})\.html"/g)].map((m) => m[1]));
+      const nowAvailable = kit.wordStudy
+        .filter((w) => w.priority === 'content' && w.lexicon && !w.lexicon.stub && !used.has(w.lexicon.code))
+        .map((w) => `${w.lexicon.code} (${w.lexicon.lemma || w.word})`);
+      if (nowAvailable.length) {
+        fails.push(`page carries a "lexicon cannot source this" disclaimer, but ${nowAvailable.length} content word(s) in this verse now have real lexicon entries and are unused: ${nowAvailable.slice(0, 4).join(', ')} — update the word study and drop the stale disclaimer`);
+      }
+    }
+  }
+
   // ── scripture accuracy ──────────────────────────────────────────────────
   if (p) {
     const chFp = path.join(DOCS, 'assets', 'chapters', `${p.bookId}_${p.ch}.json`);

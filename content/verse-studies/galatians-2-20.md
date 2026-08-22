@@ -25,12 +25,13 @@ Four clauses, each one qualifying the last. Paul is circling something he cannot
 @word G3860
 *Paradidomi* is to hand over, deliver up — and it is the word for betrayal, used of Judas handing Jesus over. Paul takes that verb and puts Christ Himself as the subject: He *handed Himself over*. Nobody took Him; He delivered Himself the way a man hands over a possession. That is a deliberate reclaiming of the ugliest verb in the passion narrative.
 
+@word G4957
+*Systauroo* is to be crucified together with — the compound doing the work Paul cannot say in one clause. He is not describing an experience he shares with a man he admires. He was included in what the Messiah did on behalf of a people. Union, not imitation.
+
 @h3 The two words that carry the weight
 *Loved me... gave himself for me.* Singular. Paul has spent two chapters on universals — justification, law, the gospel to the Gentiles — and lands the paragraph on the first-person singular.
 
 That shift is not sentimentality; it is the point of application. A man can hold the doctrine of the atonement entirely and never once put himself inside it. Paul does, in the last five words, and it is the only place the verse becomes usable.
-
-The verb behind *loved* is *agapao*, whose page in our lexicon is one of the stubs with no real definition, so nothing here is drawn from it.
 
 @section 2. Where It Sits
 

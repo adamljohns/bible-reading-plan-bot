@@ -29,8 +29,10 @@ That matters for the weight of the gift. God did not give one of many. He gave t
 @word G622
 *Apollymi* is to destroy utterly, to be ruined, to be lost. Worth pausing on, because the verse is usually quoted as pure comfort and this word is the reason it is comfort. There is something to be rescued *from*. Delete perishing and the giving of the Son becomes an extravagant gesture with no occasion.
 
-@h3 The word this page will not quote
-The verb behind *so loved* is *agapao*, and our lexicon's page for that root is one of the stubs with no real definition, so nothing here is drawn from it. The point worth making does not depend on the lexicon anyway: the adverb *so* in Greek is not primarily about *quantity*. It reads more naturally as *in this manner* — God loved the world *like this*, in this way, namely by giving His Son. English hears "so much." The Greek points at the method as much as the magnitude.
+@word G25
+*Agapao* is the verb of love that originates in the lover rather than being drawn out by the worth of the beloved. That definition is the verse's whole scandal, given what it says God loved.
+
+And note the adverb. The Greek behind *so loved* is not primarily about quantity. It reads more naturally as *in this manner* — God loved the world *like this*, namely by giving His Son. English hears "so much." The Greek points at the method as much as the magnitude.
 
 @section 2. Where It Sits
 
