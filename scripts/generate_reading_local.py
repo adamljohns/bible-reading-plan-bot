@@ -36,7 +36,7 @@ SEP = "⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻"
 PRAYER_CLOSES = {
     "wisdom": "In Jesus' name, I pray. Amen.",
     "first": "In the name of Jesus Christ, I pray. Amen.",
-    "second": "Through Christ our Savior, I pray. Amen.",
+    "second": "Through Christ my Savior, I pray. Amen.",
     "third": "In the name of the risen Lord Jesus, I pray. Amen.",
     "peace": "For the sake of Christ our King, I pray. Amen.",
 }
@@ -80,11 +80,14 @@ WATCHES = [
      "refl": "👨‍👧 Reflection for Your Children — F.U.L.F.I.L.L.E.D. Father — {TRAIT}",
      "traitset": "exactly one of: Faithful, Understanding, Leading, Forgiving, Instructing, Loving, Listening, Encouraging, Disciplining",
      "prayer": "🙏 Prayer", "close": "🛡️ Watch Charge:",
-     "extra": "Touch each child by name, correctly gendered: SONS Gideon ({GIDEON_AGE}) and Boaz ({BOAZ_AGE}); "
-              "DAUGHTER Shiloh ({SHILOH_AGE}). Use she/her for Shiloh and aim her guidance at godly young "
-              "womanhood and feminine flourishing (gentleness, modesty, a quiet and gentle spirit), "
+     "extra": "VOICE LOCK PJG-0821-FAT1: this reflection is for the FATHER to read ABOUT his children — "
+              "never a letter TO them. NEVER open with 'Dear Gideon' / 'listen closely to your father'. "
+              "Address Adam as 'you'. Name each child in the third person, correctly gendered: SONS Gideon "
+              "({GIDEON_AGE}) and Boaz ({BOAZ_AGE}); DAUGHTER Shiloh ({SHILOH_AGE}). Use she/her for Shiloh "
+              "and aim her guidance at godly young womanhood (gentleness, modesty, a quiet and gentle spirit), "
               "never manhood. When grouping all three, say 'sons and daughter' or 'children', never 'sons'. "
-              "Compute ages from birthdays only; do not invent ages."},
+              "Compute ages from birthdays only; do not invent ages. Prayer close MUST be "
+              "'Through Christ my Savior, I pray. Amen.' (my, not our)."},
     {"key": "third", "passage": "third",
      "header": "🕒 1500 Third Watch — The Citizen's Stand",
      "summary": "🛰️ Situation Report",
@@ -279,6 +282,11 @@ def watch_valid(text, w):
     # Sight-integral exceptions are judged in editorial QA; the generator should
     # not treat the old formula as a default under any watch.
     if re.search(r"(?im)^\s*(?:Adam,\s*)?Brother,\s+look(?:\s+(?:at|to|closely))?\b", text):
+        return False
+    # PJG-0821-FAT1: Second Watch is father-ABOUT-children, never a letter to them.
+    if w["key"] == "second" and re.search(r"Dear Gideon|listen closely to your father", text, re.I):
+        return False
+    if w["key"] == "second" and re.search(r"Through Christ our Savior", text):
         return False
     # PJG-0810-PRAYSWEEP1 hard bans — refuse before file write.
     ban_res = [

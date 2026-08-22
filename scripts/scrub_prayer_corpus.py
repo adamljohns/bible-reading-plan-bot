@@ -32,7 +32,7 @@ READINGS = REPO / "data" / "readings"
 CLOSES = {
     "wisdom": "In Jesus' name, I pray. Amen.",
     "first": "In the name of Jesus Christ, I pray. Amen.",
-    "second": "Through Christ our Savior, I pray. Amen.",
+    "second": "Through Christ my Savior, I pray. Amen.",
     "third": "In the name of the risen Lord Jesus, I pray. Amen.",
     "peace": "For the sake of Christ our King, I pray. Amen.",
 }
