@@ -104,7 +104,12 @@ function parseSource(text) {
       case 'h3': flush(); if (cur) cur.blocks.push({ type: 'h3', text: rest.trim() }); break;
       case 'word': {
         flush();
-        if (cur) cur.blocks.push({ type: 'word', code: rest.trim().split(/\s+/)[0], text: [] });
+        // "@word H8159 | dismayed" — the optional label overrides the English word
+        // shown. The KJV's Strong's tags sometimes span a whole clause rather than
+        // the single word ("thou not; for I am with thee: be not dismayed"), and
+        // printing that verbatim looks like a bug on the page.
+        const [codePart, labelPart] = rest.split('|').map((x) => x.trim());
+        if (cur) cur.blocks.push({ type: 'word', code: codePart.split(/\s+/)[0], label: labelPart || '', text: [] });
         break;
       }
       case 'quote': {
@@ -153,7 +158,7 @@ function renderWord(block, kit) {
   const def = (lx.definition || '').split(/(?<=[.?!])\s+/).slice(0, 2).join(' ');
   const notes = block.text.map((t) => `      <p>${inline(t)}</p>`).join('\n');
   return `    <li>
-      <div class="w"><span class="${cls}" lang="${lang}">${esc(lx.script)}</span> ${esc(lx.lemma)} <span class="strongs">· &ldquo;${esc(hit.word)}&rdquo; · <a href="${escAttr(lx.page)}">Strong&rsquo;s ${esc(lx.code)}</a>${lx.partOfSpeech ? ' · ' + esc(lx.partOfSpeech) : ''}</span></div>
+      <div class="w"><span class="${cls}" lang="${lang}">${esc(lx.script)}</span> ${esc(lx.lemma)} <span class="strongs">· &ldquo;${esc(block.label || hit.word)}&rdquo; · <a href="${escAttr(lx.page)}">Strong&rsquo;s ${esc(lx.code)}</a>${lx.partOfSpeech ? ' · ' + esc(lx.partOfSpeech) : ''}</span></div>
       <p class="vs-def">${esc(def)}</p>
 ${notes}
     </li>`;
@@ -257,7 +262,7 @@ ${deck ? `  <p class="vs-deck">${inline(deck)}</p>\n` : ''}
 
 ${body}
 
-${packs.length ? `  <p class="vs-ctx">In the <strong>${esc(packs.join('</strong> and <strong>'))}</strong> memorize ${packs.length > 1 ? 'packs' : 'pack'} — <a href="/memorize.html">carry it</a>.</p>\n` : ''}
+${packs.length ? `  <p class="vs-ctx">In the ${packs.map((n) => `<strong>${esc(n)}</strong>`).join(' and ')} memorize ${packs.length > 1 ? 'packs' : 'pack'} — <a href="/memorize.html">carry it</a>.</p>\n` : ''}
 ${goDeeper}
 
   <div class="vs-foot">

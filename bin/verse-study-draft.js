@@ -216,7 +216,7 @@ ${TODO('the Reformed reading. Quote ONLY what you can verify — Institutes chap
 ${proofTextHtml(k)}${TODO('tie the confession to the verse — why the divines reached for this text here, and what it settles for the reader')}
 
   <h2>5. For the Man Reading This</h2>
-${packs.length ? `  <p>This verse is in the <strong>${esc(packs.join('</strong> and <strong>'))}</strong> memorize ${packs.length > 1 ? 'packs' : 'pack'}${packs.length ? ` — <a href="/memorize.html">carry it</a>` : ''}.</p>\n` : ''}${TODO('application. Concrete, costly, unsentimental. What does believing this change on a Tuesday? No pep talk, no guilt.')}
+${packs.length ? `  <p>This verse is in the ${packs.map((n) => `<strong>${esc(n)}</strong>`).join(' and ')} memorize ${packs.length > 1 ? 'packs' : 'pack'}${packs.length ? ` — <a href="/memorize.html">carry it</a>` : ''}.</p>\n` : ''}${TODO('application. Concrete, costly, unsentimental. What does believing this change on a Tuesday? No pep talk, no guilt.')}
 
   <h2>6. Go Deeper</h2>
   <div class="vs-deeper">
