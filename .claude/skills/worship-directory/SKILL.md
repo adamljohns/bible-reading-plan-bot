@@ -69,6 +69,13 @@ does not exist. The video wave caught all five, because researching a recording 
 artist and title. Verify attributions when the batch is outside your solid knowledge — non-English
 repertoire especially — or expect step 3 to hand you a correction list.
 
+**Three defect classes the video wave has caught in memory-built batches so far** — assume yours has them too:
+1. **Wrong artist** — the song is real, the credit is not (*Digno Es el Señor* is Marcela Gandara's, not Marcos Witt's; *Levanto Mis Manos* is Samuel Hernández's, not Danilo Montero's).
+2. **Phantom songs** — the artist never recorded anything by that title (*Alaba a Dios*/Hillsong en Español, *Let Us Love*/Aaron Keyes, *Man of Sorrows*/CityAlight). Purge them; do not guess a substitute.
+3. **Duplicates of Adam's own charts** — an info page for a song his archive already has as a real chord chart. The chart always wins. `reports/linksonly-chart-dupes.json` holds the scan; verify by distinctive lyric before removing, because many title collisions are genuinely different songs (Tomlin's *At the Cross (Love Ran Red)* vs the Watts hymn).
+
+When a removal drops the count below target, backfill from `data/worship-hymn-bank.json` rather than leaving the number wrong.
+
 ### 2. Assemble
 
 ```bash
