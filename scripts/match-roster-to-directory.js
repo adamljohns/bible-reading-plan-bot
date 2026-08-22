@@ -51,9 +51,14 @@ for (const c of dir) {
   push(byStreet, st + '|' + ID.streetOf(c), c);
 }
 
+/** Expand the common short form so "Foundry UMC" matches "Foundry United Methodist Church". */
+const expandUmc = n => String(n || '')
+  .replace(/\bU\.?M\.?C\.?\b/gi, 'United Methodist Church')
+  .replace(/\bUnited Methodist Church Church\b/i, 'United Methodist Church');
+
 /** Roster rows arrive already split into fields; present them like a church record. */
 const asChurch = r => ({
-  name: r.name,
+  name: expandUmc(r.name),
   address: [r.street, `${r.city}, ${r.state} ${r.zip}`].filter(Boolean).join(', '),
   city: r.city, state: r.state, pastor: r.pastor || '',
 });
@@ -65,7 +70,7 @@ for (const r of roster.churches) {
   if (ONLY_STATE && st !== ONLY_STATE.toUpperCase()) continue;
 
   const rc = asChurch(r);
-  const rSig = ID.sig(r.name), rStreet = ID.streetOf(rc), rZip = r.zip || null;
+  const rSig = ID.sig(rc.name), rStreet = ID.streetOf(rc), rZip = r.zip || null;
   const rPastor = ID.pastorKey(rc);
 
   // Candidate pool: same state and (same city OR same ZIP).
@@ -79,7 +84,7 @@ for (const r of roster.churches) {
     const why = [];
     let score = 0;
     if (ID.sig(c.name) === rSig) { score += 5; why.push('name-signature'); }
-    else if (ID.norm(c.name).includes(ID.norm(r.name)) || ID.norm(r.name).includes(ID.norm(c.name))) { score += 3; why.push('name-substring'); }
+    else if (ID.norm(c.name).includes(ID.norm(rc.name)) || ID.norm(rc.name).includes(ID.norm(c.name))) { score += 3; why.push('name-substring'); }
     // A shared ZIP is not evidence of anything on its own -- a first pass without
     // this gate produced 323 "ambiguous" pairs whose entire case was city+zip,
     // and paired Charlottesville Community Church with Church of the Good

@@ -423,6 +423,151 @@ const ADAPTERS = {
       return out;
     },
   },
+
+  /**
+   * Baltimore-Washington Conference UMC. Covers DC, most of Maryland, and the
+   * WV eastern panhandle -- the remaining DC Methodist gap on the coverage ladder.
+   *
+   * Server-rendered locator at /church-locator/?page=N (~30 per page, 21 pages).
+   * Each card's details block is HTML-escaped inside a <p> and carries the
+   * church's real name (h4), street, city/state/ZIP, phone, and website.
+   * Prefer that block over the map query-string: Asbury Annapolis's map pin
+   * is a Seaford DE mailing drop, while the Address field is 87 West St.
+   * Clergy is only on the /arena-group/ detail page ("Clergy: Ronald Bell").
+   */
+  bwcumc: {
+    label: 'Baltimore-Washington Conference UMC',
+    denomination: 'United Methodist Church (BWC)',
+    listUrl: p => `https://www.bwcumc.org/church-locator/?page=${p}`,
+    parseList(html) {
+      const out = [];
+      for (const art of html.match(/<article>[\s\S]*?<\/article>/g) || []) {
+        const href = (art.match(/href='(\/arena-group\/[^']+)'/) || [])[1];
+        if (!href) continue;
+        const listing = decode((art.match(/<h5><a[^>]*>([\s\S]*?)<\/a>/) || [])[1] || '').replace(/\s+/g, ' ').trim();
+        const raw = (art.match(/<div class='details'><p>([\s\S]*?)<\/p>/) || [])[1] || '';
+        const ENT = { lt: '<', gt: '>', amp: '&', quot: '"', apos: "'", '#39': "'" };
+        const unesc = raw.replace(/&(lt|gt|amp|quot|apos|#39);/g, (_, k) => ENT[k]);
+        let name = decode((unesc.match(/<h4>([\s\S]*?)<\/h4>/) || [])[1] || '').replace(/\s+/g, ' ').trim();
+        // A few BWC cards put a person's last name in <h4> ("Gorman", "littlejohn").
+        // Fall back to the listing title when the h4 is not a church name.
+        const looksLikeChurch = /\b(umc|church|mission|chapel|fellowship|community|initiative|korean)\b/i.test(name);
+        if (!looksLikeChurch && listing) {
+          const head = listing.split(',')[0].trim();
+          name = /\b(umc|church|chapel|mission|fellowship)\b/i.test(head) ? head : `${head} UMC`;
+        }
+        const details = decode(unesc);
+        const addrBlock = (details.match(/Address:\s*([\s\S]*?)\s*Phone:/i) || [])[1] || '';
+        const lines = addrBlock.split('\n').map(s => s.trim()).filter(Boolean);
+        const cityLine = lines[lines.length - 1] || '';
+        const cm = cityLine.match(/^(.*?),\s*([A-Za-z]{2})\s+(\d{5})/i);
+        let street = '', city = '', state = '', zip = '';
+        if (cm) {
+          city = cm[1].trim();
+          state = cm[2].toUpperCase();
+          zip = cm[3];
+          street = lines.slice(0, -1).join(', ');
+          if (!street) {
+            const one = cityLine.match(/^(.*)\s+(.+),\s*([A-Za-z]{2})\s+(\d{5})/i);
+            if (one) { street = one[1].trim(); city = one[2].trim(); }
+          }
+        }
+        const phone = (details.match(/Phone:\s*([\d\-().+ ]{7,20})/) || [])[1] || '';
+        // After tag-strip, "</p><p>" leaves no space, so the URL can glue to
+        // "Our Services". Prefer the still-tagged href/text, then fall back.
+        const rawSite = (unesc.match(/Website:\s*<\/strong>\s*(?:<a[^>]*href="([^"]+)"[^>]*>)?([^<\s]*)/i) || [])[1]
+          || (unesc.match(/Website:\s*<\/strong>\s*([^<\s]*)/i) || [])[1]
+          || '';
+        let website = String(rawSite || '').replace(/&#x0*d;|\r/gi, '').replace(/[.,;]+$/g, '').trim();
+        if (/facebook/i.test(website) || /forministry\/com/i.test(website) || /@/.test(website)) website = '';
+        if (website && /\.[a-z]{2,}(\/|$)/i.test(website)) {
+          website = /^https?:\/\//i.test(website) ? website : `https://${website.replace(/^\/+/, '')}`;
+          website = website.replace(/\/+$/, '');
+        } else {
+          website = '';
+        }
+        if (!name) continue;
+        // Bermuda and other non-US BWC affiliates have no US state/ZIP.
+        if (!state || !/^(MD|DC|WV|VA|DE)$/.test(state)) continue;
+        out.push({
+          detail_url: `https://www.bwcumc.org${href}`,
+          name, street, city, state, zip,
+          phone, website,
+        });
+      }
+      return out;
+    },
+    parseDetail(html) {
+      const m = html.match(/<strong>Clergy:<\/strong>\s*([^<]+)/i);
+      const pastor = decode(m ? m[1] : '').replace(/\s+/g, ' ').trim();
+      const where = decode((html.match(/<strong>Where:<\/strong>\s*<a[^>]*>([\s\S]*?)<\/a>/i) || [])[1] || '');
+      const wm = where.match(/^(.*?)\s+([^,]+),\s*([A-Za-z]{2})\s+(\d{5})/);
+      const extra = {};
+      if (wm) {
+        extra._where_street = wm[1].trim();
+        extra._where_city = wm[2].trim();
+        extra._where_state = wm[3].toUpperCase();
+        extra._where_zip = wm[4];
+      }
+      // BWC sometimes lists a whole clergy team in one field. The directory's
+      // pastor column is the senior/lead name; take the first listed person
+      // rather than stuffing five names into one field. The rest stay on-page.
+      if (pastor && pastor.includes(',')) pastor = pastor.split(',')[0].trim();
+      extra.pastor = pastor && !/^(n\/?a|none|vacant|tbd|-+)$/i.test(pastor) ? pastor : '';
+      return extra;
+    },
+  },
+
+  /**
+   * Christian Methodist Episcopal. Official finder is an Agile Store Locator
+   * embed; load_all=1 returns the full connectional roster as JSON. description
+   * is the appointed pastor. No websites. Phase-1 filter: DC / MD / VA only.
+   */
+  cme: {
+    label: 'Christian Methodist Episcopal Church',
+    denomination: 'Christian Methodist Episcopal (CME)',
+    async collect(ctx) {
+      const states = new Set((ctx.opt('--states', 'DC,MD,VA') || '').split(',').map(s => s.trim().toUpperCase()).filter(Boolean));
+      const file = path.join(CACHE, 'cme-asl-all.txt');
+      let body;
+      if (!REFRESH && fs.existsSync(file)) {
+        body = fs.readFileSync(file, 'utf8');
+      } else {
+        const res = await fetch('https://thecmechurch.org/wp-admin/admin-ajax.php', {
+          method: 'POST',
+          headers: { 'User-Agent': UA, 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: 'action=asl_load_stores&load_all=1',
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status} on CME asl_load_stores`);
+        body = await res.text();
+        fs.writeFileSync(file, body);
+        await ctx.sleep(ctx.DELAY || DELAY);
+      }
+      const rows = JSON.parse(body);
+      const out = [];
+      for (const r of rows) {
+        const state = String(r.state || '').toUpperCase();
+        if (states.size && !states.has(state)) continue;
+        const zipM = String(r.postal_code || '').match(/\b(\d{5})\b/);
+        const zip = zipM ? zipM[1] : '';
+        const pastor = String(r.description || '').replace(/\s+/g, ' ').trim();
+        out.push({
+          detail_url: `https://thecmechurch.org/find-a-cme-church/#${r.slug || r.id}`,
+          name: String(r.title || '').trim(),
+          street: String(r.street || '').trim(),
+          city: String(r.city || '').trim(),
+          state,
+          zip: ctx.zipFitsState(zip, state) ? zip : '',
+          phone: String(r.phone || '').trim(),
+          website: '',
+          pastor: pastor && !/^(n\/?a|none|vacant|tbd|-+)$/i.test(pastor) ? pastor : '',
+          latitude: r.lat || '', longitude: r.lng || '',
+        });
+      }
+      console.log(`  ${rows.length} connectional; ${out.length} in ${[...states].join('/') || 'all states'}`);
+      return out;
+    },
+  },
 };
 
 /* --------------------------------------------------------------------- main */
