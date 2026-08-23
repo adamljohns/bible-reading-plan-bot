@@ -480,6 +480,14 @@
         .votd-ref { color: var(--gold); font-weight: 600; font-size: 0.9rem; }
         .votd-ref a { color: var(--gold); text-decoration: none; }
         .votd-ref a:hover { text-decoration: underline; }
+        .votd-widget { cursor: pointer; }
+        .votd-card-wrap { display: none; margin: 14px auto 0; max-width: 420px; }
+        .votd-widget.is-open .votd-card-wrap { display: block; }
+        .votd-card-wrap img { width: 100%; height: auto; border: 1px solid rgba(212,175,55,0.35); border-radius: 6px; }
+        .votd-card-actions { margin-top: 8px; }
+        .votd-card-actions a { color: var(--gold); font-size: 0.82rem; text-decoration: none; }
+        .votd-card-actions a:hover { text-decoration: underline; }
+        .votd-hint { color: var(--gray); font-size: 0.75rem; margin-top: 8px; }
 
         /* BTE v5.2 Phase 4: Font Size Controls */
         .font-controls { display: flex; align-items: center; gap: 2px; margin-left: 6px; }
@@ -5071,7 +5079,7 @@
             {ref:'1 Corinthians 16:13',text:'Watch, stand fast in the faith, be brave, be strong.'},
             {ref:'Proverbs 3:5-6',text:'Trust in the LORD with all your heart, and lean not on your own understanding; in all your ways acknowledge Him, and He shall direct your paths.'},
             {ref:'Romans 12:2',text:'And do not be conformed to this world, but be transformed by the renewing of your mind.'},
-            {ref:'Colossians 3:23',text:'And whatever you do, do it heartily, as to the Lord and not to men.'},
+            {ref:'Colossians 3:23',text:'And whatever you do, do it heartily, as to the Lord and not to men.',card:'assets/verse-cards/2026-08-23-colossians-3-23.png'},
             {ref:'Luke 14:33',text:'So likewise, whoever of you does not forsake all that he has cannot be My disciple.'},
             {ref:'Ezekiel 22:30',text:'So I sought for a man among them who would make a wall, and stand in the gap before Me on behalf of the land.'},
             {ref:'James 1:2-4',text:'Count it all joy when you fall into various trials, knowing that the testing of your faith produces patience.'},
@@ -5092,12 +5100,26 @@
             var start = new Date(now.getFullYear(), 0, 0);
             var dayOfYear = Math.floor((now - start) / 86400000);
             var verse = VOTD_VERSES[dayOfYear % VOTD_VERSES.length];
-            var html = '<div class="votd-widget">';
+            var html = '<div class="votd-widget" id="votdCard">';
             html += '<h4><img src="assets/icons/shield-star.png" class="site-icon" alt="" width="20" height="20"> Verse of the Day</h4>';
             html += '<div class="votd-text">"' + verse.text + '"</div>';
             html += '<div class="votd-ref"><a href="bible.html?ref=' + encodeURIComponent(verse.ref) + '">' + verse.ref + '</a></div>';
+            if (verse.card) {
+                html += '<div class="votd-hint">Tap to show the verse card</div>';
+                html += '<div class="votd-card-wrap">';
+                html += '<img src="' + verse.card + '" alt="' + verse.ref + ' verse card" width="1080" height="1350">';
+                html += '<div class="votd-card-actions"><a href="' + verse.card + '" download>Save / Share PNG</a></div>';
+                html += '</div>';
+            }
             html += '</div>';
             panel.innerHTML = html;
+            if (verse.card) {
+                var box = document.getElementById('votdCard');
+                box.addEventListener('click', function (ev) {
+                    if (ev.target.closest('a')) return;
+                    box.classList.toggle('is-open');
+                });
+            }
         }
 
         // ── BTE v5.2 Phase 4: Font Size Controls ───────────────────────────
