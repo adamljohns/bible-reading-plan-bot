@@ -125,20 +125,25 @@ def apply_bow_homage(text: str) -> str:
 
 
 def force_declarative_amen(text: str) -> str:
-    """Final Amen must be statement with first-syllable AH-men (PJG-0822-AMEN2).
+    """Final Amen is the ordinary word Amen. (PJG-0823-AMEN3).
 
-    Principal 2026-08-22 ~16:02 SUPERSEDES uh-MEN /əˈmɛn/. Target is AH-men —
-    first syllable AH as in father, settled period, not AY-men, not a question.
-    Kokoro path: misaki IPA /ˈɑmɛn/. F5 path: attached AH-men via f5_prep.
+    SOUND target stays AH-men (item 19). Listen-script SPELLING is the human
+    word Amen. attached to I pray. — same as the published page.
+    Do not write AH-men / AH men / uh-MEN / a-MEN / IPA / dash / letter spelling.
     Never isolate Amen as its own chunk.
     """
+    # Collapse phonetic cues back to the ordinary word.
+    text = re.sub(
+        r"\b(?:AH-men|AH men|Ah men|a-MEN|uh-MEN|uh MENN|uh MEN|a MEN)\b",
+        "Amen",
+        text,
+        flags=re.I,
+    )
+    # Strip IPA markup on Amen — F5 reads the cue aloud.
+    text = re.sub(r"\[Amen\]\(/[^/)]+/\)", "Amen", text, flags=re.I)
     # Strip ?/! after Amen anywhere; ensure terminal period.
     text = re.sub(r"\bAmen\b\s*[?!]+", "Amen.", text, flags=re.I)
-    text = re.sub(r"\bAmen\b(?!\s*\.|\s*\[/)", "Amen.", text, flags=re.I)
-    # First-syllable AH as in father — NOT schwa-first /əˈmɛn/, NOT AY-men /ˈeɪmɛn/
-    text = re.sub(r"\bAmen\.(?=\s|$)", "[Amen](/ˈɑmɛn/).", text, flags=re.I)
-    text = re.sub(r"\[Amen\]\(/əˈmɛn/\)", "[Amen](/ˈɑmɛn/)", text)
-    text = re.sub(r"\[Amen\]\(/ˈeɪmɛn/\)", "[Amen](/ˈɑmɛn/)", text)
+    text = re.sub(r"\bAmen\b(?!\s*\.)", "Amen.", text, flags=re.I)
     return text
 
 
@@ -427,9 +432,9 @@ def apply_lexicon(text):
 def f5_prep(text):
     """Plain-text prep for F5 clone. Markup stripped; Amen kept attached.
 
-    PJG-0822-AMEN2: Principal SUPERSEDES uh-MEN. Listen-script target is
-    attached "I pray. AH-men." First syllable AH as in father. Isolated
-    Amen still banned (r1 Ian scar). Published page/JSON stays human "Amen."
+    PJG-0823-AMEN3: listen-script spelling is ordinary Amen. attached to
+    I pray. SOUND target stays AH-men. Isolated Amen still banned.
+    Published page/JSON stays human Amen.
     """
     text = text.replace("LORD", "Lord")
     text = re.sub(r"[—–]", ", ", text)
@@ -437,19 +442,25 @@ def f5_prep(text):
     text = force_declarative_amen(text)
     # F5 cannot use misaki IPA — strip markup first
     text = re.sub(r"\[([^\]]+)\]\(/[^/)]+/\)", r"\1", text)
-    # Keep Amen ATTACHED to "I pray." — never isolate.
-    # New lock: AH-men. Banned: uh-MEN / AY-men / emeen / a mien.
+    # Collapse leftover phonetic Amen cues.
     text = re.sub(
-        r"\b(?:AH-men|AH men|Ah men|a-MEN|uh-MEN|uh MENN|uh MEN|a MEN|Amen)\b\s*[.?!]*\s*$",
-        "AH-men.",
+        r"\b(?:AH-men|AH men|Ah men|a-MEN|uh-MEN|uh MENN|uh MEN|a MEN)\b",
+        "Amen",
+        text,
+        flags=re.I,
+    )
+    # Keep Amen ATTACHED to "I pray." — never isolate. Ordinary word only.
+    text = re.sub(
+        r"\bAmen\b\s*[.?!]*\s*$",
+        "Amen.",
         text,
         flags=re.I | re.M,
     )
-    if re.search(r"I pray\.?\s+AH-men\.", text, flags=re.I):
+    if re.search(r"I pray\.?\s+Amen\.", text, flags=re.I):
         return text.strip()
     text = re.sub(
         r"I pray\.?\s*(?:Amen|AH-men|uh-MEN)?\.?\s*$",
-        "I pray. AH-men.",
+        "I pray. Amen.",
         text,
         flags=re.I | re.M,
     )
@@ -457,10 +468,11 @@ def f5_prep(text):
 
 
 def f5_chunks(text, mx=None):
-    """Sentence pack for F5. NEVER isolate terminal Amen as its own chunk.
+    """One sentence per F5 chunk. NEVER isolate terminal Amen as its own chunk.
 
-    Keep "I pray. AH-men." as ONE chunk (period pause preserved). Solo Amen
-    sentences glue to previous with ". AH-men." not a new chunk.
+    PJG-0823-AMEN3 / item 9: pack-joins were eating last words. Keep each
+    complete sentence as its own chunk. Keep "I pray. Amen." as ONE chunk.
+    Solo Amen sentences glue to previous with ". Amen." not a new chunk.
     """
     mx = mx or F5_CHUNK_MAX
     sents = re.split(r"(?<=[.!?])\s+", text) if text else []
@@ -473,9 +485,8 @@ def f5_chunks(text, mx=None):
         if not s:
             continue
         if amen_only.fullmatch(s.strip()):
-            amen = "AH-men."
+            amen = "Amen."
             if cur:
-                # preserve sentence boundary pause
                 base = cur.rstrip()
                 if not base.endswith((".", "!", "?")):
                     base += "."
@@ -488,14 +499,30 @@ def f5_chunks(text, mx=None):
             else:
                 cur = amen
             continue
-        cand = (cur + " " + s).strip() if cur else s
-        if len(cand) <= mx or not cur:
-            cur = cand
-        else:
+        # Close line starts with Through/In/For + I pray. Amen. — do not let
+        # that sentence open a new F5 chunk (start-clip eats the title).
+        close_line = re.search(r"I pray\.?\s+Amen\.?\s*$", s.strip(), flags=re.I)
+        if close_line and (cur or out):
+            if cur:
+                out.append(cur)
+                cur = ""
+            base = out[-1].rstrip()
+            if not base.endswith((".", "!", "?")):
+                base += "."
+            out[-1] = f"{base} {s.strip()}".strip()
+            continue
+        # One sentence per chunk so joins cannot clip a line tail.
+        if cur:
             out.append(cur)
-            cur = s
+        cur = s.strip()
     if cur:
         out.append(cur)
+    # PJG-0823-AMEN3: last-chunk start-clip was eating "Through Christ our Savior".
+    # Glue the close sentence onto the previous prayer sentence so the title
+    # is not the first words of a new F5 take.
+    if len(out) >= 2 and re.search(r"I pray\.\s+Amen\.$", out[-1], flags=re.I):
+        out[-2] = f"{out[-2].rstrip()} {out[-1]}".strip()
+        out.pop()
     final = []
     for c in out:
         while len(c) > mx + 60:
@@ -692,9 +719,14 @@ def render_f5_text(text, out_wav):
                 raise RuntimeError(
                     f"F5 failed chunk {i}: {(r.stderr or r.stdout or '')[-400:]}")
             rw = os.path.join(tmp, f"c{i:02d}_24.wav")
-            subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", raw,
-                            "-ar", str(SAMPLE_RATE), "-ac", "1", rw], check=True)
-            parts.append(rw)
+            # Pad each prayer sentence so concat/fade cannot eat the last word.
+            padded = os.path.join(tmp, f"c{i:02d}_pad.wav")
+            subprocess.run([
+                "ffmpeg", "-y", "-loglevel", "error", "-i", raw,
+                "-af", "apad=pad_dur=0.45",
+                "-ar", str(SAMPLE_RATE), "-ac", "1", padded
+            ], check=True)
+            parts.append(padded)
         if len(parts) == 1:
             subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", parts[0],
                             "-ar", str(SAMPLE_RATE), "-ac", "1", out_wav], check=True)
