@@ -155,64 +155,68 @@ if [ "$MODE" = "retry" ]; then
   fi
 fi
 
-# Publish a QA sample for the fleet: the newest local-extract finds land at
-# https://usmcmin.org/data/qa-sample.json so Chaps (web_fetch-only tooling) can
-# audit them on his recurring QA cron — verify pastor_name appears at
-# pastor_source_url AND on the directory page — and report discrepancies to Adam.
-node -e '
-const fs=require("fs");
-const found=require("'"$WORK"'/enriched.json").filter(x=>x.pastor_name).map(x=>({
-  id:x.id, pastor_name:x.pastor_name, pastor_role:x.pastor_role||null,
-  pastor_source_url:x.pastor_source_url,
-  page_url:"https://usmcmin.org/churches/"+x.id+".html",
-  extracted_at:new Date().toISOString().slice(0,10), extractor:x.extractor||"local"}));
-const P="docs/data/qa-sample.json";
-let prev=[]; try{prev=JSON.parse(fs.readFileSync(P,"utf8")).sample||[]}catch(_){}
-const merged=[...found,...prev.filter(p=>!found.some(f=>f.id===p.id))].slice(0,40);
-fs.writeFileSync(P,JSON.stringify({updated:new Date().toISOString().slice(0,10),note:"Most recent local-LLM pastor extractions — QA audit sample for fleet verification (Chaps recurring cron): verify pastor_name appears at pastor_source_url AND on page_url.",sample:merged},null,1));
-' >>"$LOG" 2>&1 || say "qa-sample update failed (non-fatal)"
-
-# Append a row to the grind time-series (docs/data/grind-stats.json) — the fuel
-# for the live before/after dashboard at usmcmin.org/grind-report.html. Records the
-# TOTAL remaining enrichment work (fresh+retry+social) + US coverage, not just the
-# current tier (so the dashboard never falsely shows "0 remaining").
-node scripts/append-grind-stats.js --mode "$MODE" --attempted "$N_BATCH" --found "$APPLIED" --applied "$APPLIED" \
-  >>"$LOG" 2>&1 || say "grind-stats update failed (non-fatal)"
-node generate-church-pages.js >>"$LOG" 2>&1 \
-  || { git reset -q --hard; die "regen failed — working tree reset"; }
-if ! node scripts/check-consistency.js >>"$LOG" 2>&1; then
-  # Self-heal (2026-07-11): sibling sessions sometimes push church ADDITIONS without
-  # the non-regen derived artifacts (sitemap-churches.xml; the total_churches field) —
-  # that PRE-EXISTING drift then failed this check twice and killed the whole 4h
-  # session (15:07 today died on "sitemap missing 104" from a wave pushed at 14:11,
-  # discarding two rounds of good enrichment). Both drifts are purely mechanical, so
-  # repair them once and re-check; anything else still dies loudly like before.
-  say "consistency FAILED — attempting mechanical self-heal (total_churches + sitemap + index)"
-  node -e '
-    const { makeWriter } = require("./scripts/lib/format-preserving-write.js");
-    const { data, write } = makeWriter("docs/data/churches.json");
-    if (data.total_churches !== data.churches.length) {
-      data.total_churches = data.churches.length; write(data);
-      console.log("self-heal: total_churches ->", data.churches.length);
-    }' >>"$LOG" 2>&1
-  node scripts/build-sitemap-churches.js >>"$LOG" 2>&1
-  node scripts/build-church-index.js >>"$LOG" 2>&1
-  node scripts/check-consistency.js >>"$LOG" 2>&1 \
-    || { git reset -q --hard; die "consistency check FAILED even after self-heal — commit aborted, tree reset"; }
-  say "self-heal OK — consistency GREEN"
-fi
-
-if [ -n "$(git status --porcelain)" ]; then
-  git add docs/data/churches.json docs/churches/ docs/data/churches-index.json docs/data/churches/ docs/data/qa-sample.json docs/data/grind-stats.json docs/sitemap-churches.xml
-  git commit -qm "Local pastor refine: +$APPLIED pastors, +$SOC_APPLIED socials applied of $N_BATCH attempted ($MODE pool, local-extract)" \
-    || die "commit failed"
-  if ! git push -q origin HEAD:main; then
-    say "push rejected — rebasing onto fresh origin/main and retrying"
-    git fetch -q origin main && git rebase -q FETCH_HEAD && git push -q origin HEAD:main \
-      || die "push failed after rebase retry — commit stranded in autopilot worktree"
-  fi
-  say "pushed: +$APPLIED pastors, +$SOC_APPLIED socials applied ($N_BATCH attempted, $FOUND extracted)"
+if [ "$APPLIED" -eq 0 ] && [ "$SOC_APPLIED" -eq 0 ]; then
+  say "zero applied — skip qa-sample/grind-stats/regen/push (no deploy trigger)"
 else
-  say "no changes to commit (0 applied)"
+  # Publish a QA sample for the fleet: the newest local-extract finds land at
+  # https://usmcmin.org/data/qa-sample.json so Chaps (web_fetch-only tooling) can
+  # audit them on his recurring QA cron — verify pastor_name appears at
+  # pastor_source_url AND on the directory page — and report discrepancies to Adam.
+  node -e '
+  const fs=require("fs");
+  const found=require("'"$WORK"'/enriched.json").filter(x=>x.pastor_name).map(x=>({
+    id:x.id, pastor_name:x.pastor_name, pastor_role:x.pastor_role||null,
+    pastor_source_url:x.pastor_source_url,
+    page_url:"https://usmcmin.org/churches/"+x.id+".html",
+    extracted_at:new Date().toISOString().slice(0,10), extractor:x.extractor||"local"}));
+  const P="docs/data/qa-sample.json";
+  let prev=[]; try{prev=JSON.parse(fs.readFileSync(P,"utf8")).sample||[]}catch(_){}
+  const merged=[...found,...prev.filter(p=>!found.some(f=>f.id===p.id))].slice(0,40);
+  fs.writeFileSync(P,JSON.stringify({updated:new Date().toISOString().slice(0,10),note:"Most recent local-LLM pastor extractions — QA audit sample for fleet verification (Chaps recurring cron): verify pastor_name appears at pastor_source_url AND on page_url.",sample:merged},null,1));
+  ' >>"$LOG" 2>&1 || say "qa-sample update failed (non-fatal)"
+
+  # Append a row to the grind time-series (docs/data/grind-stats.json) — the fuel
+  # for the live before/after dashboard at usmcmin.org/grind-report.html. Records the
+  # TOTAL remaining enrichment work (fresh+retry+social) + US coverage, not just the
+  # current tier (so the dashboard never falsely shows "0 remaining").
+  node scripts/append-grind-stats.js --mode "$MODE" --attempted "$N_BATCH" --found "$APPLIED" --applied "$APPLIED" \
+    >>"$LOG" 2>&1 || say "grind-stats update failed (non-fatal)"
+  node generate-church-pages.js >>"$LOG" 2>&1 \
+    || { git reset -q --hard; die "regen failed — working tree reset"; }
+  if ! node scripts/check-consistency.js >>"$LOG" 2>&1; then
+    # Self-heal (2026-07-11): sibling sessions sometimes push church ADDITIONS without
+    # the non-regen derived artifacts (sitemap-churches.xml; the total_churches field) —
+    # that PRE-EXISTING drift then failed this check twice and killed the whole 4h
+    # session (15:07 today died on "sitemap missing 104" from a wave pushed at 14:11,
+    # discarding two rounds of good enrichment). Both drifts are purely mechanical, so
+    # repair them once and re-check; anything else still dies loudly like before.
+    say "consistency FAILED — attempting mechanical self-heal (total_churches + sitemap + index)"
+    node -e '
+      const { makeWriter } = require("./scripts/lib/format-preserving-write.js");
+      const { data, write } = makeWriter("docs/data/churches.json");
+      if (data.total_churches !== data.churches.length) {
+        data.total_churches = data.churches.length; write(data);
+        console.log("self-heal: total_churches ->", data.churches.length);
+      }' >>"$LOG" 2>&1
+    node scripts/build-sitemap-churches.js >>"$LOG" 2>&1
+    node scripts/build-church-index.js >>"$LOG" 2>&1
+    node scripts/check-consistency.js >>"$LOG" 2>&1 \
+      || { git reset -q --hard; die "consistency check FAILED even after self-heal — commit aborted, tree reset"; }
+    say "self-heal OK — consistency GREEN"
+  fi
+
+  if [ -n "$(git status --porcelain)" ]; then
+    git add docs/data/churches.json docs/churches/ docs/data/churches-index.json docs/data/churches/ docs/data/qa-sample.json docs/data/grind-stats.json docs/sitemap-churches.xml
+    git commit -qm "Local pastor refine: +$APPLIED pastors, +$SOC_APPLIED socials applied of $N_BATCH attempted ($MODE pool, local-extract)" \
+      || die "commit failed"
+    if ! git push -q origin HEAD:main; then
+      say "push rejected — rebasing onto fresh origin/main and retrying"
+      git fetch -q origin main && git rebase -q FETCH_HEAD && git push -q origin HEAD:main \
+        || die "push failed after rebase retry — commit stranded in autopilot worktree"
+    fi
+    say "pushed: +$APPLIED pastors, +$SOC_APPLIED socials applied ($N_BATCH attempted, $FOUND extracted)"
+  else
+    say "no changes to commit"
+  fi
 fi
 say "── round done ──"

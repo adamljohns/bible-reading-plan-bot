@@ -42,7 +42,7 @@ jobs:
           PY
       - name: Install rclone
         run: sudo apt-get update -q && sudo apt-get install -y -q rclone
-      - name: Sync docs/ to R2
+      - name: Sync docs/ to R2 (delete guard)
         env:
           RCLONE_CONFIG_R2_TYPE: s3
           RCLONE_CONFIG_R2_PROVIDER: Cloudflare
@@ -50,13 +50,19 @@ jobs:
           RCLONE_CONFIG_R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
           RCLONE_CONFIG_R2_ENDPOINT: https://a57e8cd919350d6bb9ced6f47ef627d3.r2.cloudflarestorage.com
           RCLONE_CONFIG_R2_NO_CHECK_BUCKET: "true"
+          RCLONE_MAX_DELETES: "50"
         run: |
-          rclone sync docs r2:usmcmin-site \
+          chmod +x bin/rclone-sync-guarded.sh bin/post-deploy-smoke.sh
+          bin/rclone-sync-guarded.sh docs r2:usmcmin-site -- 50 \
             --exclude 'assets/media/**/*.mp4' \
             --exclude 'assets/media/**/*.m4a' \
             --exclude 'assets/video/**/*.mp4' \
             --exclude 'assets/video/**/*.m4a' \
             --checksum --fast-list \
             --transfers 64 --checkers 64 \
-            --s3-upload-cutoff 200M --s3-chunk-size 32M \
-            --stats-one-line --stats 30s
+            --s3-upload-cutoff 200M --s3-chunk-size 32M
+      - name: Post-deploy smoke gate
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: "454000856"
+        run: bin/post-deploy-smoke.sh org
