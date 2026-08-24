@@ -46,7 +46,8 @@ if [[ "$DRY_RC" -ne 0 ]]; then
   exit "$DRY_RC"
 fi
 
-DELETE_COUNT="$(grep -Ec '(^|: )Deleted' "$DRY_LOG" || true)"
+DELETE_COUNT="$(grep -c 'Deleted' "$DRY_LOG" 2>/dev/null || true)"
+DELETE_COUNT="${DELETE_COUNT:-0}"
 echo "dry-run delete count: $DELETE_COUNT"
 
 if [[ "$DELETE_COUNT" -gt "$MAX_DELETES" ]]; then
