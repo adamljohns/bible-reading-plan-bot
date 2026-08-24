@@ -6,6 +6,13 @@ name: Deploy site to R2
 # NOTE: this is `rclone sync`. MP4/M4A under assets/media and assets/video are
 # uploaded out-of-band (rclone copy). Exclude them or a grind deploy deletes
 # files that are not in the git checkout (2026-08-22 plan.html v32 wipe).
+#
+# The exclude pattern must be `assets/media/**.mp4`, NOT `assets/media/**/*.mp4`.
+# In rclone, the `/` in `**/*` requires at least one intervening directory, so
+# `**/*.mp4` silently fails to match files sitting directly in assets/media --
+# which is where the plan overview videos live. That is why the v32 MP4 was
+# deleted on 08-22, again on 08-23 21:33, and again on 08-24 02:00 despite the
+# exclude appearing to be in place. Verified with rclone on 2026-08-23.
 on:
   push:
     branches: [main]
@@ -54,10 +61,10 @@ jobs:
         run: |
           chmod +x bin/rclone-sync-guarded.sh bin/post-deploy-smoke.sh
           bin/rclone-sync-guarded.sh docs r2:usmcmin-site -- 50 \
-            --exclude 'assets/media/**/*.mp4' \
-            --exclude 'assets/media/**/*.m4a' \
-            --exclude 'assets/video/**/*.mp4' \
-            --exclude 'assets/video/**/*.m4a' \
+            --exclude 'assets/media/**.mp4' \
+            --exclude 'assets/media/**.m4a' \
+            --exclude 'assets/video/**.mp4' \
+            --exclude 'assets/video/**.m4a' \
             --checksum --fast-list \
             --transfers 64 --checkers 64 \
             --s3-upload-cutoff 200M --s3-chunk-size 32M
