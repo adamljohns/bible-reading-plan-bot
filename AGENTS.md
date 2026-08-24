@@ -7,7 +7,10 @@ Key rules:
 - Treat the current dirty working tree as pre-existing fleet/autopilot work.
 - Do not run `git reset --hard`, `git checkout -- .`, or broad cleanup commands.
 - Do not use `git add -A` or `git add .`; stage explicit files only.
-- The main public site deploys from `docs/` through GitHub Pages.
+- The main public site deploys from `docs/` to **Cloudflare R2** on push to `main`.
+  GitHub Pages has been dormant since 2026-07-02. Read `DEPLOY-DOCTRINE.md`
+  before touching anything that deploys — it is canonical and outranks any
+  conflicting note or lane rule.
 - For church directory work, preserve all schema invariants in `CLAUDE.md`.
 - For generated church pages, edit source data and run the documented generators rather than hand-editing generated HTML.
 - Production-affecting changes should be reviewed before push.
