@@ -172,7 +172,7 @@ def render_watch(date, key, w):
 
     if "integrated_reflection" in w:
         ir = w["integrated_reflection"]
-        pieces.append(f'<div class="reflection"><div class="section-label">🍃 Reflection for a Man at Home and in Community</div>')
+        pieces.append(f'<div class="reflection"><div class="section-label">🍃 Reflection for a Man of God</div>')
         pieces.append(f'<p>{escape(ir["intro"])}</p>')
         for k, label in (("happy_husband", "As a HA²PPY husband"),
                           ("fulfilled_father", "As a FULFILLED father"),

@@ -519,7 +519,7 @@ def render_watch(date, watch_key, intro, body_lines):
             label = f"This Day in American History — {dlabel}" if dlabel else "This Day in American History"
             pieces.append(render_section("🦅", label, md_to_html_lines(content), "history"))
         elif key == "evening_ref":
-            pieces.append(render_section("🌾", "Reflection for a Man at Home and in Community", md_to_html_lines(content), "reflection"))
+            pieces.append(render_section("🌾", "Reflection for a Man of God", md_to_html_lines(content), "reflection"))
         elif key == "application":
             # Render as bullet list if content has bullets, else as prose.
             # A bullet may wrap across multiple lines — only the FIRST line of each

@@ -98,10 +98,10 @@ WATCHES = [
     {"key": "peace", "passage": "peace",
      "header": "🌙 2100 Evening Peace",
      "summary": None,
-     "refl": "🌾 Reflection for a Man at Home and in Community",
+     "refl": "🌾 Reflection for a Man of God",
      "traitset": None,
      "prayer": "🙏 Prayer", "close": "🛡️ Watch Charge:",
-     "extra": "No summary block and no Personal Application bullets. After the scripture and a ⸻ rule, write the 🌾 reflection weaving the three roles in three short paragraphs (one each beginning 'As a HAPPY husband,', 'As a FULFILLED father,', 'As a RESOLUTE citizen,'), then the prayer, then the Watch Charge."},
+     "extra": "PJG-0824-PEACE1: header exactly '🌾 Reflection for a Man of God'. Reflection is pastor-to-the-man: you/your only — ban I/me/my/mine as the reflection speaker. Prayer stays first person (I/me/my) to God; one complete sentence per line; last line exactly 'For the sake of Christ our King, I pray. Amen.' No summary block and no Personal Application bullets. After the scripture and a ⸻ rule, write the 🌾 reflection weaving the three roles in three short paragraphs (one each beginning 'As a HAPPY husband,', 'As a FULFILLED father,', 'As a RESOLUTE citizen,'), then the prayer, then the Watch Charge. Diction = what Adam / a pastor would say aloud. Ban comic-book 'the Avenger' and do not repeat 'the avenger' in the reflection (say enemy/foe). Ban 'O the LORD' — write 'O LORD, our Lord'."},
 ]
 
 VOICE = (
@@ -163,7 +163,11 @@ VOICE = (
     "naturally raises them; never force them into a reading that does not call for them.\n"
     "MEN-ONLY APPS (PJG-0816-MEN1 / rewrite-rules item 15 — HARD from 2026-08-17): Personal Application "
     "is for men. Unisex virtue belongs in another devotion, not this Watch. If a bullet would preach "
-    "unchanged to a women's study, rewrite it on the REAL MAN spine before ship."
+    "unchanged to a women's study, rewrite it on the REAL MAN spine before ship.\n"
+    "REFLECTION PERSON (PJG-0824-PEACE1 — HARD from 2026-08-25): Reflections are FOR the man and "
+    "read TO him. His voice is the pastor. Write you/your. Ban I/me/my/mine as the reflection speaker "
+    "on ALL watches. Prayer stays I/me/my to God. Peace heading is Reflection for a Man of God. "
+    "Ban comic-book the Avenger in reflection (say enemy/foe). Ban 'O the LORD' — write 'O LORD, our Lord'."
 )
 
 
@@ -198,7 +202,7 @@ def build_watch_messages(w, ref, month, daynum, on_date: date):
         parts.append(f"8. The reflection header exactly in this form: {trait_line}  (choose {w['traitset']} as the trait, fitting THIS passage).")
     else:
         parts.append(f"8. The reflection header exactly: {trait_line}")
-    parts.append("9. 2-4 paragraphs of reflection in the voice below.")
+    parts.append("9. 2-4 paragraphs of reflection in the voice below. PJG-0824-PEACE1: address the man as you/your. Do NOT write I/me/my/mine as the reflection speaker. Prayer (step 11) stays I/me/my to God.")
     if w["key"] != "peace":
         parts.append("10. A line exactly: ⛏️ Personal Application — {same trait}  then EXACTLY THREE '• ' bulleted concrete actions (never 4+). "
                      "Each bullet must be rooted in a SPECIFIC image, name, command, or scene from TODAY's passage "
@@ -216,8 +220,9 @@ def build_watch_messages(w, ref, month, daynum, on_date: date):
     parts.append(
         f"11. The prayer: a line exactly '{w['prayer']}' then a PERSONAL first-person prayer (I/me/my only — "
         f"never we/us/our as the praying subject; never 'Brother Adam' or any self-vocative; never 'this father'). "
-        f"Open to 'Father', include a line beginning 'By the power of Your Holy Spirit', and close with EXACTLY: "
-        f"'{close_line}' — one Christ title only. BANNED closes: 'my Lord Jesus Christ', 'my Lord and Commander', "
+        f"Open to 'Father', include a line beginning 'By the power of Your Holy Spirit', write ONE complete sentence per line "
+        f"(item 9 — do not glue sentences), and close with EXACTLY: "
+        f"'{close_line}' — one Christ title only, last line. BANNED closes: 'my Lord Jesus Christ', 'my Lord and Commander', "
         f"any double full Christ title stack, 'we pray'."
     )
     parts.append(f"12. A final line beginning '{w['close']}' with a one-line charge imperative (not Helm/Rudder/Course Set).")
@@ -286,6 +291,22 @@ def watch_valid(text, w):
     # PJG-0821-FAT1: Second Watch is father-ABOUT-children, never a letter to them.
     if w["key"] == "second" and re.search(r"Dear Gideon|listen closely to your father", text, re.I):
         return False
+    # PJG-0824-PEACE1: reflections are you/your; prayer stays I/me; no Marvel Avenger; no extra the.
+    if re.search(r"O the LORD", text):
+        return False
+    if re.search(r"\bthe Avenger\b", text):
+        return False
+    if w["key"] == "peace" and "Reflection for a Man of God" not in text:
+        return False
+    refl_m = re.search(r"Reflection[^\n]*\n([\s\S]*?)(?=\n🙏|\nPrayer|\n⛏️|\nPersonal Application)", text)
+    if refl_m:
+        refl = refl_m.group(1)
+        if re.search(r"(?m)^\s*(?:As a [A-Z0-9²³\.].*?,\s*)?(?:brother,\s*)?\bI\b", refl):
+            return False
+        if re.search(r"\bI find my\b|\bupon me\b|\bMy headship\b|\bI teach\b|\bI stand\b|\bI serve\b", refl):
+            return False
+        if re.search(r"\bthe avenger\b", refl, re.I):
+            return False
     if w["key"] == "second" and re.search(r"Through Christ our Savior", text):
         return False
     # PJG-0810-PRAYSWEEP1 hard bans — refuse before file write.
