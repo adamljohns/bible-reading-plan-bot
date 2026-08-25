@@ -124,15 +124,29 @@ def resolve_book(token):
 # range ("1Pe 2:2-3"). Entries legitimately quote across two or three verses.
 REF_RE = re.compile(r'^\s*([1-3]?\s*[A-Za-z][A-Za-z\s]*?)\.?\s*(\d+):(\d+)(?:\s*[-–]\s*(\d+))?')
 
-def cache_text(cache, bn, chap, v1, v2=None):
-    """KJV text for a verse, or the joined text of a verse range."""
+def cache_text(cache, bn, chap, v1, v2=None, version='KJV'):
+    """Text for a verse, or the joined text of a verse range.
+
+    Defaults to the Authorized Version. A `version` may be named because the
+    cache holds 73 verses that carry every modern translation but no KJV
+    (Jdg 14:18, Dan 3:31-4:37, and others). Adam's 2026-08-16 ruling allows any
+    BTE version when it is attributed, so those verses are quotable from the
+    public-domain WEB rather than being unusable."""
     out = []
     for n in range(int(v1), int(v2 or v1) + 1):
         e = cache.get(f'{bn}_{chap}_{n}')
-        if not e or 'KJV' not in e:
+        if not e or version not in e:
             return None if n == int(v1) else ' '.join(out)
-        out.append(e['KJV'])
+        out.append(e[version])
     return ' '.join(out) if out else None
+
+# A reference may name its version: "Jdg 14:18 (WEB)". Only versions the cache
+# actually carries are accepted, and the attribution stays visible on the page.
+VERSION_RE = re.compile(r'\(([A-Z0-9]{2,8})\)\s*$')
+
+def ref_version(ref):
+    m = VERSION_RE.search(ref or '')
+    return m.group(1) if m else 'KJV'
 
 def quote_matches(quoted, kjv):
     """A quote matches if it is a substring of the KJV text — or, when it
@@ -194,7 +208,7 @@ def main():
                     unresolvable.append((e.get('slug', '?'), ref))
                     continue
                 bn, chap, v1, v2 = parsed
-                kjv = cache_text(cache, bn, chap, v1, v2)
+                kjv = cache_text(cache, bn, chap, v1, v2, ref_version(ref))
                 if not kjv:
                     uncached.append((e.get('slug', '?'), ref))
                     continue

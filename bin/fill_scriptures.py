@@ -34,7 +34,14 @@ def main():
                 if not isinstance(pair, list) or len(pair) < 2 or pair[1]:
                     continue
                 parsed = V.parse_ref(pair[0])
-                raw = V.cache_text(cache, *parsed) if parsed else None
+                raw = V.cache_text(cache, *parsed, V.ref_version(pair[0])) if parsed else None
+                if not raw and parsed and V.ref_version(pair[0]) == 'KJV':
+                    # 73 cached verses carry every modern version but no KJV.
+                    # Fall back to the WEB, which is public domain, and stamp
+                    # the attribution onto the reference so the page shows it.
+                    raw = V.cache_text(cache, *parsed, 'WEB')
+                    if raw:
+                        pair[0] = pair[0].rstrip() + ' (WEB)'
                 if not raw:
                     print(f'FAIL {e.get("slug","?")}: cannot fill {pair[0]!r}')
                     failures += 1

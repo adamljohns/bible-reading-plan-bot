@@ -52,6 +52,14 @@ def main():
         bad = sorted(set(re.findall(r'&([a-zA-Z][a-zA-Z0-9]*);', raw)) - VALID_ENT)
         if bad:
             errs.append(f'{p}: invalid HTML entities {bad}')
+        # Foreign-script guard: pronunciation keys legitimately use Latin
+        # diacritics, but Cyrillic/Greek/CJK characters in the prose mean a
+        # word from another language slipped in mid-sentence. One did on
+        # 2026-08-17 ('военная' for 'military'), and read perfectly fluently
+        # in every other respect, so only a codepoint check catches it.
+        stray = sorted(set(re.findall(r'[\u0400-\u04FF\u0370-\u03FF\u4E00-\u9FFF\u0600-\u06FF]', raw)))
+        if stray:
+            errs.append(f'{p}: non-Latin characters in text: {"".join(stray)[:40]}')
         b = os.path.basename(p)
         for e in data:
             s = e.get('slug', '(missing)')
