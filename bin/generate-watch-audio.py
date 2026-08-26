@@ -499,6 +499,22 @@ def f5_chunks(text, mx=None):
             else:
                 cur = amen
             continue
+        # PJG-0825-PEACE1: start-clip eats mid-prayer openers when they begin
+        # a new F5 take. Glue named skip-prone sentences onto the previous chunk.
+        skip_open = re.match(
+            r"^(Grant us|In the name|Through Jesus|Through Christ|For the sake|Hold Maria|When a man)\b",
+            s.strip(),
+            flags=re.I,
+        )
+        if skip_open and (cur or out):
+            if cur:
+                out.append(cur)
+                cur = ""
+            base = out[-1].rstrip()
+            if not base.endswith((".", "!", "?")):
+                base += "."
+            out[-1] = f"{base} {s.strip()}".strip()
+            continue
         # Close line starts with Through/In/For + I pray. Amen. — do not let
         # that sentence open a new F5 chunk (start-clip eats the title).
         close_line = re.search(r"I pray\.?\s+Amen\.?\s*$", s.strip(), flags=re.I)
@@ -583,6 +599,9 @@ def split_prayer(post_lines):
     Prayer ends at the first Amen line (or Charge header). Anything after
     Amen (e.g. "This Day in American History") returns to narrator — never
     into Adam's clone voice.
+
+    PJG-0825-PEACE1: the Prayer heading (emoji / "Prayer from the Stateroom" /
+    leftover reflection title) is NOT spoken. Listen-script starts at Father,.
     """
     before, prayer, after = [], [], []
     st = "before"
@@ -590,7 +609,7 @@ def split_prayer(post_lines):
     for line in post_lines:
         if st == "before" and PRAYER_HDR.match(line):
             st = "prayer"
-            prayer.append(line)
+            # Do not append the heading. Stray narration before Father, is FAIL.
             continue
         if st == "prayer" and CHARGE_HDR.match(line):
             st = "after"
