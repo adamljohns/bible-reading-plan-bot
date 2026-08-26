@@ -114,13 +114,12 @@ STYLE_WRAPPER = "    <style>\n%s    </style>\n"
 # ── Step 3: canonical toggle markup + theme JS (after <body>) ───────────────
 MARKUP_GUARD = 'onclick="bteToggleTheme()"'
 JS_GUARD = "function bteToggleTheme"
+# Empty host only. light-icons.css paints the custom tomb/cross shields via
+# ::before/::after. Do not put moon/sun emoji here — those are the regression
+# the 2026-08-26 THDB screenshot caught when a post shipped without the CSS.
 TOGGLE_MARKUP = """
     <div style="text-align:center; margin-top:8px; margin-bottom:4px;">
-        <div class="bte-theme-toggle" onclick="bteToggleTheme()" title="Toggle dark/light mode">
-            <span class="toggle-icon moon-icon">\U0001f319</span>
-            <div class="toggle-track"><div class="toggle-knob"></div></div>
-            <span class="toggle-icon sun-icon">☀️</span>
-        </div>
+        <div class="bte-theme-toggle" onclick="bteToggleTheme()" title="Toggle dark/light mode" role="button" tabindex="0" aria-label="Toggle dark/light mode"></div>
     </div>
 """
 # In-nav variant (preferred): light-icons.css floats it top-right via
