@@ -30,6 +30,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # The approval gate dates each post by its FIRST COMMIT, which needs
+          # real history. actions/checkout defaults to a shallow clone
+          # (fetch-depth 1), so every file looks like it was added in that one
+          # commit -- on 2026-08-26 that made the gate report 37 posts as
+          # "published today, no APPROVE" and blocked the deploy.
+          # filter=blob:none fetches the full commit graph without file blobs,
+          # so this stays fast on a repo this size.
+          fetch-depth: 0
+          filter: blob:none
       - name: Normalize social share metadata
         run: |
           python3 bin/normalize_social_metadata.py --root docs
