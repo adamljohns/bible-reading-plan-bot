@@ -553,7 +553,23 @@ def f5_chunks(text, mx=None):
             c = rest
         if c:
             final.append(c)
-    return [c for c in final if c]
+    chunks = [c for c in final if c]
+    # PJG-0826-AUD1: F5 start-clip eats ~10 words at the head of every take.
+    # Duplicate the opener (chunk 0) and overlap the previous tail (later
+    # chunks) so the published sentence still lands after the clip.
+    if not chunks:
+        return chunks
+    overlapped = []
+    for i, c in enumerate(chunks):
+        words = c.split()
+        if i == 0:
+            n = min(12, max(4, len(words) // 2 or 4))
+            overlapped.append(" ".join(words[:n]) + " " + c)
+        else:
+            prev = chunks[i - 1].split()
+            n = min(10, len(prev))
+            overlapped.append(" ".join(prev[-n:]) + " " + c)
+    return overlapped
 
 
 
@@ -716,7 +732,17 @@ def render_f5_text(text, out_wav):
         if r.returncode != 0:
             raise RuntimeError(
                 f"F5 ban-gate refused prayer bake: {(r.stderr or r.stdout or '')[-500:]}")
-    reftext = open(F5_REFTEXT_PATH).read().strip()
+    reftext = ""
+    for pth in (F5_REFTEXT_PATH, _F5_DEFAULT_TXT):
+        try:
+            if pth and os.path.isfile(pth):
+                reftext = open(pth).read().strip()
+                if reftext:
+                    break
+        except OSError:
+            continue
+    if not reftext:
+        raise RuntimeError("F5 ref text unreadable (TCC/Documents deny)")
     chunks = f5_chunks(text)
     if not chunks:
         raise RuntimeError("empty F5 prayer text")

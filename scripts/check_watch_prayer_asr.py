@@ -51,8 +51,16 @@ def sentences(prayer: str) -> list[str]:
     out = []
     for p in parts:
         p = re.sub(r"\s+", " ", p).strip()
-        if p:
-            out.append(p)
+        if not p:
+            continue
+        # Amen / In the name… are closes, not standalone required sentences.
+        if out and (
+            re.fullmatch(r"Amen\.??", p, re.I)
+            or re.match(r"In the name of Jesus", p, re.I)
+        ):
+            out[-1] = out[-1].rstrip() + " " + p
+            continue
+        out.append(p)
     return out
 
 
