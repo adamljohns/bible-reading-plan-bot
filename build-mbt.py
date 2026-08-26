@@ -83,8 +83,11 @@ def main():
         verses = b["verses"]
 
         # ---- parity vs public-domain KJV in the cache
+        # require BOTH KJV and WEB: apocryphal additions (e.g. Esther 10:4-13)
+        # live in the cache with KJV-Apocrypha/NRSVCE only and are not canon here
         kjv_keys = [k for k in cache
-                    if k.startswith(f"{book}_{ch}_") and cache[k].get("KJV")]
+                    if k.startswith(f"{book}_{ch}_")
+                    and cache[k].get("KJV") and cache[k].get("WEB")]
         kjv_vnums = sorted(int(k.split("_")[2]) for k in kjv_keys)
         mbt_vnums = sorted(int(v) for v in verses)
         if kjv_vnums and mbt_vnums != kjv_vnums:
