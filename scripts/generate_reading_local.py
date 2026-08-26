@@ -31,6 +31,19 @@ MONTHS = ["", "January", "February", "March", "April", "May", "June",
           "July", "August", "September", "October", "November", "December"]
 SEP = "⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻"
 
+# PJG-0826-HAPPY1 — First Watch letter is weekday, not passage vibe.
+# Mon Honest · Tue Honors · Wed Abiding · Thu Adoring · Fri Protecting · Sat Providing · Sun Yields
+# Ban collapsing onto Protecting/Providing because the text sounds like authority or bread.
+HAPPY_WEEKDAY = {
+    0: "Honest",
+    1: "Honors",
+    2: "Abiding",
+    3: "Adoring",
+    4: "Protecting",
+    5: "Providing",
+    6: "Yields",
+}
+
 # One-title prayer closes (PJG-0810-PRAYSWEEP1 / rewrite-rules item 8).
 # NEVER emit "Jesus Christ, my Lord Jesus Christ" or "my Lord and Commander".
 PRAYER_CLOSES = {
@@ -69,7 +82,7 @@ WATCHES = [
      "header": "🕖 0700 First Watch — The Husband's Post",
      "summary": "🗺️ Briefing Summary",
      "refl": "❤️ Reflection for Your Wife — H.A.P.P.Y. Husband — {TRAIT}",
-     "traitset": "exactly one of: Honest, Abiding, Protecting, Providing, Yielding",
+     "traitset": "WEEKDAY LETTER ONLY — Mon Honest · Tue Honors · Wed Abiding · Thu Adoring · Fri Protecting · Sat Providing · Sun Yields. Do NOT pick by passage theme.",
      "prayer": "🙏 Prayer", "close": "🛡️ Watch Charge:",
      "extra": "Speak to Adam's marriage to his wife Maria. In reflection, address the HUSBAND as 'you' "
               "(the man reading). Maria is protected/served — never the headship addressee. "
@@ -198,12 +211,39 @@ def build_watch_messages(w, ref, month, daynum, on_date: date):
         parts.append(f"6. A line exactly: {w['summary']}\n   then 2-4 sentences placing the passage.")
         parts.append("7. A line with a single ⸻ character.")
     trait_line = w["refl"]
-    if w["traitset"]:
+    if w["key"] == "first":
+        letter = HAPPY_WEEKDAY[on_date.weekday()]
+        trait_line = w["refl"].replace("{TRAIT}", letter)
+        parts.append(f"8. The reflection header exactly: {trait_line}")
+        parts.append(
+            f"   HARD PJG-0826-HAPPY1: HAPPY Husband trait is the WEEKDAY letter, not a passage-theme pick. "
+            f"Today is {on_date.strftime('%A')} so the letter is {letter}. "
+            "Preach THIS passage UNDER that letter. "
+            "Do NOT choose Protecting or Providing because the text sounds like authority, vineyard, bread, or warfare."
+        )
+    elif w["traitset"]:
         parts.append(f"8. The reflection header exactly in this form: {trait_line}  (choose {w['traitset']} as the trait, fitting THIS passage).")
     else:
         parts.append(f"8. The reflection header exactly: {trait_line}")
     parts.append("9. 2-4 paragraphs of reflection in the voice below. PJG-0824-PEACE1: address the man as you/your. Do NOT write I/me/my/mine as the reflection speaker. Prayer (step 11) stays I/me/my to God.")
-    if w["key"] != "peace":
+    if w["key"] == "first":
+        letter = HAPPY_WEEKDAY[on_date.weekday()]
+        parts.append(
+            f"10. A line exactly: ⛏️ Personal Application — {letter}  then EXACTLY THREE '• ' bulleted concrete actions (never 4+). "
+            "Each bullet must be rooted in a SPECIFIC image, name, command, or scene from TODAY's passage "
+            "(not generic spiritual advice that could attach to any text), and name a concrete, doable step. "
+            "MEN-ONLY REAL MAN GATE (rewrite-rules item 15 / PJG-0816-MEN1 — HARD from 2026-08-17): "
+            "every Personal Application bullet must be specifically for men. Prefer the REAL MAN spine as the MOVE: "
+            "Reject passivity · Engage consistently/intentionally · Accept responsibility · Lead courageously · "
+            "Manage faithfully · Account accurately · Never quit. "
+            "QA: if a bullet would preach unchanged to a women's Bible study, it FAILS — rewrite. "
+            "Fail class: generic trust-God / Strong Tower / unisex virtue (women should trust God too). "
+            "Husband/father nouns are not enough if the MOVE is still a unisex devotion. "
+            "PROVEN overlap: do not target traits women already commonly carry (Principal example: open / honest). "
+            "Exhort what men must be told to become. Role-aware still holds (husband / father / citizen by watch). "
+            f"HARD PJG-0826-HAPPY1: heading letter is {letter} (weekday lock). Preach the vineyard/text UNDER that letter."
+        )
+    elif w["key"] != "peace":
         parts.append("10. A line exactly: ⛏️ Personal Application — {same trait}  then EXACTLY THREE '• ' bulleted concrete actions (never 4+). "
                      "Each bullet must be rooted in a SPECIFIC image, name, command, or scene from TODAY's passage "
                      "(not generic spiritual advice that could attach to any text), and name a concrete, doable step. "
