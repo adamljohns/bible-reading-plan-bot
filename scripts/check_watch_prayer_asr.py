@@ -83,15 +83,9 @@ def extract_prayer(text: str) -> str:
     return "\n".join(buf).strip()
 
 
-def asr(mp3: Path, tail_sec: int = 90) -> str:
-    if not Path(WHISPER).is_file():
-        raise SystemExit(f"ASR-GATE: missing whisper-cli at {WHISPER}")
-    if not Path(MODEL).is_file():
-        raise SystemExit(f"ASR-GATE: missing model at {MODEL}")
+def asr_one(mp3: Path, tail_sec: int) -> str:
     tmp = Path(tempfile.mkdtemp(prefix="pjg-asr-"))
     wav = tmp / "prayer.wav"
-    # Prayer sits at the end of the watch (before Watch Charge). Whole-file
-    # ASR treats Reflection / Personal Application as stray-before-Father.
     subprocess.run(
         ["/opt/homebrew/bin/ffmpeg", "-hide_banner", "-loglevel", "error", "-y",
          "-sseof", f"-{int(tail_sec)}", "-i", str(mp3),
@@ -108,6 +102,19 @@ def asr(mp3: Path, tail_sec: int = 90) -> str:
     if not txt.is_file():
         raise SystemExit(f"ASR-GATE: whisper produced no text rc={r.returncode} {(r.stderr or r.stdout)[-400:]}")
     return txt.read_text(errors="replace")
+
+
+def asr(mp3: Path, tail_sec: int = 90) -> str:
+    if not Path(WHISPER).is_file():
+        raise SystemExit(f"ASR-GATE: missing whisper-cli at {WHISPER}")
+    if not Path(MODEL).is_file():
+        raise SystemExit(f"ASR-GATE: missing model at {MODEL}")
+    # PJG-0826-AUD1: one window is brittle. Citizen has history AFTER prayer
+    # (50s = history only). Husband 90s skipped Father; 45s heard it. Union.
+    parts = []
+    for sec in (45, 75, 110):
+        parts.append(asr_one(mp3, sec))
+    return "\n".join(parts)
 
 
 def norm(s: str) -> str:
