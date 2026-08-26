@@ -35,6 +35,8 @@ Lines that do not begin with a date are ignored, so notes and prose are safe.
 
 <!-- Add APPROVE lines here. Format: DATE | path | APPROVE (source) -->
 
+2026-08-25 | docs/blog/thdb-try-harder-do-better.html | APPROVE (Adam in Claude Code session, "ship it!", after reviewing the upgraded post and the Pops explainer video)
+
 ---
 
 ## Unrecorded gap — logged 2026-08-20, awaiting Adam's call
