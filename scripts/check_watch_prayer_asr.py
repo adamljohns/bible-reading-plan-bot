@@ -83,7 +83,7 @@ def extract_prayer(text: str) -> str:
     return "\n".join(buf).strip()
 
 
-def asr(mp3: Path, tail_sec: int = 110) -> str:
+def asr(mp3: Path, tail_sec: int = 160) -> str:
     if not Path(WHISPER).is_file():
         raise SystemExit(f"ASR-GATE: missing whisper-cli at {WHISPER}")
     if not Path(MODEL).is_file():
@@ -126,12 +126,23 @@ def present(needle: str, hay: str) -> bool:
     n = tokens(needle)
     if len(n) < 3:
         return norm(needle) in hay
-    # sliding window
+    # Prayer-region proof: first 5 content tokens must appear in order
+    # inside a 20-token window. The old 6-in-8 window false-failed audible
+    # sentences after F5 overlap / whisper insertions (PJG-0826-AUD1).
     h = hay.split()
-    need = n[:6]
+    need = n[:5]
+    span = max(12, len(need) + 12)
     for i in range(0, max(1, len(h) - len(need) + 1)):
-        window = h[i:i + len(need) + 2]
-        if all(t in window for t in need):
+        window = h[i:i + span]
+        wi = 0
+        ok = True
+        for t in need:
+            rest = window[wi:]
+            if t not in rest:
+                ok = False
+                break
+            wi = wi + rest.index(t) + 1
+        if ok:
             return True
     return False
 
