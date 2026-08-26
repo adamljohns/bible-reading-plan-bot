@@ -737,6 +737,17 @@ def render_f5_text(text, out_wav):
             if not os.path.isfile(raw):
                 raise RuntimeError(
                     f"F5 failed chunk {i}: {(r.stderr or r.stdout or '')[-400:]}")
+            # PJG-0826-AUD1: silent/tiny F5 takes were concatenating as a skip.
+            # Raise so render_watch falls back to narrator for this prayer.
+            try:
+                dur_s = float(subprocess.run(
+                    ["ffprobe", "-v", "error", "-show_entries", "format=duration",
+                     "-of", "default=nk=1:nw=1", raw],
+                    capture_output=True, text=True, check=True).stdout.strip() or "0")
+            except Exception:
+                dur_s = 0.0
+            if dur_s < 1.5:
+                raise RuntimeError(f"F5 chunk {i} too short ({dur_s:.2f}s): {c[:60]!r}")
             rw = os.path.join(tmp, f"c{i:02d}_24.wav")
             # Pad each prayer sentence so concat/fade cannot eat the last word.
             padded = os.path.join(tmp, f"c{i:02d}_pad.wav")

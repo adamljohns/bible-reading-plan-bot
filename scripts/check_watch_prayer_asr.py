@@ -22,6 +22,15 @@ MODEL = os.environ.get(
     os.path.expanduser("~/.openclaw/whisper_models/ggml-small.en.bin"),
 )
 WATCHES = ("wisdom", "husband", "father", "citizen", "peace")
+# Per-day JSON keys are wisdom/first/second/third/peace.
+# MP3 stems are wisdom/husband/father/citizen/peace.
+JSON_KEY = {
+    "wisdom": "wisdom",
+    "husband": "first",
+    "father": "second",
+    "citizen": "third",
+    "peace": "peace",
+}
 NAMED = (
     "grant us the grace",
     "in the name of jesus christ",
@@ -29,13 +38,10 @@ NAMED = (
     "when a man",
     "hold maria",
 )
+# Whole-watch MP3s always speak Personal Application / Reflection before the
+# prayer. Those are not stray. Heading leak in the prayer region is.
 STRAY = (
     "prayer from the",
-    "reflection for a",
-    "personal application",
-    "watch charge",
-    "man at home",
-    "man of god",
 )
 
 
@@ -69,16 +75,19 @@ def extract_prayer(text: str) -> str:
     return "\n".join(buf).strip()
 
 
-def asr(mp3: Path) -> str:
+def asr(mp3: Path, tail_sec: int = 110) -> str:
     if not Path(WHISPER).is_file():
         raise SystemExit(f"ASR-GATE: missing whisper-cli at {WHISPER}")
     if not Path(MODEL).is_file():
         raise SystemExit(f"ASR-GATE: missing model at {MODEL}")
     tmp = Path(tempfile.mkdtemp(prefix="pjg-asr-"))
     wav = tmp / "prayer.wav"
+    # Prayer sits at the end of the watch (before Watch Charge). Whole-file
+    # ASR treats Reflection / Personal Application as stray-before-Father.
     subprocess.run(
         ["/opt/homebrew/bin/ffmpeg", "-hide_banner", "-loglevel", "error", "-y",
-         "-i", str(mp3), "-ac", "1", "-ar", "16000", str(wav)],
+         "-sseof", f"-{int(tail_sec)}", "-i", str(mp3),
+         "-ac", "1", "-ar", "16000", str(wav)],
         check=True,
     )
     out_prefix = tmp / "asr"
@@ -122,11 +131,12 @@ def present(needle: str, hay: str) -> bool:
 def check_watch(day: str, key: str, json_path: Path, mp3: Path) -> list[str]:
     fails = []
     data = json.loads(json_path.read_text())
-    watch = (data.get("watches") or {}).get(key) or {}
+    jkey = JSON_KEY.get(key, key)
+    watch = (data.get("watches") or {}).get(jkey) or {}
     text = watch.get("text") or ""
     prayer = extract_prayer(text)
     if not prayer:
-        fails.append(f"{key}: no published prayer block")
+        fails.append(f"{key}: no published prayer block (json {jkey})")
         return fails
     sents = sentences(prayer)
     if not sents:
@@ -137,8 +147,8 @@ def check_watch(day: str, key: str, json_path: Path, mp3: Path) -> list[str]:
         return fails
     raw = asr(mp3)
     hay = norm(raw)
-    # stray before Father
-    father_i = hay.find("father")
+    # Last Father in the prayer-region tail is the listen-script opener.
+    father_i = hay.rfind("father")
     if father_i < 0:
         fails.append(f"{key}: ASR never said Father")
     else:
