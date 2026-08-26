@@ -58,6 +58,11 @@ BLEED_RULES = [
     ("proverbs 15", "lord’s eyes are on the righteous", "ps34_eyes_in_prov15"),
     ("proverbs 15", "lords eyes are on the righteous", "ps34_eyes_in_prov15"),
     ("proverbs 15", "face of the lord is against those who do evil", "ps34_face_in_prov15"),
+    # PJG-0826-AUD1 — named Proverbs 26 must not carry Prov 6 / Prov 30 / Malachi mash
+    ("proverbs 26", "go to the ant", "prov6_ant_in_prov26"),
+    ("proverbs 26", "these six things the lord hates", "prov6_six_seven_in_prov26"),
+    ("proverbs 26", "lips of a priest should keep knowledge", "malachi_priest_in_prov26"),
+    ("proverbs 26", "words of agur", "prov30_agur_in_prov26"),
 ]
 
 # Consecutive / near translation-doublets (soft vs gentle answer, etc.)
@@ -316,6 +321,11 @@ def check_watch(date: str, wkey: str, passage: str, text: str, median: float | N
             }
         )
     doubles = doublet_hits(scr)
+    # Psalm 118 legally repeats refrain lines (steadfast love / cut them down /
+    # right hand of the LORD). That is Scripture, not a translation mash.
+    # PJG-0826-AUD1: LOOP-GATE must not refuse a clean BTE/NKJV Psalm 118.
+    if re.search(r"psalm\s*118\b", passage or "", re.I):
+        doubles = [d for d in doubles if not str(d).startswith("near:")]
     if doubles:
         fails.append(
             {
