@@ -83,7 +83,7 @@ def extract_prayer(text: str) -> str:
     return "\n".join(buf).strip()
 
 
-def asr(mp3: Path, tail_sec: int = 160) -> str:
+def asr(mp3: Path, tail_sec: int = 90) -> str:
     if not Path(WHISPER).is_file():
         raise SystemExit(f"ASR-GATE: missing whisper-cli at {WHISPER}")
     if not Path(MODEL).is_file():

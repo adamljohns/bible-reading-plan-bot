@@ -681,7 +681,12 @@ def segment_watch(text, by_name):
             if use_adam:
                 segs.append(ADAM_SEG + (f5_prep(join_lines(prayer)),))
             else:
-                segs.append(NARR_SEG + (apply_lexicon(join_lines(prayer)),))
+                # PJG-0826-AUD1: one glued Kokoro take truncated the Father
+                # prayer at ~500 chars (dropped the close). Sentence chunks.
+                for sent in re.split(r"(?<=[.!?])\s+", join_lines(prayer)):
+                    sent = sent.strip()
+                    if sent:
+                        segs.append(NARR_SEG + (apply_lexicon(sent),))
         if join_lines(after):
             segs.append(NARR_SEG + (apply_lexicon(join_lines(after)),))
         return bool(join_lines(prayer) and use_adam)
