@@ -47,6 +47,21 @@ jobs:
               raise SystemExit(f"missing social cards: {sorted(missing)}")
           print(f"PASS: all {len(required)} social cards present")
           PY
+      - name: Approval gate (blocks the deploy on a new breach)
+        # P0's whole point is that "hidden until APPROVE" is a MECHANISM, not an
+        # honour system. This runs BEFORE the sync, so an unapproved, publicly
+        # indexable page cannot reach the live site at all.
+        #
+        # It fails only on a NEW breach. The 14 pre-existing unapproved posts are
+        # a logged gap awaiting Adam's ruling and deliberately do not fail here.
+        #
+        # If this step fails: either record the approval in APPROVALS.md, or run
+        #   python3 bin/approval_gate.py --fix docs/<path>.html
+        # to hide the page until Adam approves it. Do NOT delete this step --
+        # on 2026-08-25 a content commit stripped a noindex tag that had been
+        # applied hours earlier, and nothing caught it until the next audit.
+        run: python3 bin/approval_gate.py --audit
+
       - name: Install rclone
         run: sudo apt-get update -q && sudo apt-get install -y -q rclone
       - name: Sync docs/ to R2 (delete guard)
