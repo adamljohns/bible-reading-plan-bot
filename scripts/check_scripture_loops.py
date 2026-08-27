@@ -63,6 +63,11 @@ BLEED_RULES = [
     ("proverbs 26", "these six things the lord hates", "prov6_six_seven_in_prov26"),
     ("proverbs 26", "lips of a priest should keep knowledge", "malachi_priest_in_prov26"),
     ("proverbs 26", "words of agur", "prov30_agur_in_prov26"),
+    # PJG-0827-AUD1 — named Proverbs 27 must not carry invented mash
+    ("proverbs 27", "water cools the body", "invented_water_cools_in_prov27"),
+    ("proverbs 27", "lion's den", "invented_lions_den_in_prov27"),
+    ("proverbs 27", "lion’s den", "invented_lions_den_in_prov27"),
+    ("proverbs 27", "break open a lion", "invented_break_open_lion_in_prov27"),
 ]
 
 # Consecutive / near translation-doublets (soft vs gentle answer, etc.)
