@@ -46,9 +46,14 @@ def _load_book_cfg():
         bte = b.get("bte") or {}
         cfg[bid] = {
             "name": b["name"],
-            "engine": bte.get("engine", "kokoro"),
+            # engine: a bte override (frozen legacy audio, e.g. Esther-jenny) wins,
+            # else the book's own engine (James -> piper per PJG-0018), else kokoro
+            "engine": bte.get("engine") or b.get("engine") or "kokoro",
             "voice": bte.get("voice", b["voice"]) if bte else b["voice"],
             "lang": b.get("lang", "a"),
+            "speed": b.get("speed") or 1.0,
+            # a bte block means the live R2 audio is FROZEN as-is: manifest-only, never re-rendered
+            "frozen": bool(bte),
             "overrides": b.get("overrides") or {},
         }
     return cfg
@@ -56,9 +61,10 @@ def _load_book_cfg():
 BOOK_CFG = _load_book_cfg()
 
 # Books whose BTE audio is PUBLISHED. The shared map casts all 66, but only these
-# render/advertise here — Psalms (19) stays held until its MBT text is complete
-# (only 4/150 chapters authored; advertising maxCh=56 off 4 files would be wrong).
-BTE_BOOKS = {"8", "17", "20", "57"}
+# render/advertise here. Psalms (19) publishes SPARSELY: the reader probes each
+# chapter URL and only shows a player where the mp3 is live, so authored psalms
+# get audio while the rest of the book stays silent.
+BTE_BOOKS = {"8", "17", "19", "20", "21", "57", "59"}
 
 # Friendly per-book voice descriptor for the manifest (metadata; reader shows LABEL).
 def voice_desc(b):
@@ -104,10 +110,24 @@ def render_chapter(model, gen_audio, b, c, verses):
     voice, lang = voice_for(b, c)
     text = chapter_text(b, c, verses)
     with tempfile.TemporaryDirectory(prefix="kokoro-") as tmp:
-        gen_audio(text=text, model=model, voice=voice, lang_code=lang,
-                  output_path=tmp, file_prefix=f"{b}-{c}", join_audio=True,
-                  audio_format="wav", verbose=False)
-        wavs = sorted(glob.glob(os.path.join(tmp, "*.wav")))
+        if BOOK_CFG[b]["engine"] == "piper":
+            # Piper-cast book (e.g. James -> SgtMaj Mac / en_US-joe-medium):
+            # same invocation as generate-watch-audio.py's piper segments.
+            wav = os.path.join(tmp, f"{b}-{c}.wav")
+            pmodel = os.path.join(os.path.expanduser("~"), ".piper-voices", f"{voice}.onnx")
+            spd = BOOK_CFG[b].get("speed") or 1.0
+            subprocess.run(
+                [os.path.join(os.path.expanduser("~"), ".piper-venv", "bin", "python"),
+                 "-m", "piper", "-m", pmodel,
+                 "--length-scale", str(1.0 / spd),
+                 "--sentence-silence", "0.35", "-f", wav],
+                input=text.encode(), check=True, capture_output=True)
+            wavs = [wav]
+        else:
+            gen_audio(text=text, model=model, voice=voice, lang_code=lang,
+                      output_path=tmp, file_prefix=f"{b}-{c}", join_audio=True,
+                      audio_format="wav", verbose=False)
+            wavs = sorted(glob.glob(os.path.join(tmp, "*.wav")))
         if not wavs:
             raise RuntimeError(f"no wav produced for {b}:{c}")
         os.makedirs(OUT, exist_ok=True)
@@ -125,15 +145,17 @@ def sync_manifest(idx):
         m = json.load(open(MANIFEST))
     except Exception:
         m = {}
-    m["voice"] = "Kokoro-82M via mlx-audio, per book; Esther on Piper en_GB-jenny"
-    m["engine"] = "kokoro (mlx-audio) + piper (Esther)"
+    m["voice"] = "Per-book casting from data/book-voices.json — Kokoro-82M via mlx-audio; James on Piper joe; Esther frozen on Piper jenny"
+    m["engine"] = "kokoro (mlx-audio) + piper (James, Esther)"
     m["label"] = LABEL
     m["base"] = R2_BASE
     m["prefix"] = R2_PREFIX
     m["note"] = ("Per-chapter MBT narration on Cloudflare R2 at <base>/<prefix>/<book>-<chapter>.mp3. "
-                 "Kokoro-82M (Apache-2.0) via mlx-audio on Apple Silicon voices Ruth/Proverbs/Philemon; "
-                 "Proverbs is voiced per-chapter (male for 1-30, mature female for 31). Esther keeps its "
-                 "Piper 'jenny' narration. The reader probes each URL and shows the player once live.")
+                 "Casting follows data/book-voices.json (books follow their agents): Ruth=bf_emma, "
+                 "Psalms=am_adam (sparse — only authored psalms have audio), Proverbs=bm_george ch1-30 + "
+                 "af_heart ch31, Ecclesiastes=bm_lewis, Philemon=am_onyx on Kokoro-82M; James=en_US-joe "
+                 "(Piper, SgtMaj Mac); Esther keeps its frozen Piper 'jenny' narration. The reader probes "
+                 "each URL and shows the player once the file is live.")
     m["books"] = {}
     for b in sorted(BOOK_CFG, key=int):
         if b not in idx:
@@ -161,13 +183,15 @@ def main():
             targets += [(a, c) for c in sorted(idx[a], key=int)]
     if not targets:
         for b, cfg in BOOK_CFG.items():
-            if cfg["engine"] == "kokoro" and b in idx:
+            if not cfg["frozen"] and b in idx:
                 targets += [(b, c) for c in sorted(idx[b], key=int)]
 
     print(f"Loading Kokoro model {MODEL_ID} (once)...")
     model = load_model(MODEL_ID)
     print(f"Rendering {len(targets)} chapter(s)...")
     for b, c in targets:
+        if BOOK_CFG.get(b, {}).get("frozen"):
+            print(f"skip {b}:{c} (frozen legacy audio — manifest-only)"); continue
         verses = idx.get(b, {}).get(str(c))
         if not verses:
             print(f"skip {b}:{c} (no MBT text)"); continue
