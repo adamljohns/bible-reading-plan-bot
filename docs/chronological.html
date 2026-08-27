@@ -165,7 +165,15 @@
             background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px;
             padding: 16px 20px; transition: border-color 0.25s;
         }
-        .watch-card:hover { border-color: #555; }
+        a.watch-card {
+            display: block; text-decoration: none; color: inherit; cursor: pointer;
+        }
+        .watch-card:hover { border-color: var(--gold, #D4AF37); }
+        .ref-chip {
+            background: #1a1a1a; border: 1px solid #333; color: var(--white);
+            padding: 6px 14px; border-radius: 20px; text-decoration: none;
+            font-size: 0.9rem; display: inline-block;
+        }
         .watch-header {
             display: flex; align-items: center; gap: 10px; margin-bottom: 8px;
         }
@@ -503,16 +511,16 @@ let currentDate = (function(){
 // ============================================================
 //  REF → BTE LINK
 // ============================================================
-function makeLinks(refStr) {
-    // Split on & or + used as separators (not within a reference)
-    // We'll split on " & " and " + " to get individual references
+function makeChips(refStr) {
+    // Split on & or + used as separators (not within a reference).
+    // Chips are spans — the whole card is the <a> (PJG-0827-CARD1). Nested links would steal the tap.
     const parts = refStr.split(/\s*[&+]\s*(?=[A-Z1-9])/);
     return parts.map(part => {
         const clean = part.trim();
-        const url = 'bible.html?ref=' + encodeURIComponent(clean);
-        return `<a class="ref-link" href="${url}" target="_blank">${clean}</a>`;
+        return `<span class="ref-chip">${clean}</span>`;
     }).join(' ');
 }
+const WATCH_HASH = { wisdom: 'wisdom', first: 'husband', second: 'father', third: 'citizen', peace: 'peace' };
 
 // ============================================================
 //  RENDER
@@ -550,7 +558,9 @@ function render() {
     WATCHES.forEach(w => {
         const refRaw = day[w.key] || '';
         if (!refRaw) return;
-        html += `<div class="watch-card">
+        const hash = WATCH_HASH[w.key] || w.key;
+        const href = 'readings/' + key + '.html#' + hash;
+        html += `<a class="watch-card" href="${href}">
             <div class="watch-header">
                 <span class="watch-icon">${w.icon}</span>
                 <div class="watch-meta">
@@ -558,11 +568,11 @@ function render() {
                     <div class="watch-label">${w.label}</div>
                 </div>
             </div>
-            <div class="watch-refs">${makeLinks(refRaw)}</div>`;
+            <div class="watch-refs">${makeChips(refRaw)}</div>`;
         if (day.notes && w.key === 'peace') {
             html += `<div class="watch-notes"><img src="assets/icons/shield-target.png" class="site-icon" alt="target" width="20" height="20"> ${day.notes}</div>`;
         }
-        html += `</div>`;
+        html += `</a>`;
     });
     watchContainer.innerHTML = html;
 
