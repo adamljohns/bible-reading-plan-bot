@@ -20,12 +20,14 @@ import argparse, contextlib, importlib.util, json, re, subprocess, sys, tempfile
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
-VOICE_DIR = Path.home() / "Documents" / "05-Voice" / "f5tts-tests"
+CANON_DIR = Path.home() / ".openclaw" / "voice" / "f5tts-tests"
+LEGACY_DIR = Path.home() / "Documents" / "05-Voice" / "f5tts-tests"
+VOICE_DIR = CANON_DIR if (CANON_DIR / "ref-calm.wav").exists() else LEGACY_DIR
 REF = VOICE_DIR / "ref-calm.wav"   # Adam's PHONE recording, calm Psalm-23 segment (no bleed), +0.5s pad
 REFTEXT = (VOICE_DIR / "ref-calm.txt").read_text().strip() if (VOICE_DIR / "ref-calm.txt").exists() else ""
 REF_SEC = 15.0
-CPS = 12.5          # chars/sec target pace (empirically faithful)
-BUFFER = 0.6        # seconds of headroom so the first word isn't clipped
+CPS = 11.0          # MBP-0827: slower so tails/Amen are not clipped (was 12.5)
+BUFFER = 1.4        # seconds of headroom so the last word isn't clipped (was 0.6)
 STEPS = 32
 CHUNK_MAX = 160     # chars per F5 call — shorter = more stable per chunk
 AUDIO_OUT = REPO / "docs" / "assets" / "audio" / "readings"

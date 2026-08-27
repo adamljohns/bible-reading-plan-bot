@@ -74,8 +74,8 @@ F5_REFTEXT_PATH = os.path.expanduser(os.environ.get("F5_REF_TEXT") or "") or _fi
 F5_VENV_PY = os.path.expanduser(os.environ.get(
     "F5_VENV_PY", "~/.venvs/f5tts/bin/python"))
 F5_REF_SEC = float(os.environ.get("F5_REF_SEC", "15.0"))
-F5_CPS = float(os.environ.get("F5_CPS", "12.5"))
-F5_BUFFER = float(os.environ.get("F5_BUFFER", "0.6"))
+F5_CPS = float(os.environ.get("F5_CPS", "11.0"))  # MBP-0827: slower so tails/Amen are not clipped
+F5_BUFFER = float(os.environ.get("F5_BUFFER", "1.4"))  # was 0.6; last-word cutoff
 F5_STEPS = int(os.environ.get("F5_STEPS", "32"))
 F5_CHUNK_MAX = int(os.environ.get("F5_CHUNK_MAX", "120"))  # PJG-0811: tighter chunks vs prayer dropout
 SAMPLE_RATE = 24000
@@ -714,8 +714,33 @@ def segment_watch(text, by_name):
     return segs, (entry["name"], sv, tag_extra)
 
 
+def render_voicestudio_text(text, out_wav):
+    """Primary Adam clone via local VoiceStudio (MBP-0827). Returns True on success."""
+    script = os.path.expanduser("~/Scripts/voicestudio-speak.py")
+    if not os.path.isfile(script):
+        return False
+    try:
+        r = subprocess.run(
+            [sys.executable, script, "--text", text, "--out", out_wav],
+            capture_output=True, text=True, timeout=240,
+        )
+        if r.returncode != 0 or not os.path.isfile(out_wav):
+            print(f"  WARN VoiceStudio prayer failed: {(r.stderr or r.stdout or '')[-300:]}", flush=True)
+            return False
+        if out_wav.lower().endswith(".wav"):
+            tmpw = out_wav + ".24k.wav"
+            subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", out_wav,
+                            "-ac", "1", "-ar", str(SAMPLE_RATE), tmpw], check=True)
+            os.replace(tmpw, out_wav)
+        print("  VoiceStudio prayer ok", flush=True)
+        return True
+    except Exception as e:
+        print(f"  WARN VoiceStudio prayer exception ({e})", flush=True)
+        return False
+
+
 def render_f5_text(text, out_wav):
-    """Render prayer text with Adam's F5 clone; write 24k mono wav."""
+    """Fallback Adam clone via F5-TTS-MLX; write 24k mono wav."""
     # PJG-0803-PIN1 hard gate at bake time (ref + prayer body)
     gate = os.path.join(ROOT, "scripts", "check_f5_prayer_ref.py")
     if os.path.isfile(gate):
@@ -757,9 +782,11 @@ def render_f5_text(text, out_wav):
         for i, c in enumerate(chunks):
             raw = os.path.join(tmp, f"c{i:02d}.wav")
             # Floor duration so tiny tails cannot bake as ~0.04s silence/garbage
-            dur = max(4, round(F5_REF_SEC + len(c) / F5_CPS + F5_BUFFER))
+            dur = max(5, round(F5_REF_SEC + len(c) / F5_CPS + F5_BUFFER))
             if len(c) < 24:
-                dur = max(dur, 6)
+                dur = max(dur, 7)
+            if re.search(r"Ah men\.?\s*$", c, flags=re.I):
+                dur = max(dur, 8)
             cmd = [F5_VENV_PY, "-m", "f5_tts_mlx.generate",
                    "--text", c, "--ref-audio", F5_REF, "--ref-text", reftext,
                    "--duration", str(dur), "--steps", str(F5_STEPS),
@@ -784,7 +811,7 @@ def render_f5_text(text, out_wav):
             padded = os.path.join(tmp, f"c{i:02d}_pad.wav")
             subprocess.run([
                 "ffmpeg", "-y", "-loglevel", "error", "-i", raw,
-                "-af", "apad=pad_dur=0.45",
+                "-af", "apad=pad_dur=0.70",
                 "-ar", str(SAMPLE_RATE), "-ac", "1", padded
             ], check=True)
             parts.append(padded)
@@ -828,10 +855,12 @@ def render_watch(model, gen_audio, date, key, segs):
             elif engine == "f5":
                 fw = os.path.join(seg_dir, "p24.wav")
                 try:
-                    render_f5_text(text, fw)
+                    # MBP-0827: VoiceStudio is primary Adam clone; F5 is fallback.
+                    if not render_voicestudio_text(text, fw):
+                        render_f5_text(text, fw)
                     wavs = [fw]
                 except Exception as e:
-                    print(f"  WARN F5 prayer failed ({e}); "
+                    print(f"  WARN Adam-clone prayer failed ({e}); "
                           f"falling back to narrator for this segment", flush=True)
                     gen_audio(text=apply_lexicon(text), model=model, voice=NARRATOR,
                               lang_code=NARRATOR_LANG, output_path=seg_dir,
