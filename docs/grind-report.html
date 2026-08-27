@@ -41,13 +41,13 @@
 <body>
 <div class="wrap">
   <h1>⚙️ Local Grind Report</h1>
-  <div class="sub">The zero-cloud-usage enrichment pipeline (local Qwen on this Mac) vs. the 2026-07-03 baseline. Data: <a href="/data/grind-stats.json" style="color:var(--gray)">grind-stats.json</a> · newest finds: <a href="/data/qa-sample.json" style="color:var(--gray)">qa-sample.json</a></div>
+  <div class="sub">Validated whole-profile enrichment—identity, leadership, contact/social, doctrine scores, evidence, and assessments—with local extraction plus bounded research recovery. Data: <a href="/data/grind-stats.json" style="color:var(--gray)">grind-stats.json</a> · newest finds: <a href="/data/qa-sample.json" style="color:var(--gray)">qa-sample.json</a></div>
   <div id="freshness"></div>
   <div class="cards" id="cards"><div class="card"><div class="label">Loading…</div></div></div>
   <h2>Pastors found per day <span style="font-size:.7rem;color:var(--gray);font-weight:400">(gold = fresh pool · blue = retry pool)</span></h2>
   <div class="bars" id="bars"></div>
   <h2>Recent rounds</h2>
-  <div style="overflow-x:auto"><table id="rounds"><thead><tr><th>When (UTC)</th><th>Mode</th><th>Attempted</th><th>Found</th><th>Pool left</th><th>Total pastors</th><th>Rosters</th><th>Socials</th></tr></thead><tbody></tbody></table></div>
+  <div style="overflow-x:auto"><table id="rounds"><thead><tr><th>When (UTC)</th><th>Mode</th><th>Attempted</th><th>Pastors</th><th>Content fields</th><th>Records updated</th><th>Pool left</th><th>Total pastors</th><th>Socials</th></tr></thead><tbody></tbody></table></div>
   <h2>Newest verified finds (QA sample — what Chaps audits)</h2>
   <div class="finds" id="finds"></div>
   <div class="note">Every name shown was verified to appear verbatim on the fetched church page before it could land; the merge layer additionally rejects junk-shaped names and holds typically-female-named leads for manual rubric review. Chaps re-audits the newest finds every 3 days and reports to Adam's Telegram.</div>
@@ -67,6 +67,8 @@
   const pastorRows = s.filter(r => ['fresh','retry','social'].includes(r.mode));
   const attempted = pastorRows.reduce((a, r) => a + (r.attempted || 0), 0);
   const found = pastorRows.reduce((a, r) => a + (r.found || 0), 0);
+  const contentApplied = s.reduce((a, r) => a + (r.applied || 0), 0);
+  const recordsUpdated = s.reduce((a, r) => a + (r.records_updated || 0), 0);
 
   // FRESHNESS GATE (2026-08-05). This page only ever showed the last recorded
   // round, never how old it was — so when the launchd job died on 2026-07-22
@@ -119,6 +121,7 @@
     card('Verified pastors', last.real_pastors, last.real_pastors - base.real_pastors, 'baseline ' + base.real_pastors.toLocaleString()) +
     card('Multi-pastor rosters', last.rosters, last.rosters - base.rosters, 'baseline ' + base.rosters) +
     card('Churches w/ socials', last.socials_any, last.socials_any - base.socials_any, 'baseline ' + base.socials_any.toLocaleString()) +
+    card('Validated content applied', contentApplied, 0, recordsUpdated + ' profile records updated · pastors are one field, not the mission') +
     card('Attempted (total)', attempted, 0, found + ' pastors landed · ' + (attempted ? Math.round(100 * found / attempted) : 0) + '% hit rate') +
     card('Product backlog', last.product_backlog ?? last.enrich_remaining ?? last.pool_after ?? 0, 0,
       `Website discovery ${(last.pool_website_discovery || 0).toLocaleString()} · Source recovery ${(last.pool_source_recovery || 0).toLocaleString()} · source capped ${(last.pool_source_recovery_exhausted || 0).toLocaleString()} · pastor exhausted ${(last.pool_pastor_exhausted || 0).toLocaleString()} · dead-site ${(last.pool_dead_site_recovery || 0).toLocaleString()} · review ${(last.pool_human_review || 0).toLocaleString()}`) +
@@ -140,7 +143,7 @@
   }).join('') || '<div class="err">No rounds yet.</div>';
 
   $('rounds').querySelector('tbody').innerHTML = s.slice(-20).reverse().map(r =>
-    `<tr><td>${r.ts || ''}</td><td>${r.mode || ''}</td><td>${r.attempted ?? ''}</td><td class="num">${r.found ?? ''}</td><td>${r.pool_after ?? ''}</td><td>${(r.real_pastors || 0).toLocaleString()}</td><td>${r.rosters ?? ''}</td><td>${(r.socials_any || 0).toLocaleString()}</td></tr>`).join('');
+    `<tr><td>${r.ts || ''}</td><td>${r.mode || ''}</td><td>${r.attempted ?? ''}</td><td class="num">${r.pastors_applied ?? r.found ?? ''}</td><td class="num">${r.applied ?? r.found ?? ''}</td><td class="num">${r.records_updated ?? ''}</td><td>${r.pool_after ?? ''}</td><td>${(r.real_pastors || 0).toLocaleString()}</td><td>${(r.socials_any || 0).toLocaleString()}</td></tr>`).join('');
 
   $('finds').innerHTML = (qa.sample || []).slice(0, 15).map(f =>
     `<div class="find"><a href="${f.page_url}" target="_blank" rel="noopener">${f.id}</a> → <strong>${f.pastor_name}</strong>` +

@@ -75,6 +75,8 @@ assert.ok(!html.includes('Enrichment complete —'), 'dashboard must not call th
 assert.ok(html.includes('Website discovery'), 'dashboard must expose the discovery lane');
 assert.ok(html.includes('Source recovery'), 'dashboard must expose the source-recovery lane');
 assert.ok(html.includes("['fresh','retry','social'].includes(r.mode)"), 'pastor hit rate must exclude frontier attempts');
+assert.ok(html.includes("card('Validated content applied'"), 'dashboard must report whole-profile content gain, not pastors alone');
+assert.ok(html.includes('r.pastors_applied ?? r.found') && html.includes('r.applied ?? r.found'), 'round table must separate pastor and total-content fields');
 assert.ok(runner.includes('--found "$APPLIED" --applied "$CONTENT_APPLIED"'), 'dashboard applied count must include all guarded content fields, not extracted candidates');
 assert.ok(runner.includes('--pastors-applied "$APPLIED" --socials-applied "$SOC_APPLIED"'), 'dashboard must preserve separate pastor and social counts');
 assert.ok(runner.includes('MERGE_MUTATED=1'), 'zero-yield operational stamps must be detected so dead records cannot repeat forever');
