@@ -790,7 +790,9 @@ function buildPage(church) {
   // Defunct marker — services may be string OR object {sunday_morning, ...}
   const servicesStr = typeof church.services === 'string'
     ? church.services
-    : (church.services && typeof church.services === 'object' ? Object.values(church.services).filter(v => typeof v === 'string').join(' ') : '');
+    : (church.services && typeof church.services === 'object'
+      ? Object.values(church.services).filter(v => typeof v === 'string').join(' ')
+      : (typeof church.service_times === 'string' ? church.service_times : ''));
   const isDefunct = servicesStr && servicesStr.toLowerCase().includes('no longer');
   const isNotFound = church.overall_label && (church.overall_label.toLowerCase().includes('not found') || church.overall_label.toLowerCase().includes('defunct') || church.overall_label.toLowerCase().includes('search result'));
 

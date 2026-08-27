@@ -70,6 +70,8 @@ assert.strictEqual(lanes.chooseLane(counts, null), 'monitoring');
 
 const html = fs.readFileSync(path.join(ROOT, 'docs/grind-report.html'), 'utf8');
 const runner = fs.readFileSync(path.join(ROOT, 'scripts/pastor-refine-local.sh'), 'utf8');
+const generator = fs.readFileSync(path.join(ROOT, 'generate-church-pages.js'), 'utf8');
+assert.ok(generator.includes("typeof church.service_times === 'string'"), 'profile renderer must expose verified legacy service_times data');
 assert.ok(html.includes('CURRENT PASS EXHAUSTED / CONTINUING'), 'dashboard must not claim product completion');
 assert.ok(!html.includes('Enrichment complete —'), 'dashboard must not call the product complete');
 assert.ok(html.includes('Website discovery'), 'dashboard must expose the discovery lane');
