@@ -37,8 +37,13 @@ START_P=$(node -e '
 try{const d=JSON.parse(require("fs").readFileSync(process.env.HOME+"/bible-reading-plan-bot-autopilot/docs/data/churches.json","utf8")).churches;
 const ph=p=>{const s=String(p||"").trim();return !s||/^(pastors?|tbd|n\/?a|none|unknown|various|staff)\.?$/i.test(s)||/verify|see website|coming soon|^unknown/i.test(s)};
 console.log(d.filter(c=>!ph(c.pastor)).length)}catch(e){console.log(0)}' 2>/dev/null || echo 0)
+START_C=$(node -e '
+try{const d=JSON.parse(require("fs").readFileSync(process.env.HOME+"/bible-reading-plan-bot-autopilot/docs/data/churches.json","utf8")).churches;
+const ph=p=>{const s=String(p||"").trim();return !s||/^(pastors?|tbd|n\/?a|none|unknown|various|staff)\.?$/i.test(s)||/verify|see website|coming soon|^unknown/i.test(s)};
+const n=c=>(!ph(c.pastor)?1:0)+Object.keys(c.scores||{}).filter(k=>c.scores[k]).length+(String(c.assessment||"").trim()?1:0)+(c.facebook?1:0)+(c.youtube?1:0)+(c.instagram?1:0)+(c.phone?1:0)+(c.website?1:0)+(c.address?1:0)+(c.denomination_family||c.denomination?1:0);
+console.log(d.reduce((a,c)=>a+n(c),0))}catch(e){console.log(0)}' 2>/dev/null || echo 0)
 
-say "════ ${DURATION_H}h session START (batch $PASTOR_REFINE_BATCH, ${COOLDOWN}s cooldown, start pastors=$START_P) ════"
+say "════ ${DURATION_H}h session START (batch $PASTOR_REFINE_BATCH, ${COOLDOWN}s cooldown, start pastors=$START_P, profile_fields=$START_C) ════"
 ROUNDS=0; FAILS=0
 while [ "$(date +%s)" -lt "$DEADLINE" ]; do
   [ -f "$STOP" ] && { say "stop switch — ending session"; rm -f "$STOP"; break; }
@@ -60,7 +65,13 @@ END_P=$(node -e '
 try{const d=JSON.parse(require("fs").readFileSync(process.env.HOME+"/bible-reading-plan-bot-autopilot/docs/data/churches.json","utf8")).churches;
 const ph=p=>{const s=String(p||"").trim();return !s||/^(pastors?|tbd|n\/?a|none|unknown|various|staff)\.?$/i.test(s)||/verify|see website|coming soon|^unknown/i.test(s)};
 console.log(d.filter(c=>!ph(c.pastor)).length)}catch(e){console.log(0)}' 2>/dev/null || echo 0)
+END_C=$(node -e '
+try{const d=JSON.parse(require("fs").readFileSync(process.env.HOME+"/bible-reading-plan-bot-autopilot/docs/data/churches.json","utf8")).churches;
+const ph=p=>{const s=String(p||"").trim();return !s||/^(pastors?|tbd|n\/?a|none|unknown|various|staff)\.?$/i.test(s)||/verify|see website|coming soon|^unknown/i.test(s)};
+const n=c=>(!ph(c.pastor)?1:0)+Object.keys(c.scores||{}).filter(k=>c.scores[k]).length+(String(c.assessment||"").trim()?1:0)+(c.facebook?1:0)+(c.youtube?1:0)+(c.instagram?1:0)+(c.phone?1:0)+(c.website?1:0)+(c.address?1:0)+(c.denomination_family||c.denomination?1:0);
+console.log(d.reduce((a,c)=>a+n(c),0))}catch(e){console.log(0)}' 2>/dev/null || echo 0)
 GAIN=$(( END_P - START_P ))
-say "════ session DONE: $ROUNDS rounds, +$GAIN pastors this session (total $END_P) ════"
+CONTENT_GAIN=$(( END_C - START_C ))
+say "════ session DONE: $ROUNDS rounds, +$CONTENT_GAIN profile fields (+$GAIN pastors; total pastors $END_P) ════"
 [ -x "$NOTIFY" ] && [ "$ROUNDS" -gt 0 ] && "$NOTIFY" --level info --title "⛏️ Directory grind session done" \
-  --body "$ROUNDS rounds, +$GAIN pastors (total $END_P). Live: https://usmcmin.org/grind-report.html" >/dev/null 2>&1 || true
+  --body "$ROUNDS rounds, +$CONTENT_GAIN profile fields (+$GAIN pastors; total pastors $END_P). Live: https://usmcmin.org/grind-report.html" >/dev/null 2>&1 || true

@@ -145,6 +145,11 @@ cat "$WORK/merge.txt" >>"$LOG"
 # the extractor merely found (found-but-HELD names used to be reported as "+1 pastors").
 APPLIED=$(grep -oE 'Pastors applied: +[0-9]+' "$WORK/merge.txt" | grep -oE '[0-9]+$' | head -1); APPLIED=${APPLIED:-0}
 SOC_APPLIED=$(grep -oE 'Social links applied: +[0-9]+' "$WORK/merge.txt" | grep -oE '[0-9]+$' | head -1); SOC_APPLIED=${SOC_APPLIED:-0}
+CONTENT_APPLIED=$((APPLIED + SOC_APPLIED))
+# The merge also writes durable operational facts (_social_attempted, _dead_site,
+# retry markers). Commit those even at zero content yield, or the selector will
+# return the same dead records forever.
+if git diff --quiet -- docs/data/churches.json; then MERGE_MUTATED=0; else MERGE_MUTATED=1; fi
 # Track the cold-retry streak (see escalation above): zero-yield retry rounds
 # increment it; any retry yield resets it.
 if [ "$MODE" = "retry" ]; then
@@ -155,8 +160,11 @@ if [ "$MODE" = "retry" ]; then
   fi
 fi
 
-if [ "$APPLIED" -eq 0 ] && [ "$SOC_APPLIED" -eq 0 ]; then
-  say "zero applied — skip qa-sample/grind-stats/regen/push (no deploy trigger)"
+if [ "$CONTENT_APPLIED" -eq 0 ] && [ "$MERGE_MUTATED" -eq 0 ]; then
+  say "zero content or operational changes — recording heartbeat only"
+  node scripts/append-grind-stats.js --mode "$MODE" --attempted "$N_BATCH" --found 0 --applied 0 \
+    --pastors-applied 0 --socials-applied 0 --records-updated 0 >>"$LOG" 2>&1 \
+    || say "grind-stats heartbeat failed (non-fatal)"
 else
   # Publish a QA sample for the fleet: the newest local-extract finds land at
   # https://usmcmin.org/data/qa-sample.json so Chaps (web_fetch-only tooling) can
@@ -179,11 +187,14 @@ else
   # for the live before/after dashboard at usmcmin.org/grind-report.html. Records the
   # TOTAL remaining enrichment work (fresh+retry+social) + US coverage, not just the
   # current tier (so the dashboard never falsely shows "0 remaining").
-  node scripts/append-grind-stats.js --mode "$MODE" --attempted "$N_BATCH" --found "$APPLIED" --applied "$APPLIED" \
+  node scripts/append-grind-stats.js --mode "$MODE" --attempted "$N_BATCH" --found "$APPLIED" --applied "$CONTENT_APPLIED" \
+    --pastors-applied "$APPLIED" --socials-applied "$SOC_APPLIED" --records-updated "$MERGE_MUTATED" \
     >>"$LOG" 2>&1 || say "grind-stats update failed (non-fatal)"
-  node generate-church-pages.js >>"$LOG" 2>&1 \
-    || { git reset -q --hard; die "regen failed — working tree reset"; }
-  if ! node scripts/check-consistency.js >>"$LOG" 2>&1; then
+  if [ "$CONTENT_APPLIED" -gt 0 ]; then
+    node generate-church-pages.js >>"$LOG" 2>&1 \
+      || { git reset -q --hard; die "regen failed — working tree reset"; }
+  fi
+  if [ "$CONTENT_APPLIED" -gt 0 ] && ! node scripts/check-consistency.js >>"$LOG" 2>&1; then
     # Self-heal (2026-07-11): sibling sessions sometimes push church ADDITIONS without
     # the non-regen derived artifacts (sitemap-churches.xml; the total_churches field) —
     # that PRE-EXISTING drift then failed this check twice and killed the whole 4h
@@ -206,15 +217,16 @@ else
   fi
 
   if [ -n "$(git status --porcelain)" ]; then
-    git add docs/data/churches.json docs/churches/ docs/data/churches-index.json docs/data/churches/ docs/data/qa-sample.json docs/data/grind-stats.json docs/sitemap-churches.xml
-    git commit -qm "Local pastor refine: +$APPLIED pastors, +$SOC_APPLIED socials applied of $N_BATCH attempted ($MODE pool, local-extract)" \
+    git add docs/data/churches.json docs/data/grind-stats.json
+    [ "$CONTENT_APPLIED" -gt 0 ] && git add docs/churches/ docs/data/churches-index.json docs/data/churches/ docs/data/qa-sample.json docs/sitemap-churches.xml
+    git commit -qm "Directory refine: +$CONTENT_APPLIED content fields ($APPLIED pastors, $SOC_APPLIED socials) of $N_BATCH attempted ($MODE)" \
       || die "commit failed"
     if ! git push -q origin HEAD:main; then
       say "push rejected — rebasing onto fresh origin/main and retrying"
       git fetch -q origin main && git rebase -q FETCH_HEAD && git push -q origin HEAD:main \
         || die "push failed after rebase retry — commit stranded in autopilot worktree"
     fi
-    say "pushed: +$APPLIED pastors, +$SOC_APPLIED socials applied ($N_BATCH attempted, $FOUND extracted)"
+    say "pushed: +$CONTENT_APPLIED content fields ($APPLIED pastors, $SOC_APPLIED socials), operational_mutation=$MERGE_MUTATED ($N_BATCH attempted)"
   else
     say "no changes to commit"
   fi

@@ -75,7 +75,10 @@ assert.ok(!html.includes('Enrichment complete —'), 'dashboard must not call th
 assert.ok(html.includes('Website discovery'), 'dashboard must expose the discovery lane');
 assert.ok(html.includes('Source recovery'), 'dashboard must expose the source-recovery lane');
 assert.ok(html.includes("['fresh','retry','social'].includes(r.mode)"), 'pastor hit rate must exclude frontier attempts');
-assert.ok(runner.includes('--found "$APPLIED" --applied "$APPLIED"'), 'dashboard rows must count guarded pastor applications, not extracted candidates');
+assert.ok(runner.includes('--found "$APPLIED" --applied "$CONTENT_APPLIED"'), 'dashboard applied count must include all guarded content fields, not extracted candidates');
+assert.ok(runner.includes('--pastors-applied "$APPLIED" --socials-applied "$SOC_APPLIED"'), 'dashboard must preserve separate pastor and social counts');
+assert.ok(runner.includes('MERGE_MUTATED=1'), 'zero-yield operational stamps must be detected so dead records cannot repeat forever');
+assert.ok(!runner.includes('zero applied — skip qa-sample/grind-stats/regen/push'), 'zero-yield rounds must not discard selector-advance stamps');
 
 const plan = cp.execFileSync('/bin/bash', [path.join(ROOT, 'scripts/continuous-enrichment-lane.sh'), '/tmp/prl-test'], {
   cwd: ROOT,
