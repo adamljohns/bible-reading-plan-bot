@@ -73,8 +73,18 @@ def main():
         if i % 1000 == 0:
             print(f"  {i}/{total} …")
 
+    # Merge the batch-harvested supplement (bin/mbt-lexicon-harvest.py) for
+    # numbers the pages could not supply — page-derived entries always win.
+    supp_path = os.path.join(ROOT, "data", "mbt-kits", "strongs-supplement.json")
+    filled = 0
+    if os.path.exists(supp_path):
+        for num, entry in json.load(open(supp_path)).items():
+            if num not in lookup and entry.get("translit"):
+                lookup[num] = {"translit": entry["translit"], "gloss": entry.get("gloss", "")}
+                filled += 1
+
     json.dump(lookup, open(OUT, "w"), ensure_ascii=False, separators=(",", ":"))
-    print(f"\nDone: {len(lookup)} entries built, {missing} missing/sparse")
+    print(f"\nDone: {len(lookup)} entries built, {missing} missing/sparse, {filled} filled from batch supplement")
     print(f"  -> {OUT}")
 
 
