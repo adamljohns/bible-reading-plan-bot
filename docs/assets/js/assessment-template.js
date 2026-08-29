@@ -317,6 +317,7 @@
 
     plan.style.display = 'block';
     plan.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    buildMinistryLoop(d, axes, getAxisAvg);
 
     // Auto-persist
     try {
@@ -474,6 +475,195 @@
     toggle.classList.toggle('open', !isOpen);
   }
 
+  function laneMeta(d) {
+    var id = (d && d.id) || '';
+    if (id === 'pureHearts') {
+      return {
+        lane: 'Purity \u2014 P.U.R.E. H.E.A.R.T.S.',
+        skipQuiz: false,
+        nextLabel: 'If no brother is named, take a real path \u2014 clipboard-only is not done.',
+        links: [
+          { href: 'purity-intake.html', label: 'Purity intake' },
+          { href: 'freedom/', label: 'Freedom Group' },
+          { href: 'connect.html', label: 'Connect / mentoring' }
+        ]
+      };
+    }
+    if (id === 'happyHusband') {
+      return {
+        lane: 'Husband \u2014 HAPPY',
+        skipQuiz: false,
+        nextLabel: 'If no brother is named, take a real path \u2014 clipboard-only is not done.',
+        links: [
+          { href: 'connect.html', label: 'Connect / mentoring' },
+          { href: 'counseling-intake.html', label: 'Counseling intake' },
+          { href: 'https://usmcmin.com/tmc-husband/', label: 'The Husband Course' }
+        ]
+      };
+    }
+    if (id === 'fulfilledFather') {
+      return {
+        lane: 'Father \u2014 FULFILLED',
+        skipQuiz: false,
+        nextLabel: 'If no brother is named, take a real path \u2014 clipboard-only is not done.',
+        links: [
+          { href: 'connect.html', label: 'Connect / mentoring' },
+          { href: 'counseling-intake.html', label: 'Counseling intake' }
+        ]
+      };
+    }
+    if (id === 'realMan') {
+      return {
+        lane: 'Baseline \u2014 R.E.A.L. M.A.N.',
+        skipQuiz: false,
+        nextLabel: 'If no brother is named, take a real path \u2014 clipboard-only is not done.',
+        links: [
+          { href: 'connect.html', label: 'Connect / mentoring' },
+          { href: 'counseling-intake.html', label: 'Counseling intake' }
+        ]
+      };
+    }
+    if (id === 'resolute') {
+      return {
+        lane: 'Citizen \u2014 RESOLUTE',
+        skipQuiz: false,
+        nextLabel: 'If no brother is named, take a real path \u2014 clipboard-only is not done.',
+        links: [
+          { href: 'connect.html', label: 'Connect' },
+          { href: 'https://usmcmin.com/local.html', label: 'RESOLUTE Local' }
+        ]
+      };
+    }
+    return {
+      lane: 'Course graduate \u2014 P.R.O.V.E.N.',
+      skipQuiz: true,
+      nextLabel: 'Graduate AAR: one dated assignment. Not a weekly quiz.',
+      links: [
+        { href: 'connect.html', label: 'Connect / mentoring' },
+        { href: 'counseling-intake.html', label: 'Counseling intake' }
+      ]
+    };
+  }
+
+  function isoPlusDays(n) {
+    var dt = new Date();
+    dt.setDate(dt.getDate() + n);
+    var y = dt.getFullYear();
+    var m = String(dt.getMonth() + 1).padStart(2, '0');
+    var day = String(dt.getDate()).padStart(2, '0');
+    return y + '-' + m + '-' + day;
+  }
+
+  function weakestAxis(d, axes, getAxisAvg) {
+    var indexed = axes.map(function (_, i) { return { s: getAxisAvg(i), i: i }; }).sort(function (a, b) { return a.s - b.s; });
+    return axes[indexed[0].i];
+  }
+
+  function loadLoop(d) {
+    try {
+      return JSON.parse(localStorage.getItem(d.id + 'Loop') || 'null') || {};
+    } catch (e) {
+      return {};
+    }
+  }
+
+  function saveLoop(d, obj) {
+    localStorage.setItem(d.id + 'Loop', JSON.stringify(obj));
+  }
+
+  function dueDate90(iso) {
+    if (!iso) return '';
+    var dt = new Date(iso);
+    if (isNaN(dt.getTime())) return '';
+    dt.setDate(dt.getDate() + 90);
+    return dt.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  }
+
+  function buildRescoreBanner(d) {
+    var meta = laneMeta(d);
+    if (meta.skipQuiz) return;
+    var loop = loadLoop(d);
+    if (!loop.scoredAt) return;
+    var scored = new Date(loop.scoredAt);
+    if (isNaN(scored.getTime())) return;
+    var days = Math.floor((Date.now() - scored.getTime()) / 86400000);
+    var due = dueDate90(loop.scoredAt);
+    var el = document.getElementById('rescore-banner');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'rescore-banner';
+      el.className = 'rescore-banner';
+      var nav = document.querySelector('nav');
+      if (nav && nav.nextSibling) document.body.insertBefore(el, nav.nextSibling);
+      else document.body.insertBefore(el, document.body.firstChild);
+    }
+    if (days >= 90) {
+      el.innerHTML = '<strong>90-day re-score is due.</strong> Last snapshot ' + weeksAgo(loop.scoredAt) + (due ? ' \u2014 due ' + due : '') + '. One snapshot is a mood; two is a trajectory.';
+      el.style.display = 'block';
+    } else {
+      el.innerHTML = '<strong>Re-score this tool in 90 days.</strong> Last snapshot ' + weeksAgo(loop.scoredAt) + (due ? ' \u2014 ' + due : '') + '. Stay in this lane until then.';
+      el.style.display = 'block';
+    }
+  }
+
+  function buildMinistryLoop(d, axes, getAxisAvg) {
+    var meta = laneMeta(d);
+    var weak = weakestAxis(d, axes, getAxisAvg);
+    var host = document.getElementById('ministry-loop');
+    if (!host) return;
+    var existing = loadLoop(d);
+    var defaultDue = isoPlusDays(7);
+    var links = meta.links.map(function (l) {
+      return '<a class="btn btn-ghost" href="' + l.href + '">' + l.label + '</a>';
+    }).join(' ');
+    host.style.display = 'block';
+    host.innerHTML =
+      '<div class="section-title"><div class="dot"></div><div><h2>After the score \u2014 one loop</h2>' +
+      '<div class="subtitle">' + meta.lane + '. Do not take all six tools in one sitting.</div></div></div>' +
+      '<p class="loop-weak">Weakest axis: <strong>' + weak.letter + ' \u2014 ' + weak.word + '</strong> (' + getAxisAvg(axes.indexOf(weak)).toFixed(1) + '/10). Score without a dated assignment is noise.</p>' +
+      '<label class="loop-label" for="loop-assignment">One dated assignment on that axis (required before done)</label>' +
+      '<textarea id="loop-assignment" rows="3" placeholder="What you will do this week on this axis \u2014 specific, observable.">' + (existing.assignment || '') + '</textarea>' +
+      '<label class="loop-label" for="loop-due">Due date</label>' +
+      '<input id="loop-due" type="date" value="' + (existing.due || defaultDue) + '">' +
+      '<label class="loop-label" for="loop-brother">Brother named (optional \u2014 if empty, take a real path below)</label>' +
+      '<input id="loop-brother" type="text" placeholder="Name of the man you will tell" value="' + (existing.brother || '') + '">' +
+      '<p class="loop-next">' + meta.nextLabel + '</p>' +
+      '<div class="btn-row loop-paths">' + links + '</div>' +
+      (meta.skipQuiz ? '' : '<p class="loop-90">90-day re-score hint stays on this device. PROVEN is a graduate AAR, not a weekly quiz.</p>') +
+      '<div class="btn-row"><button class="btn btn-primary" type="button" id="loop-done-btn">Mark this loop done</button></div>' +
+      '<p id="loop-status" class="loop-status"></p>';
+    var btn = document.getElementById('loop-done-btn');
+    if (btn) {
+      btn.onclick = function () {
+        var assignment = (document.getElementById('loop-assignment').value || '').trim();
+        var due = (document.getElementById('loop-due').value || '').trim();
+        var brother = (document.getElementById('loop-brother').value || '').trim();
+        var status = document.getElementById('loop-status');
+        if (!assignment || !due) {
+          status.textContent = 'Not done. Name one dated assignment on the weakest axis first.';
+          return;
+        }
+        var rec = {
+          assignment: assignment,
+          due: due,
+          brother: brother,
+          weakLetter: weak.letter,
+          weakWord: weak.word,
+          scoredAt: new Date().toISOString(),
+          doneAt: new Date().toISOString()
+        };
+        saveLoop(d, rec);
+        if (!brother) {
+          status.innerHTML = 'Assignment locked. No brother named \u2014 clipboard is not the closer. Use intake / Connect / Freedom Group above.';
+        } else {
+          status.textContent = 'Loop locked with ' + brother + ' on ' + due + '. Re-score in 90 days.';
+        }
+        buildRescoreBanner(d);
+      };
+    }
+    if (existing.scoredAt) buildRescoreBanner(d);
+  }
+
   function runAssessment() {
     buildFormationPlan(ASSESSMENT_DATA, ASSESSMENT_DATA.axes, getAxisAvg, getRadarData);
   }
@@ -590,6 +780,7 @@
     fCard.innerHTML =
       '<div class="section-title"><div class="dot"></div><div><h2>Formation Plan</h2><div class="subtitle">' + (ASSESSMENT_DATA.formationSubtitle || 'Your ' + (ASSESSMENT_DATA.formationCount || 3) + ' weakest areas. Micro-habits, prayers, and conversation starters. No excuses.') + '</div></div></div>' +
       '<div id="formationContent"></div>' +
+      '<div id="ministry-loop" class="ministry-loop" style="display:none"></div>' +
       '<div class="btn-row" id="print-hide2">' +
         '<button class="btn btn-outline" onclick="printSummary()">\uD83D\uDDA8\uFE0F Print Summary</button>' +
         '<button class="btn btn-ghost" onclick="openShareModal()">\uD83D\uDCE4 Share with ' + (ASSESSMENT_DATA.sharePartner || 'Accountability Partner') + '</button>' +
@@ -619,6 +810,7 @@
     // Restore history
     renderHistory = function renderHistory() { buildHistory(ASSESSMENT_DATA, ASSESSMENT_DATA.axes); };
     renderHistory();
+    buildRescoreBanner(ASSESSMENT_DATA);
 
     // Wire up updateChart
     function updateCurrentChart() {
