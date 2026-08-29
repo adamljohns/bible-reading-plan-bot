@@ -72,6 +72,15 @@ function isEmpty(v) {
   return v === false; // booleans: absent reads as false on the page, so drop false
 }
 
+// P1-P3 presentation only. Keep rubric id `cultural` until the separately
+// approved P4 schema rename; churches.html paints this label from slim JSON.
+function presentSlimRubric(rubric) {
+  return (rubric || []).map(r => {
+    if (!r || r.id !== 'cultural' || r.label === 'Kingdom Alignment') return r;
+    return { ...r, label: 'Kingdom Alignment' };
+  });
+}
+
 // Geo for the "City, State or ZIP" radius lookup (2026-07-11): each index entry
 // gets ll:[lat,lng] — the church's own geocode when present (11k records), else
 // the Census centroid of the trailing 5-digit ZIP in its address (13k more).
@@ -131,7 +140,8 @@ function buildIndex(data) {
 // Slim index — same wrapper as the legacy index (footer reads total_churches +
 // directory_updated from it), entries limited to SLIM_FIELDS + derived fields.
 function buildSlimIndex(data) {
-  const rubric = data.rubric || [];
+  const sourceRubric = data.rubric || [];
+  const rubric = presentSlimRubric(sourceRubric);
   const warnings = new Set(); // buildIndex already prints these; stay quiet here
   const churches = data.churches.map(c => {
     const slim = {};

@@ -48,4 +48,28 @@ assert(data.rubric.some(r => r.id === 'cultural'), 'legacy cultural key was migr
 assert(data.rubric.some(r => r.id === 'denominational'), 'legacy denominational key was migrated');
 assert(!data.rubric.some(r => r.id === 'kingdom_alignment'), 'P4 schema migration was performed');
 
+const { buildSlimIndex } = require('../scripts/build-church-index');
+const fixtureSlim = buildSlimIndex({
+  directory_version: 'test',
+  directory_updated: '2026-08-29',
+  total_churches: 1,
+  rubric: [
+    { id: 'cultural', label: 'Cultural Alignment', description: 'DEI/CRT language? Social justice crowding out gospel?' },
+    { id: 'denominational', label: 'Accountability Structure', description: 'x' }
+  ],
+  churches: [{ id: 'sample', name: 'Sample', overall_rating: 'yellow' }]
+});
+const fixtureCultural = fixtureSlim.rubric.find(r => r.id === 'cultural');
+assert(fixtureCultural, 'slim builder dropped cultural rubric id');
+assert.strictEqual(fixtureCultural.id, 'cultural', 'P4 schema-id rename leaked into slim builder');
+assert.strictEqual(fixtureCultural.label, 'Kingdom Alignment', 'slim builder must present cultural as Kingdom Alignment');
+assert.ok(!fixtureSlim.rubric.some(r => r.id === 'kingdom_alignment'), 'P4 schema migration leaked into slim builder');
+
+const slim = JSON.parse(read('docs/data/churches-index-slim.json'));
+const slimCultural = slim.rubric.find(r => r.id === 'cultural');
+assert(slimCultural, 'slim index missing cultural rubric id');
+assert.strictEqual(slimCultural.id, 'cultural', 'P4 schema-id rename leaked into slim index');
+assert.strictEqual(slimCultural.label, 'Kingdom Alignment', 'slim index cultural display label is not Kingdom Alignment');
+assert.ok(!slim.rubric.some(r => r.id === 'kingdom_alignment'), 'P4 schema migration leaked into slim index');
+
 console.log('Kingdom Alignment P1-P3 regression checks passed.');
