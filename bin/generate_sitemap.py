@@ -29,6 +29,18 @@ BASE_URL = 'https://usmcmin.org'
 
 SKIP_SEGMENTS = {'_archive', '_backup', '_wip', '_drafts', '.git', 'node_modules'}
 
+# PIN-theater / family-ops pages: listed on sitemap.html as Private, not for crawlers.
+SKIP_FILES = {
+    'workflows.html',
+    'tacc.html',
+    'first-officer.html',
+    'crew-quarters.html',
+    'family-meeting.html',
+    'contacts.html',
+    'brand-assets.html',
+    'dev-resources.html',
+}
+
 PRIORITY_BY_PREFIX = [
     ('blog/',       '0.8',   'weekly'),
     ('dictionary/', '0.6',   'monthly'),
@@ -84,6 +96,8 @@ def collect_urls():
         dirs[:] = [d for d in dirs if d not in SKIP_SEGMENTS]
         for fn in files:
             if not fn.endswith('.html'):
+                continue
+            if fn in SKIP_FILES:
                 continue
             full = os.path.join(root, fn)
             if _has_noindex(full):
