@@ -130,6 +130,34 @@ if [ "$N_BATCH" -eq 0 ]; then
   exit 0
 fi
 POOL=$(grep -oE 'pastor-fetchable\): [0-9]+' "$WORK/selector.txt" | grep -oE '[0-9]+$' | head -1)
+YIELD_LANE=$(node scripts/grind-lane-status.js --mode-only)
+if [ "$YIELD_LANE" = "nothing-to-grind" ]; then
+  say "LANE-DEAD apply-lanes — NOTHING TO GRIND (3+ consecutive empty hops)"
+  exit 0
+fi
+if [ "$YIELD_LANE" != "fresh" ] && [ "$YIELD_LANE" != "retry" ] && [ "$YIELD_LANE" != "social" ]; then
+  say "LANE-DEAD apply-lanes — advancing to frontier ($YIELD_LANE)"
+  /bin/bash scripts/continuous-enrichment-lane.sh "$WORK" "$LOG" \
+    || die "continuous frontier lane failed"
+  exit 0
+fi
+if [ "$YIELD_LANE" = "fresh" ] || [ "$YIELD_LANE" = "retry" ] || [ "$YIELD_LANE" = "social" ]; then
+  if [ "$MODE" != "$YIELD_LANE" ]; then
+    say "yield-aware replan: $MODE -> $YIELD_LANE"
+    MODE="$YIELD_LANE"
+    SOCIAL_FLAG=""; [ "$MODE" = "social" ] && SOCIAL_FLAG="--social"
+    RETRY_FLAG=""; [ "$MODE" = "retry" ] && RETRY_FLAG="--retry"
+    node scripts/select-enrichment-batch.js $RETRY_FLAG $SOCIAL_FLAG --count "$BATCH" --batches 1 --out "$WORK" >"$WORK/selector.txt" 2>&1 \
+      || die "selector failed (yield-aware replan)"
+    cat "$WORK/selector.txt" >>"$LOG"
+    N_BATCH=$(node -e 'console.log(require("'"$WORK"'/enrich-batch-1.json").length)' 2>/dev/null || echo 0)
+    POOL=$(grep -oE 'pastor-fetchable\): [0-9]+' "$WORK/selector.txt" | grep -oE '[0-9]+$' | head -1)
+    if [ "$N_BATCH" -eq 0 ]; then
+      say "NOTHING TO GRIND — yield lane $YIELD_LANE returned zero batch"
+      exit 0
+    fi
+  fi
+fi
 say "mode=$MODE pool=${POOL:-?} batch=$N_BATCH"
 
 python3 scripts/local-pastor-extract.py "$WORK/enrich-batch-1.json" "$WORK/enriched.json" >>"$LOG" 2>&1 \
@@ -160,10 +188,10 @@ if [ "$MODE" = "retry" ]; then
   fi
 fi
 
-if [ "$CONTENT_APPLIED" -eq 0 ] && [ "$MERGE_MUTATED" -eq 0 ]; then
-  say "zero content or operational changes — recording heartbeat only"
+if [ "$CONTENT_APPLIED" -eq 0 ]; then
+  say "zero applied — skip qa-sample/grind-stats/regen/commit/push (no deploy trigger)"
   node scripts/append-grind-stats.js --mode "$MODE" --attempted "$N_BATCH" --found 0 --applied 0 \
-    --pastors-applied 0 --socials-applied 0 --records-updated 0 >>"$LOG" 2>&1 \
+    --pastors-applied 0 --socials-applied 0 --records-updated "$MERGE_MUTATED" >>"$LOG" 2>&1 \
     || say "grind-stats heartbeat failed (non-fatal)"
 else
   # Publish a QA sample for the fleet: the newest local-extract finds land at

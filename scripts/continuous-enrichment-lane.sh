@@ -61,6 +61,10 @@ case "$LANE" in
     P=$(grep -oE '\+[0-9]+ phones' "$MERGE" | grep -oE '[0-9]+' | head -1); P=${P:-0}
     APPLIED=$((W + G + P))
     ;;
+  nothing-to-grind)
+    say "NOTHING TO GRIND — all apply lanes cold (3+ consecutive empty hops)"
+    exit 0
+    ;;
   monitoring)
     say "no executable frontier lane; unresolved dead-site and review queues remain"
     ;;

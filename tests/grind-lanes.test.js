@@ -81,14 +81,24 @@ assert.ok(html.includes("card('Validated content applied'"), 'dashboard must rep
 assert.ok(html.includes('r.pastors_applied ?? r.found') && html.includes('r.applied ?? r.found'), 'round table must separate pastor and total-content fields');
 assert.ok(runner.includes('--found "$APPLIED" --applied "$CONTENT_APPLIED"'), 'dashboard applied count must include all guarded content fields, not extracted candidates');
 assert.ok(runner.includes('--pastors-applied "$APPLIED" --socials-applied "$SOC_APPLIED"'), 'dashboard must preserve separate pastor and social counts');
-assert.ok(runner.includes('MERGE_MUTATED=1'), 'zero-yield operational stamps must be detected so dead records cannot repeat forever');
-assert.ok(!runner.includes('zero applied — skip qa-sample/grind-stats/regen/push'), 'zero-yield rounds must not discard selector-advance stamps');
+assert.ok(runner.includes('MERGE_MUTATED=1'), 'operational stamp detection must remain wired');
+assert.ok(runner.includes('zero applied — skip qa-sample/grind-stats/regen/commit/push'), 'zero-yield rounds must not deploy');
+assert.ok(runner.includes('NOTHING TO GRIND'), 'cold apply lanes must exit without commit');
+
+const cold = { fresh: 0, retry: 5, social: 5, source_recovery: 0 };
+const streaksCold = { fresh: 0, retry: 3, social: 3 };
+assert.strictEqual(lanes.chooseLane(cold, null, streaksCold), 'nothing-to-grind');
+assert.strictEqual(lanes.chooseLane({ fresh: 0, retry: 5, social: 5, source_recovery: 10 }, null, streaksCold), 'source-recovery');
+const streaksThaw = { fresh: 0, retry: 3, social: 3 };
+assert.strictEqual(lanes.chooseLane({ fresh: 2, retry: 5, social: 5 }, null, streaksThaw), 'fresh');
+assert.strictEqual(lanes.chooseLane({ fresh: 0, retry: 5, social: 5 }, null, { fresh: 0, retry: 0, social: 3 }), 'retry');
+assert.ok(runner.includes('LANE-DEAD'), 'cold apply lanes must emit LANE-DEAD');
 
 const plan = cp.execFileSync('/bin/bash', [path.join(ROOT, 'scripts/continuous-enrichment-lane.sh'), '/tmp/prl-test'], {
   cwd: ROOT,
   env: { ...process.env, CONTINUOUS_PLAN_ONLY: '1' },
   encoding: 'utf8',
 });
-assert.match(plan, /^lane=(fresh|retry|social|website-discovery|source-recovery|monitoring)\b/, 'planner must report a recognized next lane after live data changes');
+assert.match(plan, /^lane=(fresh|retry|social|website-discovery|source-recovery|monitoring|nothing-to-grind)\b/, 'planner must report a recognized next lane after live data changes');
 
 console.log('grind-lanes: all assertions passed');

@@ -19,12 +19,18 @@ const pool_fresh = counts.fresh, pool_retry = counts.retry, pool_social = counts
 const US_UNIVERSE = 350000; // ~congregations, 2020 U.S. Religion Census
 const us_total = d.filter(c => c.country_code === 'US' || !c.country_code).length;
 
+const mode = arg('--mode', 'fresh');
+const applied = parseInt(arg('--applied', arg('--found', '0')), 10);
+if (lanes.APPLY_LANES.includes(mode)) {
+  lanes.recordLaneHop(mode, applied, ROOT);
+}
+
 const row = {
   ts: arg('--ts', new Date().toISOString().slice(0, 16)),
-  mode: arg('--mode', 'fresh'),
+  mode,
   attempted: parseInt(arg('--attempted', '0'), 10),
   found: parseInt(arg('--found', '0'), 10),
-  applied: parseInt(arg('--applied', arg('--found', '0')), 10),
+  applied,
   pastors_applied: parseInt(arg('--pastors-applied', arg('--found', '0')), 10),
   socials_applied: parseInt(arg('--socials-applied', '0'), 10),
   records_updated: parseInt(arg('--records-updated', '0'), 10),
