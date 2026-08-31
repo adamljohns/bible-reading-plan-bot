@@ -77,7 +77,14 @@ while [ "$(date +%s)" -lt "$DEADLINE" ]; do
     LFS_WARN=$(tail -40 "$HOME/Library/Logs/pastor-refine-local.log" 2>/dev/null | grep -ci 'git lfs' || true)
     LFS_WARNINGS=$((LFS_WARNINGS + LFS_WARN))
   else
-    FAILS=$((FAILS+1)); say "round FAILED (consecutive=$FAILS)"
+    RC=$?
+    # Exit 3 = the yield gate halted the round on purpose (dead pool). That is a
+    # correct outcome, not a fault: end the session cleanly instead of burning a
+    # second round to prove it twice.
+    if [ "$RC" -eq 3 ]; then
+      ABORT_REASON="aborted: yield gate HALT (dead pool)"; say "$ABORT_REASON"; break
+    fi
+    FAILS=$((FAILS+1)); say "round FAILED rc=$RC (consecutive=$FAILS)"
     [ "$FAILS" -ge 2 ] && { say "two consecutive failures — ending early (alerts already sent)"; break; }
   fi
   # Extraction-pool exhaustion now advances into bounded frontier lanes. Only a

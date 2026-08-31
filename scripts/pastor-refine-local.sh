@@ -174,10 +174,23 @@ if [ "$N_BATCH" -eq 0 ]; then
   exit 0
 fi
 POOL=$(grep -oE 'pastor-fetchable\): [0-9]+' "$WORK/selector.txt" | grep -oE '[0-9]+$' | head -1)
+# ── P5 yield gate (governance rule 6) ───────────────────────────────────────
+# Consult the gate BEFORE spending a batch. Exit 3 = every apply lane is cold
+# after 3 consecutive +0 batches with no fallback; exit 2 = the gate examined
+# nothing. Both are non-zero on purpose: a round that can only fill nothing
+# must not report success. This is what 129 of 213 refine commits in the
+# 8/23-8/30 sprint needed and did not have.
+GATE_OUT=$(node scripts/refine-yield-gate.js 2>&1); GATE_CODE=$?
+printf '%s\n' "$GATE_OUT" >>"$LOG"
+if [ "$GATE_CODE" -ne 0 ]; then
+  say "YIELD GATE HALT (exit $GATE_CODE) — no batch spent this round"
+  printf '%s\n' "$GATE_OUT" | sed 's/^/  gate| /' | tee -a "$LOG"
+  exit "$GATE_CODE"
+fi
 YIELD_LANE=$(node scripts/grind-lane-status.js --mode-only)
 if [ "$YIELD_LANE" = "nothing-to-grind" ]; then
   say "LANE-DEAD apply-lanes — NOTHING TO GRIND (3+ consecutive empty hops)"
-  exit 0
+  exit 3
 fi
 if [ "$YIELD_LANE" != "fresh" ] && [ "$YIELD_LANE" != "retry" ] && [ "$YIELD_LANE" != "social" ]; then
   say "LANE-DEAD apply-lanes — advancing to frontier ($YIELD_LANE)"
@@ -198,7 +211,7 @@ if [ "$YIELD_LANE" = "fresh" ] || [ "$YIELD_LANE" = "retry" ] || [ "$YIELD_LANE"
     POOL=$(grep -oE 'pastor-fetchable\): [0-9]+' "$WORK/selector.txt" | grep -oE '[0-9]+$' | head -1)
     if [ "$N_BATCH" -eq 0 ]; then
       say "NOTHING TO GRIND — yield lane $YIELD_LANE returned zero batch"
-      exit 0
+      exit 3
     fi
   fi
 fi
@@ -235,6 +248,9 @@ fi
 PENDING_STATS="$HOME/Library/Logs/prl-pending-grind-stats.json"
 if [ "$CONTENT_APPLIED" -eq 0 ]; then
   say "zero applied — skip qa-sample/grind-stats/regen/commit/push (no deploy trigger)"
+  # An empty hop MUST count against the lane, or the gate above can never trip.
+  node scripts/refine-yield-gate.js --record "$MODE" 0 >>"$LOG" 2>&1 \
+    || say "yield-gate hop record failed (non-fatal)"
   PRL_MODE="$MODE" PRL_ATTEMPTED="$N_BATCH" node -e '
     const fs=require("fs");
     const pending=process.env.HOME+"/Library/Logs/prl-pending-grind-stats.json";
