@@ -120,7 +120,7 @@ const SCORE_PRESENTATION = {
   scripture: { slug: 'scripture' },
   mens_discipleship: { slug: 'mens-discipleship' },
   soteriology: { slug: 'soteriology' },
-  gender: { slug: 'gender-biblical-design' },
+  gender: { slug: 'gender-biblical-design', description: "Biblical manhood and womanhood by God's design — Scriptural patriarchy, biblical manhood, Christlike headship, egalitarian, or affirming gender ideology?" },
   leadership: { slug: 'leadership-structure' },
   preaching: { slug: 'preaching-style' },
   mission: { slug: 'mission-clarity' },
