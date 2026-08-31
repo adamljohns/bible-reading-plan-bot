@@ -25,6 +25,40 @@ say()   { echo "[$(date '+%F %T')] $*" | tee -a "$LOG"; }
 alert() { say "ALERT: $*"; [ -x "$NOTIFY" ] && "$NOTIFY" --level warning --title "pastor-refine-local" --body "$*" >/dev/null 2>&1; }
 die()   { alert "$1"; exit 1; }
 
+# Rebase+push HEAD onto origin/main. Rebase refuses a dirty tree; leftover
+# churches-index-slim.json is the usual culprit (it was omitted from git add).
+# Generated-index conflicts are rebuilt from canonical churches.json.
+# Non-generated conflicts abort cleanly so the unique commit is not wiped.
+land_head_on_main() {
+  git fetch -q origin main || return 1
+  if ! git diff --quiet; then
+    git restore --worktree --source=HEAD -- docs/data/churches-index-slim.json || true
+  fi
+  if ! git diff --quiet; then
+    say "unstaged changes block rebase"
+    return 1
+  fi
+  if ! git rebase -q FETCH_HEAD; then
+    UNMERGED=$(git diff --name-only --diff-filter=U)
+    BAD_CONFLICTS=$(printf '%s\n' "$UNMERGED" | grep -Ev '^(docs/data/churches-index(-slim)?\.json|docs/data/churches/(by-state|by-denomination-family)/.+)$' || true)
+    if [ -n "$UNMERGED" ] && [ -z "$BAD_CONFLICTS" ]; then
+      say "rebase conflict is generated indexes only — rebuilding from canonical churches.json"
+      python3 scripts/build_state_shards.py >>"$LOG" 2>&1 \
+        && python3 scripts/build_denomination_shards.py >>"$LOG" 2>&1 \
+        && node scripts/build-church-index.js >>"$LOG" 2>&1 \
+        || { git rebase --abort >/dev/null 2>&1 || true; return 1; }
+      git add docs/data/churches-index.json docs/data/churches-index-slim.json docs/data/churches/by-state docs/data/churches/by-denomination-family
+      GIT_EDITOR=true git rebase --continue >>"$LOG" 2>&1 \
+        || { git rebase --abort >/dev/null 2>&1 || true; return 1; }
+    else
+      git rebase --abort >/dev/null 2>&1 || true
+      say "push rebase hit non-generated conflict; rebase aborted cleanly"
+      return 1
+    fi
+  fi
+  git push -q origin HEAD:main
+}
+
 mkdir "$LOCK" 2>/dev/null || { say "lock held — another run in progress, exiting"; exit 0; }
 trap 'rmdir "$LOCK" 2>/dev/null' EXIT
 
@@ -33,6 +67,16 @@ cd "$WT" || die "cd $WT failed"
 
 say "── round start (batch=$BATCH) ──"
 git fetch -q origin main            || die "git fetch failed"
+if [ -d "$(git rev-parse --git-path rebase-merge)" ] || [ -d "$(git rev-parse --git-path rebase-apply)" ]; then
+  say "leftover rebase in progress — aborting before reset"
+  git rebase --abort >/dev/null 2>&1 || true
+fi
+# A failed push leaves a unique commit on this worktree. reset --hard FETCH_HEAD
+# would destroy it (2026-08-31 12:59 stranded refine). Salvage first.
+if ! git merge-base --is-ancestor HEAD FETCH_HEAD; then
+  say "unpushed local commit — salvage rebase/push before reset"
+  land_head_on_main || die "push failed after rebase retry — commit stranded in autopilot worktree"
+fi
 # reset --hard moves the detached HEAD to FETCH_HEAD AND overwrites local dirt in one
 # unstoppable step. (A plain `checkout --detach` REFUSES a dirty tree — leftover dirt
 # from one died round deadlocked EVERY later round 07-12→07-15: 16 sessions, 32
@@ -265,13 +309,12 @@ else
 
   if [ -n "$(git status --porcelain)" ]; then
     git add docs/data/churches.json docs/data/grind-stats.json
-    [ "$CONTENT_APPLIED" -gt 0 ] && git add docs/churches/ docs/data/churches-index.json docs/data/churches/ docs/data/qa-sample.json docs/sitemap-churches.xml
+    [ "$CONTENT_APPLIED" -gt 0 ] && git add docs/churches/ docs/data/churches-index.json docs/data/churches-index-slim.json docs/data/churches/ docs/data/qa-sample.json docs/sitemap-churches.xml
     git commit -qm "Directory refine: +$CONTENT_APPLIED content fields ($APPLIED pastors, $SOC_APPLIED socials) of $N_BATCH attempted ($MODE)" \
       || die "commit failed"
     if ! git push -q origin HEAD:main; then
       say "push rejected — rebasing onto fresh origin/main and retrying"
-      git fetch -q origin main && git rebase -q FETCH_HEAD && git push -q origin HEAD:main \
-        || die "push failed after rebase retry — commit stranded in autopilot worktree"
+      land_head_on_main || die "push failed after rebase retry — commit stranded in autopilot worktree"
     fi
     say "pushed: +$CONTENT_APPLIED content fields ($APPLIED pastors, $SOC_APPLIED socials), operational_mutation=$MERGE_MUTATED ($N_BATCH attempted)"
   else
