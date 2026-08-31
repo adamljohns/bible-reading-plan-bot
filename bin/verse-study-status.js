@@ -71,6 +71,21 @@ function main() {
   const counts = {};
   rows.forEach((r) => { counts[r.state] = (counts[r.state] || 0) + 1; });
 
+  // --next / --json exist so the unattended writing loop
+  // (~/Scripts/verse-study-loop.sh) can pick the next verse without scraping
+  // this report's prose. --next prints one ref and nothing else; it exits 3
+  // when the backlog is empty, which is the loop's stop signal.
+  if (process.argv.includes('--json')) {
+    console.log(JSON.stringify({ total: refs.length, counts, rows }, null, 1));
+    return;
+  }
+  if (process.argv.includes('--next')) {
+    const n = rows.find((r) => r.state === 'draft-scaffolded' || r.state === 'not-started');
+    if (!n) { console.error('backlog empty — every memorize verse is written'); process.exit(3); }
+    console.log(n.ref);
+    return;
+  }
+
   console.log(`Deep verse studies — memorize backlog (${refs.length} verses)\n`);
   order.forEach((s) => {
     if (!counts[s]) return;
