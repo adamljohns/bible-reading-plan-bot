@@ -43,12 +43,39 @@ const ph=p=>{const s=String(p||"").trim();return !s||/^(pastors?|tbd|n\/?a|none|
 const n=c=>(!ph(c.pastor)?1:0)+Object.keys(c.scores||{}).filter(k=>c.scores[k]).length+(String(c.assessment||"").trim()?1:0)+(c.facebook?1:0)+(c.youtube?1:0)+(c.instagram?1:0)+(c.phone?1:0)+(c.website?1:0)+(c.address?1:0)+(c.denomination_family||c.denomination?1:0);
 console.log(d.reduce((a,c)=>a+n(c),0))}catch(e){console.log(0)}' 2>/dev/null || echo 0)
 
+fresh_pool_count() {
+  local out="/tmp/grind-fresh-pool-check.txt" wd="$HOME/bible-reading-plan-bot-autopilot"
+  node "$wd/scripts/select-enrichment-batch.js" --count 1 --batches 1 --out /tmp/grind-fresh-pool-check \
+    >"$out" 2>&1 || { echo 0; return; }
+  grep -oE 'pastor-fetchable\): [0-9]+' "$out" | grep -oE '[0-9]+$' | head -1
+}
+
+round_was_zero_yield() {
+  tail -30 "$HOME/Library/Logs/pastor-refine-local.log" 2>/dev/null \
+    | grep -q "zero applied — skip qa-sample/grind-stats/regen/commit/push"
+}
+
 say "════ ${DURATION_H}h session START (batch $PASTOR_REFINE_BATCH, ${COOLDOWN}s cooldown, start pastors=$START_P, profile_fields=$START_C) ════"
-ROUNDS=0; FAILS=0
+ROUNDS=0; FAILS=0; ZERO_STREAK=0; ABORT_REASON=""; LFS_WARNINGS=0
 while [ "$(date +%s)" -lt "$DEADLINE" ]; do
   [ -f "$STOP" ] && { say "stop switch — ending session"; rm -f "$STOP"; break; }
+  FRESH_POOL=$(fresh_pool_count); FRESH_POOL=${FRESH_POOL:-0}
+  if [ "$FRESH_POOL" -lt 10 ]; then
+    ABORT_REASON="aborted: fresh pool ${FRESH_POOL} < 10 at round start"
+    say "$ABORT_REASON"
+    break
+  fi
   if /bin/bash "$RUNNER" >>"$LOG" 2>&1; then
     FAILS=0; ROUNDS=$((ROUNDS+1))
+    if round_was_zero_yield; then
+      ZERO_STREAK=$((ZERO_STREAK+1))
+      say "zero-yield round (consecutive=$ZERO_STREAK)"
+      [ "$ZERO_STREAK" -ge 3 ] && { ABORT_REASON="aborted: 3 consecutive +0 rounds"; say "$ABORT_REASON"; break; }
+    else
+      ZERO_STREAK=0
+    fi
+    LFS_WARN=$(tail -40 "$HOME/Library/Logs/pastor-refine-local.log" 2>/dev/null | grep -ci 'git lfs' || true)
+    LFS_WARNINGS=$((LFS_WARNINGS + LFS_WARN))
   else
     FAILS=$((FAILS+1)); say "round FAILED (consecutive=$FAILS)"
     [ "$FAILS" -ge 2 ] && { say "two consecutive failures — ending early (alerts already sent)"; break; }
@@ -72,6 +99,10 @@ const n=c=>(!ph(c.pastor)?1:0)+Object.keys(c.scores||{}).filter(k=>c.scores[k]).
 console.log(d.reduce((a,c)=>a+n(c),0))}catch(e){console.log(0)}' 2>/dev/null || echo 0)
 GAIN=$(( END_P - START_P ))
 CONTENT_GAIN=$(( END_C - START_C ))
-say "════ session DONE: $ROUNDS rounds, +$CONTENT_GAIN profile fields (+$GAIN pastors; total pastors $END_P) ════"
+HEAD_SHA=$(git -C "$HOME/bible-reading-plan-bot-autopilot" rev-parse HEAD 2>/dev/null || echo unknown)
+ORIGIN_SHA=$(git -C "$HOME/bible-reading-plan-bot-autopilot" rev-parse origin/main 2>/dev/null || echo unknown)
+SYNC_PROOF="head=$HEAD_SHA origin=$ORIGIN_SHA"
+[ "$HEAD_SHA" = "$ORIGIN_SHA" ] && SYNC_PROOF="$SYNC_PROOF MATCH" || SYNC_PROOF="$SYNC_PROOF MISMATCH"
+say "════ session DONE: $ROUNDS rounds, +$CONTENT_GAIN profile fields (+$GAIN pastors; total pastors $END_P) abort=${ABORT_REASON:-none} lfs_warnings=$LFS_WARNINGS $SYNC_PROOF ════"
 [ -x "$NOTIFY" ] && [ "$ROUNDS" -gt 0 ] && "$NOTIFY" --level info --title "⛏️ Directory grind session done" \
   --body "$ROUNDS rounds, +$CONTENT_GAIN profile fields (+$GAIN pastors; total pastors $END_P). Live: https://usmcmin.org/grind-report.html" >/dev/null 2>&1 || true

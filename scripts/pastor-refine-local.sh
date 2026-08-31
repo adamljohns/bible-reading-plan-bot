@@ -188,11 +188,16 @@ if [ "$MODE" = "retry" ]; then
   fi
 fi
 
+PENDING_STATS="$HOME/Library/Logs/prl-pending-grind-stats.json"
 if [ "$CONTENT_APPLIED" -eq 0 ]; then
   say "zero applied — skip qa-sample/grind-stats/regen/commit/push (no deploy trigger)"
-  node scripts/append-grind-stats.js --mode "$MODE" --attempted "$N_BATCH" --found 0 --applied 0 \
-    --pastors-applied 0 --socials-applied 0 --records-updated "$MERGE_MUTATED" >>"$LOG" 2>&1 \
-    || say "grind-stats heartbeat failed (non-fatal)"
+  PRL_MODE="$MODE" PRL_ATTEMPTED="$N_BATCH" node -e '
+    const fs=require("fs");
+    const pending=process.env.HOME+"/Library/Logs/prl-pending-grind-stats.json";
+    let rows=[]; try{rows=JSON.parse(fs.readFileSync(pending,"utf8"))}catch(_){}
+    rows.push({ts:new Date().toISOString().slice(0,16),mode:process.env.PRL_MODE||"fresh",attempted:+process.env.PRL_ATTEMPTED||0,applied:0,pending:true});
+    fs.writeFileSync(pending,JSON.stringify(rows,null,1));
+  ' >>"$LOG" 2>&1 || say "pending grind-stats queue failed (non-fatal)"
 else
   # Publish a QA sample for the fleet: the newest local-extract finds land at
   # https://usmcmin.org/data/qa-sample.json so Chaps (web_fetch-only tooling) can
@@ -218,6 +223,20 @@ else
   node scripts/append-grind-stats.js --mode "$MODE" --attempted "$N_BATCH" --found "$APPLIED" --applied "$CONTENT_APPLIED" \
     --pastors-applied "$APPLIED" --socials-applied "$SOC_APPLIED" --records-updated "$MERGE_MUTATED" \
     >>"$LOG" 2>&1 || say "grind-stats update failed (non-fatal)"
+  if [ -f "$PENDING_STATS" ]; then
+    node -e '
+      const fs=require("fs"),path=require("path");
+      const pending=process.env.HOME+"/Library/Logs/prl-pending-grind-stats.json";
+      const P=path.join(process.env.HOME,"bible-reading-plan-bot-autopilot/docs/data/grind-stats.json");
+      let pendingRows=[]; try{pendingRows=JSON.parse(fs.readFileSync(pending,"utf8"))}catch(_){}
+      if(!pendingRows.length) process.exit(0);
+      let j={series:[]}; try{j=JSON.parse(fs.readFileSync(P,"utf8"))}catch(_){}
+      j.series.push(...pendingRows);
+      fs.writeFileSync(P,JSON.stringify(j,null,1));
+      fs.unlinkSync(pending);
+      console.log("folded",pendingRows.length,"pending grind-stats rows");
+    ' >>"$LOG" 2>&1 || say "pending grind-stats fold failed (non-fatal)"
+  fi
   if [ "$CONTENT_APPLIED" -gt 0 ]; then
     node generate-church-pages.js >>"$LOG" 2>&1 \
       || { git reset -q --hard; die "regen failed — working tree reset"; }
