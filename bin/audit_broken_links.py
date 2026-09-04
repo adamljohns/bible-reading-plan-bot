@@ -28,8 +28,23 @@ SKIP_DIRS = {'_archive', '_backup', '_wip', '_drafts', 'churches', 'lexicon', 'c
 # Template/scaffold HTML files that aren't real served pages — they hold placeholder hrefs
 SKIP_FILES = {'docs/assets/lexicon-template.html', 'docs/assets/blog-template.html'}
 
-HREF_RE = re.compile(r'href=["\']([^"\'#]+?)["\']', re.IGNORECASE)
+# Match the opening quote and require the SAME quote to close. The previous
+# pattern excluded both quote characters from the body, so a double-quoted href
+# containing an apostrophe -- worship/slides/Jesus, Lover of My Soul (It's all
+# about You).pdf -- was truncated at "It" and reported broken forever.
+HREF_RE = re.compile(r'href=(["\'])([^#]*?)\1', re.IGNORECASE)
 EXTERNAL_RE = re.compile(r'^(https?:|mailto:|tel:|javascript:|data:|//)', re.IGNORECASE)
+# Any other custom URI scheme (lmstudio://, obsidian://, zoommtg://). These are
+# app handlers, not site paths; without this the auditor resolved "lmstudio://"
+# to the nonsense path "lmstudio:/index.html" and reported it broken forever.
+CUSTOM_SCHEME_RE = re.compile(r'^[a-z][a-z0-9+.-]*://', re.IGNORECASE)
+# Large media is uploaded to R2 out of band (rclone copy) and is deliberately
+# absent from the git checkout -- deploy-r2.yml excludes these same patterns
+# from the sync so a grind deploy cannot delete them. On a developer machine
+# they happen to exist locally, in CI they never do, so counting them made the
+# broken-link total differ between local and CI. They are live on R2; they are
+# not broken links.
+OUT_OF_BAND_RE = re.compile(r'^/?assets/(media|video)/.*\.(mp4|m4a)$', re.IGNORECASE)
 # JS template / placeholder patterns — these are runtime-rendered, not real hrefs
 TEMPLATE_RE = re.compile(r'\$\{|\{\{|<%|\[[A-Z_]+\]')
 # Bare bible.us / bible.com etc. without protocol — older posts use this form,
@@ -42,7 +57,9 @@ PROTOCOL_LESS_BIBLE = re.compile(r'^bible\.(us|com|cc|gateway\.com)/', re.IGNORE
 def resolve_link(source_file, href):
     """Given a source HTML file and an href, return the resolved absolute path
     on disk that the link points to. None if not a file-resolvable link."""
-    if not href or EXTERNAL_RE.match(href):
+    if not href or EXTERNAL_RE.match(href) or CUSTOM_SCHEME_RE.match(href):
+        return None
+    if OUT_OF_BAND_RE.match(href.split('?')[0]):
         return None
     # Skip JS template literals / placeholder patterns — these are runtime hrefs
     if TEMPLATE_RE.search(href):
@@ -98,7 +115,7 @@ def main(max_broken=None):
             html_scan = re.sub(r'<(pre|code|script|textarea)\b[^>]*>.*?</\1>', '', html,
                                flags=re.IGNORECASE | re.DOTALL)
             for m in HREF_RE.finditer(html_scan):
-                href = m.group(1).strip()
+                href = m.group(2).strip()
                 target = resolve_link(src, href)
                 if target is None:
                     continue

@@ -194,6 +194,7 @@ def main():
     ap.add_argument("--apply", metavar="LISTFILE")
     ap.add_argument("--reason", default="failed bin/lexicon-gate.js")
     ap.add_argument("--restore", nargs="?", const="", metavar="PATH")
+    ap.add_argument("--restore-list", metavar="LISTFILE")
     ap.add_argument("--all", action="store_true")
     ap.add_argument("--status", action="store_true")
     a = ap.parse_args()
@@ -212,6 +213,14 @@ def main():
             print("refusing to run on an empty list", file=sys.stderr)
             return 2
         return cmd_apply(paths, a.reason)
+
+    if a.restore_list:
+        paths = [l.strip() for l in open(a.restore_list) if l.strip()]
+        if not paths:
+            print("refusing to restore from an empty list", file=sys.stderr)
+            return 2
+        cmd_restore(paths)
+        return 0
 
     if a.restore is not None:
         if a.all:

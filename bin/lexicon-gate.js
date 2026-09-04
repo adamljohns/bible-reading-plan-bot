@@ -71,7 +71,20 @@ function chapter(bookId, ch) {
 function verseCarriesCode(ref, num, prefix) {
   const m = String(ref).match(/^([1-3]?\s*[A-Za-z ]+?)\s+(\d+):(\d+)/);
   if (!m) return null;                       // unparseable — reported separately
-  const id = BOOK_IDS[m[1].trim().toLowerCase()];
+  // The ref extractor below is greedy about a leading capitalised word, so it
+  // hands us "In John 19:13" or "Verses Matthew 1:13" (the latter from the
+  // "Key Bible Verses" heading that sits directly above the first citation on
+  // every page). Those resolved to an unknown book and were silently dropped
+  // from the checked set — and the dropped one was usually THE verse that
+  // confirms the code, which is how ~194 sound pages were reported as having
+  // invented usage sections on 2026-09-03. Retry on progressively shorter
+  // leading words before giving up.
+  let bookRaw = m[1].trim();
+  let id = BOOK_IDS[bookRaw.toLowerCase()];
+  while (!id && bookRaw.includes(' ')) {
+    bookRaw = bookRaw.slice(bookRaw.indexOf(' ') + 1).trim();
+    id = BOOK_IDS[bookRaw.toLowerCase()];
+  }
   if (!id) return null;
   // The tagged KJV writes bare numbers: <S>4434</S> means H4434 in the Old
   // Testament and G4434 in the New. Without this guard a Greek code can
@@ -81,7 +94,7 @@ function verseCarriesCode(ref, num, prefix) {
   const data = chapter(id, parseInt(m[2], 10));
   if (!data || !data.KJV) return null;       // no local text — cannot check
   const v = data.KJV[String(parseInt(m[3], 10))];
-  if (!v) return false;
+  if (!v) return null;                       // verse absent locally — unknowable, not a contradiction
   return new RegExp('<S>' + num + '</S>').test(v);
 }
 

@@ -91,10 +91,14 @@ jobs:
       - name: Broken internal links (ceiling)
         # Same story: bin/audit_broken_links.py always exited 0, so it could
         # report broken links indefinitely with nothing downstream noticing.
-        # It now takes --max-broken and fails above the ceiling. Ceiling is the
-        # count on 2026-09-03; lower it as links get fixed, never raise it
-        # without saying why.
-        run: python3 bin/audit_broken_links.py --max-broken 7
+        # It now takes --max-broken and fails above the ceiling. Two auditor
+        # bugs were inflating the count and are fixed: a custom URI scheme
+        # (lmstudio://) resolved to a nonsense path, and the href regex broke
+        # on an apostrophe inside a double-quoted attribute. Out-of-band R2
+        # media (assets/media/**.mp4) is also no longer counted -- it is absent
+        # from the checkout by design, which made local and CI disagree.
+        # Ceiling is 0. Never raise it without saying why.
+        run: python3 bin/audit_broken_links.py --max-broken 0
 
       - name: Install rclone
         run: sudo apt-get update -q && sudo apt-get install -y -q rclone
