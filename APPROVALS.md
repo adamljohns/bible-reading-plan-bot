@@ -36,6 +36,7 @@ Lines that do not begin with a date are ignored, so notes and prose are safe.
 <!-- Add APPROVE lines here. Format: DATE | path | APPROVE (source) -->
 
 2026-08-25 | docs/blog/thdb-try-harder-do-better.html | APPROVE (Adam in Claude Code session, "ship it!", after reviewing the upgraded post and the Pops explainer video)
+2026-09-04 | docs/verse/genesis-1-1.html | APPROVE (Adam via Telegram, "I'm good with the Gen 1:1 deep word study", and asked for the remaining verses built out the same way)
 
 ---
 
@@ -119,9 +120,11 @@ Not pulled, per the same reasoning as the 14 above. **Adam's two calls:**
    are not swept in. Naively adding `verse/` to `CONTENT_PREFIXES` fails the
    deploy on those 45 as "thin pages" -- tried on 2026-09-03, reverted.
 
-```
-2026-09-03 | docs/verse/genesis-1-1.html | LOGGED-GAP (deep study, live and indexed since first commit; approval gate does not cover verse/ — awaiting Adam's ruling)
-```
+**RESOLVED 2026-09-04.** Adam approved `genesis-1-1.html` (line recorded above)
+and ruled that deep verse studies should be gated like blog posts. Implemented
+in `bin/approval_gate.py` as `is_approval_gated()`: `verse/` pages are gated
+only above `DEEP_STUDY_MIN_CHARS` (6,000 chars visible, ~1,000 words), so the
+45 short generated landing pages stay ungated furniture.
 
 ## Gated on 2026-08-20 (no approval needed — these were never meant to be public)
 

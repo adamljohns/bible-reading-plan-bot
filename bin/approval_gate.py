@@ -114,6 +114,25 @@ NOINDEX_RE = re.compile(r'<meta\s+name=["\']robots["\'][^>]*noindex', re.I)
 # Blog posts are the gated surface; these are infrastructure, not content.
 BLOG_EXEMPT = {'index.html'}
 
+# docs/verse/ holds two different kinds of page needing different rules:
+#   * hand-authored DEEP STUDIES (1,200-4,000 words) -- outward-facing doctrinal
+#     teaching, exactly what governance rule 1 covers, so they carry the
+#     approval gate like blog posts.
+#   * short generated verse LANDING pages (~100-140 words, from
+#     bin/add-verse-page.js) -- site furniture like dictionary entries.
+# Length separates them. Gating the whole prefix sweeps in the landing pages and
+# fails the deploy on them as "thin". Adam ruled on this split 2026-09-04.
+DEEP_STUDY_MIN_CHARS = 6000        # ~1,000 words of visible text
+
+
+def is_approval_gated(docs_path, visible):
+    """Does this page need an APPROVE line before it may be indexable?"""
+    if docs_path.startswith('blog/'):
+        return True
+    if docs_path.startswith('verse/'):
+        return len(visible) >= DEEP_STUDY_MIN_CHARS
+    return False
+
 
 def visible_text(html):
     """Approximate what a reader (and a crawler) actually sees."""
@@ -128,7 +147,7 @@ def rel(path):
     return os.path.relpath(path, ROOT)
 
 
-def git_added_dates(subdir):
+def git_added_dates(*subdirs):
     """Map repo-relative path -> date the file was FIRST committed.
 
     Most posts (199 of 214) carry no article:published_time, so the meta tag
@@ -141,7 +160,7 @@ def git_added_dates(subdir):
     try:
         out = subprocess.run(
             ['git', 'log', '--diff-filter=A', '--name-only', '--format=%ad',
-             '--date=short', '--', subdir],
+             '--date=short', '--', *subdirs],
             cwd=ROOT, capture_output=True, text=True, timeout=120).stdout
     except (OSError, subprocess.SubprocessError):
         return dates
@@ -227,7 +246,12 @@ def scan(min_chars):
     approved, logged = load_ledger()
     prefixes = robots_disallowed()
     smap = sitemapped()
-    added = git_added_dates('docs/blog')
+    # Must cover every approval-gated prefix. Until 2026-09-04 this walked
+    # docs/blog only, so a docs/verse/ page got published=None and the breach
+    # test below (`published and published >= GATE_EPOCH`) could never fire --
+    # which made the verse gate a silent no-op. Caught by planting an
+    # unapproved deep study and watching the audit pass it.
+    added = git_added_dates('docs/blog', 'docs/verse')
 
     breaches = []
     stats = {'pages': 0, 'noindex': 0, 'sitemapped': len(smap)}
@@ -275,8 +299,10 @@ def scan(min_chars):
                 breaches.append(('thin', docs_path, f'{len(text)} chars visible, in sitemap'))
                 continue
 
-            # Blog posts carry the approval gate; everything else is site furniture.
-            if docs_path.startswith('blog/') and fn not in BLOG_EXEMPT:
+            # Blog posts and deep verse studies carry the approval gate;
+            # everything else is site furniture. Until 2026-09-04 this tested
+            # blog/ only, so docs/verse/ deep studies were ungated entirely.
+            if is_approval_gated(docs_path, text) and fn not in BLOG_EXEMPT:
                 r = rel(full)
                 if published and published >= GATE_EPOCH and r not in approved:
                     kind = 'pending' if r in logged else 'unapproved'
