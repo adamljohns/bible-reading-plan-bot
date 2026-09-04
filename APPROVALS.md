@@ -90,6 +90,39 @@ The four Solo Leveling posts are likely fine — that lane closed at "16 of 12
 shipped" and Adam was reading along. They are listed for completeness, not
 suspicion.
 
+## Mechanism gap — logged 2026-09-03
+
+`bin/approval_gate.py` enforces the APPROVE requirement on `blog/` only
+(`docs_path.startswith('blog/')`). Everything else is treated as site
+furniture. That was fine when blog posts were the only outward-facing prose,
+and it is no longer true: `docs/verse/` now holds hand-authored deep studies of
+1,200-4,000 words, which is exactly the doctrinal teaching governance rule 1
+was written for.
+
+Measured tonight, the exposure is **one page**, not the whole directory:
+
+| Page | Words | State |
+|---|---|---|
+| `docs/verse/genesis-1-1.html` | 1,738 | live, indexable, in `sitemap-main.xml`, **no APPROVE on record** |
+
+The other 50 files in `docs/verse/` are not a gap: 45 are short generated verse
+landing pages (~100-140 words, from `bin/add-verse-page.js`) which are site
+furniture like dictionary entries; 4 of the 5 remaining deep studies already
+carry `noindex`; and `index.html` is the public hub.
+
+Not pulled, per the same reasoning as the 14 above. **Adam's two calls:**
+
+1. `docs/verse/genesis-1-1.html` — APPROVE it, or say pull and it gets `noindex`.
+2. Should deep verse studies be gated like blog posts going forward? If yes,
+   the change is to add a `verse/` prefix to the approval test in
+   `approval_gate.py` **and** a length threshold, so the 45 short landing pages
+   are not swept in. Naively adding `verse/` to `CONTENT_PREFIXES` fails the
+   deploy on those 45 as "thin pages" -- tried on 2026-09-03, reverted.
+
+```
+2026-09-03 | docs/verse/genesis-1-1.html | LOGGED-GAP (deep study, live and indexed since first commit; approval gate does not cover verse/ — awaiting Adam's ruling)
+```
+
 ## Gated on 2026-08-20 (no approval needed — these were never meant to be public)
 
 - **31 scaffold pages** — `docs/confessions/book-01..13`, `docs/bfm/article-01..18`,
