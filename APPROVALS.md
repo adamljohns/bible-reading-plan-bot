@@ -101,6 +101,13 @@ suspicion.
   waiting on Adam to read them post by post. Now `noindex` and out of
   `sitemap-blog.xml`. Links from `docs/blog-anime.html` left alone deliberately:
   no link surgery, per the plan.
+  **Correction 2026-09-03:** it is not only the anime hub. **`docs/blog.html`,
+  the main blog index, links all 11 as well**, and both hubs are themselves
+  indexable and listed in `sitemap-main.xml`. The drafts return 200 and are one
+  click from a live, indexed page; `noindex` on the target keeps them out of
+  search results, it does not make them unreachable. Still not touched, for the
+  same reason as the 14 above: unpublishing is Adam's call, not the fleet's.
+  Adam: say *pull* and both hubs drop the 11 cards in one commit.
 
 Release any of these with `--release` once the text is written and APPROVEd.
 
