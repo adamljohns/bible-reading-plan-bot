@@ -13,6 +13,7 @@ Outputs:
   - Summary count per source-page directory
   - First 30 specific broken-link examples
 """
+import argparse
 import os
 import re
 import sys
@@ -71,7 +72,7 @@ def resolve_link(source_file, href):
     return abs_path
 
 
-def main():
+def main(max_broken=None):
     broken_per_dir = defaultdict(int)
     broken_examples = []
     checked = 0
@@ -109,6 +110,7 @@ def main():
                     if len(broken_examples) < 30:
                         broken_examples.append((rel_src, href, target))
 
+    total_broken = sum(broken_per_dir.values())
     print(f'Scanned {sources_scanned} HTML files, checked {checked} internal links')
     print()
     print('=== Broken links per source directory ===')
@@ -122,6 +124,25 @@ def main():
         print(f'    -> href="{href}"')
         print(f'    -> would resolve to: {rel_target}')
 
+    # Governance rule 6: a gate that examines nothing has not passed. Until
+    # 2026-09-03 this script always exited 0, so it could report broken links
+    # forever without anything noticing -- which is what it did.
+    if checked == 0:
+        print('\nFAIL: 0 internal links checked. A gate that examines nothing has not passed.')
+        return 2
+    print(f'\nTotal broken internal links: {total_broken}')
+    if max_broken is not None and total_broken > max_broken:
+        print(f'FAIL: {total_broken} broken links exceeds the ceiling of {max_broken}.')
+        print('Fix the link, or raise the ceiling deliberately in the deploy workflow.')
+        return 1
+    if max_broken is not None:
+        print(f'PASS: at or below the ceiling of {max_broken}.')
+    return 0
+
 
 if __name__ == '__main__':
-    main()
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument('--max-broken', type=int, default=None,
+                    help='exit non-zero if more than N broken internal links are found')
+    _args = ap.parse_args()
+    sys.exit(main(max_broken=_args.max_broken))

@@ -75,6 +75,26 @@ jobs:
         # 2026-08-26: THDB and 29 other posts shipped the old emoji pill because
         # they omitted light-icons.css. Fail closed before the R2 sync.
         run: python3 bin/check_theme_toggle_icons.py --root docs
+      - name: Lexicon anti-fabrication ratchet
+        # 2026-09-03: bin/lexicon-gate.js had existed for weeks and was wired
+        # into NOTHING -- not CI, not cron, not a script. Run across the corpus
+        # it failed 4,460 of 7,878 pages, including 859 whose cited verses do
+        # not carry the Strong's number they claim. Those were live and in the
+        # sitemap the whole time. A gate with no consumer is a no-op.
+        #
+        # Wired as a ratchet, not a wall: it fails only on a page that is NOT
+        # already in bin/baselines/lexicon-failures.txt. New fabrication cannot
+        # ship; the existing backlog burns down without blocking every deploy.
+        # A hard --all here would fail every build, and per governance rule 7 a
+        # gate that always fails gets disabled rather than fixed.
+        run: node bin/lexicon-gate-ci.js
+      - name: Broken internal links (ceiling)
+        # Same story: bin/audit_broken_links.py always exited 0, so it could
+        # report broken links indefinitely with nothing downstream noticing.
+        # It now takes --max-broken and fails above the ceiling. Ceiling is the
+        # count on 2026-09-03; lower it as links get fixed, never raise it
+        # without saying why.
+        run: python3 bin/audit_broken_links.py --max-broken 7
 
       - name: Install rclone
         run: sudo apt-get update -q && sudo apt-get install -y -q rclone
