@@ -94,6 +94,12 @@ assert.strictEqual(lanes.chooseLane({ fresh: 2, retry: 5, social: 5 }, null, str
 assert.strictEqual(lanes.chooseLane({ fresh: 0, retry: 5, social: 5 }, null, { fresh: 0, retry: 0, social: 3 }), 'retry');
 assert.ok(runner.includes('LANE-DEAD'), 'cold apply lanes must emit LANE-DEAD');
 
+const session = fs.readFileSync(path.join(ROOT, 'scripts/directory-grind-session.sh'), 'utf8');
+assert.ok(session.includes('pastor-refine-local.sh'), 'session wrapper must invoke the refine runner');
+assert.ok(session.includes('yield gate HALT'), 'wrapper must honor runner exit 3 as a clean dead-pool stop');
+assert.ok(!session.includes('aborted: fresh pool'),
+  'session wrapper must not abort when fresh < 10; runner yield-gate owns fallthrough to source-recovery');
+
 const plan = cp.execFileSync('/bin/bash', [path.join(ROOT, 'scripts/continuous-enrichment-lane.sh'), '/tmp/prl-test'], {
   cwd: ROOT,
   env: { ...process.env, CONTINUOUS_PLAN_ONLY: '1' },

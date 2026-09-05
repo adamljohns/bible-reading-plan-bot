@@ -43,13 +43,6 @@ const ph=p=>{const s=String(p||"").trim();return !s||/^(pastors?|tbd|n\/?a|none|
 const n=c=>(!ph(c.pastor)?1:0)+Object.keys(c.scores||{}).filter(k=>c.scores[k]).length+(String(c.assessment||"").trim()?1:0)+(c.facebook?1:0)+(c.youtube?1:0)+(c.instagram?1:0)+(c.phone?1:0)+(c.website?1:0)+(c.address?1:0)+(c.denomination_family||c.denomination?1:0);
 console.log(d.reduce((a,c)=>a+n(c),0))}catch(e){console.log(0)}' 2>/dev/null || echo 0)
 
-fresh_pool_count() {
-  local out="/tmp/grind-fresh-pool-check.txt" wd="$HOME/bible-reading-plan-bot-autopilot"
-  node "$wd/scripts/select-enrichment-batch.js" --count 1 --batches 1 --out /tmp/grind-fresh-pool-check \
-    >"$out" 2>&1 || { echo 0; return; }
-  grep -oE 'pastor-fetchable\): [0-9]+' "$out" | grep -oE '[0-9]+$' | head -1
-}
-
 round_was_zero_yield() {
   tail -30 "$HOME/Library/Logs/pastor-refine-local.log" 2>/dev/null \
     | grep -q "zero applied — skip qa-sample/grind-stats/regen/commit/push"
@@ -59,12 +52,10 @@ say "════ ${DURATION_H}h session START (batch $PASTOR_REFINE_BATCH, ${CO
 ROUNDS=0; FAILS=0; ZERO_STREAK=0; ABORT_REASON=""; LFS_WARNINGS=0
 while [ "$(date +%s)" -lt "$DEADLINE" ]; do
   [ -f "$STOP" ] && { say "stop switch — ending session"; rm -f "$STOP"; break; }
-  FRESH_POOL=$(fresh_pool_count); FRESH_POOL=${FRESH_POOL:-0}
-  if [ "$FRESH_POOL" -lt 10 ]; then
-    ABORT_REASON="aborted: fresh pool ${FRESH_POOL} < 10 at round start"
-    say "$ABORT_REASON"
-    break
-  fi
+  # Do not abort on a small/empty fresh pool. pastor-refine-local.sh defers
+  # sub-floor trickles and the yield-gate falls through to source-recovery.
+  # The 2026-08-31..09-04 stall was 17 launchd fires exiting 0 with 0 rounds
+  # while source-recovery still had 9k+ eligible records.
   if /bin/bash "$RUNNER" >>"$LOG" 2>&1; then
     FAILS=0; ROUNDS=$((ROUNDS+1))
     if round_was_zero_yield; then
