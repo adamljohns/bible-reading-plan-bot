@@ -23,9 +23,11 @@ ALLOW = {"yhwh", "yah", "adonai", "adon", "el", "eloah", "elohim", "elyon", "sel
          "ba", "be", "bi", "ha", "ka", "ke", "ki", "la", "le", "mi", "me", "u", "va", "ve", "kol", "ad", "al", "et", "im", "min", "she", "lo"}
 # house spelling -> lexicon spelling where the canonical form still differs
 ALIAS = {"elyon": "elyoun", "esher": "osher", "ashre": "osher", "maskil": "sakal", "holel": "halal",
-         "shorer": "shurer", "hagig": "hagig", "tachti": "tachti"}
+         "shorer": "shurer", "hagig": "hagig", "tachti": "tachti", "tehom":"t'hom", "lahat":"lohatim", "arab":"arev"}
 # lexicon entries known to be wrong/blank (kit defect) -- accept the house translit as-is
-KIT_DEFECT = {"tachti"}
+KIT_DEFECT = {"tachti","yishai","yeriah","nun","shaag"}  # lexicon translit wrong/English for H8482 H3448 H3407 H5125 H7580
+ALIAS_N = None
+KIT_DEFECT_N = None
 
 def norm(s):
     """canonical ASCII spelling so that house/lexicon/KJV-Strong's variants compare equal:
@@ -65,8 +67,8 @@ def kit_translits(kjv):
 def matches(word, kit):
     w = norm(word)
     if not w or w in ALLOW: return True
-    w = norm(ALIAS.get(w, w))
-    if w in {norm(x) for x in KIT_DEFECT}: return True
+    w = ALIAS_N.get(w, w)            # aliases are pre-normalized; never normalize twice
+    if w in KIT_DEFECT_N: return True
     for k in kit:
         if w == k: return True
         if len(w) >= 3 and len(k) >= 3 and (w.startswith(k) or k.startswith(w)): return True
@@ -82,12 +84,18 @@ def bracket_words(content):
         if not m: return []
         tok = m.group(1).strip()
         if tok.lower().startswith("the kjv"): return []
-        return tok.split()
+        return re.split(r"[\s\-]+", tok)
     head = c.split("--")[0].strip()
     head = head.split(",")[0].strip()
-    return head.split()
+    return re.split(r"[\s\-]+", head)
+
+def _init_aliases():
+    global ALIAS_N, KIT_DEFECT_N
+    ALIAS_N = {norm(k): norm(v) for k, v in ALIAS.items()}
+    KIT_DEFECT_N = {norm(x) for x in KIT_DEFECT}
 
 def check(book, chapters):
+    _init_aliases()
     files = sorted(glob.glob(os.path.join(ROOT, "data", "mbt-batches", f"{book}_*.json")))
     if chapters:
         want = {int(c) for c in chapters}
