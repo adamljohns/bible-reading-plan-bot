@@ -153,3 +153,4 @@ The gate applies to content published on or after **2026-07-09**, the day Adam
 set the rule. The legacy archive — 199 posts migrated 2026-03-15, some going
 back to the 2007 Iraq deployment — is his own historical writing and is out of
 scope. Retroactively flagging it would bury the handful that actually matter.
+2026-09-06 | docs/blog/know-your-marines-total-fitness.html | APPROVE (Telegram)
