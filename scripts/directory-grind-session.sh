@@ -57,7 +57,24 @@ publish_session_output() {
   else
     git -C "$wt" fetch -q origin main && git -C "$wt" rebase -q FETCH_HEAD && git -C "$wt" push -q origin HEAD:main \
       && say "deploy fired after rebase: one run for $ROUNDS deferred rounds" \
-      || say "ALERT: deploy trigger push failed — session output is pushed but NOT deployed"
+      || { say "ALERT: deploy trigger push failed — session output is pushed but NOT deployed"; return 1; }
+  fi
+
+  # Pushing is not publishing. Watch the run this session just triggered and
+  # then fetch the live site; alert Adam by name if a session's worth of work
+  # did not make it. Silent when healthy.
+  local verifier="$HOME/Scripts/guards/publish-verify.sh"
+  if [ -x "$verifier" ]; then
+    "$verifier" --lane "directory grind ($ROUNDS rounds)" \
+      --repo adamljohns/bible-reading-plan-bot \
+      --sha "$(git -C "$wt" rev-parse HEAD)" \
+      --url https://usmcmin.org/grind-report.html \
+      --url https://usmcmin.org/data/grind-stats.json \
+      --expect "$(date -u +%F)T" \
+      --timeout 1200 \
+      && say "publish verified live" || say "ALERT: publish NOT verified live (rc=$?) — Adam alerted"
+  else
+    say "publish-verify.sh missing — deploy fired but not verified"
   fi
 }
 
