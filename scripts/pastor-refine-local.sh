@@ -326,7 +326,10 @@ else
   if [ -n "$(git status --porcelain)" ]; then
     git add docs/data/churches.json docs/data/grind-stats.json
     [ "$CONTENT_APPLIED" -gt 0 ] && git add docs/churches/ docs/data/churches-index.json docs/data/churches-index-slim.json docs/data/churches/ docs/data/qa-sample.json docs/sitemap-churches.xml
-    git commit -qm "Directory refine: +$CONTENT_APPLIED content fields ($APPLIED pastors, $SOC_APPLIED socials) of $N_BATCH attempted ($MODE)" \
+    # See continuous-enrichment-lane.sh: under a session wrapper the deploy is
+    # deferred to one run at session end.
+    SKIP=""; [ "${GRIND_DEFER_DEPLOY:-0}" = "1" ] && SKIP=" [skip ci]"
+    git commit -qm "Directory refine: +$CONTENT_APPLIED content fields ($APPLIED pastors, $SOC_APPLIED socials) of $N_BATCH attempted ($MODE)${SKIP}" \
       || die "commit failed"
     if ! git push -q origin HEAD:main; then
       say "push rejected — rebasing onto fresh origin/main and retrying"

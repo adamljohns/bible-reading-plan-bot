@@ -86,7 +86,12 @@ fi
 
 if [ -n "$(git status --porcelain)" ]; then
   git add docs/data/churches.json docs/data/grind-stats.json docs/churches/ docs/data/churches-index.json docs/data/churches-index-slim.json docs/data/churches/ docs/data/directory-map-points.json docs/directory-map.html docs/sitemap-churches.xml 2>/dev/null || die "frontier git add failed"
-  git commit -qm "Directory enrichment: $LANE ($APPLIED fields from $ATTEMPTED records)" || die "frontier commit failed"
+  # A grind session pushes a round every ~11 min and each push triggers a full
+  # 3-minute site deploy with five gates, so a 4h session used to queue ~22 of
+  # them. When the session wrapper is driving, defer: mark the round [skip ci]
+  # and let the session fire ONE deploy at the end.
+  SKIP=""; [ "${GRIND_DEFER_DEPLOY:-0}" = "1" ] && SKIP=" [skip ci]"
+  git commit -qm "Directory enrichment: $LANE ($APPLIED fields from $ATTEMPTED records)${SKIP}" || die "frontier commit failed"
   if ! git push -q origin HEAD:main; then
     say "frontier push rejected — rebasing and retrying"
     git fetch -q origin main && git rebase -q FETCH_HEAD && git push -q origin HEAD:main || die "frontier push failed after rebase"

@@ -18,6 +18,12 @@ export PATH="/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
 DURATION_H="${1:-4}"
 case "$DURATION_H" in ''|*[!0-9]*) DURATION_H=4 ;; esac
 COOLDOWN="${GRIND_COOLDOWN:-540}"
+# Rounds commit every ~11 min. Each push used to trigger its own 3-minute,
+# five-gate site deploy, so one 4h session queued ~22 of them back-to-back
+# (concurrency group deploy-r2 is serial) and any gate failure blocked the
+# whole line. Rounds now commit [skip ci]; publish_session_output below fires
+# exactly ONE deploy when the session ends. 4 sessions/day = 4 deploys/day.
+export GRIND_DEFER_DEPLOY=1
 export PASTOR_REFINE_BATCH="${PASTOR_REFINE_BATCH:-50}"
 DEADLINE=$(( $(date +%s) + DURATION_H*3600 ))
 
@@ -28,8 +34,35 @@ RUNNER="$HOME/bible-reading-plan-bot-autopilot/scripts/pastor-refine-local.sh"
 NOTIFY="$HOME/.hermes/bin/notify-adam.sh"
 say() { echo "[$(date '+%F %T')] $*" >>"$LOG"; }
 
+# One deploy for the whole session. The rounds already pushed their content
+# with [skip ci]; this empty commit is the trigger. Idempotent: it no-ops when
+# no round landed anything, and runs from the trap so a killed session still
+# publishes. Uses git, not `gh` — gh reads its token from the Keychain, which
+# is exactly the thing that does not work from launchd.
+DEPLOY_FIRED=0
+publish_session_output() {
+  [ "${ROUNDS:-0}" -gt 0 ] || { say "no rounds landed — no deploy to fire"; return 0; }
+  [ "$DEPLOY_FIRED" = "1" ] && return 0
+  DEPLOY_FIRED=1
+  local wt="$HOME/bible-reading-plan-bot-autopilot"
+  git -C "$wt" fetch -q origin main || { say "ALERT: deploy trigger fetch failed — session output is pushed but NOT deployed"; return 1; }
+  if ! git -C "$wt" diff --quiet origin/main -- docs 2>/dev/null; then
+    say "deploy trigger: worktree docs differ from origin/main — refusing to fire, run deploy by hand"
+    return 1
+  fi
+  git -C "$wt" commit -q --allow-empty -m "deploy: publish grind session output ($ROUNDS rounds)" \
+    || { say "ALERT: deploy trigger commit failed"; return 1; }
+  if git -C "$wt" push -q origin HEAD:main; then
+    say "deploy fired: one run for $ROUNDS deferred rounds"
+  else
+    git -C "$wt" fetch -q origin main && git -C "$wt" rebase -q FETCH_HEAD && git -C "$wt" push -q origin HEAD:main \
+      && say "deploy fired after rebase: one run for $ROUNDS deferred rounds" \
+      || say "ALERT: deploy trigger push failed — session output is pushed but NOT deployed"
+  fi
+}
+
 mkdir "$LOCK" 2>/dev/null || { say "session lock held — a session is already running, exiting"; exit 0; }
-trap 'rmdir "$LOCK" 2>/dev/null' EXIT
+trap 'publish_session_output; rmdir "$LOCK" 2>/dev/null' EXIT
 [ -f "$RUNNER" ] || { say "FATAL: runner missing at $RUNNER"; exit 1; }
 
 # Snapshot starting pastor count for the wrap-up delta.
