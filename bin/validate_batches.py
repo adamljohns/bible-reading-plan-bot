@@ -68,8 +68,11 @@ def main():
                 errs.append(f'{b}/{s}: missing fields {miss}')
             if s in RESERVED:
                 errs.append(f'{b}/{s}: RESERVED slug — must not be authored')
-            if s in live:
-                errs.append(f'{b}/{s}: SLUG COLLISION with live corpus/redirects')
+            if s in live and not e.get('revision'):
+                errs.append(f'{b}/{s}: SLUG COLLISION with live corpus/redirects '
+                            '(set "revision": true to rewrite the live entry on purpose)')
+            if e.get('revision') and s not in live:
+                errs.append(f'{b}/{s}: marked "revision" but no live entry of that slug exists')
             if s in seen:
                 errs.append(f'{b}/{s}: DUPLICATE of {seen[s]} in this same set')
             else:

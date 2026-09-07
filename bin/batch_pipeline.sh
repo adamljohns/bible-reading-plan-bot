@@ -42,13 +42,20 @@ except FileNotFoundError:
     pass
 pages = {f[:-5] for f in os.listdir('docs/dictionary') if f.endswith('.html')}
 own = {e.get('slug') for e in data}
+revisions = []
 for e in data:
     s = e.get('slug', '(missing)')
     miss = [k for k in REQ if k not in e]
     if miss:
         errs.append(f'{s}: missing fields {miss}')
-    if s in slugs:
-        errs.append(f'{s}: SLUG COLLISION — already exists; never recreate a slug')
+    if s in slugs and not e.get('revision'):
+        errs.append(f'{s}: SLUG COLLISION — already exists; never recreate a slug. '
+                    'If you MEAN to rewrite the live entry, set "revision": true on it.')
+    if e.get('revision'):
+        if s not in slugs:
+            errs.append(f'{s}: marked "revision" but no live entry of that slug exists')
+        else:
+            revisions.append(s)
     rl = e.get('roots_lines', [])
     if not all(isinstance(x, str) for x in rl):
         errs.append(f'{s}: roots_lines must be a list of STRINGS (silent render bug)')
@@ -75,6 +82,14 @@ STOP = {'son','king','duke','gate','town','pool','tower','mount','brook','city',
         'well','spring','rock','hill','valley','river','sea','land','house'}
 for e in data:
     s = e.get('slug', '')
+    # A revision rewrites an entry that already exists, so the variant-form
+    # guard cannot apply: it asks "should this be defined at all?", and that
+    # question was settled when the entry was first created. Every compound
+    # title would otherwise trip it (good-shepherd vs the live shepherd), and
+    # papering over that with distinct_from would weaken the guard for the
+    # NEW entries it exists to protect.
+    if e.get('revision'):
+        continue
     cands = set()
     for suf in SUFF:
         if s.endswith(suf):
@@ -119,6 +134,9 @@ if os.path.exists(_ws):
                         f'if the SAME word, SKIP and enrich the existing entry; if the '
                         f'archaic form deserves its own study, add "distinct_from": '
                         f'{hits} and cross-link them in "related"')
+if revisions:
+    print('  REVISION — these live entries will be OVERWRITTEN: '
+          + ', '.join(sorted(revisions)))
 if errs:
     print('PRE-FLIGHT FAIL:')
     for x in errs:

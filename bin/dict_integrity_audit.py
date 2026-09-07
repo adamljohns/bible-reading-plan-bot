@@ -91,7 +91,7 @@ def main():
 
     no_canonical, nested, dangling, dead_lex, bad_ents = [], [], [], [], []
     titles = Counter()
-    miss_webster = miss_corr = miss_usage = 0
+    miss_webster = miss_corr = miss_usage = decoder_pages = 0
 
     for fn in sorted(os.listdir(DICT_DIR)):
         if not fn.endswith('.html'):
@@ -133,12 +133,23 @@ def main():
             tm = TITLE_PAT.search(h)
             if tm:
                 titles[TAG_STRIP.sub('', tm.group(1)).strip().lower()] += 1
-            if 'webster' not in h.lower():
-                miss_webster += 1
-            if 'corruption' not in h.lower():
-                miss_corr += 1
-            if '>Usage<' not in h and 'usage' not in h.lower():
-                miss_usage += 1
+            # The generational-decoder pages (Gen-Z / Boomer / Millennial /
+            # Gen-X / Christianese) are a different genre: Webster 1828 has no
+            # entry for "rizz", and a Corruption section is meaningless for a
+            # slang gloss whose whole body IS the decoding. Counting them as
+            # era debt inflated these numbers by 83 and hid the real backlog.
+            _is_decoder = ('Decoded |' in h or 'Decoded &' in h
+                           or re.search(r'>\s*(?:gen-z|boomer|millennial|gen-x|'
+                                        r'christianese)\s+slang\s*<', h, re.I))
+            if not _is_decoder:
+                if 'webster' not in h.lower():
+                    miss_webster += 1
+                if 'corruption' not in h.lower():
+                    miss_corr += 1
+                if '>Usage<' not in h and 'usage' not in h.lower():
+                    miss_usage += 1
+            else:
+                decoder_pages += 1
 
     # WOTD pools
     wotd_bad = []
@@ -227,6 +238,7 @@ def main():
     print(f'    entries lacking a Webster section:    {miss_webster}')
     print(f'    entries lacking a Corruption section: {miss_corr}')
     print(f'    entries lacking a Usage section:      {miss_usage}')
+    print(f'    (generational-decoder pages exempted: {decoder_pages})')
     print('=' * 62)
     if hard:
         print(f'RESULT: FAIL — {hard} hard finding(s). Fix before declaring stable.')
