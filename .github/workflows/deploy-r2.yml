@@ -88,6 +88,16 @@ jobs:
         # A hard --all here would fail every build, and per governance rule 7 a
         # gate that always fails gets disabled rather than fixed.
         run: node bin/lexicon-gate-ci.js
+      - name: Rebuild worship Listen Directory (generated artifact)
+        # docs/worship/directory.html is GENERATED from
+        # docs/data/worship-listen-directory.json, but it was also tracked in git,
+        # so every "Worship wave NN" commit that rewrites docs/worship/ deleted it
+        # while sitemap.html kept linking to it. That broke the link ceiling below
+        # and killed the deploy five separate times (waves 15, 36, 40, 42, 43),
+        # each time "fixed" by hand-regenerating the file until the next wave.
+        # Building it here makes the wave deletions harmless: the artifact is
+        # always present at audit time regardless of what the local pipeline did.
+        run: node scripts/build-worship-directory.js
       - name: Broken internal links (ceiling)
         # Same story: bin/audit_broken_links.py always exited 0, so it could
         # report broken links indefinitely with nothing downstream noticing.
