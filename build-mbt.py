@@ -20,6 +20,9 @@ Copyright-safe: authored solely from public-domain KJV(1769)+Strong's and WEB.
 import json, re, sys, glob, os
 from collections import defaultdict
 
+# Chapters whose cached KJV text includes Apocrypha additions the Protestant canon omits.
+APOCRYPHAL_ADDITIONS = {(17, 10): set(range(4, 14))}  # Esther 10:4-13 = "The Rest of Esther"
+
 REPO = os.path.dirname(os.path.abspath(__file__))
 BATCH_DIR = os.path.join(REPO, "data", "mbt-batches")
 OUT_DIR   = os.path.join(REPO, "docs", "assets", "mbt")
@@ -83,12 +86,15 @@ def main():
         verses = b["verses"]
 
         # ---- parity vs public-domain KJV in the cache
-        # require BOTH KJV and WEB: apocryphal additions (e.g. Esther 10:4-13)
-        # live in the cache with KJV-Apocrypha/NRSVCE only and are not canon here
         kjv_keys = [k for k in cache
-                    if k.startswith(f"{book}_{ch}_")
-                    and cache[k].get("KJV") and cache[k].get("WEB")]
+                    if k.startswith(f"{book}_{ch}_") and cache[k].get("KJV")]
         kjv_vnums = sorted(int(k.split("_")[2]) for k in kjv_keys)
+        # The verse cache carries the KJV *with* the Apocrypha for a few chapters.
+        # Esther 10:4-13 is the Greek addition ("The Rest of Esther"), outside the
+        # Protestant canon this translation follows, so it is not a missing verse.
+        _apocryphal = APOCRYPHAL_ADDITIONS.get((book, ch))
+        if _apocryphal:
+            kjv_vnums = [v for v in kjv_vnums if v not in _apocryphal]
         mbt_vnums = sorted(int(v) for v in verses)
         if kjv_vnums and mbt_vnums != kjv_vnums:
             missing = sorted(set(kjv_vnums) - set(mbt_vnums))
