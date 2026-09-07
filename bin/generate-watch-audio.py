@@ -29,7 +29,7 @@ names wisdom/husband/father/citizen/peace. After rendering re-run
 Run (mlx-audio venv is Python 3.11 — the TTS stack has no cp314 wheels):
   ~/.mlx-audio-venv/bin/python bin/generate-watch-audio.py 2026-07-17 2026-07-18
 """
-import json, os, re, sys, glob, tempfile, subprocess, shutil
+import json, os, re, sys, glob, tempfile, subprocess, shutil, urllib.request
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 READINGS_JSON = os.path.join(ROOT, "docs", "assets", "readings")
@@ -50,6 +50,11 @@ NARRATOR = os.environ.get("WATCH_VOICE") or _map_narrator()
 NARRATOR_LANG = os.environ.get("WATCH_LANG") or ("b" if NARRATOR.startswith("b") else "a")
 ALT_SCRIPTURE = ("am_michael", "a")  # used when a book's voice collides with the narrator
 USE_ADAM_PRAYER = os.environ.get("USE_ADAM_PRAYER", "1") not in ("0", "false", "False", "no")
+VS_SPEAK = os.path.expanduser(os.environ.get("VOICESTUDIO_SPEAK", "~/Scripts/voicestudio-speak.py"))
+VS_HEALTH = os.environ.get("VOICESTUDIO_HEALTH", "http://127.0.0.1:3900/health")
+VS_PROFILE = os.environ.get("VOICESTUDIO_PROFILE", "9ffa357f")
+VS_SEED = int(os.environ.get("VOICESTUDIO_SEED", "848009763"))
+VS_CFG = os.path.expanduser("~/.openclaw/voice/voicestudio.json")
 # Prefer TCC-safe path under ~/.openclaw (Documents/ is often denied to agent/LaunchAgent).
 _F5_DEFAULT_WAV = os.path.expanduser("~/.openclaw/voice/f5tts-tests/ref-calm.wav")
 _F5_LEGACY_WAV = os.path.expanduser("~/Documents/05-Voice/f5tts-tests/ref-calm.wav")
@@ -574,9 +579,32 @@ def f5_chunks(text, mx=None):
 
 
 
-def adam_prayer_ready():
-    if not USE_ADAM_PRAYER:
+def voicestudio_ready():
+    """PJG-0907-PRAY2: clone ready-gate is VoiceStudio-first. F5 files not required."""
+    if not os.path.isfile(VS_SPEAK):
+        print("WARN VoiceStudio: missing ~/Scripts/voicestudio-speak.py", flush=True)
         return False
+    try:
+        if os.path.isfile(VS_CFG):
+            cfg = json.load(open(VS_CFG))
+            if str(cfg.get("profile_id") or "") != VS_PROFILE:
+                print(f"WARN VoiceStudio profile {cfg.get('profile_id')!r} != {VS_PROFILE}", flush=True)
+                return False
+            if int(cfg.get("seed") or 0) != VS_SEED:
+                print(f"WARN VoiceStudio seed {cfg.get('seed')!r} != {VS_SEED}", flush=True)
+                return False
+        req = urllib.request.Request(VS_HEALTH)
+        with urllib.request.urlopen(req, timeout=5) as r:
+            if int(getattr(r, "status", 200) or 200) != 200:
+                print(f"WARN VoiceStudio health HTTP {r.status}", flush=True)
+                return False
+        return True
+    except Exception as exc:
+        print(f"WARN VoiceStudio health miss ({exc})", flush=True)
+        return False
+
+
+def f5_files_ready():
     ok = True
     for label, path in (("ref_wav", F5_REF), ("ref_txt", F5_REFTEXT_PATH), ("f5_py", F5_VENV_PY)):
         try:
@@ -586,11 +614,10 @@ def adam_prayer_ready():
             with open(path, "rb") as fh:
                 fh.read(8)
         except OSError as exc:
-            print(f"WARN adam_prayer_ready: {label} unreadable ({exc})", flush=True)
+            print(f"WARN f5_files_ready: {label} unreadable ({exc})", flush=True)
             ok = False
     if not ok:
         return False
-    # PJG-0803-PIN1: never bake Adam-clone prayer against a poisoned ref
     gate = os.path.join(ROOT, "scripts", "check_f5_prayer_ref.py")
     if os.path.isfile(gate):
         r = subprocess.run(
@@ -602,6 +629,20 @@ def adam_prayer_ready():
             print(f"REFUSE adam-prayer: F5 ref ban-gate failed rc={r.returncode} {msg[:300]}", flush=True)
             return False
     return True
+
+
+def resolve_prayer_engine():
+    if not USE_ADAM_PRAYER:
+        return "off"
+    if voicestudio_ready():
+        return "voicestudio"
+    if f5_files_ready():
+        return "f5-fallback"
+    return "REFUSE-narrator"
+
+
+def adam_prayer_ready():
+    return resolve_prayer_engine() in ("voicestudio", "f5-fallback")
 
 
 def join_lines(ls):
@@ -854,19 +895,17 @@ def render_watch(model, gen_audio, date, key, segs):
                 wavs = [rw]
             elif engine == "f5":
                 fw = os.path.join(seg_dir, "p24.wav")
-                try:
-                    # MBP-0827: VoiceStudio is primary Adam clone; F5 is fallback.
-                    if not render_voicestudio_text(text, fw):
-                        render_f5_text(text, fw)
+                # PJG-0907-PRAY2: VoiceStudio first; F5 only if VS down; never silent narrator.
+                if render_voicestudio_text(text, fw):
                     wavs = [fw]
-                except Exception as e:
-                    print(f"  WARN Adam-clone prayer failed ({e}); "
-                          f"falling back to narrator for this segment", flush=True)
-                    gen_audio(text=apply_lexicon(text), model=model, voice=NARRATOR,
-                              lang_code=NARRATOR_LANG, output_path=seg_dir,
-                              file_prefix="p", join_audio=True,
-                              audio_format="wav", verbose=False)
-                    wavs = sorted(glob.glob(os.path.join(seg_dir, "*.wav")))
+                elif f5_files_ready():
+                    print("  prayer=f5-fallback", flush=True)
+                    render_f5_text(text, fw)
+                    wavs = [fw]
+                else:
+                    raise RuntimeError(
+                        "prayer=REFUSE-narrator: VoiceStudio and F5 both failed"
+                    )
             else:
                 gen_audio(text=text, model=model, voice=voice, lang_code=lang,
                           output_path=seg_dir, file_prefix="p", join_audio=True,
@@ -941,11 +980,16 @@ def main():
     from mlx_audio.tts.utils import load_model
     from mlx_audio.tts.generate import generate_audio
     by_name = load_voice_map()
-    prayer_mode = "adam-clone-F5" if adam_prayer_ready() else "narrator-fallback"
+    prayer_mode = resolve_prayer_engine()
     print(f"Loading Kokoro {MODEL_ID} (once); narrator={NARRATOR}; "
           f"prayer={prayer_mode}...", flush=True)
-    if prayer_mode.startswith("adam"):
+    if prayer_mode == "REFUSE-narrator":
+        print("REFUSE-narrator: USE_ADAM_PRAYER=1 and clone cannot bake; will not LIVE GATE PASS narrator prayer", flush=True)
+        sys.exit(13)
+    if prayer_mode == "f5-fallback":
         print(f"F5 ref wav={F5_REF}\nF5 ref txt={F5_REFTEXT_PATH}", flush=True)
+    if prayer_mode == "voicestudio":
+        print(f"VoiceStudio {VS_HEALTH} profile={VS_PROFILE} seed={VS_SEED}", flush=True)
     model = load_model(MODEL_ID)
     for date in dates:
         day = json.load(open(os.path.join(READINGS_JSON, f"{date}.json")))

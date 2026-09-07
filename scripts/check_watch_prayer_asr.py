@@ -112,7 +112,8 @@ def asr(mp3: Path, tail_sec: int = 90) -> str:
     # PJG-0826-AUD1: one window is brittle. Citizen has history AFTER prayer
     # (50s = history only). Husband 90s skipped Father; 45s heard it. Union.
     parts = []
-    for sec in (45, 75, 110):
+    # PJG-0907-PRAY2: extra 150s window so VoiceStudio Amen is not a 09-05 false-fail.
+    for sec in (45, 75, 110, 150):
         parts.append(asr_one(mp3, sec))
     return "\n".join(parts)
 
