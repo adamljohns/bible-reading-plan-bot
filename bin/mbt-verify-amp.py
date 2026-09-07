@@ -20,12 +20,20 @@ BR  = re.compile(r"\[([^\]]+)\]")
 ALLOW = {"yhwh", "yah", "adonai", "adon", "el", "eloah", "elohim", "elyon", "selah",
          "kjv", "margin", "the", "of", "and", "a", "an", "or", "in", "on", "to", "sense",
          "haleluyah", "halelu", "bene", "ben", "ish", "adam", "am", "goy", "leom", "ummah",
-         "ba", "be", "bi", "ha", "ka", "ke", "ki", "la", "le", "mi", "me", "u", "va", "ve", "kol", "ad", "al", "et", "im", "min", "she", "lo"}
+         "ba", "be", "bi", "ha", "ka", "ke", "ki", "la", "le", "mi", "me", "u", "va", "ve", "kol", "ad", "al", "et", "im", "min", "she", "lo",
+         "ak", "akh", "li", "gam", "hu", "hi", "attah", "ani", "anokhi", "zeh", "zu", "en", "bal", "az", "na", "hen", "hinneh"}
 # house spelling -> lexicon spelling where the canonical form still differs
 ALIAS = {"elyon": "elyoun", "esher": "osher", "ashre": "osher", "maskil": "sakal", "holel": "halal",
-         "shorer": "shurer", "hagig": "hagig", "tachti": "tachti", "tehom":"t'hom", "lahat":"lohatim", "arab":"arev"}
+         "shorer": "shurer", "hagig": "hagig", "tachti": "tachti", "tehom": "t'hom",
+         "lahat": "lohatim", "arab": "arev", "tuv": "tov", "meah": "meeh", "dibre": "dabar",
+         "tipheret": "tipharet", "meshar": "meyshar", "ashpot": "ashphoth", "metsar": "ha-metsar",
+         "selichah": "celiychah", "maher": "mahar", "ivved": "ud", "chata": "chet", "shoq": "showq",
+         # Proverbs/Ecclesiastes: lexicon spells these differently from the house form
+         "tokhechah": "tokachat", "cheq": "cheyq", "qara": "qirah", "mum": "meum",
+         "achim": "ach", "banim": "ben", "avot": "ab", "bechuroth": "bacharumoth"}
 # lexicon entries known to be wrong/blank (kit defect) -- accept the house translit as-is
-KIT_DEFECT = {"tachti","yishai","yeriah","nun","shaag"}  # lexicon translit wrong/English for H8482 H3448 H3407 H5125 H7580
+KIT_DEFECT = {"tachti", "yishai", "yeriah", "nun", "shaag", "sheagah", "leshad"}
+# lexicon translit wrong or English for H8482 H3448 H3407 H5125 H7580 H7581 H3955
 ALIAS_N = None
 KIT_DEFECT_N = None
 
@@ -64,16 +72,35 @@ def kit_translits(kjv):
         if not t and not lt: blind += 1
     return out, blind
 
-def matches(word, kit):
-    w = norm(word)
-    if not w or w in ALLOW: return True
-    w = ALIAS_N.get(w, w)            # aliases are pre-normalized; never normalize twice
-    if w in KIT_DEFECT_N: return True
+PREFIX = re.compile(r"^(?:ve|va|u|be|bi|ba|le|la|li|mi|me|ke|ki|ha|she|kol|et)(?=[a-z]{2})")
+
+def skeleton(s):
+    """Hebrew is written consonantally; transliterations differ mostly in their vowels.
+    Compare the consonant skeleton so noam/naim, yoatz/yaats, chote/chet agree."""
+    return re.sub(r"[aeiou]", "", PREFIX.sub("", s))
+
+def _hits(w, kit):
     for k in kit:
         if w == k: return True
         if len(w) >= 3 and len(k) >= 3 and (w.startswith(k) or k.startswith(w)): return True
         # simple inflection tolerance: shared stem of >=4 chars
         if len(w) >= 4 and len(k) >= 4 and w[:4] == k[:4]: return True
+    sw = skeleton(w)
+    if len(sw) >= 2:
+        for k in kit:
+            sk = skeleton(k)
+            if len(sk) >= 2 and (sw == sk or sw.startswith(sk) or sk.startswith(sw)): return True
+    return False
+
+def matches(word, kit):
+    w = norm(word)
+    if not w or w in ALLOW: return True
+    if w in KIT_DEFECT_N: return True
+    # the word as written wins first: an alias must never redirect a spelling that already
+    # matches this verse's own tag (a global alias once hid a correct H6148 'arab').
+    if _hits(w, kit): return True
+    a = ALIAS_N.get(w)               # aliases are pre-normalized; never normalize twice
+    if a and (a in KIT_DEFECT_N or _hits(a, kit)): return True
     return False
 
 def bracket_words(content):
@@ -85,6 +112,8 @@ def bracket_words(content):
         tok = m.group(1).strip()
         if tok.lower().startswith("the kjv"): return []
         return re.split(r"[\s\-]+", tok)
+    if "--" not in c and len(c.split()) >= 3:
+        return []                     # English amplification bracket, not a translit claim
     head = c.split("--")[0].strip()
     head = head.split(",")[0].strip()
     return re.split(r"[\s\-]+", head)
