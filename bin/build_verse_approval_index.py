@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
 """Build docs/drafts/verse/approval-index.html from ACTUAL gate output.
 
-Why this exists: the hand-built index of 2026-09-07 claimed "80 studies are
-written, gate-clean" and printed per-study word counts. Those counts were taken
-over raw HTML, so markup inflated every one of them 3-6x, and 39 rows were
-labelled "gate PASS" while bin/verse-study-gate.js fails them on the 1,200-word
-floor. Never hand-count again: this reads the gate and nothing else.
+Why this exists: on 2026-09-07 I "audited" this page by running the gate inside
+/Users/moop_bot_pro/bible-reading-plan-bot, a checkout sitting on branch
+deploy/ci-guards, 1,257 commits behind origin/main. Its on-disk drafts were old
+short versions, so the gate reported 42 unfinished studies and I published a
+correction saying the index had inflated its word counts. All of that was false;
+the index was right. Run the gate against the tree you are actually shipping.
+
+This script exists so the page is never hand-assembled again: it re-gates every
+draft at build time and refuses to write if the gate returns nothing parseable.
 """
 import re, subprocess, sys, pathlib, html as H, datetime
 
@@ -14,7 +18,10 @@ DRAFTS = ROOT / "docs/drafts/verse"
 OUT = DRAFTS / "approval-index.html"
 
 def gate():
-    files = sorted(str(p) for p in DRAFTS.glob("*.html") if p.name != "approval-index.html")
+    # index.html and approval-index.html are navigation, not studies — the gate
+    # has no status line for them and would list them as "held back".
+    skip = {"approval-index.html", "index.html"}
+    files = sorted(str(p) for p in DRAFTS.glob("*.html") if p.name not in skip)
     r = subprocess.run(["node", str(ROOT/"bin/verse-study-gate.js"), *files],
                        capture_output=True, text=True, cwd=ROOT)
     out = r.stdout + r.stderr
@@ -76,10 +83,11 @@ def main():
     p.append(f'<title>Verse Study Approval Queue — private</title><style>\n{CSS}\n</style></head><body>')
     p.append('<h1>Verse Study Approval Queue</h1>')
     p.append(f'<p class="sub">Private working page &middot; noindex, robots-disallowed &middot; rebuilt from gate output {today}</p>')
-    p.append('<div class="correction"><p style="margin:0"><b>Correction.</b> The first build of this page said 80 studies were '
-             'gate-clean and printed a word count for each one. Those counts were taken over raw HTML, so the markup inflated '
-             'every number three- to six-fold, and 39 studies were labelled &ldquo;gate PASS&rdquo; that the gate actually '
-             'fails. Every number on this page now comes from <code>bin/verse-study-gate.js</code> and nothing else.</p></div>')
+    p.append('<div class="correction"><p style="margin:0"><b>Note.</b> Earlier on 7 Sep this page briefly showed a '
+             '&ldquo;correction&rdquo; claiming 42 of these studies were unfinished. That was my error, not the corpus&rsquo;s: '
+             'I ran the gate inside a checkout 1,257 commits behind <code>origin/main</code>, so it read old short drafts. '
+             'The studies were always fine. Every number below is now re-gated at build time by '
+             '<code>bin/build_verse_approval_index.py</code> against the tree being shipped.</p></div>')
     p.append('<div class="box">')
     p.append(f'<p style="margin:0 0 8px"><b>{len(ok)} studies are finished, gate-clean, and waiting on you.</b> '
              f'The other {len(bad)} are real drafts but sit under the 1,200-word floor; they are held below and are not yours to review yet.</p>')
@@ -102,8 +110,8 @@ def main():
 
     p.append(f'<h2>Held back &mdash; {len(bad)} not finished</h2>')
     p.append('<div class="held">')
-    p.append('<p style="margin:0 0 6px">Each of these is under the 1,200-word floor for a deep study. They are live at their URLs '
-             'and noindexed, but they are scaffolding with prose in it, not finished work. Do not spend review time here.</p>')
+    p.append('<p style="margin:0 0 6px">Each of these is under the 1,200-word floor for a deep study &mdash; written, but short. '
+             'They are live at their URLs and noindexed. They are not in the batches and are not yours to review yet.</p>')
     for s in bad:
         r = res[s]
         p.append('<div class="row">')
