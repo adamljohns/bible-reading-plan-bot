@@ -89,8 +89,11 @@ def main():
              'The studies were always fine. Every number below is now re-gated at build time by '
              '<code>bin/build_verse_approval_index.py</code> against the tree being shipped.</p></div>')
     p.append('<div class="box">')
-    p.append(f'<p style="margin:0 0 8px"><b>{len(ok)} studies are finished, gate-clean, and waiting on you.</b> '
-             f'The other {len(bad)} are real drafts but sit under the 1,200-word floor; they are held below and are not yours to review yet.</p>')
+    tail = ('' if not bad else
+            f' The other {len(bad)} are real drafts but sit under the 1,200-word floor; '
+            'they are held below and are not yours to review yet.')
+    p.append(f'<p style="margin:0 0 8px"><b>{len(ok)} studies are finished, gate-clean, and waiting on you.</b>'
+             f'{tail} Every one of them passes <code>bin/verse-study-gate.js</code> as of this build.</p>')
     p.append('<p style="margin:0 0 8px">The clean ones are grouped in <b>batches of five</b>, canonical order. Reply with a batch '
              'number to publish that batch (&ldquo;publish batch 3&rdquo;), or name any single verse to pull it. '
              'Nothing here is public until you say so.</p>')
@@ -108,17 +111,19 @@ def main():
             p.append(f'<p class="meta">{r["words"]:,} words &middot; gate PASS</p>')
             p.append('</div>')
 
-    p.append(f'<h2>Held back &mdash; {len(bad)} not finished</h2>')
-    p.append('<div class="held">')
-    p.append('<p style="margin:0 0 6px">Each of these is under the 1,200-word floor for a deep study &mdash; written, but short. '
-             'They are live at their URLs and noindexed. They are not in the batches and are not yours to review yet.</p>')
-    for s in bad:
-        r = res[s]
-        p.append('<div class="row">')
-        p.append(f'<a class="ref" href="{s}">{H.escape(label.get(s, r["ref"]))}</a>')
-        p.append(f'<p class="meta">{r["words"]:,} words &middot; needs {1200 - r["words"]:,} more &middot; gate FAIL</p>')
+    if bad:
+        p.append(f'<h2>Held back &mdash; {len(bad)} not finished</h2>')
+    if bad:
+        p.append('<div class="held">')
+        p.append('<p style="margin:0 0 6px">Each of these is under the 1,200-word floor for a deep study &mdash; written, but short. '
+                 'They are live at their URLs and noindexed. They are not in the batches and are not yours to review yet.</p>')
+        for s in bad:
+            r = res[s]
+            p.append('<div class="row">')
+            p.append(f'<a class="ref" href="{s}">{H.escape(label.get(s, r["ref"]))}</a>')
+            p.append(f'<p class="meta">{r["words"]:,} words &middot; needs {1200 - r["words"]:,} more &middot; gate FAIL</p>')
+            p.append('</div>')
         p.append('</div>')
-    p.append('</div>')
     p.append('</body></html>')
     OUT.write_text("\n".join(p) + "\n")
     print(f"wrote {OUT}  ({len(ok)} clean, {len(bad)} held)")
