@@ -14,6 +14,15 @@
 
 // ── name normalization ───────────────────────────────────────────────────────
 const norm = s => String(s || '').toLowerCase().replace(/&/g, ' and ')
+  // "St." / leading "St " -> "saint", BEFORE punctuation is stripped. Without this
+  // "Saint James" and "St. James Catholic Church" get different signatures and the
+  // roster matcher never even scores them as candidates (it requires a name hit to
+  // enter the pool), so the Arlington wave offered 5 parishes as NEW that we already
+  // held -- three of them on the identical street. Deliberately NOT a bare /\bst\b/:
+  // that would rewrite the street suffix in "Main St" to "saint" and, because sig()
+  // sorts tokens, make "Church on Main St" collide with "Saint Main Church". The
+  // period form and the leading form are unambiguously the abbreviation for Saint.
+  .replace(/\bst\.\s*/g, 'saint ').replace(/^\s*st\s+/, 'saint ')
   .replace(/[^a-z0-9 ]/g, ' ').replace(/\b1st\b/g, 'first').replace(/\b2nd\b/g, 'second')
   .replace(/\bmt\b/g, 'mount').replace(/\s+/g, ' ').trim();
 
