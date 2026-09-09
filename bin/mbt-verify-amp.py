@@ -21,7 +21,7 @@ ALLOW = {"yhwh", "yah", "adonai", "adon", "el", "eloah", "elohim", "elyon", "sel
          "kjv", "margin", "the", "of", "and", "a", "an", "or", "in", "on", "to", "sense",
          "haleluyah", "halelu", "bene", "ben", "ish", "adam", "am", "goy", "leom", "ummah",
          "ba", "be", "bi", "ha", "ka", "ke", "ki", "la", "le", "mi", "me", "u", "va", "ve", "kol", "ad", "al", "et", "im", "min", "she", "lo",
-         "ak", "akh", "li", "gam", "hu", "hi", "attah", "ani", "anokhi", "zeh", "zu", "en", "bal", "az", "na", "hen", "hinneh"}
+         "ak", "akh", "li", "gam", "hu", "hi", "attah", "ani", "anokhi", "zeh", "zu", "en", "bal", "az", "na", "hen", "hinneh", "hayah"}
 # house spelling -> lexicon spelling where the canonical form still differs
 ALIAS = {"elyon": "elyoun", "esher": "osher", "ashre": "osher", "maskil": "sakal", "holel": "halal",
          "shorer": "shurer", "hagig": "hagig", "tachti": "tachti", "tehom": "t'hom",
@@ -30,10 +30,15 @@ ALIAS = {"elyon": "elyoun", "esher": "osher", "ashre": "osher", "maskil": "sakal
          "selichah": "celiychah", "maher": "mahar", "ivved": "ud", "chata": "chet", "shoq": "showq",
          # Proverbs/Ecclesiastes: lexicon spells these differently from the house form
          "tokhechah": "tokachat", "cheq": "cheyq", "qara": "qirah", "mum": "meum",
-         "achim": "ach", "banim": "ben", "avot": "ab", "bechuroth": "bacharumoth"}
+         "achim": "ach", "banim": "ben", "avot": "ab", "bechuroth": "bacharumoth",
+         # verified against the tagged kit line for the verse each appears in
+         "hesed": "chesed", "atsati": "etsah", "sheva": "shavi", "shachaq": "shechaqim",
+         "rephaim": "repaim", "repha": "repaim", "resh": "reysh", "seyvah": "sebah",
+         "qo": "qa", "gechalim": "gachelet", "tashcheth": "al-tashcheth", "yeduthun": "jeduthun", "yaas": "asah"}
 # lexicon entries known to be wrong/blank (kit defect) -- accept the house translit as-is
-KIT_DEFECT = {"tachti", "yishai", "yeriah", "nun", "shaag", "sheagah", "leshad"}
-# lexicon translit wrong or English for H8482 H3448 H3407 H5125 H7580 H7581 H3955
+KIT_DEFECT = {"tachti", "shaag", "sheagah"}
+# H8482, H7580 and H7581 have no lexicon page at all, so the house translit stands.
+# H3448, H3407, H5125 and H3955 were misfiled lexicon pages and are now fixed at source.
 ALIAS_N = None
 KIT_DEFECT_N = None
 
@@ -74,10 +79,18 @@ def kit_translits(kjv):
 
 PREFIX = re.compile(r"^(?:ve|va|u|be|bi|ba|le|la|li|mi|me|ke|ki|ha|she|kol|et)(?=[a-z]{2})")
 
-def skeleton(s):
+def skeletons(s):
     """Hebrew is written consonantally; transliterations differ mostly in their vowels.
-    Compare the consonant skeleton so noam/naim, yoatz/yaats, chote/chet agree."""
-    return re.sub(r"[aeiou]", "", PREFIX.sub("", s))
+    Compare consonant skeletons so noam/naim, yoatz/yaats, chote/chet agree.
+
+    Return BOTH the plain skeleton and a prefix-stripped one. Stripping alone is
+    wrong: the particle list would eat the "me" of me'an (H3985) and the "ma" of
+    mearah and leave a stub that matches nothing. Keeping both lets a real prefix
+    (ba-mearah) and a real root (me'an) each find their partner.
+    """
+    plain = re.sub(r"[aeiou]", "", s)
+    bare  = re.sub(r"[aeiou]", "", PREFIX.sub("", s))
+    return {x for x in (plain, bare) if len(x) >= 2}
 
 def _hits(w, kit):
     for k in kit:
@@ -85,11 +98,10 @@ def _hits(w, kit):
         if len(w) >= 3 and len(k) >= 3 and (w.startswith(k) or k.startswith(w)): return True
         # simple inflection tolerance: shared stem of >=4 chars
         if len(w) >= 4 and len(k) >= 4 and w[:4] == k[:4]: return True
-    sw = skeleton(w)
-    if len(sw) >= 2:
+    for sw in skeletons(w):
         for k in kit:
-            sk = skeleton(k)
-            if len(sk) >= 2 and (sw == sk or sw.startswith(sk) or sk.startswith(sw)): return True
+            for sk in skeletons(k):
+                if sw == sk or sw.startswith(sk) or sk.startswith(sw): return True
     return False
 
 def matches(word, kit):

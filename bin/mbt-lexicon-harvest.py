@@ -30,9 +30,15 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BATCHES = os.path.join(ROOT, "data", "mbt-batches")
 OUT = os.path.join(ROOT, "data", "mbt-kits", "strongs-supplement.json")
 
-# word immediately before "(H####)" / "(G####)" — the citation shape the
-# fidelity checker verifies. Allow letters, apostrophes, hyphens.
-CITE = re.compile(r"([A-Za-z][A-Za-z'\-]{1,28})\s*\(([HG]\d{1,4})\)")
+# The word immediately before "(H####)" is only the right word when it is the
+# WHOLE citation. House note style also writes multi-word Hebrew runs with a
+# single number -- "lule YHWH she-hayah lanu (H3884)" -- where the last word is
+# emphatically not the lemma. Harvesting those wrote translit "lanu" for H3884
+# (lule) and similar wrong values for sheva, ed and mishan, which then beat the
+# real spelling in the derived lookup and made correct brackets fail the amp
+# gate. So require a clause boundary before the candidate: the citation must be
+# a lone word, not the tail of a run.
+CITE = re.compile(r"(?:^|(?<=[.;:,()\[\]])|(?<=\s--))\s*([A-Za-z][A-Za-z'\-]{1,28})\s*\(([HG]\d{1,4})\)")
 
 # English prose words that legitimately precede a bare number in notes
 # ("... the KJV margin (H1234)" never occurs, but guard anyway) — anything in
