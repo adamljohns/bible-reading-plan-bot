@@ -94,6 +94,32 @@ def strip_apps_over_three(sec: str) -> str:
     return "".join(out)
 
 
+def drop_empty_app_headers(sec: str) -> str:
+    """Remove a Personal Application header that carries no bullets.
+
+    The generator sometimes emits the header twice (2026-09-30 Wisdom). The
+    duplicate has no bullets under it and renders as a stray heading followed by
+    white space. Keep the header that has content; drop one that is followed
+    only by blank lines and then another header or the prayer.
+    """
+    lines = sec.splitlines()
+    out: list[str] = []
+    i = 0
+    while i < len(lines):
+        ln = lines[i]
+        if re.match(r"^[^\w\s]{0,4}[ \t]*Personal Application\b", ln):
+            j = i + 1
+            while j < len(lines) and not lines[j].strip():
+                j += 1
+            has_bullet = j < len(lines) and re.match(r"^[•\-\*]\s+", lines[j])
+            if not has_bullet:
+                i = j          # drop header and the blank run beneath it
+                continue
+        out.append(ln)
+        i += 1
+    return "\n".join(out) + ("\n" if sec.endswith("\n") else "")
+
+
 def rewrite_prayer_block(pray_body: str, watch_key: str) -> str:
     t = pray_body.strip()
     # Drop leading bullet if model put • before Father
@@ -164,6 +190,20 @@ def scrub_section(sec: str) -> str:
     if not watch_key:
         return sec
 
+    # PJG-0910-BAN1 hardening: a prayer header written with the WRONG leading
+    # emoji (⛏️ seen on 2026-09-20 and 2026-10-08) used to fall through every
+    # rule below AND through the prayer-body rewrite, silently leaving the
+    # banned header, the corporate "we/us", and the Commander close in place for
+    # that whole day. Normalize any leading-glyph Prayer header to 🙏 first so a
+    # single wrong emoji can never again skip a day's scrub.
+    sec = re.sub(
+        r"^[^\w\s]{0,4}[ \t]*Prayer(?:[ \t]+from[ \t]+the[ \t]+"
+        r"(?:Stateroom|Wardroom|Bridge|Helm))?[ \t]*$",
+        "🙏 Prayer",
+        sec,
+        flags=re.M,
+    )
+
     # Headers / charges
     sec = re.sub(r"🙏\s*Prayer from the (?:Stateroom|Wardroom|Bridge|Helm)\s*",
                  "🙏 Prayer\n", sec)
@@ -195,6 +235,7 @@ def scrub_section(sec: str) -> str:
     sec = re.sub(r"\bfourteen-year-old Boaz\b", "fifteen-year-old Boaz", sec, flags=re.I)
 
     sec = strip_apps_over_three(sec)
+    sec = drop_empty_app_headers(sec)
 
     def _sub_pray(m: re.Match) -> str:
         body = m.group(1)
