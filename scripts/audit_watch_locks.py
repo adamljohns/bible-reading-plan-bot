@@ -68,15 +68,30 @@ CHILDREN = r"(?:Gideon|Boaz|Shiloh)"
 
 # LOCK 2 violations. Each pattern describes a vocative aimed AT a child.
 VOCATIVE_PATTERNS = [
-    # "Gideon, you ..." / "Gideon, at nineteen, you ..." / "Boaz, my son, you ..."
+    # A TRUE vocative only: the child's name opens a sentence and is then
+    # addressed as "you".  "Gideon, at nineteen, you stand..." is a violation.
+    # "When you correct Boaz, you are modeling..." is CORRECT father-voice - the
+    # father is "you" and the child is the object - so the name must sit at a
+    # sentence boundary, not mid-clause, or the audit reports false positives.
     (
         "name-comma-you",
-        re.compile(rf"\b{CHILDREN}\b\s*,(?:[^.\n]{{0,60}}?,)?\s*you\b", re.I),
+        re.compile(
+            rf"(?m)(?:^|[.!?\u2026]\s+)[\u2022\-\*\s]*"
+            rf"(?:Little\s+|Dear\s+|My\s+)?{CHILDREN}\b[^.\n]{{0,45}}?,\s*you\b",
+            re.I,
+        ),
     ),
     # "Dear Gideon"
     ("dear-name", re.compile(rf"\bDear\s+{CHILDREN}\b", re.I)),
     # "Gideon, my son" / "Shiloh, my little one"
-    ("name-comma-my", re.compile(rf"\b{CHILDREN}\b\s*,\s*my\b", re.I)),
+    (
+        "name-comma-my",
+        re.compile(
+            rf"(?m)(?:^|[.!?\u2026]\s+)[\u2022\-\*\s]*"
+            rf"(?:Little\s+)?{CHILDREN}\b\s*,\s*my\b",
+            re.I,
+        ),
+    ),
     # direct imperative to the child
     ("listen-closely", re.compile(r"\blisten closely\b", re.I)),
 ]

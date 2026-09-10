@@ -389,6 +389,14 @@ def main():
     ap.add_argument("date")
     ap.add_argument("--model", default="qwen3.6-35b-a3b")
     ap.add_argument("--port", default="1235")
+    ap.add_argument(
+        "--watch",
+        choices=[w["key"] for w in WATCHES],
+        help="Regenerate ONLY this watch and splice it into the existing file, "
+             "leaving every other watch byte-identical. Used for lock remediation "
+             "(PJG-0826-HAPPY1 first, PJG-0909-FAT2 second) so a fix to one watch "
+             "cannot silently rewrite prose that has already been QA'd.",
+    )
     args = ap.parse_args()
 
     passages = json.loads(PASSAGES.read_text())
@@ -400,6 +408,50 @@ def main():
 
     header = (f"MOOP's 2026 Daily Bible Readings\n\n"
               f"{weekday}, {month} {daynum}, 2026\n")
+
+    # --watch: regenerate one watch and splice, leaving the rest untouched.
+    if args.watch:
+        dest = READINGS / f"{args.date}.md"
+        if not dest.exists():
+            sys.exit(f"  ABORT: {dest.name} does not exist; --watch splices into an existing day")
+        w = next(x for x in WATCHES if x["key"] == args.watch)
+        ref = d[w["passage"]]
+        print(f"[{args.date}] regenerating ONLY {w['key']} via {args.model} :{args.port}", flush=True)
+        body = None
+        for attempt in range(1, 4):
+            try:
+                raw = call_llm(build_watch_messages(w, ref, month, daynum, dt),
+                               args.model, args.port)
+            except (urllib.error.HTTPError, urllib.error.URLError) as e:
+                print(f"  [{w['key']}] attempt {attempt} error: {e}", flush=True)
+                continue
+            cand = clean_watch(raw, w["header"])
+            cand = normalize_prayer_header(cand, w["prayer"])
+            if watch_valid(cand, w):
+                body = cand
+                print(f"  ✓ {w['key']} ({len(cand):,} chars, attempt {attempt})", flush=True)
+                break
+            print(f"  ⚠ {w['key']} attempt {attempt} invalid, retrying", flush=True)
+        if body is None:
+            sys.exit(f"  ABORT: {w['key']} failed after 3 attempts — file untouched")
+
+        orig = dest.read_text()
+        glyph = w["header"][:1]
+        parts = re.split(r"\n(?=🌅|🕖|🕚|🕒|🌙)", orig)
+        hit = [i for i, s in enumerate(parts) if s.startswith(glyph)]
+        if len(hit) != 1:
+            sys.exit(f"  ABORT: expected exactly one {glyph} section, found {len(hit)} — file untouched")
+        before = parts[hit[0]]
+        parts[hit[0]] = body if body.endswith("\n") else body + "\n"
+        out = parts[0]
+        for s in parts[1:]:
+            if not out.endswith("\n"):
+                out += "\n"
+            out += "\n" + s.lstrip("\n") if not s.startswith("\n") else s
+        dest.write_text(out)
+        print(f"  ✓ spliced {w['key']} into {dest.name}: "
+              f"{len(before):,} -> {len(parts[hit[0]]):,} chars; other watches untouched")
+        return
 
     sections = [header.rstrip()]
     print(f"[{args.date}] generating watch-by-watch via {args.model} :{args.port}", flush=True)
