@@ -154,3 +154,4 @@ set the rule. The legacy archive — 199 posts migrated 2026-03-15, some going
 back to the 2007 Iraq deployment — is his own historical writing and is out of
 scope. Retroactively flagging it would bury the handful that actually matter.
 2026-09-06 | docs/blog/know-your-marines-total-fitness.html | APPROVE (Telegram)
+2026-09-10 | docs/blog/do-not-baptize-total-fitness.html | APPROVE (Telegram; Principal GO recorded in PJG-0903-MCTF1)
