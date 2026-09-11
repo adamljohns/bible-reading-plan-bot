@@ -369,6 +369,23 @@ def watch_valid(text, w):
         pray = pray_m.group(1)
         if re.search(r"\b(we thank|we ask|we pray|Grant us|give this father)\b", pray, re.I):
             return False
+        # PJG-0910-PEACE1 — the narrow list above missed the 2026-09-10 Peace
+        # prayer, which opened "Grant me" and then slid into "our wives and
+        # children ... convict us ... where we have failed". Any first-person
+        # plural as the praying subject now fails closed.
+        #
+        # "our" inside a divine title ("Christ our King") is the mandated
+        # close, not a corporate pray-er, so those phrases are removed before
+        # the test — otherwise this gate would reject every correct prayer.
+        subject_test = re.sub(
+            r"\bour\s+(?:Lord|God|King|Christ|Jesus|Savior|Saviour|Redeemer|"
+            r"Father|Shepherd|Master|Rock|Refuge|Judge|Maker|Creator)\b",
+            "",
+            pray,
+            flags=re.I,
+        )
+        if re.search(r"\b(?:we|us|our|ours)\b", subject_test, re.I):
+            return False
         if re.search(r"\bBrother Adam\b|\bAdam,", pray):
             return False
     # Apps cap 3 (peace has none)
