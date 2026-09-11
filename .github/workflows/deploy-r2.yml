@@ -111,7 +111,27 @@ jobs:
         run: python3 bin/audit_broken_links.py --max-broken 0
 
       - name: Install rclone
-        run: sudo apt-get update -q && sudo apt-get install -y -q rclone
+        # PIN the version. Ubuntu's apt ships rclone 1.60.1 (2022), which answers
+        # NotImplemented to R2 on a large fraction of PUTs: run 34552694803 lost 25
+        # objects that way -- churches.json, grind-stats.json, the by-state shards --
+        # and only got them up on a retry, while publish-verify.sh paged Adam that
+        # the site was stale. apt was adopted on 2026-09-09 after the unpinned
+        # `rclone-current` download failed once (transiently; that URL is fine).
+        # Pinned, so a future rclone release cannot change deploy behaviour unasked.
+        env:
+          RCLONE_VERSION: v1.68.2
+        run: |
+          set -euo pipefail
+          curl -fsSL --retry 5 --retry-all-errors \
+            "https://downloads.rclone.org/${RCLONE_VERSION}/rclone-${RCLONE_VERSION}-linux-amd64.zip" \
+            -o /tmp/rclone.zip
+          unzip -q /tmp/rclone.zip -d /tmp
+          sudo install -m 755 /tmp/rclone-${RCLONE_VERSION}-linux-amd64/rclone /usr/local/bin/rclone
+          hash -r
+          rclone version | head -1
+          # Fail loudly rather than silently deploying on a stale apt build.
+          rclone version | head -1 | grep -q "${RCLONE_VERSION}" \
+            || { echo "FAIL: expected rclone ${RCLONE_VERSION}" >&2; exit 1; }
       - name: Sync docs/ to R2 (delete guard)
         env:
           RCLONE_CONFIG_R2_TYPE: s3
