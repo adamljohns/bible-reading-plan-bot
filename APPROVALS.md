@@ -155,3 +155,4 @@ back to the 2007 Iraq deployment — is his own historical writing and is out of
 scope. Retroactively flagging it would bury the handful that actually matter.
 2026-09-06 | docs/blog/know-your-marines-total-fitness.html | APPROVE (Telegram)
 2026-09-10 | docs/blog/do-not-baptize-total-fitness.html | APPROVE (Telegram; Principal GO recorded in PJG-0903-MCTF1)
+2026-09-10 | docs/blog/before-the-boots-come-off.html | APPROVE (Telegram; Principal GO 2026-09-10 20:51 EDT relayed to Max by BG Hartwell, CID BGH-0910-BOOTS — relayed, not witnessed directly by the recording session)
