@@ -89,5 +89,36 @@ if [[ "$DELETE_COUNT" -gt "$MAX_DELETES" ]]; then
 fi
 
 echo "== rclone sync (live) =="
-rclone sync "$LOCAL" "$REMOTE" ${EXTRA[@]+"${EXTRA[@]}"} --stats-one-line --stats 30s
-echo "PASS: sync complete (dry-run deletes=$DELETE_COUNT)"
+# A sync that needed a retry to succeed still hid real errors. On 2026-09-10 a
+# run logged "Attempt 1/3 failed with 46 errors and: NotImplemented" against R2
+# -- grind-stats.json, tacc-feed.json and ~40 church pages all failed to upload
+# -- then "Attempt 2/3 succeeded", rclone exited 0, and the deploy reported
+# success. Meanwhile publish-verify.sh was alerting Adam that the live site was
+# stale, and looked like it was crying wolf. Count the errors and say so out
+# loud, so a degraded upload is visible instead of being laundered by a retry.
+LIVE_LOG="$(mktemp)"
+trap 'rm -f "$DRY_LOG" "$LIVE_LOG"' EXIT
+
+set +e
+rclone sync "$LOCAL" "$REMOTE" ${EXTRA[@]+"${EXTRA[@]}"} --stats-one-line --stats 30s 2>&1 | tee "$LIVE_LOG"
+LIVE_RC=${PIPESTATUS[0]}
+set -e
+
+UPLOAD_ERRORS="$(grep -c 'Failed to copy' "$LIVE_LOG" 2>/dev/null || true)"
+UPLOAD_ERRORS="${UPLOAD_ERRORS:-0}"
+RETRIED="$(grep -c 'Attempt [0-9]*/[0-9]* failed' "$LIVE_LOG" 2>/dev/null || true)"
+RETRIED="${RETRIED:-0}"
+
+if [[ "$LIVE_RC" -ne 0 ]]; then
+  echo "FAIL: rclone sync exited $LIVE_RC after $UPLOAD_ERRORS upload error(s)." >&2
+  exit "$LIVE_RC"
+fi
+
+if [[ "$UPLOAD_ERRORS" -gt 0 ]]; then
+  echo "WARN: sync succeeded, but $UPLOAD_ERRORS object(s) failed to upload on an earlier attempt"
+  echo "WARN: ($RETRIED attempt(s) failed before one succeeded). The bucket is correct now,"
+  echo "WARN: but the endpoint is refusing objects under load -- do not treat this as healthy."
+  grep 'Failed to copy' "$LIVE_LOG" | sed 's/^/  /' | head -20
+fi
+
+echo "PASS: sync complete (dry-run deletes=$DELETE_COUNT, upload errors=$UPLOAD_ERRORS)"
