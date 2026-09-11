@@ -119,19 +119,21 @@ jobs:
         # `rclone-current` download failed once (transiently; that URL is fine).
         # Pinned, so a future rclone release cannot change deploy behaviour unasked.
         env:
-          RCLONE_VERSION: v1.68.2
+          # NOT named RCLONE_VERSION: rclone maps every RCLONE_* env var onto a flag,
+          # so RCLONE_VERSION became `--version v1.68.2` and aborted the step.
+          PINNED_RCLONE_VER: v1.68.2
         run: |
           set -euo pipefail
           curl -fsSL --retry 5 --retry-all-errors \
-            "https://downloads.rclone.org/${RCLONE_VERSION}/rclone-${RCLONE_VERSION}-linux-amd64.zip" \
+            "https://downloads.rclone.org/${PINNED_RCLONE_VER}/rclone-${PINNED_RCLONE_VER}-linux-amd64.zip" \
             -o /tmp/rclone.zip
           unzip -q /tmp/rclone.zip -d /tmp
-          sudo install -m 755 /tmp/rclone-${RCLONE_VERSION}-linux-amd64/rclone /usr/local/bin/rclone
+          sudo install -m 755 /tmp/rclone-${PINNED_RCLONE_VER}-linux-amd64/rclone /usr/local/bin/rclone
           hash -r
           rclone version | head -1
           # Fail loudly rather than silently deploying on a stale apt build.
-          rclone version | head -1 | grep -q "${RCLONE_VERSION}" \
-            || { echo "FAIL: expected rclone ${RCLONE_VERSION}" >&2; exit 1; }
+          rclone version | head -1 | grep -q "${PINNED_RCLONE_VER}" \
+            || { echo "FAIL: expected rclone ${PINNED_RCLONE_VER}" >&2; exit 1; }
       - name: Sync docs/ to R2 (delete guard)
         env:
           RCLONE_CONFIG_R2_TYPE: s3
