@@ -19,7 +19,9 @@ for (const x of hymns) {
   if (/Joint Committee on Versification|Anonymous versifier, The Psalter/i.test(a)) a = 'The Psalter (1912)';
   x.author = a.replace(/\s*\(\d{4}[-–]\d{0,4}\)/g, '').replace(/\s+/g, ' ').trim();
   if (x.source) x.source = String(x.source).split(/[\s;(]/)[0].slice(0, 120);
-  x.title = String(x.title || '').replace(/\s+/g, ' ').trim();
+  // Agents append catalog refs to titles — "(HLS No. 80)", "(Hymn 412)", "(No. 7)". Strip them;
+  // keep "(Psalm N)" which is how psalter titles are written.
+  x.title = String(x.title || '').replace(/\s*\((?:HLS\s*)?(?:No\.?|Hymn|#)\s*\d+[a-z]?\)\s*$/i, '').replace(/\s+/g, ' ').trim();
   const k = fold(x.title);
   if (!k) continue;
   if (have.has(k)) { dupLive++; continue; }
