@@ -13,7 +13,17 @@
  */
 
 // ── name normalization ───────────────────────────────────────────────────────
-const norm = s => String(s || '').toLowerCase().replace(/&/g, ' and ')
+const norm = s => String(s || '').toLowerCase()
+  // Fold diacritics BEFORE punctuation is stripped: "Saint Raymond of Penafort"
+  // and "Saint Raymond of Penafort" (with the tilde) otherwise differ, because
+  // stripping the accented letter outright leaves "peafort" against "penafort".
+  .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+  // DELETE apostrophes rather than letting the punctuation pass turn them into
+  // spaces. "Saint Mark's" became the tokens {saint, mark, s} while "Saint Marks"
+  // became {saint, marks}, so a possessive alone defeated every token comparison.
+  // 14 duplicate NoVA pairs survived the OSM audit on this one character.
+  .replace(/['\u2018\u2019\u02bc]/g, '')
+  .replace(/&/g, ' and ')
   // "St." / leading "St " -> "saint", BEFORE punctuation is stripped. Without this
   // "Saint James" and "St. James Catholic Church" get different signatures and the
   // roster matcher never even scores them as candidates (it requires a name hit to
@@ -23,6 +33,13 @@ const norm = s => String(s || '').toLowerCase().replace(/&/g, ' and ')
   // sorts tokens, make "Church on Main St" collide with "Saint Main Church". The
   // period form and the leading form are unambiguously the abbreviation for Saint.
   .replace(/\bst\.\s*/g, 'saint ').replace(/^\s*st\s+/, 'saint ')
+  // Denominational abbreviations. OSM writes them out in full while our records
+  // (and most rosters) abbreviate, so "Messiah UMC" and "Messiah United Methodist
+  // Church" produced different signatures and the NoVA OSM wave offered ~20 such
+  // pairs as NEW. Only unambiguous, church-specific abbreviations belong here.
+  .replace(/\bumc\b/g, 'united methodist church')
+  .replace(/\bamez\b/g, 'african methodist episcopal zion church')
+  .replace(/\bucc\b/g, 'united church of christ')
   .replace(/[^a-z0-9 ]/g, ' ').replace(/\b1st\b/g, 'first').replace(/\b2nd\b/g, 'second')
   .replace(/\bmt\b/g, 'mount').replace(/\s+/g, ' ').trim();
 
