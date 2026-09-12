@@ -103,7 +103,10 @@ def main():
             hits = {c for c in KW.lemma_slugs(s) if c in live}
             hits |= set(lemma_of_live.get(s, []))
             hits = sorted(h for h in hits if h != s and h not in ack and h not in allnew)
-            if hits:
+            # A revision rewrites an entry that already exists; the inflection guard
+            # asks "should this be defined at all?", which was settled when the
+            # entry was first created (same reasoning as the VARIANT-FORM guard).
+            if hits and not e.get('revision'):
                 errs.append(f'{b}/{s}: INFLECTION clash with {hits} — skip, or '
                             f'add "distinct_from": {hits}')
     if errs:

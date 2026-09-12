@@ -129,7 +129,9 @@ if os.path.exists(_ws):
         hits = {c for c in _kw.lemma_slugs(s) if c in slugs}          # new is inflection of live
         hits |= {l for l in _live_lemmas.get(s, [])}                   # live is inflection of new
         hits = sorted(h for h in hits if h != s and h not in ack and h not in own)
-        if hits:
+        # A revision rewrites an entry that already exists; this guard asks whether
+        # a NEW lemma should be authored beside a live inflection — settled at creation.
+        if hits and not e.get('revision'):
             errs.append(f'{s}: INFLECTION of / inflected by existing entr(ies) {hits} — '
                         f'if the SAME word, SKIP and enrich the existing entry; if the '
                         f'archaic form deserves its own study, add "distinct_from": '
