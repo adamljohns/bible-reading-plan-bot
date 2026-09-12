@@ -21,7 +21,10 @@ for (const x of hymns) {
   if (x.source) x.source = String(x.source).split(/[\s;(]/)[0].slice(0, 120);
   // Agents append catalog refs to titles — "(HLS No. 80)", "(Hymn 412)", "(No. 7)". Strip them;
   // keep "(Psalm N)" which is how psalter titles are written.
-  x.title = String(x.title || '').replace(/\s*\((?:HLS\s*)?(?:No\.?|Hymn|#)\s*\d+[a-z]?\)\s*$/i, '').replace(/\s+/g, ' ').trim();
+  x.title = String(x.title || '')
+    .replace(/\s*\([^)]*\b(?:No\.?|Hymn|#)\s*\d+[a-z]?[^)]*\)\s*$/i, '')   // "(HLS No. 80)", "(Hymns on the Lord's Supper, 1745, No. 80)"
+    .replace(/\s*\[[^\]]*\]\s*$/, '')                                        // "[Hymn 412]"
+    .replace(/\s+/g, ' ').trim();
   const k = fold(x.title);
   if (!k) continue;
   if (have.has(k)) { dupLive++; continue; }
