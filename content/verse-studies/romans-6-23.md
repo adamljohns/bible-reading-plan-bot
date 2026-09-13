@@ -1,6 +1,5 @@
 @ref Romans 6:23
-@status draft
-
+@status approved
 @deck
 Two nouns doing all the work. One is earned, one cannot be. Paul chose both words on purpose, and the contrast is the gospel in miniature.
 

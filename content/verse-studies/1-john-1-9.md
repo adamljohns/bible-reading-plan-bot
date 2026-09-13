@@ -1,6 +1,5 @@
 @ref 1 John 1:9
-@status draft
-
+@status approved
 @deck
 The most-used verse in Christian confession, and the strangest word in it is "just." Not merciful. Just.
 

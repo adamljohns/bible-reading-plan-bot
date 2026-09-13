@@ -1,6 +1,5 @@
 @ref Acts 1:8
-@status draft
-
+@status approved
 @deck
 The last thing Jesus says before He leaves. It is not a command, grammatically -- it is a forecast, and that is more demanding than an order.
 

@@ -1,6 +1,5 @@
 @ref Romans 1:16
-@status draft
-
+@status approved
 @deck
 A negative confession from a man who had every reason to make one. Paul says what he is not, and the whole letter follows from it.
 

@@ -1,6 +1,5 @@
 @ref Micah 6:8
-@status draft
-
+@status approved
 @deck
 The Lord has already shown the man what is good. The verse is not a search. It is a verdict on every expensive substitute.
 
@@ -31,7 +30,13 @@ So the verse is not a soft alternative to doctrine. It is the doctrine applied a
 
 The confession later names this verse as a proof that good works are only what God has commanded, not what men invent out of zeal. That is the right instinct. Micah 6:8 is not a license to replace God's word with "being a good person." It is God's word refusing the substitutes.
 
-I am not hanging a verbatim Henry quote on this page this turn. The CCEL Micah fetch returned a loading shell, not a clean public-domain paragraph I could check word for word. The lawsuit in the chapter already interprets the verse: the Lord is not asking for more calves. He is asking for the obedience He already showed.
+Calvin hears the same cut when Moses summarizes the law. The Lord does not ask for a new spectacle. He asks for fear, walk, love, service, and the keeping of what was already commanded.
+
+@quote Calvin, Institutes II.8 | /institutes/b2-c08.html
+Wherefore Moses, when he wished to fix a summary of the whole in the memory of the Israelites, thus addressed them, "And now, Israel, what does the Lord thy God require of thee, but to fear the Lord thy God, to walk in all his ways, and to love him, and to serve the Lord thy God with all thy heart, and with all thy soul, to keep the commandments of the Lord and his statutes which I command thee this day for thy good?"
+@endquote
+
+Micah is not inventing a softer religion. He is repeating that older summary against a people who still had calves to offer and scales that lied.
 
 @section 4. Confessional Anchor
 

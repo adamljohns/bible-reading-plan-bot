@@ -1,6 +1,5 @@
 @ref Philippians 4:6
-@status draft
-
+@status approved
 @deck
 A command about anxiety, written by a man in prison to a church under pressure. Paul does not tell them to calm down. He tells them where to put it.
 

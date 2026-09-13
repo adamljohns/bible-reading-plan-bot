@@ -1,6 +1,5 @@
 @ref Ephesians 6:11
-@status draft
-
+@status approved
 @deck
 Armor you put on, not armor you are. Every piece of it belongs to someone else, which is exactly why it works.
 

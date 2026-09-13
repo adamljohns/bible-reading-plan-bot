@@ -1,6 +1,5 @@
 @ref Romans 8:1
-@status draft
-
+@status approved
 @deck
 Paul has spent seven chapters proving you are guilty. Then he opens the eighth by telling you the case is closed.
 

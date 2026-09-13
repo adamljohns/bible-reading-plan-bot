@@ -1,6 +1,5 @@
 @ref Romans 10:9
-@status draft
-
+@status approved
 @deck
 Mouth and heart, in that order in the sentence and the other order in reality. Paul is quoting Deuteronomy, and the quotation is the argument.
 

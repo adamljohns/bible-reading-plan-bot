@@ -1,6 +1,5 @@
 @ref 1 Corinthians 16:13
-@status draft
-
+@status approved
 @deck
 Four commands, no slogan. Watch. Stand. Act like men. Be strong. Verse 14 will add love so the first four do not become a brawl.
 
@@ -34,7 +33,13 @@ So 16:13 is not a random tattoo verse. It is the close-order drill for a church 
 
 The Reformed instinct is to keep the four together and to keep verse 14 attached. Courage without the faith is a Corinthian faction. Strength without love is the same faction with a louder voice. Watchfulness without standing is anxiety.
 
-I am not hanging a verbatim Henry quote on this page this turn. The CCEL fetch for adjacent pages did not return a clean public-domain paragraph I could check word for word. Paul's own sequence is the witness: resurrection, then logistics, then this drill, then love.
+Calvin will not let a man treat fortitude as a private stockpile. Even the holiest stand by grace. The cross is what keeps a strong man from mistaking his own constancy for the ground he stands on.
+
+@quote Calvin, Institutes III.8 | /institutes/b3-c08.html
+Nay, even the holiest of men, however well aware that they stand not in their own strength, but by the grace of God, would feel too secure in their own fortitude and constancy, were they not brought to a more thorough knowledge of themselves by the trial of the cross.
+@endquote
+
+Paul's own sequence is the witness: resurrection, then logistics, then this drill, then love. "Quit you like men" is not a dare to become self-made. It is an order to stand in the strength you do not own.
 
 @section 4. Confessional Anchor
 

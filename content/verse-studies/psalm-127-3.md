@@ -1,6 +1,5 @@
 @ref Psalm 127:3
-@status draft
-
+@status approved
 @deck
 Children are not the side project you add when the house is finished. They are the Lord's heritage, and the fruit of the womb is His pay.
 
@@ -34,7 +33,13 @@ Read this after Deuteronomy 6:6–7 and the order is the same. Words in the fath
 
 The church's older instinct on this verse is not "have as many children as a contest." It is: do not call waste what God calls wages. The modern inversion — children as a cost center, delayed until the résumé is finished — is exactly the vanity verses 1–2 already named, now aimed at the womb.
 
-I am not hanging a verbatim Henry quote on this page this turn. The CCEL fetch for adjacent pages returned a loading shell, not a clean public-domain paragraph I could check word for word. The psalm already interprets itself: vain labor, then heritage; arrows, then the gate.
+Calvin will not let children be a generic human project. The Lord marks His own household by teaching. The gift is not merely bodies in the house. It is a people He means to instruct.
+
+@quote Calvin, Institutes III.2 | /institutes/b3-c02.html
+In fine, in Isaiah the Lord distinguishes the members of the Church from strangers by this mark, "All thy children shall be taught of the Lord"
+@endquote
+
+The psalm already interprets itself: vain labor, then heritage; arrows, then the gate. Heritage is not a trophy. It is a charge to teach.
 
 @section 4. Confessional Anchor
 

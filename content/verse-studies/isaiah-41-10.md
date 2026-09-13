@@ -1,6 +1,5 @@
 @ref Isaiah 41:10
-@status draft
-
+@status approved
 @deck
 Two commands and five promises. Notice which of them God asks you to supply.
 

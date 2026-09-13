@@ -1,6 +1,5 @@
 @ref Romans 5:8
-@status draft
-
+@status approved
 @deck
 Paul locates the proof of God's love at a specific point in time, and it is not the point you would choose.
 

@@ -237,9 +237,9 @@ ${isDraft ? '    <meta name="robots" content="noindex, nofollow">\n' : ''}    <m
 ${c.head}
 ${c.style}
     <style>
-      .vs-draft-banner { border:1px solid #b4553a; background:rgba(180,85,58,.12); color:#e39a80; border-radius:8px; padding:.55rem .9rem; font-size:.82rem; margin-bottom:1.2rem; }
+${isDraft ? `      .vs-draft-banner { border:1px solid #b4553a; background:rgba(180,85,58,.12); color:#e39a80; border-radius:8px; padding:.55rem .9rem; font-size:.82rem; margin-bottom:1.2rem; }
       body.light-mode .vs-draft-banner { color:#8a3c22; }
-      .vs-ctx { color:var(--gray); font-size:.94rem; border-left:2px solid rgba(212,175,55,.25); padding-left:.9rem; margin-bottom:.7rem; }
+` : ''}      .vs-ctx { color:var(--gray); font-size:.94rem; border-left:2px solid rgba(212,175,55,.25); padding-left:.9rem; margin-bottom:.7rem; }
       .vs-def { color:var(--gray); font-size:.92rem; }
       .vs-words .grk { font-family:'Times New Roman',serif; font-size:1.2rem; margin-right:.35rem; }
       .vs-words .w a { color:inherit; text-decoration:none; }

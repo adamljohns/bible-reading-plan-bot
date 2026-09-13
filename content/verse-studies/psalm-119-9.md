@@ -1,6 +1,5 @@
 @ref Psalm 119:9
-@status draft
-
+@status approved
 @deck
 The psalm does not ask how a young man feels about himself. It asks how he keeps his way clean, and it answers with a watch, not a mood.
 
@@ -37,7 +36,13 @@ The already-written Psalm 119:11 draft owns the storage verse. This page owns th
 
 The Reformed reading of this verse is not that youth is naturally pure if left alone. It is that youth is a dangerous road, and the word is the only sufficient guard. That is why the tradition catechized boys instead of waiting for them to "find themselves."
 
-I am not hanging a verbatim Father-quote on this page this turn. The CCEL Henry fetch for adjacent pages returned a loading shell, not a clean public-domain paragraph I could check word for word. The stanza already makes the case: the young man asks how, and the answer is a watch kept by Scripture, not a technique invented later.
+Calvin will not let a young man treat the word as a menu. Purity is not assembled from the parts of Scripture a man prefers. The whole is the guard, or it is not.
+
+@quote Calvin, Institutes III.6 | /institutes/b3-c06.html
+For you cannot divide the matter with God, undertaking part of what his word enjoins, and omitting part at pleasure.
+@endquote
+
+The stanza already makes the case: the young man asks how, and the answer is a watch kept by Scripture, not a technique invented later. Taking the parts you like is how the way gets dirty.
 
 @section 4. Confessional Anchor
 

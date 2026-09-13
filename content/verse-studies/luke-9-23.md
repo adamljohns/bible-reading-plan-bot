@@ -1,6 +1,5 @@
 @ref Luke 9:23
-@status draft
-
+@status approved
 @deck
 Luke adds one word Matthew and Mark do not, and it changes the whole demand from a moment into a habit.
 

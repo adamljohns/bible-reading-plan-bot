@@ -1,6 +1,5 @@
 @ref Psalm 1:2-3
-@status draft
-
+@status approved
 @deck
 The blessed man is not the man who found a better crowd. He is the man whose delight got attached to a law, and whose roots were put where water already runs.
 
@@ -38,7 +37,13 @@ Verse 2 is the hinge. Without delight and *hagah*, verse 3 becomes a prosperity 
 
 The Reformed reading refuses two corruptions at once. First: that blessing is a technique for getting whatever you do to pay. Second: that meditation is an emptying or a mood. *Hagah* is a man murmuring a text until it soaks.
 
-I am not hanging a verbatim Father-quote on this page this turn. The CCEL Henry fetch for adjacent pages returned a loading shell, not a clean public-domain paragraph I could check word for word. The psalm already interprets itself: chaff versus a transplanted tree. One has no root. The other was placed on purpose.
+Calvin puts the same pair — meditation, then doing — in the charge that installs Joshua. The book does not stay in the mouth as a charm. It is chewed so that it can be kept.
+
+@quote Calvin, Institutes IV.9 | /institutes/b4-c09.html
+Let us then hear in what terms the Lord introduced him to his office. "This book of the law shall not depart out of thy mouth; but thou shalt meditate therein day and night, that thou mayest observe to do according to all that is written therein: for then shalt thou make thy way prosperous, and thou shalt have good success"
+@endquote
+
+That is Psalm 1's tree by another name. The man is planted on purpose. The chaff is not. One has a text in his mouth day and night. The other is moved by whatever wind is up.
 
 @section 4. Confessional Anchor
 

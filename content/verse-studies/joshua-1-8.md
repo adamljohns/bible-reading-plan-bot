@@ -1,6 +1,5 @@
 @ref Joshua 1:8
-@status draft
-
+@status approved
 @deck
 The only verse in the Bible that promises success for meditating on a book. Read the conditions attached and the prosperity gospel dies on the page.
 

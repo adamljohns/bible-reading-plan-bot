@@ -1,6 +1,5 @@
 @ref Galatians 2:20
-@status draft
-
+@status approved
 @deck
 Paul says he died, and then keeps talking. The whole Christian life is packed into the strangeness of that sentence.
 

@@ -1,6 +1,5 @@
 @ref 1 Peter 5:8
-@status draft
-
+@status approved
 @deck
 Peter had watched a man be sifted. He is writing to people who will be, and the first order he gives is to stay awake.
 

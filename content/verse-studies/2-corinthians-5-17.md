@@ -1,6 +1,5 @@
 @ref 2 Corinthians 5:17
-@status draft
-
+@status approved
 @deck
 The verse promises something bigger than a changed man. Paul is not describing self-improvement; he is announcing a new act of creation.
 

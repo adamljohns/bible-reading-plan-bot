@@ -1,6 +1,5 @@
 @ref John 3:16
-@status draft
-
+@status approved
 @deck
 The verse everyone can recite and almost nobody reads. Four of its words have been sanded smooth by familiarity, and each one is sharper than we remember.
 

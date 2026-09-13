@@ -1,6 +1,5 @@
 @ref 1 Corinthians 10:13
-@status draft
-
+@status approved
 @deck
 The most misquoted comfort in the New Testament. Paul is not promising you can handle it. He is promising there is a door.
 
