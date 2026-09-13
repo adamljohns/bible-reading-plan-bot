@@ -1,6 +1,5 @@
 @ref 2 Timothy 3:16
-@status draft
-
+@status approved
 @deck
 One word in this verse appears nowhere else in Greek literature before Paul. He seems to have built it himself, because nothing available said what he meant.
 

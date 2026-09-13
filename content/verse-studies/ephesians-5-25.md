@@ -1,6 +1,5 @@
 @ref Ephesians 5:25
-@status draft
-
+@status approved
 @deck
 The command to the husband is not "be nicer than the age." It is: love her the way Christ loved the church — and Christ handed Himself over.
 
@@ -38,7 +37,13 @@ Matthew Henry's chapter head on Ephesians 5, checked this turn at CCEL, at least
 
 The Reformed instinct is the same as the HELP1 / EGAL1 lock already live on this site: the house has a head, and the head's love is cruciform, not menial and not co-head. Christ does not cease to be head by dying for the church. He proves the kind of head He is.
 
-I am not hanging a longer Henry block-quote this turn; the CCEL page gave the chapter outline cleanly and not a verse-25 paragraph I could certify word for word.
+Calvin quotes the verse when he is defending the visible church against men who would walk away from her spots. He will not let the husband's pattern become a private mood either. The love in view is the Christ's, and it has a purpose: to wash, to present, to make holy.
+
+@quote Calvin, Institutes IV.1 | /institutes/b4-c01.html
+It is true, indeed, as Paul says, that Christ "loved the church, and gave himself for it, that he might sanctify and cleanse it with the washing of water by the word, that he might present it to himself a glorious church, not having spot, or wrinkle, or any such thing; but that it should be holy and without blemish"
+@endquote
+
+That is the husband's measure, not her mood. Headship that will not move toward her holiness has not yet opened this verse.
 
 @section 4. Confessional Anchor
 

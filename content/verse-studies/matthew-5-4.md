@@ -1,6 +1,5 @@
 @ref Matthew 5:4
-@status draft
-
+@status approved
 @deck
 The most obviously false sentence in the Sermon on the Mount, unless you know which mourning He means.
 

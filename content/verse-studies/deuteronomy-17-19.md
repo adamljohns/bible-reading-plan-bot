@@ -1,6 +1,5 @@
 @ref Deuteronomy 17:19
-@status draft
-
+@status approved
 @deck
 The king does not graduate out of the book. He copies it, keeps it, and reads it until fear and obedience replace a lifted heart.
 
@@ -34,7 +33,13 @@ Solomon later multiplies exactly what this chapter forbids. The verse is not the
 
 The Reformed instinct here is the same as on Joshua 1:8: no man's dignity sets him above the law of God. Promotion puts a man more publicly under the book, not beyond it.
 
-I am not hanging a verbatim Henry quote on this page this turn. The CCEL Deuteronomy fetch returned a loading shell, not a clean public-domain paragraph I could check word for word. Moses already wrote the purpose clause. The later wreck of Solomon is the commentary.
+Calvin quotes this statute when he is teaching magistrates their limits. Horses, wives, silver, gold — and then the copy of the law. Rank does not lift a man above the book. It puts the book in his hand every day so his heart will not lift him above his brothers.
+
+@quote Calvin, Institutes IV.20 | /institutes/b4-c20.html
+"he shall write him a copy of this law in a book;" "and it shall be with him, and he shall read therein all the days of his life, that he may learn to fear the Lord his God;" "that his heart be not lifted up above his brethren"
+@endquote
+
+Moses already wrote the purpose clause. The later wreck of Solomon is the commentary. A man who will not copy the law will still copy something. It will not be fear.
 
 @section 4. Confessional Anchor
 

@@ -1,6 +1,5 @@
 @ref Matthew 5:5
-@status draft
-
+@status approved
 @deck
 The earth is not promised to the man who seizes it. It is promised to the man whose strength has been broken to the bit.
 
@@ -31,7 +30,13 @@ The mountain frame still holds from the 5:3 draft: a new Moses, disciples in fro
 
 The Reformed instinct here is the same as on 5:3: this is not a temperament to perform. A man can fake quietness the way he fakes poverty of spirit. Genuine *praus* is strength that has been mastered, not weakness that never had anything to master.
 
-I am not hanging a verbatim Father-quote on this page this turn. The CCEL Henry fetch for this stretch returned a loading shell or a chapter head, not a clean public-domain paragraph I could check word for word. The lexicon's warhorse picture and Psalm 37 are enough to keep the verse from becoming a courtesy poster.
+Calvin will not let blessedness shrink to a better farm. The people whose God is the Lord are happy because He rescues, preserves, and keeps — not because they managed their land well and stayed polite.
+
+@quote Calvin, Institutes II.10 | /institutes/b2-c10.html
+For David repeatedly declares, and with good reason, "Happy is that people whose God is the Lord." … and this not merely in respect of earthly happiness, but because he rescues from death, constantly preserves, and, with eternal mercy, visits those whom he has adopted for his people.
+@endquote
+
+The meek inherit the earth because the earth belongs to the Lord, and He gives it to the men He has chosen — not to the men who grabbed first. Psalm 37 is still the dictionary for this verse. The lexicon's warhorse picture keeps it from becoming a courtesy poster.
 
 @section 4. Confessional Anchor
 

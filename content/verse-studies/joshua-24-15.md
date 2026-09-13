@@ -1,6 +1,5 @@
 @ref Joshua 24:15
-@status draft
-
+@status approved
 @deck
 The verse is not a wall plaque. It is a commander putting his own house on the table after the people have already been told they cannot serve the Lord casually.
 
@@ -37,7 +36,13 @@ The Reformed household reading is right as far as it goes: a man is responsible 
 
 The other half is less often quoted. Joshua does not trust a swift confession. Holiness and jealousy are the next words. A house that says verse 15 and keeps foreign gods in the midst (24:23) has not chosen. It has decorated.
 
-I am not hanging a verbatim Henry quote on this page this turn. The CCEL fetch for adjacent pages returned a loading shell, not a clean public-domain paragraph I could check word for word. The chapter already interprets the sentence: choose, then put the gods away, then live as a witness against yourself.
+Calvin will not let the choice become a feeling. What God regards in the house is obedience. Speech that will not put the gods away is not this verse. It is décor.
+
+@quote Calvin, Institutes IV.10 | /institutes/b4-c10.html
+I again repeat, as properly belonging to the present subject, that whatever commendation works have, they have it in respect of obedience, which alone God regards
+@endquote
+
+The chapter already interprets the sentence: choose, then put the gods away, then live as a witness against yourself. A house that will not obey has not chosen. It has announced.
 
 @section 4. Confessional Anchor
 

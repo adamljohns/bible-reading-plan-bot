@@ -1,6 +1,5 @@
 @ref Ephesians 2:8
-@status draft
-
+@status approved
 @deck
 Every clause in this sentence exists to close a door. Paul is not describing salvation so much as sealing off every route by which a man might claim it.
 

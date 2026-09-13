@@ -1,6 +1,5 @@
 @ref Romans 3:23
-@status draft
-
+@status approved
 @deck
 The verse everyone learns first, and the one most easily reduced to a slogan. Paul is not saying nobody is perfect. He is saying something far more specific about what was lost.
 

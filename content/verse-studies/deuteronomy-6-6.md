@@ -1,6 +1,5 @@
 @ref Deuteronomy 6:6
-@status draft
-
+@status approved
 @deck
 The words have to land in the father before they can be sharpened on the children. Verse 7 is famous. Verse 6 is the one most houses skip.
 
@@ -33,7 +32,13 @@ If you start at verse 7 you get a parenting technique. If you start at verse 6 y
 
 The Reformed instinct on this verse is the same instinct as Psalm 119:11: Scripture is not only the church's public authority. It is the believer's inward supply. That is why the tradition built family worship instead of leaving the text to clergy.
 
-I am not hanging a verbatim Father-quote on this page this turn; the Henry fetch for this verse did not return a clean public-domain edition I could check word for word. The argument of the chapter does not need one. Moses already said it: the words are commanded today, and the first destination is the man's own heart.
+Calvin hears Moses say it again at the end of the book: the words are not a hobby for the gifted. They are life, and they go first into the heart, then into the children.
+
+@quote Calvin, Institutes II.7 | /institutes/b2-c07.html
+When about to die, he thus addressed the people, "Set your hearts unto all the words which I testify among you this day, which ye shall command your children to observe to do, all the words of this law. For it is not a vain thing for you; because it is your life"
+@endquote
+
+Verse 6 is that order in one sentence. The words are commanded today. The first destination is the man's own heart. Teaching that skips the heart is recitation. Recitation is not this verse.
 
 @section 4. Confessional Anchor
 

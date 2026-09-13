@@ -1,6 +1,5 @@
 @ref 2 Timothy 1:7
-@status draft
-
+@status approved
 @deck
 Paul is not telling a frightened young pastor to cheer up. He is telling him where the fear came from, which is the only useful thing to say to a man who is afraid.
 

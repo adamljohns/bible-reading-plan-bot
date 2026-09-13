@@ -1,6 +1,5 @@
 @ref Hebrews 13:5
-@status draft
-
+@status approved
 @deck
 A command about money answered with a promise about presence. The writer thinks those two things are the same subject, and he is right.
 

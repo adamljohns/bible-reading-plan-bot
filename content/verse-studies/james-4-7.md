@@ -1,6 +1,5 @@
 @ref James 4:7
-@status draft
-
+@status approved
 @deck
 Two commands, one order. Reverse them and you will spend your life losing fights you were never meant to pick alone.
 

@@ -1,6 +1,5 @@
 @ref Matthew 5:3
-@status draft
-
+@status approved
 @deck
 The first word out of Jesus' mouth in His first sermon is a congratulation, and He aims it at the people nobody congratulates.
 

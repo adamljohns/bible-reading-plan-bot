@@ -1,6 +1,5 @@
 @ref John 14:6
-@status draft
-
+@status approved
 @deck
 An answer to a question about directions. Thomas asked how to find the road; Jesus told him the road was standing in front of him.
 

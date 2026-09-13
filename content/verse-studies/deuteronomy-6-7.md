@@ -1,6 +1,5 @@
 @ref Deuteronomy 6:7
-@status draft
-
+@status approved
 @deck
 Verse 6 puts the words in the father. Verse 7 will not let him keep them there. A house is whetted, not decorated.
 
@@ -46,7 +45,13 @@ The danger in the chapter is not wilderness ignorance. It is fullness in the lan
 
 The Reformed household instinct on this verse is the same as on Psalm 119:11: Scripture is not clergy property. It is the father's daily speech. That is why the tradition built family worship instead of leaving the text to the pulpit.
 
-I am not hanging a verbatim Henry quote on this page this turn. The CCEL Deuteronomy fetch returned a loading shell, not a clean public-domain paragraph I could check word for word. The argument of the chapter does not need one. Moses already named the hours. The witnesses who built family worship were simply refusing to let verse 7 become a Sunday-school subcontract.
+Calvin hears Moses put the same charge on the dying day: the words go into the heart, then they are commanded to the children. The hours in verse 7 are not extra credit. They are the life of the house.
+
+@quote Calvin, Institutes II.7 | /institutes/b2-c07.html
+When about to die, he thus addressed the people, "Set your hearts unto all the words which I testify among you this day, which ye shall command your children to observe to do, all the words of this law. For it is not a vain thing for you; because it is your life"
+@endquote
+
+Moses already named the hours. The witnesses who built family worship were refusing to let verse 7 become a Sunday-school subcontract. Sit, walk, lie down, rise. That is the week, not a program.
 
 @section 4. Confessional Anchor
 

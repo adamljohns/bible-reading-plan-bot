@@ -1,6 +1,5 @@
 @ref 2 Corinthians 10:5
-@status draft
-
+@status approved
 @deck
 Paul is describing a siege. The fortress is your own reasoning, and the point of taking it is not silence but obedience.
 

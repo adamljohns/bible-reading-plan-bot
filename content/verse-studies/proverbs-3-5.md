@@ -1,6 +1,5 @@
 @ref Proverbs 3:5
-@status draft
-
+@status approved
 @deck
 The most quoted verse about trust in the Bible, and almost always cut in half. The second clause is the one that costs you something.
 
