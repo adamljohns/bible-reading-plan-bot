@@ -1727,6 +1727,13 @@
                     .replace(/</g, '&lt;').replace(/>/g, '&gt;');
         }
 
+        // PJG-0913-DICT1: English spelling is not verse sense. Keyed overrides
+        // win before findDictSlug. href may be lexicon/GNNNN.html or dictionary/slug.html.
+        // Do not globally unlink "right" — Psalm 110 / Judges 21:25 still use right.html.
+        const DICT_SENSE_OVERRIDES = {
+            '43_1_12|right': { href: 'lexicon/G1849.html', title: 'right — exousia (G1849)' }
+        };
+
         function enrichDictionaryLinks(bookId) {
             if (!DICT_ENABLED_BOOKS.has(bookId)) return;
             loadDictManifest().then(manifest => {
@@ -1801,7 +1808,18 @@
                             });
                         }
                         // PHASE B: single-word matching on the remaining text
+                        const verseKey = (span.getAttribute('data-verse-key') || '').toLowerCase();
                         let newHtml = text.replace(/\b([A-Za-z][A-Za-z'’-]{3,})\b/g, function(match, word){
+                            const senseKey = verseKey + '|' + word.toLowerCase().replace(/[’']/g, '');
+                            const sense = DICT_SENSE_OVERRIDES[senseKey];
+                            if (sense && sense.href) {
+                                const senseSlug = 'sense:' + sense.href;
+                                if (!allowSlug(senseSlug)) return word;
+                                totalLinks++;
+                                return '<a class="dict-link" href="' + sense.href +
+                                       '" title="' + escapeAttr(sense.title || (word + ' — lexicon')) + '">' +
+                                       word + '</a>';
+                            }
                             const slug = findDictSlug(word, tokens);
                             if (!slug) return word;
                             if (!allowSlug(slug)) return word;  // v6.2 dedup
@@ -3891,7 +3909,7 @@
                 // navigation (goToVerse) is still available via the adjacent zoom icon in the
                 // action row at the end of the verse line.
                 var interlinearHref = buildInterlinearUrl(ref.bookId, vCh, v.num) || '#';
-                html += '<div class="verse-block' + hlClass + '" id="vb-' + verseKey + '"><a class="verse-num clickable verse-num-link" href="' + interlinearHref + '" target="_blank" rel="noopener noreferrer" title="Open verse ' + v.num + ' interlinear (Bible Hub) in new tab">' + verseNumLabel + '</a> <span class="verse-text">' + v.text + '</span>';
+                html += '<div class="verse-block' + hlClass + '" id="vb-' + verseKey + '"><a class="verse-num clickable verse-num-link" href="' + interlinearHref + '" target="_blank" rel="noopener noreferrer" title="Open verse ' + v.num + ' interlinear (Bible Hub) in new tab">' + verseNumLabel + '</a> <span class="verse-text" data-verse-key="' + verseKey + '">' + v.text + '</span>';
                 html += ' <span class="verse-detail-btn" onclick="goToVerse(' + vCh + ',' + v.num + ')" title="View verse ' + v.num + ' in detail in BTE"><img src="assets/icons/shield-book.png" class="site-icon" alt="detail" width="16" height="16"></span>';
                 html += ' <span class="share-btn" data-testament="' + (ref.bookId <= 39 ? 'ot' : 'nt') + '" onclick="shareVerse(\'' + shareRef.replace(/'/g, "\\'") + '\', this)" title="Tap to copy shareable link for this verse"><img src="' + shareIcon + '" class="site-icon" alt="share" width="20" height="20"></span>';
                 // BTE v5.2: Highlight toggle per verse
