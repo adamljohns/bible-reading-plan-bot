@@ -121,14 +121,14 @@ const results = await parallel(
     )
   )
 )
-if (A.mode === 'video') {
-  const videos = results.filter(Boolean).flatMap((r) => r.videos || [])
-  log(`round ${ROUND}: ${videos.length} video candidates`)
-  return { round: ROUND, videos }
-}
+// A wave may mix source and video cats (2+2 keeps the 4-agent cap while both lanes move);
+// always return both arrays so apply-round.js and apply-video-ids.js each find their half.
+const videos = results.filter(Boolean).flatMap((r) => r.videos || [])
+if (videos.length) log(`round ${ROUND}: ${videos.length} video candidates`)
+if (A.mode === 'video') return { round: ROUND, videos }
 const hymns = results.filter(Boolean).flatMap((r) => r.hymns || [])
 const pd = hymns.filter((h) => h && h.publicDomain !== undefined && h.lyrics && h.lyrics.length > (A.mode === 'verify' ? 1 : 60))
 const seen = new Set(); const unique = []
 for (const h of pd) { const k = (h.title || '').toLowerCase().replace(/[^a-z0-9]/g, ''); if (!k || seen.has(k)) continue; seen.add(k); unique.push(h) }
 log(`round ${ROUND}: ${hymns.length} raw, ${pd.length} kept, ${unique.length} unique`)
-return { round: ROUND, raw: hymns.length, unique: unique.length, hymns: A.mode === 'verify' ? hymns : unique.filter((h) => h.publicDomain) }
+return { round: ROUND, raw: hymns.length, unique: unique.length, hymns: A.mode === 'verify' ? hymns : unique.filter((h) => h.publicDomain), videos }

@@ -15,10 +15,14 @@ const seen = new Set(); const out = [];
 let dupLive = 0, dupInRound = 0;
 for (const x of hymns) {
   if (x.key) x.key = String(x.key).replace(/♭/g, 'b').replace(/♯/g, '#').replace(/[-\s]?flat/i, 'b').replace(/[-\s]?sharp/i, '#').replace(/\s*minor/i, 'm').replace(/\s*major/i, '').replace(/\s*\([^)]*\)/, '').trim().slice(0, 4);
+  if (x.key && !/^[A-G][#b]?m?$/.test(x.key)) x.key = '';   // "/", "C.M.", "unknown" are not keys
   let a = String(x.author || '');
   if (/Joint Committee on Versification|Anonymous versifier, The Psalter/i.test(a)) a = 'The Psalter (1912)';
   x.author = a.replace(/\s*\(\d{4}[-–]\d{0,4}\)/g, '').replace(/\s+/g, ' ').trim();
-  if (x.source) x.source = String(x.source).split(/[\s;(]/)[0].slice(0, 120);
+  if (x.source) {                       // agents stuff prose provenance in here; keep the first URL, else the first token
+    const src = String(x.source); const u = src.match(/https?:\/\/[^\s;,]+/);
+    x.source = (u ? u[0] : src.split(/[\s;(]/)[0]).slice(0, 120);
+  }
   // Agents append catalog refs to titles — "(HLS No. 80)", "(Hymn 412)", "(No. 7)". Strip them;
   // keep "(Psalm N)" which is how psalter titles are written.
   x.title = String(x.title || '')
