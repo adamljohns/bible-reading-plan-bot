@@ -155,19 +155,39 @@ Lines that do not begin with a date are ignored, so notes and prose are safe.
 2026-09-13 | docs/verse/romans-8-1.html | APPROVE (Adam in Cursor, "let's make sure it's live on our website" — quality deep studies matching Genesis 1:1)
 2026-09-13 | docs/verse/romans-8-28-30.html | APPROVE (Adam in Cursor, "let's make sure it's live on our website" — quality deep studies matching Genesis 1:1)
 2026-09-13 | docs/verse/zephaniah-3-17.html | APPROVE (Adam in Cursor, "let's make sure it's live on our website" — quality deep studies matching Genesis 1:1)
+2026-09-13 | docs/blog/solo-leveling-13-jeju-the-strong-fall.html | APPROVE (Adam in Cursor, "sure publish all")
+2026-09-13 | docs/blog/solo-leveling-14-king-of-humans.html | APPROVE (Adam in Cursor, "sure publish all")
+2026-09-13 | docs/blog/solo-leveling-15-the-healer.html | APPROVE (Adam in Cursor, "sure publish all")
+2026-09-13 | docs/blog/solo-leveling-16-raised-a-shadow.html | APPROVE (Adam in Cursor, "sure publish all")
+2026-09-13 | docs/blog/denominationalism-is-dead-and-men-need-to-hear-it.html | APPROVE (Adam in Cursor, "sure publish all")
+2026-09-13 | docs/blog/imprecatory-prayer-and-governmental-leaders.html | APPROVE (Adam in Cursor, "sure publish all")
+2026-09-13 | docs/blog/teach-them-how-to-say-goodbye.html | APPROVE (Adam in Cursor, "sure publish all")
+2026-09-13 | docs/blog/neither-rot-nor-break.html | APPROVE (Adam in Cursor, "sure publish all")
+2026-09-13 | docs/blog/twenty-five-years-later-enlightenment.html | APPROVE (Adam in Cursor, "sure publish all")
+2026-09-13 | docs/blog/how-to-disagree-without-lying.html | APPROVE (Adam in Cursor, "sure publish all")
+2026-09-13 | docs/blog/bear-much-fruit.html | APPROVE (Adam in Cursor, "sure publish all")
+2026-09-13 | docs/blog/the-easy-yoke-is-not-an-easy-exit.html | APPROVE (Adam in Cursor, "sure publish all")
+2026-09-13 | docs/blog/a-charge-is-not-a-verdict.html | APPROVE (Adam in Cursor, "sure publish all")
+2026-09-13 | docs/blog/before-you-decide.html | APPROVE (Adam in Cursor, "sure publish all")
+2026-09-13 | docs/blog/mha-1-you-can-be-a-hero.html | APPROVE (Adam in Cursor, "sure publish all") — MHA series released from noindex
+2026-09-13 | docs/blog/mha-10-why-villains-are-made.html | APPROVE (Adam in Cursor, "sure publish all") — MHA series released from noindex
+2026-09-13 | docs/blog/mha-11-now-its-your-turn.html | APPROVE (Adam in Cursor, "sure publish all") — MHA series released from noindex
+2026-09-13 | docs/blog/mha-12-go-beyond.html | APPROVE (Adam in Cursor, "sure publish all") — MHA series released from noindex
+2026-09-13 | docs/blog/mha-2-the-hero-notebook.html | APPROVE (Adam in Cursor, "sure publish all") — MHA series released from noindex
+2026-09-13 | docs/blog/mha-4-i-am-here.html | APPROVE (Adam in Cursor, "sure publish all") — MHA series released from noindex
+2026-09-13 | docs/blog/mha-5-one-for-all.html | APPROVE (Adam in Cursor, "sure publish all") — MHA series released from noindex
+2026-09-13 | docs/blog/mha-6-a-worthy-vessel.html | APPROVE (Adam in Cursor, "sure publish all") — MHA series released from noindex
+2026-09-13 | docs/blog/mha-7-plus-ultra.html | APPROVE (Adam in Cursor, "sure publish all") — MHA series released from noindex
+2026-09-13 | docs/blog/mha-8-hidden-form.html | APPROVE (Adam in Cursor, "sure publish all") — MHA series released from noindex
+2026-09-13 | docs/blog/mha-9-all-for-one.html | APPROVE (Adam in Cursor, "sure publish all") — MHA series released from noindex
 
 ---
 
-## Unrecorded gap — logged 2026-08-20, awaiting Adam's call
+## Unrecorded gap — RESOLVED 2026-09-13
 
-These 14 posts are **live right now** and carry no recorded approval. They were
-found by the first run of `bin/approval_gate.py`. The master plan tracked four
-of them (P0#5); the audit found fourteen.
-
-They have deliberately **not** been touched. Pulling down posts Adam may well
-have approved verbally would be its own breach, and unpublishing is his call,
-not the fleet's. Adam: for each, either say APPROVE (and it gets a line above)
-or say pull, and it gets noindexed.
+Adam in Cursor: "sure publish all." These 14 posts were already live; they now
+have APPROVE lines in the Approved section. The LOGGED-GAP machine lines below
+were retired so the weekly audit stops treating them as an open ruling.
 
 | Published | Post |
 |---|---|
@@ -186,23 +206,23 @@ or say pull, and it gets noindexed.
 | 2026-08-15 | `docs/blog/a-charge-is-not-a-verdict.html` |
 | 2026-08-15 | `docs/blog/before-you-decide.html` |
 
-### Machine-readable (read by bin/approval_gate.py)
+### Machine-readable (retired 2026-09-13 — APPROVE lines live above)
 
 ```
-2026-08-20 | docs/blog/solo-leveling-13-jeju-the-strong-fall.html | LOGGED-GAP (published 2026-07-11; awaiting Adam's ruling)
-2026-08-20 | docs/blog/solo-leveling-14-king-of-humans.html | LOGGED-GAP (published 2026-07-11; awaiting Adam's ruling)
-2026-08-20 | docs/blog/solo-leveling-15-the-healer.html | LOGGED-GAP (published 2026-07-11; awaiting Adam's ruling)
-2026-08-20 | docs/blog/solo-leveling-16-raised-a-shadow.html | LOGGED-GAP (published 2026-07-11; awaiting Adam's ruling)
-2026-08-20 | docs/blog/denominationalism-is-dead-and-men-need-to-hear-it.html | LOGGED-GAP (published 2026-07-22; awaiting Adam's ruling)
-2026-08-20 | docs/blog/imprecatory-prayer-and-governmental-leaders.html | LOGGED-GAP (published 2026-07-22; awaiting Adam's ruling)
-2026-08-20 | docs/blog/teach-them-how-to-say-goodbye.html | LOGGED-GAP (published 2026-07-27; awaiting Adam's ruling)
-2026-08-20 | docs/blog/neither-rot-nor-break.html | LOGGED-GAP (published 2026-08-07; awaiting Adam's ruling)
-2026-08-20 | docs/blog/twenty-five-years-later-enlightenment.html | LOGGED-GAP (published 2026-08-07; awaiting Adam's ruling)
-2026-08-20 | docs/blog/how-to-disagree-without-lying.html | LOGGED-GAP (published 2026-08-10; awaiting Adam's ruling)
-2026-08-20 | docs/blog/bear-much-fruit.html | LOGGED-GAP (published 2026-08-11; awaiting Adam's ruling)
-2026-08-20 | docs/blog/the-easy-yoke-is-not-an-easy-exit.html | LOGGED-GAP (published 2026-08-14; awaiting Adam's ruling)
-2026-08-20 | docs/blog/a-charge-is-not-a-verdict.html | LOGGED-GAP (published 2026-08-15; awaiting Adam's ruling)
-2026-08-20 | docs/blog/before-you-decide.html | LOGGED-GAP (published 2026-08-15; awaiting Adam's ruling)
+2026-08-20 | docs/blog/solo-leveling-13-jeju-the-strong-fall.html | RETIRED-GAP (published 2026-07-11; awaiting Adam's ruling)
+2026-08-20 | docs/blog/solo-leveling-14-king-of-humans.html | RETIRED-GAP (published 2026-07-11; awaiting Adam's ruling)
+2026-08-20 | docs/blog/solo-leveling-15-the-healer.html | RETIRED-GAP (published 2026-07-11; awaiting Adam's ruling)
+2026-08-20 | docs/blog/solo-leveling-16-raised-a-shadow.html | RETIRED-GAP (published 2026-07-11; awaiting Adam's ruling)
+2026-08-20 | docs/blog/denominationalism-is-dead-and-men-need-to-hear-it.html | RETIRED-GAP (published 2026-07-22; awaiting Adam's ruling)
+2026-08-20 | docs/blog/imprecatory-prayer-and-governmental-leaders.html | RETIRED-GAP (published 2026-07-22; awaiting Adam's ruling)
+2026-08-20 | docs/blog/teach-them-how-to-say-goodbye.html | RETIRED-GAP (published 2026-07-27; awaiting Adam's ruling)
+2026-08-20 | docs/blog/neither-rot-nor-break.html | RETIRED-GAP (published 2026-08-07; awaiting Adam's ruling)
+2026-08-20 | docs/blog/twenty-five-years-later-enlightenment.html | RETIRED-GAP (published 2026-08-07; awaiting Adam's ruling)
+2026-08-20 | docs/blog/how-to-disagree-without-lying.html | RETIRED-GAP (published 2026-08-10; awaiting Adam's ruling)
+2026-08-20 | docs/blog/bear-much-fruit.html | RETIRED-GAP (published 2026-08-11; awaiting Adam's ruling)
+2026-08-20 | docs/blog/the-easy-yoke-is-not-an-easy-exit.html | RETIRED-GAP (published 2026-08-14; awaiting Adam's ruling)
+2026-08-20 | docs/blog/a-charge-is-not-a-verdict.html | RETIRED-GAP (published 2026-08-15; awaiting Adam's ruling)
+2026-08-20 | docs/blog/before-you-decide.html | RETIRED-GAP (published 2026-08-15; awaiting Adam's ruling)
 ```
 
 The four Solo Leveling posts are likely fine — that lane closed at "16 of 12
@@ -251,17 +271,10 @@ only above `DEEP_STUDY_MIN_CHARS` (6,000 chars visible, ~1,000 words), so the
   in the sitemap since 2026-08-07. Now `noindex` and pulled from the sitemap.
 - **2 hub pages** — `docs/confessions/index.html`, `docs/bfm/index.html`. Real
   text, but they advertise 31 chapters that do not exist yet.
-- **11 MHA drafts** — `docs/blog/mha-*.html`, crawlable since 2026-07-12,
-  waiting on Adam to read them post by post. Now `noindex` and out of
-  `sitemap-blog.xml`. Links from `docs/blog-anime.html` left alone deliberately:
-  no link surgery, per the plan.
-  **Correction 2026-09-03:** it is not only the anime hub. **`docs/blog.html`,
-  the main blog index, links all 11 as well**, and both hubs are themselves
-  indexable and listed in `sitemap-main.xml`. The drafts return 200 and are one
-  click from a live, indexed page; `noindex` on the target keeps them out of
-  search results, it does not make them unreachable. Still not touched, for the
-  same reason as the 14 above: unpublishing is Adam's call, not the fleet's.
-  Adam: say *pull* and both hubs drop the 11 cards in one commit.
+- **11 MHA posts — RESOLVED 2026-09-13.** Adam: "sure publish all."
+  `noindex` removed via `--release`, APPROVE recorded, URLs added to
+  `sitemap-blog.xml`. There is no `mha-3` file; it was never written.
+  Hubs already linked the 11 cards; those links stay.
 
 Release any of these with `--release` once the text is written and APPROVEd.
 
