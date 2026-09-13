@@ -73,8 +73,12 @@ Verified over 60 waves, recorded in `state.json`:
 - **Prolific single author, worked SEQUENTIALLY by hymn/scripture number** → 82–99% fresh.
 - Multi-work collection, 2nd/3rd pass → 69–87% fresh.
 - Mixed anthology → 52–61% fresh.
-- **Thematic category → 29% fresh. Avoid.** This is why `category-bank.json` (72 niches)
-  is retired — every hymnwriter already wrote on comfort/prayer/praise and it's mined out.
+- **Thematic category → 29% fresh. Avoid for public-domain hymn mining.** This is why
+  `category-bank.json` (72 niches) is retired for PD grow — every hymnwriter already
+  wrote on comfort/prayer/praise and it's mined out. That is **not** a hymns-only
+  rule. Adam wants modern Christian contemporary on the site (Getty, Hillsong,
+  Elevation, Passion, Maverick City, etc.). Keep adding verified `linksOnly` CCM
+  batches. The 72-niche bank is a *sourcing method*, not a genre ban.
 
 **Deepest unmined wells right now** (from `author-well-bank.json`, index = position used
 so far is `wellsUsed` in state.json, currently `[0,5,16,28,1,6,17,29,30,2,18]` — 11 of 69
