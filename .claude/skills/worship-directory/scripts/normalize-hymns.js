@@ -14,7 +14,7 @@ const hymns = JSON.parse(fs.readFileSync(f, 'utf8'));
 const seen = new Set(); const out = [];
 let dupLive = 0, dupInRound = 0;
 for (const x of hymns) {
-  if (x.key) x.key = String(x.key).replace(/♭/g, 'b').replace(/♯/g, '#').replace(/[-\s]?flat/i, 'b').replace(/[-\s]?sharp/i, '#').replace(/\s*minor/i, 'm').replace(/\s*major/i, '').replace(/\s*\([^)]*\)/, '').trim().slice(0, 4);
+  if (x.key) x.key = String(x.key).replace(/♭/g, 'b').replace(/♯/g, '#').replace(/[-\s]?flat/i, 'b').replace(/[-\s]?sharp/i, '#').replace(/\s*min(?:or)?\b/i, 'm').replace(/\s*major/i, '').replace(/\s*\([^)]*\)/, '').trim().slice(0, 4);
   if (x.key && !/^[A-G][#b]?m?$/.test(x.key)) x.key = '';   // "/", "C.M.", "unknown" are not keys
   let a = String(x.author || '');
   if (/Joint Committee on Versification|Anonymous versifier, The Psalter/i.test(a)) a = 'The Psalter (1912)';
