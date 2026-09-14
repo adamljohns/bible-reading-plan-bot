@@ -137,10 +137,21 @@ function escapeHtml(str) {
 }
 
 // Iraq threat zone badge — prominently display overall rating
+function heroChipLabel(church) {
+  const raw = String(church.overall_label || church.overall_rating || 'YELLOW');
+  // Hero is a short zone chip. Staff provenance belongs in Enrichment Notes.
+  const dump = /Newly added|NOT yet reviewed|high-confidence-verified|assessment pending/i.test(raw) && raw.length > 72;
+  if (dump) {
+    const zone = String(church.overall_rating || 'yellow').toUpperCase();
+    return zone + ' — assessment pending';
+  }
+  return raw;
+}
+
 function threatBadge(church) {
   const cls = ratingBadgeClass(church.overall_rating);
   const icon = ratingIcon(church.overall_rating);
-  const label = escapeHtml(church.overall_label || church.overall_rating.toUpperCase());
+  const label = escapeHtml(heroChipLabel(church));
   const zone = ['green', 'yellow', 'red', 'black'].includes(church.overall_rating) ? church.overall_rating : 'yellow';
   return `<a href="/churches/zones/${zone}.html" class="threat-badge ${cls}" aria-label="Read about the ${zone} church zone">
     <span class="threat-icon">${icon}</span>
@@ -809,7 +820,7 @@ function buildPage(church) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="${escapeHtml(church.name)} — Theological due diligence scorecard for Christian men. MOOP Nationwide Church Directory.">
   <meta property="og:title" content="${escapeHtml(church.name)} — Church Directory | USMC Ministries">
-  <meta property="og:description" content="10-point theological scorecard: ${escapeHtml(church.overall_label || '')}">
+  <meta property="og:description" content="10-point theological scorecard: ${escapeHtml(heroChipLabel(church))}">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://usmcmin.org/churches/${church.slug || church.id}.html">${(() => {
     // og:image preference: real hero scraped from the church site; logo as fallback.
