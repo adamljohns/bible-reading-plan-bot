@@ -646,7 +646,7 @@ const SONG_CSS = `
         .tb-btn:hover { background:rgba(212,175,55,.15); }
         .tb-btn.active { background:var(--gold); color:#000; }
         .tb-readout { min-width:34px; text-align:center; font-size:.82rem; color:var(--gold-light); font-weight:600; }
-        pre.chart { font-family:'JetBrains Mono','SFMono-Regular',Menlo,Consolas,monospace; font-size:15px; line-height:1.55; white-space:pre; overflow-x:auto; tab-size:8; -moz-tab-size:8; color:var(--white); background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:20px 18px; }
+        pre.chart { font-family:'JetBrains Mono','SFMono-Regular',Menlo,Consolas,monospace; font-size:15px; line-height:1.55; white-space:pre-wrap; overflow-x:hidden; overflow-wrap:anywhere; tab-size:8; -moz-tab-size:8; color:var(--white); background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:20px 18px; }
         body.light-mode pre.chart { background:#fff; color:#1a1a1a; border-color:#d4d0c8; }
         .ln-chord { color:var(--gold); font-weight:600; }
         .ln-sec { color:var(--gold-light); font-weight:700; }
@@ -676,7 +676,7 @@ const SONG_CSS = `
         .credits .cr-k { color:var(--gray); display:inline-block; min-width:120px; }
         .credits .cr-cop { color:var(--gray); font-size:.8rem; margin-top:4px; }
         .credits a { color:var(--gold); text-decoration:none; } .credits a:hover { text-decoration:underline; }
-        @media (max-width:600px){ .toolbar{ top:54px; } pre.chart{ font-size:13px; padding:14px 12px; } }
+        @media (max-width:600px){ .toolbar{ top:54px; } pre.chart{ font-size:13px; padding:14px 12px; overflow-x:hidden; white-space:pre-wrap; } }
         /* Fullscreen performance overlay — Project (lyrics) + Stage (chords). */
         .perf-overlay { position:fixed; inset:0; z-index:9999; background:#000; color:#fff; overflow:auto; display:none; -webkit-overflow-scrolling:touch; }
         .perf-overlay.show { display:block; }
@@ -688,7 +688,7 @@ const SONG_CSS = `
         .perf-project .perf-sec { color:var(--gold); font-size:.5em; text-transform:uppercase; letter-spacing:2px; margin:1.1em 0 .35em; }
         .perf-project .perf-line { margin:0 0 .15em; }
         .perf-project .perf-gap { height:.7em; }
-        .perf-stage .perf-pre { font-family:'JetBrains Mono','SFMono-Regular',Menlo,monospace; font-size:1.7rem; line-height:1.5; white-space:pre; max-width:1000px; margin:0 auto; }
+        .perf-stage .perf-pre { font-family:'JetBrains Mono','SFMono-Regular',Menlo,monospace; font-size:1.7rem; line-height:1.5; white-space:pre-wrap; overflow-x:hidden; overflow-wrap:anywhere; max-width:1000px; margin:0 auto; }
         .perf-stage .ln-chord { color:var(--gold); font-weight:600; }
         .perf-stage .ln-sec { color:var(--gold-light); font-weight:700; }
         @media print { .perf-overlay { display:none !important; } }
@@ -996,10 +996,11 @@ function indexPage(songs, slidesCount) {
   const tabs = songs.filter(s => s.type === 'tab').length;
   const xmas = songs.filter(s => s.christmas).length;
   // Lightweight client index:
-  // [slug, title, type(p/t), christmas(0/1), letter, key, artist, score, wellKnown(0/1), isOther(0/1), themes[]]
+  // [slug, title, type(p/t), christmas(0/1), letter, key, artist, score, wellKnown(0/1), isOther(0/1), themes[], hasChords(0/1)]
+  // PJG-0913-WOR1: hasChords = real .ln-chord overlay, not the key badge.
   const idx = songs.map(s => [s.slug, s.title, s.type === 'tab' ? 't' : 'p', s.christmas ? 1 : 0,
     s.letter, s.key || '', resolveArtist(s), popularity(s), isWellKnown(s) ? 1 : 0, isOtherSong(s) ? 1 : 0,
-    detectThemes(s)]);
+    detectThemes(s), (s.body || '').split('\n').some(isChordLine) ? 1 : 0]);
   const themeDefs = THEMES.map(t => [t.key, t.label]);
   const wkCount = songs.filter(isWellKnown).length;
   const otherCount = songs.filter(isOtherSong).length;
@@ -1136,7 +1137,11 @@ function indexPage(songs, slidesCount) {
     // Lazy-load the full-text lyric index; once in, searches also match lyrics.
     fetch('data/worship-search.json').then(function(r){return r.json();}).then(function(d){LYR=d; if(term) render();}).catch(function(){});
     // Random song (also reachable via ?random=1 from a song page)
-    function randomSong(){ var s=SONGS[Math.floor(Math.random()*SONGS.length)]; location.href='worship/'+s[0]+'.html'; }
+    function randomSong(){
+      var pool=SONGS.filter(function(s){return s[11];});
+      if(!pool.length){ alert('No chord charts in the Random pool.'); return; }
+      var s=pool[Math.floor(Math.random()*pool.length)]; location.href='worship/'+s[0]+'.html';
+    }
     if(/[?&]random=1/.test(location.search)) randomSong();
     // Song of the Day — deterministic per calendar day, prefers a song with a key.
     (function(){
