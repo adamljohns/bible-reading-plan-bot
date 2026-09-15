@@ -108,13 +108,20 @@ STOPWORDS = {
 FOREIGN_ABS = 0.55
 FOREIGN_MARGIN = 0.20
 MIN_CONTENT_TOKENS = 4
-# Two candidate verses this close to each other are a quotation/parallel.
-PARALLEL_SIM = 0.50
+# Candidate verses this contained in one another are a quotation/parallel.
+PARALLEL_SIM = 0.80
 # A line already matching its own passage this well is never called foreign,
 # whatever else it resembles. Across the corpus the genuinely foreign lines sit
 # at a median in-passage score of 0.14; this bar clears quotation artifacts
 # (Psalm 32:2 vs Romans 4:8) without reaching them.
 IN_PASSAGE_MAX = 0.35
+# Splitting a prose run yields short clauses, and a short clause can match some
+# brief verse elsewhere better than the longer verse it genuinely came from —
+# "I am the Alpha and the Omega" scores higher against Revelation 22:13 than
+# against its own host verse Revelation 21:6. So a unit whose words are already
+# almost entirely present in the named passage is never foreign, whatever it
+# resembles elsewhere.
+IN_COVERAGE_MAX = 0.75
 
 
 def normalize(s: str) -> str:
@@ -157,6 +164,31 @@ def extract_scripture(text: str) -> str:
 
 def scripture_lines(scripture: str) -> list[str]:
     return [ln.strip() for ln in (scripture or "").splitlines() if ln.strip()]
+
+
+# A block set as one prose run defeats per-line attribution: a single
+# 1,100-character paragraph shares few tokens with any one verse, so nothing
+# clears the foreign bar and the whole block reads clean. 2026-09-18's
+# "Proverbs 18" hid a Matthew 5:32 divorce sentence exactly that way and this
+# gate passed it. Long lines are therefore attributed sentence by sentence;
+# short lines are untouched, so verse-per-line and poetic half-line blocks
+# behave as before.
+PROSE_RUN_CHARS = 220
+SENTENCE_SPLIT = re.compile(r"(?<=[.!?])[\"'”’]?\s+")
+
+
+def analysis_units(lines: list[str]) -> list[tuple[int, str]]:
+    """[(display_line_number, unit_text), ...] used for attribution."""
+    units: list[tuple[int, str]] = []
+    for i, ln in enumerate(lines, 1):
+        if len(ln) > PROSE_RUN_CHARS:
+            for part in SENTENCE_SPLIT.split(ln):
+                part = part.strip()
+                if part:
+                    units.append((i, part))
+        else:
+            units.append((i, ln))
+    return units
 
 
 @lru_cache(maxsize=None)
@@ -351,16 +383,19 @@ def check_watch(date: str, wkey: str, passage: str, text: str) -> list[dict]:
     # 2. foreign content, reported with the reference it came from
     pool_toks = [(r, content_tokens(t)) for r, t in pool]
     foreign: list[dict] = []
-    for i, ln in enumerate(lines, 1):
+    for i, ln in analysis_units(lines):
         lt = content_tokens(ln)
         if len(lt) < MIN_CONTENT_TOKENS:
             continue
-        in_best, in_toks = 0.0, frozenset()
+        in_best = 0.0
         for _r, pt in pool_toks:
             s = jaccard(lt, pt)
             if s > in_best:
-                in_best, in_toks = s, pt
+                in_best = s
         if in_best >= IN_PASSAGE_MAX:
+            continue
+        in_cov = max((len(lt & pt) / len(lt) for _r, pt in pool_toks), default=0.0)
+        if in_cov >= IN_COVERAGE_MAX:
             continue
         g_best, g_ref, g_toks = best_global_match(lt)
         if not g_ref:
@@ -369,7 +404,17 @@ def check_watch(date: str, wkey: str, passage: str, text: str) -> list[dict]:
         # correct Psalm 32 line can match Romans better than its own verse.
         # When the two candidates are near-identical to each other, this is a
         # parallel, not a mash.
-        if jaccard(g_toks, in_toks) >= PARALLEL_SIM:
+        # Compare the candidate against EVERY verse the label names, not just
+        # the best-scoring one: Psalm 135:14 parallels Deuteronomy 32:36, but
+        # the unit's own best match inside Deuteronomy 32 may be a different
+        # verse entirely, which would hide the parallel.
+        # Containment, not overlap: Psalms 135:14 sits entirely inside
+        # Deuteronomy 32:36, which merely says more afterwards, so Jaccard
+        # reads only 0.42 while the parallel is total.
+        if max(
+            (len(g_toks & pt) / min(len(g_toks), len(pt)) for _r, pt in pool_toks if pt),
+            default=0.0,
+        ) >= PARALLEL_SIM:
             continue
         gm = re.match(r"^(.*?)\s+(\d+):\d+$", g_ref)
         if not gm:
