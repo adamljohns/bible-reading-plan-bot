@@ -6,8 +6,20 @@ LM Studio model, ONE WATCH PER CALL (reliable, bounded), then assemble.
 Why watch-by-watch: a single ~27K-char request to the local MoE model truncated
 ~3/4 of the time. Five small focused calls each complete reliably. It also lets
 each prompt carry only a STRUCTURAL skeleton (not the full canonical prose), which
-prevents the model from copying example content, and a strict "render only this
-passage" guard that prevents cross-passage scripture leakage.
+prevents the model from copying example content.
+
+SCRIPTURE IS NOT GENERATED (PJG-0915-WIS5, 2026-09-15). The prompt's "render
+only this passage" line was never a guard — it is an instruction, and the model
+disregarded it. The 2026-05-30 bulk backfill (295 days) produced blocks labeled
+"Proverbs 15" that paraphrased the chapter and amplified it with thematically
+related verses from Job 19, Job 42, Numbers 23, Isaiah 52 and Exodus 20:12; one
+of those shipped to the Principal on 2026-09-15. A model asked to recite a
+chapter it only approximately knows will do exactly that.
+
+The Scripture block is now pasted from the canonical text already in this repo
+(docs/assets/chapters/) after each watch returns, so the model cannot author
+Scripture at all. It still writes Context, Reflection, Application and Prayer,
+which is where cross-references belong.
 
 Content flows model->file; only a short status line is printed.
 
@@ -316,6 +328,41 @@ def normalize_prayer_header(body, prayer_label):
     return "\n".join(lines)
 
 
+def enforce_canonical_scripture(body, ref):
+    """Replace the model's Scripture block with the canonical text of `ref`.
+
+    PJG-0915-WIS5 (2026-09-15). The Principal asked how a block labeled
+    "Proverbs 15" came to carry Job 19, Job 42, Numbers 23, Isaiah 52 and
+    Exodus 20:12. Answer: this generator asked the model to RECITE the passage
+    from memory. Prompt item 4 already says "The scripture text of {ref} ONLY
+    ... Do NOT import unlabeled verses from any other chapter" — and the model
+    imported them anyway, because an instruction is not a constraint. A model
+    reproducing a chapter it only approximately knows paraphrases it and
+    amplifies with thematically related verses.
+
+    The canonical text has been in this repo the whole time under
+    docs/assets/chapters/. The Scripture field is now pasted from it rather
+    than generated, so the model cannot author Scripture at all. It still
+    writes Context, Reflection, Application and Prayer, where cross-references
+    belong. check_passage_containment.py stays as defense in depth.
+    """
+    try:
+        sys.path.insert(0, str(REPO / "scripts"))
+        from repair_passage_block import repair_text
+    except Exception as e:  # pragma: no cover - never block generation silently
+        print(f"WARN: canonical scripture unavailable ({e}); model text kept", file=sys.stderr)
+        return body
+    res = repair_text(body, ref)
+    if not res:
+        print(f"WARN: could not resolve canonical text for {ref!r}; model text kept",
+              file=sys.stderr)
+        return body
+    new_body, old_n, new_n = res
+    if old_n != new_n:
+        print(f"   scripture: {ref} model {old_n} lines -> {new_n} canonical verses")
+    return new_body
+
+
 def watch_valid(text, w):
     # Reject obvious instruction-text leaks so the watch retries instead of
     # shipping the prompt skeleton as content (e.g. "A one-sentence intro").
@@ -444,6 +491,7 @@ def main():
                 continue
             cand = clean_watch(raw, w["header"])
             cand = normalize_prayer_header(cand, w["prayer"])
+            cand = enforce_canonical_scripture(cand, ref)
             if watch_valid(cand, w):
                 body = cand
                 print(f"  ✓ {w['key']} ({len(cand):,} chars, attempt {attempt})", flush=True)
@@ -484,6 +532,7 @@ def main():
                 continue
             body = clean_watch(raw, w["header"])
             body = normalize_prayer_header(body, w["prayer"])
+            body = enforce_canonical_scripture(body, ref)
             if watch_valid(body, w):
                 sections.append(body)
                 print(f"  ✓ {w['key']} ({len(body):,} chars, attempt {attempt})", flush=True)
