@@ -21,12 +21,50 @@ from check_passage_containment import check_watch  # noqa: E402
 
 JSON_DIR = REPO / "docs" / "assets" / "readings"
 
-# (date, watch, why) — the gate MUST flag these.
+# Detection is pinned with SYNTHETIC fixtures, not live days. A corpus day
+# used as a must-flag case stops flagging the moment it is repaired, which is
+# the whole point of the gate — an earlier version of this suite pinned
+# 2026-09-18 and broke in the same commit that fixed that day.
+# (name, passage, scripture_block, why)
+MUST_FLAG_FIXTURES = [
+    (
+        "prose_run_hides_matthew",
+        "Proverbs 18",
+        # One long prose line, the 2026-09-18 shape. Per-line attribution
+        # cannot see inside it; sentence-level attribution can.
+        "A fool takes pleasure in evil conduct, but a man of understanding "
+        "delights in wisdom. The name of the LORD is a strong tower; the "
+        "righteous run to it and are safe. A man who isolates himself seeks "
+        "his own desire and rages against all wise counsel. He who divorces "
+        "his wife causes her to commit adultery, and whoever marries a "
+        "divorced woman commits adultery.",
+        "Matthew 5:32 hidden inside a Proverbs 18 prose run",
+    ),
+    (
+        "foreign_verse_own_line",
+        "Proverbs 27",
+        "Do not boast about tomorrow, for you do not know what a day may bring "
+        "forth.\nTrust in the LORD with all your heart, and lean not on your "
+        "own understanding.\nIron sharpens iron, so a man sharpens the "
+        "countenance of his friend.",
+        "Proverbs 3:5 verbatim inside Proverbs 27",
+    ),
+    (
+        "duplicated_line",
+        "Proverbs 16",
+        "The preparations of the heart belong to man, But the answer of the "
+        "tongue is from the LORD.\nCommit your works to the LORD, And your "
+        "thoughts will be established.\nCommit your works to the LORD, And "
+        "your thoughts will be established.",
+        "a line repeated more often than Proverbs 16 repeats it",
+    ),
+]
+
+# (date, watch, why) — corpus days the gate MUST flag. Only days that will
+# never be repaired belong here; 2026-09-15 is frozen by PJ (already delivered,
+# no rebake), so it stays mashed permanently.
 MUST_FLAG = [
     ("2026-09-15", "wisdom", "Prov 15 tail runs into Job/Numbers/Isaiah"),
-    ("2026-09-18", "wisdom", "Matthew 5:32 divorce line inside a Proverbs 18 prose run"),
-    ("2026-09-27", "wisdom", "Proverbs 3:5 verbatim inside Proverbs 27"),
-    ("2026-12-22", "peace", "Psalm 113:4 verbatim inside Psalm 146"),
 ]
 
 # (date, watch, why) — the gate MUST stay silent. Each was a real false
@@ -54,8 +92,24 @@ def hits(date: str, watch: str) -> list[dict]:
     ]
 
 
+def fixture_text(passage: str, block: str) -> str:
+    """Wrap a raw block in the watch text shape the gate parses."""
+    return f"🌅 0600 Morning Wisdom\n\n📖 Scripture — {passage}\n{block}\n\n⸻\n\n🧭 Context Summary\nfixture\n"
+
+
 def main() -> int:
     failures = 0
+    for name, passage, block, why in MUST_FLAG_FIXTURES:
+        got = [
+            f
+            for f in check_watch("fixture", "wisdom", passage, fixture_text(passage, block))
+            if not f.get("severity")
+        ]
+        if got:
+            print(f"ok   flags [{name}] — {[f['code'] for f in got]}")
+        else:
+            print(f"FAIL missed [{name}] — {why}", file=sys.stderr)
+            failures += 1
     for date, watch, why in MUST_FLAG:
         got = hits(date, watch)
         if got:
@@ -74,7 +128,7 @@ def main() -> int:
                 file=sys.stderr,
             )
             failures += 1
-    total = len(MUST_FLAG) + len(MUST_PASS)
+    total = len(MUST_FLAG_FIXTURES) + len(MUST_FLAG) + len(MUST_PASS)
     if failures:
         print(f"\n{failures}/{total} FAILED", file=sys.stderr)
         return 1
