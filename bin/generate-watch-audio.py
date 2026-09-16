@@ -82,7 +82,14 @@ F5_REF_SEC = float(os.environ.get("F5_REF_SEC", "15.0"))
 F5_CPS = float(os.environ.get("F5_CPS", "11.0"))  # MBP-0827: slower so tails/Amen are not clipped
 F5_BUFFER = float(os.environ.get("F5_BUFFER", "1.4"))  # was 0.6; last-word cutoff
 F5_STEPS = int(os.environ.get("F5_STEPS", "32"))
-F5_CHUNK_MAX = int(os.environ.get("F5_CHUNK_MAX", "120"))  # PJG-0811: tighter chunks vs prayer dropout
+# PJG-0811 set this to 120 because loose chunks caused prayer dropout on F5.
+# PJG-0915-AUD16 raises it to 400: the prayer path is VoiceStudio now, and 120
+# was itself the dropout. Skip-prone openers are glued onto the previous take,
+# which makes that chunk long; at 120 the glued chunk was re-split at a comma
+# and the tail piece start-clipped, so the 2026-09-16 Citizen prayer lost its
+# middle. Verified by hand at 400: "generous in my means", "household may
+# reflect", "bind me to Your people" and the Amen all present in the audio.
+F5_CHUNK_MAX = int(os.environ.get("F5_CHUNK_MAX", "400"))
 SAMPLE_RATE = 24000
 GAP_SECONDS = 0.65  # PJG-0018: slightly longer handoff cushion (clone/narrator)
 
