@@ -156,7 +156,13 @@ def asr(mp3: Path, tail_sec: int = 90) -> str:
     # The tails stay in the union — they are cheap and they localise the prayer
     # region, which keeps unrelated matches from counting.
     dur = duration_sec(mp3)
-    for sec in (45, 75, 110, 150, 0):
+    # PJG-0915-AUD16: 130 added on measurement, not taste. On 2026-09-16 citizen
+    # (321s) the 130s tail transcribed 1532 chars and contained the prayer while
+    # the LONGER 150s tail returned only 952 and did not, and the whole-file pass
+    # transcribed the opening and never reached it. whisper degrades on long
+    # input, so more seconds can mean fewer words. 130 is the window that
+    # actually hears the Citizen prayer on a long-history day.
+    for sec in (45, 75, 110, 130, 150, 0):
         parts.append(asr_window(mp3, sec, dur))
     joined = "\n".join(parts)
     # If EVERY pass came back degenerate the transcription failed; say so rather
