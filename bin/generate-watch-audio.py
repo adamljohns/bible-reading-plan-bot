@@ -506,8 +506,16 @@ def f5_chunks(text, mx=None):
             continue
         # PJG-0825-PEACE1: start-clip eats mid-prayer openers when they begin
         # a new F5 take. Glue named skip-prone sentences onto the previous chunk.
+        # PJG-0915-AUD16: this list was written when every prayer said "Grant us".
+        # FAT3 moved the prayers to first-person singular, "Grant me" stopped
+        # matching, that sentence opened its own take, and the start-clip ate it —
+        # the 2026-09-16 Citizen audio lost its whole middle while the text was
+        # correct. Imperative openers are matched in BOTH persons now, and the
+        # close titles include "In Jesus' name", which never matched "In the name".
         skip_open = re.match(
-            r"^(Grant us|In the name|Through Jesus|Through Christ|For the sake|Hold Maria|When a man)\b",
+            r"^((?:Grant|Give|Help|Teach|Make|Keep|Lead|Show|Remind|Guard|Strengthen|Guide)\s+(?:us|me)"
+            r"|In the name|In Jesus|Through Jesus|Through Christ|For the sake"
+            r"|Hold Maria|When a man)\b",
             s.strip(),
             flags=re.I,
         )

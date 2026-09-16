@@ -84,11 +84,13 @@ def extract_prayer(text: str) -> str:
 
 
 def asr_one(mp3: Path, tail_sec: int) -> str:
+    """Transcribe the last tail_sec seconds; tail_sec <= 0 means the whole file."""
     tmp = Path(tempfile.mkdtemp(prefix="pjg-asr-"))
     wav = tmp / "prayer.wav"
+    cut = [] if tail_sec <= 0 else ["-sseof", f"-{int(tail_sec)}"]
     subprocess.run(
         ["/opt/homebrew/bin/ffmpeg", "-hide_banner", "-loglevel", "error", "-y",
-         "-sseof", f"-{int(tail_sec)}", "-i", str(mp3),
+         *cut, "-i", str(mp3),
          "-ac", "1", "-ar", "16000", str(wav)],
         check=True,
     )
@@ -113,7 +115,15 @@ def asr(mp3: Path, tail_sec: int = 90) -> str:
     # (50s = history only). Husband 90s skipped Father; 45s heard it. Union.
     parts = []
     # PJG-0907-PRAY2: extra 150s window so VoiceStudio Amen is not a 09-05 false-fail.
-    for sec in (45, 75, 110, 150):
+    # PJG-0915-AUD16: tails alone are positional and therefore brittle. Citizen
+    # carries Watch Charge AND "This Day in American History" after the prayer;
+    # on a long history day the prayer's opening sentences fall outside even the
+    # 150s tail and read as missing while the audio is correct. The 2026-09-16
+    # bake refused R2 on exactly that. A whole-file pass makes prayer position
+    # irrelevant: if the sentence was spoken anywhere in the file, it is heard.
+    # The tails stay in the union — they are cheap and they localise the prayer
+    # region, which keeps unrelated matches from counting.
+    for sec in (45, 75, 110, 150, 0):
         parts.append(asr_one(mp3, sec))
     return "\n".join(parts)
 
