@@ -106,6 +106,38 @@ def asr_one(mp3: Path, tail_sec: int) -> str:
     return txt.read_text(errors="replace")
 
 
+# PJG-0915-AUD16: a whisper pass sometimes returns a stub — 945 chars for 150s of
+# speech, where the identical command run by hand transcribed the lot. The gate
+# could not tell "the audio does not say this" from "the transcription failed",
+# so a degenerate pass silently became a missing-sentence verdict and refused a
+# correct bake. Roughly 8 chars/second is well under real speech (~15-18) and
+# comfortably above an empty result.
+MIN_CHARS_PER_SEC = 8.0
+
+
+def asr_window(mp3: Path, tail_sec: int, dur: float) -> str:
+    """asr_one with a retry when the pass returns an implausibly short transcript."""
+    span = dur if tail_sec <= 0 else min(float(tail_sec), dur)
+    out = asr_one(mp3, tail_sec)
+    if span > 20 and len(out.strip()) < MIN_CHARS_PER_SEC * span:
+        second = asr_one(mp3, tail_sec)
+        if len(second.strip()) > len(out.strip()):
+            return second
+    return out
+
+
+def duration_sec(mp3: Path) -> float:
+    try:
+        r = subprocess.run(
+            ["/opt/homebrew/bin/ffprobe", "-v", "error", "-show_entries",
+             "format=duration", "-of", "default=noprint_wrappers=1:nokey=1", str(mp3)],
+            capture_output=True, text=True, check=True,
+        )
+        return float((r.stdout or "0").strip() or 0)
+    except Exception:
+        return 0.0
+
+
 def asr(mp3: Path, tail_sec: int = 90) -> str:
     if not Path(WHISPER).is_file():
         raise SystemExit(f"ASR-GATE: missing whisper-cli at {WHISPER}")
@@ -123,15 +155,30 @@ def asr(mp3: Path, tail_sec: int = 90) -> str:
     # irrelevant: if the sentence was spoken anywhere in the file, it is heard.
     # The tails stay in the union — they are cheap and they localise the prayer
     # region, which keeps unrelated matches from counting.
+    dur = duration_sec(mp3)
     for sec in (45, 75, 110, 150, 0):
-        parts.append(asr_one(mp3, sec))
-    return "\n".join(parts)
+        parts.append(asr_window(mp3, sec, dur))
+    joined = "\n".join(parts)
+    # If EVERY pass came back degenerate the transcription failed; say so rather
+    # than reporting the prayer as missing and refusing a bake that may be fine.
+    if dur > 60 and len(joined.strip()) < MIN_CHARS_PER_SEC * min(dur, 150.0):
+        raise SystemExit(
+            "ASR-GATE: transcription degenerate for %s (%d chars for %.0fs) — "
+            "not a missing-prayer verdict" % (mp3.name, len(joined.strip()), dur)
+        )
+    return joined
 
 
 def norm(s: str) -> str:
     s = s.lower()
     s = s.replace("ah-men", "amen").replace("ah men", "amen")
-    s = re.sub(r"[^a-z0-9' ]+", " ", s)
+    # PJG-0915-AUD16: drop apostrophes entirely. whisper writes the spoken form
+    # "in jesus name"; the text says "In Jesus' name". Keeping the apostrophe
+    # made "jesus'" and "jesus" different tokens, so a perfectly audible close
+    # read as missing. The 2026-09-16 wisdom prayer failed this gate on nothing
+    # but a possessive mark. Apostrophes carry no ASR signal.
+    s = s.replace("'", "").replace("’", "")
+    s = re.sub(r"[^a-z0-9 ]+", " ", s)
     s = re.sub(r"\s+", " ", s).strip()
     return s
 
