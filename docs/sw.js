@@ -2,6 +2,8 @@
 // App-shell precache + network-first runtime caching (installable, offline-capable).
 // Scope "/" controls the whole site, including /dictionary/* once registered from any page.
 // v9 (2026-06-11): cache bump to flush any stale tacc.html after the double-PIN-gate fix.
+// v20 (2026-09-18): PJG-0918-PWA1 Brass Check installable — precache the module
+//   shell + its own manifest/icons so it launches and drills offline.
 // v19 (2026-08-28): flush stale Purpose/Elevation pages that hid the overview player.
 // v18 (2026-08-14): PJG-0814-MEM3 flush stale memorize.html placeholder (John 3:16 demo).
 // v17 (2026-08-12): precache the Verse Studies directory (46 curated verse pages live).
@@ -12,12 +14,17 @@
 // v11 (2026-07-21): cache bump after BTE book-intro deep-link boot fix (PJG-0008).
 // v10 (2026-06-25): precache the Baptist Catechism + its assets; flush stale LBCF
 //   renderer/JSON after the single-chapter proof-text fix.
-const CACHE = 'usmc-v19';
+const CACHE = 'usmc-v20';
 
 // Core "app shell": the public ministry pages + key assets. Small + high-value.
 // Big data (Bible JSON, dictionary entries) caches on first visit via network-first below.
 const SHELL = [
   '/', '/index.html', '/manifest.json', '/offline.html',
+  // Brass Check (installable module — PJG-0918-PWA1)
+  '/memorize.html', '/memorize/app.html', '/brass-check.webmanifest',
+  '/assets/js/brass-check-install.js',
+  '/assets/icons/brass-check-192.png', '/assets/icons/brass-check-512.png',
+  '/assets/icons/brass-check-apple-180.png',
   '/bible.html', '/bible-plan.html', '/proverbs.html', '/mbt.html',
   '/dictionary/', '/dictionary/index.html',
   '/lexicon.html', '/cross-references.html', '/watchman.html',
