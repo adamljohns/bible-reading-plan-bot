@@ -484,7 +484,12 @@
         .votd-card-wrap { display: none; margin: 14px auto 0; max-width: 420px; }
         .votd-widget.is-open .votd-card-wrap { display: block; }
         .votd-card-wrap img { width: 100%; height: auto; border: 1px solid rgba(212,175,55,0.35); border-radius: 6px; }
-        .votd-card-actions { margin-top: 8px; }
+        .votd-card-actions { margin-top: 8px; display: flex; gap: 10px;
+            align-items: center; justify-content: center; flex-wrap: wrap; }
+        .votd-share-btn { font: inherit; font-size: 0.82rem; font-weight: 600;
+            cursor: pointer; padding: 6px 14px; border-radius: 8px;
+            border: 1px solid var(--gold); background: var(--gold); color: #000; }
+        .votd-share-btn:hover { filter: brightness(1.1); }
         .votd-card-actions a { color: var(--gold); font-size: 0.82rem; text-decoration: none; }
         .votd-card-actions a:hover { text-decoration: underline; }
         .votd-hint { color: var(--gray); font-size: 0.75rem; margin-top: 8px; }
@@ -5086,39 +5091,40 @@
         }
 
         // ── BTE v5.2 Phase 4: Verse of the Day ────────────────────────────────
-        // 365 curated verses — one per day, rotating by day-of-year
+        // 31 curated verses — one per day, rotating by day-of-year.
+        // Every entry carries a share card under assets/verse-cards/.
         var VOTD_VERSES = [
-            {ref:'Proverbs 27:17',text:'As iron sharpens iron, so a man sharpens the countenance of his friend.'},
-            {ref:'Joshua 1:9',text:'Have I not commanded you? Be strong and of good courage; do not be afraid, nor be dismayed, for the LORD your God is with you wherever you go.'},
-            {ref:'Psalm 1:1-2',text:'Blessed is the man who walks not in the counsel of the ungodly, nor stands in the path of sinners, nor sits in the seat of the scornful; but his delight is in the law of the LORD.'},
-            {ref:'Micah 6:8',text:'He has shown you, O man, what is good; and what does the LORD require of you but to do justly, to love mercy, and to walk humbly with your God?'},
-            {ref:'2 Timothy 1:7',text:'For God has not given us a spirit of fear, but of power and of love and of a sound mind.'},
-            {ref:'Romans 8:28',text:'And we know that all things work together for good to those who love God, to those who are the called according to His purpose.'},
-            {ref:'Ephesians 6:11',text:'Put on the whole armor of God, that you may be able to stand against the wiles of the devil.'},
-            {ref:'Psalm 91:1-2',text:'He who dwells in the secret place of the Most High shall abide under the shadow of the Almighty. I will say of the LORD, "He is my refuge and my fortress; my God, in Him I will trust."'},
-            {ref:'Jeremiah 29:11',text:'For I know the thoughts that I think toward you, says the LORD, thoughts of peace and not of evil, to give you a future and a hope.'},
-            {ref:'Philippians 4:13',text:'I can do all things through Christ who strengthens me.'},
-            {ref:'Isaiah 40:31',text:'But those who wait on the LORD shall renew their strength; they shall mount up with wings like eagles, they shall run and not be weary, they shall walk and not faint.'},
-            {ref:'Deuteronomy 6:6-7',text:'And these words which I command you today shall be in your heart. You shall teach them diligently to your children.'},
-            {ref:'Psalm 23:1',text:'The LORD is my shepherd; I shall not want.'},
-            {ref:'John 15:13',text:'Greater love has no one than this, than to lay down one\'s life for his friends.'},
-            {ref:'Hebrews 12:1-2',text:'Let us run with endurance the race that is set before us, looking unto Jesus, the author and finisher of our faith.'},
-            {ref:'1 Corinthians 16:13',text:'Watch, stand fast in the faith, be brave, be strong.'},
-            {ref:'Proverbs 3:5-6',text:'Trust in the LORD with all your heart, and lean not on your own understanding; in all your ways acknowledge Him, and He shall direct your paths.'},
-            {ref:'Romans 12:2',text:'And do not be conformed to this world, but be transformed by the renewing of your mind.'},
-            {ref:'Colossians 3:23',text:'And whatever you do, do it heartily, as to the Lord and not to men.',card:'assets/verse-cards/2026-08-23-colossians-3-23.png'},
-            {ref:'Luke 14:33',text:'So likewise, whoever of you does not forsake all that he has cannot be My disciple.'},
-            {ref:'Ezekiel 22:30',text:'So I sought for a man among them who would make a wall, and stand in the gap before Me on behalf of the land.'},
-            {ref:'James 1:2-4',text:'Count it all joy when you fall into various trials, knowing that the testing of your faith produces patience.'},
-            {ref:'Psalm 119:105',text:'Your word is a lamp to my feet and a light to my path.'},
-            {ref:'1 Peter 5:8',text:'Be sober, be vigilant; because your adversary the devil walks about like a roaring lion, seeking whom he may devour.'},
-            {ref:'Matthew 6:33',text:'But seek first the kingdom of God and His righteousness, and all these things shall be added to you.'},
-            {ref:'Galatians 6:9',text:'And let us not grow weary while doing good, for in due season we shall reap if we do not lose heart.'},
-            {ref:'Proverbs 22:6',text:'Train up a child in the way he should go, and when he is old he will not depart from it.'},
-            {ref:'Psalm 127:1',text:'Unless the LORD builds the house, they labor in vain who build it.'},
-            {ref:'Romans 5:8',text:'But God demonstrates His own love toward us, in that while we were still sinners, Christ died for us.'},
-            {ref:'Ephesians 5:25',text:'Husbands, love your wives, just as Christ also loved the church and gave Himself for her.'},
-            {ref:'2 Chronicles 7:14',text:'If My people who are called by My name will humble themselves, and pray and seek My face, and turn from their wicked ways, then I will hear from heaven.'}
+            {ref:'Proverbs 27:17',text:'As iron sharpens iron, so a man sharpens the countenance of his friend.',card:'assets/verse-cards/proverbs-27-17.png'},
+            {ref:'Joshua 1:9',text:'Have I not commanded you? Be strong and of good courage; do not be afraid, nor be dismayed, for the LORD your God is with you wherever you go.',card:'assets/verse-cards/joshua-1-9.png'},
+            {ref:'Psalm 1:1-2',text:'Blessed is the man who walks not in the counsel of the ungodly, nor stands in the path of sinners, nor sits in the seat of the scornful; but his delight is in the law of the LORD.',card:'assets/verse-cards/psalm-1-1-2.png'},
+            {ref:'Micah 6:8',text:'He has shown you, O man, what is good; and what does the LORD require of you but to do justly, to love mercy, and to walk humbly with your God?',card:'assets/verse-cards/micah-6-8.png'},
+            {ref:'2 Timothy 1:7',text:'For God has not given us a spirit of fear, but of power and of love and of a sound mind.',card:'assets/verse-cards/2-timothy-1-7.png'},
+            {ref:'Romans 8:28',text:'And we know that all things work together for good to those who love God, to those who are the called according to His purpose.',card:'assets/verse-cards/romans-8-28.png'},
+            {ref:'Ephesians 6:11',text:'Put on the whole armor of God, that you may be able to stand against the wiles of the devil.',card:'assets/verse-cards/ephesians-6-11.png'},
+            {ref:'Psalm 91:1-2',text:'He who dwells in the secret place of the Most High shall abide under the shadow of the Almighty. I will say of the LORD, "He is my refuge and my fortress; my God, in Him I will trust."',card:'assets/verse-cards/psalm-91-1-2.png'},
+            {ref:'Jeremiah 29:11',text:'For I know the thoughts that I think toward you, says the LORD, thoughts of peace and not of evil, to give you a future and a hope.',card:'assets/verse-cards/jeremiah-29-11.png'},
+            {ref:'Philippians 4:13',text:'I can do all things through Christ who strengthens me.',card:'assets/verse-cards/philippians-4-13.png'},
+            {ref:'Isaiah 40:31',text:'But those who wait on the LORD shall renew their strength; they shall mount up with wings like eagles, they shall run and not be weary, they shall walk and not faint.',card:'assets/verse-cards/isaiah-40-31.png'},
+            {ref:'Deuteronomy 6:6-7',text:'And these words which I command you today shall be in your heart. You shall teach them diligently to your children.',card:'assets/verse-cards/deuteronomy-6-6-7.png'},
+            {ref:'Psalm 23:1',text:'The LORD is my shepherd; I shall not want.',card:'assets/verse-cards/psalm-23-1.png'},
+            {ref:'John 15:13',text:'Greater love has no one than this, than to lay down one\'s life for his friends.',card:'assets/verse-cards/john-15-13.png'},
+            {ref:'Hebrews 12:1-2',text:'Let us run with endurance the race that is set before us, looking unto Jesus, the author and finisher of our faith.',card:'assets/verse-cards/hebrews-12-1.png'},
+            {ref:'1 Corinthians 16:13',text:'Watch, stand fast in the faith, be brave, be strong.',card:'assets/verse-cards/1-corinthians-16-13.png'},
+            {ref:'Proverbs 3:5-6',text:'Trust in the LORD with all your heart, and lean not on your own understanding; in all your ways acknowledge Him, and He shall direct your paths.',card:'assets/verse-cards/proverbs-3-5-6.png'},
+            {ref:'Romans 12:2',text:'And do not be conformed to this world, but be transformed by the renewing of your mind.',card:'assets/verse-cards/romans-12-2.png'},
+            {ref:'Colossians 3:23',text:'And whatever you do, do it heartily, as to the Lord and not to men.',card:'assets/verse-cards/colossians-3-23.png'},
+            {ref:'Luke 14:33',text:'So likewise, whoever of you does not forsake all that he has cannot be My disciple.',card:'assets/verse-cards/luke-14-33.png'},
+            {ref:'Ezekiel 22:30',text:'So I sought for a man among them who would make a wall, and stand in the gap before Me on behalf of the land.',card:'assets/verse-cards/ezekiel-22-30.png'},
+            {ref:'James 1:2-4',text:'Count it all joy when you fall into various trials, knowing that the testing of your faith produces patience.',card:'assets/verse-cards/james-1-2-4.png'},
+            {ref:'Psalm 119:105',text:'Your word is a lamp to my feet and a light to my path.',card:'assets/verse-cards/psalm-119-105.png'},
+            {ref:'1 Peter 5:8',text:'Be sober, be vigilant; because your adversary the devil walks about like a roaring lion, seeking whom he may devour.',card:'assets/verse-cards/1-peter-5-8.png'},
+            {ref:'Matthew 6:33',text:'But seek first the kingdom of God and His righteousness, and all these things shall be added to you.',card:'assets/verse-cards/matthew-6-33.png'},
+            {ref:'Galatians 6:9',text:'And let us not grow weary while doing good, for in due season we shall reap if we do not lose heart.',card:'assets/verse-cards/galatians-6-9.png'},
+            {ref:'Proverbs 22:6',text:'Train up a child in the way he should go, and when he is old he will not depart from it.',card:'assets/verse-cards/proverbs-22-6.png'},
+            {ref:'Psalm 127:1',text:'Unless the LORD builds the house, they labor in vain who build it.',card:'assets/verse-cards/psalm-127-1.png'},
+            {ref:'Romans 5:8',text:'But God demonstrates His own love toward us, in that while we were still sinners, Christ died for us.',card:'assets/verse-cards/romans-5-8.png'},
+            {ref:'Ephesians 5:25',text:'Husbands, love your wives, just as Christ also loved the church and gave Himself for her.',card:'assets/verse-cards/ephesians-5-25.png'},
+            {ref:'2 Chronicles 7:14',text:'If My people who are called by My name will humble themselves, and pray and seek My face, and turn from their wicked ways, then I will hear from heaven.',card:'assets/verse-cards/2-chronicles-7-14.png'}
         ];
         function renderVotdWidget() {
             var panel = document.getElementById('votdWidget');
@@ -5135,16 +5141,55 @@
                 html += '<div class="votd-hint">Tap to show the verse card</div>';
                 html += '<div class="votd-card-wrap">';
                 html += '<img src="' + verse.card + '" alt="' + verse.ref + ' verse card" width="1080" height="1350">';
-                html += '<div class="votd-card-actions"><a href="' + verse.card + '" download>Save / Share PNG</a></div>';
+                html += '<div class="votd-card-actions">' +
+                    '<button type="button" id="votdShare" class="votd-share-btn">Share this verse</button>' +
+                    '<a href="' + verse.card + '" download>Save PNG</a></div>';
                 html += '</div>';
             }
             html += '</div>';
             panel.innerHTML = html;
             if (verse.card) {
                 var box = document.getElementById('votdCard');
+                // The card File is prepared the moment the card is revealed, not
+                // when Share is tapped. iOS only honours navigator.share inside a
+                // live user gesture, and an await on fetch() spends it.
+                var cardFile = null, cardPending = null;
+                function prepareCard() {
+                    if (cardFile || cardPending) return cardPending;
+                    cardPending = fetch(verse.card)
+                        .then(function (r) { return r.blob(); })
+                        .then(function (b) {
+                            var name = verse.ref.toLowerCase().replace(/[^a-z0-9]+/g, '-')
+                                .replace(/^-|-$/g, '') + '.png';
+                            cardFile = new File([b], name, { type: 'image/png' });
+                            return cardFile;
+                        })
+                        .catch(function () { return null; });
+                    return cardPending;
+                }
                 box.addEventListener('click', function (ev) {
-                    if (ev.target.closest('a')) return;
+                    if (ev.target.closest('a') || ev.target.closest('button')) return;
                     box.classList.toggle('is-open');
+                    if (box.classList.contains('is-open')) prepareCard();
+                });
+                var sb = document.getElementById('votdShare');
+                if (sb) sb.addEventListener('click', function () {
+                    var shareText = '\u201c' + verse.text + '\u201d \u2014 ' + verse.ref +
+                        ' (NKJV)\nusmcmin.org';
+                    if (cardFile && navigator.canShare && navigator.canShare({ files: [cardFile] })) {
+                        navigator.share({ files: [cardFile], text: shareText }).catch(function () {});
+                        return;
+                    }
+                    if (navigator.share) {
+                        navigator.share({ title: 'Verse of the Day \u2014 ' + verse.ref,
+                            text: shareText, url: location.origin + '/bible.html' }).catch(function () {});
+                        return;
+                    }
+                    // Desktop with no Web Share: fall back to saving the PNG.
+                    var a = document.createElement('a');
+                    a.href = verse.card;
+                    a.download = verse.ref.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '.png';
+                    document.body.appendChild(a); a.click(); a.remove();
                 });
             }
         }
