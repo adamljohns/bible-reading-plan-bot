@@ -120,7 +120,7 @@ const SCORE_PRESENTATION = {
   scripture: { slug: 'scripture' },
   mens_discipleship: { slug: 'mens-discipleship' },
   soteriology: { slug: 'soteriology' },
-  gender: { slug: 'gender-biblical-design', description: "Biblical manhood and womanhood by God's design — Scriptural patriarchy, biblical manhood, Christlike headship, egalitarian, or affirming gender ideology?" },
+  gender: { slug: 'gender-biblical-design' },
   leadership: { slug: 'leadership-structure' },
   preaching: { slug: 'preaching-style' },
   mission: { slug: 'mission-clarity' },
@@ -136,10 +136,10 @@ function escapeHtml(str) {
   return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-// Iraq threat zone badge — prominently display overall rating
+// Hero chip — short zone label only. Staff/roster provenance stays in Enrichment Notes.
 function heroChipLabel(church) {
-  const raw = String(church.overall_label || church.overall_rating || 'YELLOW');
-  // Hero is a short zone chip. Staff provenance belongs in Enrichment Notes.
+  let raw = String(church.overall_label || church.overall_rating || 'YELLOW');
+  raw = raw.replace(/\bcomplementarian\b/gi, 'biblical manhood / Christlike headship');
   const dump = /Newly added|NOT yet reviewed|high-confidence-verified|assessment pending/i.test(raw) && raw.length > 72;
   if (dump) {
     const zone = String(church.overall_rating || 'yellow').toUpperCase();
@@ -148,6 +148,7 @@ function heroChipLabel(church) {
   return raw;
 }
 
+// Iraq threat zone badge — prominently display overall rating
 function threatBadge(church) {
   const cls = ratingBadgeClass(church.overall_rating);
   const icon = ratingIcon(church.overall_rating);
@@ -801,9 +802,7 @@ function buildPage(church) {
   // Defunct marker — services may be string OR object {sunday_morning, ...}
   const servicesStr = typeof church.services === 'string'
     ? church.services
-    : (church.services && typeof church.services === 'object'
-      ? Object.values(church.services).filter(v => typeof v === 'string').join(' ')
-      : (typeof church.service_times === 'string' ? church.service_times : ''));
+    : (church.services && typeof church.services === 'object' ? Object.values(church.services).filter(v => typeof v === 'string').join(' ') : '');
   const isDefunct = servicesStr && servicesStr.toLowerCase().includes('no longer');
   const isNotFound = church.overall_label && (church.overall_label.toLowerCase().includes('not found') || church.overall_label.toLowerCase().includes('defunct') || church.overall_label.toLowerCase().includes('search result'));
 

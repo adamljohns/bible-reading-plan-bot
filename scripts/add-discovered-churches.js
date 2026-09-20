@@ -119,7 +119,7 @@ function build(r) {
     website: (typeof r.website === 'string' && /^https?:\/\//i.test(r.website)) ? r.website : '',
     has_mens_ministry: false, has_kids_ministry: false,
     overall_rating: 'yellow',
-    overall_label: `YELLOW — Newly added ${TODAY} from ${r.source_label || 'local discovery'} (${r.city || 'region'}, ${state}); existence ${conf}-confidence-verified via ${r.source_label ? 'the denomination\'s own roster' : 'an online listing'}. Doctrine, leadership & complementarian polity NOT yet reviewed — assessment pending.`,
+    overall_label: 'YELLOW — assessment pending',
     // VA gets a real sub-region so the church lands on the right regional page
     // instead of the bare state bucket; everything else keeps the state code.
     region: state === 'VA' ? vaRegion({ address: r.address || '', city: r.city || '' }) : state.toLowerCase(),
