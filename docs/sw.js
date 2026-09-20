@@ -6,6 +6,8 @@
 //   shell + its own manifest/icons so it launches and drills offline.
 // v21 (2026-09-18): PJG-0918-PWA1 flush stale brass-check-install.js (iOS
 //   Share instructions rewritten for the iOS 26 "..." menu).
+// v22 (2026-09-19): PJG-0919-LEX1 flush the 1.8 MB baked lexicon.html;
+//   the word cards now load from assets/lexicon-words.json.
 // v19 (2026-08-28): flush stale Purpose/Elevation pages that hid the overview player.
 // v18 (2026-08-14): PJG-0814-MEM3 flush stale memorize.html placeholder (John 3:16 demo).
 // v17 (2026-08-12): precache the Verse Studies directory (46 curated verse pages live).
@@ -16,7 +18,7 @@
 // v11 (2026-07-21): cache bump after BTE book-intro deep-link boot fix (PJG-0008).
 // v10 (2026-06-25): precache the Baptist Catechism + its assets; flush stale LBCF
 //   renderer/JSON after the single-chapter proof-text fix.
-const CACHE = 'usmc-v21';
+const CACHE = 'usmc-v22';
 
 // Core "app shell": the public ministry pages + key assets. Small + high-value.
 // Big data (Bible JSON, dictionary entries) caches on first visit via network-first below.
