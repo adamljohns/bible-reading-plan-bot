@@ -156,13 +156,17 @@
     }, { passive: true });
   }
 
-  // ── Build questions block ─────────────────────────────────────────────
-  function buildQuestions(d, axes) {
-    var block = document.getElementById('questionsBlock');
+  // ── Build combined overview + grading cards ───────────────────────────
+  function buildAxisCards(d, axes, getAxisAvg) {
+    var block = document.getElementById('axisCards');
     axes.forEach(function (axis, i) {
       var subQHtml = axis.questions ? axis.questions.map(function (q) { return '<li>' + q + '</li>'; }).join('') : '';
+      var rubricRows = axis.rubrics.map(function (r) {
+        return '<div class="rubric-row"><span class="rubric-range">' + r.range + '</span> <span class="rubric-text">' + r.text + '</span></div>';
+      }).join('');
+      var score = getAxisAvg(i);
       var div = document.createElement('div');
-      div.className = 'question-block';
+      div.className = 'axis-card';
       div.innerHTML =
         '<div class="q-header">' +
           '<div class="q-letter">' + axis.letter + '</div>' +
@@ -172,9 +176,25 @@
         '</div>' +
         '<div class="q-text">' + axis.text + '</div>' +
         (subQHtml ? '<ul class="q-subquestions">' + subQHtml + '</ul>' : '') +
-        '<a class="q-scripture" href="' + bibleHref(axis.scripture) + '" target="_blank" rel="noopener">' +
-          '<img src="assets/icons/shield-bible.png" alt="" width="16" height="16" style="vertical-align:middle;margin-right:3px;"> ' + axis.scripture +
-        '</a>';
+        (axis.scripture ?
+          '<a class="q-scripture" href="' + bibleHref(axis.scripture) + '" target="_blank" rel="noopener">' +
+            '<img src="assets/icons/shield-bible.png" alt="" width="16" height="16" style="vertical-align:middle;margin-right:3px;"> ' + axis.scripture +
+          '</a>' : '') +
+        '<div class="grade-divider"><span>Rate the past two weeks</span></div>' +
+        '<div class="slider-row">' +
+          '<div class="slider-label">' +
+            '<span class="label-text">' + axis.summary + '</span>' +
+            '<span class="score-val" id="val-' + i + '">' + score + '</span>' +
+          '</div>' +
+          '<input type="range" min="1" max="10" value="' + score + '"' +
+            ' id="slider-' + i + '"' +
+            ' oninput="onSlider(' + i + ', this.value)"' +
+            ' aria-label="' + axis.word + ' score">' +
+        '</div>' +
+        '<button class="rubric-toggle" id="rtoggle-' + i + '" onclick="toggleRubric(' + i + ')" type="button">' +
+          '<span class="rtri">\u25B6</span> What does this score mean?' +
+        '</button>' +
+        '<div class="rubric-body" id="rbody-' + i + '">' + rubricRows + '</div>';
       block.appendChild(div);
     });
   }
@@ -238,40 +258,6 @@
     var el = document.getElementById('scoreTier');
     el.textContent = tier.label;
     el.style.color = tier.color;
-  }
-
-  // ── Build sliders ─────────────────────────────────────────────────────
-  function buildSliders(d, axes, getAxisAvg, onSliderCb) {
-    var grid = document.getElementById('sliderGrid');
-    axes.forEach(function (axis, i) {
-      var rubricRows = axis.rubrics.map(function (r) {
-        return '<div class="rubric-row"><span class="rubric-range">' + r.range + '</span> <span class="rubric-text">' + r.text + '</span></div>';
-      }).join('');
-      var block = document.createElement('div');
-      block.className = 'axis-block';
-      block.innerHTML =
-        '<div class="axis-block-header">' +
-          '<span class="axis-letter-label">' + axis.letter + '</span>' +
-          '<span class="axis-name">' + axis.word + '</span>' +
-          (axis.subword ? '<span class="axis-sub">— ' + axis.subword + '</span>' : '') +
-          '<span class="axis-avg" id="avg-' + i + '">' + getAxisAvg(i).toFixed(1) + '</span>' +
-        '</div>' +
-        '<div class="slider-row">' +
-          '<div class="slider-label">' +
-            '<span class="label-text">' + axis.summary + '</span>' +
-            '<span class="score-val" id="val-' + i + '">' + getAxisAvg(i) + '</span>' +
-          '</div>' +
-          '<input type="range" min="1" max="10" value="' + getAxisAvg(i) + '"' +
-            ' id="slider-' + i + '"' +
-            ' oninput="onSlider(' + i + ', this.value)"' +
-            ' aria-label="' + axis.word + ' score">' +
-        '</div>' +
-        '<button class="rubric-toggle" id="rtoggle-' + i + '" onclick="toggleRubric(' + i + ')" type="button">' +
-          '<span class="rtri">\u25B6</span> What does this score mean?' +
-        '</button>' +
-        '<div class="rubric-body" id="rbody-' + i + '">' + rubricRows + '</div>';
-      grid.appendChild(block);
-    });
   }
 
   // ── Build formation plan ──────────────────────────────────────────────
@@ -714,7 +700,6 @@
     window.onSlider = function onSlider(axisIdx, val) {
       ASSESSMENT_DATA.axisScores[axisIdx] = parseInt(val);
       document.getElementById('val-' + axisIdx).textContent = val;
-      document.getElementById('avg-' + axisIdx).textContent = getAxisAvg(axisIdx).toFixed(1);
       updateCurrentChart();
     };
 
@@ -815,27 +800,23 @@
       main.appendChild(brief);
     }
 
-    // Questions section
-    var qCard = document.createElement('div');
-    qCard.className = 'section-card';
-    qCard.innerHTML =
-      '<div class="section-title"><div class="dot"></div><div><h2>' + (ASSESSMENT_DATA.questionHeader || 'The Hard Questions') + '</h2><div class="subtitle">' + (ASSESSMENT_DATA.questionSub || 'Read each one slowly. Sit with it. Answer what\'s actually true, not what you wish were true.') + '</div></div></div>' +
-      '<div id="questionsBlock"></div>';
-    main.appendChild(qCard);
-
-    // Chart + Sliders section
+    // Combined read + rate (overview interleaved with sliders; radar last)
     var csCard = document.createElement('div');
     csCard.className = 'section-card';
     csCard.innerHTML =
-      '<div class="section-title"><div class="dot"></div><div><h2>' + ASSESSMENT_DATA.chartTitle + '</h2><div class="subtitle">' + ASSESSMENT_DATA.chartSub + '</div></div></div>' +
+      '<div class="section-title"><div class="dot"></div><div><h2>' + (ASSESSMENT_DATA.questionHeader || 'The Hard Questions') + '</h2><div class="subtitle">' + (ASSESSMENT_DATA.questionSub || 'Read each one slowly. Sit with it. Answer what\'s actually true, not what you wish were true.') + '</div></div></div>' +
       '<div class="framing-note">\u23F1 Rate yourself based on the <strong>PAST TWO WEEKS</strong> \u2014 not your best day, not your best intentions. Where have you actually been?</div>' +
-      '<div class="chart-wrapper"><canvas id="radarChart"></canvas></div>' +
-      '<div class="overall-score-wrap">' +
-        '<div class="overall-score-num" id="overallScore">\u2014</div>' +
-        '<div class="overall-score-label">Overall Score / 10</div>' +
-        '<div class="score-tier" id="scoreTier"></div>' +
+      '<div class="axis-cards" id="axisCards"></div>' +
+      '<div class="chart-section">' +
+        '<div class="chart-section-title">' + (ASSESSMENT_DATA.chartTitle || 'Your Radar') + '</div>' +
+        '<div class="chart-section-sub">' + (ASSESSMENT_DATA.chartSub || 'Your snapshot after rating each area.') + '</div>' +
+        '<div class="chart-wrapper"><canvas id="radarChart"></canvas></div>' +
+        '<div class="overall-score-wrap">' +
+          '<div class="overall-score-num" id="overallScore">\u2014</div>' +
+          '<div class="overall-score-label">Overall Score / 10</div>' +
+          '<div class="score-tier" id="scoreTier"></div>' +
+        '</div>' +
       '</div>' +
-      '<div class="slider-grid" id="sliderGrid"></div>' +
       '<div class="btn-row" id="print-hide">' +
         '<button class="btn btn-primary" onclick="runAssessment()">\u2705 Generate Formation Plan</button>' +
         '<button class="btn btn-ghost" onclick="saveProgress(event)">\uD83D\uDCBE Save Progress</button>' +
@@ -895,20 +876,19 @@
     buildShareModal(ASSESSMENT_DATA);
 
     // Build all
-    buildQuestions(ASSESSMENT_DATA, ASSESSMENT_DATA.axes);
+    buildAxisCards(ASSESSMENT_DATA, ASSESSMENT_DATA.axes, getAxisAvg);
     buildChart(ASSESSMENT_DATA, ASSESSMENT_DATA.axes, getRadarData);
     _radarChartRef = RADAR_CHART_REF;
-    buildSliders(ASSESSMENT_DATA, ASSESSMENT_DATA.axes, getAxisAvg, null);
+
+    function updateCurrentChart() {
+      updateChart(ASSESSMENT_DATA, ASSESSMENT_DATA.axes, getRadarData, getOverallAvg, getTier);
+    }
+    updateCurrentChart();
 
     // Restore history
     renderHistory = function renderHistory() { buildHistory(ASSESSMENT_DATA, ASSESSMENT_DATA.axes); };
     renderHistory();
     buildRescoreBanner(ASSESSMENT_DATA);
-
-    // Wire up updateChart
-    function updateCurrentChart() {
-      updateChart(ASSESSMENT_DATA, ASSESSMENT_DATA.axes, getRadarData, getOverallAvg, getTier);
-    }
 
     // Expose to window
     window.updateChart = updateCurrentChart;
