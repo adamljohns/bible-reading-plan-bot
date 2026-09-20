@@ -760,7 +760,9 @@
             '</div>' +
           '</div>' +
         '</div>';
-      body.appendChild(hudWrap.firstChild);
+      var hudEl = hudWrap.firstChild;
+      if (nav && nav.nextSibling) body.insertBefore(hudEl, nav.nextSibling);
+      else body.insertBefore(hudEl, nav || body.firstChild);
     }
 
     // Build title/hero
