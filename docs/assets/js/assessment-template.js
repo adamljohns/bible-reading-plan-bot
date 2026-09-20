@@ -275,7 +275,11 @@
   }
 
   // ── Build formation plan ──────────────────────────────────────────────
+  var missionRef = null;
+
   function buildFormationPlan(d, axes, getAxisAvg, getScoreData) {
+    if (missionRef && missionRef.ensureStarted) missionRef.ensureStarted();
+
     var indexed = axes.map(function (_, i) { return { s: getAxisAvg(i), i: i }; }).sort(function (a, b) { return a.s - b.s; });
     var weak = [];
     var count = d.formationCount || 3;
@@ -292,6 +296,7 @@
       div.className = 'formation-area';
       var memLabel = extractPassageLabel(f.memory, f.word || 'Scripture');
       var memRef = f.memRef || '';
+      var pathwayHtml = missionRef && missionRef.pathwayButton ? missionRef.pathwayButton(idx) : '';
       div.innerHTML =
         '<h3><img src="assets/icons/shield-chain-sword-48.png" alt="" width="16" height="16" style="vertical-align:middle;margin-right:3px;"> #' + (rank + 1) + ' Priority \u2014 ' + axis.letter + ': ' + axis.word + ' <span style="font-size:0.8rem;color:var(--gray);font-weight:400">(Avg: ' + getAxisAvg(idx).toFixed(1) + '/10)</span></h3>' +
         '<div class="formation-item">' +
@@ -314,6 +319,8 @@
         '</div>';
       content.appendChild(div);
     });
+
+    if (missionRef && missionRef.wrapFormationComplete) missionRef.wrapFormationComplete(weak);
 
     plan.style.display = 'block';
     plan.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -728,6 +735,34 @@
     body.insertBefore(nav, body.firstChild);
     wireHideOnScrollNav();
 
+    // Mission HUD (optional — only when ASSESSMENT_DATA.mission is present)
+    if (ASSESSMENT_DATA.mission && typeof AssessmentMission !== 'undefined') {
+      body.classList.add('mission-mode');
+      var hudWrap = document.createElement('div');
+      hudWrap.innerHTML =
+        '<div id="mission-hud" aria-live="polite">' +
+          '<div class="hud-inner">' +
+            '<div class="timer-ring-wrap">' +
+              '<canvas id="timerCanvas" width="128" height="128" aria-hidden="true"></canvas>' +
+              '<div class="timer-center"><div class="mmss" id="timerDisplay">18:00</div><div class="lbl" id="timerState">Mission</div></div>' +
+            '</div>' +
+            '<div class="hud-meta">' +
+              '<div class="hud-title">' + (ASSESSMENT_DATA.mission.title || ASSESSMENT_DATA.title + ' Mission Clock') + '</div>' +
+              '<div class="hud-sub" id="timerPhase">Wall-clock countdown \u2014 not a fake spinner</div>' +
+              '<div class="xp-bar-track" title="Mission XP"><div class="xp-bar-fill" id="xpFill"></div></div>' +
+            '</div>' +
+            '<div class="hud-stats">' +
+              '<strong id="xpLabel">0 XP</strong><span id="rankLabel">Recruit</span>' +
+              '<div class="hud-controls">' +
+                '<button type="button" class="hud-btn" id="btnPause" onclick="togglePause()">Pause</button>' +
+                '<button type="button" class="hud-btn warn" onclick="addFiveMinutes()">+5 min</button>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+      body.appendChild(hudWrap.firstChild);
+    }
+
     // Build title/hero
     var hero = document.createElement('div');
     hero.className = 'hero';
@@ -744,6 +779,39 @@
 
     // Build main wrapper
     var main = document.createElement('main');
+
+    // Mission briefing (optional — precedes the questions when mission mode is on)
+    if (ASSESSMENT_DATA.mission) {
+      var m = ASSESSMENT_DATA.mission;
+      var durations = m.durations || [12, 18, 30, 0];
+      var def = m.defaultDuration != null ? m.defaultDuration : 18;
+      var durHtml = durations.map(function (min) {
+        var sel = min === def ? ' selected' : '';
+        var label = min === 0 ? 'No clock' : (min + ' min');
+        var sub = min === 0 ? 'Self-paced' : (min === 12 ? 'Focused sprint' : min === 18 ? 'Standard AAR' : 'Deep work');
+        return '<button type="button" class="dur-btn' + sel + '" onclick="selectDuration(' + min + ',this)"><strong>' + label + '</strong><span>' + sub + '</span></button>';
+      }).join('');
+      var brief = document.createElement('div');
+      brief.className = 'section-card';
+      brief.id = 'briefing-screen';
+      brief.innerHTML =
+        '<div class="section-title"><div class="dot"></div><div><h2>Mission Briefing</h2><div class="subtitle">' +
+          (m.briefingSub || 'Set a real clock before you score yourself.') + '</div></div></div>' +
+        (m.briefingNote ? '<p class="briefing-note">' + m.briefingNote + '</p>' : '') +
+        '<div class="duration-picks">' + durHtml + '</div>' +
+        '<div class="btn-row" style="justify-content:center;">' +
+          '<button class="btn btn-primary" type="button" onclick="startMission()">' + (m.startLabel || 'Begin Mission') + '</button>' +
+        '</div>' +
+        '<div class="badge-rack" id="badgeRack">' +
+          '<span class="mbadge" id="badge-started">Mission Started</span>' +
+          '<span class="mbadge" id="badge-timer">On the Clock</span>' +
+          '<span class="mbadge" id="badge-honest">Honest Radar</span>' +
+          '<span class="mbadge" id="badge-plan">Formation Issued</span>' +
+          '<span class="mbadge" id="badge-finish">Under Fire Finish</span>' +
+          '<span class="mbadge" id="badge-brother">Brotherhood Path</span>' +
+        '</div>';
+      main.appendChild(brief);
+    }
 
     // Questions section
     var qCard = document.createElement('div');
@@ -788,6 +856,29 @@
       '</div>';
     main.appendChild(fCard);
 
+    // Reading + Brotherhood sections (mission mode only)
+    if (ASSESSMENT_DATA.mission) {
+      var rCard = document.createElement('div');
+      rCard.className = 'section-card';
+      rCard.id = 'reading-plan';
+      rCard.style.display = 'none';
+      rCard.innerHTML =
+        '<div class="section-title"><div class="dot"></div><div><h2>Tangible Reading Assignments</h2>' +
+        '<div class="subtitle">One book per weak axis. Start this week, not someday.</div></div></div>' +
+        '<div id="readingContent"></div>';
+      main.appendChild(rCard);
+
+      var bCard = document.createElement('div');
+      bCard.className = 'section-card';
+      bCard.id = 'brotherhood';
+      bCard.style.display = 'none';
+      bCard.innerHTML =
+        '<div class="section-title"><div class="dot"></div><div><h2>Walk It Out With Men</h2>' +
+        '<div class="subtitle">A score you keep to yourself changes nothing. Pick one door.</div></div></div>' +
+        '<div class="connect-grid" id="connectContent"></div>';
+      main.appendChild(bCard);
+    }
+
     // Progress section
     var pCard = document.createElement('div');
     pCard.className = 'section-card';
@@ -825,6 +916,16 @@
     window.toggleRubric = toggleRubric;
     window.printSummary = printSummary;
     window.copyShareText = copyShareText;
+
+    // Mission mode — wire the shared timer/XP/badge module last, once the
+    // DOM the HUD and briefing need already exists.
+    if (ASSESSMENT_DATA.mission && typeof AssessmentMission !== 'undefined') {
+      missionRef = AssessmentMission.init(ASSESSMENT_DATA, {
+        axes: ASSESSMENT_DATA.axes,
+        getAxisAvg: getAxisAvg,
+        getRadarData: getRadarData
+      });
+    }
   }
 
   global.AssessmentTemplate = { render: render };
