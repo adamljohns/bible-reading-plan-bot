@@ -106,10 +106,31 @@ try {
     .filter((f) => f.endsWith('.html') && !NON_CHURCH.has(f.slice(0, -5))).map((f) => f.slice(0, -5)));
   const missing = churches.filter((c) => !files.has(c.id)).map((c) => c.id);
   // Redirect stubs from merged duplicates (merge-duplicate-churches.js) are
-  // deliberate orphans — old URLs must keep resolving. Identified by marker.
+  // deliberate orphans — old URLs must keep resolving.
+  //
+  // This used to test for the literal 'merged-redirect' marker and nothing
+  // else, which made the gate depend on WHO wrote the stub rather than on what
+  // the file is. On 2026-09-14 two Orthodox listings were re-slugged and their
+  // stubs were written without the marker; the gate called them orphans, failed
+  // closed, and the directory grind stayed dead from 2026-09-17 to 2026-09-22 —
+  // five days of no church publishing, over two 500-byte redirects that were
+  // working exactly as intended.
+  //
+  // So: still honour the marker, but also accept a stub that PROVES itself —
+  // it points at another church page that really exists in the index. That is
+  // the thing we actually care about (the old URL resolves to a real listing),
+  // and it cannot be satisfied by a genuine orphan, which is a full listing
+  // page with no redirect target at all.
+  const CANON_RE = /(?:canonical"\s+href="[^"]*\/churches\/|refresh"\s+content="0;\s*url=)([a-z0-9-]+)\.html/i;
   const orphan = diff(ids, files).filter((id) => {
-    try { return !fs.readFileSync(path.join(dir, id + '.html'), 'utf8').includes('merged-redirect'); }
+    let html;
+    try { html = fs.readFileSync(path.join(dir, id + '.html'), 'utf8'); }
     catch (_) { return true; }
+    if (html.includes('merged-redirect')) return false;
+    const m = CANON_RE.exec(html);
+    // A redirect to a target that is NOT a live church id is a broken stub and
+    // stays an orphan — that is a real defect and must still fail.
+    return !(m && ids.has(m[1]));
   });
   record('per-church HTML pages', !missing.length && !orphan.length,
     `${files.size} pages | missing ${missing.length}, orphan ${orphan.length}`,
