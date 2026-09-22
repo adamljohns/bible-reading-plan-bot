@@ -23,6 +23,7 @@ The ledger is APPROVALS.md at the repo root. One line per approved page:
 Lines that do not start with a date are ignored, so prose around them is fine.
 
 Usage:
+  python3 bin/approval_gate.py --enforce           # hide new breaches; exit 0 (CI)
   python3 bin/approval_gate.py --audit              # report; exit 1 on breach
   python3 bin/approval_gate.py --audit --quiet      # summary + breaches only
   python3 bin/approval_gate.py --fix-scaffolds      # add noindex to scaffold/thin
@@ -34,15 +35,24 @@ deletes content, and re-running is a no-op. --release is the deliberate inverse
 and refuses to act on a page that is still a scaffold.
 """
 import argparse
+import json
 import os
 import re
 import subprocess
 import sys
+from datetime import datetime, timezone
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DOCS = os.path.join(ROOT, 'docs')
 LEDGER = os.path.join(ROOT, 'APPROVALS.md')
 ROBOTS = os.path.join(DOCS, 'robots.txt')
+
+# --enforce publishes its verdict here so it rides the same rclone sync as the
+# pages it hid. That is deliberate: CI has no Telegram credentials, and putting
+# Adam's bot token in a repo secret to page him is a worse trade than letting
+# the Mac -- where the credentials already live -- read the answer off the live
+# site. ~/Scripts/guards/approval-gate-alert.sh curls this and alerts him.
+STATUS = os.path.join(DOCS, 'data', 'approval-gate.json')
 
 # Placeholder text that means "this page is not written yet."
 #
@@ -351,10 +361,93 @@ def resolve(arg):
     return None
 
 
+
+def enforce(breaches, stats):
+    """Hide every hard breach instead of failing the build, and say so.
+
+    Why this exists: on 2026-09-21 a single blog post committed without an
+    APPROVE line failed `--audit`, and because the deploy concurrency group is
+    serial, it took down 24 consecutive deploys over 13 hours -- the TACC feed,
+    the fleet dashboard and the RESOLUTE wire all went dark behind a breach that
+    had nothing to do with them. Same shape as 2026-09-06 and 2026-09-10.
+
+    Failing closed protected the one page and lost the whole site. Hiding the
+    page protects it just as completely -- noindex is the same remedy the
+    operator was being asked to apply by hand -- and lets everything else ship.
+    The breach is not swallowed: it is written to STATUS, which goes live, and
+    the Mac-side alerter pages Adam off the live file.
+
+    Returns the exit code: 0 normally, 1 only if a page could NOT be hidden,
+    which is a real wall -- it means something would reach the public unhidden.
+    """
+    hard = [b for b in breaches if b[0] != 'pending']
+    hidden, stuck = [], []
+    for kind, docs_path, why in hard:
+        full = os.path.join(DOCS, docs_path)
+        rec = {'path': docs_path, 'kind': kind, 'why': why}
+        # add_noindex returns False when the tag is already there, which after
+        # a scan that classed the page as indexable means the write failed or
+        # the file has no <head> to anchor to. Either way it is not hidden.
+        if add_noindex(full) or has_noindex(open(full, encoding='utf-8', errors='replace').read()):
+            hidden.append(rec)
+        else:
+            stuck.append(rec)
+
+    pending = [{'path': p, 'kind': 'pending', 'why': w}
+               for k, p, w in breaches if k == 'pending']
+
+    payload = {
+        'generated': datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ'),
+        'result': 'STUCK' if stuck else ('HIDDEN' if hidden else 'CLEAN'),
+        'hidden': hidden,
+        'stuck': stuck,
+        'pending': pending,
+        'scanned': stats['pages'],
+    }
+    os.makedirs(os.path.dirname(STATUS), exist_ok=True)
+    with open(STATUS, 'w', encoding='utf-8') as fh:
+        json.dump(payload, fh, indent=2)
+        fh.write('\n')
+
+    print('=' * 68)
+    print('APPROVAL GATE — ENFORCE')
+    print('=' * 68)
+    print(f'  pages scanned    {stats["pages"]}')
+    print(f'  hidden this run  {len(hidden)}')
+    print(f'  logged gaps      {len(pending)}')
+    print()
+    for rec in hidden:
+        # ::warning:: surfaces on the GitHub run summary, so the deploy is
+        # green but visibly not silent.
+        print(f'::warning file={rec["path"]}::approval gate hid this page '
+              f'({rec["kind"]}) -- {rec["why"]}')
+        print(f'    noindex + {rec["path"]}  [{rec["kind"]}]  {rec["why"]}')
+    for rec in stuck:
+        print(f'::error file={rec["path"]}::approval gate COULD NOT hide this page')
+        print(f'    STUCK {rec["path"]}  [{rec["kind"]}]  {rec["why"]}')
+    print()
+    if stuck:
+        print(f'RESULT: FAIL — {len(stuck)} page(s) could not be hidden. '
+              'This one does block: they would go public unhidden.')
+        return 1
+    if hidden:
+        print(f'RESULT: PASS (hid {len(hidden)}) — deploy continues; the hidden '
+              'pages are recorded in docs/data/approval-gate.json and Adam is '
+              'alerted from the live file.')
+        print('Release with: python3 bin/approval_gate.py --release <path> '
+              '(after an APPROVE line lands in APPROVALS.md)')
+        return 0
+    print('RESULT: PASS — no new breach.')
+    return 0
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('--audit', action='store_true', help='report breaches; exit 1 if any')
+    ap.add_argument('--enforce', action='store_true',
+                    help='hide new breaches with noindex and continue (exit 0); '
+                         'what CI runs, so one unapproved page cannot dark the site')
     ap.add_argument('--fix-scaffolds', action='store_true',
                     help='add noindex to every scaffold/thin breach found')
     ap.add_argument('--fix', nargs='+', metavar='PATH', help='add noindex to named files')
@@ -407,6 +500,9 @@ def main():
                 print(f'  noindex + {docs_path}  [{kind}]')
         print(f'\nnoindex added to {changed} of {len(targets)} scaffold/thin page(s).')
         return 0
+
+    if args.enforce:
+        return enforce(breaches, stats)
 
     # ── audit report ──────────────────────────────────────────────────────
     by_kind = {}
