@@ -144,6 +144,32 @@ def main():
     }
     write_if_changed(empty_path, empty_data)
 
+    # Prune shards for families that no longer have a single church.
+    #
+    # The builder wrote new shards and rewrote _index.json, but never removed the
+    # file for a family that had emptied out. Those files sat there holding church
+    # records that churches.json had dropped, and check-consistency.js counted them
+    # as orphans -- 11 of them, across adventist/quaker/restorationist -- which
+    # failed the frontier lane of the directory grind on every round from
+    # 2026-09-17 onward. Rebuilding "the affected artifact" could never fix it,
+    # because the rebuild was not the thing leaving them behind.
+    #
+    # Quarantined, never deleted: these hold the only copy of records that may be
+    # wanted back, and a shard is cheap to keep. See the reversibility contract.
+    live_slugs = set(shard_stats) | {"_empty", "_index"}
+    quarantine = ROOT / "quarantine" / "denomination-shards"
+    pruned = []
+    for existing in sorted(OUT_DIR.glob("*.json")):
+        if existing.stem in live_slugs:
+            continue
+        quarantine.mkdir(parents=True, exist_ok=True)
+        dest = quarantine / f"{existing.stem}-{datetime.now():%Y%m%d-%H%M%S}.json"
+        existing.replace(dest)
+        pruned.append(existing.stem)
+    if pruned:
+        print(f"  pruned {len(pruned)} empty family shard(s) -> quarantine/denomination-shards/: "
+              + ", ".join(pruned))
+
     # Verify invariant
     total_sharded = sum(s["count"] for s in shard_stats.values()) + len(empty_family)
     invariant_ok = total_sharded == total_input
