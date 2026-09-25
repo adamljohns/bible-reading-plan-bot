@@ -922,6 +922,7 @@ def build_index(words, by_letter, total):
                 <a href="based.html" class="genz-card"><div class="gzword">Based</div><div class="gzverdict gzv-green">Redeemable</div></a>
                 <a href="bet-genz.html" class="genz-card"><div class="gzword">Bet</div><div class="gzverdict gzv-green">Redeemable</div></a>
                 <a href="bussin.html" class="genz-card"><div class="gzword">Bussin</div><div class="gzverdict gzv-yellow">Neutral</div></a>
+                <a href="buns-genz.html" class="genz-card"><div class="gzword">Buns</div><div class="gzverdict gzv-orange">Examine</div></a>
                 <a href="clutch.html" class="genz-card"><div class="gzword">Clutch</div><div class="gzverdict gzv-green">Redeemable</div></a>
                 <a href="cringe-genz.html" class="genz-card"><div class="gzword">Cringe</div><div class="gzverdict gzv-orange">Examine</div></a>
                 <a href="delulu.html" class="genz-card"><div class="gzword">Delulu</div><div class="gzverdict gzv-red">Reject</div></a>
@@ -948,6 +949,7 @@ def build_index(words, by_letter, total):
                     <a href="lowkey.html" class="genz-card"><div class="gzword">Lowkey</div><div class="gzverdict gzv-yellow">Neutral</div></a>
                     <a href="main-character.html" class="genz-card"><div class="gzword">Main Character</div><div class="gzverdict gzv-orange">Examine</div></a>
                     <a href="npc.html" class="genz-card"><div class="gzword">NPC</div><div class="gzverdict gzv-red">Reject</div></a>
+                    <a href="peak-genz.html" class="genz-card"><div class="gzword">Peak</div><div class="gzverdict gzv-yellow">Neutral</div></a>
                     <a href="periodt.html" class="genz-card"><div class="gzword">Periodt</div><div class="gzverdict gzv-yellow">Neutral</div></a>
                     <a href="rent-free.html" class="genz-card"><div class="gzword">Rent Free</div><div class="gzverdict gzv-orange">Examine</div></a>
                     <a href="sheesh.html" class="genz-card"><div class="gzword">Sheesh</div><div class="gzverdict gzv-yellow">Neutral</div></a>
