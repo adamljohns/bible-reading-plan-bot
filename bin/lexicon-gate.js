@@ -112,7 +112,13 @@ function checkPage(fp) {
   const num = codeM[2];
 
   // ── headword must be present ──────────────────────────────────────────
-  const div = (cls) => text((body.match(new RegExp('class="' + cls + '"[^>]*>([\\s\\S]*?)</div>')) || [])[1] || '');
+  // Match the class among any others in the attribute, and tolerate stray
+  // whitespace. An exact-quote match reads class="original-word " (trailing
+  // space) or class="original-word heb" as "no headword" on a page whose
+  // headword is sitting right there — 1,876 such false failures on an older
+  // revision of this corpus. \b keeps "original-word" from matching a longer
+  // token like "original-wordmark".
+  const div = (cls) => text((body.match(new RegExp('class="[^"]*\\b' + cls + '\\b[^"]*"[^>]*>([\\s\\S]*?)</div>')) || [])[1] || '');
   const script = div('original-word');
   const translit = div('transliteration');
   if (!script) fails.push('no original-language headword (.original-word is empty)');
