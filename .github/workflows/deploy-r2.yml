@@ -144,10 +144,22 @@ jobs:
           unzip -q /tmp/rclone.zip -d /tmp
           sudo install -m 755 /tmp/rclone-${PINNED_RCLONE_VER}-linux-amd64/rclone /usr/local/bin/rclone
           hash -r
-          rclone version | head -1
           # Fail loudly rather than silently deploying on a stale apt build.
-          rclone version | head -1 | grep -q "${PINNED_RCLONE_VER}" \
-            || { echo "FAIL: expected rclone ${PINNED_RCLONE_VER}" >&2; exit 1; }
+          # Capture first, then match. Do NOT pipe into `grep -q` under
+          # `set -o pipefail`: grep -q exits the moment it matches, which closes
+          # the pipe, which hands rclone/head a SIGPIPE (141), which pipefail
+          # then reports as the pipeline's status -- so a CORRECT version made
+          # the guard fail. Intermittent (~2% of runs) because rclone's output
+          # is short enough to usually win the race into the pipe buffer.
+          rclone_out="$(rclone version)"
+          rclone_line="${rclone_out%%$'\n'*}"
+          echo "$rclone_line"
+          # shellcheck disable=SC2086
+          set -- $rclone_line
+          if [ "${2:-}" != "${PINNED_RCLONE_VER}" ]; then
+            echo "FAIL: expected rclone ${PINNED_RCLONE_VER}, got: ${rclone_line}" >&2
+            exit 1
+          fi
       - name: Sync docs/ to R2 (delete guard)
         env:
           RCLONE_CONFIG_R2_TYPE: s3
