@@ -1,6 +1,6 @@
 # Deploy Doctrine — usmcmin.org and usmcmin.com
 
-**Canonical. Last updated 2026-08-24.** If any other file, memory note, or lane
+**Canonical. Last updated 2026-09-28.** If any other file, memory note, or lane
 rule contradicts this one, this one wins and the other should be corrected.
 
 Both sites are served from Cloudflare R2 by a Worker. GitHub Pages has been
@@ -16,9 +16,8 @@ dormant since 2026-07-02 (`.org`) and 2026-07-03 (`.com`). Any doc still saying
 
 ## The five rules
 
-**1. Deploy is `git push origin main`. Nothing else deploys.**
-The Action syncs to R2 in ~2-4 min. Do not hand-upload site content with
-rclone. The one exception is R2-only media — see rule 3.
+**1. Git-tracked pages deploy by `git push origin main`.**
+The Action syncs those pages to R2 in about 2-4 min. Do not hand-upload ordinary pages. MP4 and M4A under `assets/media` and `assets/video` are the exception in rule 3: `rclone copy`, never git, never `sync`. A SHA is not live until the served URL returns 200. Use a browser user agent. A bare fetch can 403 on a page that is up.
 
 **2. Never push from `~/bible-reading-plan-bot`.**
 That checkout is fleet scratch space. Agents re-branch it constantly; on
@@ -70,7 +69,9 @@ private conversation.
 
 ## Standing rules that outrank convenience
 
-- Nothing public auto-posts. Outward-facing content waits for Adam's APPROVE.
+- Do not quote a SHA, a behind-count, or a dirty-file list as current unless you fetched in that same turn. The directory grind moves `origin/main` while you write.
+- Never push `~/bible-reading-plan-bot` or a dirty `bible-reading-plan-bot-work`. Those checkouts are not backups.
+- Publish gates are not one rule. Dictionary pages are not approval-gated. Directory grind and scorecard grind push on a standing go. Blog posts and long verse studies wait on `APPROVALS.md`. A blanket hold stops the grinds. A blanket release publishes the gated pages.
 - Never truly delete. Archive with a ledger and a restore path.
 - If you find a guard, an alert, or a backup that has never been observed
   working, treat it as broken until you have made it fail on purpose.
