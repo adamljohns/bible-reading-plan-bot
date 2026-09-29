@@ -202,22 +202,40 @@
   // ── Build chart ───────────────────────────────────────────────────────
   var RADAR_CHART_REF = null;
 
+  function ringPack(d, axes) {
+    var api = window.USMCAssessment;
+    if (!api || !api.ringsFor) return null;
+    return api.ringsFor(d.id, axes.length);
+  }
+
+  function paintRings(d, axes, scores) {
+    var api = window.USMCAssessment;
+    var rings = ringPack(d, axes);
+    if (!api || !rings) return;
+    api.paintRingRead('ringRead', scores, rings, axes.map(function (a) {
+      return a.letter + ' · ' + a.word;
+    }));
+  }
+
   function buildChart(d, axes, getScoreData) {
     var ctx = document.getElementById('radarChart').getContext('2d');
     var isLight = document.body.classList.contains('light-mode');
+    var rings = ringPack(d, axes);
+    var scores = getScoreData();
     RADAR_CHART_REF = new Chart(ctx, {
       type: 'radar',
       data: {
-        labels: axes.map(function (a) { return a.letter; }),
+        labels: axes.map(function (a) { return a.letter + ' ' + a.word; }),
         datasets: [{
           label: 'Your Score',
-          data: getScoreData(),
-          backgroundColor: 'rgba(212,175,55,0.18)',
+          data: scores,
+          backgroundColor: 'rgba(212,175,55,0.08)',
           borderColor: '#D4AF37',
-          borderWidth: 2.5,
-          pointBackgroundColor: '#D4AF37',
-          pointRadius: 5,
-          pointHoverRadius: 7
+          borderWidth: 2,
+          pointBackgroundColor: rings ? rings.map(function (r) { return r.color; }) : '#D4AF37',
+          pointBorderColor: '#111',
+          pointRadius: 6,
+          pointHoverRadius: 8
         }]
       },
       options: {
@@ -230,14 +248,15 @@
             grid: { color: isLight ? '#ddd' : '#2a2a2a' },
             angleLines: { color: isLight ? '#ccc' : '#333' },
             pointLabels: {
-              color: '#D4AF37',
-              font: { size: 13, family: 'Playfair Display, serif', weight: '700' }
+              color: isLight ? '#1a1a1a' : '#e8e8e8',
+              font: { size: 11, family: 'Inter, sans-serif', weight: '600' }
             }
           }
         },
         plugins: { legend: { display: false } }
       }
     });
+    paintRings(d, axes, scores);
   }
 
   function updateChartTheme(isLight) {
@@ -250,8 +269,12 @@
   }
 
   function updateChart(d, axes, getScoreData, getOverall, getTier) {
-    RADAR_CHART_REF.data.datasets[0].data = getScoreData();
+    var scores = getScoreData();
+    RADAR_CHART_REF.data.datasets[0].data = scores;
+    var rings = ringPack(d, axes);
+    if (rings) RADAR_CHART_REF.data.datasets[0].pointBackgroundColor = rings.map(function (r) { return r.color; });
     RADAR_CHART_REF.update();
+    paintRings(d, axes, scores);
     var avg = getOverall();
     document.getElementById('overallScore').textContent = avg.toFixed(1);
     var tier = getTier(avg);
@@ -811,6 +834,7 @@
         '<div class="chart-section-title">' + (ASSESSMENT_DATA.chartTitle || 'Your Radar') + '</div>' +
         '<div class="chart-section-sub">' + (ASSESSMENT_DATA.chartSub || 'Your snapshot after rating each area.') + '</div>' +
         '<div class="chart-wrapper"><canvas id="radarChart"></canvas></div>' +
+        '<div id="ringRead" class="ring-read"></div>' +
         '<div class="overall-score-wrap">' +
           '<div class="overall-score-num" id="overallScore">\u2014</div>' +
           '<div class="overall-score-label">Overall Score / 10</div>' +

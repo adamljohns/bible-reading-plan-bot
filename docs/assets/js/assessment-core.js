@@ -157,6 +157,56 @@
     return CHART_CDN;
   }
 
+  // Mark 12:30 rings. Letters stay the spokes. Color says which part of the man the dent is.
+  var RINGS = {
+    heart: { key: 'heart', name: 'Heart', color: '#c45c5c' },
+    soul: { key: 'soul', name: 'Soul', color: '#8b73c7' },
+    mind: { key: 'mind', name: 'Mind', color: '#4f8fbf' },
+    strength: { key: 'strength', name: 'Strength', color: '#c4922a' }
+  };
+  var RING_INDEX = {
+    realMan: ['soul', 'heart', 'soul', 'mind', 'mind', 'strength', 'heart'],
+    happyHusband: ['heart', 'mind', 'soul', 'heart', 'strength', 'strength', 'heart'],
+    fulfilledFather: ['soul', 'mind', 'heart', 'heart', 'strength', 'mind', 'strength', 'heart', 'mind'],
+    pureHearts: ['soul', 'soul', 'strength', 'mind', 'heart', 'strength', 'strength', 'heart', 'mind', 'strength'],
+    proven: ['heart', 'heart', 'soul', 'strength', 'mind', 'strength'],
+    resolute: ['mind', 'strength', 'soul', 'strength', 'heart', 'mind', 'strength', 'soul']
+  };
+
+  function ringsFor(assessmentId, count) {
+    var map = RING_INDEX[assessmentId] || [];
+    var out = [];
+    for (var i = 0; i < count; i++) out.push(RINGS[map[i]] || RINGS.soul);
+    return out;
+  }
+
+  function paintRingRead(hostId, scores, rings, labels) {
+    var host = document.getElementById(hostId);
+    if (!host) return;
+    var order = ['heart', 'soul', 'mind', 'strength'];
+    var html = '<p class="ring-legend">Love the Lord with all your heart, soul, mind, and strength. A dent names that letter. The color names the ring.</p><div class="ring-bars">';
+    order.forEach(function (key) {
+      var vals = [];
+      rings.forEach(function (ring, i) {
+        if (ring.key === key) vals.push(Number(scores[i]) || 0);
+      });
+      if (!vals.length) return;
+      var avg = vals.reduce(function (a, b) { return a + b; }, 0) / vals.length;
+      var ring = RINGS[key];
+      html += '<div class="ring-bar"><span class="ring-name" style="color:' + ring.color + '">' + ring.name + '</span><span class="ring-track"><span class="ring-fill" style="width:' + (avg * 10) + '%;background:' + ring.color + '"></span></span><span class="ring-avg">' + avg.toFixed(1) + '</span></div>';
+    });
+    html += '</div><div class="ring-callouts">';
+    var indexed = scores.map(function (s, i) { return { s: Number(s) || 0, i: i }; }).sort(function (a, b) { return a.s - b.s; });
+    var n;
+    for (n = 0; n < 2 && n < indexed.length; n++) {
+      var ix = indexed[n].i;
+      var spoke = rings[ix];
+      html += '<p class="ring-callout"><strong style="color:' + spoke.color + '">' + labels[ix] + '</strong> is ' + spoke.name + '. Score ' + indexed[n].s.toFixed(1) + '.</p>';
+    }
+    html += '</div>';
+    host.innerHTML = html;
+  }
+
   global.USMCAssessment = {
     bibleHref: bibleHref,
     extractPassageLabel: extractPassageLabel,
@@ -170,6 +220,8 @@
     wireShareModal: wireShareModal,
     stripHtml: stripHtml,
     CHART_CDN: CHART_CDN,
-    pinChartCdnNote: pinChartCdnNote
+    pinChartCdnNote: pinChartCdnNote,
+    ringsFor: ringsFor,
+    paintRingRead: paintRingRead
   };
 })(typeof window !== 'undefined' ? window : this);

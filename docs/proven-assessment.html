@@ -22,7 +22,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="/assets/css/assessment.css">
+    <script src="/assets/js/assessment-core.js?v=20260928a"></script>
+    <link rel="stylesheet" href="/assets/css/assessment.css?v=20260928a">
     <link rel="stylesheet" href="/assets/css/light-icons.css">
     <link rel="stylesheet" href="/assets/css/print.css" media="print">
     <style>
@@ -335,6 +336,7 @@
                 </div>
             </div>
             <div class="chart-wrapper"><canvas id="radarChart"></canvas></div>
+            <div id="ringRead" class="ring-read"></div>
             <div class="overall-score-wrap">
                 <div class="overall-score-num" id="overallScore">—</div>
                 <div class="overall-score-label">Overall Score / 10</div>
@@ -762,16 +764,17 @@ function initChart() {
     radarChart = new Chart(ctx, {
         type: 'radar',
         data: {
-            labels: LETTERS.map(l => l),
+            labels: LETTERS.map((l, i) => l + ' ' + WORDS[i]),
             datasets: [{
                 label: 'Your Score',
                 data: [...SCORES],
-                backgroundColor: 'rgba(212,175,55,0.18)',
+                backgroundColor: 'rgba(212,175,55,0.08)',
                 borderColor: '#D4AF37',
-                borderWidth: 2.5,
-                pointBackgroundColor: '#D4AF37',
-                pointRadius: 5,
-                pointHoverRadius: 7
+                borderWidth: 2,
+                pointBackgroundColor: window.USMCAssessment.ringsFor('proven', LETTERS.length).map(r => r.color),
+                pointBorderColor: '#111',
+                pointRadius: 6,
+                pointHoverRadius: 8
             }]
         },
         options: {
@@ -789,10 +792,16 @@ function initChart() {
             plugins: { legend: { display: false } }
         }
     });
+    paintProvenRings();
+}
+function paintProvenRings() {
+    var rings = window.USMCAssessment.ringsFor('proven', LETTERS.length);
+    window.USMCAssessment.paintRingRead('ringRead', SCORES, rings, LETTERS.map((l, i) => l + ' · ' + WORDS[i]));
 }
 function updateChart() {
     radarChart.data.datasets[0].data = [...SCORES];
     radarChart.update();
+    paintProvenRings();
     const avg = SCORES.reduce((a,b)=>a+b,0) / SCORES.length;
     document.getElementById('overallScore').textContent = avg.toFixed(1);
     const tier = getTier(avg);
