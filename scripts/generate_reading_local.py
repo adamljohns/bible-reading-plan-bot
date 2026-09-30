@@ -272,10 +272,14 @@ def build_watch_messages(w, ref, month, daynum, on_date: date):
     parts.append(
         f"11. The prayer: a line exactly '{w['prayer']}' then a PERSONAL first-person prayer (I/me/my only — "
         f"never we/us/our as the praying subject; never 'Brother Adam' or any self-vocative; never 'this father'). "
+        f"The praying man is ONE man: heir, not heirs; head, not heads; a husband, a father, and a citizen, "
+        f"never husbands/fathers/citizens. "
         f"Open to 'Father', include a line beginning 'By the power of Your Holy Spirit', write ONE complete sentence per line "
         f"(item 9 — do not glue sentences), and close with EXACTLY: "
         f"'{close_line}' — one Christ title only, last line. BANNED closes: 'my Lord Jesus Christ', 'my Lord and Commander', "
-        f"any double full Christ title stack, 'we pray'."
+        f"any double full Christ title stack, 'we pray'. "
+        f"BANNED stock line (1 Cor 15:58 may be the scripture of the day; it is not a closer): "
+        f"'labor in the Lord is not in vain' and close variants. Do not use it in reflection, application, or prayer."
     )
     parts.append(f"12. A final line beginning '{w['close']}' with a one-line charge imperative (not Helm/Rudder/Course Set).")
     if w["extra"]:
