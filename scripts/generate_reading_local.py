@@ -437,6 +437,9 @@ def watch_valid(text, w):
         )
         if re.search(r"\b(?:we|us|our|ours)\b", subject_test, re.I):
             return False
+        # Number must agree. "my heart and minds" shipped on 2026-09-30.
+        if re.search(r"heart and minds|hearts and mind|my hearts\b|strengthen us to lead my", pray, re.I):
+            return False
         if re.search(r"\bBrother Adam\b|\bAdam,", pray):
             return False
     # Apps cap 3 (peace has none)
