@@ -90,7 +90,7 @@ console.log(d.filter(c=>!ph(c.pastor)).length)}catch(e){console.log(0)}' 2>/dev/
 START_C=$(node -e '
 try{const d=JSON.parse(require("fs").readFileSync(process.env.HOME+"/bible-reading-plan-bot-autopilot/docs/data/churches.json","utf8")).churches;
 const ph=p=>{const s=String(p||"").trim();return !s||/^(pastors?|tbd|n\/?a|none|unknown|various|staff)\.?$/i.test(s)||/verify|see website|coming soon|^unknown/i.test(s)};
-const n=c=>(!ph(c.pastor)?1:0)+Object.keys(c.scores||{}).filter(k=>c.scores[k]).length+(String(c.assessment||"").trim()?1:0)+(c.facebook?1:0)+(c.youtube?1:0)+(c.instagram?1:0)+(c.phone?1:0)+(c.website?1:0)+(c.address?1:0)+(c.denomination_family||c.denomination?1:0);
+const notes=c=>Object.keys(c.score_notes||{}).filter(k=>String(c.score_notes[k]||'').trim().length>20).length;const n=c=>(!ph(c.pastor)?1:0)+Object.keys(c.scores||{}).filter(k=>c.scores[k]).length+notes(c)+(String(c.assessment||"").trim()?1:0)+(c.facebook?1:0)+(c.youtube?1:0)+(c.instagram?1:0)+(c.phone?1:0)+(c.website?1:0)+(c.address?1:0)+(c.service_times||c.services?1:0)+(c.denomination_family||c.denomination?1:0);
 console.log(d.reduce((a,c)=>a+n(c),0))}catch(e){console.log(0)}' 2>/dev/null || echo 0)
 
 round_was_zero_yield() {
@@ -143,7 +143,7 @@ console.log(d.filter(c=>!ph(c.pastor)).length)}catch(e){console.log(0)}' 2>/dev/
 END_C=$(node -e '
 try{const d=JSON.parse(require("fs").readFileSync(process.env.HOME+"/bible-reading-plan-bot-autopilot/docs/data/churches.json","utf8")).churches;
 const ph=p=>{const s=String(p||"").trim();return !s||/^(pastors?|tbd|n\/?a|none|unknown|various|staff)\.?$/i.test(s)||/verify|see website|coming soon|^unknown/i.test(s)};
-const n=c=>(!ph(c.pastor)?1:0)+Object.keys(c.scores||{}).filter(k=>c.scores[k]).length+(String(c.assessment||"").trim()?1:0)+(c.facebook?1:0)+(c.youtube?1:0)+(c.instagram?1:0)+(c.phone?1:0)+(c.website?1:0)+(c.address?1:0)+(c.denomination_family||c.denomination?1:0);
+const notes=c=>Object.keys(c.score_notes||{}).filter(k=>String(c.score_notes[k]||'').trim().length>20).length;const n=c=>(!ph(c.pastor)?1:0)+Object.keys(c.scores||{}).filter(k=>c.scores[k]).length+notes(c)+(String(c.assessment||"").trim()?1:0)+(c.facebook?1:0)+(c.youtube?1:0)+(c.instagram?1:0)+(c.phone?1:0)+(c.website?1:0)+(c.address?1:0)+(c.service_times||c.services?1:0)+(c.denomination_family||c.denomination?1:0);
 console.log(d.reduce((a,c)=>a+n(c),0))}catch(e){console.log(0)}' 2>/dev/null || echo 0)
 GAIN=$(( END_P - START_P ))
 CONTENT_GAIN=$(( END_C - START_C ))
@@ -153,4 +153,4 @@ SYNC_PROOF="head=$HEAD_SHA origin=$ORIGIN_SHA"
 [ "$HEAD_SHA" = "$ORIGIN_SHA" ] && SYNC_PROOF="$SYNC_PROOF MATCH" || SYNC_PROOF="$SYNC_PROOF MISMATCH"
 say "════ session DONE: $ROUNDS rounds, +$CONTENT_GAIN profile fields (+$GAIN pastors; total pastors $END_P) abort=${ABORT_REASON:-none} lfs_warnings=$LFS_WARNINGS $SYNC_PROOF ════"
 [ -x "$NOTIFY" ] && [ "$ROUNDS" -gt 0 ] && "$NOTIFY" --level info --title "⛏️ Directory grind session done" \
-  --body "$ROUNDS rounds, +$CONTENT_GAIN profile fields (+$GAIN pastors; total pastors $END_P). Live: https://usmcmin.org/grind-report.html" >/dev/null 2>&1 || true
+  --body "$ROUNDS rounds. +$GAIN pastors. +$CONTENT_GAIN profile fields (contact, service times, and cited score notes — not phone crumbs alone). Live: https://usmcmin.org/grind-report.html" >/dev/null 2>&1 || true

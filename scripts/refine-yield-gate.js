@@ -93,6 +93,9 @@ let verdict, code, reason;
 if (usable.length) {
   verdict = 'PROCEED'; code = 0;
   reason = `live lane "${usable[0].lane}" has ${usable[0].pool} eligible records`;
+} else if (lanes.APPLY_LANES.includes(selected) && (counts[selected] || 0) >= 10) {
+  verdict = 'PROCEED'; code = 0;
+  reason = `profile lane "${selected}" selected (${counts[selected]} eligible) — a cold pastor-name streak does not abandon a real pool`;
 } else if (selected === 'source-recovery') {
   verdict = 'PROCEED'; code = 0;
   reason = `all apply lanes cold — falling through to source-recovery (${counts.source_recovery} eligible)`;

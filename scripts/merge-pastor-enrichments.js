@@ -69,6 +69,47 @@ function looksFemaleFirstName(name) {
 
 // Apply a verified social URL only if the church lacks it and the value is a real
 // http(s) URL on the expected platform host. Verified-only; never guess.
+
+const DIMS = ['christology','scripture','soteriology','gender','leadership','preaching','mission','cultural','mens_discipleship','denominational'];
+function noteIsEmpty(v) {
+  const s = String(v || '').trim();
+  return !s || s.length < 12 || /^(verify|not stated|unknown|n\/a|see website)/i.test(s);
+}
+function applyProfileFields(c, e) {
+  let n = 0;
+  const phone = typeof e.phone === 'string' ? e.phone.trim() : '';
+  if (phone && /^\(?\d{3}\)?[-.\s]\d{3}[-.\s]\d{4}$/.test(phone) && !c.phone) {
+    c.phone = phone;
+    n++;
+  }
+  const email = typeof e.email === 'string' ? e.email.trim() : '';
+  if (email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) && !c.email) {
+    c.email = email;
+    n++;
+  }
+  const times = typeof e.service_times === 'string' ? e.service_times.trim() : '';
+  if (times && times.length >= 8 && times.length <= 180 && !c.service_times && !c.services) {
+    c.service_times = times;
+    n++;
+  }
+  const quotes = e.score_quotes;
+  if (quotes && typeof quotes === 'object') {
+    c.score_notes = c.score_notes || {};
+    for (const dim of DIMS) {
+      const q = typeof quotes[dim] === 'string' ? quotes[dim].trim() : '';
+      if (q.length < 24 || q.length > 280) continue;
+      if (!noteIsEmpty(c.score_notes[dim])) continue;
+      c.score_notes[dim] = q;
+      n++;
+    }
+  }
+  if (n) {
+    const pNote = `[${TODAY}] Profile fill: ${n} cited field(s) from the church site. Quotes only; no inferred score.`;
+    c.enrichment_notes = c.enrichment_notes ? c.enrichment_notes + '\n' + pNote : pNote;
+  }
+  return n;
+}
+
 const SOCIAL_HOST = { facebook: /facebook\.com/i, youtube: /youtube\.com|youtu\.be/i, instagram: /instagram\.com/i };
 function applySocials(c, e) {
   let n = 0;
@@ -116,7 +157,7 @@ console.log(`Total unique enrichment entries: ${enrichments.size}\n`);
 // Byte-format-preserving read+write (ASCII-escaped, no trailing newline) — plain
 // JSON.stringify here re-encodes every non-ASCII char into a ~50k-line diff.
 const { data: d, write: writeChurches } = makeWriter(CHURCHES);
-let pastorsApplied = 0, brokenSites = 0, noPastorFound = 0, idsNotFound = 0, alreadyHasPastor = 0, socialsApplied = 0, femaleSeniorPastors = 0, junkRejected = 0, femaleHeld = 0, rostersApplied = 0;
+let pastorsApplied = 0, brokenSites = 0, noPastorFound = 0, idsNotFound = 0, alreadyHasPastor = 0, socialsApplied = 0, profileApplied = 0, femaleSeniorPastors = 0, junkRejected = 0, femaleHeld = 0, rostersApplied = 0;
 const stillNeedsReview = [];
 
 for (const c of d.churches) {
@@ -162,6 +203,7 @@ for (const c of d.churches) {
   // a church can have a real FB/YouTube/IG even when no pastor name is parseable).
   const nSocial = applySocials(c, e);
   socialsApplied += nSocial;
+  profileApplied += applyProfileFields(c, e);
   if (SOCIAL_MODE && nSocial) {
     const sNote = `[${TODAY}] Social-fill: added ${nSocial} verified social link(s) from ${c.website || 'church website'}.`;
     c.enrichment_notes = c.enrichment_notes ? c.enrichment_notes + '\n' + sNote : sNote;
@@ -267,6 +309,7 @@ console.log('Results:');
 console.log(`  Pastors applied:              ${pastorsApplied}`);
 console.log(`  Multi-pastor rosters stored:  ${rostersApplied}`);
 console.log(`  Social links applied:         ${socialsApplied}`);
+console.log(`  Profile fields applied:       ${profileApplied}`);
 console.log(`  Female senior pastor → RED:   ${femaleSeniorPastors}`);
 console.log(`  Female-name HELD for review:  ${femaleHeld}`);
 console.log(`  Junk names rejected by guard: ${junkRejected}`);

@@ -124,6 +124,9 @@ function countLanes(churches) {
 
 function chooseLane(counts, lastMode, streaksIn) {
   const streaks = streaksIn || loadEmptyStreaks();
+  // A cold pastor-name streak must not park a real fresh pool on SBC phone
+  // crumbs. Ten or more unattempted churches is the product, not a trickle.
+  if ((counts.fresh || 0) >= 10) return 'fresh';
   const applyOrder = [
     ['fresh', counts.fresh],
     ['retry', counts.retry],

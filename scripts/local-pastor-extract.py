@@ -24,7 +24,10 @@ import json, re, ssl, sys, time, urllib.request, urllib.error
 
 UA = {"User-Agent": "Mozilla/5.0 (compatible; MOOPDirectoryBot/1.0; +https://usmcmin.org/churches.html)"}
 CTX = ssl._create_unverified_context()  # read-only public pages; church TLS is often broken
-PATHS = ["", "/about", "/about-us", "/staff", "/leadership", "/our-team", "/team", "/pastors", "/elders", "/leaders"]
+PATHS = ["", "/about", "/about-us", "/staff", "/leadership", "/our-team", "/team", "/pastors", "/elders", "/leaders", "/beliefs", "/what-we-believe"]
+DIMS = ["christology", "scripture", "soteriology", "gender", "leadership", "preaching", "mission", "cultural", "mens_discipleship", "denominational"]
+PHONE_RE = re.compile(r"\(?\d{3}\)?[-.\s]\d{3}[-.\s]\d{4}")
+EMAIL_RE = re.compile(r"[A-Z0-9._%+\-]+@[A-Z0-9.\-]+\.[A-Z]{2,}", re.I)
 MINISTRY_TAIL = re.compile(r"^(equipping|ministries|ministry|worship|connect|missions|discipleship|outreach|groups|media|communications|operations|administration|families|students|children|youth|music|preaching|teaching|counseling|evangelism|education|admin|online|campus|creative|tech|production|next|steps|generations|kids|college|network|resources|giving|generosity|connections|nursery)$", re.I)
 NONLEAD_ROLE = re.compile(r"youth|kids|children|students|worship|music|executive|associate|assistant|admin|connect|outreach|discipleship|equipping|missions|family|women|creative|tech|media|next\s*gen|college|groups|care|counseling|education|operations", re.I)
 
@@ -79,14 +82,11 @@ def discover_links(raw, base):
             out.append(u)
     return out[:4]
 
-SYSTEM_PROMPT = (
-    "You extract pastor names from church website text. Reply with ONLY a JSON object, no prose:\n"
-    '{"lead_pastor": {"name": "...", "role": "..."} , "other_pastors": [{"name": "...", "role": "..."}]}\n'
-    "Rules: (1) Every name must appear VERBATIM in the provided text — never guess or complete a name. "
-    "(2) lead_pastor is ONLY the senior/lead/preaching pastor or the sole pastor; if none is clearly identified, use null. "
-    "(3) other_pastors lists other pastors/elders with their exact titles (max 8). "
-    "(4) Use full names as written (keep Dr./Rev. if present). (5) If the text names no pastors at all, both fields are null/empty."
-)
+SYSTEM_PROMPT = """You extract church profile facts from website text. Reply with ONLY a JSON object, no prose.
+{"lead_pastor": {"name": "", "role": ""}, "other_pastors": [{"name": "", "role": ""}], "phone": null, "email": null, "service_times": null, "metrics": {"christology": {"quote": ""}, "scripture": {"quote": ""}, "soteriology": {"quote": ""}, "gender": {"quote": ""}, "leadership": {"quote": ""}, "preaching": {"quote": ""}, "mission": {"quote": ""}, "cultural": {"quote": ""}, "mens_discipleship": {"quote": ""}, "denominational": {"quote": ""}}}
+The ten metrics are the directory scorecard: Christology, Scripture, Soteriology, Gender, Leadership, Preaching, Mission, Kingdom alignment (cultural), Men's discipleship, Accountability (denominational).
+Rules: (1) Every name and every quote must appear VERBATIM in the provided text. Never guess or complete a name. (2) lead_pastor is ONLY the senior/lead/preaching pastor or the sole pastor; if none is clearly identified, use null. (3) Omit a metric, or set its quote to null, when the page does not state that subject. (4) Do not score. Do not infer a position the page does not say. (5) phone, email, and service_times must be copied from the text or null. (6) other_pastors lists other pastors or elders with their exact titles, max 8.
+"""
 
 
 def fetch(url, timeout=12):
@@ -121,7 +121,11 @@ def looks_junk(name):
 
 
 def pick_llm(cli_base=None):
-    bases = [cli_base] if cli_base else ["http://127.0.0.1:1235/v1", "http://127.0.0.1:1234/v1"]
+    bases = [cli_base] if cli_base else [
+        "http://127.0.0.1:1247/v1",
+        "http://127.0.0.1:1234/v1",
+        "http://127.0.0.1:1235/v1",
+    ]
     for b in [x for x in bases if x]:
         try:
             with urllib.request.urlopen(b.rstrip("/") + "/models", timeout=5) as r:
@@ -141,7 +145,7 @@ def pick_llm(cli_base=None):
 
 def llm_extract(base, model, text):
     body = json.dumps({
-        "model": model, "temperature": 0, "max_tokens": 500,
+        "model": model, "temperature": 0, "max_tokens": 1400,
         "messages": [{"role": "system", "content": SYSTEM_PROMPT},
                      {"role": "user", "content": "CHURCH WEBSITE TEXT:\n" + text[:14000]}],
     }).encode()
@@ -165,12 +169,45 @@ def llm_extract(base, model, text):
     return {}
 
 
+
+def attach_metrics(entry, res, pages, combined):
+    """Keep only facts copied from the fetched page. No inferred scores."""
+    metrics = {}
+    blob = res.get("metrics") if isinstance(res, dict) else None
+    if isinstance(blob, dict):
+        for dim in DIMS:
+            q = None
+            item = blob.get(dim)
+            if isinstance(item, dict):
+                raw = str(item.get("quote") or "").strip()
+            else:
+                raw = str(item or "").strip()
+            if 24 <= len(raw) <= 280 and norm(raw) in norm(combined):
+                q = raw
+            if q:
+                metrics[dim] = q
+    if metrics:
+        entry["score_quotes"] = metrics
+    phone = str((res or {}).get("phone") or "").strip()
+    if not PHONE_RE.fullmatch(phone):
+        found = PHONE_RE.findall(combined)
+        phone = found[0] if len(found) == 1 else ""
+    if phone and phone in combined:
+        entry["phone"] = phone
+    email = str((res or {}).get("email") or "").strip()
+    if email and email.lower() in combined.lower() and EMAIL_RE.fullmatch(email):
+        entry["email"] = email
+    times = str((res or {}).get("service_times") or "").strip()
+    if 8 <= len(times) <= 180 and norm(times) in norm(combined):
+        entry["service_times"] = times
+    return len(metrics) + sum(1 for k in ("phone", "email", "service_times") if entry.get(k))
+
 def main():
     batch_path, out_path = sys.argv[1], sys.argv[2]
     cli_base = sys.argv[sys.argv.index("--llm") + 1] if "--llm" in sys.argv else None
     base, model = pick_llm(cli_base)
     if not base:
-        sys.exit("NO_LOCAL_LLM: neither :1235 (llama-server) nor :1234 (LM Studio) answered /v1/models")
+        sys.exit("NO_GRIND_LLM: neither :1247 (grok-4.7) nor :1234 (LM Studio) answered /v1/models")
     print(f"extractor: {model} @ {base}")
 
     churches = json.load(open(batch_path))
@@ -249,9 +286,11 @@ def main():
                                  pastor_source_url=src)
         entry["other_pastors"] = others
         entry["website_status"] = "200_pastor_found" if entry["pastor_name"] else "200_no_pastor_found"
+        nmet = attach_metrics(entry, res if isinstance(res, dict) else {}, pages, combined)
         out.append(entry)
         print(f"  [{i}/{len(churches)}] {cid}: {entry['pastor_name'] or '(no verified lead)'}"
               + (f" +{len(others)} others" if others else "")
+              + (f" +{nmet} cited fields" if nmet else "")
               + (f" [socials: {'/'.join(sorted(socials))}]" if socials else ""))
         time.sleep(0.3)
 

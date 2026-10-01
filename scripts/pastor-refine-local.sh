@@ -218,7 +218,7 @@ fi
 say "mode=$MODE pool=${POOL:-?} batch=$N_BATCH"
 
 python3 scripts/local-pastor-extract.py "$WORK/enrich-batch-1.json" "$WORK/enriched.json" >>"$LOG" 2>&1 \
-  || die "extractor failed (is llama-server :1235 / LM Studio :1234 up?)"
+  || die "extractor failed (grind proxy :1247, else LM Studio :1234)"
 
 FOUND=$(node -e 'console.log(require("'"$WORK"'/enriched.json").filter(x=>x.pastor_name).length)')
 say "extracted: $FOUND verified lead(s) of $N_BATCH churches"
@@ -230,7 +230,8 @@ cat "$WORK/merge.txt" >>"$LOG"
 # the extractor merely found (found-but-HELD names used to be reported as "+1 pastors").
 APPLIED=$(grep -oE 'Pastors applied: +[0-9]+' "$WORK/merge.txt" | grep -oE '[0-9]+$' | head -1); APPLIED=${APPLIED:-0}
 SOC_APPLIED=$(grep -oE 'Social links applied: +[0-9]+' "$WORK/merge.txt" | grep -oE '[0-9]+$' | head -1); SOC_APPLIED=${SOC_APPLIED:-0}
-CONTENT_APPLIED=$((APPLIED + SOC_APPLIED))
+PROFILE_APPLIED=$(grep -oE 'Profile fields applied: +[0-9]+' "$WORK/merge.txt" | grep -oE '[0-9]+$' | head -1); PROFILE_APPLIED=${PROFILE_APPLIED:-0}
+CONTENT_APPLIED=$((APPLIED + SOC_APPLIED + PROFILE_APPLIED))
 # The merge also writes durable operational facts (_social_attempted, _dead_site,
 # retry markers). Commit those even at zero content yield, or the selector will
 # return the same dead records forever.

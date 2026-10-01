@@ -20,7 +20,8 @@ let counts = lanes.countLanes([
   c({ id: 'sbc', source_url: 'https://churches.sbc.net/church/1' })
 ]);
 assert.strictEqual(counts.fresh, 1);
-assert.strictEqual(lanes.chooseLane(counts, null), 'fresh');
+const cleanStreaks = { fresh: 0, retry: 0, social: 0 };
+assert.strictEqual(lanes.chooseLane(counts, null, cleanStreaks), 'fresh');
 assert.ok(counts.product_backlog >= 3, 'product backlog must include active fresh/discovery/source work');
 
 // Exhausting the legacy three pools must advance to product-enrichment lanes.
@@ -30,8 +31,8 @@ counts = lanes.countLanes([
 ]);
 assert.strictEqual(counts.website_discovery, 1);
 assert.strictEqual(counts.source_recovery, 1);
-assert.strictEqual(lanes.chooseLane(counts, 'website-discovery'), 'source-recovery');
-assert.strictEqual(lanes.chooseLane(counts, 'source-recovery'), 'source-recovery');
+assert.strictEqual(lanes.chooseLane(counts, 'website-discovery', cleanStreaks), 'source-recovery');
+assert.strictEqual(lanes.chooseLane(counts, 'source-recovery', cleanStreaks), 'source-recovery');
 
 // Completed markers prevent quota burn and repeated authoritative-source fetches.
 counts = lanes.countLanes([
@@ -40,7 +41,7 @@ counts = lanes.countLanes([
 ]);
 assert.strictEqual(counts.website_discovery, 0);
 assert.strictEqual(counts.source_recovery, 0);
-assert.strictEqual(lanes.chooseLane(counts, null), 'monitoring');
+assert.strictEqual(lanes.chooseLane(counts, null, cleanStreaks), 'monitoring');
 
 // Authoritative-source failures retry, then leave the automated lane after the cap.
 assert.strictEqual(lanes.sourceRecoveryEligible(c({ source_url: 'https://churches.sbc.net/church/retry', _sbc_detail_failures: 2 })), true);
@@ -66,7 +67,7 @@ assert.ok(counts.product_backlog >= 3);
 // Website discovery is review-only until page/geo corroboration and guarded merge exist.
 counts = lanes.countLanes([c({ id: 'discover-only' })]);
 assert.strictEqual(counts.website_discovery, 1);
-assert.strictEqual(lanes.chooseLane(counts, null), 'monitoring');
+assert.strictEqual(lanes.chooseLane(counts, null, cleanStreaks), 'monitoring');
 
 const html = fs.readFileSync(path.join(ROOT, 'docs/grind-report.html'), 'utf8');
 const runner = fs.readFileSync(path.join(ROOT, 'scripts/pastor-refine-local.sh'), 'utf8');
@@ -89,6 +90,7 @@ const cold = { fresh: 0, retry: 5, social: 5, source_recovery: 0 };
 const streaksCold = { fresh: 0, retry: 3, social: 3 };
 assert.strictEqual(lanes.chooseLane(cold, null, streaksCold), 'nothing-to-grind');
 assert.strictEqual(lanes.chooseLane({ fresh: 0, retry: 5, social: 5, source_recovery: 10 }, null, streaksCold), 'source-recovery');
+assert.strictEqual(lanes.chooseLane({ fresh: 100, retry: 0, social: 0, source_recovery: 10 }, null, { fresh: 3, retry: 3, social: 3 }), 'fresh');
 const streaksThaw = { fresh: 0, retry: 3, social: 3 };
 assert.strictEqual(lanes.chooseLane({ fresh: 2, retry: 5, social: 5 }, null, streaksThaw), 'fresh');
 assert.strictEqual(lanes.chooseLane({ fresh: 0, retry: 5, social: 5 }, null, { fresh: 0, retry: 0, social: 3 }), 'retry');
