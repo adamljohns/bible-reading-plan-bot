@@ -29,6 +29,10 @@ import re
 import sys
 import argparse
 from pathlib import Path
+try:
+    from scripts.reading_audio import resolve_audio_asset, validate_audio_render
+except ModuleNotFoundError:  # direct script execution
+    from reading_audio import resolve_audio_asset, validate_audio_render
 from html import escape
 from datetime import datetime
 import json
@@ -417,9 +421,10 @@ def render_helm(marker_line, content_lines):
 
 
 def render_audio_slot(date, watch_key):
-    rel = f"../assets/audio/readings/{date}-{watch_key}.mp3"
-    abs_path = REPO / f"docs/assets/audio/readings/{date}-{watch_key}.mp3"
-    if abs_path.exists():
+    audio_dir = REPO / "docs/assets/audio/readings"
+    abs_path = resolve_audio_asset(audio_dir, date, watch_key)
+    if abs_path:
+        rel = f"../assets/audio/readings/{abs_path.name}"
         # PJG-0809-SPD1: explicit playback-rate chips (1 / 1.25 / 1.5 / 2)
         return f"""<div class="audio-slot">
   <audio class="watch-audio" controls preload="metadata" style="width:100%;max-width:560px;">
@@ -1638,6 +1643,12 @@ def build_one(date_str):
     html = render_page(date_str, md_body, version=version)
     if html is None:
         return False
+    validate_audio_render(
+        REPO / "docs/assets/audio/readings",
+        date_str,
+        ["wisdom", "first", "second", "third", "peace"],
+        html,
+    )
     out = OUT_DIR / f"{date_str}.html"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(html)

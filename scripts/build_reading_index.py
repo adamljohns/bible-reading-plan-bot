@@ -19,6 +19,10 @@ import re
 import sys
 from datetime import date, timedelta
 from pathlib import Path
+try:
+    from scripts.reading_audio import resolve_audio_asset
+except ModuleNotFoundError:  # direct script execution
+    from reading_audio import resolve_audio_asset
 
 REPO = Path(__file__).resolve().parent.parent
 READINGS = REPO / "data" / "readings"
@@ -29,12 +33,6 @@ PLAN = REPO / "docs" / "assets" / "plan-data.js"
 SITE = "https://usmcmin.org"
 
 WATCH_ORDER = ["wisdom", "first", "second", "third", "peace"]
-# MP3 filenames use the human watch names (the page builder's convention, and what
-# every existing file in docs/assets/audio/readings/ is named) — NOT the JSON keys.
-# Before this map existed, first/second/third audio was never advertised (has_audio
-# stayed false for -husband/-father/-citizen files that were really there).
-AUDIO_FILE_KEY = {"wisdom": "wisdom", "first": "husband", "second": "father",
-                  "third": "citizen", "peace": "peace"}
 WATCH_META = {
     "wisdom": {"time": "0600", "title": "Morning Wisdom",                  "emojis": "🌅☀"},
     "first":  {"time": "0700", "title": "First Watch — The Husband's Post", "emojis": "🕖"},
@@ -237,7 +235,7 @@ def build_day(ds, passages):
     watches = {}
     for key in WATCH_ORDER:
         text = watches_text.get(key)
-        mp3 = AUDIO / f"{ds}-{AUDIO_FILE_KEY[key]}.mp3"
+        mp3 = resolve_audio_asset(AUDIO, ds, key)
         passage = (extract_passage(text) if text else None) or plan.get(plan_map[key])
         watches[key] = {
             "time": WATCH_META[key]["time"],
@@ -245,8 +243,8 @@ def build_day(ds, passages):
             "passage": passage,
             "trait": extract_trait(text) if text else None,
             "text": text,
-            "has_audio": mp3.exists(),
-            "audio_url": f"{SITE}/assets/audio/readings/{ds}-{AUDIO_FILE_KEY[key]}.mp3" if mp3.exists() else None,
+            "has_audio": mp3 is not None,
+            "audio_url": f"{SITE}/assets/audio/readings/{mp3.name}" if mp3 else None,
             "personal_tokens": personal_tokens(text) if text else [],
             "location_tokens": location_tokens(text) if text else [],
         }

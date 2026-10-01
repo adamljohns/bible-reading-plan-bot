@@ -15,6 +15,10 @@ import json
 import sys
 from pathlib import Path
 from html import escape
+try:
+    from scripts.reading_audio import resolve_audio_asset, validate_audio_render
+except ModuleNotFoundError:  # direct script execution
+    from reading_audio import resolve_audio_asset, validate_audio_render
 
 REPO = Path(__file__).resolve().parent.parent
 
@@ -53,10 +57,10 @@ def render_audio_slot(date, watch_key):
     """Placeholder for ElevenLabs voiceover. When the asset exists at
     docs/assets/audio/readings/<date>-<slug>.mp3 it renders the player;
     otherwise it renders a 'voiceover coming' hint."""
-    slug = WATCH_SLUGS[watch_key]
-    rel = f"../assets/audio/readings/{date}-{slug}.mp3"
-    abs_path = REPO / f"docs/assets/audio/readings/{date}-{slug}.mp3"
-    if abs_path.exists():
+    audio_dir = REPO / "docs/assets/audio/readings"
+    abs_path = resolve_audio_asset(audio_dir, date, watch_key)
+    if abs_path:
+        rel = f"../assets/audio/readings/{abs_path.name}"
         return f'''<div class="audio-slot">
   <audio class="watch-audio" controls preload="metadata" style="width:100%;max-width:560px;">
     <source src="{rel}" type="audio/mpeg">
@@ -500,22 +504,25 @@ def render_page(date):
     {tab_js}
 
 <script>
-(function(){
+(function(){{
   const KEY='moop-readings-playback-rate';
   const RATES=[1,1.25,1.5,2];
-  function norm(v){const n=parseFloat(v); if(!Number.isFinite(n)) return 1; let b=1,d=1e9; for(const r of RATES){const x=Math.abs(r-n); if(x<d){b=r;d=x;}} return b;}
-  function read(){try{return norm(localStorage.getItem(KEY)||'1');}catch(e){return 1;}}
-  function write(r){try{localStorage.setItem(KEY,String(r));}catch(e){}}
-  function apply(slot,rate){const a=slot.querySelector('audio'); if(a){try{a.playbackRate=rate;}catch(e){}} slot.querySelectorAll('.audio-speed-btn').forEach(btn=>{const on=Math.abs(norm(btn.dataset.rate)-rate)<0.001; btn.classList.toggle('is-active',on); btn.setAttribute('aria-pressed',on?'true':'false');});}
+  function norm(v){{const n=parseFloat(v); if(!Number.isFinite(n)) return 1; let b=1,d=1e9; for(const r of RATES){{const x=Math.abs(r-n); if(x<d){{b=r;d=x;}}}} return b;}}
+  function read(){{try{{return norm(localStorage.getItem(KEY)||'1');}}catch(e){{return 1;}}}}
+  function write(r){{try{{localStorage.setItem(KEY,String(r));}}catch(e){{}}}}
+  function apply(slot,rate){{const a=slot.querySelector('audio'); if(a){{try{{a.playbackRate=rate;}}catch(e){{}}}} slot.querySelectorAll('.audio-speed-btn').forEach(btn=>{{const on=Math.abs(norm(btn.dataset.rate)-rate)<0.001; btn.classList.toggle('is-active',on); btn.setAttribute('aria-pressed',on?'true':'false');}});}}
   let rate=read();
   document.querySelectorAll('.audio-slot').forEach(s=>apply(s,rate));
-  document.querySelectorAll('.audio-speed').forEach(g=>g.addEventListener('click',ev=>{const b=ev.target.closest('.audio-speed-btn'); if(!b) return; rate=norm(b.dataset.rate); write(rate); document.querySelectorAll('.audio-slot').forEach(s=>apply(s,rate));}));
-})();
+  document.querySelectorAll('.audio-speed').forEach(g=>g.addEventListener('click',ev=>{{const b=ev.target.closest('.audio-speed-btn'); if(!b) return; rate=norm(b.dataset.rate); write(rate); document.querySelectorAll('.audio-slot').forEach(s=>apply(s,rate));}}));
+}})();
 </script>
 </body>
 </html>
 """
 
+    validate_audio_render(
+        REPO / "docs/assets/audio/readings", date, WATCH_SLUGS.keys(), html
+    )
     out = REPO / f"docs/readings/{date}.html"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(html)
