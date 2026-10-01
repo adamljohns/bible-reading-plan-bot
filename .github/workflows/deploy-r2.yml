@@ -138,9 +138,23 @@ jobs:
           PINNED_RCLONE_VER: v1.68.2
         run: |
           set -euo pipefail
-          curl -fsSL --retry 5 --retry-all-errors \
-            "https://downloads.rclone.org/${PINNED_RCLONE_VER}/rclone-${PINNED_RCLONE_VER}-linux-amd64.zip" \
-            -o /tmp/rclone.zip
+          # downloads.rclone.org intermittently 403s GitHub runner IPs (4 of the
+          # 6 failed deploys 09-24..09-30, every one of them this step). Try the
+          # GitHub release asset first -- same file, served from GitHub's own
+          # CDN -- then fall back to rclone.org. Checksum-pinned either way.
+          RCLONE_ZIP="rclone-${PINNED_RCLONE_VER}-linux-amd64.zip"
+          RCLONE_SHA256="0e6fa18051e67fc600d803a2dcb10ddedb092247fc6eee61be97f64ec080a13c"
+          got=""
+          for url in \
+            "https://github.com/rclone/rclone/releases/download/${PINNED_RCLONE_VER}/${RCLONE_ZIP}" \
+            "https://downloads.rclone.org/${PINNED_RCLONE_VER}/${RCLONE_ZIP}"; do
+            if curl -fsSL --retry 4 --retry-all-errors "$url" -o /tmp/rclone.zip \
+               && echo "${RCLONE_SHA256}  /tmp/rclone.zip" | sha256sum -c --status; then
+              echo "rclone from: $url"; got=1; break
+            fi
+            echo "rclone download failed or checksum mismatch: $url" >&2
+          done
+          [ -n "$got" ] || { echo "FAIL: could not fetch rclone ${PINNED_RCLONE_VER} from any mirror" >&2; exit 1; }
           unzip -q /tmp/rclone.zip -d /tmp
           sudo install -m 755 /tmp/rclone-${PINNED_RCLONE_VER}-linux-amd64/rclone /usr/local/bin/rclone
           hash -r
