@@ -66,6 +66,16 @@ PRAYER_CLOSES = {
     "peace": "For the sake of Christ our King, I pray. Amen.",
 }
 
+# PJG-1001-INTRO1 — the three relational watches open from their named station,
+# not with an interchangeable devotional sentence. Keep the generated,
+# passage-specific sentence after this fixed opening instead of replacing it.
+WATCH_OPENING_EFFECTIVE = date(2026, 10, 2)
+WATCH_OPENING_PREFIXES = {
+    "first": "Brother, stand your post",
+    "second": "Brother, take up the charge",
+    "third": "Brother, stand firm",
+}
+
 # Household birthdays for age math (do not hardcode stale ages).
 BIRTHDAYS = {
     "Gideon": date(2006, 8, 16),
@@ -80,6 +90,38 @@ def age_on(name: str, on: date) -> int:
     if (on.month, on.day) < (b.month, b.day):
         years -= 1
     return years
+
+
+def enforce_watch_opening(text: str, watch_key: str, on_date: date) -> str:
+    """Apply the role-specific opening while retaining the authored sentence."""
+    prefix = WATCH_OPENING_PREFIXES.get(watch_key)
+    if not prefix or on_date < WATCH_OPENING_EFFECTIVE:
+        return text
+
+    lines = text.splitlines()
+    header_glyph = {"first": "🕖", "second": "🕚", "third": "🕒"}[watch_key]
+    header_idx = next(
+        (i for i, line in enumerate(lines) if line.strip().startswith(header_glyph)),
+        None,
+    )
+    if header_idx is None:
+        return text
+    intro_idx = next((i for i in range(header_idx + 1, len(lines)) if lines[i].strip()), None)
+    if intro_idx is None or lines[intro_idx].lstrip().startswith("📖 Scripture"):
+        return text
+
+    intro = lines[intro_idx].strip()
+    if intro.startswith(f"{prefix}:"):
+        return text
+
+    # Remove only a generic salutation; the substantive, passage-specific
+    # sentence remains intact after the role opening.
+    continuation = re.sub(r"^Brother(?: Adam)?,\s*", "", intro, count=1, flags=re.I)
+    lines[intro_idx] = f"{prefix}: {continuation}"
+    out = "\n".join(lines)
+    if text.endswith("\n"):
+        out += "\n"
+    return out
 
 
 # Per-watch structural spec. order matters.
@@ -210,7 +252,15 @@ def build_watch_messages(w, ref, month, daynum, on_date: date):
     parts.append(f"Write ONE watch of a daily Bible reading. Output ONLY its markdown, starting with the exact header line below and ending with the {w['close']} line.\n")
     parts.append("EXACT SECTION ORDER:")
     parts.append(f"1. Header line, exactly: {w['header']}")
-    parts.append("2. Then ONE original sentence introducing today's theme — write the actual sentence; do NOT echo this instruction text.")
+    opening_prefix = WATCH_OPENING_PREFIXES.get(w["key"])
+    if opening_prefix and on_date >= WATCH_OPENING_EFFECTIVE:
+        parts.append(
+            f"2. Then ONE original sentence introducing today's theme. It MUST begin exactly "
+            f"'{opening_prefix}:' and continue with passage-specific language; do NOT flatten the "
+            "rest of the sentence into a stock intro or echo this instruction text."
+        )
+    else:
+        parts.append("2. Then ONE original sentence introducing today's theme — write the actual sentence; do NOT echo this instruction text.")
     parts.append(f"3. A line exactly: 📖 Scripture — {ref}")
     parts.append(
         f"4. The scripture text of {ref} ONLY. Named passage owns Scripture. "
@@ -499,6 +549,7 @@ def main():
             cand = clean_watch(raw, w["header"])
             cand = normalize_prayer_header(cand, w["prayer"])
             cand = enforce_canonical_scripture(cand, ref)
+            cand = enforce_watch_opening(cand, w["key"], dt)
             if watch_valid(cand, w):
                 body = cand
                 print(f"  ✓ {w['key']} ({len(cand):,} chars, attempt {attempt})", flush=True)
@@ -540,6 +591,7 @@ def main():
             body = clean_watch(raw, w["header"])
             body = normalize_prayer_header(body, w["prayer"])
             body = enforce_canonical_scripture(body, ref)
+            body = enforce_watch_opening(body, w["key"], dt)
             if watch_valid(body, w):
                 sections.append(body)
                 print(f"  ✓ {w['key']} ({len(body):,} chars, attempt {attempt})", flush=True)
