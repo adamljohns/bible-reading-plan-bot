@@ -143,6 +143,13 @@
       updateXpUi();
       var briefing = $('briefing-screen');
       if (briefing) briefing.style.display = 'none';
+      var body = $('mission-body');
+      if (body && body.style.display === 'none') {
+        body.style.display = 'block';
+        // The radar was drawn while hidden at zero size; let Chart.js re-measure.
+        window.dispatchEvent(new Event('resize'));
+        window.scrollTo({ top: Math.max(0, body.offsetTop - 80), behavior: 'smooth' });
+      }
     }
 
     function togglePause() {

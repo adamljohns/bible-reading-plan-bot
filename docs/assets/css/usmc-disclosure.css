@@ -1,0 +1,47 @@
+/* usmc-disclosure.css — the U.S.M.C. Ministries "show more" triangle.
+ *
+ * The same gold CSS triangle the dictionary <details> have used since V5.3,
+ * packaged so every expand/collapse control on the site can share it.
+ *
+ * Drawn with borders, never with a text glyph: iOS paints U+25B6 (the ▶
+ * character) as a gray emoji button, which is how the stock gray icons got
+ * onto the assessments.
+ *
+ *   <span class="usmc-tri usmc-tri-right"></span>   points right; rotate 90deg when open
+ *   <span class="usmc-tri usmc-tri-down"></span>    points down;  rotate 180deg when open
+ *
+ * The control that owns the triangle keeps its own open-state rotation rule.
+ * For a <details>, add class "usmc-summary" to its <summary> and the rules
+ * below hide the native marker and turn the triangle.
+ */
+.usmc-tri {
+  display: inline-block;
+  flex: none;
+  width: 0;
+  height: 0;
+  font-size: 0;
+  line-height: 0;
+  vertical-align: middle;
+  border-style: solid;
+  border-color: transparent;
+  transition: transform 0.18s ease;
+}
+.usmc-tri-right {
+  border-width: 5px 0 5px 7px;
+  border-left-color: var(--gold, #D4AF37);
+}
+.usmc-tri-down {
+  border-width: 7px 5px 0 5px;
+  border-top-color: var(--gold, #D4AF37);
+}
+.usmc-tri-right.usmc-tri-lg { border-width: 6px 0 6px 9px; }
+.usmc-tri-down.usmc-tri-lg { border-width: 9px 6px 0 6px; }
+
+body.light-mode .usmc-tri-right { border-left-color: #8a6a1a; }
+body.light-mode .usmc-tri-down { border-top-color: #8a6a1a; }
+
+summary.usmc-summary { list-style: none; cursor: pointer; }
+summary.usmc-summary::-webkit-details-marker { display: none; }
+summary.usmc-summary::marker { content: ''; }
+details[open] > summary.usmc-summary .usmc-tri-right { transform: rotate(90deg); }
+details[open] > summary.usmc-summary .usmc-tri-down { transform: rotate(180deg); }

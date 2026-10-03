@@ -143,8 +143,11 @@
         ticking = false;
         return;
       }
-      if (y > lastY && y > THRESHOLD) nav.classList.add('nav-hidden');
-      else if (y < lastY) nav.classList.remove('nav-hidden');
+      // Hide once he is past the top; bring it back only when he is all the
+      // way back up. Showing it on every small upward scroll covered the
+      // question he was reading (Adam, 2026-10-03).
+      if (y > THRESHOLD) nav.classList.add('nav-hidden');
+      else nav.classList.remove('nav-hidden');
       lastY = y <= 0 ? 0 : y;
       ticking = false;
     }
@@ -201,7 +204,7 @@
             '</div>' : '') +
         '</div>' +
         '<button class="rubric-toggle" id="rtoggle-' + i + '" onclick="toggleRubric(' + i + ')" type="button">' +
-          '<span class="rtri">\u25B6</span> What does this score mean?' +
+          '<span class="rtri usmc-tri usmc-tri-right" aria-hidden="true"></span> What does this score mean?' +
         '</button>' +
         '<div class="rubric-body" id="rbody-' + i + '">' + rubricRows + '</div>';
       block.appendChild(div);
@@ -386,7 +389,7 @@
     html += '</div></div>';
 
     if (history.length > 1) {
-      html += '<details style="margin-top:14px;"><summary style="cursor:pointer;color:var(--gray);font-size:0.85rem;">View full history (' + history.length + ' entries)</summary>';
+      html += '<details style="margin-top:14px;"><summary class="usmc-summary" style="color:var(--gray);font-size:0.85rem;display:inline-flex;align-items:center;gap:8px;"><span class="usmc-tri usmc-tri-right" aria-hidden="true"></span>View full history (' + history.length + ' entries)</summary>';
       history.slice(1).forEach(function (h) {
         html += '<div class="history-card" style="margin-top:8px;">' +
           '<div class="history-meta">' + new Date(h.date).toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' }) + '</div>' +
@@ -832,6 +835,17 @@
       main.appendChild(brief);
     }
 
+    // Mission mode: like PROVEN, nothing below the briefing shows until he
+    // presses Begin. Otherwise the questions sit in plain view and the clock
+    // is a decoration he can scroll past.
+    var flow = main;
+    if (ASSESSMENT_DATA.mission) {
+      flow = document.createElement('div');
+      flow.id = 'mission-body';
+      flow.style.display = 'none';
+      main.appendChild(flow);
+    }
+
     // Combined read + rate (overview interleaved with sliders; radar last)
     var csCard = document.createElement('div');
     csCard.className = 'section-card';
@@ -854,7 +868,7 @@
         '<button class="btn btn-primary" onclick="runAssessment()">\u2705 Generate Formation Plan</button>' +
         '<button class="btn btn-ghost" onclick="saveProgress(event)">\uD83D\uDCBE Save Progress</button>' +
       '</div>';
-    main.appendChild(csCard);
+    flow.appendChild(csCard);
 
     // Formation Plan section
     var fCard = document.createElement('div');
@@ -870,7 +884,7 @@
         '<button class="btn btn-ghost" onclick="openShareModal()">\uD83D\uDCE4 Share with ' + (ASSESSMENT_DATA.sharePartner || 'Accountability Partner') + '</button>' +
         (ASSESSMENT_DATA.extraButtons || '') +
       '</div>';
-    main.appendChild(fCard);
+    flow.appendChild(fCard);
 
     // Reading + Brotherhood sections (mission mode only)
     if (ASSESSMENT_DATA.mission) {
@@ -882,7 +896,7 @@
         '<div class="section-title"><div class="dot"></div><div><h2>Tangible Reading Assignments</h2>' +
         '<div class="subtitle">One book per weak axis. Start this week, not someday.</div></div></div>' +
         '<div id="readingContent"></div>';
-      main.appendChild(rCard);
+      flow.appendChild(rCard);
 
       var bCard = document.createElement('div');
       bCard.className = 'section-card';
@@ -892,7 +906,7 @@
         '<div class="section-title"><div class="dot"></div><div><h2>Walk It Out With Men</h2>' +
         '<div class="subtitle">A score you keep to yourself changes nothing. Pick one door.</div></div></div>' +
         '<div class="connect-grid" id="connectContent"></div>';
-      main.appendChild(bCard);
+      flow.appendChild(bCard);
     }
 
     // Progress section
@@ -901,7 +915,7 @@
     pCard.innerHTML =
       '<div class="section-title"><div class="dot"></div><div><h2>Progress Log</h2><div class="subtitle">' + ASSESSMENT_DATA.historySub + '</div></div></div>' +
       '<div id="progressContent"><p id="no-history" style="color:var(--gray);font-size:0.9rem;font-style:italic;">' + (ASSESSMENT_DATA.historyEmpty || 'No previous assessments on this device.') + '</p></div>';
-    main.appendChild(pCard);
+    flow.appendChild(pCard);
 
     body.appendChild(main);
 
