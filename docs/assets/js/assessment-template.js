@@ -190,6 +190,15 @@
             ' id="slider-' + i + '"' +
             ' oninput="onSlider(' + i + ', this.value)"' +
             ' aria-label="' + axis.word + ' score">' +
+          // Scale anchors. Optional: only rendered when an axis supplies both
+          // ends, so assessments that have not been reframed are untouched.
+          // Without these a slider is just a number, and a man has no way to
+          // know whether 10 means he is doing well or doing badly.
+          (axis.lowLabel && axis.highLabel ?
+            '<div class="scale-anchors">' +
+              '<span class="anchor-low"><b>1</b> ' + axis.lowLabel + '</span>' +
+              '<span class="anchor-high">' + axis.highLabel + ' <b>10</b></span>' +
+            '</div>' : '') +
         '</div>' +
         '<button class="rubric-toggle" id="rtoggle-' + i + '" onclick="toggleRubric(' + i + ')" type="button">' +
           '<span class="rtri">\u25B6</span> What does this score mean?' +
