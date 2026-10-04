@@ -233,6 +233,15 @@
   }
 
   function buildChart(d, axes, getScoreData) {
+    // Chart.js comes from a CDN. If a blocker or an outage stops it, `new
+    // Chart` threw here and everything after it in render() never ran: no
+    // Begin, no Generate button. Lose the radar, keep the assessment.
+    if (typeof Chart === 'undefined') {
+      var wrap = document.querySelector('.chart-wrapper');
+      if (wrap) wrap.style.display = 'none';
+      paintRings(d, axes, getScoreData());
+      return;
+    }
     var ctx = document.getElementById('radarChart').getContext('2d');
     var isLight = document.body.classList.contains('light-mode');
     var rings = ringPack(d, axes);
@@ -285,10 +294,12 @@
 
   function updateChart(d, axes, getScoreData, getOverall, getTier) {
     var scores = getScoreData();
-    RADAR_CHART_REF.data.datasets[0].data = scores;
-    var rings = ringPack(d, axes);
-    if (rings) RADAR_CHART_REF.data.datasets[0].pointBackgroundColor = rings.map(function (r) { return r.color; });
-    RADAR_CHART_REF.update();
+    if (RADAR_CHART_REF) {
+      RADAR_CHART_REF.data.datasets[0].data = scores;
+      var rings = ringPack(d, axes);
+      if (rings) RADAR_CHART_REF.data.datasets[0].pointBackgroundColor = rings.map(function (r) { return r.color; });
+      RADAR_CHART_REF.update();
+    }
     paintRings(d, axes, scores);
     var avg = getOverall();
     document.getElementById('overallScore').textContent = avg.toFixed(1);
