@@ -1,5 +1,10 @@
 # HANDOFF — MOOP Church Directory state
 
+> **Freshness note — 2026-10-03 (MBP-1003-NIGHT, freshness lane).** Checked against `origin/main` on 2026-10-03. This file is kept as written below; read this note first.
+> - **Superseded:** "Record count: 28,584" → **32,492** churches (`docs/data/churches-index.json`). "Current version V7.0.3" is not current; note `CHURCH_DIRECTORY_CHANGELOG.md` itself stops at V4.9.4 (2026-04-25), so neither file carries the live version. The "mirror copy" at `~/.openclaw/shared-memory/context/church-directory-handoff.md` **does not exist**. Deploys are R2 via `git push origin main` from a clean worktree (`DEPLOY-DOCTRINE.md`), never from `~/bible-reading-plan-bot`.
+> - **Live status instead:** `~/.openclaw/shared-memory/context/overnight/church-directory.md` (newest block on top).
+> - **Still true:** CLAUDE.md schema invariants; regional pages are listed on `docs/sitemap.html`. Everything else below is a 2026-05-28 snapshot and was not re-verified.
+
 **Last updated:** 2026-05-28 by Claude (this session)
 **Current version:** V7.0.3
 **Record count:** 28,584 churches

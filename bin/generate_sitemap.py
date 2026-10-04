@@ -39,6 +39,14 @@ SKIP_FILES = {
     'contacts.html',
     'brand-assets.html',
     'dev-resources.html',
+    # PIN-gated pages found in sitemap-main.xml 2026-10-03 (MBP-1003-NIGHT freshness).
+    'ops-status.html',
+    'psa-roster.html',
+    'chores-boaz.html',
+    'chores-gideon.html',
+    'chores-shiloh.html',
+    'tax-prep.html',
+    'drive-map.html',
 }
 
 PRIORITY_BY_PREFIX = [

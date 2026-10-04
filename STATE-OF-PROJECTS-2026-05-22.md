@@ -1,5 +1,8 @@
 # Bible Products & Site — State of the Projects
 
+> **Freshness note — 2026-10-03 (MBP-1003-NIGHT, freshness lane).** Checked against `origin/main` on 2026-10-03. This file is kept as written below; read this note first.
+> - **Historical snapshot, superseded.** Church directory "~26,169" → **32,492** (`docs/data/churches-index.json`). `mbt.html` is now `noindex` (withheld from sitemaps). Daily readings: 365/365 dated pages live under `docs/readings/`. Deploys are R2, not GitHub Pages (`DEPLOY-DOCTRINE.md`). No newer STATE-OF-PROJECTS file exists; do not plan from this one without re-checking.
+
 **Date:** 2026-05-22
 **Owner:** Adam Johns (USMC Ministries)
 **Scope:** Current state of in-flight projects on usmcmin.org and usmcmin.com as of today.

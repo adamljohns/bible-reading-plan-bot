@@ -1,5 +1,8 @@
 # Bible Products — State of the Projects
 
+> **Freshness note — 2026-10-03 (MBP-1003-NIGHT, freshness lane).** Checked against `origin/main` on 2026-10-03. This file is kept as written below; read this note first.
+> - **Historical snapshot, superseded twice:** by `STATE-OF-PROJECTS-2026-05-22.md` and by everything since. Church directory "4,911" → **32,492** (`docs/data/churches-index.json`). Deploys are R2, not GitHub Pages (`DEPLOY-DOCTRINE.md`). Do not plan from this file.
+
 **Date:** 2026-05-04
 **Owner:** Adam Johns (USMC Ministries)
 **Scope:** Audit of two in-flight products on `usmcmin.org` and recommended path to ship.

@@ -1,4 +1,9 @@
 # SESSION HANDOFF / POST-COMPACTION RESUME PROMPT
+
+> **Freshness note — 2026-10-03 (MBP-1003-NIGHT, freshness lane).** Checked against `origin/main` on 2026-10-03. This file is kept as written below; read this note first.
+> - **Still true:** 365/365 dated reading pages exist under `docs/readings/` (365 `YYYY-MM-DD.html` files on origin/main). Stage explicit files only.
+> - **Superseded:** "GitHub Pages → usmcmin.org" — Pages is dormant since 2026-07-02; the site deploys to Cloudflare R2 on push to `main` (`DEPLOY-DOCTRINE.md`). Never push from `~/bible-reading-plan-bot` (doctrine rule 2) — use a `/tmp` worktree from `origin/main`. The required co-author line is whatever the running session's attribution says, not "Claude Opus 4.7". This is a 2026-06-02 resume prompt; do not paste it into a new session as-is.
+
 *(Paste this into a fresh session to continue. Updated 2026-06-02.)*
 
 You are continuing long-running work for Adam Johns ("MOOP"), USMC Ministries,
