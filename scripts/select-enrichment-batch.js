@@ -69,13 +69,35 @@ const socialEligible = lanes.socialEligible;
 // the same held candidate, so held records leave BOTH pastor pools until a human clears
 // the flag. Without this, a held church pinned pool_fresh at 1 and the grind spun on it
 // for 5 days (500 rounds, zero net pastors).
-const eligible = churches.filter(c =>
+// --state / --region (2026-10-03): the lanes are nationwide, so there was no way
+// to aim a session at the churches a reader is actually likely to open. Both
+// narrow the lane pool AFTER lane eligibility, so a targeted run can never pull
+// in a record the lane itself would have refused (dead site, held review, etc).
+//   --state VA          one or more postal codes, comma-separated
+//   --region <regex>    case-insensitive, matched against name/city/address/id
+// Omit both and behaviour is exactly as before.
+const STATES = opt('--state', '').split(',').map(s => s.trim().toUpperCase()).filter(Boolean);
+const REGION = opt('--region', '');
+const regionRe = REGION ? new RegExp(REGION, 'i') : null;
+const inScope = c => {
+  if (STATES.length && !STATES.includes(String(c.state || '').toUpperCase())) return false;
+  if (regionRe && !regionRe.test([c.name, c.city, c.address, c.id].filter(Boolean).join(' '))) return false;
+  return true;
+};
+
+const laneEligible = churches.filter(c =>
   SOCIAL ? socialEligible(c)
     : (RETRY ? lanes.retryEligible(c) : lanes.freshEligible(c)));
+const eligible = laneEligible.filter(inScope);
 eligible.sort((a, b) => String(a.id).localeCompare(String(b.id)));
 
 const mode = SOCIAL ? 'SOCIAL: website + no social link' : RETRY ? 'RETRY: one no-pastor strike' : 'never-attempted';
+// Keep this string shape verbatim — pastor-refine-local.sh greps
+// /pastor-fetchable\): [0-9]+/ out of it to size the round.
 console.log(`Eligible pool (${mode}, pastor-fetchable): ${eligible.length}`);
+if (STATES.length || regionRe) {
+  console.log(`  scope filter: ${[STATES.length ? 'state=' + STATES.join('/') : '', REGION ? 'region=/' + REGION + '/i' : ''].filter(Boolean).join(' ')} — narrowed ${laneEligible.length} -> ${eligible.length}`);
+}
 const pick = eligible.slice(0, COUNT);
 const slim = c => ({ id: c.id, name: c.name, city: c.city || null, state: c.state, website: c.website, denomination: c.denomination || c.denomination_family || null });
 const batches = Array.from({ length: BATCHES }, () => []);

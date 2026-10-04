@@ -800,9 +800,14 @@ function buildPage(church) {
   const pastorSocialHtml = pastorSocial.length ? `<div class="social-links" style="margin-top:8px;"><div style="font-size:0.8rem;text-transform:uppercase;letter-spacing:1px;color:var(--gray);margin-bottom:6px;font-weight:600;">Pastor Social Media</div>${pastorSocial.join('')}</div>` : '';
 
   // Defunct marker — services may be string OR object {sunday_morning, ...}
-  const servicesStr = typeof church.services === 'string'
-    ? church.services
-    : (church.services && typeof church.services === 'object' ? Object.values(church.services).filter(v => typeof v === 'string').join(' ') : '');
+  const flattenServices = v => typeof v === 'string'
+    ? v
+    : (v && typeof v === 'object' ? Object.values(v).filter(s => typeof s === 'string').join(' ') : '');
+  // 143 records carry service times under the legacy `service_times` key and
+  // nothing under `services`. Every one of them rendered "See website" despite
+  // holding real, verified times, so fall back to it before giving up.
+  const servicesStr = flattenServices(church.services)
+    || (typeof church.service_times === 'string' ? church.service_times : flattenServices(church.service_times));
   const isDefunct = servicesStr && servicesStr.toLowerCase().includes('no longer');
   const isNotFound = church.overall_label && (church.overall_label.toLowerCase().includes('not found') || church.overall_label.toLowerCase().includes('defunct') || church.overall_label.toLowerCase().includes('search result'));
 

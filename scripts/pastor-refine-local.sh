@@ -91,11 +91,24 @@ git reset -q --hard FETCH_HEAD      || die "reset to FETCH_HEAD failed"
 git clean -qfd
 
 mkdir -p "$WORK" && rm -f "$WORK"/*.json "$WORK"/selector.txt
+# Optional scope narrowing (2026-10-03). The lanes are nationwide, so a session
+# could not be aimed at the churches local readers actually open. Set either env
+# var to pass a filter through to every selector call in this round:
+#   GRIND_SCOPE_STATE=VA
+#   GRIND_SCOPE_REGION='fredericksburg|spotsylvania|stafford'
+# Both narrow the pool AFTER lane eligibility, so a scoped run can never select a
+# record the lane itself refused. Unset => nationwide, exactly as before.
+# SCOPE_ARGS is deliberately unquoted at the call sites so it expands to nothing
+# when empty, which means the region regex must contain NO spaces — write \s or .
+# instead ('king\sgeorge', not 'king george').
+SCOPE_ARGS=""
+[ -n "${GRIND_SCOPE_STATE:-}" ]  && SCOPE_ARGS="$SCOPE_ARGS --state $GRIND_SCOPE_STATE"
+[ -n "${GRIND_SCOPE_REGION:-}" ] && SCOPE_ARGS="$SCOPE_ARGS --region $GRIND_SCOPE_REGION"
 # Fresh pool first; when it runs dry, automatically fall back to the RETRY pool
 # (one-strike "no parseable pastor" churches — the extractor's link-discovery
 # often finds the staff page the fixed paths missed). Both dry => grind complete.
 MODE="fresh"
-node scripts/select-enrichment-batch.js --count "$BATCH" --batches 1 --out "$WORK" >"$WORK/selector.txt" 2>&1 \
+node scripts/select-enrichment-batch.js $SCOPE_ARGS --count "$BATCH" --batches 1 --out "$WORK" >"$WORK/selector.txt" 2>&1 \
   || die "selector failed"
 cat "$WORK/selector.txt" >>"$LOG"
 N_BATCH=$(node -e 'console.log(require("'"$WORK"'/enrich-batch-1.json").length)' 2>/dev/null || echo 0)
@@ -123,7 +136,7 @@ if [ "$N_BATCH" -eq 0 ] || { [ -n "$POOL" ] && [ "$POOL" -lt "$MIN_FRESH" ]; }; 
   if [ "$RETRY_STREAK" -ge "$RETRY_COLD_AFTER" ]; then
     say "retry pool is cold ($RETRY_STREAK consecutive zero-yield rounds) — trying SOCIAL tier first"
     MODE="social"; SOCIAL_FLAG="--social"
-    node scripts/select-enrichment-batch.js --social --count "$BATCH" --batches 1 --out "$WORK" >"$WORK/selector.txt" 2>&1 \
+    node scripts/select-enrichment-batch.js $SCOPE_ARGS --social --count "$BATCH" --batches 1 --out "$WORK" >"$WORK/selector.txt" 2>&1 \
       || die "selector failed (social-first mode)"
     cat "$WORK/selector.txt" >>"$LOG"
     N_BATCH=$(node -e 'console.log(require("'"$WORK"'/enrich-batch-1.json").length)' 2>/dev/null || echo 0)
@@ -134,7 +147,7 @@ if [ "$N_BATCH" -eq 0 ] || { [ -n "$POOL" ] && [ "$POOL" -lt "$MIN_FRESH" ]; }; 
   fi
   if [ "$N_BATCH" -eq 0 ]; then
     MODE="retry"; SOCIAL_FLAG=""
-    node scripts/select-enrichment-batch.js --retry --count "$BATCH" --batches 1 --out "$WORK" >"$WORK/selector.txt" 2>&1 \
+    node scripts/select-enrichment-batch.js $SCOPE_ARGS --retry --count "$BATCH" --batches 1 --out "$WORK" >"$WORK/selector.txt" 2>&1 \
       || die "selector failed (retry mode)"
     cat "$WORK/selector.txt" >>"$LOG"
     N_BATCH=$(node -e 'console.log(require("'"$WORK"'/enrich-batch-1.json").length)' 2>/dev/null || echo 0)
@@ -156,7 +169,7 @@ fi
 [ "$MODE" = "social" ] || SOCIAL_FLAG=""
 if [ "$N_BATCH" -eq 0 ]; then
   MODE="social"; SOCIAL_FLAG="--social"
-  node scripts/select-enrichment-batch.js --social --count "$BATCH" --batches 1 --out "$WORK" >"$WORK/selector.txt" 2>&1 \
+  node scripts/select-enrichment-batch.js $SCOPE_ARGS --social --count "$BATCH" --batches 1 --out "$WORK" >"$WORK/selector.txt" 2>&1 \
     || die "selector failed (social mode)"
   cat "$WORK/selector.txt" >>"$LOG"
   N_BATCH=$(node -e 'console.log(require("'"$WORK"'/enrich-batch-1.json").length)' 2>/dev/null || echo 0)
@@ -165,7 +178,7 @@ fi
 # rather than declaring the grind complete with real work left.
 if [ "$N_BATCH" -eq 0 ] && [ "$N_FRESH_TRICKLE" -gt 0 ]; then
   MODE="fresh"; SOCIAL_FLAG=""
-  node scripts/select-enrichment-batch.js --count "$BATCH" --batches 1 --out "$WORK" >"$WORK/selector.txt" 2>&1 \
+  node scripts/select-enrichment-batch.js $SCOPE_ARGS --count "$BATCH" --batches 1 --out "$WORK" >"$WORK/selector.txt" 2>&1 \
     || die "selector failed (fresh-trickle mode)"
   cat "$WORK/selector.txt" >>"$LOG"
   N_BATCH=$(node -e 'console.log(require("'"$WORK"'/enrich-batch-1.json").length)' 2>/dev/null || echo 0)
@@ -210,7 +223,7 @@ if [ "$YIELD_LANE" = "fresh" ] || [ "$YIELD_LANE" = "retry" ] || [ "$YIELD_LANE"
     MODE="$YIELD_LANE"
     SOCIAL_FLAG=""; [ "$MODE" = "social" ] && SOCIAL_FLAG="--social"
     RETRY_FLAG=""; [ "$MODE" = "retry" ] && RETRY_FLAG="--retry"
-    node scripts/select-enrichment-batch.js $RETRY_FLAG $SOCIAL_FLAG --count "$BATCH" --batches 1 --out "$WORK" >"$WORK/selector.txt" 2>&1 \
+    node scripts/select-enrichment-batch.js $SCOPE_ARGS $RETRY_FLAG $SOCIAL_FLAG --count "$BATCH" --batches 1 --out "$WORK" >"$WORK/selector.txt" 2>&1 \
       || die "selector failed (yield-aware replan)"
     cat "$WORK/selector.txt" >>"$LOG"
     N_BATCH=$(node -e 'console.log(require("'"$WORK"'/enrich-batch-1.json").length)' 2>/dev/null || echo 0)
