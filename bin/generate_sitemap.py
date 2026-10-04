@@ -47,6 +47,7 @@ SKIP_FILES = {
     'chores-shiloh.html',
     'tax-prep.html',
     'drive-map.html',
+    'account-map.html',  # also noindex now; family financial account map
 }
 
 PRIORITY_BY_PREFIX = [
