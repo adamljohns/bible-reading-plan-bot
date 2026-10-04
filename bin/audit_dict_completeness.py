@@ -14,11 +14,23 @@ Plus optional but recommended:
   - Usage
 
 Report which entries are missing required sections.
+
+  python3 bin/audit_dict_completeness.py           # print coverage (every *.html)
+  python3 bin/audit_dict_completeness.py --write   # also rewrite DICT_COMPLETENESS_AUDIT.md
+
+--write scopes the report to live entries (data/dictionary-slugs.txt), so the
+redirect stubs and section/special pages do not show up as "incomplete".
 """
 import os
 import re
 import glob
+import sys
 from collections import Counter
+
+REPORT = 'DICT_COMPLETENESS_AUDIT.md'
+SLUGS_FILE = 'data/dictionary-slugs.txt'
+# The three sections the written report tracks (its original scope).
+REPORT_SECTIONS = ('biblical_def', 'webster', 'modern_corruption')
 
 REQUIRED_SECTIONS = [
     ('biblical_def',     r'Biblical (Definition|Meaning)'),
@@ -91,5 +103,37 @@ def main():
             print(f'  {fn:<40}  missing: {", ".join(missing)}')
 
 
+def write_report():
+    slugs = sorted(l.strip() for l in open(SLUGS_FILE) if l.strip())
+    pats = [(k, p) for k, p in REQUIRED_SECTIONS if k in REPORT_SECTIONS]
+    rows = []
+    counts = Counter()
+    for slug in slugs:
+        fp = f'docs/dictionary/{slug}.html'
+        if not os.path.exists(fp):
+            continue
+        with open(fp, 'r', encoding='utf-8') as f:
+            missing = check(f.read(), pats)
+        if missing:
+            rows.append((slug, missing))
+            for k in missing:
+                counts[k] += 1
+    out = ['# Dictionary completeness audit', '',
+           f'Audit of {len(slugs)} entries against three required sections:',
+           '**Biblical Definition** · **Webster 1828** · **Modern Corruption**', '',
+           'Run `python3 bin/audit_dict_completeness.py --write` to regenerate.', '',
+           '| Section | Missing in |', '| --- | --- |']
+    out += [f'| {k} | {counts[k]} |' for k in REPORT_SECTIONS]
+    out += ['', '## Entries missing one or more required sections', '',
+            '| Slug | Missing |', '| --- | --- |']
+    out += [f'| {slug} | {", ".join(m)} |' for slug, m in rows]
+    out += ['', f'**Total incomplete: {len(rows)} entries**', '']
+    with open(REPORT, 'w', encoding='utf-8') as f:
+        f.write('\n'.join(out))
+    print(f'\nWrote {REPORT}: {len(rows)} incomplete of {len(slugs)} entries')
+
+
 if __name__ == '__main__':
     main()
+    if '--write' in sys.argv[1:]:
+        write_report()

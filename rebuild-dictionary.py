@@ -813,7 +813,7 @@ def build_index(words, by_letter, total):
                     <a href="graven-image.html" class="forbidden-card"><div class="pword">Graven Image</div><div class="ptag">noun phrase</div></a>
                     <a href="harlot-babylon.html" class="forbidden-card"><div class="pword">Harlot Babylon</div><div class="ptag">noun phrase</div></a>
                     <a href="harlot-figure.html" class="forbidden-card"><div class="pword">Harlot (Apocalyptic Figure)</div><div class="ptag">noun phrase</div></a>
-                    <a href="idol-heart.html" class="forbidden-card"><div class="pword">Idol of the Heart</div><div class="ptag">noun phrase</div></a>
+                    <a href="idol-of-the-heart.html" class="forbidden-card"><div class="pword">Idol of the Heart</div><div class="ptag">noun phrase</div></a>
                     <a href="idolatry-doctrine.html" class="forbidden-card"><div class="pword">Idolatry (Doctrine of)</div><div class="ptag">noun (theology)</div></a>
                     <a href="idolatry-modern.html" class="forbidden-card"><div class="pword">Idolatry (Modern)</div><div class="ptag">noun</div></a>
                     <a href="man-stealing.html" class="forbidden-card"><div class="pword">Manstealing</div><div class="ptag">noun / doctrine</div></a>

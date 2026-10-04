@@ -1,594 +1,798 @@
 # Dictionary completeness audit
 
-Audit of 4086 entries against three required sections:
+Audit of 12215 entries against three required sections:
 **Biblical Definition** · **Webster 1828** · **Modern Corruption**
 
-Run `python3 bin/audit_dict_completeness.py` to regenerate.
+Run `python3 bin/audit_dict_completeness.py --write` to regenerate.
+
+| Section | Missing in |
+| --- | --- |
+| biblical_def | 1 |
+| webster | 766 |
+| modern_corruption | 385 |
 
 ## Entries missing one or more required sections
 
 | Slug | Missing |
 | --- | --- |
-| abide-vine | webster, modern_corruption |
+| a-ok | webster |
+| abdi | webster |
+| abidan | webster |
 | abigail | webster, modern_corruption |
+| abinoam | webster |
 | abrahamic-covenant | webster, modern_corruption |
-| accountability-biblical | webster, modern_corruption |
-| adamic-covenant | modern_corruption |
-| adoption-doctrine | webster, modern_corruption |
-| adult-coloring-books | biblical_def, webster, modern_corruption |
-| adulting | biblical_def, webster, modern_corruption |
+| accept-christ | webster |
+| adamic-covenant | webster, modern_corruption |
+| adiel | webster |
+| adin | webster |
+| adonibezek | webster |
+| adonikam | webster |
+| adullamite | webster |
+| adult-coloring-books | webster, modern_corruption |
+| adulting | webster, modern_corruption |
 | agape-detailed | webster, modern_corruption |
-| alien-righteousness | modern_corruption |
-| all-that-and-bag-of-chips | biblical_def, webster, modern_corruption |
-| alpha-and-omega | modern_corruption |
-| alpha-omega | webster, modern_corruption |
-| altar-of-incense | modern_corruption |
+| ahiman | webster |
+| ahira | webster |
+| alien-righteousness | webster, modern_corruption |
+| all-are-welcome | webster |
+| all-that-and-bag-of-chips | webster, modern_corruption |
+| allyship | webster |
+| alpha-and-omega | webster, modern_corruption |
+| altar-of-incense | webster, modern_corruption |
+| amasai | webster |
 | amillennialism | webster, modern_corruption |
-| amos | modern_corruption |
+| ammishaddai | webster |
+| amos | webster, modern_corruption |
 | anagoge | webster |
-| andrew-first | webster, modern_corruption |
+| aner | webster |
 | anoint | webster |
-| antinomianism | webster, modern_corruption |
-| apocalyptic-literature | modern_corruption |
+| anti-racism | webster |
+| apocalyptic-literature | webster, modern_corruption |
 | apokalypsis | webster, modern_corruption |
 | apollos | webster, modern_corruption |
 | apostate | webster |
-| apostles-creed | modern_corruption |
+| apostles-creed | webster, modern_corruption |
+| arah | webster |
+| arba | webster |
 | archetype | webster |
+| ard | webster |
 | ardor | webster |
 | arianism | webster, modern_corruption |
-| ark-of-covenant | modern_corruption |
 | armageddon | webster |
-| as-if | biblical_def, webster, modern_corruption |
-| ascension-event | webster, modern_corruption |
+| arpad | webster |
+| as-if | webster, modern_corruption |
+| ask-jesus-into-your-heart | webster |
 | askesis | webster |
-| assurance-salvation | webster, modern_corruption |
-| ate | biblical_def, webster, modern_corruption |
-| athanasian-creed | modern_corruption |
-| athanasius | modern_corruption |
+| ate | webster, modern_corruption |
+| athanasian-creed | webster, modern_corruption |
+| athanasius | webster, modern_corruption |
+| attai | webster |
 | audacity | webster, modern_corruption |
-| augustine | modern_corruption |
-| authority-biblical | webster |
-| bae | biblical_def, webster, modern_corruption |
-| baptism-doctrine | webster, modern_corruption |
+| audience-of-one | webster |
+| augustine | webster, modern_corruption |
+| aura | webster |
+| avocado-toast | webster |
+| azareel | webster |
+| azaziah | webster |
+| azgad | webster |
+| azubah | webster |
+| bae | webster, modern_corruption |
+| baianism | webster |
+| bakbukiah | webster |
 | baptism-jesus | webster, modern_corruption |
 | barabbas | webster, modern_corruption |
-| based | biblical_def, webster, modern_corruption |
-| basic-b | biblical_def, webster, modern_corruption |
-| basic | biblical_def, webster, modern_corruption |
-| beatific-vision | webster, modern_corruption |
+| based | webster, modern_corruption |
+| basic | webster, modern_corruption |
+| basic-b | webster, modern_corruption |
+| beast-mode | webster |
 | beatific | webster |
-| belgic-confession | modern_corruption |
-| bema-seat | modern_corruption |
-| bet-genz | biblical_def, webster, modern_corruption |
+| becher | webster |
+| beerothite | webster |
+| belgic-confession | webster, modern_corruption |
+| bell-bottoms | webster |
+| bema-seat | webster, modern_corruption |
+| bestie | webster |
+| bet-genz | webster, modern_corruption |
 | bezalel | webster, modern_corruption |
-| biblical-masculinity | modern_corruption |
-| billy-graham | modern_corruption |
+| biblical-masculinity | webster, modern_corruption |
+| biblical-worldview | webster |
+| bilhan | webster |
+| billy-graham | webster, modern_corruption |
+| bingeable | webster |
 | bishop | webster |
-| blasphemy-holy-spirit | modern_corruption |
-| bless-blessing | modern_corruption |
-| blessing-to-nations | modern_corruption |
-| blood-new-covenant | webster, modern_corruption |
-| boaz | webster, modern_corruption |
-| body-broken | webster, modern_corruption |
-| bonhoeffer | modern_corruption |
+| blasphemy-holy-spirit | webster, modern_corruption |
+| bless-blessing | webster, modern_corruption |
+| blessing-to-nations | webster, modern_corruption |
+| bling | webster |
+| bogus | webster |
+| bonhoeffer | webster, modern_corruption |
+| boob-tube | webster |
+| booyah | webster |
+| born-this-way | webster |
 | bottomless-pit | webster, modern_corruption |
-| bounce | biblical_def, webster, modern_corruption |
+| bounce | webster, modern_corruption |
+| brainrot | webster |
 | bravery | modern_corruption |
-| brazen-altar | modern_corruption |
+| brazen-altar | webster, modern_corruption |
 | brazen-serpent | webster, modern_corruption |
-| bread-life | webster, modern_corruption |
-| bread-money | biblical_def, webster, modern_corruption |
-| bread-of-life | webster, modern_corruption |
+| bread-money | webster, modern_corruption |
 | bride | webster |
-| bright-morning-star | webster, modern_corruption |
-| bronze-laver | modern_corruption |
-| bronze-serpent | modern_corruption |
+| bronze-laver | webster, modern_corruption |
+| bronze-serpent | webster, modern_corruption |
 | brother | webster |
-| burning-bush | modern_corruption |
-| bussin | biblical_def, webster, modern_corruption |
-| c-s-lewis | modern_corruption |
-| caiaphas | webster, modern_corruption |
-| caleb | webster, modern_corruption |
+| bukki | webster |
+| bummer | webster |
+| buns-genz | webster, modern_corruption |
+| burning-bush | webster, modern_corruption |
+| bussin | webster, modern_corruption |
+| buz | webster |
+| c-s-lewis | webster, modern_corruption |
 | calming-storm | webster, modern_corruption |
-| calvin | modern_corruption |
-| candlestick-menorah | modern_corruption |
-| canons-of-dort | modern_corruption |
-| cessationism | webster, modern_corruption |
-| chalcedon | modern_corruption |
-| chiasm | modern_corruption |
-| chicago-statement | modern_corruption |
-| chief-cornerstone | modern_corruption |
+| calvin | webster, modern_corruption |
+| canceled | webster |
+| candlestick-menorah | webster, modern_corruption |
+| canons-of-dort | webster, modern_corruption |
+| cap | webster |
+| caphtor | webster |
+| carchemish | webster |
+| catch-you-on-flip-side | webster |
+| catfishing | webster |
+| centering | webster |
+| chalcedon | webster, modern_corruption |
+| chenaanah | webster |
+| chiasm | webster, modern_corruption |
+| chicago-statement | webster, modern_corruption |
+| chief-cornerstone | webster, modern_corruption |
 | chiliasm | webster, modern_corruption |
+| chillax | webster |
+| chopped | webster |
 | chrism | webster |
 | christophany | webster |
-| chrysostom | modern_corruption |
-| church-covenant | modern_corruption |
+| chrysostom | webster, modern_corruption |
+| church-covenant | webster, modern_corruption |
+| chushanrishathaim | webster |
+| cisgender | webster |
+| claudius | webster |
 | clement | webster |
-| cloud-glory | webster, modern_corruption |
-| clutch | biblical_def, webster, modern_corruption |
-| common-grace | webster, modern_corruption |
-| compatibilism | webster, modern_corruption |
-| confession-sin | modern_corruption |
-| congregational-polity | modern_corruption |
+| clutch | webster, modern_corruption |
+| congregational-polity | webster, modern_corruption |
 | constancy | modern_corruption |
 | contemplation | webster |
-| cooked | biblical_def, webster, modern_corruption |
-| cool-cat | biblical_def, webster, modern_corruption |
+| cooked | webster, modern_corruption |
+| cool-beans | webster |
+| cool-cat | webster, modern_corruption |
+| cope | webster |
 | coram-deo | webster, modern_corruption |
-| cosmological-argument | modern_corruption |
-| crib | biblical_def, webster, modern_corruption |
-| cringe-genz | biblical_def, webster, modern_corruption |
+| corruption-doctrine | webster, modern_corruption |
+| cosmological-argument | webster, modern_corruption |
+| couch-potato | webster |
+| courageous-conversations | webster |
+| covenant-people | webster |
+| cowabunga | webster |
+| crashout | webster |
+| crib | webster, modern_corruption |
+| cringe-genz | webster, modern_corruption |
 | crossing-jordan | webster, modern_corruption |
-| crucifixion-event | webster, modern_corruption |
-| cultural-christianity | modern_corruption |
-| cup-wrath | webster, modern_corruption |
-| damascus-road | modern_corruption |
+| cultural-christianity | webster, modern_corruption |
+| cultural-engagement | webster |
+| cumi | webster |
+| da-bomb | webster |
+| daddy-o | webster |
 | damascus | webster, modern_corruption |
+| damascus-road | webster, modern_corruption |
 | daughter | webster |
 | davidic-covenant | webster, modern_corruption |
-| day-of-atonement | webster, modern_corruption |
-| deborah-judge | modern_corruption |
+| deadass | webster |
+| deborah-judge | webster, modern_corruption |
+| decisionism | webster |
+| decolonize | webster |
+| deconstruction | webster |
 | deconstruction-faith | webster, modern_corruption |
-| delulu | biblical_def, webster, modern_corruption |
-| dig-it | biblical_def, webster, modern_corruption |
+| delulu | webster, modern_corruption |
+| demure | webster |
+| deplatforming | webster |
+| deuel | webster |
+| dig-it | webster, modern_corruption |
 | diotrephes | webster, modern_corruption |
 | discipleship-deep | webster, modern_corruption |
 | discretion | modern_corruption |
-| divine-simplicity | webster, modern_corruption |
-| do-your-own-thing | biblical_def, webster, modern_corruption |
-| door-sheep | webster, modern_corruption |
-| dope | biblical_def, webster, modern_corruption |
-| double-imputation | modern_corruption |
+| dismantle | webster |
+| diss | webster |
+| do-your-own-thing | webster, modern_corruption |
+| dodo | webster |
+| doggo | webster |
+| doing-life-together | webster |
+| doing-the-work | webster |
+| dominicans | webster |
+| doomscrolling | webster |
+| dope | webster, modern_corruption |
+| double-imputation | webster, modern_corruption |
 | dragon | webster, modern_corruption |
-| dynamic-equivalence | modern_corruption |
-| edwards | modern_corruption |
+| dynamic-equivalence | webster, modern_corruption |
+| dynamite | webster |
+| easy-peasy | webster |
+| eat-my-shorts | webster |
+| ebiasaph | webster |
+| edwards | webster, modern_corruption |
 | effectual-calling | webster |
 | effeminacy | webster |
-| elder-biblical | webster, modern_corruption |
+| eleasah | webster |
+| elhanan | webster |
+| eliasaph | webster |
+| elizur | webster |
+| enan | webster |
+| english-bible | webster |
 | enoch | webster, modern_corruption |
-| ephod-garment | modern_corruption |
-| epistle-genre | modern_corruption |
-| eros-love | modern_corruption |
-| essenes | modern_corruption |
-| esther-queen | webster, modern_corruption |
-| esv-translation | modern_corruption |
-| evidentialism | modern_corruption |
+| epher | webster |
+| ephod-garment | webster, modern_corruption |
+| epistle-genre | webster, modern_corruption |
+| equivocity | webster |
+| eros-love | webster, modern_corruption |
+| esarhaddon | webster |
+| esoteric-intangibles | biblical_def, webster, modern_corruption |
+| essenes | webster, modern_corruption |
+| esv-translation | webster, modern_corruption |
+| everything-happens-for-a-reason | webster |
+| evidentialism | webster, modern_corruption |
 | examen | webster, modern_corruption |
 | exodus-event | webster, modern_corruption |
-| exvangelicalism | modern_corruption |
-| ezra-scribe | modern_corruption |
+| extra-nos | webster |
+| exvangelical | webster |
+| exvangelicalism | webster, modern_corruption |
 | ezra | webster, modern_corruption |
-| fall-of-jericho | webster, modern_corruption |
+| ezra-scribe | webster, modern_corruption |
+| faith-journey | webster |
 | fall | webster |
-| far-out | biblical_def, webster, modern_corruption |
-| fatherhood-doctrine | modern_corruption |
+| familists | webster |
+| fanum-tax | webster |
+| far-out | webster, modern_corruption |
 | fatherlessness | webster |
 | federal-headship | webster, modern_corruption |
 | feeding-5000 | webster, modern_corruption |
 | felix-culpa | webster |
 | filioque | modern_corruption |
-| fire | biblical_def, webster, modern_corruption |
-| firstborn-dead | webster, modern_corruption |
-| firstborn-from-dead | modern_corruption |
-| firstfruits-doctrine | webster, modern_corruption |
-| firstfruits-tithe | modern_corruption |
-| five-by-five | biblical_def, webster, modern_corruption |
-| flesh-spirit-warfare | modern_corruption |
+| fire | webster, modern_corruption |
+| firstborn-from-dead | webster, modern_corruption |
+| firstfruits-tithe | webster, modern_corruption |
+| five-by-five | webster, modern_corruption |
+| five-finger-discount | webster |
+| flesh-spirit-warfare | webster, modern_corruption |
 | flood | webster |
-| fomo | biblical_def, webster, modern_corruption |
-| formal-equivalence | modern_corruption |
-| four-horsemen | modern_corruption |
-| fr-for-real | biblical_def, webster, modern_corruption |
-| francis-schaeffer | modern_corruption |
-| gate-narrow | webster, modern_corruption |
-| ghosting | biblical_def, webster, modern_corruption |
+| flower-power | webster |
+| follow-your-heart | webster |
+| fomo | webster, modern_corruption |
+| form-criticism | webster |
+| formal-equivalence | webster, modern_corruption |
+| foshizzle | webster |
+| four-horsemen | webster, modern_corruption |
+| foxy | webster |
+| fr-for-real | webster, modern_corruption |
+| francis-schaeffer | webster, modern_corruption |
+| full-inclusion | webster |
+| fundamentalist | webster |
+| funky | webster |
+| galal | webster |
+| gatam | webster |
+| gatekeeping | webster |
+| gemariah | webster |
+| ghosting | webster, modern_corruption |
+| giddel | webster |
+| gideoni | webster |
+| girlboss | webster |
 | giving-of-law | webster, modern_corruption |
+| glaze | webster |
 | glorified-body | webster |
-| gnarly | biblical_def, webster, modern_corruption |
+| gnarly | webster, modern_corruption |
 | gnosticism | webster, modern_corruption |
-| goat-genz | biblical_def, webster, modern_corruption |
-| god-fearers | modern_corruption |
+| goat-genz | webster, modern_corruption |
+| god-fearers | webster, modern_corruption |
+| god-helps-those-who-help-themselves | webster |
+| god-is-still-speaking | webster |
+| god-just-wants-you-to-be-happy | webster |
+| god-wont-give-you-more-than-you-can-handle | webster |
 | good-samaritan | webster, modern_corruption |
-| good-shepherd | webster, modern_corruption |
-| gospel-genre | modern_corruption |
+| gospel-genre | webster, modern_corruption |
+| grace-filled | webster |
 | gravitas | webster |
-| great-commission-event | modern_corruption |
-| great-physician | webster, modern_corruption |
+| great-commission-event | webster, modern_corruption |
 | great-white-throne | webster, modern_corruption |
-| groovy | biblical_def, webster, modern_corruption |
-| gyat | biblical_def, webster, modern_corruption |
-| hang-loose | biblical_def, webster, modern_corruption |
-| hannah-prophetess | modern_corruption |
+| groovy | webster, modern_corruption |
+| gyat | webster, modern_corruption |
+| hadoram | webster |
+| haggith | webster |
+| hamutal | webster |
+| hanameel | webster |
+| hang-loose | webster, modern_corruption |
+| hangry | webster |
 | hannah | webster, modern_corruption |
-| hashtag-blessed | biblical_def, webster, modern_corruption |
-| headship-male | modern_corruption |
-| heavy | biblical_def, webster, modern_corruption |
-| heidelberg-catechism | modern_corruption |
-| helper-ezer | modern_corruption |
+| hannah-prophetess | webster, modern_corruption |
+| hanoch | webster |
+| hararite | webster |
+| harm | webster |
+| hashtag-blessed | webster, modern_corruption |
+| hashtag-life | webster |
+| hashub | webster |
+| hatach | webster |
+| headship-male | webster, modern_corruption |
+| heart-posture | webster |
+| heavy | webster, modern_corruption |
+| hebrew-people | webster |
+| hegai | webster |
+| heidelberg-catechism | webster, modern_corruption |
+| helon | webster |
+| helper-ezer | webster, modern_corruption |
+| henadad | webster |
 | herod-antipas | webster, modern_corruption |
 | herod-great | webster, modern_corruption |
-| herodians | modern_corruption |
+| herodians | webster, modern_corruption |
+| heteronormative | webster |
 | hierarchy-biblical | webster |
-| hit-different | biblical_def, webster, modern_corruption |
-| holy-of-holies | modern_corruption |
+| hippie | webster |
+| hit-different | webster, modern_corruption |
+| hodijah | webster |
+| holy-of-holies | webster, modern_corruption |
 | holy-spirit | webster, modern_corruption |
-| hosea-prophet | modern_corruption |
-| humblebrag | biblical_def, webster, modern_corruption |
-| i-am-sayings | modern_corruption |
+| homie | webster |
+| homoian | webster |
+| hosea-prophet | webster, modern_corruption |
+| hoshaiah | webster |
+| household-order | webster |
+| human-flourishing | webster |
+| humblebrag | webster, modern_corruption |
+| huzz | webster |
+| hyperdulia | webster |
+| i-am-sayings | webster, modern_corruption |
 | i-am-statements | webster, modern_corruption |
 | identity-politics | webster, modern_corruption |
 | idleness | webster, modern_corruption |
 | image-of-god-doctrine | webster, modern_corruption |
 | immutability-god | webster, modern_corruption |
 | impeccability | webster, modern_corruption |
-| imprecatory-psalms | modern_corruption |
+| imprecatory-psalms | webster, modern_corruption |
 | imputed-righteousness | webster, modern_corruption |
 | in-christ | webster, modern_corruption |
-| incarnation-doctrine | webster, modern_corruption |
 | incomprehensibility | webster, modern_corruption |
+| influencer | webster |
 | infralapsarian | webster, modern_corruption |
 | infralapsarianism | webster |
-| inner-man | modern_corruption |
-| intercession-prayer | modern_corruption |
-| irenaeus | modern_corruption |
-| irresistible-grace-doctrine | webster, modern_corruption |
-| its-giving | biblical_def, webster, modern_corruption |
-| j-i-packer | modern_corruption |
-| james-lords-brother | modern_corruption |
-| jesus-genealogy | modern_corruption |
+| inner-healing | webster |
+| inner-man | webster, modern_corruption |
+| irenaeus | webster, modern_corruption |
+| ishi | webster |
+| ithiel | webster |
+| ithrite | webster |
+| its-giving | webster, modern_corruption |
+| j-i-packer | webster, modern_corruption |
+| jaazaniah | webster |
+| jaddua | webster |
+| james-lords-brother | webster, modern_corruption |
+| jamin | webster |
+| jehohanan | webster |
+| jehozabad | webster |
+| jehudi | webster |
+| jeremoth | webster |
+| jeshaiah | webster |
+| jeshurun | webster |
+| jesus-genealogy | webster, modern_corruption |
 | jethro | webster, modern_corruption |
-| job-sufferer | modern_corruption |
+| jetur | webster |
+| jive | webster |
 | job | webster, modern_corruption |
-| joel-prophet | modern_corruption |
-| john-baptist | webster, modern_corruption |
-| john-piper | modern_corruption |
-| john-stott | modern_corruption |
-| jonah-prophet | modern_corruption |
-| joseph-arimathea | webster, modern_corruption |
+| job-sufferer | webster, modern_corruption |
+| joel-prophet | webster, modern_corruption |
+| john-piper | webster, modern_corruption |
+| john-stott | webster, modern_corruption |
+| joiada | webster |
+| joiakim | webster |
+| joiarib | webster |
+| jokshan | webster |
+| jonah-prophet | webster, modern_corruption |
+| josedech | webster |
+| joses | webster |
+| jozadak | webster |
 | judaizers | webster, modern_corruption |
 | judas-iscariot | webster, modern_corruption |
-| jude-brother | modern_corruption |
-| judgment-biblical | webster |
-| kick-it | biblical_def, webster, modern_corruption |
+| jude-brother | webster, modern_corruption |
+| karen | webster |
+| keep-on-truckin | webster |
+| kelita | webster |
+| kemuel | webster |
+| kerfuffle | webster |
+| kick-it | webster, modern_corruption |
 | kindness-virtue | modern_corruption |
-| king-james-version | modern_corruption |
-| king-of-kings | modern_corruption |
-| kingdom-of-god | webster, modern_corruption |
-| kjv-only-movement | modern_corruption |
-| knox | modern_corruption |
+| king-james-version | webster, modern_corruption |
+| kjv-only-movement | webster, modern_corruption |
+| knox | webster, modern_corruption |
+| kore | webster |
+| korhites | webster |
 | kosmos | webster, modern_corruption |
-| lake-of-fire | webster, modern_corruption |
-| lamb-of-god | modern_corruption |
-| lament-psalms | modern_corruption |
+| laid-it-on-my-heart | webster |
+| lama | webster |
+| lament-psalms | webster, modern_corruption |
 | lectio-divina | webster, modern_corruption |
-| levirate-marriage | modern_corruption |
+| let-go-and-let-god | webster |
+| levirate-marriage | webster, modern_corruption |
 | lex-rex | webster, modern_corruption |
-| light-of-world | modern_corruption |
-| limited-atonement-doctrine | webster, modern_corruption |
+| libni | webster |
 | lion-of-judah | webster, modern_corruption |
-| lloyd-jones | modern_corruption |
-| lock-in | biblical_def, webster, modern_corruption |
-| logos-word | webster, modern_corruption |
-| london-baptist-confession | modern_corruption |
+| lit | webster |
+| live-your-truth | webster |
+| lloyd-jones | webster, modern_corruption |
+| lock-in | webster, modern_corruption |
+| looksmaxxing | webster |
 | lords-prayer | webster, modern_corruption |
 | lot | webster, modern_corruption |
-| lowkey | biblical_def, webster, modern_corruption |
+| love-is-love | webster |
+| love-offering | webster |
+| love-wins | webster |
+| lowkey | webster, modern_corruption |
 | loyalty-biblical | webster, modern_corruption |
-| luke-evangelist | modern_corruption |
+| luke-evangelist | webster, modern_corruption |
 | luke-physician | webster, modern_corruption |
-| luther | modern_corruption |
-| machen | modern_corruption |
+| luther | webster, modern_corruption |
+| maachathite | webster |
 | magnanimity-virtue | webster, modern_corruption |
-| main-character | biblical_def, webster, modern_corruption |
-| makrothymia | modern_corruption |
+| mahath | webster |
+| main-character | webster, modern_corruption |
+| makrothymia | webster, modern_corruption |
+| malchishua | webster |
+| mall-rat | webster |
 | manhood | modern_corruption |
-| manna-bread | modern_corruption |
-| mark-of-beast | modern_corruption |
-| marriage-supper-lamb | modern_corruption |
-| martha-of-bethany | modern_corruption |
-| mary-mother-of-jesus | modern_corruption |
-| mary-of-bethany | modern_corruption |
-| masoretic-text | modern_corruption |
+| manifesting | webster |
+| manna-bread | webster, modern_corruption |
+| marginalized | webster |
+| martha-of-bethany | webster, modern_corruption |
+| mary-mother-of-jesus | webster, modern_corruption |
+| mary-of-bethany | webster, modern_corruption |
+| masoretic-text | webster, modern_corruption |
 | materialism-philosophical | webster, modern_corruption |
-| matthew-evangelist | modern_corruption |
-| meditation-biblical | modern_corruption |
-| meek-blessed | modern_corruption |
-| melchizedek-priesthood | modern_corruption |
-| melchizedek | webster, modern_corruption |
-| messianic-psalms | modern_corruption |
-| mid | biblical_def, webster, modern_corruption |
+| mattan | webster |
+| mattenai | webster |
+| matthew-evangelist | webster, modern_corruption |
+| meek-blessed | webster, modern_corruption |
+| melchizedek-priesthood | webster, modern_corruption |
+| mellow | webster |
+| memucan | webster |
+| merab | webster |
+| messianic-psalms | webster, modern_corruption |
+| mewing | webster |
+| microaggression | webster |
+| mid | webster, modern_corruption |
+| middle-knowledge | webster |
+| mikloth | webster |
+| millennial-pause | webster |
+| mishma | webster |
 | mishpat | webster |
-| missions-doctrine | modern_corruption |
-| molinism | webster, modern_corruption |
-| moral-argument | modern_corruption |
-| moral-influence-theory | modern_corruption |
+| missio-dei | webster |
+| missional | webster |
+| missions-doctrine | webster, modern_corruption |
+| mood | webster |
+| moral-argument | webster, modern_corruption |
+| moral-influence-theory | webster, modern_corruption |
+| moralism | webster |
 | moralistic-therapeutic-deism | webster, modern_corruption |
-| mosaic-covenant | modern_corruption |
-| motherhood | modern_corruption |
-| mount-carmel | modern_corruption |
-| mount-moriah | modern_corruption |
-| mount-of-olives | modern_corruption |
-| mourn-blessed | modern_corruption |
+| mosaic-covenant | webster, modern_corruption |
+| mosaic-law | webster |
+| mount-carmel | webster, modern_corruption |
+| mount-moriah | webster, modern_corruption |
+| mountaintop-experience | webster |
+| mourn-blessed | webster, modern_corruption |
+| moza | webster |
 | munus-triplex | webster |
-| my-bad | biblical_def, webster, modern_corruption |
-| naomi | modern_corruption |
+| my-bad | webster, modern_corruption |
+| naamathite | webster |
+| naarah | webster |
+| nahath | webster |
+| name-it-and-claim-it | webster |
+| naomi | webster, modern_corruption |
+| narcissism | webster |
 | nazirite | webster, modern_corruption |
-| nehemiah-governor | modern_corruption |
+| neariah | webster |
 | nehemiah | webster, modern_corruption |
-| netflix-and-chill | biblical_def, webster, modern_corruption |
-| new-covenant-doctrine | modern_corruption |
+| nehemiah-governor | webster, modern_corruption |
+| nekoda | webster |
+| neo-orthodoxy | webster |
+| nepheg | webster |
+| nergalsharezer | webster |
+| netflix-and-chill | webster, modern_corruption |
 | new-heavens-new-earth | webster, modern_corruption |
 | new-jerusalem | webster, modern_corruption |
-| nicea | modern_corruption |
-| nicene-creed | modern_corruption |
-| no-cap | biblical_def, webster, modern_corruption |
-| noahic-covenant | modern_corruption |
+| nicea | webster, modern_corruption |
+| nicene-creed | webster, modern_corruption |
+| nifty | webster |
+| nimshi | webster |
+| no-cap | webster, modern_corruption |
+| noahic-covenant | webster, modern_corruption |
 | nominal-christianity | webster, modern_corruption |
+| nope | webster |
+| npc | webster |
+| occasionalism | webster |
+| ocran | webster |
+| ohio | webster |
 | oholiab | webster, modern_corruption |
-| olivet-discourse | modern_corruption |
+| olivet-discourse | webster, modern_corruption |
+| omar | webster |
 | omnibenevolence | webster, modern_corruption |
-| on-fleek | biblical_def, webster, modern_corruption |
-| once-for-all | modern_corruption |
+| on-fire-for-god | webster |
+| on-fleek | webster, modern_corruption |
+| on-god | webster |
+| once-for-all | webster, modern_corruption |
 | onesimus | webster, modern_corruption |
+| only-god-can-judge-me | webster |
+| open-and-affirming | webster |
+| opera-ad-extra | webster |
+| opera-ad-intra | webster |
+| opp | webster |
 | orthopraxy | webster, modern_corruption |
-| outta-sight | biblical_def, webster, modern_corruption |
+| outta-sight | webster, modern_corruption |
 | overseer-bishop | webster, modern_corruption |
+| pad-place | webster |
+| pagiel | webster |
+| pallu | webster |
 | panentheism | webster |
-| parable-of-lost-sheep | modern_corruption |
-| parable-of-mustard-seed | modern_corruption |
-| parable-of-pearl | modern_corruption |
-| parable-of-sower | modern_corruption |
-| parable-of-talents | modern_corruption |
-| parable-of-ten-virgins | modern_corruption |
-| parable-of-unforgiving-servant | modern_corruption |
-| parable-of-vineyard-workers | modern_corruption |
+| parable-of-lost-sheep | webster, modern_corruption |
+| parable-of-mustard-seed | webster, modern_corruption |
+| parable-of-pearl | webster, modern_corruption |
+| parable-of-talents | webster, modern_corruption |
+| parable-of-ten-virgins | webster, modern_corruption |
+| parable-of-unforgiving-servant | webster, modern_corruption |
+| parable-of-vineyard-workers | webster, modern_corruption |
 | patience-virtue | modern_corruption |
-| patriarchy-biblical | webster |
-| peace-out | biblical_def, webster, modern_corruption |
-| peacemakers | modern_corruption |
-| pentecost-event | modern_corruption |
-| period | biblical_def, webster, modern_corruption |
-| perseverance-saints | webster, modern_corruption |
+| peace-out | webster, modern_corruption |
+| peacemakers | webster, modern_corruption |
+| peak-genz | webster, modern_corruption |
+| pedahzur | webster |
+| pelaiah | webster |
+| pelatiah | webster |
+| peninnah | webster |
+| performative | webster |
+| period | webster, modern_corruption |
+| periodt | webster |
+| personal-relationship-with-jesus | webster |
 | peter-denial | webster, modern_corruption |
+| peter-pence | webster |
 | pharisees | webster, modern_corruption |
-| philemon | modern_corruption |
-| phileo | modern_corruption |
+| phat | webster |
+| philemon | webster, modern_corruption |
+| phileo | webster, modern_corruption |
 | phinehas | webster, modern_corruption |
-| pilate-pontius | webster, modern_corruption |
-| pillar-of-cloud | modern_corruption |
-| plurality-of-elders | modern_corruption |
-| polycarp | modern_corruption |
-| poor-in-spirit | modern_corruption |
-| positional-sanctification | modern_corruption |
-| presbyterian-polity | modern_corruption |
-| presuppositionalism | modern_corruption |
-| prince-of-peace | modern_corruption |
-| priscilla-aquila | webster, modern_corruption |
+| phone-tag | webster |
+| physical-premotion | webster |
+| pillar-of-cloud | webster, modern_corruption |
+| platforming | webster |
+| plurality-of-elders | webster, modern_corruption |
+| polycarp | webster, modern_corruption |
+| pookie | webster |
+| poor-in-spirit | webster, modern_corruption |
+| poser | webster |
+| positional-sanctification | webster, modern_corruption |
+| positive-confession | webster |
+| potentia-absoluta | webster |
+| potentia-ordinata | webster |
+| presbyterian-polity | webster, modern_corruption |
+| presuppositionalism | webster, modern_corruption |
+| probabilism | webster |
 | prodigal-son | webster, modern_corruption |
-| progressive-christianity | modern_corruption |
-| prosperity-gospel | webster, modern_corruption |
+| progressive-christianity | webster, modern_corruption |
+| prooftexting | webster |
 | protevangelium | webster, modern_corruption |
-| providence-doctrine | webster, modern_corruption |
 | psalm | webster |
-| psyche | biblical_def, webster, modern_corruption |
-| pure-in-heart | modern_corruption |
-| purim | modern_corruption |
-| putting-off-putting-on | modern_corruption |
-| r-c-sproul | modern_corruption |
-| radical | biblical_def, webster, modern_corruption |
+| psyche | webster, modern_corruption |
+| punching-down | webster |
+| pure-in-heart | webster, modern_corruption |
+| purim | webster, modern_corruption |
+| purity-culture | webster |
+| putting-off-putting-on | webster, modern_corruption |
+| putting-out-a-fleece | webster |
+| quiverfull | webster |
+| r-c-sproul | webster, modern_corruption |
+| radical | webster, modern_corruption |
 | rahab | webster, modern_corruption |
+| raise-the-roof | webster |
 | raising-lazarus | webster, modern_corruption |
-| ransom-theory | modern_corruption |
-| rapture-eschatology | webster, modern_corruption |
+| ransom-theory | webster, modern_corruption |
+| ratio | webster |
 | recapitulation | webster, modern_corruption |
-| reconciliation-doctrine | webster, modern_corruption |
-| regeneration-doctrine | webster, modern_corruption |
+| reconstruction | webster |
+| red-letter-christian | webster |
 | regulative-principle | webster, modern_corruption |
-| renewal-mind | webster, modern_corruption |
-| renewal-of-mind | modern_corruption |
-| repent | webster, modern_corruption |
-| reproach | webster, modern_corruption |
+| rehabiah | webster |
+| religious-trauma | webster |
+| renewal-of-mind | webster, modern_corruption |
+| rent-free | webster |
+| rephaiah | webster |
+| reserved-cases | webster |
 | resolve | modern_corruption |
-| rest-faith | webster, modern_corruption |
-| restore | webster, modern_corruption |
-| resurrection-body | webster, modern_corruption |
 | resurrection-event | webster, modern_corruption |
-| return-christ | webster, modern_corruption |
-| reward-heaven | webster, modern_corruption |
+| retardmaxxing | webster |
 | rich-fool | webster, modern_corruption |
-| right-on | biblical_def, webster, modern_corruption |
-| righteous-anger | webster, modern_corruption |
-| river-life | webster, modern_corruption |
-| rizz | biblical_def, webster, modern_corruption |
-| rock-ages | webster, modern_corruption |
-| rod-staff | webster, modern_corruption |
-| rosh-hashanah | modern_corruption |
-| royal-priesthood | webster, modern_corruption |
-| sabbath-rest | webster, modern_corruption |
-| sabbatical-year | modern_corruption |
-| sacred-assembly | webster, modern_corruption |
+| right-on | webster, modern_corruption |
+| rizz | webster, modern_corruption |
+| rizzler | webster |
+| rosh-hashanah | webster, modern_corruption |
+| sabbatical-year | webster, modern_corruption |
+| sacerdotalism | webster |
+| sacramentarians | webster |
 | sadducees | webster, modern_corruption |
+| safe-space | webster |
+| sallu | webster |
 | salt-and-light | webster, modern_corruption |
-| salt-earth | webster, modern_corruption |
-| salty | biblical_def, webster, modern_corruption |
+| salty | webster, modern_corruption |
 | samaritans | webster, modern_corruption |
 | samuel | webster, modern_corruption |
-| sanctification-progressive | webster, modern_corruption |
-| satisfaction-theory | modern_corruption |
-| scribes | modern_corruption |
-| scroll-sealed | webster, modern_corruption |
-| sea-of-galilee | modern_corruption |
-| second-death | webster, modern_corruption |
-| second-temple | modern_corruption |
+| satisfaction-theory | webster, modern_corruption |
+| scientia-visionis | webster |
+| scribes | webster, modern_corruption |
+| sea-of-galilee | webster, modern_corruption |
+| second-temple | webster, modern_corruption |
 | secularism | webster, modern_corruption |
-| seed-promise | modern_corruption |
-| selah-meaning | webster, modern_corruption |
+| seed-promise | webster, modern_corruption |
 | self-care | webster |
-| selfie | biblical_def, webster, modern_corruption |
+| selfie | webster, modern_corruption |
 | selfishness | webster, modern_corruption |
 | sentimentalism | webster, modern_corruption |
-| septuagint-translation | modern_corruption |
+| septuagint-translation | webster, modern_corruption |
 | seraphim | webster, modern_corruption |
-| sermon-mount | webster, modern_corruption |
-| sermon-on-mount | webster, modern_corruption |
-| service-discipline | modern_corruption |
-| shadow-almighty | webster, modern_corruption |
-| shavuot-feast | modern_corruption |
-| sheep-and-goats | webster, modern_corruption |
-| sheesh | biblical_def, webster, modern_corruption |
-| shema-yisrael | modern_corruption |
-| shepherd-pastor | modern_corruption |
-| shepherd-psalm | webster, modern_corruption |
-| shield-faith | webster, modern_corruption |
-| shofar-trumpet | webster, modern_corruption |
+| service-discipline | webster, modern_corruption |
+| shammua | webster |
+| shavuot-feast | webster, modern_corruption |
+| shedeur | webster |
+| sheesh | webster, modern_corruption |
+| shelumiel | webster |
+| shema-yisrael | webster, modern_corruption |
+| shemariah | webster |
+| shepherd-pastor | webster, modern_corruption |
+| sheshai | webster |
+| shethar-boznai | webster |
+| shimea | webster |
+| shimshai | webster |
+| shobab | webster |
 | showbread | webster, modern_corruption |
-| sigma | biblical_def, webster, modern_corruption |
-| sign-covenant | webster, modern_corruption |
+| shuah | webster |
+| shuhite | webster |
+| side-hustle | webster |
+| sigma | webster, modern_corruption |
 | silas | webster, modern_corruption |
 | silence-discipline | webster, modern_corruption |
-| silence-god | webster, modern_corruption |
 | simeon-temple | webster, modern_corruption |
-| simplicity-discipline | modern_corruption |
-| simplicity-divine | webster, modern_corruption |
-| sinai-experience | webster, modern_corruption |
+| simplicity-discipline | webster, modern_corruption |
 | sister | webster |
-| slacker | biblical_def, webster, modern_corruption |
-| slay | biblical_def, webster, modern_corruption |
-| sloth-sin | modern_corruption |
+| situationship | webster |
+| six-seven | webster |
+| skibidi | webster |
+| slacker | webster, modern_corruption |
+| slay | webster, modern_corruption |
 | sloth | webster |
+| sloth-sin | modern_corruption |
+| social-justice | webster |
+| sock-it-to-me | webster |
+| soft-launch | webster |
 | solas | webster, modern_corruption |
-| soldier-christ | webster, modern_corruption |
-| solid | biblical_def, webster, modern_corruption |
-| solitude-discipline | webster, modern_corruption |
-| solitude | modern_corruption |
-| son-of-man | modern_corruption |
+| solid | webster, modern_corruption |
+| solitude | webster, modern_corruption |
 | son | webster |
-| song-deliverance | webster, modern_corruption |
-| soul-anchor | webster, modern_corruption |
-| soul-sleep | modern_corruption |
-| sow-reap | webster, modern_corruption |
+| son-of-man | webster, modern_corruption |
+| soul-sleep | webster, modern_corruption |
+| speak-it-into-existence | webster |
 | sphere-sovereignty | webster, modern_corruption |
-| spirit-adoption | webster, modern_corruption |
-| spirit-truth | webster, modern_corruption |
-| spiritual-gifts-doctrine | webster, modern_corruption |
-| spiritual-priesthood | modern_corruption |
-| spiritual-warfare | webster, modern_corruption |
-| splagchnizomai | modern_corruption |
-| spurgeon | modern_corruption |
-| squad-goals | biblical_def, webster, modern_corruption |
-| square | biblical_def, webster, modern_corruption |
-| standing-firm | webster, modern_corruption |
-| stephen-martyr | webster, modern_corruption |
-| stoked | biblical_def, webster, modern_corruption |
-| stone-rejected | webster, modern_corruption |
-| stoning-of-stephen | modern_corruption |
-| storge | modern_corruption |
-| stranger-pilgrim | webster, modern_corruption |
-| strength-joy | webster, modern_corruption |
-| stumbling-block | webster, modern_corruption |
-| submission-biblical | webster, modern_corruption |
-| submission-wife | modern_corruption |
-| suffering-biblical | webster |
-| sufficient-grace | webster, modern_corruption |
-| sukkot-feast | modern_corruption |
+| spirit-animal | webster |
+| spirit-moved | webster |
+| spiritual-covering | webster |
+| spiritual-priesthood | webster, modern_corruption |
+| splagchnizomai | webster, modern_corruption |
+| spurgeon | webster, modern_corruption |
+| squad-goals | webster, modern_corruption |
+| square | webster, modern_corruption |
+| stan | webster |
+| stoked | webster, modern_corruption |
+| stoning-of-stephen | webster, modern_corruption |
+| storge | webster, modern_corruption |
+| sukkot-feast | webster, modern_corruption |
 | suzerainty | webster, modern_corruption |
-| sword-spirit | webster, modern_corruption |
-| synagogue-institution | modern_corruption |
+| swell | webster |
+| swipe-right | webster |
+| synagogue-institution | webster, modern_corruption |
 | synergism | modern_corruption |
-| table-of-showbread | modern_corruption |
-| talk-to-the-hand | biblical_def, webster, modern_corruption |
-| teleological-argument | modern_corruption |
+| systemic | webster |
+| table-of-showbread | webster, modern_corruption |
+| tahpenes | webster |
+| talk-to-the-hand | webster, modern_corruption |
+| tatnai | webster |
+| tea | webster |
+| teleological-argument | webster, modern_corruption |
 | temperance-virtue | modern_corruption |
-| temptation-desert | webster, modern_corruption |
-| temptation-of-christ | modern_corruption |
-| ten-commandments-doctrine | modern_corruption |
+| temptation-of-christ | webster, modern_corruption |
 | ten-virgins | webster, modern_corruption |
 | tenacity | modern_corruption |
-| textual-criticism | modern_corruption |
-| textus-receptus | modern_corruption |
-| the-bomb | biblical_def, webster, modern_corruption |
+| textual-criticism | webster, modern_corruption |
+| textus-receptus | webster, modern_corruption |
+| the-bomb | webster, modern_corruption |
+| the-feels | webster |
+| the-fuzz | webster |
+| the-ick | webster |
+| the-man | webster |
 | theonomy | webster, modern_corruption |
-| therapeutic-gospel | modern_corruption |
-| thirsty | biblical_def, webster, modern_corruption |
+| theopaschitism | webster |
+| therapeutic-gospel | webster, modern_corruption |
+| third-way | webster |
+| thirst-trap | webster |
+| thirsty | webster, modern_corruption |
 | thomas-twin | webster, modern_corruption |
-| throw-shade | biblical_def, webster, modern_corruption |
+| thoughts-and-prayers | webster |
+| throw-shade | webster, modern_corruption |
 | thummim | webster, modern_corruption |
+| tibni | webster |
 | timidity | webster, modern_corruption |
-| titus-2-woman | modern_corruption |
-| total-depravity-doctrine | webster, modern_corruption |
-| touch-grass | biblical_def, webster, modern_corruption |
-| transfiguration-event | webster, modern_corruption |
-| trip | biblical_def, webster, modern_corruption |
-| true-vine | modern_corruption |
-| tune-out | biblical_def, webster, modern_corruption |
-| turn-on-tune-in | biblical_def, webster, modern_corruption |
-| twelve-tribes | webster, modern_corruption |
+| titus-2-woman | webster, modern_corruption |
+| tobijah | webster |
+| toi | webster |
+| tone-policing | webster |
+| totes | webster |
+| touch-grass | webster, modern_corruption |
+| toxic-masculinity | webster |
+| toxic-theology | webster |
+| trash-adj | webster |
+| trauma-informed | webster |
+| traveling-mercies | webster |
+| triggered | webster |
+| trip | webster, modern_corruption |
+| true-vine | webster, modern_corruption |
+| tubular | webster |
+| tuff | webster |
+| tune-out | webster, modern_corruption |
+| turn-on-tune-in | webster, modern_corruption |
 | two-masters | webster, modern_corruption |
-| tyndale | modern_corruption |
+| tyndale | webster, modern_corruption |
 | tzedakah | webster |
-| unclean-spirit | webster, modern_corruption |
-| unconditional-election-doctrine | webster, modern_corruption |
-| unfailing-love | webster, modern_corruption |
-| unforgivable-sin | webster, modern_corruption |
-| union-with-christ-doctrine | webster, modern_corruption |
-| union-with-christ | webster |
-| unjust-steward | modern_corruption |
-| upper-room | webster, modern_corruption |
-| ur-of-chaldees | modern_corruption |
+| ulam | webster |
+| unc | webster |
+| unhinged | webster |
+| univocity | webster |
+| unjust-steward | webster, modern_corruption |
+| unspoken-prayer-request | webster |
+| uriel | webster |
 | urim | webster, modern_corruption |
 | vacillation | webster |
-| valley-of-dry-bones | modern_corruption |
-| valley-shadow | webster, modern_corruption |
-| vessel-honor | webster, modern_corruption |
+| valley-of-dry-bones | webster, modern_corruption |
 | via-dolorosa | webster, modern_corruption |
-| vibe | biblical_def, webster, modern_corruption |
+| vibe | webster, modern_corruption |
 | victim-mentality | webster, modern_corruption |
-| victory-christ | webster, modern_corruption |
-| vietnam-generation | biblical_def, webster, modern_corruption |
-| vine-branches | webster, modern_corruption |
-| virgin-birth | webster, modern_corruption |
+| vietnam-generation | webster, modern_corruption |
 | virtue-signaling | webster, modern_corruption |
-| voice-god | webster, modern_corruption |
-| w-win | biblical_def, webster, modern_corruption |
-| walk-spirit | webster, modern_corruption |
+| w-win | webster, modern_corruption |
+| wack | webster |
 | walking-on-water | webster, modern_corruption |
 | walking-with-god | webster, modern_corruption |
-| warrior-prayer | webster, modern_corruption |
-| water-rock | webster, modern_corruption |
-| wesley | modern_corruption |
-| westminster-confession | modern_corruption |
-| whatever | biblical_def, webster, modern_corruption |
-| whitefield | modern_corruption |
-| whole-armor | webster, modern_corruption |
-| widow-mite | webster, modern_corruption |
+| wesley | webster, modern_corruption |
+| westminster-confession | webster, modern_corruption |
+| whatever | webster, modern_corruption |
+| whitefield | webster, modern_corruption |
 | wifehood | modern_corruption |
-| wilderness-testing | webster, modern_corruption |
-| wine-new | webster, modern_corruption |
-| winnowing-fork | webster, modern_corruption |
-| wisdom-above | webster, modern_corruption |
-| wisdom-literature | modern_corruption |
-| witness-cloud | webster, modern_corruption |
+| wisdom-literature | webster, modern_corruption |
 | wokeness | webster |
-| woman-valor | webster, modern_corruption |
-| wonderful-counselor | modern_corruption |
-| word-agreement | biblical_def, webster, modern_corruption |
-| word-became-flesh | webster, modern_corruption |
-| word-fire | webster, modern_corruption |
-| word-of-faith | modern_corruption |
+| wonderful-counselor | webster, modern_corruption |
+| word-agreement | webster, modern_corruption |
+| word-of-faith | webster, modern_corruption |
+| word-up | webster |
 | works-of-the-flesh | webster |
-| worship-spirit-truth | webster, modern_corruption |
-| worthy-lamb | webster, modern_corruption |
-| wrath-lamb | webster, modern_corruption |
-| wrath-sin | modern_corruption |
-| wycliffe | modern_corruption |
-| yoke-easy | webster, modern_corruption |
-| yolo | biblical_def, webster, modern_corruption |
-| yom-kippur-feast | modern_corruption |
+| wrath-sin | webster, modern_corruption |
+| wrong-side-of-history | webster |
+| wycliffe | webster, modern_corruption |
+| yapping | webster |
+| yolo | webster, modern_corruption |
+| yom-kippur-feast | webster, modern_corruption |
+| your-best-life-now | webster |
 | zacchaeus | webster, modern_corruption |
-| zeal-house | webster, modern_corruption |
 | zealots | webster, modern_corruption |
-| zechariah-prophet | modern_corruption |
-| zwingli | modern_corruption |
+| zechariah-prophet | webster, modern_corruption |
+| zerahiah | webster |
+| zeresh | webster |
+| zero | webster |
+| zillah | webster |
+| zimmah | webster |
+| zohar | webster |
+| zuar | webster |
+| zurishaddai | webster |
+| zwingli | webster, modern_corruption |
 
-**Total incomplete: 581 entries**
+**Total incomplete: 779 entries**
