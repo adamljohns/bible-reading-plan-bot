@@ -307,8 +307,20 @@ def render_paragraph_block(paragraphs):
     return '\n                    '.join(f'<p>{p}</p>' for p in paragraphs)
 
 
+def _line(l):
+    """A roots line is an HTML string. Batches sometimes hand over a 4-item row
+    [language, Strong's-or-dash, transliteration, gloss] instead; printing that
+    raw put Python list syntax on 1,139 live pages (fixed 2026-10-03). Render
+    it in the house form: Greek <em>meno</em> (G3306) &mdash; to abide."""
+    if isinstance(l, (list, tuple)) and len(l) == 4:
+        lang, code, tr, gl = (str(x).strip() for x in l)
+        ref = '' if code in ('&mdash;', '\u2014', '-', '') else f' ({code})'
+        return f'{lang} <em>{tr}</em>{ref} &mdash; {gl}'
+    return l
+
+
 def render_lines_block(lines):
-    return '\n                    '.join(f'<p>{l}</p>' for l in lines)
+    return '\n                    '.join(f'<p>{_line(l)}</p>' for l in lines)
 
 
 def render_usage(sentences):
