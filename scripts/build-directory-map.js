@@ -126,7 +126,7 @@ const html = `<!DOCTYPE html>
     .controls .pill.red-pill { border-color:rgba(192,57,43,0.4); }
     .controls .pill.black-pill { border-color:rgba(80,80,80,0.6); color:#aaa; }
     .controls .count { color:var(--gold); font-variant-numeric:tabular-nums; font-weight:600; }
-    .controls select { background:var(--card); border:1px solid var(--border); color:var(--white); padding:6px 14px; border-radius:20px; font-size:0.82rem; font-family:inherit; cursor:pointer; }
+    .controls select { max-width:100%; background:var(--card); border:1px solid var(--border); color:var(--white); padding:6px 14px; border-radius:20px; font-size:0.82rem; font-family:inherit; cursor:pointer; }
     .controls select:focus { outline:none; border-color:var(--gold); }
     .controls .visible-count { color:var(--gold-light); font-size:0.85rem; font-style:italic; margin-left:8px; }
 
@@ -201,7 +201,7 @@ const html = `<!DOCTYPE html>
   <div id="map"></div>
 
   <div class="footer-strip">
-    Tiles via <a href="https://carto.com/attributions" rel="noopener">CartoDB</a> on <a href="https://www.openstreetmap.org/copyright" rel="noopener">OpenStreetMap</a> data. Geocoding via the free <a href="https://geocoding.geo.census.gov" rel="noopener">US Census Geocoder</a>. ${fmt(points.length)} church${points.length===1?'':'es'} plotted across ${Object.keys(stateCount).length} state${Object.keys(stateCount).length===1?'':'s'}. Generated ${TODAY}.
+    Tiles via <a href="https://www.esri.com/" rel="noopener">Esri</a> on <a href="https://www.openstreetmap.org/copyright" rel="noopener">OpenStreetMap</a> data. Geocoding via the free <a href="https://geocoding.geo.census.gov" rel="noopener">US Census Geocoder</a>. ${fmt(points.length)} church${points.length===1?'':'es'} plotted across ${Object.keys(stateCount).length} state${Object.keys(stateCount).length===1?'':'s'}. Generated ${TODAY}.
     <br>
     <a href="/directory-methodology.html">How the rubric works</a> &middot; <a href="/directory-drift.html">Drift watchlist</a> &middot; <a href="/churches.html">Browse all ${fmt(total)} churches</a>
   </div>
@@ -219,25 +219,30 @@ const html = `<!DOCTYPE html>
     const map = L.map('map', { preferCanvas: true, zoomControl: true });
 
     // --- Base layers: dark (default), streets, satellite ---
-    const darkLayer = L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap, © CARTO',
-      subdomains: 'abcd',
-      maxZoom: 19,
-    });
-    const streetsLayer = L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/rastertiles/voyager/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap, © CARTO',
-      subdomains: 'abcd',
-      maxZoom: 19,
+    // CARTO basemaps began stamping every tile "API KEY REQUIRED" (seen 2026-10-04), so the
+    // dark and streets layers use Esri's keyless services, the provider already serving satellite.
+    const ESRI = 'https://server.arcgisonline.com/ArcGIS/rest/services/';
+    const darkLayer = L.layerGroup([
+      L.tileLayer(ESRI + 'Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+        attribution: 'Tiles © Esri — Esri, HERE, Garmin, © OpenStreetMap contributors',
+        maxZoom: 19, maxNativeZoom: 16,
+      }),
+      L.tileLayer(ESRI + 'Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}', {
+        maxZoom: 19, maxNativeZoom: 16,
+      }),
+    ]);
+    const streetsLayer = L.tileLayer(ESRI + 'World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+      attribution: 'Tiles © Esri — Esri, HERE, Garmin, © OpenStreetMap contributors',
+      maxZoom: 19, maxNativeZoom: 18,
     });
     const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
       attribution: 'Imagery © Esri, Maxar, Earthstar Geographics',
       maxZoom: 19,
     });
     // Optional street-label overlay that sits on top of the satellite imagery
-    const labelsOverlay = L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_only_labels/{z}/{x}/{y}.png', {
-      attribution: '© CARTO',
-      subdomains: 'abcd',
-      maxZoom: 19,
+    const labelsOverlay = L.tileLayer(ESRI + 'Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}', {
+      attribution: '© Esri',
+      maxZoom: 19, maxNativeZoom: 16,
       pane: 'shadowPane',
     });
 
