@@ -4295,7 +4295,7 @@
             // "John 6:37, 8:12". Consecutive verses merge into one range ("Ezek 36:26, 27" → 36:26-27);
             // the rest become separate passages. Numbers must ascend: a lower trailing number
             // ("Acts 3:19, 1" — the "1" of a following "1 Peter") is dropped, not shown as Acts 3:1.
-            parts = parts.reduce(function(acc, chunk) {
+            function expandCommaLists(acc, chunk) {
                 var cm = chunk.match(/^((?:\d\s?)?[A-Za-z][A-Za-z\s\.]*?)\s*(\d+)\s*:\s*(\d+(?:\s*-\s*\d+)?(?:\s*,\s*\d+(?:\s*:\s*\d+)?(?:\s*-\s*\d+)?)+)$/);
                 if (!cm) { acc.push(chunk); return acc; }
                 var book = cm[1].trim(), ch = parseInt(cm[2], 10), lastEnd = 0, out = [];
@@ -4313,7 +4313,8 @@
                 });
                 out.forEach(function(p) { acc.push(book + ' ' + p.ch + ':' + p.s + (p.e > p.s ? '-' + p.e : '')); });
                 return acc;
-            }, []);
+            }
+            parts = parts.reduce(expandCommaLists, []);
             if (parts.length === 1 && parts[0] !== raw) { inputEl.value = parts[0]; }
             if (parts.length <= 1) return lookupVerse();
 
@@ -4330,7 +4331,7 @@
                 var m = chunk.match(/^((?:\d\s+)?[A-Za-z][A-Za-z\s\.]+?)\s+\d/);
                 if (m) lastBook = m[1].trim();
                 return chunk;
-            });
+            }).reduce(expandCommaLists, []); // a bare "3:8,10" only gains its book name above
 
             showResults();
             document.getElementById('results').innerHTML =
