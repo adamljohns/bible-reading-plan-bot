@@ -61,7 +61,7 @@
   var css = [
     '.moop-toolbar{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin:14px auto 4px;max-width:820px;padding:0 10px}',
     '.moop-toolbar button,.moop-toolbar a{font:500 0.82rem Inter,sans-serif;cursor:pointer;text-decoration:none;',
-    ' background:var(--card,#111);color:var(--white,#eee) !important;border:1px solid var(--border,#333);',
+    ' background:var(--card,var(--bg-card,#111));color:var(--white,#eee) !important;border:1px solid var(--border,#333);',
     ' border-radius:20px;padding:6px 14px;display:inline-flex;align-items:center;gap:6px;transition:border-color .2s,color .2s}',
     '.moop-toolbar button:hover,.moop-toolbar a:hover{border-color:var(--gold,#D4AF37);color:var(--gold,#D4AF37) !important}',
     '.moop-toolbar .on{border-color:var(--gold,#D4AF37);color:var(--gold,#D4AF37) !important}',
@@ -72,7 +72,7 @@
     '.moop-seclink{margin-left:8px;font-size:0.8rem;opacity:0;text-decoration:none;cursor:pointer;transition:opacity .15s}',
     '.section:hover .moop-seclink,.moop-seclink:focus{opacity:.75}.moop-seclink:hover{opacity:1}',
     '#moop-saved{position:fixed;top:64px;right:14px;width:min(340px,92vw);max-height:70vh;overflow:auto;z-index:9998;',
-    ' background:var(--card,#141414);border:1px solid var(--gold,#D4AF37);border-radius:12px;padding:14px 16px;',
+    ' background:var(--card,var(--bg-card,#141414));border:1px solid var(--gold,#D4AF37);border-radius:12px;padding:14px 16px;',
     ' box-shadow:0 8px 30px rgba(0,0,0,.5);font-family:Inter,sans-serif;color:var(--white,#eee)}',
     '#moop-saved h4{color:var(--gold,#D4AF37);font-size:0.95rem;margin:0 0 10px}',
     '#moop-saved .mi{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border,#2a2a2a);font-size:0.84rem}',
