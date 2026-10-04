@@ -246,7 +246,7 @@ function renderHtml({ records, summary, total_churches }) {
     .filter-bar label { color:var(--gray); font-size:0.78rem; margin-right:6px; align-self:center; }
     .filter-btn { padding:6px 12px; background:transparent; color:var(--gray); border:1px solid var(--border); border-radius:18px; cursor:pointer; font-size:0.8rem; font-family:inherit; transition:all 0.2s; display:inline-flex; align-items:center; gap:6px; }
     .filter-btn .dot { width:8px; height:8px; border-radius:50%; display:inline-block; }
-    .filter-btn .count-suffix { color:#666; font-size:0.7rem; }
+    .filter-btn .count-suffix { color:#8c8c8c; font-size:0.7rem; }
     .filter-btn:hover { color:var(--gold-light); border-color:var(--gold); }
     .filter-btn.active { background:rgba(212,175,55,0.12); color:var(--gold-light); border-color:var(--gold); }
 
@@ -269,16 +269,16 @@ function renderHtml({ records, summary, total_churches }) {
     .pill-green { background:#1d4926; color:#90e6a4; }
     .pill-yellow { background:#3c2f0e; color:#f4d470; }
     .pill-red { background:#3f1614; color:#e89c93; }
-    .pill-black { background:#222; color:#888; }
-    .pill-grey { background:#222; color:#888; }
+    .pill-black { background:#222; color:#a0a0a0; }
+    .pill-grey { background:#222; color:#a0a0a0; }
     .entry .addr { color:var(--gray); font-size:0.8rem; line-height:1.4; margin:4px 0; }
     .entry .pastor { color:var(--gray); font-size:0.78rem; margin:4px 0 8px; }
     .entry .nets { display:flex; flex-wrap:wrap; gap:5px; margin-top:8px; padding-top:8px; border-top:1px dashed var(--border); }
-    .net-chip { font-size:0.66rem; padding:2px 7px; border-radius:8px; border:1px solid var(--net-color, var(--border)); color:var(--net-color, var(--gray)); background:rgba(255,255,255,0.02); letter-spacing:0.4px; font-weight:500; text-decoration:none; cursor:pointer; transition:background 0.15s, color 0.15s; display:inline-block; }
-    .net-chip:hover { background:var(--net-color, var(--gold)); color:#000; }
+    .net-chip { font-size:0.66rem; padding:2px 7px; border-radius:8px; border:1px solid var(--net-color, var(--border)); color:#d0d0d0; color:color-mix(in srgb, var(--net-color, #888) 50%, #fff); background:rgba(255,255,255,0.02); letter-spacing:0.4px; font-weight:500; text-decoration:none; cursor:pointer; transition:background 0.15s, color 0.15s; display:inline-block; }
+    .net-chip:hover { background:var(--net-color, var(--gold)); background:color-mix(in srgb, var(--net-color, var(--gold)) 70%, #000); color:#fff; }
     .net-chip:focus { outline:1px solid var(--net-color, var(--gold)); outline-offset:2px; }
     /* Deep-link badges (we have the church's actual URL) get a filled background so the user knows it's a precise link, not a fallback search */
-    .net-chip[data-deep="1"] { background:var(--net-color, var(--gold)); color:#000; font-weight:600; }
+    .net-chip[data-deep="1"] { background:var(--net-color, var(--gold)); background:color-mix(in srgb, var(--net-color, var(--gold)) 70%, #000); color:#fff; font-weight:600; }
     .net-chip[data-deep="1"]:hover { filter:brightness(1.15); }
 
     .methodology { margin-top:50px; }
