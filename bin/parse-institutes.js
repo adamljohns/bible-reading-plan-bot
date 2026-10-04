@@ -137,7 +137,30 @@ function main() {
       chNum++;
       const ch = parseChapter(d.html, bookNum, chNum, (titlesByBook[bookNum] || {})[chNum]);
       ch.bookArgument = chNum === 1 ? bookArg : undefined; // attach book argument once
-      fs.writeFileSync(path.join(OUT, 'b' + bookNum + 'c' + String(chNum).padStart(2, '0') + '.json'), JSON.stringify(ch, null, 2));
+      const outPath = path.join(OUT, 'b' + bookNum + 'c' + String(chNum).padStart(2, '0') + '.json');
+      // ⚠️ MERGE, DO NOT CLOBBER. Everything hand-made downstream of the parse lives in the
+      // same file: `sectionsModern` (the USMC modernization), `application` ("A Word for
+      // 2026", on all 80), `modernized`, `version`. A plain overwrite here silently destroys
+      // all of it, which made re-parsing a one-way door. Re-parsing now only refreshes the
+      // public-domain Beveridge layer and leaves authored fields alone.
+      //
+      // Note that if the Beveridge section COUNT changes, a stale sectionsModern no longer
+      // lines up with it; the generator falls back to Beveridge when lengths disagree, and
+      // the mismatch is reported here so it gets re-modernized deliberately.
+      if (fs.existsSync(outPath)) {
+        try {
+          const prev = JSON.parse(fs.readFileSync(outPath, 'utf8'));
+          ['sectionsModern', 'application', 'modernized', 'version'].forEach((k) => {
+            if (prev[k] !== undefined) ch[k] = prev[k];
+          });
+          if (ch.sectionsModern && ch.sectionsModern.length !== ch.sections.length) {
+            console.log('  !! b' + bookNum + 'c' + String(chNum).padStart(2, '0') +
+              ': sectionsModern (' + ch.sectionsModern.length + ') no longer matches sections (' +
+              ch.sections.length + ') — needs re-modernizing');
+          }
+        } catch (e) { console.log('  !! could not merge existing ' + outPath + ': ' + e.message); }
+      }
+      fs.writeFileSync(outPath, JSON.stringify(ch, null, 2));
       totalCh++; totalSec += ch.sections.length; ch.sections.forEach((s) => totalRefs += s.prooftexts.length);
       report.push('  B' + bookNum + ' C' + String(chNum).padStart(2, '0') + ': ' + ch.sections.length + ' sections, ' +
         ch.sections.reduce((a, s) => a + s.prooftexts.length, 0) + ' refs' + (ch.title ? '' : '  [NO TITLE]'));

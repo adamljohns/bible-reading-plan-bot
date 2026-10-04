@@ -1,0 +1,179 @@
+/* confessions.css — Augustine's Confessions reader (usmcmin.org)
+   Pairs with generate-confessions.js. Reuses lbcf.css for proofs + link styles.
+
+   Deliberately quieter than institutes.css. The Institutes is argued, so it wants a
+   systematic look; the Confessions is prayed, so the page gives the prose more air and
+   keeps the apparatus out of the way. One page carries a whole book (Book X runs to 43
+   chapters), so each chapter needs a visible seam or the page reads as a gray wall. */
+
+/* ---------- book page: header ---------- */
+.conf-book-head { text-align: center; padding: 34px 20px 24px; border-bottom: 1px solid var(--border); margin-bottom: 22px; }
+.conf-book-eyebrow {
+  font-family: 'Inter', sans-serif; font-size: 0.74rem; font-weight: 600;
+  letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold); margin-bottom: 8px;
+}
+.conf-book-head h1 {
+  font-family: 'Playfair Display', serif; font-size: clamp(1.8rem, 4vw, 2.6rem);
+  color: var(--gold-light); line-height: 1.18; margin-bottom: 12px;
+}
+.conf-book-hook {
+  font-family: 'Playfair Display', serif; font-size: clamp(1rem, 2vw, 1.18rem);
+  color: var(--white); line-height: 1.55; max-width: 640px; margin: 0 auto 14px; font-style: italic;
+}
+.conf-argument {
+  color: var(--gray); font-size: 0.9rem; line-height: 1.7; max-width: 700px; margin: 0 auto;
+}
+.conf-chip {
+  display: inline-block; margin-top: 14px; padding: 3px 10px; border: 1px solid rgba(212,175,55,0.45);
+  border-radius: 999px; font-family: 'Inter', sans-serif; font-size: 0.68rem; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold);
+}
+body.light-mode .conf-book-head h1 { color: #5a4710; }
+body.light-mode .conf-book-eyebrow, body.light-mode .conf-chip { color: #8a6a1a; }
+body.light-mode .conf-chip { border-color: rgba(138,106,26,0.5); }
+body.light-mode .conf-book-hook { color: #2a2a2a; }
+
+/* ---------- chapter index ---------- */
+.conf-toc { max-width: 760px; margin: 0 auto 30px; }
+.conf-toc summary {
+  cursor: pointer; color: var(--gold); font-size: 0.86rem; font-weight: 600;
+  letter-spacing: 0.02em; padding: 8px 0; list-style: none;
+}
+.conf-toc summary::-webkit-details-marker { display: none; }
+.conf-toc summary::before { content: '▸ '; }
+.conf-toc[open] summary::before { content: '▾ '; }
+.conf-toc ol {
+  margin: 6px 0 0; padding: 14px 18px 14px 34px;
+  background: rgba(212,175,55,0.05); border-left: 2px solid var(--gold); border-radius: 0 6px 6px 0;
+  columns: 2; column-gap: 28px;
+}
+.conf-toc li { color: var(--gray); font-size: 0.84rem; line-height: 1.55; margin-bottom: 7px; break-inside: avoid; }
+.conf-toc a { color: var(--gray); text-decoration: none; }
+.conf-toc a:hover { color: var(--gold); text-decoration: underline; }
+@media (max-width: 680px) { .conf-toc ol { columns: 1; } }
+body.light-mode .conf-toc summary { color: #8a6a1a; }
+body.light-mode .conf-toc ol { background: rgba(138,106,26,0.08); border-left-color: #8a6a1a; }
+body.light-mode .conf-toc li, body.light-mode .conf-toc a { color: #5a5248; }
+body.light-mode .conf-toc a:hover { color: #8a6a1a; }
+
+/* ---------- chapters ---------- */
+.conf-body { max-width: 760px; margin: 0 auto; }
+.conf-chapter { margin-bottom: 40px; scroll-margin-top: 80px; }
+.conf-chap-head { margin-bottom: 16px; padding-top: 18px; border-top: 1px solid var(--border); }
+.conf-chapter:first-child .conf-chap-head { border-top: none; padding-top: 0; }
+.conf-chap-num {
+  font-family: 'Inter', sans-serif; font-size: 0.7rem; font-weight: 700;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); margin-bottom: 6px;
+}
+.conf-chap-head h2 {
+  font-family: 'Playfair Display', serif; font-size: clamp(1.1rem, 2.2vw, 1.34rem);
+  font-weight: 600; color: var(--gold-light); line-height: 1.35;
+}
+.conf-permalink {
+  margin-left: 8px; color: var(--gray); font-size: 0.85rem; text-decoration: none;
+  opacity: 0; transition: opacity .18s, color .18s;
+}
+.conf-chapter:hover .conf-permalink { opacity: 1; }
+.conf-permalink:hover { color: var(--gold); }
+.conf-permalink.copied { color: var(--gold-light); opacity: 1; }
+body.light-mode .conf-chap-num { color: #8a6a1a; }
+body.light-mode .conf-chap-head h2 { color: #5a4710; }
+
+.conf-section { display: grid; grid-template-columns: 40px 1fr; gap: 14px; margin-bottom: 18px; scroll-margin-top: 80px; }
+.conf-sec-num {
+  font-family: 'Playfair Display', serif; font-size: 1.15rem; font-weight: 700;
+  color: var(--gold); text-align: right; padding-top: 4px; opacity: 0.75;
+}
+.conf-sec-body p { color: var(--white); font-size: 1.04rem; line-height: 1.88; margin-bottom: 13px; }
+.conf-sec-body p:last-child { margin-bottom: 4px; }
+body.light-mode .conf-sec-body p { color: #1a1a1a; }
+body.light-mode .conf-sec-num { color: #8a6a1a; }
+
+/* Drop cap on the book's opening paragraph only — with up to 43 chapters on a page,
+   a cap per chapter would be noise. */
+.conf-chapter:first-child .conf-section:first-of-type .conf-sec-body p:first-child::first-letter {
+  font-family: 'Playfair Display', serif; font-size: 3.1rem; font-weight: 700;
+  float: left; line-height: 0.9; padding: 4px 9px 0 0; color: var(--gold-light);
+}
+body.light-mode .conf-chapter:first-child .conf-section:first-of-type .conf-sec-body p:first-child::first-letter { color: #8a6a1a; }
+
+@media (max-width: 560px) {
+  .conf-section { grid-template-columns: 26px 1fr; gap: 10px; }
+  .conf-sec-num { font-size: 0.95rem; }
+}
+
+/* ---------- book nav + footer ---------- */
+.conf-book-nav { display: flex; justify-content: space-between; align-items: center; gap: 12px;
+  max-width: 760px; margin: 36px auto 50px; padding-top: 22px; border-top: 1px solid var(--border); }
+.conf-book-nav a { color: var(--gold); text-decoration: none; font-size: 0.9rem; font-weight: 500; }
+.conf-book-nav a:hover { color: var(--gold-light); text-decoration: underline; }
+.conf-book-nav .conf-idx { font-family: 'Inter', sans-serif; font-size: 0.76rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gray); }
+.conf-book-nav .conf-idx:hover { color: var(--gold); }
+body.light-mode .conf-book-nav a { color: #8a6a1a; }
+body.light-mode .conf-book-nav .conf-idx { color: #6b6359; }
+
+.conf-foot { max-width: 760px; margin: 0 auto 56px; text-align: center; }
+.conf-disclaimer { font-size: 0.78rem; color: var(--gray); font-style: italic; max-width: 620px; margin: 0 auto; line-height: 1.65; }
+.conf-disclaimer a { color: var(--gold); text-decoration: none; border-bottom: 1px dotted var(--gold); }
+body.light-mode .conf-disclaimer { color: #6b6359; }
+body.light-mode .conf-disclaimer a { color: #8a6a1a; border-bottom-color: #8a6a1a; }
+
+/* ---------- hub ---------- */
+.conf-hub-head { text-align: center; padding: 38px 20px 26px; border-bottom: 1px solid var(--border); margin-bottom: 30px; }
+.conf-hub-head h1 {
+  font-family: 'Playfair Display', serif; font-size: clamp(1.9rem, 4.4vw, 2.9rem);
+  color: var(--gold-light); line-height: 1.16; margin-bottom: 16px;
+}
+.conf-hub-lede { color: var(--white); font-size: 1rem; line-height: 1.8; max-width: 680px; margin: 0 auto 14px; }
+.conf-hub-lede em { color: var(--gold-light); font-style: italic; }
+.conf-hub-meta { color: var(--gray); font-size: 0.82rem; letter-spacing: 0.02em; }
+body.light-mode .conf-hub-head h1 { color: #5a4710; }
+body.light-mode .conf-hub-lede { color: #1a1a1a; }
+body.light-mode .conf-hub-lede em { color: #8a6a1a; }
+
+.conf-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; max-width: 1000px; margin: 0 auto 36px; }
+.conf-card {
+  display: block; text-decoration: none; background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 10px; padding: 18px 20px; transition: border-color .2s, transform .2s, background .2s;
+}
+.conf-card:hover { border-color: var(--gold); transform: translateY(-2px); background: rgba(212,175,55,0.04); }
+.conf-card-num {
+  font-family: 'Playfair Display', serif; font-size: 1.22rem; font-weight: 700;
+  color: var(--gold-light); margin-bottom: 8px;
+}
+.conf-card-hook { color: var(--white); font-size: 0.88rem; line-height: 1.6; margin-bottom: 10px; }
+.conf-card-meta {
+  font-family: 'Inter', sans-serif; font-size: 0.72rem; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--gray);
+}
+body.light-mode .conf-card { background: #FBF6EA; border-color: #ddd6c4; }
+body.light-mode .conf-card:hover { border-color: #8a6a1a; background: rgba(138,106,26,0.05); }
+body.light-mode .conf-card-num { color: #5a4710; }
+body.light-mode .conf-card-hook { color: #2a2a2a; }
+body.light-mode .conf-card-meta { color: #6b6359; }
+
+.conf-note {
+  max-width: 760px; margin: 0 auto 36px; background: rgba(212,175,55,0.06);
+  border: 1px solid rgba(212,175,55,0.3); border-left: 3px solid var(--gold);
+  border-radius: 0 8px 8px 0; padding: 18px 22px;
+}
+.conf-note-head {
+  font-family: 'Inter', sans-serif; font-size: 0.72rem; font-weight: 700;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); margin-bottom: 8px;
+}
+.conf-note p { color: var(--white); font-size: 0.94rem; line-height: 1.78; }
+.conf-note em { color: var(--gold-light); }
+body.light-mode .conf-note { background: rgba(138,106,26,0.07); border-color: rgba(138,106,26,0.35); border-left-color: #8a6a1a; }
+body.light-mode .conf-note-head { color: #8a6a1a; }
+body.light-mode .conf-note p { color: #1a1a1a; }
+body.light-mode .conf-note em { color: #8a6a1a; }
+
+/* ---------- print ---------- */
+@media print {
+  .conf-book-nav, .conf-permalink, .conf-chip { display: none !important; }
+  .conf-sec-body p, .conf-book-head h1, .conf-chap-head h2, .conf-book-hook { color: #000 !important; }
+  .conf-sec-num, .conf-chap-num { color: #555 !important; }
+  .conf-toc, .conf-toc[open] ol { display: block !important; }
+  .conf-chapter { break-inside: avoid-page; }
+  .conf-note { border: 1px solid #999; background: none; border-left: 3px solid #999; }
+}

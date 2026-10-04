@@ -66,6 +66,7 @@ function nav() {
     item('../lbcf.html', 'shield-cross.png', '1689 LBCF', false) +
     item('../catechism.html', 'shield-cross.png', 'Baptist Catechism', false) +
     item('../institutes.html', 'shield-cross.png', 'Institutes', true) +
+    item('../confessions.html', 'shield-cross.png', 'Confessions', false) +
     item('../blog.html', 'shield-scroll-quill-48.png', 'Blog', false) +
     item('../connect.html', 'shield-handshake.png', 'Connect', false) +
     // theme toggle lives inside the nav (sticky, top-right via light-icons.css
@@ -108,7 +109,15 @@ function chapterPage(ch, prev, next) {
   const desc = 'Calvin’s Institutes, Book ' + ch.book + ', Chapter ' + ch.chapter + ': ' + ch.title +
     ' — Henry Beveridge translation (public domain), with linked Scripture and theological terms. ' +
     String(descSrc).slice(0, 120);
-  const isModern = !!(ch.modernized && ch.sectionsModern && ch.sectionsModern.length);
+  // Require the modern text to still line up with the Beveridge sections. If a re-parse
+  // changed the section count, a stale sectionsModern would render a chapter with sections
+  // missing or doubled — fall back to Beveridge instead, loudly.
+  const isModern = !!(ch.modernized && ch.sectionsModern && ch.sectionsModern.length &&
+    ch.sectionsModern.length === ch.sections.length);
+  if (ch.modernized && ch.sectionsModern && ch.sectionsModern.length !== ch.sections.length) {
+    console.log('  !! b' + ch.book + 'c' + pad(ch.chapter) + ': sectionsModern (' + ch.sectionsModern.length +
+      ') != sections (' + ch.sections.length + ') — rendering Beveridge until re-modernized');
+  }
   const src = isModern ? ch.sectionsModern : ch.sections;
   const audUrl = audioUrl(ch.book, ch.chapter);
 
