@@ -86,11 +86,13 @@ def _redirected_slugs():
 
 
 def _has_noindex(full_path):
-    """True if page declares noindex (skip sitemap — avoids crawl conflicts)."""
+    """True if page declares noindex or is a meta-refresh redirect stub
+    (skip sitemap — avoids crawl conflicts). Refresh stubs added 2026-10-04:
+    wheelhouse, consulting, husband-course, usmc-ministries were listed."""
     try:
         with open(full_path, encoding='utf-8', errors='ignore') as f:
-            head = f.read(4096)
-        return 'noindex' in head.lower()
+            head = f.read(4096).lower()
+        return 'noindex' in head or 'http-equiv="refresh"' in head
     except OSError:
         return False
 
