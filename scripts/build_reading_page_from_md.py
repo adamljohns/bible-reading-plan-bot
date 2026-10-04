@@ -1605,7 +1605,7 @@ def render_page(date_str, md_text, version=None):
 
 </div>
 <script>{TAB_JS}</script>
-<script src="/assets/js/site-nav.js" defer></script>
+<script src="/assets/js/site-nav.js?v=20261004" defer></script>
 </body>
 </html>
 """

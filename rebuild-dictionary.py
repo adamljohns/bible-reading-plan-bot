@@ -1438,7 +1438,7 @@ def build_index(words, by_letter, total):
         }}
     }})();
     </script>
-    <script defer src="../assets/js/site-nav.js"></script>
+    <script defer src="../assets/js/site-nav.js?v=20261004"></script>
     <script defer src="../assets/js/moop-tools.js"></script>
 </body>
 </html>'''

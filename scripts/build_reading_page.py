@@ -516,7 +516,7 @@ def render_page(date):
   document.querySelectorAll('.audio-speed').forEach(g=>g.addEventListener('click',ev=>{{const b=ev.target.closest('.audio-speed-btn'); if(!b) return; rate=norm(b.dataset.rate); write(rate); document.querySelectorAll('.audio-slot').forEach(s=>apply(s,rate));}}));
 }})();
 </script>
-<script src="/assets/js/site-nav.js" defer></script>
+<script src="/assets/js/site-nav.js?v=20261004" defer></script>
 </body>
 </html>
 """
