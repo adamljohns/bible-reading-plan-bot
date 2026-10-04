@@ -149,6 +149,7 @@ function renderChapterPage(book, ch, verses, prev, next) {
 <html lang="en">
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>${title} — MOOP Bible</title>
   <meta name="robots" content="noindex,nofollow">
   <meta name="description" content="${title} — MBT primary text with NKJV fallback. Internal Bible Translation Engine surface.">
@@ -161,7 +162,7 @@ function renderChapterPage(book, ch, verses, prev, next) {
     h1 small{font-size:.7rem;color:#888;font-weight:normal;display:block;margin-top:.15rem}
     ol.verses{list-style:none;padding:0;margin:0;counter-reset:verse}
     ol.verses li{padding:.2rem 0;text-indent:-2rem;padding-left:2rem}
-    ol.verses li::before{content:attr(data-verse);display:inline-block;width:1.6rem;color:#aaa;font-size:.75rem;vertical-align:.25em;font-family:Inter,system-ui,sans-serif}
+    ol.verses li::before{content:attr(data-verse);display:inline-block;width:1.6rem;text-indent:0;color:#aaa;font-size:.75rem;vertical-align:.25em;font-family:Inter,system-ui,sans-serif}
     ol.verses li[data-source="nkjv"]{color:#444}
     ol.verses li[data-source="nkjv"]::after{content:" [NKJV]";color:#bbb;font-size:.7rem;vertical-align:.25em}
     nav.chapnav{display:flex;justify-content:space-between;margin-top:2rem;font-size:.85rem;color:#888;border-top:1px solid #ddd;padding-top:1rem}
@@ -216,6 +217,7 @@ function renderIndex(allChapters, writtenSet) {
 <html lang="en">
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Chapter Index — MOOP Bible</title>
   <meta name="robots" content="noindex,nofollow">
   <meta name="description" content="Static per-chapter index for the Bible Translation Engine. Internal surface for AI consumers and direct chapter access.">
