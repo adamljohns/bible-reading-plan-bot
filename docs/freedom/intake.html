@@ -302,14 +302,34 @@ function submitFreedomIntake(ev){
     var fd = new FormData(form);
     var payload = { _subject: 'USMC Ministries — Freedom Intake', _template: 'table', _captcha: 'false' };
     fd.forEach(function(v,k){ payload[k] = v; });
+    var btn = form.querySelector('button[type=submit]');
+    if (btn) btn.disabled = true;
+    // Only thank him once FormSubmit has taken it. A failed send used to show
+    // the thank-you anyway and his answers went nowhere.
     fetch('https://formsubmit.co/ajax/usmcministries2022@gmail.com', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
         body: JSON.stringify(payload)
-    }).catch(function(){});
-    form.style.display = 'none';
-    document.getElementById('freedomThanks').style.display = 'block';
-    window.scrollTo(0, 0);
+    }).then(function(r){
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json().catch(function(){ return {}; });
+    }).then(function(j){
+        if (j && (j.success === false || j.success === 'false')) throw new Error(j.message || 'not accepted');
+        form.style.display = 'none';
+        document.getElementById('freedomThanks').style.display = 'block';
+        window.scrollTo(0, 0);
+    }).catch(function(){
+        if (btn) btn.disabled = false;
+        var el = document.getElementById('sendError');
+        if (!el) {
+            el = document.createElement('p');
+            el.id = 'sendError';
+            el.setAttribute('role', 'alert');
+            el.style.cssText = 'color:#e74c3c;font-weight:600;margin-top:14px;line-height:1.5;';
+            form.appendChild(el);
+        }
+        el.innerHTML = 'This did not send. Your answers are still in the form. Check your connection and press Submit again, or <a href="/freedom/contact.html" style="color:var(--gold,#D4AF37);">reach Adam directly here</a>.';
+    });
     return false;
 }
 </script>

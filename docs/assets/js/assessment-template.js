@@ -51,7 +51,10 @@
   // ── Helpers ───────────────────────────────────────────────────────────
   function bibleHref(ref) {
     if (!ref) return 'bible.html';
-    var cleaned = String(ref).replace(/\u2013|\u2014/g, '-').trim();
+    // memRefs are written 'Galatians+6:9'. Encoded, that '+' reaches the
+    // Bible engine as a literal plus, which it reads as a passage separator
+    // and opens the Galatians intro instead of the verse. Spaces it is.
+    var cleaned = String(ref).replace(/\u2013|\u2014/g, '-').replace(/\+/g, ' ').trim();
     return 'bible.html?ref=' + encodeURIComponent(cleaned);
   }
 
@@ -444,12 +447,12 @@
       var indexed = ASSESSMENT_DATA.axes.map(function (_, i) { return { s: getAxisAvg(i), i: i }; }).sort(function (a, b) { return a.s - b.s; });
       var weakCount = d.formationCount || 3;
       var weakLabels = d.weakLabel || 'TOP ' + weakCount + ' FOCUS AREAS:';
-      text += '\n\U0001F4CC ' + weakLabels + '\n';
+      text += '\n\uD83D\uDCCC ' + weakLabels + '\n';
       for (var w = 0; w < weakCount && w < indexed.length; w++) {
         var idx = indexed[w].i;
         text += '\u2022 ' + ASSESSMENT_DATA.axes[idx].letter + ' \u2014 ' + ASSESSMENT_DATA.axes[idx].word + ' (' + getAxisAvg(idx).toFixed(1) + '/10)\n';
       }
-      text += '\n' + (d.shareLinkLabel || '\U0001F517 Take the assessment:') + ' ' + (d.shareUrl || window.location.href) + '\n';
+      text += '\n' + (d.shareLinkLabel || '\uD83D\uDD17 Take the assessment:') + ' ' + (d.shareUrl || window.location.href) + '\n';
       text += '\n[Shared via USMC Ministries ' + d.shareTitle + ']';
       ta.value = text;
       open();
@@ -511,7 +514,7 @@
         skipQuiz: false,
         nextLabel: 'If no brother is named, take a real path \u2014 clipboard-only is not done.',
         links: [
-          { href: 'purity-intake.html', label: 'Purity intake' },
+          { href: 'freedom/intake.html', label: 'Freedom Group intake' },
           { href: 'freedom/', label: 'Freedom Group' },
           { href: 'connect.html', label: 'Connect / mentoring' }
         ]

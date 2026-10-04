@@ -702,7 +702,7 @@
 
             <div class="cta-block">
                 <p>Ready to schedule your first session?</p>
-                <a href="https://cal.com/usmcministries2022/counseling" target="_blank" rel="noopener"><img src="assets/icons/shield-calendar.png" class="site-icon" alt="calendar" width="20" height="20"> Book Your Counseling Session</a>
+                <a href="https://cal.com/usmc-ministries-2022/counseling" target="_blank" rel="noopener"><img src="assets/icons/shield-calendar.png" class="site-icon" alt="calendar" width="20" height="20"> Book Your Counseling Session</a>
             </div>
         </div>
     </div>
@@ -869,19 +869,51 @@
             _captcha: 'false',
             ...allData
         };
-        fetch('https://formsubmit.co/ajax/usmcministries2022@gmail.com', {
+        const submitBtn = document.querySelector('#sec-' + currentSec + ' .btn-submit');
+        if (submitBtn) submitBtn.disabled = true;
+        sendIntake(submitPayload).then(() => {
+            document.getElementById('sec-' + currentSec).classList.remove('active');
+            document.getElementById('sec-done').classList.add('active');
+            document.getElementById('progressFill').style.width = '100%';
+            document.getElementById('progressText').textContent = 'Complete!';
+            document.getElementById('progressTime').textContent = '';
+            document.getElementById('progressEncourage').textContent = '✅ Submitted — you took the first step!';
+            const err = document.getElementById('sendError');
+            if (err) err.remove();
+            window.scrollTo(0, 0);
+        }).catch(() => {
+            if (submitBtn) submitBtn.disabled = false;
+            showSendError(submitBtn);
+        });
+    }
+
+    // The send used to be fire-and-forget: "Submitted" showed even when the
+    // request never left the browser, and the answers went nowhere. Only show
+    // done once FormSubmit has taken it; otherwise keep the form and say so.
+    function sendIntake(payload) {
+        return fetch('https://formsubmit.co/ajax/usmcministries2022@gmail.com', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-            body: JSON.stringify(submitPayload)
-        }).catch(() => {});
+            body: JSON.stringify(payload)
+        }).then(r => {
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            return r.json().catch(() => ({}));
+        }).then(j => {
+            if (j && (j.success === false || j.success === 'false')) throw new Error(j.message || 'not accepted');
+        });
+    }
 
-        document.getElementById('sec-' + currentSec).classList.remove('active');
-        document.getElementById('sec-done').classList.add('active');
-        document.getElementById('progressFill').style.width = '100%';
-        document.getElementById('progressText').textContent = 'Complete!';
-        document.getElementById('progressTime').textContent = '';
-        document.getElementById('progressEncourage').textContent = '✅ Submitted — you took the first step!';
-        window.scrollTo(0, 0);
+    function showSendError(btn) {
+        let el = document.getElementById('sendError');
+        if (!el) {
+            el = document.createElement('p');
+            el.id = 'sendError';
+            el.setAttribute('role', 'alert');
+            el.style.cssText = 'color:#e74c3c;font-weight:600;margin-top:14px;line-height:1.5;';
+            if (btn && btn.parentNode) btn.parentNode.appendChild(el);
+            else document.body.appendChild(el);
+        }
+        el.innerHTML = 'This did not send. Your answers are still here and saved on this device. Check your connection and press Submit again, or reach us through the <a href="connect.html" style="color:var(--gold,#D4AF37);">Connect page</a>.';
     }
 </script>
 <script>

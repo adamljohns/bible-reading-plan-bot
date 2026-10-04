@@ -15,7 +15,7 @@
 
   function bibleHref(ref) {
     if (!ref) return 'bible.html';
-    var cleaned = String(ref).replace(/\u2013|\u2014/g, '-').trim();
+    var cleaned = String(ref).replace(/\u2013|\u2014/g, '-').replace(/\+/g, ' ').trim();
     // Prefer human-readable passage text for BTE deep links.
     return 'bible.html?ref=' + encodeURIComponent(cleaned);
   }
