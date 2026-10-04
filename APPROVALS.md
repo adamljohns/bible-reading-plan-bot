@@ -303,3 +303,4 @@ scope. Retroactively flagging it would bury the handful that actually matter.
 2026-10-01 | docs/blog/reformer-john-knox.html | APPROVE (Telegram)
 2026-10-01 | docs/blog/reformer-theodore-beza.html | APPROVE (Telegram)
 2026-10-03 | docs/blog/who-holds-the-scorecard.html | APPROVE (Adam via Telegram to Gus, "Go ahead and publish the draft but run it by Chaps; make sure it doesn't read like AI" — Chaps GO-WITH-FIXES, BGH-1003-SCORECARD; video + infographic added on Adam's "produce the products and then modify them and add them")
+2026-10-04 | docs/blog/church-closings-check-the-men.html | APPROVE (Adam via Telegram to Chaps 2026-10-04 09:07 ET, "push the markdown file on church closings over to PJ and have him publish the blog post about it" — relayed by Chaps, CID CCW-1004-BLOG, not witnessed directly by the recording session; theology pass by Preacher John)
