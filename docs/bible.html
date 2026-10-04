@@ -1580,10 +1580,10 @@
             deuteronomy:5,deut:5,dt:5,deu:5,joshua:6,josh:6,jos:6,judges:7,judg:7,jdg:7,jgs:7,ruth:8,ru:8,rut:8,
             '1 samuel':9,'1sam':9,'1 sam':9,'1sa':9,'2 samuel':10,'2sam':10,'2 sam':10,'2sa':10,
             '1 kings':11,'1kgs':11,'1ki':11,'1kg':11,'2 kings':12,'2kgs':12,'2ki':12,'2kg':12,
-            '1 chronicles':13,'1chr':13,'1ch':13,'2 chronicles':14,'2chr':14,'2ch':14,
+            '1 chronicles':13,'1chr':13,'1ch':13,'1 chron':13,'1chron':13,'2 chronicles':14,'2chr':14,'2ch':14,'2 chron':14,'2chron':14,
             ezra:15,ezr:15,nehemiah:16,neh:16,esther:17,esth:17,est:17,job:18,
             psalms:19,psalm:19,ps:19,psa:19,proverbs:20,prov:20,pr:20,pro:20,
-            ecclesiastes:21,eccl:21,ecc:21,eccles:21,'song of solomon':22,song:22,sos:22,ss:22,
+            ecclesiastes:21,eccl:21,ecc:21,eccles:21,'song of solomon':22,'song of songs':22,song:22,sos:22,ss:22,
             isaiah:23,isa:23,is:23,jeremiah:24,jer:24,lamentations:25,lam:25,
             ezekiel:26,ezek:26,eze:26,daniel:27,dan:27,hosea:28,hos:28,joel:29,
             amos:30,obadiah:31,obad:31,oba:31,jonah:32,jon:32,micah:33,mic:33,nahum:34,nah:34,
@@ -2399,6 +2399,15 @@
                 .replace(/[   ]/g, ' ') // nbsp / narrow nbsp / figure space
                 .replace(/\s+/g, ' ')
                 .trim();
+
+            // BTE v7.2.6 / MBP-1003: single-chapter books (Obadiah, Philemon, 2 John, 3 John, Jude) —
+            // a bare number is a verse: "Jude 3-4" = Jude 1:3-4, "2 John 9-11" = 2 John 1:9-11.
+            // A bare "Jude 1" still means the whole chapter.
+            const singleCh = input.match(/^((?:\d\s?)?[a-zA-Z][a-zA-Z\s\.]*?)\s*(\d+)(?:\s*-\s*(\d+))?$/);
+            if (singleCh && [31, 57, 63, 64, 65].indexOf(BOOKS[singleCh[1].trim().toLowerCase()]) !== -1
+                && !(singleCh[2] === '1' && !singleCh[3])) {
+                input = singleCh[1].trim() + ' 1:' + singleCh[2] + (singleCh[3] ? '-' + singleCh[3] : '');
+            }
 
             // BTE v5.2: Handle underscore format "bookAbbrev_chapter_verse" (e.g. "ezek22_30", "deut6_7", "1cor_3_16")
             // Also handles "ezek_22_30" and "49_6_4" (pure numeric bookId_ch_v)
@@ -4275,6 +4284,31 @@
             var parts = raw.split(/\s*[;&+]\s*(?=[A-Z1-9])/)
                            .map(function(s){return s.trim();})
                            .filter(Boolean);
+
+            // BTE v7.2.6 / MBP-1003: comma verse lists — "Genesis 3:8,10,24", "Romans 5:1-2, 5",
+            // "John 6:37, 8:12". Consecutive verses merge into one range ("Ezek 36:26, 27" → 36:26-27);
+            // the rest become separate passages. Numbers must ascend: a lower trailing number
+            // ("Acts 3:19, 1" — the "1" of a following "1 Peter") is dropped, not shown as Acts 3:1.
+            parts = parts.reduce(function(acc, chunk) {
+                var cm = chunk.match(/^((?:\d\s?)?[A-Za-z][A-Za-z\s\.]*?)\s*(\d+)\s*:\s*(\d+(?:\s*-\s*\d+)?(?:\s*,\s*\d+(?:\s*:\s*\d+)?(?:\s*-\s*\d+)?)+)$/);
+                if (!cm) { acc.push(chunk); return acc; }
+                var book = cm[1].trim(), ch = parseInt(cm[2], 10), lastEnd = 0, out = [];
+                cm[3].split(',').some(function(item) {
+                    var im = item.trim().match(/^(?:(\d+)\s*:\s*)?(\d+)(?:\s*-\s*(\d+))?$/);
+                    if (!im) return true;
+                    var iCh = im[1] ? parseInt(im[1], 10) : ch;
+                    var s = parseInt(im[2], 10), e = im[3] ? parseInt(im[3], 10) : s;
+                    if (iCh === ch && s <= lastEnd) return true;
+                    var prev = out[out.length - 1];
+                    if (prev && iCh === ch && s === lastEnd + 1) { prev.e = e; }
+                    else { out.push({ ch: iCh, s: s, e: e }); }
+                    ch = iCh; lastEnd = e;
+                    return false;
+                });
+                out.forEach(function(p) { acc.push(book + ' ' + p.ch + ':' + p.s + (p.e > p.s ? '-' + p.e : '')); });
+                return acc;
+            }, []);
+            if (parts.length === 1 && parts[0] !== raw) { inputEl.value = parts[0]; }
             if (parts.length <= 1) return lookupVerse();
 
             // v5.5: book-name inheritance — "John 1:12-13; 3:16-21" => second chunk gets "John "
