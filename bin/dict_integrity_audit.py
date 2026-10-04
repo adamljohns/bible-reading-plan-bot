@@ -239,6 +239,26 @@ def main():
     print(f'    entries lacking a Corruption section: {miss_corr}')
     print(f'    entries lacking a Usage section:      {miss_usage}')
     print(f'    (generational-decoder pages exempted: {decoder_pages})')
+
+    # Two derived files the hard checks above cannot see. Reported, not failed:
+    # on 2026-10-03 this audit passed 11/11 while search-index.json held 35% of
+    # the corpus and 22 digit-leading entries were linked from no index panel.
+    try:
+        idx_html = open(os.path.join(DICT_DIR, 'index.html'), encoding='utf-8',
+                        errors='ignore').read()
+        linked = set(re.findall(r'href="([a-z0-9-]+)\.html"', idx_html))
+        print(f'    entries not linked from index.html:   {len(slugs - linked)}'
+              '   (fix: python3 rebuild-dictionary.py)')
+    except OSError:
+        print('    entries not linked from index.html:   index.html unreadable')
+    try:
+        si = json.load(open(os.path.join(DICT_DIR, 'search-index.json'),
+                            encoding='utf-8'))
+        si_slugs = {r.get('s') for r in si.get('entries', [])}
+        print(f'    entries missing from search-index:    {len(slugs - si_slugs)}'
+              '   (fix: python3 bin/build_search_index.py)')
+    except (OSError, ValueError):
+        print('    entries missing from search-index:    search-index.json unreadable')
     print('=' * 62)
     if hard:
         print(f'RESULT: FAIL — {hard} hard finding(s). Fix before declaring stable.')

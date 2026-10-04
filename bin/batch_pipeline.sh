@@ -179,6 +179,8 @@ ls docs/dictionary/*.html | xargs -n1 basename | sed 's/.html$//' \
 wc -l < data/dictionary-slugs.txt | xargs echo "slugs:"
 echo "== manifest =="
 python3 bin/build_dict_manifest.py 2>&1 | grep "File size"
+echo "== search index (additive; adds rows for new entries) =="
+python3 bin/build_search_index.py || echo "WARN: search-index build failed; rerun bin/build_search_index.py"
 echo "== sitemaps (excludes redirect stubs; keeps search engines current) =="
 python3 bin/generate_sitemap.py 2>&1 | grep -E 'sitemap-dictionary|sitemap index'
 echo "== enhance entry pages (anchors, In-the-Text, disambiguation) =="
