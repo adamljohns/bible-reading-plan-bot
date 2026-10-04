@@ -401,11 +401,43 @@
             </div>
             <div class="letter-bar" id="letterBar"></div>
             <div class="range-bar">
+                <button class="range-btn" id="btn-09" onclick="toggleRange('range-09','btn-09')"><span class="rarrow"></span> 0 &ndash; 9</button>
                 <button class="range-btn" id="btn-AD" onclick="toggleRange('range-AD','btn-AD')"><span class="rarrow"></span> A &ndash; D</button>
                 <button class="range-btn" id="btn-EI" onclick="toggleRange('range-EI','btn-EI')"><span class="rarrow"></span> E &ndash; I</button>
                 <button class="range-btn" id="btn-JN" onclick="toggleRange('range-JN','btn-JN')"><span class="rarrow"></span> J &ndash; N</button>
                 <button class="range-btn" id="btn-OS" onclick="toggleRange('range-OS','btn-OS')"><span class="rarrow"></span> O &ndash; S</button>
                 <button class="range-btn" id="btn-TZ" onclick="toggleRange('range-TZ','btn-TZ')"><span class="rarrow"></span> T &ndash; Z</button>
+            </div>
+
+            <!-- 0-9 -->
+            <div class="range-panel" id="range-09">
+                <div class="category">
+                    <h2># <span class="count-badge">22</span></h2>
+                    <div class="word-grid">
+                        <a href="1-clement.html" class="word-card"><div class="word">1 Clement</div><div class="pos">proper noun (an early Christian epistle)</div></a>
+                        <a href="1-corinthians-1.html" class="word-card"><div class="word">1 Corinthians 1</div><div class="pos">proper noun</div></a>
+                        <a href="1-corinthians-15.html" class="word-card"><div class="word">1 Corinthians 15</div><div class="pos">scripture passage</div></a>
+                        <a href="1-john.html" class="word-card"><div class="word">1 John</div><div class="pos">proper noun (a book of Scripture)</div></a>
+                        <a href="144000.html" class="word-card"><div class="word">144000</div><div class="pos">number / noun</div></a>
+                        <a href="1chronicles.html" class="word-card"><div class="word">1Chronicles</div><div class="pos">Bible book</div></a>
+                        <a href="1corinthians.html" class="word-card"><div class="word">1Corinthians</div><div class="pos">Bible book</div></a>
+                        <a href="1kings.html" class="word-card"><div class="word">1Kings</div><div class="pos">Bible book</div></a>
+                        <a href="1peter.html" class="word-card"><div class="word">1Peter</div><div class="pos">Bible book</div></a>
+                        <a href="1samuel.html" class="word-card"><div class="word">1Samuel</div><div class="pos">Bible book</div></a>
+                        <a href="1thessalonians.html" class="word-card"><div class="word">1Thessalonians</div><div class="pos">Bible book</div></a>
+                        <a href="1timothy.html" class="word-card"><div class="word">1Timothy</div><div class="pos">Bible book</div></a>
+                        <a href="2chronicles.html" class="word-card"><div class="word">2Chronicles</div><div class="pos">Bible book</div></a>
+                        <a href="2corinthians.html" class="word-card"><div class="word">2Corinthians</div><div class="pos">Bible book</div></a>
+                        <a href="2john.html" class="word-card"><div class="word">2John</div><div class="pos">Bible book</div></a>
+                        <a href="2kings.html" class="word-card"><div class="word">2Kings</div><div class="pos">Bible book</div></a>
+                        <a href="2peter.html" class="word-card"><div class="word">2Peter</div><div class="pos">Bible book</div></a>
+                        <a href="2samuel.html" class="word-card"><div class="word">2Samuel</div><div class="pos">Bible book</div></a>
+                        <a href="2thessalonians.html" class="word-card"><div class="word">2Thessalonians</div><div class="pos">Bible book</div></a>
+                        <a href="2timothy.html" class="word-card"><div class="word">2Timothy</div><div class="pos">Bible book</div></a>
+                        <a href="3john.html" class="word-card"><div class="word">3John</div><div class="pos">Bible book</div></a>
+                        <a href="9marks.html" class="word-card"><div class="word">9Marks</div><div class="pos">noun (modern ministry)</div></a>
+                    </div>
+                </div>
             </div>
 
             <!-- A-D -->
@@ -13633,14 +13665,27 @@
             btn.classList.add('open');
         }
     }
-    // A-Z letter bar: opens the right range and scrolls to the first entry
-    // beginning with that letter.
+    // #/0-9 + A-Z letter bar: opens the right range and scrolls to the first
+    // entry beginning with that character.
     (function buildLetterBar() {
         var bar = document.getElementById('letterBar');
         if (!bar) return;
-        var ranges = [['A','D','range-AD','btn-AD'],['E','I','range-EI','btn-EI'],
+        var ranges = [['0','9','range-09','btn-09'],
+                      ['A','D','range-AD','btn-AD'],['E','I','range-EI','btn-EI'],
                       ['J','N','range-JN','btn-JN'],['O','S','range-OS','btn-OS'],
                       ['T','Z','range-TZ','btn-TZ']];
+        // Digit-leading headwords live in one '#' bucket; open that panel directly
+        // rather than hunting for a card whose first character is a given digit.
+        var hash = document.createElement('button');
+        hash.className = 'letter-btn';
+        hash.textContent = '#';
+        hash.onclick = function() {
+            var panel = document.getElementById('range-09');
+            if (!panel) return;
+            if (!panel.classList.contains('open')) toggleRange('range-09','btn-09');
+            panel.scrollIntoView({behavior:'smooth', block:'start'});
+        };
+        bar.appendChild(hash);
         for (var c = 65; c <= 90; c++) {
             var L = String.fromCharCode(c);
             var b = document.createElement('button');

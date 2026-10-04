@@ -68,6 +68,10 @@ def render_range(letters, by_letter):
 def build_index(words, by_letter, total):
     """Generate the complete index.html string."""
 
+    # Digit-leading headwords (1 Corinthians, 144,000, 9Marks, 1 Clement...) are
+    # bucketed under '#' by main(). Before this range existed they rendered
+    # nowhere, leaving those entries reachable only by direct URL or search.
+    NUM = render_range(['#'], by_letter)
     AD = render_range(['A', 'B', 'C', 'D'], by_letter)
     EI = render_range(['E', 'F', 'G', 'H', 'I'], by_letter)
     JN = render_range(['J', 'K', 'L', 'M', 'N'], by_letter)
@@ -477,11 +481,17 @@ def build_index(words, by_letter, total):
             </div>
             <div class="letter-bar" id="letterBar"></div>
             <div class="range-bar">
+                <button class="range-btn" id="btn-09" onclick="toggleRange('range-09','btn-09')"><span class="rarrow"></span> 0 &ndash; 9</button>
                 <button class="range-btn" id="btn-AD" onclick="toggleRange('range-AD','btn-AD')"><span class="rarrow"></span> A &ndash; D</button>
                 <button class="range-btn" id="btn-EI" onclick="toggleRange('range-EI','btn-EI')"><span class="rarrow"></span> E &ndash; I</button>
                 <button class="range-btn" id="btn-JN" onclick="toggleRange('range-JN','btn-JN')"><span class="rarrow"></span> J &ndash; N</button>
                 <button class="range-btn" id="btn-OS" onclick="toggleRange('range-OS','btn-OS')"><span class="rarrow"></span> O &ndash; S</button>
                 <button class="range-btn" id="btn-TZ" onclick="toggleRange('range-TZ','btn-TZ')"><span class="rarrow"></span> T &ndash; Z</button>
+            </div>
+
+            <!-- 0-9 -->
+            <div class="range-panel" id="range-09">
+{NUM}
             </div>
 
             <!-- A-D -->
@@ -1293,14 +1303,27 @@ def build_index(words, by_letter, total):
             btn.classList.add('open');
         }}
     }}
-    // A-Z letter bar: opens the right range and scrolls to the first entry
-    // beginning with that letter.
+    // #/0-9 + A-Z letter bar: opens the right range and scrolls to the first
+    // entry beginning with that character.
     (function buildLetterBar() {{
         var bar = document.getElementById('letterBar');
         if (!bar) return;
-        var ranges = [['A','D','range-AD','btn-AD'],['E','I','range-EI','btn-EI'],
+        var ranges = [['0','9','range-09','btn-09'],
+                      ['A','D','range-AD','btn-AD'],['E','I','range-EI','btn-EI'],
                       ['J','N','range-JN','btn-JN'],['O','S','range-OS','btn-OS'],
                       ['T','Z','range-TZ','btn-TZ']];
+        // Digit-leading headwords live in one '#' bucket; open that panel directly
+        // rather than hunting for a card whose first character is a given digit.
+        var hash = document.createElement('button');
+        hash.className = 'letter-btn';
+        hash.textContent = '#';
+        hash.onclick = function() {{
+            var panel = document.getElementById('range-09');
+            if (!panel) return;
+            if (!panel.classList.contains('open')) toggleRange('range-09','btn-09');
+            panel.scrollIntoView({{behavior:'smooth', block:'start'}});
+        }};
+        bar.appendChild(hash);
         for (var c = 65; c <= 90; c++) {{
             var L = String.fromCharCode(c);
             var b = document.createElement('button');
