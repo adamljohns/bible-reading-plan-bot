@@ -8,7 +8,7 @@ Run `python3 bin/audit_dict_completeness.py --write` to regenerate.
 | Section | Missing in |
 | --- | --- |
 | biblical_def | 1 |
-| webster | 766 |
+| webster | 765 |
 | modern_corruption | 385 |
 
 ## Entries missing one or more required sections
@@ -163,7 +163,7 @@ Run `python3 bin/audit_dict_completeness.py --write` to regenerate.
 | cool-cat | webster, modern_corruption |
 | cope | webster |
 | coram-deo | webster, modern_corruption |
-| corruption-doctrine | webster, modern_corruption |
+| corruption-doctrine | modern_corruption |
 | cosmological-argument | webster, modern_corruption |
 | couch-potato | webster |
 | courageous-conversations | webster |
