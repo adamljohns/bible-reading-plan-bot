@@ -302,3 +302,4 @@ scope. Retroactively flagging it would bury the handful that actually matter.
 2026-10-01 | docs/blog/reformer-nicholas-ridley.html | APPROVE (Telegram)
 2026-10-01 | docs/blog/reformer-john-knox.html | APPROVE (Telegram)
 2026-10-01 | docs/blog/reformer-theodore-beza.html | APPROVE (Telegram)
+2026-10-03 | docs/blog/who-holds-the-scorecard.html | APPROVE (Adam via Telegram to Gus, "Go ahead and publish the draft but run it by Chaps; make sure it doesn't read like AI" — Chaps GO-WITH-FIXES, BGH-1003-SCORECARD; video + infographic added on Adam's "produce the products and then modify them and add them")
