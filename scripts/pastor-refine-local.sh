@@ -29,6 +29,12 @@ die()   { alert "$1"; exit 1; }
 # churches-index-slim.json is the usual culprit (it was omitted from git add).
 # Generated-index conflicts are rebuilt from canonical churches.json.
 # Non-generated conflicts abort cleanly so the unique commit is not wiped.
+# The allowlist must name EVERY artifact build-church-index.js writes —
+# churches/detail/ was missing, so a detail-shard conflict read as "non-generated",
+# aborted the salvage, and deadlocked the grind for 15 straight sessions
+# (2026-10-01→10-03: 0 rounds, 0 fields; stranded commit b2d4e4f8d46). Each round
+# salvages BEFORE it resets, so one unlandable commit stops the engine for good.
+# If you add a generated churches/ artifact, add it here and to the git add below.
 land_head_on_main() {
   git fetch -q origin main || return 1
   if ! git diff --quiet; then
@@ -40,14 +46,14 @@ land_head_on_main() {
   fi
   if ! git rebase -q FETCH_HEAD; then
     UNMERGED=$(git diff --name-only --diff-filter=U)
-    BAD_CONFLICTS=$(printf '%s\n' "$UNMERGED" | grep -Ev '^(docs/data/churches-index(-slim)?\.json|docs/data/churches/(by-state|by-denomination-family)/.+)$' || true)
+    BAD_CONFLICTS=$(printf '%s\n' "$UNMERGED" | grep -Ev '^(docs/data/churches-index(-slim)?\.json|docs/data/churches/(by-state|by-denomination-family|detail)/.+)$' || true)
     if [ -n "$UNMERGED" ] && [ -z "$BAD_CONFLICTS" ]; then
       say "rebase conflict is generated indexes only — rebuilding from canonical churches.json"
       python3 scripts/build_state_shards.py >>"$LOG" 2>&1 \
         && python3 scripts/build_denomination_shards.py >>"$LOG" 2>&1 \
         && node scripts/build-church-index.js >>"$LOG" 2>&1 \
         || { git rebase --abort >/dev/null 2>&1 || true; return 1; }
-      git add docs/data/churches-index.json docs/data/churches-index-slim.json docs/data/churches/by-state docs/data/churches/by-denomination-family
+      git add -A docs/data/churches-index.json docs/data/churches-index-slim.json docs/data/churches/by-state docs/data/churches/by-denomination-family docs/data/churches/detail
       GIT_EDITOR=true git rebase --continue >>"$LOG" 2>&1 \
         || { git rebase --abort >/dev/null 2>&1 || true; return 1; }
     else
