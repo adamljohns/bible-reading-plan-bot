@@ -937,15 +937,13 @@ function runAssessment() {
 
     // persist history
     try {
-        const history = getHistory();
-        history.unshift({
+        pushHistory({
             date: new Date().toISOString(),
             scores: [...SCORES],
             avg: +(SCORES.reduce((a,b)=>a+b,0)/SCORES.length).toFixed(2),
             underFire: finishedUnderFire,
             xp
         });
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(history.slice(0, 24)));
     } catch (e) {}
     renderHistory();
     plan.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -953,9 +951,7 @@ function runAssessment() {
 
 function saveProgress(evt) {
     try {
-        const history = getHistory();
-        history.unshift({ date: new Date().toISOString(), scores: [...SCORES], avg: +(SCORES.reduce((a,b)=>a+b,0)/SCORES.length).toFixed(2), draft: true, xp });
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(history.slice(0, 24)));
+        pushHistory({ date: new Date().toISOString(), scores: [...SCORES], avg: +(SCORES.reduce((a,b)=>a+b,0)/SCORES.length).toFixed(2), draft: true, xp });
         addXp(5);
         if (evt && evt.target) {
             const b = evt.target.closest('button');
@@ -963,6 +959,15 @@ function saveProgress(evt) {
         }
         renderHistory();
     } catch (e) { alert('Could not save locally.'); }
+}
+// History keeps 24 entries. Every Generate or Save click added one, so one
+// sitting of slider changes could push out the AAR he means to compare
+// against next time. One sitting (an hour), one entry.
+function pushHistory(entry) {
+    const history = getHistory();
+    if (history.length && Date.now() - new Date(history[0].date).getTime() < 60 * 60 * 1000) history[0] = entry;
+    else history.unshift(entry);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(history.slice(0, 24)));
 }
 function getHistory() {
     try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch { return []; }

@@ -105,6 +105,12 @@
     document.body.removeChild(ta); return ok;
   }
 
+  // Saved loop answers go back into the form as HTML; a name like
+  // John "JJ" Smith came back as "John " without this.
+  function escAttr(v) {
+    return String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
   function stripHtml(s) {
     return String(s || '').replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
   }
@@ -366,10 +372,7 @@
 
     // Auto-persist
     try {
-      var history = getHistory(d.id + 'History');
-      history.unshift({ date: new Date().toISOString(), scores: getScoreData() });
-      if (history.length > 20) history = history.slice(0, 20);
-      localStorage.setItem(d.id + 'History', JSON.stringify(history));
+      pushHistory(d.id + 'History', getScoreData());
       if (typeof renderHistory === 'function') renderHistory();
     } catch (e) {}
   }
@@ -498,11 +501,21 @@
     });
   }
 
-  function saveProgress(evt) {
-    var history = getHistory(ASSESSMENT_DATA.id + 'History');
-    history.unshift({ date: new Date().toISOString(), scores: getRadarData() });
+  // History keeps 20 entries. Every Generate or Save click used to add one,
+  // so a man adjusting sliders in one sitting could push out the baseline his
+  // 90-day re-score is meant to compare against. One sitting, one entry.
+  function pushHistory(key, scores) {
+    var history = getHistory(key);
+    var now = Date.now();
+    var entry = { date: new Date(now).toISOString(), scores: scores };
+    if (history.length && now - new Date(history[0].date).getTime() < 60 * 60 * 1000) history[0] = entry;
+    else history.unshift(entry);
     if (history.length > 20) history = history.slice(0, 20);
-    localStorage.setItem(ASSESSMENT_DATA.id + 'History', JSON.stringify(history));
+    localStorage.setItem(key, JSON.stringify(history));
+  }
+
+  function saveProgress(evt) {
+    pushHistory(ASSESSMENT_DATA.id + 'History', getRadarData());
     renderHistory();
     var btn = (evt && evt.currentTarget) || null;
     if (btn) {
@@ -667,11 +680,11 @@
       '<div class="subtitle">' + meta.lane + '. Do not take all six tools in one sitting.</div></div></div>' +
       '<p class="loop-weak">Weakest axis: <strong>' + weak.letter + ' \u2014 ' + weak.word + '</strong> (' + getAxisAvg(axes.indexOf(weak)).toFixed(1) + '/10). Score without a dated assignment is noise.</p>' +
       '<label class="loop-label" for="loop-assignment">One dated assignment on that axis (required before done)</label>' +
-      '<textarea id="loop-assignment" rows="3" placeholder="What you will do this week on this axis \u2014 specific, observable.">' + (existing.assignment || '') + '</textarea>' +
+      '<textarea id="loop-assignment" rows="3" placeholder="What you will do this week on this axis \u2014 specific, observable.">' + escAttr(existing.assignment) + '</textarea>' +
       '<label class="loop-label" for="loop-due">Due date</label>' +
       '<input id="loop-due" type="date" value="' + (existing.due || defaultDue) + '">' +
       '<label class="loop-label" for="loop-brother">Brother named (optional \u2014 if empty, take a real path below)</label>' +
-      '<input id="loop-brother" type="text" placeholder="Name of the man you will tell" value="' + (existing.brother || '') + '">' +
+      '<input id="loop-brother" type="text" placeholder="Name of the man you will tell" value="' + escAttr(existing.brother) + '">' +
       '<p class="loop-next">' + meta.nextLabel + '</p>' +
       '<div class="btn-row loop-paths">' + links + '</div>' +
       (meta.skipQuiz ? '' : '<p class="loop-90">90-day re-score hint stays on this device. PROVEN is a graduate AAR, not a weekly quiz.</p>') +
