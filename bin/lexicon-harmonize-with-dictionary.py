@@ -30,6 +30,9 @@ CSS = [
   '.verse-ref { color:var(--gold); text-decoration:none; font-weight:600; font-size:0.9rem; display:inline-block; margin-bottom:4px; }'),
  ('.verse-ref:hover { color:var(--gold-light); border-bottom-style:solid; }',
   '.verse-ref:hover { color:var(--gold-light); text-decoration:underline; }'),
+ # verse links, older template variant
+ ('.verse-ref { color:var(--gold); text-decoration:none; font-weight:600; font-size:0.9rem; display:block; margin-bottom:4px; border-bottom:1px dotted var(--gold); display:inline-block; }',
+  '.verse-ref { color:var(--gold); text-decoration:none; font-weight:600; font-size:0.9rem; display:block; margin-bottom:4px; display:inline-block; }'),
  # back link: centred with a rule, like the dictionary's "Back to Dictionary"
  ('.back-link { display:inline-block; color:var(--gold); text-decoration:none; margin-bottom:20px; font-size:0.9rem; }',
   '.back-link { display:block; text-align:center; color:var(--gold); text-decoration:none; margin-bottom:22px; padding:10px 0; border-bottom:1px solid var(--border); font-size:0.88rem; font-weight:500; }'),
