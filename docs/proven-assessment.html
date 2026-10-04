@@ -23,7 +23,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js" crossorigin="anonymous"></script>
     <script src="/assets/js/assessment-core.js?v=20260928a"></script>
-    <link rel="stylesheet" href="/assets/css/assessment.css?v=20261004a">
+    <link rel="stylesheet" href="/assets/css/assessment.css?v=20261004b">
     <link rel="stylesheet" href="/assets/css/light-icons.css">
     <link rel="stylesheet" href="/assets/css/print.css" media="print">
     <style>
@@ -195,6 +195,7 @@
 
         .framing-note { background:rgba(212,175,55,0.08); border:1px solid rgba(212,175,55,0.35); border-radius:10px; padding:12px 18px; margin-bottom:18px; font-size:0.88rem; color:var(--gold-light); text-align:center; font-weight:600; letter-spacing:0.5px; }
         .course-banner { background:rgba(39,174,96,0.08); border:1px solid rgba(39,174,96,0.35); border-radius:10px; padding:14px 18px; margin-bottom:20px; font-size:0.88rem; color:#8fdfb0; line-height:1.6; }
+        body.light-mode .course-banner { color:#1e6b40; } /* #8fdfb0 on white was ~1.5:1 */
 
         .axis-progress { display:flex; gap:6px; margin:12px 0 4px; }
         .axis-dot { flex:1; height:6px; border-radius:3px; background:#2a2a2a; transition:background 0.3s; }
@@ -760,6 +761,13 @@ function drawTimerRing(frac) {
 
 // ── CHART / SLIDERS / QUESTIONS ────────────────────────────────────────────
 function initChart() {
+    // Chart.js is a CDN script. If it is blocked, skip the radar instead of
+    // throwing here and leaving the score, history and share modal unwired.
+    if (typeof Chart === 'undefined') {
+        const wrap = document.getElementById('radarChart').parentElement;
+        if (wrap) wrap.style.display = 'none';
+        return;
+    }
     const ctx = document.getElementById('radarChart').getContext('2d');
     radarChart = new Chart(ctx, {
         type: 'radar',
@@ -799,8 +807,10 @@ function paintProvenRings() {
     window.USMCAssessment.paintRingRead('ringRead', SCORES, rings, LETTERS.map((l, i) => l + ' · ' + WORDS[i]));
 }
 function updateChart() {
-    radarChart.data.datasets[0].data = [...SCORES];
-    radarChart.update();
+    if (radarChart) {
+        radarChart.data.datasets[0].data = [...SCORES];
+        radarChart.update();
+    }
     paintProvenRings();
     const avg = SCORES.reduce((a,b)=>a+b,0) / SCORES.length;
     document.getElementById('overallScore').textContent = avg.toFixed(1);

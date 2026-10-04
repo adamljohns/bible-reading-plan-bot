@@ -289,6 +289,9 @@
     r.grid.color = isLight ? '#ddd' : '#2a2a2a';
     r.angleLines.color = isLight ? '#ccc' : '#333';
     r.ticks.color = isLight ? '#666' : '#888';
+    // Axis labels were set once at build; toggling left them the old color
+    // (near-black on the dark page, near-white on the light one).
+    if (r.pointLabels) r.pointLabels.color = isLight ? '#1a1a1a' : '#e8e8e8';
     RADAR_CHART_REF.update('none');
   }
 
@@ -696,7 +699,7 @@
         };
         saveLoop(d, rec);
         if (!brother) {
-          status.innerHTML = 'Assignment locked. No brother named \u2014 clipboard is not the closer. Use intake / Connect / Freedom Group above.';
+          status.innerHTML = 'Assignment locked. No brother named \u2014 clipboard is not the closer. Take one of the paths above.';
         } else {
           status.textContent = 'Loop locked with ' + brother + ' on ' + due + '. Re-score in 90 days.';
         }

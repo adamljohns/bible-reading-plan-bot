@@ -61,6 +61,7 @@
     r.grid.color = isLight ? '#ddd' : '#2a2a2a';
     r.angleLines.color = isLight ? '#ccc' : '#333';
     r.ticks.color = isLight ? '#666' : '#888';
+    if (r.pointLabels && r.pointLabels.color !== '#D4AF37') r.pointLabels.color = isLight ? '#1a1a1a' : '#e8e8e8';
     radarChart.update('none');
   }
 
