@@ -103,14 +103,17 @@ def lemma_slugs(w: str) -> set:
     outs = set()
     if w in IRREGULAR:
         outs.add(IRREGULAR[w])
-    for suf, subs in (('ies', ('y',)), ('es', ('', 'e')), ('s', ('',)),
+    # -ied/-ieth/-iest -> -y (married->marry, carrieth->carry). Without these the
+    # guard saw 'marri'/'carri' and waved y-verb inflections past live entries.
+    for suf, subs in (('ied', ('y',)), ('ieth', ('y',)), ('iest', ('y',)),
+                      ('ies', ('y',)), ('es', ('', 'e')), ('s', ('',)),
                       ('ed', ('', 'e')), ('ing', ('', 'e')),
                       ('eth', ('', 'e')), ('est', ('', 'e'))):
         if w.endswith(suf) and len(w) - len(suf) >= 3:
             stem = w[:-len(suf)]
             for add in subs:
                 outs.add(stem + add)
-            if len(stem) >= 4 and stem[-1] == stem[-2]:
+            if len(stem) >= 4 and stem[-1] == stem[-2] and not suf.startswith('ie'):
                 outs.add(stem[:-1])          # begged -> beg, running -> run
     return {slugify(x) for x in outs if x}
 
