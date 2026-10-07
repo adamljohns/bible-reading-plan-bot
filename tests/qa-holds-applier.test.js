@@ -28,6 +28,8 @@ const churches = [
   { id: 'f', pastor: 'Moved On' },
   { id: 'g', pastor: 'P', website: '', founded: '1900' },
   { id: 'h', pastor: 'P', denomination: 'Church of God' },
+  { id: 'i', pastor: 'Rev. Pat Doe' },
+  { id: 'j', pastor: '' },
 ];
 const dataFile = path.join(root, 'docs/data/churches.json');
 fs.writeFileSync(dataFile, JSON.stringify({ churches }, null, 2) + '\n');
@@ -43,13 +45,17 @@ const holds = [
   { id: 'g', action: 'fill', field: 'services', value: 'Sun 10', source: 's' },
   { id: 'g', action: 'fill', field: 'founded', value: '1999', source: 's' },
   { id: 'h', action: 'text', field: 'denomination', find: 'Church of God', replace: 'Church of God (Cleveland, TN)', source: 's' },
+  { id: 'i', pastor: 'Rev. Pat Doe', action: 'annotate', annotation: { role: 'Senior Pastor', source: 'https://i.org/staff', quote: 'Rev. Pat Doe | Senior Pastor' } },
+  { id: 'i', pastor: 'Rev. Pat Doe', action: 'annotate', annotation: { role: 'Pastor' } },
+  { id: 'j', pastor: '', action: 'set', value: 'Restored Name', source: 's' },
+  { id: 'j', pastor: 'Restored Name', action: 'annotate', annotation: { role: 'Rector', source: 'https://j.org', source_type: 'roster', quote: 'q' } },
 ];
 const holdsFile = path.join(root, 'holds.json');
 fs.writeFileSync(holdsFile, JSON.stringify(holds));
 const run = () => execFileSync('node', [path.join(root, 'scripts/apply-pastor-qa-holds.js'), '--holds', holdsFile, '--apply'], { encoding: 'utf8' });
 
 const out1 = run();
-assert.match(out1, /applied 8 correction/);
+assert.match(out1, /applied 11 correction/);
 const by = Object.fromEntries(JSON.parse(fs.readFileSync(dataFile, 'utf8')).churches.map(c => [c.id, c]));
 assert.strictEqual(by.a.pastor, ''); assert.ok(by.a._hold_review); assert.strictEqual(by.a.pastors, undefined);
 assert.strictEqual(by.b.pastor, ''); assert.strictEqual(by.b._hold_review, undefined); assert.strictEqual(by.b.needs_review, true);
@@ -60,6 +66,9 @@ assert.strictEqual(by.f.pastor, 'Moved On'); assert.match(out1, /SKIP f — unkn
 assert.strictEqual(by.g.website, 'https://g.org/'); assert.strictEqual(by.g.services, 'Sun 10'); assert.strictEqual(by.g.founded, '1900');
 assert.match(out1, /SKIP g — "founded" already holds a value/);
 assert.strictEqual(by.h.denomination, 'Church of God (Cleveland, TN)');
+assert.strictEqual(by.i.pastor, 'Rev. Pat Doe'); assert.strictEqual(by.i.pastor_role_annotation.role, 'Senior Pastor'); assert.strictEqual(by.i._hold_review, undefined);
+assert.match(out1, /SKIP i — annotation needs role, source and quote/);
+assert.strictEqual(by.j.pastor, 'Restored Name'); assert.strictEqual(by.j.pastor_role_annotation.source_type, 'roster');
 
 const out2 = run();
 assert.match(out2, /applied 0 correction/);

@@ -929,6 +929,11 @@ ${(() => {
           // byte-identical and the write-if-changed regen doesn't churn all 28.5k pages.
           Array.isArray(church.pastors) && church.pastors.length > 1 ? `
         <span style="display:block;margin-top:7px;font-size:0.78rem;color:var(--gray-light);line-height:1.6;">${church.pastors.slice(1).map(p => escapeHtml(p.name) + (p.role ? ' <span style="color:var(--gray);font-style:italic;">— ' + escapeHtml(p.role) + '</span>' : '')).join('<br>')}</span>` : ''
+        }${
+          // Pastor-role annotation (2026-10-07): empty string when absent, so pages
+          // without it stay byte-identical.
+          church.pastor && church.pastor_role_annotation && church.pastor_role_annotation.role && /^https?:/.test(church.pastor_role_annotation.source || '') ? `
+        <span style="display:block;margin-top:6px;font-size:0.72rem;color:var(--gray);line-height:1.5;">Listed as &ldquo;${escapeHtml(church.pastor_role_annotation.role)}&rdquo; by ${church.pastor_role_annotation.source_type === 'roster' ? 'the denominational roster' : 'the church&rsquo;s own website'} (<a href="${escapeHtml(church.pastor_role_annotation.source)}" target="_blank" rel="noopener" style="color:var(--gray);">source</a>, checked ${escapeHtml(church.pastor_role_annotation.verified || '')}). This listing reflects that publicly stated role.</span>` : ''
         }
       </div>
       ${church.pastor_transition && church.pastor_transition.detail ? `<div class="fact-item" style="grid-column: 1 / -1; border-left: 3px solid var(--gold); padding-left: 10px;">

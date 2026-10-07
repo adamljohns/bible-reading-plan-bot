@@ -24,6 +24,10 @@
  *             `find` occurs exactly once.
  *   "fill"  — write `value` at dotted path `field` only when it is missing or "";
  *             SKIPs any field that already holds a value (2026-10-07 round 3).
+ *   "annotate" — keep the published pastor and write `pastor_role_annotation`
+ *             {role, source, source_type, quote, verified}: the role exactly as the
+ *             church site or denominational roster states it (Principal ruling
+ *             2026-10-07: female-named leads are annotated, not suppressed).
  *
  * Acts only when the record's current `pastor` still equals the held name, so a
  * stale holds file can never clear a name someone has since corrected. ("text"
@@ -81,6 +85,17 @@ for (const h of holds) {
     if (!APPLY) continue;
     setPath(c, h.field, h.value);
     addNote(c, `[${TODAY}] QA fill (${h.field}): "${h.value}". Source: ${h.source}. ${h.evidence || ''}`.trim());
+    held++; continue;
+  }
+  if (h.action === 'annotate') {
+    const a = h.annotation || {};
+    if (!a.role || !a.source || !a.quote) { console.log(`SKIP ${h.id} — annotation needs role, source and quote`); continue; }
+    const cur = c.pastor_role_annotation;
+    if (cur && cur.role === a.role && cur.source === a.source) { console.log(`SKIP ${h.id} — already annotated`); continue; }
+    console.log(`NOTE  ${h.id} — "${c.pastor}" role "${a.role}" (${a.source_type || 'site'})`);
+    if (!APPLY) continue;
+    c.pastor_role_annotation = { role: a.role, source: a.source, source_type: a.source_type || 'site', quote: a.quote, verified: a.verified || TODAY };
+    addNote(c, `[${TODAY}] Pastor-role annotation: "${c.pastor}" listed as "${a.role}", verbatim at ${a.source}. ${h.evidence || ''}`.trim());
     held++; continue;
   }
   if (h.action === 'set') {
