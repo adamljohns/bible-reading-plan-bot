@@ -18,6 +18,8 @@ for sm in docs/sitemap-blog.xml docs/sitemap-churches.xml docs/sitemap-lexicon.x
   git diff --quiet -- "$sm" 2>/dev/null && continue
   git checkout -- "$sm"; echo "DROP $sm (another lane's artifact)"
 done
+# The audit hard-fails a stale search index; rebuild it first (additive, idempotent).
+python3 bin/build_search_index.py || { echo "search-index build failed"; exit 3; }
 python3 bin/dict_integrity_audit.py > "$T.audit" 2>&1
 grep -E '^RESULT:' "$T.audit"
 grep -q '^RESULT: PASS' "$T.audit" || { echo "AUDIT NOT PASS — refusing to commit"; rm -f "$T".*; exit 3; }

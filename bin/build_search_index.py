@@ -12,6 +12,10 @@ template boilerplate.
   - new rows take: t = the page's word-title, p = its part-of-speech pill,
     d = the first 280 characters of its Biblical Definition
   - a row whose page no longer exists is dropped (it could only 404)
+  - a row whose page is a redirect stub is dropped: the stub's canonical entry
+    already has its own row, so keeping both gives two hits for one entry,
+    one of them carrying superseded text (PJG review of 10-03: 391 such rows,
+    e.g. belt-truth beside belt-of-truth)
   - rows are kept sorted by slug; "count" is the row count
 
 Idempotent: run on a level corpus it rewrites nothing.
@@ -35,10 +39,18 @@ POS = re.compile(r'class="pos"[^>]*>(.*?)<', re.S)
 BDEF = re.compile(r'<div class="biblical-def"[^>]*>(.*?)</div>', re.S)
 META = re.compile(r'<meta name="description" content="([^"]*)"')
 TAGS = re.compile(r'<[^>]+>')
+# Merge stubs carry <!-- MERGED-REDIRECT -->; older hand-made ones (chesed.html)
+# only a meta refresh. Either way the head is tiny, so 1,200 bytes is plenty.
+REDIRECT = re.compile(r'MERGED-REDIRECT|http-equiv="refresh"', re.I)
 
 
 def clean(s):
     return re.sub(r'\s+', ' ', html.unescape(TAGS.sub('', s or ''))).strip()
+
+
+def is_redirect(slug):
+    with open(os.path.join(DICT_DIR, slug + '.html'), encoding='utf-8', errors='ignore') as f:
+        return bool(REDIRECT.search(f.read(1200)))
 
 
 def from_page(slug):
@@ -62,13 +74,16 @@ def main():
     rows = {r['s']: r for r in data['entries']}
     slugs = [l.strip() for l in open(SLUGS, encoding='utf-8') if l.strip()]
 
-    added = filled = dropped = 0
+    added = filled = dropped = stubs = 0
     for s in list(rows):
         if not os.path.exists(os.path.join(DICT_DIR, s + '.html')):
             del rows[s]
             dropped += 1
+        elif is_redirect(s):
+            del rows[s]
+            stubs += 1
     for s in slugs:
-        if not os.path.exists(os.path.join(DICT_DIR, s + '.html')):
+        if not os.path.exists(os.path.join(DICT_DIR, s + '.html')) or is_redirect(s):
             continue
         r = rows.get(s)
         if r is None:
@@ -89,7 +104,7 @@ def main():
         out += '\n'
     stale = out != raw
     print(f'search-index: {data["count"]} rows | added {added} | blank fields filled {filled} '
-          f'| dropped (no page) {dropped} | {"STALE" if stale else "level"}')
+          f'| dropped (no page) {dropped} | dropped (redirect stub) {stubs} | {"STALE" if stale else "level"}')
     if check:
         sys.exit(1 if stale else 0)
     if stale:

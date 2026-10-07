@@ -16,6 +16,10 @@ HARD checks (any failure -> exit 1):
   6. HTML entities               — only standard named entities + macron set
   7. WOTD pools                  — dict-index + lexicon Word-of-the-Day targets exist
   8. manifest                    — parses, and every manifest slug resolves
+     (+ version badge, moop-tools.js)
+ 11. index coverage              — every slug is linked from dictionary/index.html
+ 12. search index                — one row per slug; no rows for redirect stubs
+                                   or missing pages; no blank title/description
 
 SOFT checks (reported, never fail the run):
   9. duplicate display titles    — possible duplicate entries to review
@@ -230,6 +234,41 @@ def main():
         if 'moop-tools.js' not in _t:
             no_tools.append(_f)
     hard += fail_list('pages missing moop-tools.js (interactive toolkit)', no_tools, args.quiet)
+    # Two derived files the checks above could not see. On 2026-10-03 this audit
+    # passed 11/11 while search-index.json held 35% of the corpus and 22
+    # digit-leading entries were linked from no index panel. Both are now HARD;
+    # batch_pipeline.sh and settle.sh rebuild them before this audit runs.
+    # 11. index coverage — every slug is linked from dictionary/index.html
+    try:
+        linked = set(re.findall(r'href="([a-z0-9-]+)\.html"', idx))
+        unlinked = sorted(slugs - linked)
+    except Exception as e:
+        unlinked = [f'index.html unreadable: {e}']
+    hard += fail_list('entries not linked from index.html (fix: python3 rebuild-dictionary.py)',
+                      unlinked, args.quiet)
+    # 12. search index — every slug has exactly one row; no row points at a
+    #     missing page or a redirect stub; no blank title/description; count true
+    si_bad = []
+    try:
+        si = json.load(open(os.path.join(DICT_DIR, 'search-index.json'), encoding='utf-8'))
+        rows = si.get('entries', [])
+        si_slugs = Counter(r.get('s') for r in rows)
+        si_bad += [f'missing row: {s}' for s in sorted(slugs - set(si_slugs))]
+        si_bad += [f'duplicate row: {s}' for s, c in sorted(si_slugs.items()) if c > 1]
+        stubs = {s for s in pages if s in si_slugs and re.search(
+            r'MERGED-REDIRECT|http-equiv="refresh"',
+            open(os.path.join(DICT_DIR, s + '.html'), encoding='utf-8',
+                 errors='ignore').read(1200), re.I)}
+        si_bad += [f'row for redirect stub: {s}' for s in sorted(stubs)]
+        si_bad += [f'row without a page: {s}' for s in sorted(set(si_slugs) - pages)]
+        si_bad += [f'blank {k}: {r.get("s")}' for r in rows for k in ('t', 'd')
+                   if not (r.get(k) or '').strip()]
+        if si.get('count') != len(rows):
+            si_bad.append(f'count field {si.get("count")} != {len(rows)} rows')
+    except (OSError, ValueError) as e:
+        si_bad = [f'search-index.json unreadable: {e}']
+    hard += fail_list('search-index.json defects (fix: python3 bin/build_search_index.py)',
+                      si_bad, args.quiet)
     print('-' * 62)
     print('  SOFT (era debt / review items, not failures):')
     print(f'    duplicate display titles: {len(dupes)}'
@@ -240,25 +279,6 @@ def main():
     print(f'    entries lacking a Usage section:      {miss_usage}')
     print(f'    (generational-decoder pages exempted: {decoder_pages})')
 
-    # Two derived files the hard checks above cannot see. Reported, not failed:
-    # on 2026-10-03 this audit passed 11/11 while search-index.json held 35% of
-    # the corpus and 22 digit-leading entries were linked from no index panel.
-    try:
-        idx_html = open(os.path.join(DICT_DIR, 'index.html'), encoding='utf-8',
-                        errors='ignore').read()
-        linked = set(re.findall(r'href="([a-z0-9-]+)\.html"', idx_html))
-        print(f'    entries not linked from index.html:   {len(slugs - linked)}'
-              '   (fix: python3 rebuild-dictionary.py)')
-    except OSError:
-        print('    entries not linked from index.html:   index.html unreadable')
-    try:
-        si = json.load(open(os.path.join(DICT_DIR, 'search-index.json'),
-                            encoding='utf-8'))
-        si_slugs = {r.get('s') for r in si.get('entries', [])}
-        print(f'    entries missing from search-index:    {len(slugs - si_slugs)}'
-              '   (fix: python3 bin/build_search_index.py)')
-    except (OSError, ValueError):
-        print('    entries missing from search-index:    search-index.json unreadable')
     print('=' * 62)
     if hard:
         print(f'RESULT: FAIL — {hard} hard finding(s). Fix before declaring stable.')
