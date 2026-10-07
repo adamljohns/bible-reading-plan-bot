@@ -26,7 +26,7 @@ dawn robin leslie shannon erin holly crystal tina stacy stacey monica allison rh
 lindsay lindsey whitney courtney jenna alicia felicia regina priscilla phoebe naomi esther miriam roberta
 geraldine josephine eileen lorraine constance yvonne claudia marlene gwendolyn sylvia melinda jill erica tiffany
 jasmine kari kara gail gayle joy carrie connie kristy amelia lydia lucy margo marjorie meredith molly nora
-maria olivia olga patti patty rosa rosemary ruby stella susie tabitha valerie vanessa vera
+karin jenice davette bette nicolle viann maria olivia olga patti patty rosa rosemary ruby stella susie tabitha valerie vanessa vera
 `.trim().split(/\s+/);
 
 const FEMALE_FIRST = new Set(NAMES);
@@ -35,7 +35,7 @@ const FEMALE_FIRST = new Set(NAMES);
 function firstGivenName(name) {
   const t = String(name || '').trim().split(/\s+/);
   let i = 0;
-  while (i < t.length - 1 && /^(dr|rev|revd|reverend|pastor|fr|father|bro|brother|sis|sister|mrs|ms|miss|mr|elder|bishop|apostle|prophetess|minister)\.?$/i.test(t[i])) i++;
+  while (i < t.length - 1 && /^(the|very|rt|right|most|dr|rev|revd|rev'd|reverend|deacon|canon|mother|pastor|fr|father|bro|brother|sis|sister|mrs|ms|miss|mr|elder|bishop|apostle|prophetess|minister)\.?,?$/i.test(t[i])) i++;
   return (t[i] || '').toLowerCase().replace(/[^a-z]/g, '');
 }
 

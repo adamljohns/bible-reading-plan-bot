@@ -10,6 +10,11 @@
  * stamped so the church leaves the automated pools, `needs_review` set for the
  * Principal's rubric review. Nothing is discarded and nothing is invented.
  *
+ * An entry with "action": "clear" is for a name that is not the church's pastor
+ * at all (a parish administrator, a pantry coordinator, a job title). It is
+ * cleared the same way but NOT stamped _hold_review, so the grind's pastor lanes
+ * can go and find the real one from the church's own site.
+ *
  * Acts only when the record's current `pastor` still equals the held name, so a
  * stale holds file can never clear a name someone has since corrected.
  *
@@ -44,15 +49,18 @@ for (const h of holds) {
   if (!c) { console.log(`SKIP ${h.id} — id not found`); continue; }
   if (String(c.pastor || '').trim() !== h.pastor) { console.log(`SKIP ${h.id} — pastor is now "${c.pastor || ''}", not "${h.pastor}"`); continue; }
   const roster = Array.isArray(c.pastors) && c.pastors.length ? ` Published roster was: ${JSON.stringify(c.pastors)}.` : '';
-  const note = `[${TODAY}] QA hold: published lead-pastor "${h.pastor}" has a typically-female first name and was never rubric-reviewed — moved back to HOLD for manual MOOP-rubric review (name removed from page, kept here). Source: ${h.source}. ${h.evidence}${roster}`;
-  console.log(`HOLD ${h.id} — "${h.pastor}"${roster ? ' (+roster)' : ''}`);
+  const clear = h.action === 'clear';
+  const note = clear
+    ? `[${TODAY}] QA clear: published pastor "${h.pastor}" is not this church's pastor — the source lists them as ${h.role}. Removed from page (kept here); pastor left for re-research. Source: ${h.source}. ${h.evidence || ''}${roster}`.trim()
+    : `[${TODAY}] QA hold: published lead-pastor "${h.pastor}" has a typically-female first name and was never rubric-reviewed — moved back to HOLD for manual MOOP-rubric review (name removed from page, kept here). Source: ${h.source}. ${h.evidence}${roster}`;
+  console.log(`${clear ? 'CLEAR' : 'HOLD '} ${h.id} — "${h.pastor}"${roster ? ' (+roster)' : ''}`);
   if (!APPLY) continue;
   c.pastor = '';
   delete c.pastors;
   c.enrichment_notes = c.enrichment_notes ? c.enrichment_notes + '\n' + note : note;
   c.needs_review = true;
-  c._hold_review = TODAY;
+  if (!clear) c._hold_review = TODAY;
   held++;
 }
-if (APPLY) { write(d); console.log(`applied ${held} hold(s) — now rebuild pages/indexes and run check-consistency.js`); }
+if (APPLY) { write(d); console.log(`applied ${held} correction(s) — now rebuild pages/indexes and run check-consistency.js`); }
 else console.log('(report only — pass --apply to write)');
