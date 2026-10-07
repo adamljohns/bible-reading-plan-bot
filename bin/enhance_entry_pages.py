@@ -57,7 +57,11 @@ DISAMBIG_MARK = '<!-- DICT-DISAMBIG -->'
 ITT_START = '<!-- IN-THE-TEXT-START -->'
 ITT_END = '<!-- IN-THE-TEXT-END -->'
 
-SECTION_H3 = re.compile(r'(<div class="section[^"]*")(\s*>\s*<h3[^>]*>)(.*?)(</h3>)',
+# [^>]*? admits an id= this script added on an earlier run. Without it the
+# pattern only matched id-less sections, so every rerun stripped the jump row
+# and re-added it to brand-new pages only (2026-10-06: 0 of ~12,400 older
+# entries still had one).
+SECTION_H3 = re.compile(r'(<div class="section[^"]*"[^>]*?)(\s*>\s*<h3[^>]*>)(.*?)(</h3>)',
                         re.DOTALL)
 TITLE_PAT = re.compile(r'<div class="word-title">(.*?)</div>', re.DOTALL)
 POS_PAT = re.compile(r'<div class="pos">(.*?)</div>', re.DOTALL)
@@ -153,11 +157,19 @@ def main():
         orig = h
 
         # --- strip any previous injections (idempotency) ---
-        h = re.sub(re.escape(ITT_START) + r'.*?' + re.escape(ITT_END), '',
-                   h, flags=re.DOTALL)
+        # Each injection is written as '\n<indent>MARK...MARK\n' + '<indent>', so
+        # strip that whole wrapper. Stripping only MARK...MARK left the newlines
+        # and indent behind, and every rerun rewrote ~6,000 pages with a few
+        # more blank lines (the source of the nightly 6k-file whitespace churn).
+        wrap = lambda a, b: r'\n[ \t]*' + a + r'.*?' + b + r'\n[ \t]*'
+        h = re.sub(wrap(re.escape(ITT_START), re.escape(ITT_END)), '', h, flags=re.DOTALL)
+        # disambig is written in front of the jump row, so it must go first
+        h = re.sub(wrap(DISAMBIG_MARK, DISAMBIG_MARK), '', h, flags=re.DOTALL)
+        h = re.sub(wrap(JUMPS_MARK, JUMPS_MARK), '', h, flags=re.DOTALL)
+        # any marker the wrapper form did not catch (hand edits): old behaviour
+        h = re.sub(re.escape(ITT_START) + r'.*?' + re.escape(ITT_END), '', h, flags=re.DOTALL)
         h = re.sub(JUMPS_MARK + r'.*?' + JUMPS_MARK, '', h, flags=re.DOTALL)
-        h = re.sub(DISAMBIG_MARK + r'.*?' + DISAMBIG_MARK, '', h,
-                   flags=re.DOTALL)
+        h = re.sub(DISAMBIG_MARK + r'.*?' + DISAMBIG_MARK, '', h, flags=re.DOTALL)
 
         # --- 1. section ids + collect available anchors ---
         present = []          # (order, anchor, label)
@@ -165,14 +177,22 @@ def main():
 
         def add_id(m):
             head, gap, h3text, close = m.groups()
+            # The generated "Related by Strong's Roots" block says "roots" in its
+            # heading; it must not take (or duplicate) the real Roots anchor.
+            if 'data-autocross' in head:
+                return m.group(0)
             plain = TAG_STRIP.sub('', h3text).lower()
             for key, anchor, label in H3_TO_ANCHOR:
                 if key in plain:
-                    if anchor not in seen_anchor:
-                        seen_anchor.add(anchor)
-                        present.append((anchor, label))
-                    if 'id=' not in head:
+                    if anchor in seen_anchor:
+                        break                    # never emit a duplicate id
+                    seen_anchor.add(anchor)
+                    own = re.search(r'\sid="([^"]+)"', head)
+                    if own:                      # hand-set id (godspeed: id="origin")
+                        present.append((own.group(1), label))
+                    else:
                         head = head + f' id="{anchor}"'
+                        present.append((anchor, label))
                     break
             return head + gap + h3text + close
 
