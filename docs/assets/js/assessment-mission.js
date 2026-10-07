@@ -20,6 +20,7 @@
     var timerPausedLeftMs = null;
     var timerRaf = null;
     var timerRunning = false;
+    var formationXpAwarded = false; // XP once per sitting, not per Generate click
     var xp = parseInt(localStorage.getItem(xpKey) || '0', 10) || 0;
 
     function $(id) { return document.getElementById(id); }
@@ -241,8 +242,11 @@
     function wrapFormationComplete(weakIndices) {
       awardBadge('honest');
       awardBadge('plan');
-      if (timerRunning && timerEndMs && timerEndMs > Date.now()) { addXp(40); awardBadge('finish'); }
-      addXp(30);
+      if (!formationXpAwarded) {
+        formationXpAwarded = true;
+        if (timerRunning && timerEndMs && timerEndMs > Date.now()) { addXp(40); awardBadge('finish'); }
+        addXp(30);
+      }
       renderReadings(weakIndices);
       renderConnect();
       onFormation(weakIndices);
