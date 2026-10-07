@@ -19,6 +19,10 @@ paraphrases replaced with the cited verse's full (clause-clipped) text.
 Usage:
   python3 bin/audit_page_quotes.py            # report only
   python3 bin/audit_page_quotes.py --apply    # rewrite failing quotes
+  python3 bin/audit_page_quotes.py --apply --blocks-only
+      # rewrite scripture-list/quote blocks only; leave prose untouched
+      # (2026-10-07 human read: the prose rewrites mostly swap a chosen AV
+      # fragment for a whole verse or drop words, so they need an editor)
 """
 import glob, html, importlib.util, json, os, re, sys
 
@@ -68,7 +72,11 @@ PROSE_RES = [
 # Oldest Key Scripture format: bullet line with straight quotes, no <em>.
 BULLET_RE = re.compile(
     r'(<a href="\.\./bible\.html\?ref=[^"]*" class="verse-ref">([^<]+)</a>'
-    r'\s*&mdash;\s*")([^"<]{10,600})(")')
+    r'\s*(?:&mdash;|\u2014)\s*")([^"<]{10,600})(")')
+
+PSALM_TITLE_RE = re.compile(
+    r'(?:A Psalm|A Song|To the chief Musician|Maschil|Michtam|A Prayer|'
+    r'Shiggaion|Of David|A Psalm or Song)\b')
 
 def unwrap(emtext):
     """The em content minus its outer typographic quotes."""
@@ -77,6 +85,7 @@ def unwrap(emtext):
 
 def main():
     apply_ = '--apply' in sys.argv
+    blocks_only = '--blocks-only' in sys.argv
     review_out = None
     if '--review' in sys.argv:
         review_out = sys.argv[sys.argv.index('--review') + 1]
@@ -120,6 +129,12 @@ def main():
             if not new or not R.hard_ordered(new, kjv_raw):
                 unfixable.append((name, ref, quote[:80]))
                 continue
+            # The cache carries Psalm superscriptions inside verse 1 ("A Psalm
+            # of David. The earth is the LORD'S"). A list line quoting the verse
+            # must not open with the title; leave it for a hand fix.
+            if PSALM_TITLE_RE.match(new) and not PSALM_TITLE_RE.match(quote):
+                unfixable.append((name, ref, 'superscription: ' + quote[:64]))
+                continue
             if len(samples) < 10:
                 samples.append((name, ref, quote[:76], new[:76]))
             out = out.replace(m.group(0), prefix + (wrap % new) + suffix)
@@ -153,9 +168,11 @@ def main():
                     continue
                 if len(prose_samples) < 8:
                     prose_samples.append((name, ref, plain[:70], new[:70]))
+                prose_fixed += 1
+                if blocks_only:
+                    continue
                 out = out.replace(
                     m.group(0), f'{qopen}{new}{qclose} {paren}')
-                prose_fixed += 1
                 changed = True
         if changed:
             pages_touched += 1
