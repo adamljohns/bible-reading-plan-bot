@@ -131,10 +131,16 @@ def main():
                 continue
             # The cache carries Psalm superscriptions inside verse 1 ("A Psalm
             # of David. The earth is the LORD'S"). A list line quoting the verse
-            # must not open with the title; leave it for a hand fix.
+            # must not open with the title: drop it (it ends at the first
+            # full stop), re-verify, else leave the line for a hand fix.
             if PSALM_TITLE_RE.match(new) and not PSALM_TITLE_RE.match(quote):
-                unfixable.append((name, ref, 'superscription: ' + quote[:64]))
-                continue
+                _cut = new.find('. ')
+                new = new[_cut + 2:].strip() if _cut > 0 else ''
+                if (not new or PSALM_TITLE_RE.match(new)
+                        or not R.hard_ordered(new, kjv_raw)):
+                    unfixable.append((name, ref, 'superscription: ' + quote[:64]))
+                    continue
+                new = new[0].upper() + new[1:]
             if len(samples) < 10:
                 samples.append((name, ref, quote[:76], new[:76]))
             out = out.replace(m.group(0), prefix + (wrap % new) + suffix)
