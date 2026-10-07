@@ -16,7 +16,8 @@ def clean(s):
     s=re.sub(r'<sup>.*?</sup>','',s,flags=re.S)
     s=re.sub(r'<[^>]+>','',s)
     s=re.sub(r'\d+','',s)  # strip Strong's numbers (verifier is digit-insensitive)
-    s=re.sub(r'\s+[A-Za-z][\w-]*:\s+(?:or|Heb|Gr|Gk|Chald|Chal|Called)\b.*$','',s)  # strip trailing KJV margin notes
+    s=re.sub(r"(?<=[.;:,?!])\s+[A-Za-z'\- ]{1,40}?:\s+(?:or,|Heb\.|Gr\.|Gk\.|Chald\.|Chal\.|Called\b).*$",'',s)  # multi-word margin lemma
+    s=re.sub(r'\s+[A-Za-z][\w-]*:\s+(?:or,|Heb\.|Gr\.|Gk\.|Chald\.|Chal\.|Called\b).*$','',s)  # strip trailing KJV margin notes
     s=re.sub(r'(?<=[a-zA-Z]) (?=[,.;:])','',s)  # note space-before-punct artifact
     s=re.sub(r'\s+\d+\s*$','',s)
     return re.sub(r'\s+',' ',s).strip()

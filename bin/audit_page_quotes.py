@@ -74,6 +74,15 @@ BULLET_RE = re.compile(
     r'(<a href="\.\./bible\.html\?ref=[^"]*" class="verse-ref">([^<]+)</a>'
     r'\s*(?:&mdash;|\u2014)\s*")([^"<]{10,600})(")')
 
+# Same bullet line with typographic quotes (&ldquo;...&rdquo; or literal
+# curly quotes). Greedy to the LAST closing quote before the next tag so a
+# nested quotation inside the verse does not cut the match short.
+# (2026-10-07: 129 such lines, 124 carrying modern-version text.)
+BULLET_CURLY_RE = re.compile(
+    r'(<a href="\.\./bible\.html\?ref=[^"]*" class="verse-ref">([^<]+)</a>'
+    r'\s*(?:&mdash;|—)\s*(?:&ldquo;|“))([^<]{10,600})'
+    r'((?:&rdquo;|”)(?=[\s.,;:]*</))')
+
 PSALM_TITLE_RE = re.compile(
     r'(?:A Psalm|A Song|To the chief Musician|Maschil|Michtam|A Prayer|'
     r'Shiggaion|Of David|A Psalm or Song)\b')
@@ -107,6 +116,8 @@ def main():
                    for m in REFRAME_RE.finditer(h)]
         blocks += [(m, m.group(2), m.group(3), m.group(1), m.group(4), '%s')
                    for m in BULLET_RE.finditer(h)]
+        blocks += [(m, m.group(2), m.group(3), m.group(1), m.group(4), '%s')
+                   for m in BULLET_CURLY_RE.finditer(h)]
         for m, ref, body, prefix, suffix, wrap in blocks:
             ref = ref.strip()
             if 'title' in ref:

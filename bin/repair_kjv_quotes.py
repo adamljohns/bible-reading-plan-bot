@@ -47,7 +47,11 @@ def clean_kjv(raw):
     s = re.sub(r'<sup>.*?</sup>', '', s, flags=re.S)
     s = re.sub(r'<[^>]+>', '', s)
     s = re.sub(r'\d+', '', s)
-    s = re.sub(r'\s+[A-Za-z][\w-]*:\s+(?:or|Heb|Gr|Gk|Chald|Chal|Called)\b.*$', '', s)
+    # Multi-word margin lemmas ('of the dust: Heb. ...', 'to thy: or, ...'):
+    # cut from the sentence end, else the lemma's first words survive as a
+    # tail ('a living soul. of the'; 206 live quotes fixed 2026-10-07).
+    s = re.sub(r"(?<=[.;:,?!])\s+[A-Za-z'\- ]{1,40}?:\s+(?:or,|Heb\.|Gr\.|Gk\.|Chald\.|Chal\.|Called\b).*$", '', s)
+    s = re.sub(r'\s+[A-Za-z][\w-]*:\s+(?:or,|Heb\.|Gr\.|Gk\.|Chald\.|Chal\.|Called\b).*$', '', s)
     s = re.sub(r'\s+([,.;:!?])', r'\1', s)   # Strong's stripping leaves gaps
     return re.sub(r'\s+', ' ', s).strip()
 
