@@ -31,9 +31,9 @@ const leads = JSON.parse(fs.readFileSync(LEADS, 'utf8'));
 const { data: d, write } = makeWriter(path.join(__dirname, '..', 'docs/data/churches.json'));
 const byId = new Map(d.churches.map(c => [String(c.id), c]));
 
-// Typically-female given names. Shared intent with merge-pastor-enrichments.js:
-// hold, never silently write, and never discard.
-const FEMALE_FIRST = /^(mary|linda|patricia|barbara|elizabeth|jennifer|susan|jessica|sarah|karen|nancy|lisa|betty|margaret|sandra|ashley|dorothy|kimberly|emily|donna|michelle|carol|amanda|melissa|deborah|stephanie|rebecca|laura|sharon|cynthia|kathleen|amy|angela|shirley|anna|brenda|pamela|nicole|ruth|katherine|samantha|christine|catherine|virginia|rachel|janet|heather|diane|julie|joyce|victoria|kelly|christina|joan|evelyn|judith|andrea|hannah|megan|cheryl|jacqueline|martha|madison|teresa|gloria|sara|janice|marie|julia|kathryn|grace|judy|theresa|beverly|denise|marilyn|amber|danielle|abigail|brittany|rose|diana|natalie|sophia|alexis|lori|kayla|jane|annemarie|maryann|maryanne|marybeth|jo|jodi|jodie|lynn|lynne|dawn|tracy|tracey|robin|leslie|shannon|erin|holly|crystal|tina|tammy|wendy|stacy|stacey|monica|allison|rhonda|vicki|vickie|bonnie|charlotte|paula|april|kristin|kristen|renee|colleen|tonya|lindsay|lindsey|whitney|courtney|jenna|alicia|felicia|regina|priscilla|phoebe|naomi|esther|miriam|deborah|dianne|suzanne|roberta|marcia|geraldine|josephine|eileen|lorraine|constance|yvonne|claudia|jeanette|kristina|marlene|gwendolyn|sylvia|melinda|jill|erica|tiffany|jasmine|kari|kara|krista)\b/i;
+// Typically-female given names — one list shared with merge-pastor-enrichments.js
+// (scripts/lib/female-first-names.js): hold, never silently write, never discard.
+const { FEMALE_FIRST } = require('./lib/female-first-names.js');
 
 const applied = [], held = [], skipped = [];
 for (const L of leads) {
@@ -54,7 +54,7 @@ for (const L of leads) {
     skipped.push(`${L.id} — "${name}" is a title, not a name`); continue;
   }
   const first = bare.split(' ')[0];
-  if (FEMALE_FIRST.test(first)) { held.push({ id: L.id, name, why: 'typically-female given name -> MOOP rubric review' }); continue; }
+  if (FEMALE_FIRST.has(first.toLowerCase().replace(/[^a-z]/g, ''))) { held.push({ id: L.id, name, why: 'typically-female given name -> MOOP rubric review' }); continue; }
   applied.push({ c, L, name });
 }
 

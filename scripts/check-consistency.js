@@ -78,10 +78,15 @@ try {
     [...missing, ...orphan.map((x) => 'orphan:' + x)]);
 } catch (e) { record('by-denomination shards', false, 'ERROR ' + e.message); }
 
-// 5. sitemap-churches.xml — exact-string membership (handles ids with spaces/accents)
+// 5. sitemap-churches.xml — exact membership on DECODED <loc>s. The builder
+// percent-encodes ids (spaces, non-ASCII) and XML-escapes the URI, so compare
+// against the decoded form; a raw legacy <loc> decodes to itself and still counts.
 try {
   const xml = fs.readFileSync(path.join(DOCS, 'sitemap-churches.xml'), 'utf8');
-  const missing = churches.filter((c) => !xml.includes(`/churches/${c.id}.html<`)).map((c) => c.id);
+  const unxml = (s) => s.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&apos;/g, "'").replace(/&amp;/g, '&');
+  const decode = (s) => { try { return decodeURIComponent(s); } catch (_) { return s; } };
+  const locSet = new Set([...xml.matchAll(/<loc>([^<]*)<\/loc>/g)].map((m) => decode(unxml(m[1]))));
+  const missing = churches.filter((c) => !locSet.has(`https://usmcmin.org/churches/${c.id}.html`)).map((c) => c.id);
   const locs = (xml.match(/<loc>/g) || []).length;
   record('sitemap-churches.xml', !missing.length, `${locs} <loc> | missing ${missing.length}`, missing);
 } catch (e) { record('sitemap-churches.xml', false, 'ERROR ' + e.message); }
