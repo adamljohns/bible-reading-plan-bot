@@ -249,8 +249,54 @@ def parse_passage(passage: str) -> list[tuple[str, int, int | None, int | None]]
             ve = int(m2.group(2)) if m2.group(2) else vs
             refs.append((last_book, prev[1], vs, ve))
             continue
+        ext = _parse_extended(chunk)
+        if ext:
+            last_book = ext[-1][0]
+            refs.extend(ext)
+            continue
         return None
     return refs or None
+
+
+SINGLE_CHAPTER = {"Obadiah", "Philemon", "2 John", "3 John", "Jude"}
+_BOOK_RE = r"((?:[1-3]\s*)?[A-Za-z][A-Za-z\s]*?)"
+_V = r"(\d+)[ab]?"  # a half-verse ("10a"/"10b") counts as the whole verse
+
+
+def _parse_extended(chunk: str) -> list[tuple[str, int, int | None, int | None]] | None:
+    """Label shapes the plan uses that the base pattern above does not:
+
+    cross-chapter "Hebrews 5:11-6:10", half verse "2 Peter 2:10b-22",
+    chapter span "James 4-5", single-chapter book "Jude 8-25" / "2 John".
+    Same reading as the reader's parseRef in docs/bible.html.
+    """
+    def book_of(raw: str) -> str | None:
+        return ALIASES.get(re.sub(r"\s+", " ", raw).strip().lower())
+
+    m = re.match(rf"^{_BOOK_RE}\s*(\d+):{_V}\s*[-–]\s*(\d+):{_V}$", chunk)
+    if m and (book := book_of(m.group(1))):
+        c1, v1, c2, v2 = (int(g) for g in m.group(2, 3, 4, 5))
+        if c2 <= c1:
+            return None
+        out = [(book, c1, v1, 999)]
+        out += [(book, c, None, None) for c in range(c1 + 1, c2)]
+        out.append((book, c2, 1, v2))
+        return out
+    m = re.match(rf"^{_BOOK_RE}\s*(\d+):{_V}(?:\s*[-–]\s*{_V})?$", chunk)
+    if m and (book := book_of(m.group(1))):
+        vs = int(m.group(3))
+        return [(book, int(m.group(2)), vs, int(m.group(4)) if m.group(4) else vs)]
+    m = re.match(rf"^{_BOOK_RE}(?:\s*(\d+)(?:\s*[-–]\s*(\d+))?)?$", chunk)
+    if m and (book := book_of(m.group(1))):
+        a = int(m.group(2)) if m.group(2) else None
+        b = int(m.group(3)) if m.group(3) else None
+        if book in SINGLE_CHAPTER:
+            if a is None:
+                return [(book, 1, None, None)]
+            return [(book, 1, a, b or a)]
+        if a is not None and b is not None and b > a:
+            return [(book, c, None, None) for c in range(a, b + 1)]
+    return None
 
 
 def allowed_verses(refs: list[tuple[str, int, int | None, int | None]]) -> list[tuple[str, str]]:
