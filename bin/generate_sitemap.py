@@ -19,7 +19,10 @@ Excludes:
   - any page whose HTML contains a noindex robots meta tag
 """
 import os
+import re
+import subprocess
 import sys
+from urllib.parse import unquote
 from datetime import datetime, timezone
 from xml.sax.saxutils import escape
 
@@ -136,7 +139,54 @@ def collect_urls():
     return rows
 
 
-def write_sitemap(path, rows):
+def _tracked_absent_docs():
+    """Paths under docs/ that git tracks but that are not on disk.
+
+    In a sparse worktree (overnight workers check out only docs/dictionary etc.)
+    every blog/main page is tracked-but-absent. Walking docs/ alone would drop
+    all of them from the sitemaps (2026-10-06: 37k main URLs and the whole
+    sitemap-blog.xml lost in one run). Returns None when git is unavailable.
+    """
+    try:
+        out = subprocess.run(['git', '-C', ROOT, 'ls-files', '-z', '--', 'docs'],
+                             capture_output=True, check=True).stdout
+    except (OSError, subprocess.CalledProcessError):
+        return None
+    absent = set()
+    for rel in out.decode('utf-8', 'surrogateescape').split('\0'):
+        if rel.endswith('.html') and not os.path.exists(os.path.join(ROOT, rel)):
+            absent.add(rel[len('docs/'):])
+    return absent
+
+
+def _url_to_rel(url):
+    path = unquote(url[len(BASE_URL):].lstrip('/'))
+    if path == '' or path.endswith('/'):
+        path += 'index.html'
+    return path
+
+
+_URL_BLOCK = re.compile(r'<url>.*?</url>', re.S)
+_LOC = re.compile(r'<loc>(.*?)</loc>', re.S)
+
+
+def _carried_blocks(path, new_urls, absent):
+    """Existing <url> blocks in `path` that this run would drop although their
+    page is still tracked in git (just not checked out). Kept verbatim."""
+    if not os.path.exists(path):
+        return []
+    keep = []
+    for block in _URL_BLOCK.findall(open(path, encoding='utf-8').read()):
+        m = _LOC.search(block)
+        if not m:
+            continue
+        url = m.group(1).strip().replace('&amp;', '&')
+        if url not in new_urls and _url_to_rel(url) in absent:
+            keep.append(block)
+    return keep
+
+
+def write_sitemap(path, rows, carried=()):
     with open(path, 'w', encoding='utf-8') as f:
         f.write('<?xml version="1.0" encoding="UTF-8"?>\n')
         f.write('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n')
@@ -147,6 +197,8 @@ def write_sitemap(path, rows):
             f.write(f'    <changefreq>{freq}</changefreq>\n')
             f.write(f'    <priority>{prio}</priority>\n')
             f.write('  </url>\n')
+        for block in carried:
+            f.write('  ' + block + '\n')
         f.write('</urlset>\n')
 
 
@@ -194,19 +246,42 @@ def main():
         else:
             sections['sitemap-main.xml'].append(row)
 
+    # Sparse-checkout guard: never drop a URL whose page git still tracks.
+    absent = _tracked_absent_docs()
+    if absent is None:
+        print('WARNING: git unavailable; sparse-checkout guard is off', file=sys.stderr)
+        absent = set()
+    elif absent:
+        print(f'Sparse checkout: {len(absent)} tracked pages not on disk; '
+              'their existing sitemap rows are carried forward')
+
     # Write each non-empty section sitemap
     written = []
+    carried_total = 0
     for name, section_rows in sections.items():
-        if not section_rows:
-            continue
         out_path = os.path.join(DOCS, name)
-        write_sitemap(out_path, section_rows)
+        carried = _carried_blocks(out_path, {r[0] for r in section_rows}, absent)
+        if not section_rows and not carried:
+            continue
+        write_sitemap(out_path, section_rows, carried)
+        carried_total += len(carried)
         size_kb = os.path.getsize(out_path) // 1024
-        print(f'  {name:<25} {len(section_rows):>6} urls  {size_kb:>5} KB')
+        extra = f'  (+{len(carried)} carried, not checked out)' if carried else ''
+        print(f'  {name:<25} {len(section_rows) + len(carried):>6} urls  {size_kb:>5} KB{extra}')
         written.append(name)
 
-    # Write top-level sitemap-index
+    # Keep any child sitemap the current index lists that this generator does
+    # not own (worship, confessions, lbcf, institutes ...) so the index never
+    # loses one.
     index_path = os.path.join(DOCS, 'sitemap.xml')
+    if os.path.exists(index_path):
+        for loc in _LOC.findall(open(index_path, encoding='utf-8').read()):
+            child = loc.strip()[len(BASE_URL):].lstrip('/')
+            if child not in written and os.path.exists(os.path.join(DOCS, child)):
+                written.append(child)
+                print(f'  {child:<25} kept in index (not generated here)')
+
+    # Write top-level sitemap-index
     write_sitemap_index(index_path, written)
     print(f'\nWrote {index_path} (sitemap index pointing at {len(written)} child sitemaps)')
 
