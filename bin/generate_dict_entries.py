@@ -150,7 +150,7 @@ HTML_TEMPLATE = Template(r"""<!DOCTYPE html>
         footer a { color:var(--gray); text-decoration:none; }
         footer a:hover { color:var(--gold); }
         .cross-divider { margin-bottom:10px; }
-        body.light-mode { --bg:#F5F3EF; --card:#FFF; --white:#1a1a1a; --gray:#666; --border:#d4d0c8; background:#F5F3EF; color:#1a1a1a; }
+        body.light-mode { --bg:#F5F3EF; --card:#FFF; --white:#1a1a1a; --gray:#666; --ft-dim:#666; --border:#d4d0c8; background:#F5F3EF; color:#1a1a1a; }
         body.light-mode nav { background:rgba(245,243,239,0.97); }
         body.light-mode img[src*="/icons/shield-"]:not([src*="-bronze"]) { filter:brightness(.72) saturate(1.18) hue-rotate(-12deg); }
         body.light-mode .section { background:#fff; border-color:#d4d0c8; }
@@ -261,7 +261,7 @@ ${KJV_CONTINUAL_SECTION}
             <a href="../counseling.html"><img src="../assets/icons/shield-family.png" class="site-icon" alt="" width="20" height="20"> Counseling</a> &middot;
             <a href="../about.html"><img src="../assets/icons/shield-about-person-24.png" class="site-icon" alt="" width="20" height="20"> About</a>
         </p>
-        <p style="margin-top:8px;font-size:0.78rem;color:#555;">Powered by MOOPbot Pro &mdash; &ldquo;Iron sharpens iron.&rdquo; &mdash; <a href="../bible.html?ref=Proverbs+27:17" style="color:var(--gold);text-decoration:underline;">Proverbs 27:17</a></p>
+        <p style="margin-top:8px;font-size:0.78rem;color:var(--ft-dim,#888);">Powered by MOOPbot Pro &mdash; &ldquo;Iron sharpens iron.&rdquo; &mdash; <a href="../bible.html?ref=Proverbs+27:17" style="color:var(--gold);text-decoration:underline;">Proverbs 27:17</a></p>
         <p style="margin-top:6px;font-size:0.72rem;color:#666;">MOOP Dictionary <strong style="color:var(--gold);">V6.0</strong> &middot; Pastoral Lexicon Edition &middot; <a href="index.html" style="color:#666;">index</a></p>
     </footer>
     <script>
