@@ -20,6 +20,7 @@ HARD checks (any failure -> exit 1):
  11. index coverage              — every slug is linked from dictionary/index.html
  12. search index                — one row per slug; no rows for redirect stubs
                                    or missing pages; no blank title/description
+ 13. JSON-LD                     — every ld+json block parses
 
 SOFT checks (reported, never fail the run):
   9. duplicate display titles    — possible duplicate entries to review
@@ -269,6 +270,18 @@ def main():
         si_bad = [f'search-index.json unreadable: {e}']
     hard += fail_list('search-index.json defects (fix: python3 bin/build_search_index.py)',
                       si_bad, args.quiet)
+    # 13. JSON-LD parses. A quote rewrite inside the ld+json description once
+    #     dropped the backslash on a closing quote (7ec357b7b96, 26 pages
+    #     invalid until 2026-10-07); search engines then ignore the block.
+    ld_bad = []
+    for s in sorted(pages):
+        _t = open(os.path.join(DICT_DIR, s + '.html'), encoding='utf-8', errors='ignore').read()
+        for _m in re.finditer(r'<script type="application/ld\+json">(.*?)</script>', _t, re.S):
+            try:
+                json.loads(_m.group(1))
+            except ValueError as e:
+                ld_bad.append(f'{s}: {e}')
+    hard += fail_list('invalid JSON-LD blocks', ld_bad, args.quiet)
     print('-' * 62)
     print('  SOFT (era debt / review items, not failures):')
     print(f'    duplicate display titles: {len(dupes)}'
