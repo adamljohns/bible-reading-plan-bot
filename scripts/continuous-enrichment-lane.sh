@@ -39,11 +39,13 @@ if [ "${CONTINUOUS_PLAN_ONLY:-0}" = "1" ]; then
   exit 0
 fi
 
+# GRIND_SCOPE_STATE (same knob pastor-refine-local.sh gives the pastor lanes)
+# narrows the frontier lanes too; unset = nationwide, identical to before.
 ATTEMPTED=0; APPLIED=0
 case "$LANE" in
   website-discovery)
     OUT="$WORK/website-discovery.txt"
-    node scripts/find-church-websites.js --count "$BRAVE_BATCH" --apply --attempt-log "$BRAVE_LEDGER" >"$OUT" 2>&1 || { cat "$OUT" >>"$LOG"; die "website-discovery lane failed"; }
+    node scripts/find-church-websites.js --count "$BRAVE_BATCH" --apply --attempt-log "$BRAVE_LEDGER" ${GRIND_SCOPE_STATE:+--states "$GRIND_SCOPE_STATE"} >"$OUT" 2>&1 || { cat "$OUT" >>"$LOG"; die "website-discovery lane failed"; }
     cat "$OUT" >>"$LOG"
     ATTEMPTED=$(grep -oE 'website search for [0-9]+' "$OUT" | grep -oE '[0-9]+$' | head -1); ATTEMPTED=${ATTEMPTED:-0}
     APPLIED=$(grep -oE '^[0-9]+ sites found' "$OUT" | grep -oE '^[0-9]+' | head -1); APPLIED=${APPLIED:-0}
@@ -51,7 +53,7 @@ case "$LANE" in
   source-recovery)
     JSONL="$WORK/sbc-detail.jsonl"; OUT="$WORK/source-recovery.txt"; MERGE="$WORK/source-merge.txt"
     rm -f "$JSONL"
-    node scripts/scrape-sbc-detail.js --count "$BATCH" --jsonl "$JSONL" >"$OUT" 2>&1 || { cat "$OUT" >>"$LOG"; die "source-recovery scrape failed"; }
+    node scripts/scrape-sbc-detail.js --count "$BATCH" --jsonl "$JSONL" ${GRIND_SCOPE_STATE:+--state "$GRIND_SCOPE_STATE"} >"$OUT" 2>&1 || { cat "$OUT" >>"$LOG"; die "source-recovery scrape failed"; }
     cat "$OUT" >>"$LOG"
     ATTEMPTED=$(grep -oE 'Records to fetch: [0-9]+' "$OUT" | grep -oE '[0-9]+$' | head -1); ATTEMPTED=${ATTEMPTED:-0}
     node scripts/merge-sbc-detail.js --jsonl "$JSONL" >"$MERGE" 2>&1 || { cat "$MERGE" >>"$LOG"; die "source-recovery merge failed"; }
