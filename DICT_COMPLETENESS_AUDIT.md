@@ -1,6 +1,6 @@
 # Dictionary completeness audit
 
-Audit of 12215 entries against three required sections:
+Audit of 12426 entries against three required sections:
 **Biblical Definition** · **Webster 1828** · **Modern Corruption**
 
 Run `python3 bin/audit_dict_completeness.py --write` to regenerate.
