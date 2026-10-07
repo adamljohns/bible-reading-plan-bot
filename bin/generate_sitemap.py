@@ -34,7 +34,8 @@ SKIP_SEGMENTS = {'_archive', '_backup', '_wip', '_drafts', '.git', 'node_modules
 
 # PIN-theater / family-ops pages: listed on sitemap.html as Private, not for crawlers.
 SKIP_FILES = {
-    'lexicon-template.html',  # source for rebuild-lexicon.py; lexicon.html is the page (2026-10-06)
+    'lexicon-template.html',
+    'offline.html',  # service-worker offline fallback, not a destination (2026-10-07)  # source for rebuild-lexicon.py; lexicon.html is the page (2026-10-06)
     'workflows.html',
     'tacc.html',
     'first-officer.html',
