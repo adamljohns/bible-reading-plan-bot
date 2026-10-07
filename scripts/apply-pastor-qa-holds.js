@@ -15,8 +15,17 @@
  * cleared the same way but NOT stamped _hold_review, so the grind's pastor lanes
  * can go and find the real one from the church's own site.
  *
+ * Three more actions carry a desk QA pass (2026-10-06 round 2):
+ *   "set"   — replace the published `pastor` with `value`, read verbatim at `source`.
+ *   "stamp" — keep the published value, stamp `_hold_review` + `needs_review` (the
+ *             desk could not re-verify it, or the record has a wider problem).
+ *   "text"  — replace the exact substring `find` with `replace` in the string at
+ *             dotted path `field` (e.g. "score_notes.leadership"); SKIPs unless
+ *             `find` occurs exactly once.
+ *
  * Acts only when the record's current `pastor` still equals the held name, so a
- * stale holds file can never clear a name someone has since corrected.
+ * stale holds file can never clear a name someone has since corrected. ("text"
+ * rows may omit `pastor`; their guard is the exact-once `find`.)
  *
  * NEVER run while the grind holds /tmp/directory-grind-session.lock or the
  * round lock — the grind owns churches.json while it runs.
@@ -44,10 +53,41 @@ const { data: d, write } = makeWriter(path.join(__dirname, '..', 'docs/data/chur
 const byId = new Map(d.churches.map(c => [String(c.id), c]));
 
 let held = 0;
+const getPath = (o, f) => f.split('.').reduce((a, k) => (a == null ? a : a[k]), o);
+const setPath = (o, f, v) => { const ks = f.split('.'); const last = ks.pop(); ks.reduce((a, k) => a[k], o)[last] = v; };
+const addNote = (c, note) => { c.enrichment_notes = c.enrichment_notes ? c.enrichment_notes + '\n' + note : note; };
 for (const h of holds) {
   const c = byId.get(String(h.id));
   if (!c) { console.log(`SKIP ${h.id} — id not found`); continue; }
-  if (String(c.pastor || '').trim() !== h.pastor) { console.log(`SKIP ${h.id} — pastor is now "${c.pastor || ''}", not "${h.pastor}"`); continue; }
+  if (h.pastor !== undefined && String(c.pastor || '').trim() !== h.pastor) { console.log(`SKIP ${h.id} — pastor is now "${c.pastor || ''}", not "${h.pastor}"`); continue; }
+  if (h.action === 'text') {
+    const cur = getPath(c, h.field);
+    const n = typeof cur === 'string' ? cur.split(h.find).length - 1 : 0;
+    if (n !== 1) { console.log(`SKIP ${h.id} — "${h.field}" holds the target text ${n} time(s), expected 1`); continue; }
+    console.log(`TEXT  ${h.id} — ${h.field}: "${h.find}" → "${h.replace}"`);
+    if (!APPLY) continue;
+    setPath(c, h.field, cur.replace(h.find, h.replace));
+    addNote(c, `[${TODAY}] QA text fix (${h.field}): "${h.find}" → "${h.replace}". Source: ${h.source}. ${h.evidence || ''}`.trim());
+    held++; continue;
+  }
+  if (h.action === 'set') {
+    console.log(`SET   ${h.id} — "${h.pastor}" → "${h.value}"`);
+    if (!APPLY) continue;
+    c.pastor = h.value;
+    if (Array.isArray(c.pastors) && c.pastors[0] && c.pastors[0].name === h.pastor) c.pastors[0].name = h.value;
+    addNote(c, `[${TODAY}] QA set: published pastor "${h.pastor}" → "${h.value}" (${h.role || 'pastor'}), verbatim at ${h.source}. ${h.evidence || ''}`.trim());
+    held++; continue;
+  }
+  if (h.action === 'stamp') {
+    if (c._hold_review) { console.log(`SKIP ${h.id} — already on hold since ${c._hold_review}`); continue; }
+    console.log(`STAMP ${h.id} — "${h.pastor || c.pastor || ''}" kept, _hold_review`);
+    if (!APPLY) continue;
+    addNote(c, `[${TODAY}] QA hold: ${h.reason} Source: ${h.source}. ${h.evidence || ''}`.trim());
+    c.needs_review = true;
+    c._hold_review = TODAY;
+    held++; continue;
+  }
+  if (h.action && h.action !== 'hold' && h.action !== 'clear') { console.log(`SKIP ${h.id} — unknown action "${h.action}"`); continue; }
   const roster = Array.isArray(c.pastors) && c.pastors.length ? ` Published roster was: ${JSON.stringify(c.pastors)}.` : '';
   const clear = h.action === 'clear';
   const note = clear
@@ -57,7 +97,7 @@ for (const h of holds) {
   if (!APPLY) continue;
   c.pastor = '';
   delete c.pastors;
-  c.enrichment_notes = c.enrichment_notes ? c.enrichment_notes + '\n' + note : note;
+  addNote(c, note);
   c.needs_review = true;
   if (!clear) c._hold_review = TODAY;
   held++;
