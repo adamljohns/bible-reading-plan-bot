@@ -23,6 +23,7 @@
 'use strict';
 const fs = require('fs');
 const path = require('path');
+const { execFileSync } = require('child_process');
 
 const REPO = __dirname;
 // Canonical source: the USMC-Ministries copy of the worship archive.
@@ -1181,7 +1182,9 @@ function build(songs) {
   fs.mkdirSync(OUT_DIR, { recursive: true });
   const enriched = applyOverrides(songs);
   // Prune stale song pages from prior runs (e.g. renamed slugs).
-  const keep = new Set(songs.map(s => s.slug + '.html'));
+  // directory.html is a first-class generated page, not a stale song page.
+  // Keep it during pruning, then rebuild it from its catalog below.
+  const keep = new Set(['directory.html', ...songs.map(s => s.slug + '.html')]);
   let pruned = 0;
   for (const f of fs.readdirSync(OUT_DIR)) {
     if (f.endsWith('.html') && !keep.has(f)) { fs.unlinkSync(path.join(OUT_DIR, f)); pruned++; }
@@ -1219,6 +1222,9 @@ function build(songs) {
   const search = {};
   for (const s of songs) { const lx = extractLyrics(s.body); if (lx) search[s.slug] = lx; }
   fs.writeFileSync(path.join(DATA_DIR, 'worship-search.json'), JSON.stringify(search));
+  // Rebuild the curated Listen Directory in the same regeneration transaction.
+  // This prevents worship waves from deleting a live, sitemap-linked page.
+  execFileSync(process.execPath, [path.join(REPO, 'scripts/build-worship-directory.js')], { stdio: 'inherit' });
   writeSitemap(songs);
   console.log(`Built ${written} song pages + worship.html (${enriched} with video/slides; ${pdfs.length} slide PDFs).`);
 }
