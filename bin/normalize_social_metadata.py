@@ -163,10 +163,15 @@ def title_for(source: str, rel: Path, existing: dict[str, list[str]], section: s
     return SECTION_LABELS[section]
 
 
-def description_for(source: str, title: str, existing: dict[str, list[str]], section: str) -> str:
+def description_for(source: str, title: str, existing: dict[str, list[str]], section: str,
+                    rel: Path | None = None) -> str:
     # Legacy church pages often contain a false copied phrase saying every
     # church is in Fredericksburg, VA. Do not preserve that bad boilerplate.
-    if section == "churches":
+    # Only the profile pages under churches/ carry it; top-level hubs
+    # (churches.html, near-me, churches-virginia, ...) keep their own
+    # description (2026-10-06: the hubs were all shipping profile boilerplate).
+    in_church_dir = rel is None or (len(rel.parts) > 1 and rel.parts[0].lower() == "churches")
+    if section == "churches" and in_church_dir:
         return clipped(f"{title}. {GENERIC_DESCRIPTIONS[section]}", 200)
     for key in ("description", "og:description", "twitter:description"):
         for value in existing.get(key, []):
@@ -236,7 +241,7 @@ def normalize(source: str, rel: Path) -> tuple[str, str]:
     existing = meta_values(source)
     section = section_for(rel)
     title = title_for(source, rel, existing, section)
-    description = description_for(source, title, existing, section)
+    description = description_for(source, title, existing, section, rel)
     url = canonical_for(rel, source)
     image = HOME_CARD_URL if rel.as_posix() == "index.html" else CARD_URLS[section]
 
