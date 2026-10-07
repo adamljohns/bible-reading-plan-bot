@@ -22,6 +22,8 @@
  *   "text"  — replace the exact substring `find` with `replace` in the string at
  *             dotted path `field` (e.g. "score_notes.leadership"); SKIPs unless
  *             `find` occurs exactly once.
+ *   "fill"  — write `value` at dotted path `field` only when it is missing or "";
+ *             SKIPs any field that already holds a value (2026-10-07 round 3).
  *
  * Acts only when the record's current `pastor` still equals the held name, so a
  * stale holds file can never clear a name someone has since corrected. ("text"
@@ -62,12 +64,23 @@ for (const h of holds) {
   if (h.pastor !== undefined && String(c.pastor || '').trim() !== h.pastor) { console.log(`SKIP ${h.id} — pastor is now "${c.pastor || ''}", not "${h.pastor}"`); continue; }
   if (h.action === 'text') {
     const cur = getPath(c, h.field);
+    if (typeof cur === 'string' && h.replace && h.replace.includes(h.find) && cur.includes(h.replace)) { console.log(`SKIP ${h.id} — "${h.field}" already holds the replacement`); continue; }
     const n = typeof cur === 'string' ? cur.split(h.find).length - 1 : 0;
     if (n !== 1) { console.log(`SKIP ${h.id} — "${h.field}" holds the target text ${n} time(s), expected 1`); continue; }
     console.log(`TEXT  ${h.id} — ${h.field}: "${h.find}" → "${h.replace}"`);
     if (!APPLY) continue;
     setPath(c, h.field, cur.replace(h.find, h.replace));
     addNote(c, `[${TODAY}] QA text fix (${h.field}): "${h.find}" → "${h.replace}". Source: ${h.source}. ${h.evidence || ''}`.trim());
+    held++; continue;
+  }
+  if (h.action === 'fill') {
+    const cur = getPath(c, h.field);
+    if (cur != null && cur !== '') { console.log(`SKIP ${h.id} — "${h.field}" already holds a value, fill only writes blanks`); continue; }
+    if (h.field.includes('.') && getPath(c, h.field.split('.').slice(0, -1).join('.')) == null) { console.log(`SKIP ${h.id} — parent of "${h.field}" missing`); continue; }
+    console.log(`FILL  ${h.id} — ${h.field}: "${h.value}"`);
+    if (!APPLY) continue;
+    setPath(c, h.field, h.value);
+    addNote(c, `[${TODAY}] QA fill (${h.field}): "${h.value}". Source: ${h.source}. ${h.evidence || ''}`.trim());
     held++; continue;
   }
   if (h.action === 'set') {

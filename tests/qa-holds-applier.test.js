@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Regression test for scripts/apply-pastor-qa-holds.js actions (hold/clear/set/stamp/text)
+// Regression test for scripts/apply-pastor-qa-holds.js actions (hold/clear/set/stamp/text/fill)
 // on a scratch tree — never touches the real churches.json.
 const assert = require('assert');
 const fs = require('fs');
@@ -26,6 +26,8 @@ const churches = [
   { id: 'd', pastor: 'Kept Name' },
   { id: 'e', pastor: 'X', score_notes: { leadership: '9 pastors (A, B, Z)' } },
   { id: 'f', pastor: 'Moved On' },
+  { id: 'g', pastor: 'P', website: '', founded: '1900' },
+  { id: 'h', pastor: 'P', denomination: 'Church of God' },
 ];
 const dataFile = path.join(root, 'docs/data/churches.json');
 fs.writeFileSync(dataFile, JSON.stringify({ churches }, null, 2) + '\n');
@@ -37,13 +39,17 @@ const holds = [
   { id: 'e', action: 'text', field: 'score_notes.leadership', find: '9 pastors (A, B, Z)', replace: '8 pastors (A, B)', source: 's' },
   { id: 'f', pastor: 'Someone Else', action: 'set', value: 'Nope', source: 's' },
   { id: 'f', pastor: 'Moved On', action: 'typo', source: 's' },
+  { id: 'g', action: 'fill', field: 'website', value: 'https://g.org/', source: 's' },
+  { id: 'g', action: 'fill', field: 'services', value: 'Sun 10', source: 's' },
+  { id: 'g', action: 'fill', field: 'founded', value: '1999', source: 's' },
+  { id: 'h', action: 'text', field: 'denomination', find: 'Church of God', replace: 'Church of God (Cleveland, TN)', source: 's' },
 ];
 const holdsFile = path.join(root, 'holds.json');
 fs.writeFileSync(holdsFile, JSON.stringify(holds));
 const run = () => execFileSync('node', [path.join(root, 'scripts/apply-pastor-qa-holds.js'), '--holds', holdsFile, '--apply'], { encoding: 'utf8' });
 
 const out1 = run();
-assert.match(out1, /applied 5 correction/);
+assert.match(out1, /applied 8 correction/);
 const by = Object.fromEntries(JSON.parse(fs.readFileSync(dataFile, 'utf8')).churches.map(c => [c.id, c]));
 assert.strictEqual(by.a.pastor, ''); assert.ok(by.a._hold_review); assert.strictEqual(by.a.pastors, undefined);
 assert.strictEqual(by.b.pastor, ''); assert.strictEqual(by.b._hold_review, undefined); assert.strictEqual(by.b.needs_review, true);
@@ -51,6 +57,9 @@ assert.strictEqual(by.c.pastor, 'Dr. Long'); assert.strictEqual(by.c.pastors[0].
 assert.strictEqual(by.d.pastor, 'Kept Name'); assert.ok(by.d._hold_review); assert.match(by.d.enrichment_notes, /QA hold: r\./);
 assert.strictEqual(by.e.score_notes.leadership, '8 pastors (A, B)');
 assert.strictEqual(by.f.pastor, 'Moved On'); assert.match(out1, /SKIP f — unknown action "typo"/);
+assert.strictEqual(by.g.website, 'https://g.org/'); assert.strictEqual(by.g.services, 'Sun 10'); assert.strictEqual(by.g.founded, '1900');
+assert.match(out1, /SKIP g — "founded" already holds a value/);
+assert.strictEqual(by.h.denomination, 'Church of God (Cleveland, TN)');
 
 const out2 = run();
 assert.match(out2, /applied 0 correction/);
