@@ -146,7 +146,13 @@ def repair_watch(date: str, wkey: str, w: dict, plan_label: str | None):
 
 
 def patch_html(page: str, wkey: str, new_label: str, new_scr: str) -> str | None:
-    sec = re.search(rf'<section class="watch watch-{wkey}" id="{wkey}"[\s\S]*?</section>', page)
+    # Older pages id the middle watches by role, not by key.
+    ids = {wkey, {"first": "husband", "second": "father", "third": "citizen"}.get(wkey, wkey)}
+    sec = None
+    for sid in ids:
+        sec = re.search(rf'<section class="watch [^"]*" id="{sid}"[\s\S]*?</section>', page)
+        if sec:
+            break
     if not sec:
         return None
     body = sec.group(0)
@@ -200,7 +206,11 @@ def main(argv=None) -> int:
                     md = md.replace(old_scr, new_scr, 1)
                     md = retitle_md(md, new_scr, row["old"], new_label)
                 else:
-                    row["why"] += "; md block not matched (md untouched)"
+                    md2 = replace_md_by_header(md, row["old"], new_label, new_scr)
+                    if md2 is None:
+                        row["why"] += "; md block not matched (md untouched)"
+                    else:
+                        md = md2
             if page is not None:
                 p2 = patch_html(page, wkey, new_label, new_scr.strip("\n"))
                 if p2 is None:
@@ -242,6 +252,26 @@ def main(argv=None) -> int:
     if not args.apply:
         print("(dry run — pass --apply to write)")
     return 0
+
+
+def replace_md_by_header(md: str, old_label: str, new_label: str, new_scr: str) -> str | None:
+    """md text drifted from the JSON: find the block by its unique 📖 header."""
+    heads = [m for m in re.finditer(r"^📖[^\n]*$", md, re.M) if old_label in m.group(0)]
+    if len(heads) != 1:
+        return None
+    h = heads[0]
+    m = cpc.SCR_RE.search(md, h.start())
+    if not m or m.start() != h.start():
+        return None
+    tail = md[m.end(1): m.end(1) + 4]
+    if not tail.strip():
+        return None  # unbounded; refuse
+    old = m.group(1)
+    lead = len(old) - len(old.lstrip("\n"))
+    trail = len(old) - len(old.rstrip("\n"))
+    body = ("\n" * lead) + new_scr.strip("\n") + ("\n" * trail)
+    hdr = h.group(0).replace(old_label, new_label, 1)
+    return md[: h.start()] + hdr + md[h.end(): m.start(1)] + body + md[m.end(1):]
 
 
 def retitle_md(md: str, new_scr: str, old_label: str, new_label: str) -> str:

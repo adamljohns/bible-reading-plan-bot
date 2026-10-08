@@ -342,6 +342,11 @@ def check_watch(date: str, wkey: str, passage: str, text: str, median: float | N
     loops = find_loop_hits(scr)
     # mechanical: count>=3 with coverage>=0.35 OR count>=5 OR para triple
     mech = [h for h in loops if h["count"] >= 5 or h["coverage"] >= 0.35]
+    # Numbers 7 repeats each tribe's offering word for word; a run the
+    # canonical passage itself repeats as often is Scripture, not a loop.
+    canon = canonical_norm(passage) if mech else None
+    if canon:
+        mech = [h for h in mech if canon.count(h["sample"]) < h["count"]]
     ptrip = para_triples(scr)
     if mech or ptrip:
         fails.append(

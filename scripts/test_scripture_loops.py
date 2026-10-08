@@ -78,6 +78,28 @@ MUST_FLAG = [
 ]
 
 
+def loops(passage: str, block: str) -> list[dict]:
+    fails = check_watch("2099-01-01", "t", passage, wrap(passage, block), None)
+    return [f for f in fails if f["code"] == "scripture_loop"]
+
+
+def main_loops() -> int:
+    """Numbers 7's offering formula repeats; an invented loop must still fail."""
+    from repair_passage_block import canonical_block
+
+    bad = 0
+    canon = canonical_block("Numbers 7:54-89")
+    ok = bool(canon) and not loops("Numbers 7:54-89", canon)
+    bad += not ok
+    print(f"{'ok  ' if ok else 'FAIL'} pass numbers7_offering_formula")
+    unit = ("Take heed to yourselves and keep the commandments of the LORD your God "
+            "with all your heart and soul. ")
+    ok = bool(loops("Proverbs 3", "Trust in the LORD with all your heart.\n" + unit * 5))
+    bad += not ok
+    print(f"{'ok  ' if ok else 'FAIL'} flag invented_loop_in_proverbs3")
+    return bad
+
+
 def doublets(passage: str, block: str) -> list[dict]:
     fails = check_watch("2099-01-01", "t", passage, wrap(passage, block), None)
     return [f for f in fails if f["code"] == "translation_doublet"]
@@ -94,7 +116,8 @@ def main() -> int:
         ok = bool(doublets(passage, block))
         bad += not ok
         print(f"{'ok  ' if ok else 'FAIL'} flag {name}")
-    total = len(MUST_PASS) + len(MUST_FLAG)
+    bad += main_loops()
+    total = len(MUST_PASS) + len(MUST_FLAG) + 2
     print(f"{total - bad}/{total} passed")
     return 1 if bad else 0
 
