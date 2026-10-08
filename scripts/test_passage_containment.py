@@ -61,11 +61,10 @@ MUST_FLAG_FIXTURES = [
 ]
 
 # (date, watch, why) — corpus days the gate MUST flag. Only days that will
-# never be repaired belong here; 2026-09-15 is frozen by PJ (already delivered,
-# no rebake), so it stays mashed permanently.
-MUST_FLAG = [
-    ("2026-09-15", "wisdom", "Prov 15 tail runs into Job/Numbers/Isaiah"),
-]
+# never be repaired belong here. 2026-09-15 left this list when the past-day
+# repair (scripts/repair_past_readings.py, MBP-1007-SPRINT) re-laid it; the
+# synthetic fixtures above pin detection instead.
+MUST_FLAG: list[tuple[str, str, str]] = []
 
 # (date, watch, why) — the gate MUST stay silent. Each was a real false
 # positive during development.
@@ -79,6 +78,8 @@ MUST_PASS = [
     ("2026-09-16", "wisdom", "repaired to canonical Proverbs 16"),
     ("2026-09-17", "wisdom", "repaired to canonical Proverbs 17"),
     ("2026-09-18", "peace", "repaired to Isaiah 49:1-7, range honored"),
+    ("2026-09-15", "wisdom", "repaired to canonical Proverbs 15 (MBP-1007-SPRINT)"),
+    ("2026-06-20", "wisdom", "relabelled Psalm 119:153-160 and re-laid"),
 ]
 
 
