@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Regression test for scripts/apply-pastor-qa-holds.js actions (hold/clear/set/stamp/text/fill)
+// Regression test for scripts/apply-pastor-qa-holds.js actions (hold/clear/set/stamp/text/fill/annotate/release)
 // on a scratch tree — never touches the real churches.json.
 const assert = require('assert');
 const fs = require('fs');
@@ -30,6 +30,8 @@ const churches = [
   { id: 'h', pastor: 'P', denomination: 'Church of God' },
   { id: 'i', pastor: 'Rev. Pat Doe' },
   { id: 'j', pastor: '' },
+  { id: 'k', pastor: 'Rev. Kay Lee', _hold_review: '2026-08-22', needs_review: true },
+  { id: 'l', pastor: '', _hold_review: '2026-08-22' },
 ];
 const dataFile = path.join(root, 'docs/data/churches.json');
 fs.writeFileSync(dataFile, JSON.stringify({ churches }, null, 2) + '\n');
@@ -49,13 +51,16 @@ const holds = [
   { id: 'i', pastor: 'Rev. Pat Doe', action: 'annotate', annotation: { role: 'Pastor' } },
   { id: 'j', pastor: '', action: 'set', value: 'Restored Name', source: 's' },
   { id: 'j', pastor: 'Restored Name', action: 'annotate', annotation: { role: 'Rector', source: 'https://j.org', source_type: 'roster', quote: 'q' } },
+  { id: 'k', pastor: 'Rev. Kay Lee', action: 'release', source: 'https://k.org/staff', quote: 'Rev. Kay Lee | Pastor' },
+  { id: 'l', pastor: '', action: 'release', source: 'https://l.org', quote: 'q' },
+  { id: 'j', pastor: 'Restored Name', action: 'release', source: 'https://j.org', quote: 'q' },
 ];
 const holdsFile = path.join(root, 'holds.json');
 fs.writeFileSync(holdsFile, JSON.stringify(holds));
 const run = () => execFileSync('node', [path.join(root, 'scripts/apply-pastor-qa-holds.js'), '--holds', holdsFile, '--apply'], { encoding: 'utf8' });
 
 const out1 = run();
-assert.match(out1, /applied 11 correction/);
+assert.match(out1, /applied 12 correction/);
 const by = Object.fromEntries(JSON.parse(fs.readFileSync(dataFile, 'utf8')).churches.map(c => [c.id, c]));
 assert.strictEqual(by.a.pastor, ''); assert.ok(by.a._hold_review); assert.strictEqual(by.a.pastors, undefined);
 assert.strictEqual(by.b.pastor, ''); assert.strictEqual(by.b._hold_review, undefined); assert.strictEqual(by.b.needs_review, true);
@@ -69,6 +74,9 @@ assert.strictEqual(by.h.denomination, 'Church of God (Cleveland, TN)');
 assert.strictEqual(by.i.pastor, 'Rev. Pat Doe'); assert.strictEqual(by.i.pastor_role_annotation.role, 'Senior Pastor'); assert.strictEqual(by.i._hold_review, undefined);
 assert.match(out1, /SKIP i — annotation needs role, source and quote/);
 assert.strictEqual(by.j.pastor, 'Restored Name'); assert.strictEqual(by.j.pastor_role_annotation.source_type, 'roster');
+assert.strictEqual(by.k._hold_review, undefined); assert.strictEqual(by.k.needs_review, true); assert.match(by.k.enrichment_notes, /QA release: hold \(2026-08-22\) lifted/);
+assert.strictEqual(by.l._hold_review, '2026-08-22'); assert.match(out1, /SKIP l — release needs a published pastor/);
+assert.match(out1, /SKIP j — not on hold/);
 
 const out2 = run();
 assert.match(out2, /applied 0 correction/);

@@ -28,6 +28,10 @@
  *             {role, source, source_type, quote, verified}: the role exactly as the
  *             church site or denominational roster states it (Principal ruling
  *             2026-10-07: female-named leads are annotated, not suppressed).
+ *   "release" — lift `_hold_review` from a record whose published `pastor` was
+ *             re-read verbatim at `source` (`quote` required). `needs_review` and the
+ *             annotation stay; the old hold date goes into enrichment_notes
+ *             (2026-10-07 sprint: resolves holds the annotate ruling superseded).
  *
  * Acts only when the record's current `pastor` still equals the held name, so a
  * stale holds file can never clear a name someone has since corrected. ("text"
@@ -96,6 +100,15 @@ for (const h of holds) {
     if (!APPLY) continue;
     c.pastor_role_annotation = { role: a.role, source: a.source, source_type: a.source_type || 'site', quote: a.quote, verified: a.verified || TODAY };
     addNote(c, `[${TODAY}] Pastor-role annotation: "${c.pastor}" listed as "${a.role}", verbatim at ${a.source}. ${h.evidence || ''}`.trim());
+    held++; continue;
+  }
+  if (h.action === 'release') {
+    if (!c._hold_review) { console.log(`SKIP ${h.id} — not on hold`); continue; }
+    if (!String(c.pastor || '').trim() || !h.source || !h.quote) { console.log(`SKIP ${h.id} — release needs a published pastor, source and quote`); continue; }
+    console.log(`FREE  ${h.id} — "${c.pastor}" verified, hold since ${c._hold_review} lifted`);
+    if (!APPLY) continue;
+    addNote(c, `[${TODAY}] QA release: hold (${c._hold_review}) lifted — "${c.pastor}" verbatim at ${h.source}: "${h.quote}". ${h.evidence || ''}`.trim());
+    delete c._hold_review;
     held++; continue;
   }
   if (h.action === 'set') {
