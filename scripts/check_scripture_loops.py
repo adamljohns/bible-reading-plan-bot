@@ -29,6 +29,8 @@ import re
 import statistics
 import sys
 from collections import Counter
+from difflib import SequenceMatcher
+from functools import lru_cache
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
@@ -77,6 +79,43 @@ DOUBLET_PAIRS = [
     ("turns away wrath", "turns wrath aside"),
 ]
 DOUBLET_NEAR_RATIO = 0.86
+# A near-duplicate pair is Scripture, not a mash, when the phrase the two lines
+# share occurs at least twice in the canonical passage itself (Isaiah 40:7-8
+# "the grass withers, the flower fades"; Psalm 67:3/5 refrain). The shared run
+# must be this many tokens long before it can excuse a pair.
+CANON_REPEAT_MIN_TOKENS = 4
+
+
+@lru_cache(maxsize=None)
+def canonical_norm(passage: str) -> str | None:
+    """Normalized canonical text of the named passage, or None if unresolvable.
+
+    Uses the same docs/assets/chapters source and passage parser as
+    repair_passage_block.py, so the loop gate and the repair agree on what the
+    passage contains.
+    """
+    try:
+        sys.path.insert(0, str(Path(__file__).resolve().parent))
+        from repair_passage_block import canonical_block
+    except Exception:
+        return None
+    try:
+        block = canonical_block(passage or "")
+    except Exception:
+        return None
+    return normalize(block) if block else None
+
+
+def _canon_repeats(left: list[str], right: list[str], canon: str | None) -> bool:
+    if not canon:
+        return False
+    m = SequenceMatcher(None, left, right, autojunk=False).find_longest_match(
+        0, len(left), 0, len(right)
+    )
+    if m.size < CANON_REPEAT_MIN_TOKENS:
+        return False
+    run = " ".join(left[m.a : m.a + m.size])
+    return f" {canon} ".count(f" {run} ") >= 2
 
 
 def normalize(s: str) -> str:
@@ -150,7 +189,7 @@ def _jaccard(a: list[str], b: list[str]) -> float:
     return len(sa & sb) / len(sa | sb)
 
 
-def doublet_hits(scripture: str) -> list[str]:
+def doublet_hits(scripture: str, passage: str | None = None) -> list[str]:
     """Refuse stacked translation-doublets (PJG-0815-WIS1 / MBT1).
 
     One fused MBT line may legally contain both 'soft' and 'gentle'
@@ -167,6 +206,7 @@ def doublet_hits(scripture: str) -> list[str]:
         if a_lines and b_lines and set(a_lines) != set(b_lines):
             hits.append(f"pair:{a[:24]}/{b[:24]}")
     norms = [_tokens(ln) for ln in lines]
+    canon = canonical_norm(passage) if passage else None
     for i, left in enumerate(norms):
         if len(left) < 6:
             continue
@@ -175,6 +215,8 @@ def doublet_hits(scripture: str) -> list[str]:
             if len(right) < 6:
                 continue
             if _jaccard(left, right) >= DOUBLET_NEAR_RATIO:
+                if _canon_repeats(left, right, canon):
+                    continue
                 sample = " ".join(left[:8])
                 hits.append(f"near:{sample}")
     # unique preserve order
@@ -325,7 +367,7 @@ def check_watch(date: str, wkey: str, passage: str, text: str, median: float | N
                 "bleed": bleeds,
             }
         )
-    doubles = doublet_hits(scr)
+    doubles = doublet_hits(scr, passage)
     # Psalm 118 legally repeats refrain lines (steadfast love / cut them down /
     # right hand of the LORD). That is Scripture, not a translation mash.
     # PJG-0826-AUD1: LOOP-GATE must not refuse a clean BTE/NKJV Psalm 118.
