@@ -9,7 +9,15 @@ FAILED=()
 check_url() {
   local url="$1"
   local code
-  code="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 25 -L "$url" || echo "000")"
+  # Retry transient network failures (2026-10-08: one "Connection reset by peer" on
+  # sitemap.xml failed a good deploy). A real outage still fails all 3 tries.
+  local try
+  for try in 1 2 3; do
+    code="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 25 -L "$url" 2>/dev/null)" || true
+    [ -n "$code" ] || code="000"
+    [[ "$code" =~ ^2 ]] && break
+    [ "$try" -lt 3 ] && sleep $((try * 5))
+  done
   if [[ "$code" =~ ^2 ]]; then
     echo "OK  $code  $url"
   else
