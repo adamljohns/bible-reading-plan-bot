@@ -220,9 +220,19 @@ def parse_passage(passage: str) -> list[tuple[str, int, int | None, int | None]]
     if not passage or not passage.strip():
         return None
     refs: list[tuple[str, int, int | None, int | None]] = []
-    chunks = re.split(r"\s*(?:&|;|\band\b|\+)\s*", passage.strip())
+    # MBP-1007-SPRINT: past labels carry shapes the plan no longer uses —
+    # a trailing note "(blended listening render)", spaced "Exodus 38 : 1 – 20",
+    # ";" chapter continuations "2 Chronicles 5:2-14; 6:1-11" / "26:22-23; 27",
+    # and comma verse lists "Exodus 12:1–14, 21–28". Normalise, then keep the
+    # separator so a bare number after ";" is a chapter and after "&"/"," a verse.
+    text = re.sub(r"\s*\([^)]*\)\s*$", "", passage.strip())
+    text = re.sub(r"\s*:\s*", ":", text)
+    text = re.sub(r"\s*[-–]\s*", "-", text)
+    parts = re.split(r"\s*(&|;|,|\band\b|\+)\s*", text)
+    chunks = parts[0::2]
+    seps = [""] + parts[1::2]
     last_book: str | None = None
-    for chunk in chunks:
+    for chunk, sep in zip(chunks, seps):
         chunk = chunk.strip()
         if not chunk:
             continue
@@ -240,6 +250,20 @@ def parse_passage(passage: str) -> list[tuple[str, int, int | None, int | None]]
             vs = int(m.group(3)) if m.group(3) else None
             ve = int(m.group(4)) if m.group(4) else vs
             refs.append((book, chapter, vs, ve))
+            continue
+        # chapter continuation in the same book: "...; 6:1-11"
+        m3 = re.match(rf"^(\d+):{_V}(?:-{_V})?$", chunk)
+        if m3 and last_book:
+            vs = int(m3.group(2))
+            refs.append((last_book, int(m3.group(1)), vs,
+                         int(m3.group(3)) if m3.group(3) else vs))
+            continue
+        # bare number after ";" is a whole chapter: "26:22-23; 27; 28:1-15"
+        m4 = re.match(r"^(\d+)(?:-(\d+))?$", chunk)
+        if m4 and sep == ";" and last_book:
+            a = int(m4.group(1))
+            b = int(m4.group(2)) if m4.group(2) else a
+            refs.extend((last_book, c, None, None) for c in range(a, b + 1))
             continue
         # bare continuation like "Acts 4:1-10 & 13-22"
         m2 = re.match(r"^(\d+)(?:\s*[-–]\s*(\d+))?$", chunk)
@@ -280,6 +304,14 @@ def _parse_extended(chunk: str) -> list[tuple[str, int, int | None, int | None]]
             return None
         out = [(book, c1, v1, 999)]
         out += [(book, c, None, None) for c in range(c1 + 1, c2)]
+        out.append((book, c2, 1, v2))
+        return out
+    m = re.match(rf"^{_BOOK_RE}\s*(\d+)\s*[-–]\s*(\d+):{_V}$", chunk)
+    if m and (book := book_of(m.group(1))):
+        c1, c2, v2 = (int(g) for g in m.group(2, 3, 4))
+        if c2 <= c1:
+            return None
+        out = [(book, c, None, None) for c in range(c1, c2)]
         out.append((book, c2, 1, v2))
         return out
     m = re.match(rf"^{_BOOK_RE}\s*(\d+):{_V}(?:\s*[-–]\s*{_V})?$", chunk)
