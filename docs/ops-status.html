@@ -261,17 +261,7 @@
 </head>
 <body>
 
-<!-- PIN Overlay -->
-<div id="pin-overlay">
-    <div style="font-size: 3rem;">🟢</div>
-    <h2>Ops Status Board</h2>
-    <p>Enter PIN to view MbPro cron health</p>
-    <div class="pin-box">
-        <input type="password" id="pin-input" maxlength="4" placeholder="••••" autofocus>
-        <button class="pin-btn" onclick="checkPin()">→</button>
-    </div>
-    <div class="pin-error" id="pin-error">Incorrect PIN. Try again.</div>
-</div>
+<!-- Edge-gated: usmcmin-site Worker (PROTECTED_STATIC_KEYS) requires the server-side PIN session before this page is served; client-side PIN gate removed 2026-10-08 (MBP-1008-GATES). -->
 
 <nav>
     <a href="index.html">🏠 Home</a>
@@ -474,29 +464,7 @@
 
 
 <script>
-// PIN protection
-const CORRECT_PIN = '5683';
-const SESSION_KEY = 'ops_status_auth';
-
-function checkPin() {
-    const input = document.getElementById('pin-input').value;
-    if (input === CORRECT_PIN) {
-        sessionStorage.setItem(SESSION_KEY, '1');
-        document.getElementById('pin-overlay').style.display = 'none';
-        loadData();
-    } else {
-        document.getElementById('pin-error').style.display = 'block';
-        document.getElementById('pin-input').value = '';
-        document.getElementById('pin-input').focus();
-    }
-}
-document.getElementById('pin-input').addEventListener('keydown', e => {
-    if (e.key === 'Enter') checkPin();
-});
-if (sessionStorage.getItem(SESSION_KEY) === '1') {
-    document.getElementById('pin-overlay').style.display = 'none';
-    loadData();
-}
+document.addEventListener('DOMContentLoaded', () => loadData());
 
 function toggleCat(id) {
     document.getElementById(id).classList.toggle('collapsed');

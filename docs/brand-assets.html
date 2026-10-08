@@ -87,7 +87,6 @@
         .pin-error { color: var(--red); font-size: 0.85rem; margin-top: 12px; min-height: 20px; }
 
         /* ── Main Content ── */
-        #main-content { display: none; }
 
         /* ── Header ── */
         .page-header {
@@ -346,34 +345,7 @@
 <style>body.light-mode{--ft-dim:#666;--ft-link:#7a5c00}</style></head>
 <body>
 
-<!-- ── PIN Screen ── -->
-<div id="pin-screen">
-    <div class="pin-box">
-        <div class="lock-icon"><img src="assets/icons/shield-lock-48.png" alt="" width="16" height="16" style="vertical-align:middle;margin-right:3px;"></div>
-        <h2>Brand Assets</h2>
-        <p>Internal — PIN required</p>
-        <div class="pin-dots">
-            <div class="pin-dot" id="dot-0"></div>
-            <div class="pin-dot" id="dot-1"></div>
-            <div class="pin-dot" id="dot-2"></div>
-            <div class="pin-dot" id="dot-3"></div>
-        </div>
-        <div class="pin-keypad">
-            <button class="pin-key" onclick="pinKey('1')">1</button>
-            <button class="pin-key" onclick="pinKey('2')">2</button>
-            <button class="pin-key" onclick="pinKey('3')">3</button>
-            <button class="pin-key" onclick="pinKey('4')">4</button>
-            <button class="pin-key" onclick="pinKey('5')">5</button>
-            <button class="pin-key" onclick="pinKey('6')">6</button>
-            <button class="pin-key" onclick="pinKey('7')">7</button>
-            <button class="pin-key" onclick="pinKey('8')">8</button>
-            <button class="pin-key" onclick="pinKey('9')">9</button>
-            <button class="pin-key" onclick="pinKey('0')" style="grid-column:2">0</button>
-            <button class="pin-key del" onclick="pinDel()">⌫</button>
-        </div>
-        <div class="pin-error" id="pin-error"></div>
-    </div>
-</div>
+<!-- Edge-gated: usmcmin-site Worker (PROTECTED_STATIC_KEYS) requires the server-side PIN session before this page is served; client-side PIN gate removed 2026-10-08 (MBP-1008-GATES). -->
 
 <!-- ── Main Content ── -->
 <div id="main-content">
@@ -626,58 +598,7 @@
 </div>
 
 <script>
-// ── PIN ─────────────────────────────────────────────────
-const BA_PIN = '5683';
-const BA_SESSION_KEY = 'brand_assets_unlocked';
-let pinEntry = '';
-
-(function checkPinSession() {
-    if (location.hash === '#' + BA_PIN) {
-        sessionStorage.setItem(BA_SESSION_KEY, 'true');
-        history.replaceState(null, '', location.pathname);
-    }
-    if (sessionStorage.getItem(BA_SESSION_KEY) === 'true') unlock();
-})();
-
-function unlock() {
-    document.getElementById('pin-screen').classList.add('hidden');
-    document.getElementById('main-content').style.display = 'block';
-    buildAllGrids();
-}
-
-function pinKey(d) {
-    if (pinEntry.length >= 4) return;
-    pinEntry += d;
-    updateDots();
-    if (pinEntry.length === 4) setTimeout(checkPin, 100);
-}
-
-function pinDel() {
-    pinEntry = pinEntry.slice(0, -1);
-    updateDots();
-    document.getElementById('pin-error').textContent = '';
-}
-
-function updateDots() {
-    for (let i = 0; i < 4; i++) {
-        document.getElementById('dot-' + i).classList.toggle('filled', i < pinEntry.length);
-    }
-}
-
-function checkPin() {
-    if (pinEntry === BA_PIN) {
-        sessionStorage.setItem(BA_SESSION_KEY, 'true');
-        unlock();
-    } else {
-        document.getElementById('pin-error').textContent = 'Incorrect PIN. Try again.';
-        pinEntry = '';
-        updateDots();
-        document.querySelectorAll('.pin-dot').forEach(d => {
-            d.style.borderColor = '#f44336';
-            setTimeout(() => { d.style.borderColor = ''; }, 800);
-        });
-    }
-}
+document.addEventListener('DOMContentLoaded', buildAllGrids);
 
 // ── Icon Data ────────────────────────────────────────────
 const CORE_SHIELDS = [
@@ -1027,12 +948,6 @@ function applyFilter() {
     }
 }
 
-// Keyboard support for PIN
-document.addEventListener('keydown', e => {
-    if (document.getElementById('pin-screen').classList.contains('hidden')) return;
-    if (/^[0-9]$/.test(e.key)) pinKey(e.key);
-    else if (e.key === 'Backspace') pinDel();
-});
 </script>
     <footer style="text-align:center; padding:28px 20px; border-top:1px solid var(--border,#333); margin-top:40px; color:var(--gray,#888); font-size:0.88rem;">
         <div style="margin-bottom:10px;"><img src="assets/icons/shield-handshake.png" alt="" width="36" height="36" style="opacity:0.6;"></div>

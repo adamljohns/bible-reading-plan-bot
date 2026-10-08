@@ -63,7 +63,6 @@
         .pin-error { color: var(--red); font-size: 0.85rem; min-height: 20px; }
 
         /* MAIN CONTENT */
-        #main-content { display: none; }
 
         .header {
             text-align: center; padding: 25px 20px 15px;
@@ -229,32 +228,7 @@
 </head>
 <body>
 
-<!-- PIN GATE -->
-<div id="pin-gate">
-    <h2>🔐 Tax Prep Tracker</h2>
-    <p>Enter your PIN to continue</p>
-    <div class="pin-dots">
-        <div class="pin-dot" id="dot-0"></div>
-        <div class="pin-dot" id="dot-1"></div>
-        <div class="pin-dot" id="dot-2"></div>
-        <div class="pin-dot" id="dot-3"></div>
-    </div>
-    <div class="pin-pad">
-        <button class="pin-btn" onclick="enterPin(1)">1</button>
-        <button class="pin-btn" onclick="enterPin(2)">2</button>
-        <button class="pin-btn" onclick="enterPin(3)">3</button>
-        <button class="pin-btn" onclick="enterPin(4)">4</button>
-        <button class="pin-btn" onclick="enterPin(5)">5</button>
-        <button class="pin-btn" onclick="enterPin(6)">6</button>
-        <button class="pin-btn" onclick="enterPin(7)">7</button>
-        <button class="pin-btn" onclick="enterPin(8)">8</button>
-        <button class="pin-btn" onclick="enterPin(9)">9</button>
-        <button class="pin-btn clear" onclick="clearPin()">✕</button>
-        <button class="pin-btn" onclick="enterPin(0)">0</button>
-        <button class="pin-btn" style="opacity:0;pointer-events:none;"></button>
-    </div>
-    <div class="pin-error" id="pin-error"></div>
-</div>
+<!-- Edge-gated: usmcmin-site Worker (PROTECTED_STATIC_KEYS) requires the server-side PIN session before this page is served; client-side PIN gate removed 2026-10-08 (MBP-1008-GATES). -->
 
 <!-- MAIN CONTENT -->
 <div id="main-content">
@@ -346,39 +320,7 @@
 </div>
 
 <script>
-// ─── PIN GATE ─────────────────────────────────────────────────────────────────
-const CORRECT_PIN = '5683';
-let pinEntry = '';
-
-function enterPin(digit) {
-    if (pinEntry.length >= 4) return;
-    pinEntry += digit;
-    updateDots();
-    if (pinEntry.length === 4) {
-        setTimeout(checkPin, 100);
-    }
-}
-function clearPin() {
-    pinEntry = pinEntry.slice(0, -1);
-    updateDots();
-    document.getElementById('pin-error').textContent = '';
-}
-function updateDots() {
-    for (let i = 0; i < 4; i++) {
-        document.getElementById('dot-' + i).classList.toggle('filled', i < pinEntry.length);
-    }
-}
-function checkPin() {
-    if (pinEntry === CORRECT_PIN) {
-        document.getElementById('pin-gate').style.display = 'none';
-        document.getElementById('main-content').style.display = 'block';
-        init();
-    } else {
-        document.getElementById('pin-error').textContent = 'Incorrect PIN. Try again.';
-        pinEntry = '';
-        updateDots();
-    }
-}
+document.addEventListener('DOMContentLoaded', () => init());
 
 // ─── DATA ─────────────────────────────────────────────────────────────────────
 const INSTITUTIONS = [

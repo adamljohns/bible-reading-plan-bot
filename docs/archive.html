@@ -408,33 +408,9 @@
 </head>
 <body>
 
-<div id="pin-screen">
-    <div class="pin-box">
-        <div class="lock-icon">🗄</div>
-        <h2>Workflow Archive</h2>
-        <p>Enter the PIN to continue</p>
-        <div class="pin-dots">
-            <div class="pin-dot" id="dot-0"></div><div class="pin-dot" id="dot-1"></div>
-            <div class="pin-dot" id="dot-2"></div><div class="pin-dot" id="dot-3"></div>
-        </div>
-        <div class="pin-keypad">
-            <button class="pin-key" onclick="pinKey('1')">1</button>
-            <button class="pin-key" onclick="pinKey('2')">2</button>
-            <button class="pin-key" onclick="pinKey('3')">3</button>
-            <button class="pin-key" onclick="pinKey('4')">4</button>
-            <button class="pin-key" onclick="pinKey('5')">5</button>
-            <button class="pin-key" onclick="pinKey('6')">6</button>
-            <button class="pin-key" onclick="pinKey('7')">7</button>
-            <button class="pin-key" onclick="pinKey('8')">8</button>
-            <button class="pin-key" onclick="pinKey('9')">9</button>
-            <button class="pin-key" onclick="pinKey('0')" style="grid-column:2">0</button>
-            <button class="pin-key del" onclick="pinDel()">⌫</button>
-        </div>
-        <div class="pin-error" id="pin-error"></div>
-    </div>
-</div>
+<!-- Edge-gated: usmcmin-site Worker (PROTECTED_STATIC_KEYS) requires the server-side PIN session before this page is served; client-side PIN gate removed 2026-10-08 (MBP-1008-GATES). -->
 
-<div id="main-content" style="display:none">
+<div id="main-content">
     <div class="page-header">
         <h1>🗄 Workflow Archive</h1>
         <div class="subtitle">Completed & retired flight plans — <span id="arch-count">0</span> archived</div>
@@ -449,15 +425,7 @@
 
 <script src="assets/workflows-data.js"></script>
 <script>
-// ── PIN (same gate/PIN as workflows.html) ──
-const WF_PIN='5683', WF_SESSION_KEY='wf_unlocked'; let wfPinEntry='';
-(function(){ if (sessionStorage.getItem(WF_SESSION_KEY)==='true') wfUnlock(); })();
-function wfUnlock(){ document.getElementById('pin-screen').classList.add('hidden'); document.getElementById('main-content').style.display=''; renderArchive(); }
-function pinKey(d){ if(wfPinEntry.length>=4) return; wfPinEntry+=d; dots(); if(wfPinEntry.length===4) setTimeout(checkPin,100); }
-function pinDel(){ wfPinEntry=wfPinEntry.slice(0,-1); dots(); document.getElementById('pin-error').textContent=''; }
-function dots(){ for(let i=0;i<4;i++) document.getElementById('dot-'+i).classList.toggle('filled', i<wfPinEntry.length); }
-function checkPin(){ if(wfPinEntry===WF_PIN){ sessionStorage.setItem(WF_SESSION_KEY,'true'); wfUnlock(); } else { document.getElementById('pin-error').textContent='Incorrect PIN. Try again.'; wfPinEntry=''; dots(); } }
-document.addEventListener('keydown', e=>{ if(document.getElementById('pin-screen').classList.contains('hidden')) return; if(e.key>='0'&&e.key<='9') pinKey(e.key); else if(e.key==='Backspace') pinDel(); });
+document.addEventListener('DOMContentLoaded', renderArchive);
 
 // ── STATE (same shape + floor rules as workflows.html) ──
 const STORAGE_KEY='wf-state-v1';

@@ -512,41 +512,13 @@
     <script src="/assets/plan-data.js"></script>
 <style>body.light-mode{--ft-dim:#666;--ft-link:#7a5c00}</style></head>
 <body>
-<!-- Single PIN gate is #pin-screen (keypad) below. Legacy password #auth-gate removed 2026-06-11 — it was a redundant second gate that forced entering 5683 twice. -->
 <div id="main-content">
 
 
-<!-- ── PIN Screen ── -->
-<div id="pin-screen">
-    <div class="pin-box">
-        <div class="lock-icon"><img src="assets/icons/shield-lock-48.png" alt="" width="16" height="16" style="vertical-align:middle;margin-right:3px;"></div>
-        <h2>TACC Dashboard</h2>
-        <p>Private — PIN required</p>
-        <div class="pin-dots">
-            <div class="pin-dot" id="dot-0"></div>
-            <div class="pin-dot" id="dot-1"></div>
-            <div class="pin-dot" id="dot-2"></div>
-            <div class="pin-dot" id="dot-3"></div>
-        </div>
-        <div class="pin-keypad">
-            <button class="pin-key" onclick="pinKey('1')">1</button>
-            <button class="pin-key" onclick="pinKey('2')">2</button>
-            <button class="pin-key" onclick="pinKey('3')">3</button>
-            <button class="pin-key" onclick="pinKey('4')">4</button>
-            <button class="pin-key" onclick="pinKey('5')">5</button>
-            <button class="pin-key" onclick="pinKey('6')">6</button>
-            <button class="pin-key" onclick="pinKey('7')">7</button>
-            <button class="pin-key" onclick="pinKey('8')">8</button>
-            <button class="pin-key" onclick="pinKey('9')">9</button>
-            <button class="pin-key" onclick="pinKey('0')" style="grid-column:2">0</button>
-            <button class="pin-key del" onclick="pinDel()">⌫</button>
-        </div>
-        <div class="pin-error" id="pin-error"></div>
-    </div>
-</div>
+<!-- Edge-gated: usmcmin-site Worker (PROTECTED_STATIC_KEYS) requires the server-side PIN session before this page is served; client-side PIN gate removed 2026-10-08 (MBP-1008-GATES). -->
 
 <!-- ── Main App (hidden until unlocked) ── -->
-<div id="tacc-app" style="display:none">
+<div id="tacc-app">
 
     <nav>
         <a href="index.html"><img src="assets/icons/shield-home-48.png" class="site-icon" alt="home" width="16" height="16"> U.S.M.C. Ministries Home</a>
@@ -652,7 +624,7 @@
     </script>
     <script>
 
-// Legacy outer-gate auth removed 2026-06-11 — the keypad #pin-screen (TACC_PIN at bottom of file) is now the sole gate. Single 5683 entry.
+// Client-side PIN gate removed 2026-10-08 — page is edge-gated by the Worker.
 
 // Rotating Family SWO values — leadership framework for TACC
     // The 10 Johns Family Values
@@ -2425,61 +2397,6 @@
 
 </div><!-- end #tacc-app -->
 
-<script>
-// ── PIN ──────────────────────────────────────────────────────────
-const TACC_PIN = '5683';
-const TACC_SESSION_KEY = 'tacc_unlocked';
-let taccPinEntry = '';
-
-(function checkTaccPinSession() {
-    if (sessionStorage.getItem(TACC_SESSION_KEY) === 'true') taccUnlock();
-})();
-
-function taccUnlock() {
-    document.getElementById('pin-screen').classList.add('hidden');
-    document.getElementById('tacc-app').style.display = '';
-}
-
-function pinKey(d) {
-    if (taccPinEntry.length >= 4) return;
-    taccPinEntry += d;
-    updatePinDots();
-    if (taccPinEntry.length === 4) setTimeout(checkTaccPin, 100);
-}
-
-function pinDel() {
-    taccPinEntry = taccPinEntry.slice(0, -1);
-    updatePinDots();
-    document.getElementById('pin-error').textContent = '';
-}
-
-function updatePinDots() {
-    for (let i = 0; i < 4; i++) {
-        document.getElementById('dot-' + i).classList.toggle('filled', i < taccPinEntry.length);
-    }
-}
-
-function checkTaccPin() {
-    if (taccPinEntry === TACC_PIN) {
-        sessionStorage.setItem(TACC_SESSION_KEY, 'true');
-        taccUnlock();
-    } else {
-        document.getElementById('pin-error').textContent = 'Incorrect PIN. Try again.';
-        taccPinEntry = '';
-        updatePinDots();
-        document.querySelectorAll('.pin-dot').forEach(d => {
-            d.style.borderColor = '#f44336';
-            setTimeout(() => d.style.borderColor = '', 600);
-        });
-    }
-}
-
-document.addEventListener('keydown', (e) => {
-    if (document.getElementById('pin-screen').classList.contains('hidden')) return;
-    if (e.key >= '0' && e.key <= '9') pinKey(e.key);
-    else if (e.key === 'Backspace') pinDel();
-});
-</script>
 
 <script>if("serviceWorker" in navigator){navigator.serviceWorker.register("/sw.js")}</script>
 

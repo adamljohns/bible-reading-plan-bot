@@ -306,36 +306,10 @@
 </head>
 <body>
 
-<!-- ── PIN Lock Screen ── -->
-<div id="lock-screen">
-    <div class="lock-icon">🔐</div>
-    <h2>Financial Command</h2>
-    <p style="color:var(--gray);font-size:0.9rem;">Enter PIN to continue</p>
-    <div class="pin-dots">
-        <div class="pin-dot" id="dot-0"></div>
-        <div class="pin-dot" id="dot-1"></div>
-        <div class="pin-dot" id="dot-2"></div>
-        <div class="pin-dot" id="dot-3"></div>
-    </div>
-    <div id="pin-error"></div>
-    <div class="pin-keypad">
-        <button class="pin-key" onclick="pinPress('1')">1</button>
-        <button class="pin-key" onclick="pinPress('2')">2</button>
-        <button class="pin-key" onclick="pinPress('3')">3</button>
-        <button class="pin-key" onclick="pinPress('4')">4</button>
-        <button class="pin-key" onclick="pinPress('5')">5</button>
-        <button class="pin-key" onclick="pinPress('6')">6</button>
-        <button class="pin-key" onclick="pinPress('7')">7</button>
-        <button class="pin-key" onclick="pinPress('8')">8</button>
-        <button class="pin-key" onclick="pinPress('9')">9</button>
-        <button class="pin-key clear" onclick="pinClear()">CLR</button>
-        <button class="pin-key" onclick="pinPress('0')">0</button>
-        <button class="pin-key" onclick="pinBackspace()">⌫</button>
-    </div>
-</div>
+<!-- Edge-gated: usmcmin-site Worker (PROTECTED_STATIC_KEYS) requires the server-side PIN session before this page is served; client-side PIN gate removed 2026-10-08 (MBP-1008-GATES). -->
 
 <!-- ── Main Content ── -->
-<div id="main-content" style="display:none;">
+<div id="main-content">
 
     <!-- Nav -->
     <nav>
@@ -409,51 +383,7 @@
 </div>
 
 <script>
-// ── PIN Lock ──────────────────────────────────────────
-const CORRECT_PIN = '5683';
-let pinBuffer = '';
-
-function pinPress(digit) {
-    if (pinBuffer.length >= 4) return;
-    pinBuffer += digit;
-    updateDots();
-    if (pinBuffer.length === 4) {
-        setTimeout(checkPin, 150);
-    }
-}
-function pinBackspace() {
-    pinBuffer = pinBuffer.slice(0, -1);
-    updateDots();
-    document.getElementById('pin-error').textContent = '';
-}
-function pinClear() {
-    pinBuffer = '';
-    updateDots();
-    document.getElementById('pin-error').textContent = '';
-}
-function updateDots() {
-    for (let i = 0; i < 4; i++) {
-        document.getElementById('dot-' + i).classList.toggle('filled', i < pinBuffer.length);
-    }
-}
-function checkPin() {
-    if (pinBuffer === CORRECT_PIN) {
-        document.getElementById('lock-screen').style.display = 'none';
-        document.getElementById('main-content').style.display = 'block';
-        loadDashboard();
-    } else {
-        document.getElementById('pin-error').textContent = '❌ Incorrect PIN';
-        pinBuffer = '';
-        updateDots();
-    }
-}
-// Keyboard support
-document.addEventListener('keydown', (e) => {
-    if (document.getElementById('lock-screen').style.display === 'none') return;
-    if (e.key >= '0' && e.key <= '9') pinPress(e.key);
-    if (e.key === 'Backspace') pinBackspace();
-    if (e.key === 'Escape') pinClear();
-});
+document.addEventListener('DOMContentLoaded', () => loadDashboard());
 
 // ── Dashboard ─────────────────────────────────────────
 function fmt(val) {
