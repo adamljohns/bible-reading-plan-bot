@@ -18,6 +18,8 @@ export PATH="/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
 DURATION_H="${1:-4}"
 case "$DURATION_H" in ''|*[!0-9]*) DURATION_H=4 ;; esac
 COOLDOWN="${GRIND_COOLDOWN:-540}"
+MAX_ROUNDS="${GRIND_MAX_ROUNDS:-0}"
+case "$MAX_ROUNDS" in ''|*[!0-9]*) MAX_ROUNDS=0 ;; esac
 # Rounds commit every ~11 min. Each push used to trigger its own 3-minute,
 # five-gate site deploy, so one 4h session queued ~22 of them back-to-back
 # (concurrency group deploy-r2 is serial) and any gate failure blocked the
@@ -156,6 +158,7 @@ while [ "$(date +%s)" -lt "$DEADLINE" ]; do
   # Extraction-pool exhaustion now advances into bounded frontier lanes. Only a
   # true monitoring heartbeat (no executable automated lane remains) ends early.
   tail -8 "$HOME/Library/Logs/pastor-refine-local.log" 2>/dev/null | grep -q "frontier lane done: monitoring" && { say "automated lanes exhausted — review/dead-site queues remain"; break; }
+  [ "$MAX_ROUNDS" -gt 0 ] && [ "$ROUNDS" -ge "$MAX_ROUNDS" ] && { say "bounded verification cap reached ($MAX_ROUNDS rounds)"; break; }
   [ "$(date +%s)" -ge "$DEADLINE" ] && break
   say "cooldown ${COOLDOWN}s…"
   sleep "$COOLDOWN"

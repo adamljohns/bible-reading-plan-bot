@@ -108,6 +108,7 @@ assert.ok(!session.includes('aborted: 3 consecutive +0 rounds'),
 assert.ok(session.indexOf('publish verified live:') < session.indexOf('Directory grind — verified live result'),
   'completion notice must only be emitted after live verification');
 assert.ok(session.includes('commit-tree'), 'deploy trigger must attach to current origin/main instead of a stale detached HEAD');
+assert.ok(session.includes('GRIND_MAX_ROUNDS'), 'wrapper must support a one-round bounded verification run');
 
 const { summarizeLines } = require(path.join(ROOT, 'scripts/summarize-grind-session.js'));
 const summary = summarizeLines([
