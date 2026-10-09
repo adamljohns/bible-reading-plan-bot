@@ -267,7 +267,7 @@ fi
 
 PENDING_STATS="$HOME/Library/Logs/prl-pending-grind-stats.json"
 if [ "$CONTENT_APPLIED" -eq 0 ]; then
-  say "zero applied — skip qa-sample/grind-stats/regen/commit/push (no deploy trigger)"
+  say "zero content applied — persist operational state and advance the selector (no deploy trigger)"
   # An empty hop MUST count against the lane, or the gate above can never trip.
   node scripts/refine-yield-gate.js --record "$MODE" 0 >>"$LOG" 2>&1 \
     || say "yield-gate hop record failed (non-fatal)"
@@ -278,6 +278,23 @@ if [ "$CONTENT_APPLIED" -eq 0 ]; then
     rows.push({ts:new Date().toISOString().slice(0,16),mode:process.env.PRL_MODE||"fresh",attempted:+process.env.PRL_ATTEMPTED||0,applied:0,pending:true});
     fs.writeFileSync(pending,JSON.stringify(rows,null,1));
   ' >>"$LOG" 2>&1 || say "pending grind-stats queue failed (non-fatal)"
+
+  # Zero content is not zero progress when the guarded merge learned that a site
+  # is dead or recorded a completed attempt. Persist only canonical operational
+  # markers plus the lane-streak mirror so the next round cannot replay the same
+  # records. The [skip ci] checkpoint never pretends to be a public content ship.
+  if ! git diff --quiet -- docs/data/churches.json docs/data/grind-stats.json; then
+    git add docs/data/churches.json docs/data/grind-stats.json
+    git commit -qm "Directory refine checkpoint: +0 content fields ($N_BATCH attempted, $MODE) [skip ci]" \
+      || die "operational checkpoint commit failed"
+    if ! git push -q origin HEAD:main; then
+      say "operational checkpoint push rejected — rebasing onto fresh origin/main and retrying"
+      land_head_on_main || die "operational checkpoint push failed after rebase retry"
+    fi
+    say "operational checkpoint pushed: mode=$MODE attempted=$N_BATCH mutated=$MERGE_MUTATED"
+  else
+    say "zero content and no operational mutation to checkpoint"
+  fi
 else
   # Publish a QA sample for the fleet: the newest local-extract finds land at
   # https://usmcmin.org/data/qa-sample.json so Chaps (web_fetch-only tooling) can

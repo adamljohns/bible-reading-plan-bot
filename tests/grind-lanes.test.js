@@ -83,7 +83,9 @@ assert.ok(html.includes('r.pastors_applied ?? r.found') && html.includes('r.appl
 assert.ok(runner.includes('--found "$APPLIED" --applied "$CONTENT_APPLIED"'), 'dashboard applied count must include all guarded content fields, not extracted candidates');
 assert.ok(runner.includes('--pastors-applied "$APPLIED" --socials-applied "$SOC_APPLIED"'), 'dashboard must preserve separate pastor and social counts');
 assert.ok(runner.includes('MERGE_MUTATED=1'), 'operational stamp detection must remain wired');
-assert.ok(runner.includes('zero applied — skip qa-sample/grind-stats/regen/commit/push'), 'zero-yield rounds must not deploy');
+assert.ok(runner.includes('operational checkpoint pushed:'), 'zero-content rounds must persist operational markers so selectors advance');
+assert.ok(runner.includes('Directory refine checkpoint: +0 content fields'), 'zero-content checkpoints must be explicitly labeled and skip deploy');
+assert.ok(!runner.includes('zero applied — skip qa-sample/grind-stats/regen/commit/push'), 'zero-content rounds must not leave canonical operational mutations dirty');
 assert.ok(runner.includes('NOTHING TO GRIND'), 'cold apply lanes must exit without commit');
 
 const cold = { fresh: 0, retry: 5, social: 5, source_recovery: 0 };
@@ -101,6 +103,32 @@ assert.ok(session.includes('pastor-refine-local.sh'), 'session wrapper must invo
 assert.ok(session.includes('yield gate HALT'), 'wrapper must honor runner exit 3 as a clean dead-pool stop');
 assert.ok(!session.includes('aborted: fresh pool'),
   'session wrapper must not abort when fresh < 10; runner yield-gate owns fallthrough to source-recovery');
+assert.ok(!session.includes('aborted: 3 consecutive +0 rounds'),
+  'session wrapper must not stop while operational checkpoints can advance into frontier work');
+assert.ok(session.indexOf('publish verified live:') < session.indexOf('Directory grind — verified live result'),
+  'completion notice must only be emitted after live verification');
+assert.ok(session.includes('commit-tree'), 'deploy trigger must attach to current origin/main instead of a stale detached HEAD');
+
+const { summarizeLines } = require(path.join(ROOT, 'scripts/summarize-grind-session.js'));
+const summary = summarizeLines([
+  '[x] frontier lane done: source-recovery attempted=10 applied=11',
+  '[x] frontier lane done: source-recovery attempted=10 applied=17',
+  '[x] frontier lane done: source-recovery attempted=10 applied=16',
+  '[x] pushed: +13 content fields (0 pastors, 13 socials), operational_mutation=1 (11 attempted)',
+  '[x] frontier lane done: source-recovery attempted=10 applied=15',
+  '[x] operational checkpoint pushed: mode=fresh attempted=4 mutated=1',
+]);
+assert.deepStrictEqual(summary, {
+  attempted: 55,
+  content_applied: 72,
+  pastors_applied: 0,
+  socials_applied: 13,
+  frontier_applied: 59,
+  productive_rounds: 5,
+  zero_content_rounds: 1,
+  operational_checkpoints: 1,
+  other_profile_applied: 0,
+}, 'session summary must report durable structured yield instead of a stale schema snapshot');
 
 const plan = cp.execFileSync('/bin/bash', [path.join(ROOT, 'scripts/continuous-enrichment-lane.sh'), '/tmp/prl-test'], {
   cwd: ROOT,

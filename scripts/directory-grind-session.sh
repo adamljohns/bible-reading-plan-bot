@@ -30,9 +30,15 @@ DEADLINE=$(( $(date +%s) + DURATION_H*3600 ))
 LOCK="/tmp/directory-grind-session.lock"
 STOP="/tmp/directory-grind-session-stop"
 LOG="$HOME/Library/Logs/directory-grind-session.log"
+RUN_LOG="$HOME/Library/Logs/pastor-refine-local.log"
 RUNNER="$HOME/bible-reading-plan-bot-autopilot/scripts/pastor-refine-local.sh"
+SUMMARY="$HOME/bible-reading-plan-bot-autopilot/scripts/summarize-grind-session.js"
 NOTIFY="$HOME/.hermes/bin/notify-adam.sh"
 say() { echo "[$(date '+%F %T')] $*" >>"$LOG"; }
+RUN_LOG_START=$(wc -l <"$RUN_LOG" 2>/dev/null || echo 0)
+case "$RUN_LOG_START" in ''|*[!0-9]*) RUN_LOG_START=0 ;; esac
+CONTENT_GAIN=0; GAIN=0; SOCIAL_GAIN=0; FRONTIER_GAIN=0; OTHER_GAIN=0
+ATTEMPTED=0; PRODUCTIVE_ROUNDS=0; ZERO_ROUNDS=0; OP_CHECKPOINTS=0
 
 # One deploy for the whole session. The rounds already pushed their content
 # with [skip ci]; this empty commit is the trigger. Idempotent: it no-ops when
@@ -41,40 +47,66 @@ say() { echo "[$(date '+%F %T')] $*" >>"$LOG"; }
 # is exactly the thing that does not work from launchd.
 DEPLOY_FIRED=0
 publish_session_output() {
-  [ "${ROUNDS:-0}" -gt 0 ] || { say "no rounds landed — no deploy to fire"; return 0; }
+  [ "${CONTENT_GAIN:-0}" -gt 0 ] || {
+    say "no validated content landed — no deploy and no completion notice"
+    return 0
+  }
   [ "$DEPLOY_FIRED" = "1" ] && return 0
   DEPLOY_FIRED=1
   local wt="$HOME/bible-reading-plan-bot-autopilot"
-  git -C "$wt" fetch -q origin main || { say "ALERT: deploy trigger fetch failed — session output is pushed but NOT deployed"; return 1; }
-  if ! git -C "$wt" diff --quiet origin/main -- docs 2>/dev/null; then
-    say "deploy trigger: worktree docs differ from origin/main — refusing to fire, run deploy by hand"
+
+  # Dirty canonical docs mean a round failed to checkpoint its state. Do not
+  # hide that defect behind an empty deploy commit or a false DONE notice.
+  if ! git -C "$wt" diff --quiet -- docs 2>/dev/null; then
+    say "ALERT: deploy withheld — autopilot docs hold uncommitted state"
     return 1
   fi
-  git -C "$wt" commit -q --allow-empty -m "deploy: publish grind session output ($ROUNDS rounds)" \
-    || { say "ALERT: deploy trigger commit failed"; return 1; }
-  if git -C "$wt" push -q origin HEAD:main; then
-    say "deploy fired: one run for $ROUNDS deferred rounds"
-  else
-    git -C "$wt" fetch -q origin main && git -C "$wt" rebase -q FETCH_HEAD && git -C "$wt" push -q origin HEAD:main \
-      && say "deploy fired after rebase: one run for $ROUNDS deferred rounds" \
-      || { say "ALERT: deploy trigger push failed — session output is pushed but NOT deployed"; return 1; }
-  fi
 
-  # Pushing is not publishing. Watch the run this session just triggered and
-  # then fetch the live site; alert Adam by name if a session's worth of work
-  # did not make it. Silent when healthy.
+  # Build the deploy trigger directly on the current origin/main tree. This
+  # avoids coupling publication to the detached autopilot HEAD and survives
+  # unrelated writers landing between the final grind round and session close.
+  local parent tree deploy_sha attempt
+  for attempt in 1 2 3; do
+    git -C "$wt" fetch -q origin main || {
+      say "ALERT: deploy trigger fetch failed — validated output is pushed but NOT verified live"
+      return 1
+    }
+    parent=$(git -C "$wt" rev-parse origin/main) || return 1
+    tree=$(git -C "$wt" rev-parse "${parent}^{tree}") || return 1
+    deploy_sha=$(printf 'deploy: publish grind session output (%s productive rounds, %s fields)\n' \
+      "$PRODUCTIVE_ROUNDS" "$CONTENT_GAIN" | git -C "$wt" commit-tree "$tree" -p "$parent") || {
+      say "ALERT: deploy trigger commit failed"
+      return 1
+    }
+    if git -C "$wt" push -q origin "$deploy_sha:main"; then
+      say "deploy fired: sha=$deploy_sha productive_rounds=$PRODUCTIVE_ROUNDS content_fields=$CONTENT_GAIN"
+      break
+    fi
+    deploy_sha=""
+    say "deploy trigger raced another writer — retry $attempt/3"
+  done
+  [ -n "$deploy_sha" ] || {
+    say "ALERT: deploy trigger push failed after 3 races — validated output is pushed but NOT verified live"
+    return 1
+  }
+
+  # Pushing is not publishing. Notify only after the exact trigger commit and
+  # cache-busted public endpoints verify. A failed or zero-yield session remains
+  # silent; its log/dashboard carry the diagnostic instead of a false receipt.
   local verifier="$HOME/Scripts/guards/publish-verify.sh"
-  if [ -x "$verifier" ]; then
-    "$verifier" --lane "directory grind ($ROUNDS rounds)" \
+  if [ -x "$verifier" ] && "$verifier" --lane "directory grind ($PRODUCTIVE_ROUNDS productive rounds)" \
       --repo adamljohns/bible-reading-plan-bot \
-      --sha "$(git -C "$wt" rev-parse HEAD)" \
+      --sha "$deploy_sha" \
       --url https://usmcmin.org/grind-report.html \
       --url https://usmcmin.org/data/grind-stats.json \
       --expect "$(date -u +%F)T" \
-      --timeout 1200 \
-      && say "publish verified live" || say "ALERT: publish NOT verified live (rc=$?) — Adam alerted"
+      --timeout 1200; then
+    say "publish verified live: sha=$deploy_sha content_fields=$CONTENT_GAIN"
+    [ -x "$NOTIFY" ] && "$NOTIFY" --level info --title "Directory grind — verified live result" \
+      --body "$PRODUCTIVE_ROUNDS productive rounds; $CONTENT_GAIN validated fields live from $ATTEMPTED records: $GAIN pastors, $SOCIAL_GAIN socials, $FRONTIER_GAIN source-recovery contact/map fields, $OTHER_GAIN other profile fields. https://usmcmin.org/grind-report.html" >/dev/null 2>&1 || true
   else
-    say "publish-verify.sh missing — deploy fired but not verified"
+    say "ALERT: publish NOT verified live — no completion notice sent"
+    return 1
   fi
 }
 
@@ -87,18 +119,12 @@ START_P=$(node -e '
 try{const d=JSON.parse(require("fs").readFileSync(process.env.HOME+"/bible-reading-plan-bot-autopilot/docs/data/churches.json","utf8")).churches;
 const ph=p=>{const s=String(p||"").trim();return !s||/^(pastors?|tbd|n\/?a|none|unknown|various|staff)\.?$/i.test(s)||/verify|see website|coming soon|^unknown/i.test(s)};
 console.log(d.filter(c=>!ph(c.pastor)).length)}catch(e){console.log(0)}' 2>/dev/null || echo 0)
-START_C=$(node -e '
-try{const d=JSON.parse(require("fs").readFileSync(process.env.HOME+"/bible-reading-plan-bot-autopilot/docs/data/churches.json","utf8")).churches;
-const ph=p=>{const s=String(p||"").trim();return !s||/^(pastors?|tbd|n\/?a|none|unknown|various|staff)\.?$/i.test(s)||/verify|see website|coming soon|^unknown/i.test(s)};
-const notes=c=>Object.keys(c.score_notes||{}).filter(k=>String(c.score_notes[k]||'').trim().length>20).length;const n=c=>(!ph(c.pastor)?1:0)+Object.keys(c.scores||{}).filter(k=>c.scores[k]).length+notes(c)+(String(c.assessment||"").trim()?1:0)+(c.facebook?1:0)+(c.youtube?1:0)+(c.instagram?1:0)+(c.phone?1:0)+(c.website?1:0)+(c.address?1:0)+(c.service_times||c.services?1:0)+(c.denomination_family||c.denomination?1:0);
-console.log(d.reduce((a,c)=>a+n(c),0))}catch(e){console.log(0)}' 2>/dev/null || echo 0)
-
 round_was_zero_yield() {
-  tail -30 "$HOME/Library/Logs/pastor-refine-local.log" 2>/dev/null \
-    | grep -q "zero applied — skip qa-sample/grind-stats/regen/commit/push"
+  tail -40 "$RUN_LOG" 2>/dev/null \
+    | grep -q "zero content applied — persist operational state and advance the selector"
 }
 
-say "════ ${DURATION_H}h session START (batch $PASTOR_REFINE_BATCH, ${COOLDOWN}s cooldown, start pastors=$START_P, profile_fields=$START_C) ════"
+say "════ ${DURATION_H}h session START (batch $PASTOR_REFINE_BATCH, ${COOLDOWN}s cooldown, start pastors=$START_P, runner_log_line=$RUN_LOG_START) ════"
 ROUNDS=0; FAILS=0; ZERO_STREAK=0; ABORT_REASON=""; LFS_WARNINGS=0
 while [ "$(date +%s)" -lt "$DEADLINE" ]; do
   [ -f "$STOP" ] && { say "stop switch — ending session"; rm -f "$STOP"; break; }
@@ -110,8 +136,7 @@ while [ "$(date +%s)" -lt "$DEADLINE" ]; do
     FAILS=0; ROUNDS=$((ROUNDS+1))
     if round_was_zero_yield; then
       ZERO_STREAK=$((ZERO_STREAK+1))
-      say "zero-yield round (consecutive=$ZERO_STREAK)"
-      [ "$ZERO_STREAK" -ge 3 ] && { ABORT_REASON="aborted: 3 consecutive +0 rounds"; say "$ABORT_REASON"; break; }
+      say "zero-content checkpoint round (consecutive=$ZERO_STREAK); selector state persisted, continuing"
     else
       ZERO_STREAK=0
     fi
@@ -140,17 +165,18 @@ END_P=$(node -e '
 try{const d=JSON.parse(require("fs").readFileSync(process.env.HOME+"/bible-reading-plan-bot-autopilot/docs/data/churches.json","utf8")).churches;
 const ph=p=>{const s=String(p||"").trim();return !s||/^(pastors?|tbd|n\/?a|none|unknown|various|staff)\.?$/i.test(s)||/verify|see website|coming soon|^unknown/i.test(s)};
 console.log(d.filter(c=>!ph(c.pastor)).length)}catch(e){console.log(0)}' 2>/dev/null || echo 0)
-END_C=$(node -e '
-try{const d=JSON.parse(require("fs").readFileSync(process.env.HOME+"/bible-reading-plan-bot-autopilot/docs/data/churches.json","utf8")).churches;
-const ph=p=>{const s=String(p||"").trim();return !s||/^(pastors?|tbd|n\/?a|none|unknown|various|staff)\.?$/i.test(s)||/verify|see website|coming soon|^unknown/i.test(s)};
-const notes=c=>Object.keys(c.score_notes||{}).filter(k=>String(c.score_notes[k]||'').trim().length>20).length;const n=c=>(!ph(c.pastor)?1:0)+Object.keys(c.scores||{}).filter(k=>c.scores[k]).length+notes(c)+(String(c.assessment||"").trim()?1:0)+(c.facebook?1:0)+(c.youtube?1:0)+(c.instagram?1:0)+(c.phone?1:0)+(c.website?1:0)+(c.address?1:0)+(c.service_times||c.services?1:0)+(c.denomination_family||c.denomination?1:0);
-console.log(d.reduce((a,c)=>a+n(c),0))}catch(e){console.log(0)}' 2>/dev/null || echo 0)
-GAIN=$(( END_P - START_P ))
-CONTENT_GAIN=$(( END_C - START_C ))
+if [ -x "$SUMMARY" ]; then
+  SUMMARY_JSON=$(node "$SUMMARY" --log "$RUN_LOG" --after-line "$RUN_LOG_START" 2>>"$LOG" || echo '{}')
+else
+  SUMMARY_JSON='{}'
+  say "summary helper missing — refusing to infer session yield from snapshots"
+fi
+SUMMARY_TSV=$(node -e '
+let j={};try{j=JSON.parse(process.argv[1])}catch(_){}
+const n=k=>Number(j[k]||0);console.log([n("attempted"),n("content_applied"),n("pastors_applied"),n("socials_applied"),n("frontier_applied"),n("other_profile_applied"),n("productive_rounds"),n("zero_content_rounds"),n("operational_checkpoints")].join("\t"));' "$SUMMARY_JSON")
+IFS=$'\t' read -r ATTEMPTED CONTENT_GAIN GAIN SOCIAL_GAIN FRONTIER_GAIN OTHER_GAIN PRODUCTIVE_ROUNDS ZERO_ROUNDS OP_CHECKPOINTS <<<"$SUMMARY_TSV"
 HEAD_SHA=$(git -C "$HOME/bible-reading-plan-bot-autopilot" rev-parse HEAD 2>/dev/null || echo unknown)
 ORIGIN_SHA=$(git -C "$HOME/bible-reading-plan-bot-autopilot" rev-parse origin/main 2>/dev/null || echo unknown)
 SYNC_PROOF="head=$HEAD_SHA origin=$ORIGIN_SHA"
 [ "$HEAD_SHA" = "$ORIGIN_SHA" ] && SYNC_PROOF="$SYNC_PROOF MATCH" || SYNC_PROOF="$SYNC_PROOF MISMATCH"
-say "════ session DONE: $ROUNDS rounds, +$CONTENT_GAIN profile fields (+$GAIN pastors; total pastors $END_P) abort=${ABORT_REASON:-none} lfs_warnings=$LFS_WARNINGS $SYNC_PROOF ════"
-[ -x "$NOTIFY" ] && [ "$ROUNDS" -gt 0 ] && "$NOTIFY" --level info --title "⛏️ Directory grind session done" \
-  --body "$ROUNDS rounds. +$GAIN pastors. +$CONTENT_GAIN profile fields (contact, service times, and cited score notes — not phone crumbs alone). Live: https://usmcmin.org/grind-report.html" >/dev/null 2>&1 || true
+say "════ session RESULT: rounds=$ROUNDS productive=$PRODUCTIVE_ROUNDS zero=$ZERO_ROUNDS checkpoints=$OP_CHECKPOINTS attempted=$ATTEMPTED validated_fields=$CONTENT_GAIN pastors=$GAIN socials=$SOCIAL_GAIN frontier_fields=$FRONTIER_GAIN other_profile=$OTHER_GAIN total_pastors=$END_P abort=${ABORT_REASON:-none} lfs_warnings=$LFS_WARNINGS $SYNC_PROOF; live verification pending ════"
