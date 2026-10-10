@@ -1432,6 +1432,8 @@
             return refs.slice(0, 5);
         }
 
+        var CROSSREF_SHOW = 3;
+
         // BTE v8.0 (PJG-0806-XREF1 / Adam 2026-07-29 lock): bottom panel for ALL modes.
         // Chapter + range: one panel after verse stream (no mid-stream cards). Previews via hydrateCrossRefPreviews.
         function buildCrossRefPanel(allVerseRefs, bookId, chapter, mode) {
@@ -1445,15 +1447,22 @@
                 const verseLabel = multi
                     ? '<div class="crossref-verse-label">From ' + chapter + ':' + vn + '</div>'
                     : '';
+                // MBP-1010-XREF: first CROSSREF_SHOW per verse, rest behind the Strong's-style "Show more"
+                const hasMore = refs.length > CROSSREF_SHOW;
+                const extraClass = 'crossref-extra-' + chapter + '-' + vn;
                 let itemsHtml = '';
-                refs.forEach(function(refKey) {
+                refs.forEach(function(refKey, idx) {
                     const display = crossRefKeyToDisplay(refKey);
                     const link = crossRefKeyToLink(refKey);
-                    itemsHtml += '<div class="crossref-item crossref-row">' +
+                    const hidden = hasMore && idx >= CROSSREF_SHOW;
+                    itemsHtml += '<div class="crossref-item crossref-row' + (hidden ? ' ' + extraClass + '" style="display:none;">' : '">') +
                         '<a class="crossref-ref" href="' + link + '">→ ' + display + '</a>' +
                         '<span class="crossref-preview" data-xref="' + refKey + '"></span>' +
                         '</div>';
                 });
+                if (hasMore) {
+                    itemsHtml += '<div style="margin-top:4px;"><span class="strongs-show-more" onclick="(function(el){var extras=document.querySelectorAll(\'.' + extraClass + '\');extras.forEach(function(e){e.style.display=\'block\';});el.style.display=\'none\';})(this)" style="cursor:pointer;color:var(--gold);font-size:0.85rem;user-select:none;">Show more cross-references <span class="usmc-tri usmc-tri-right" aria-hidden="true"></span> (' + (refs.length - CROSSREF_SHOW) + ' more)</span></div>';
+                }
                 groupsHtml += '<div class="crossref-verse-group">' + verseLabel + itemsHtml + '</div>';
             });
             if (!totalCount) return { html: '', count: 0 };
