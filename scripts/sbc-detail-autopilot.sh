@@ -36,21 +36,12 @@ ts() { date -u +%H:%M:%SZ; }
 remaining_to_fetch() {
   node -e "
     const fs=require('fs');
+    const lanes=require('./scripts/lib/grind-lanes.js');
     const d=JSON.parse(fs.readFileSync('docs/data/churches.json','utf8'));
-    const done=new Set();
-    if (fs.existsSync('$JSONL_PATH')) {
-      for (const l of fs.readFileSync('$JSONL_PATH','utf8').split('\n').filter(Boolean)) {
-        try { done.add(JSON.parse(l).id); } catch(e){}
-      }
-    }
     const stateFilter='$STATE';
     let n=0;
     for(const c of d.churches){
-      if(!c.source_url||!c.source_url.includes('churches.sbc.net')) continue;
-      if(done.has(c.id||c.slug)) continue;
-      const hasWeb=c.website&&/^https?:/i.test(c.website);
-      const hasGeo=typeof c.latitude==='number';
-      if(hasWeb && hasGeo) continue;
+      if(!lanes.sourceRecoveryEligible(c)) continue;
       if(stateFilter!=='all' && !new RegExp(',\\\\s*'+stateFilter+'\\\\b').test(c.address||'')) continue;
       n++;
     }
@@ -73,7 +64,10 @@ while [ "$(date +%s)" -lt "$END_TS" ]; do
   fi
 
   echo "[$(ts)] scraping up to $PER_TICK SBC detail pages (JSONL mode, state=${STATE}) ..."
-  BEFORE=$([ -f "$JSONL_PATH" ] && wc -l < "$JSONL_PATH" | tr -d ' ' || echo 0)
+  # Each tick is its own transaction. A stale persistent ledger could hide
+  # scraped-but-unmerged records or replay old failures on every later merge.
+  rm -f "$JSONL_PATH"
+  BEFORE=0
   STATE_ARG=""
   if [ "$STATE" != "all" ]; then STATE_ARG="--state $STATE"; fi
   node scripts/scrape-sbc-detail.js --count "$PER_TICK" --jsonl "$JSONL_PATH" $STATE_ARG 2>&1 | tail -3

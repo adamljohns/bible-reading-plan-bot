@@ -45,6 +45,7 @@ assert.strictEqual(lanes.chooseLane(counts, null, cleanStreaks), 'monitoring');
 
 // Authoritative-source failures retry, then leave the automated lane after the cap.
 assert.strictEqual(lanes.sourceRecoveryEligible(c({ source_url: 'https://churches.sbc.net/church/retry', _sbc_detail_failures: 2 })), true);
+assert.strictEqual(lanes.sourceRecoveryEligible(c({ source_url: 'https://churches.sbc.net/church/identity-hold', _hold_review: 'sbc-source-identity-mismatch' })), false, 'identity holds must leave the automated source-recovery lane');
 assert.strictEqual(lanes.sourceRecoveryEligible(c({ source_url: 'https://churches.sbc.net.evil.example/church/lookalike' })), false, 'source recovery must require the exact SBC hostname');
 assert.strictEqual(lanes.sourceRecoveryEligible(c({ source_url: 'https://churches.sbc.net/church/capped', _sbc_detail_failures: 3 })), false);
 counts = lanes.countLanes([c({ id: 'source-capped', source_url: 'https://churches.sbc.net/church/capped', _sbc_detail_failures: 3 })]);
@@ -71,6 +72,7 @@ assert.strictEqual(lanes.chooseLane(counts, null, cleanStreaks), 'monitoring');
 
 const html = fs.readFileSync(path.join(ROOT, 'docs/grind-report.html'), 'utf8');
 const runner = fs.readFileSync(path.join(ROOT, 'scripts/pastor-refine-local.sh'), 'utf8');
+const sbcAutopilot = fs.readFileSync(path.join(ROOT, 'scripts/sbc-detail-autopilot.sh'), 'utf8');
 const generator = fs.readFileSync(path.join(ROOT, 'generate-church-pages.js'), 'utf8');
 assert.ok(generator.includes("typeof church.service_times === 'string'"), 'profile renderer must expose verified legacy service_times data');
 assert.ok(html.includes('CURRENT PASS EXHAUSTED / CONTINUING'), 'dashboard must not claim product completion');
@@ -87,6 +89,19 @@ assert.ok(runner.includes('operational checkpoint pushed:'), 'zero-content round
 assert.ok(runner.includes('Directory refine checkpoint: +0 content fields'), 'zero-content checkpoints must be explicitly labeled and skip deploy');
 assert.ok(!runner.includes('zero applied — skip qa-sample/grind-stats/regen/commit/push'), 'zero-content rounds must not leave canonical operational mutations dirty');
 assert.ok(runner.includes('NOTHING TO GRIND'), 'cold apply lanes must exit without commit');
+const salvageCall = runner.indexOf('land_head_on_main || die "push failed after rebase retry — commit stranded in autopilot worktree"');
+const salvageRefetch = runner.indexOf('git fetch -q origin main || die "post-salvage refetch failed"');
+const destructiveReset = runner.indexOf('git reset -q --hard FETCH_HEAD');
+assert.ok(salvageCall >= 0 && salvageRefetch > salvageCall && destructiveReset > salvageRefetch,
+  'a successful stranded-commit salvage must refresh FETCH_HEAD before the destructive reset');
+assert.ok(sbcAutopilot.includes('sourceRecoveryEligible'),
+  'persistent SBC preflight must share the exact source-recovery eligibility predicate');
+assert.ok(!sbcAutopilot.includes('const done=new Set()'),
+  'autopilot preflight must not hide scraped-but-unmerged rows behind a ledger');
+const tickLedgerReset = sbcAutopilot.indexOf('rm -f "$JSONL_PATH"');
+const tickScrape = sbcAutopilot.indexOf('node scripts/scrape-sbc-detail.js');
+assert.ok(tickLedgerReset >= 0 && tickScrape > tickLedgerReset,
+  'each autopilot tick must scrape into a fresh ledger before merging only that batch');
 
 const cold = { fresh: 0, retry: 5, social: 5, source_recovery: 0 };
 const streaksCold = { fresh: 0, retry: 3, social: 3 };

@@ -19,6 +19,7 @@ const fs = require('fs');
 const path = require('path');
 const https = require('https');
 const lanes = require('./lib/grind-lanes.js');
+const { extractSourcePostal, isIdentityCompleteResult } = require('./lib/sbc-detail-identity.js');
 
 const CHURCHES = path.join(__dirname, '..', 'docs', 'data', 'churches.json');
 const DEFAULT_JSONL = '/tmp/sbc-detail.jsonl';
@@ -55,6 +56,7 @@ function fetchText(url) {
 
 function parseDetail(html) {
   const out = {};
+  out.sbc_detail_source_postal = extractSourcePostal(html);
   // Website link — only accept URLs with an actual host. SBC.net shows the
   // <a href="..."> placeholder element even for churches with NO website
   // registered, with href="" or href="https://"; we MUST reject those or we
@@ -86,7 +88,7 @@ async function main() {
   const alreadyDone = new Set();
   if (fs.existsSync(args.jsonl)) {
     for (const l of fs.readFileSync(args.jsonl, 'utf8').split('\n').filter(Boolean)) {
-      try { const r = JSON.parse(l); if (r.id) alreadyDone.add(r.id); } catch (e) {}
+      try { const r = JSON.parse(l); if (isIdentityCompleteResult(r)) alreadyDone.add(r.id); } catch (e) {}
     }
     console.log(`Already in JSONL: ${alreadyDone.size}`);
   }
@@ -128,7 +130,10 @@ async function main() {
     try {
       const html = await fetchText(c.source_url);
       const detail = parseDetail(html);
-      const result = { sbc_detail_fetched_at: new Date().toISOString() };
+      const result = {
+        sbc_detail_fetched_at: new Date().toISOString(),
+        sbc_detail_source_postal: detail.sbc_detail_source_postal,
+      };
       if (detail.website) { result.website = detail.website; gotWebsite++; }
       if (typeof detail.latitude === 'number') { result.latitude = detail.latitude; result.longitude = detail.longitude; result.geocode_source = 'sbc.net'; gotGeo++; }
       if (detail.phone) { result.phone = detail.phone; gotPhone++; }

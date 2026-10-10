@@ -82,6 +82,11 @@ fi
 if ! git merge-base --is-ancestor HEAD FETCH_HEAD; then
   say "unpushed local commit — salvage rebase/push before reset"
   land_head_on_main || die "push failed after rebase retry — commit stranded in autopilot worktree"
+  # land_head_on_main fetches BEFORE it pushes. After a successful salvage,
+  # FETCH_HEAD therefore still names the old remote tip. Refresh it before the
+  # destructive reset or the just-landed commit is forgotten locally and the
+  # same source-recovery records are selected again from stale state.
+  git fetch -q origin main || die "post-salvage refetch failed"
 fi
 # reset --hard moves the detached HEAD to FETCH_HEAD AND overwrites local dirt in one
 # unstoppable step. (A plain `checkout --detach` REFUSES a dirty tree — leftover dirt

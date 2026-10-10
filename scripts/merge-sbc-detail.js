@@ -13,6 +13,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const { validateSourceIdentity } = require('./lib/sbc-detail-identity.js');
 
 const CHURCHES = path.join(__dirname, '..', 'docs', 'data', 'churches.json');
 const DEFAULT_JSONL = '/tmp/sbc-detail.jsonl';
@@ -38,15 +39,33 @@ function main() {
   const byId = new Map();
   for (const c of data.churches) byId.set(c.id || c.slug, c);
 
-  let applied = 0, missing = 0, addedWebsite = 0, addedGeo = 0, addedPhone = 0, errored = 0;
+  let applied = 0, missing = 0, addedWebsite = 0, addedGeo = 0, addedPhone = 0, errored = 0, identityHeld = 0, identitySkipped = 0;
   for (const line of lines) {
     let r; try { r = JSON.parse(line); } catch (e) { continue; }
     const c = byId.get(r.id);
     if (!c) { missing++; continue; }
+    const identityError = validateSourceIdentity(c, r);
+    if (identityError) {
+      if (identityError === 'missing source postal identity evidence') {
+        // Old JSONL rows lack identity evidence. Ignore them without mutating
+        // canonical state; a fresh scrape can supply the source postal code.
+        identitySkipped++;
+        continue;
+      }
+      identityHeld++;
+      c._hold_review = 'sbc-source-identity-mismatch';
+      c.sbc_detail_failed_at = r.sbc_detail_fetched_at || new Date().toISOString();
+      c.sbc_detail_error = `IDENTITY: ${identityError}`;
+      applied++;
+      continue;
+    }
     if (r.sbc_detail_error) {
       errored++;
-      c._sbc_detail_failures = Number(c._sbc_detail_failures || 0) + 1;
-      c.sbc_detail_failed_at = r.sbc_detail_failed_at || new Date().toISOString();
+      const failedAt = r.sbc_detail_failed_at || new Date().toISOString();
+      if (c.sbc_detail_failed_at !== failedAt) {
+        c._sbc_detail_failures = Number(c._sbc_detail_failures || 0) + 1;
+      }
+      c.sbc_detail_failed_at = failedAt;
       c.sbc_detail_error = r.sbc_detail_error;
     }
     // Apply website only if missing AND the URL actually has a host (the scraper
@@ -70,6 +89,7 @@ function main() {
     }
     if (r.sbc_detail_fetched_at) {
       c.sbc_detail_fetched_at = r.sbc_detail_fetched_at;
+      if (c._hold_review === 'sbc-source-identity-mismatch') delete c._hold_review;
       delete c._sbc_detail_failures;
       delete c.sbc_detail_failed_at;
       delete c.sbc_detail_error;
@@ -83,6 +103,8 @@ function main() {
   console.log(`  +${addedGeo} geocodes (sbc.net coords)`);
   console.log(`  +${addedPhone} phones`);
   console.log(`  ${errored} had scrape-time errors`);
+  if (identityHeld) console.log(`  ${identityHeld} held for source-identity review`);
+  if (identitySkipped) console.log(`  ${identitySkipped} legacy results skipped without identity evidence`);
   if (missing) console.log(`  ${missing} JSONL records had no matching church.id`);
 
   // Coverage check on SBC subset

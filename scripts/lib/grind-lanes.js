@@ -38,7 +38,7 @@ const websiteDiscoveryEligible = c => !hasWebsite(c) && isEnglish(c.name) && isU
 const isSbcSource = c => { try { return new URL(String(c.source_url || '')).hostname === 'churches.sbc.net'; } catch (_) { return false; } };
 const sourceRecoveryEligible = c => isSbcSource(c) &&
   (!hasWebsite(c) || typeof c.latitude !== 'number' || typeof c.longitude !== 'number') && !c.sbc_detail_fetched_at &&
-  Number(c._sbc_detail_failures || 0) < 3;
+  !c._hold_review && Number(c._sbc_detail_failures || 0) < 3;
 const sourceRecoveryExhausted = c => isSbcSource(c) &&
   (!hasWebsite(c) || typeof c.latitude !== 'number' || typeof c.longitude !== 'number') && !c.sbc_detail_fetched_at &&
   Number(c._sbc_detail_failures || 0) >= 3;
