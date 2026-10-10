@@ -432,7 +432,36 @@ def clean_lines(text):
     return out
 
 
+ORDINAL_BOOKS = ("Samuel|Kings|Chronicles|Corinthians|Thessalonians|Timothy|Peter|"
+                 "Esdras|Maccabees")
+ORDINAL_WORD = {"1": "First", "2": "Second", "3": "Third",
+                "I": "First", "II": "Second", "III": "Third",
+                "1st": "First", "2nd": "Second", "3rd": "Third"}
+
+
+def speak_refs(text):
+    """PJG-1010-AUD1: say Scripture references the way a man reads them aloud.
+
+    "1 Corinthians" -> "First Corinthians"; "3 John 4" -> "Third John 4".
+    "10:19-25" / "1–10" -> "10:19 through 25" / "1 through 10" (never "dash").
+    Years and ISO dates (four digits) are left alone.
+    """
+    text = re.sub(
+        rf"\b(1st|2nd|3rd|[123]|III|II)\s+(?=(?:{ORDINAL_BOOKS})\b)",
+        lambda m: ORDINAL_WORD[m.group(1)] + " ", text)
+    # John only when it is a book reference (followed by chapter / verse or
+    # punctuation), so "verse 3 John answered" is not touched.
+    text = re.sub(
+        r"\b(1st|2nd|3rd|[123]|III|II)\s+John\b(?=\s*(?:\d|[,.;:)]|$))",
+        lambda m: ORDINAL_WORD[m.group(1)] + " John", text, flags=re.M)
+    text = re.sub(
+        r"(?<![\d\-–—:])(\d{1,3}(?::\d{1,3})?)\s*[-–—]\s*(\d{1,3}(?::\d{1,3})?)(?![\d\-–—])",
+        r"\1 through \2", text)
+    return text
+
+
 def apply_lexicon(text):
+    text = speak_refs(text)
     text = apply_bow_homage(text)
     text = apply_homograph_context(text)
     for word, marked in LEXICON.items():
@@ -449,6 +478,7 @@ def f5_prep(text):
     Published page/JSON stays human Amen.
     """
     text = text.replace("LORD", "Lord")
+    text = speak_refs(text)
     text = re.sub(r"[—–]", ", ", text)
     text = re.sub(r"[ \t]+", " ", text)
     text = force_declarative_amen(text)

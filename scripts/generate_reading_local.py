@@ -145,7 +145,9 @@ WATCHES = [
      "header": "🕚 1100 Second Watch — The Father's Charge",
      "summary": "🗺️ Field Notes",
      "refl": "👨‍👧 Reflection for Your Children — F.U.L.F.I.L.L.E.D. Father — {TRAIT}",
-     "traitset": "exactly one of: Faithful, Understanding, Leading, Forgiving, Instructing, Loving, Listening, Encouraging, Disciplining",
+     # PJG-1010-FUL1: canon letters per usmcmin.org/fulfilled-father.html. Not Forgiving /
+     # Instructing / Disciplining. Teaching the faith is D = Discipling.
+     "traitset": "exactly one FULFILLED letter, spelled exactly: Faithful, Understanding, Loving, Fun, Intentional, Listening, Leading, Encouraging, Discipling. Never Forgiving, Instructing, or Disciplining; teaching the faith is Discipling",
      "prayer": "🙏 Prayer", "close": "🛡️ Watch Charge:",
      "extra": "VOICE LOCK PJG-0821-FAT1: this reflection is for the FATHER to read ABOUT his children — "
               "never a letter TO them. NEVER open with 'Dear Gideon' / 'listen closely to your father'. "
