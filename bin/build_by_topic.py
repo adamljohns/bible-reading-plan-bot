@@ -240,7 +240,7 @@ PAGE_TEMPLATE = """<!doctype html>
         </div>
 
         <h1>Browse by Topic</h1>
-        <p class="lead">The MOOP Dictionary grouped by doctrinal category &mdash; theology proper, Christology, soteriology, eschatology, biblical figures, corruption-correctors, Reformed tradition, Christian tradition (pre-Reformation), and biblical realia. Editorial curation under the <a href="../../DICTIONARY-VOICE-LOCK.md" style="color:var(--gold);">Doctrinal Voice Lock</a>.</p>
+        <p class="lead">The MOOP Dictionary grouped by doctrinal category &mdash; theology proper, Christology, soteriology, eschatology, biblical figures, corruption-correctors, Reformed tradition, Christian tradition (pre-Reformation), and biblical realia. Editorial curation under the <a href="https://github.com/adamljohns/bible-reading-plan-bot/blob/main/DICTIONARY-VOICE-LOCK.md" rel="noopener" style="color:var(--gold);">Doctrinal Voice Lock</a>.</p>
 
         <div class="toc">
             <h2>Table of Contents</h2>
@@ -256,7 +256,7 @@ PAGE_TEMPLATE = """<!doctype html>
         </div>
 
         <footer>
-            MOOP Dictionary &mdash; Browse by Topic &middot; {total_entries} entries across {category_count} categories &middot; <a href="../../DICTIONARY-VOICE-LOCK.md" style="color:var(--gold);">Doctrinal Voice Lock</a>
+            MOOP Dictionary &mdash; Browse by Topic &middot; {total_entries} entries across {category_count} categories &middot; <a href="https://github.com/adamljohns/bible-reading-plan-bot/blob/main/DICTIONARY-VOICE-LOCK.md" rel="noopener" style="color:var(--gold);">Doctrinal Voice Lock</a>
         </footer>
     </div>
 </body>
