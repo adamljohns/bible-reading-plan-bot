@@ -18,6 +18,7 @@ Usage:
   python3 bin/autolink_lexicon_from_dict.py            # full run
   python3 bin/autolink_lexicon_from_dict.py --dry-run
   python3 bin/autolink_lexicon_from_dict.py --limit 50
+  python3 bin/autolink_lexicon_from_dict.py --new-only   # add, never refresh
 """
 import argparse
 import glob
@@ -44,6 +45,8 @@ RELATED_BLOCK_PAT = re.compile(
     r'(<div class="related-words">)(.*?)(</div>\s*</div>\s*<div class="section">\s*<h2>External Resources)',
     re.DOTALL
 )
+# Fallback anchor for pages without a Related Words block (Strong's-1890 shape)
+SOURCES_ANCHOR = '        <div class="section">\n            <h2>Sources</h2>'
 # Existing dict-backlinks block (idempotency)
 EXISTING_BACKLINKS_PAT = re.compile(
     re.escape(START_MARK) + r'.*?' + re.escape(END_MARK),
@@ -149,7 +152,7 @@ def lexicon_strong_id(filename):
     return f'{m.group(1)}{int(m.group(2))}'
 
 
-def process_lexicon_page(filepath, inverse, dry_run=False):
+def process_lexicon_page(filepath, inverse, dry_run=False, new_only=False):
     strong_id = lexicon_strong_id(os.path.basename(filepath))
     if not strong_id:
         return 0
@@ -165,12 +168,33 @@ def process_lexicon_page(filepath, inverse, dry_run=False):
     # If an existing block exists, replace it. Else inject inside the
     # related-words section (after its opening div).
     if START_MARK in html:
+        if new_only:
+            # --new-only: leave existing blocks alone. A refresh drops pills
+            # whose dictionary entry no longer prints the number (e.g. G1173
+            # lost lords-supper), which is a visible regression.
+            return 0
         new_html = EXISTING_BACKLINKS_PAT.sub(new_block, html)
     else:
         # Find the related-words div and inject AFTER its content but
         # BEFORE the section's </div></div><div class="section">External
         m = RELATED_BLOCK_PAT.search(html)
         if not m:
+            # Newer Strong's-1890 pages (Usage in Scripture / Key Bible
+            # Verses / Sources) have no Related Words block. Give them their
+            # own "MOOP Dictionary" section just before Sources, the shape
+            # hand-placed on G4172 et al. on 2026-10-07.
+            if SOURCES_ANCHOR in html:
+                section = (
+                    '        <div class="section">\n'
+                    '            <h2>MOOP Dictionary</h2>\n'
+                    f'            {new_block}\n'
+                    '        </div>\n'
+                )
+                new_html = html.replace(SOURCES_ANCHOR, section + SOURCES_ANCHOR, 1)
+                if not dry_run:
+                    with open(filepath, 'w', encoding='utf-8') as f:
+                        f.write(new_html)
+                return len(entries)
             # Page structure differs from expected — skip silently
             return 0
         # Insert backlinks after the existing related-words div (before
@@ -199,6 +223,8 @@ def main():
     ap.add_argument('--limit', type=int, default=None)
     ap.add_argument('--verbose', action='store_true')
     ap.add_argument('--pattern', default='*.html')
+    ap.add_argument('--new-only', action='store_true',
+                    help='only add blocks to pages that have none; never refresh existing ones')
     args = ap.parse_args()
 
     print('Building inverse index from dictionary…')
@@ -215,7 +241,7 @@ def main():
     total_injected = 0
     files_with_links = 0
     for i, fp in enumerate(files):
-        n = process_lexicon_page(fp, inverse, dry_run=args.dry_run)
+        n = process_lexicon_page(fp, inverse, dry_run=args.dry_run, new_only=args.new_only)
         if n > 0:
             files_with_links += 1
             total_injected += n
