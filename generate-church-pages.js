@@ -298,9 +298,13 @@ function sourcesSection(church) {
   }
 
   // Detect already-archived URLs vs. live ones
-  const sourceItems = sources.map((url, idx) => {
-    const isWayback = url.includes('web.archive.org/');
-    const label = isWayback ? 'Archived snapshot' : 'Live source';
+  const sourceItems = sources.map((rawSource, idx) => {
+    const raw = rawSource.trim();
+    const isHttp = /^https?:\/\//i.test(raw);
+    const isBareDomain = /^[a-z0-9.-]+\.[a-z]{2,}(?:[\/?#]|$)/i.test(raw);
+    const href = isHttp ? raw : (isBareDomain ? `https://${raw}` : null);
+    const isWayback = href ? href.includes('web.archive.org/') : false;
+    const label = isWayback ? 'Archived snapshot' : (href ? 'Live source' : 'Source note');
     const labelColor = isWayback ? 'var(--green)' : 'var(--gray-light)';
     // For wayback URLs, the original URL is encoded INSIDE the wayback URL itself.
     // Parse it out — this is far more reliable than the legacy index-pairing
@@ -308,16 +312,20 @@ function sourcesSection(church) {
     // affecting 102 + 57 records as of the 2026-05-18 audit).
     let liveUrl = null;
     if (isWayback) {
-      liveUrl = extractOriginalFromWayback(url);
+      liveUrl = extractOriginalFromWayback(href);
       // Fall back to old index-based pairing only if extraction failed
       if (!liveUrl && liveSources[idx] && !liveSources[idx].includes('web.archive.org')) {
         liveUrl = liveSources[idx];
       }
     }
     const liveHint = liveUrl ? `<div style="color:var(--gray);font-size:0.72rem;margin-top:2px;padding-left:8px;">↳ Snapshot of <a href="${escapeHtml(liveUrl)}" target="_blank" rel="noopener nofollow" style="color:var(--gray-light);text-decoration:underline;">${escapeHtml(hostnamePretty(liveUrl))}</a> (live link)</div>` : '';
+    const noteText = raw.toLowerCase() === 'live' ? 'Live review record' : raw;
+    const sourceValue = href
+      ? `<a href="${escapeHtml(href)}" target="_blank" rel="noopener nofollow" style="color:var(--gold-light);font-size:0.85rem;word-break:break-all;">${escapeHtml(hostnamePretty(href))}</a>`
+      : `<span style="color:var(--gray-light);font-size:0.85rem;">${escapeHtml(noteText)}</span>`;
     return `<li style="margin-bottom:10px;padding-left:4px;">
       <span style="color:${labelColor};font-size:0.72rem;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;margin-right:6px;">[${idx + 1}] ${label}</span>
-      <a href="${escapeHtml(url)}" target="_blank" rel="noopener nofollow" style="color:var(--gold-light);font-size:0.85rem;word-break:break-all;">${escapeHtml(hostnamePretty(url))}</a>
+      ${sourceValue}
       ${liveHint}
     </li>`;
   }).join('');
@@ -339,7 +347,7 @@ function sourcesSection(church) {
     <p style="font-size:0.85rem;margin:0;"><a href="${locUrl}" target="_blank" rel="noopener" style="color:var(--gold);text-decoration:none;border-bottom:1px dashed var(--gold);">View this address on Google Maps</a> for a public-record visual of the property.</p>`
     : '<p style="color:var(--gray);font-size:0.82rem;font-style:italic;">No URL sources recorded for this church. Rating based on denominational defaults and/or directory-level metadata.</p>';
   const sourcesBlock = sources.length > 0 ? `
-    <p style="color:var(--gray);font-size:0.82rem;margin-bottom:12px;">These are the URLs consulted to arrive at this church's scoring. Score-note claims are synthesized from homepage content, denominational directories, and public statements of faith at the time of review. Church websites change frequently; we're progressively adding Internet Archive snapshots to prevent link rot.</p>
+    <p style="color:var(--gray);font-size:0.82rem;margin-bottom:12px;">These are the sources consulted to arrive at this church's scoring. Score-note claims are synthesized from homepage content, denominational directories, and public statements of faith at the time of review. Church websites change frequently; we're progressively adding Internet Archive snapshots to prevent link rot.</p>
     <ol style="list-style:none;padding-left:0;margin:0;">
       ${sourceItems}
     </ol>` : sourcesFallback;

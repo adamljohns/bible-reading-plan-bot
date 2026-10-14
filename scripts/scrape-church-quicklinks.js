@@ -48,7 +48,7 @@ const PATH_PROBES = [
   // Events / calendar
   { paths: ['/events', '/calendar', '/upcoming'], label: 'Events', icon: 'shield-calendar.png' },
   // Giving
-  { paths: ['/give', '/giving', '/donate', '/tithe'], label: 'Give', icon: 'shield-heart.png' },
+  { paths: ['/give', '/giving', '/donate', '/tithe'], label: 'Give', icon: 'shield-hands-joining.png' },
   // Men's ministry (high-signal for MOOP audience)
   { paths: ['/mens-ministry', '/men', '/mens', '/mens-group', '/men-of-the-church'], label: "Men's Ministry", icon: 'shield-cross.png' },
   // Kids
