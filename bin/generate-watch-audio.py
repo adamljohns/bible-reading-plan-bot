@@ -460,7 +460,27 @@ def speak_refs(text):
     return text
 
 
+DOTTED_ACRONYM = re.compile(r"\b((?:[A-Z]\.){2,})")
+ALWAYS_SPELLED = {"USMC"}
+
+
+def speak_acronyms(text):
+    """PJG-1015-ACRO1 (Principal 2026-10-15): say the word, not the letters.
+
+    "R.E.S.O.L.U.T.E. Citizen" -> "Resolute Citizen"; same for R.E.A.L.,
+    H.A.P.P.Y., F.U.L.F.I.L.L.E.D. Page/JSON keep the periods.
+    USMC is the one exception: always the four letters, never a word.
+    """
+    def _sub(m):
+        letters = m.group(1).replace(".", "")
+        if letters in ALWAYS_SPELLED:
+            return letters
+        return letters.capitalize()
+    return DOTTED_ACRONYM.sub(_sub, text)
+
+
 def apply_lexicon(text):
+    text = speak_acronyms(text)
     text = speak_refs(text)
     text = apply_bow_homage(text)
     text = apply_homograph_context(text)
@@ -478,6 +498,10 @@ def f5_prep(text):
     Published page/JSON stays human Amen.
     """
     text = text.replace("LORD", "Lord")
+    text = speak_acronyms(text)
+    # The clone has no misaki letter-spelling; spaced capitals keep USMC from
+    # being read as one word ("Husum").
+    text = re.sub(r"\bUSMC\b", "U S M C", text)
     text = speak_refs(text)
     text = re.sub(r"[—–]", ", ", text)
     text = re.sub(r"[ \t]+", " ", text)
