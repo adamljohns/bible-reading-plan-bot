@@ -28,7 +28,7 @@ DICT = os.path.join(ROOT, 'docs/dictionary')
 
 # Pages that are indexes or themed collections, not word entries.
 SPECIAL = set("""index names doctrinal-anchors biblical-order expressly-prohibited
-most-corrupted gen-z-decoded millennial-decoded gen-x-decoded boomer-decoded
+most-corrupted gen-z-decoded gen-alpha-decoded millennial-decoded gen-x-decoded boomer-decoded
 christianese-decoded jesus-generation changelog baby-names by-topic""".split())
 
 # The structural parts a full house entry carries.

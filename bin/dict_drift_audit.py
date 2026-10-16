@@ -314,7 +314,7 @@ def scan_html(path: str) -> list[Finding]:
     #       likely a deliberate rebuttal quote: downgrade to soft so a human
     #       reviews it instead of "fixing" the rebuttal.
     AGGREGATE = {"index", "template", "most-corrupted", "by-topic",
-                 "doctrinal-anchors", "gen-z-decoded", "millennial-decoded",
+                 "doctrinal-anchors", "gen-z-decoded", "gen-alpha-decoded", "millennial-decoded",
                  "gen-x-decoded", "boomer-decoded", "expressly-prohibited",
                  "names", "baby-names", "biblical-order", "changelog"}
     if slug in AGGREGATE:

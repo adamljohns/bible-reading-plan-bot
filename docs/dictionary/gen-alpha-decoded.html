@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="canonical" href="https://usmcmin.org/dictionary/gen-alpha-decoded.html">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gen Alpha Decoded &mdash; MOOP Dictionary</title>
+    <meta name="description" content="Gen Alpha Decoded: full page browse for the Gen Alpha Decoded featured section of the MOOP Dictionary.">
+    <meta property="og:title" content="Gen Alpha Decoded &mdash; MOOP Dictionary">
+    <meta property="og:description" content="Full-page browse of every entry in the Gen Alpha Decoded featured section.">
+    <link rel="icon" type="image/svg+xml" href="../assets/icons/favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        :root {
+            --bg:#000; --card:#111; --gold:#D4AF37; --gold-light:#F4D470;
+            --white:#FFF; --gray:#888; --border:#333;
+            --accent:#3B82F6; --accent-dim:rgba(59,130,246,0.10);
+        }
+        body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--white); min-height:100vh; line-height:1.7; }
+        h1,h2,h3 { font-family:'Playfair Display',serif; }
+        nav { display:flex; flex-wrap:wrap; gap:6px; justify-content:center; padding:14px 20px; border-bottom:1px solid var(--border); background:rgba(0,0,0,0.95); backdrop-filter:blur(8px); position:sticky; top:0; z-index:100; }
+        nav a { color:var(--gray); text-decoration:none; font-size:0.85rem; font-weight:500; padding:5px 12px; border-radius:20px; border:1px solid transparent; transition:all 0.2s; white-space:nowrap; display:inline-flex; align-items:center; gap:4px; }
+        nav a:hover { color:var(--gold); border-color:var(--border); }
+        nav a.active { color:var(--gold) !important; border-color:var(--gold); }
+        .site-icon { vertical-align:middle; opacity:0.8; }
+
+        .container { max-width:1200px; margin:0 auto; padding:24px 20px 60px; }
+
+        section.hero {
+            text-align:center; padding:50px 20px 30px;
+            background:linear-gradient(160deg,var(--accent-dim),transparent 60%);
+            border-bottom:1px solid var(--border);
+        }
+        section.hero img.hero-icon { width:80px; height:80px; margin-bottom:14px; opacity:0.95; }
+        section.hero h1 {
+            color:var(--accent); font-size:clamp(2rem,5vw,3rem);
+            margin-bottom:10px; letter-spacing:0.5px;
+        }
+        section.hero .subtitle { color:var(--gray); font-size:1rem; max-width:740px; margin:0 auto 16px; line-height:1.6; }
+        section.hero .count-line { font-size:0.85rem; color:var(--accent); letter-spacing:0.8px; }
+        section.hero .back-link {
+            display:inline-block; margin-top:18px; padding:8px 18px;
+            color:var(--gray); border:1px solid var(--border); border-radius:20px;
+            font-size:0.85rem; text-decoration:none; transition:all 0.2s;
+        }
+        section.hero .back-link:hover { color:var(--accent); border-color:var(--accent); }
+
+        .search-wrap { position:relative; max-width:520px; margin:24px auto 18px; }
+        .search-wrap input {
+            width:100%; padding:10px 16px 10px 38px; background:var(--card);
+            border:1px solid var(--border); border-radius:24px; color:var(--white);
+            font-size:0.92rem; font-family:'Inter',sans-serif; outline:none;
+            transition:border-color 0.2s;
+        }
+        .search-wrap input::placeholder { color:var(--gray); }
+        .search-wrap input:focus { border-color:var(--accent); }
+        .search-wrap .search-icon {
+            position:absolute; left:14px; top:50%; transform:translateY(-50%);
+            color:var(--gray); font-size:0.9rem; pointer-events:none;
+        }
+
+        .full-grid {
+            display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
+            gap:10px; margin-top:14px;
+        }
+        .full-card {
+            background:var(--accent-dim); border:1px solid var(--accent);
+            border-radius:8px; padding:12px 14px; text-decoration:none;
+            transition:all 0.2s; text-align:center; opacity:0.94;
+        }
+        .full-card:hover { background:var(--accent); opacity:1; transform:translateY(-1px); }
+        .full-card .word { color:var(--white); font-weight:600; font-size:0.95rem; line-height:1.25; }
+        .full-card:hover .word { color:#000; }
+        .full-card .tag { color:var(--accent); font-size:0.7rem; text-transform:uppercase; letter-spacing:0.6px; margin-top:4px; }
+        .full-card:hover .tag { color:#000; opacity:0.8; }
+
+        .empty-state { color:var(--gray); text-align:center; padding:24px; font-style:italic; }
+
+        body.light-mode { background:#f0eee9; color:#1a1a1a; }
+        body.light-mode nav { background:rgba(240,238,233,0.95); border-bottom-color:#ccc; }
+        body.light-mode img[src*="/icons/shield-"]:not([src*="-bronze"]) { filter:brightness(.72) saturate(1.18) hue-rotate(-12deg); }
+        body.light-mode nav a { color:#666; }
+        body.light-mode nav a:hover { color:var(--accent); }
+        body.light-mode .full-card { background:#fff; border-color:var(--accent); }
+        body.light-mode .full-card .word { color:#1a1a1a; }
+        body.light-mode .full-card:hover { background:var(--accent); }
+        body.light-mode .full-card:hover .word { color:#fff; }
+        body.light-mode .search-wrap input { background:#fff; border-color:#ccc; color:#1a1a1a; }
+
+        footer { text-align:center; padding:32px 20px; border-top:1px solid var(--border); color:var(--gray); font-size:0.85rem; margin-top:60px; }
+        footer a { color:var(--accent); text-decoration:none; }
+    </style>
+    <link rel="stylesheet" href="/assets/css/light-icons.css">
+    <link rel="stylesheet" href="/assets/css/print.css" media="print">
+</head>
+<body>
+    <nav aria-label="Site navigation">
+        <a href="../index.html"><img src="../assets/icons/shield-home-property-48.png" class="site-icon" alt="" width="16" height="16"> Home</a>
+        <a href="../bible.html"><img src="../assets/icons/shield-bible.png" class="site-icon" alt="" width="16" height="16"> Bible</a>
+        <a href="../lexicon.html"><img src="../assets/icons/shield-book-greek-48.png" class="site-icon" alt="" width="16" height="16"> Lexicon</a>
+        <a href="index.html" class="active"><img src="../assets/icons/shield-book.png" class="site-icon" alt="" width="16" height="16"> Dictionary</a>
+        <a href="../blog.html"><img src="../assets/icons/shield-scroll-quill-48.png" class="site-icon" alt="" width="16" height="16"> Blog</a>
+    </nav>
+
+    <div class="container">
+
+        <section class="hero">
+            <img src="../assets/icons/shield-blog-quill-48.png" alt="" class="hero-icon">
+            <h1>Gen Alpha Decoded</h1>
+            <p class="subtitle">Gen Alpha learns its first slang in Roblox lobbies, Minecraft worlds, and the YouTube autoplay, and every one of those words carries something into a child&rsquo;s heart. Here is what the Gen Alpha words mean and what Scripture says about them &mdash; written so a father can explain each one to a five-year-old, with every entry verdict-tagged Redeemable, Neutral, Examine, or Reject.</p>
+            <p class="verdict-legend" style="margin:14px 0 2px;font-size:0.8rem;font-weight:600;"><span style="color:#10B981;">&#9679; Redeemable</span> &nbsp;<span style="color:#F59E0B;">&#9679; Neutral</span> &nbsp;<span style="color:#F97316;">&#9679; Examine</span> &nbsp;<span style="color:#EF4444;">&#9679; Reject</span></p>
+            <p class="count-line">100 entries &middot; alphabetized</p>
+            <a href="index.html" class="back-link">&larr; Back to Main Dictionary</a>
+        </section>
+
+        <div class="search-wrap">
+            <span class="search-icon">&#128269;</span>
+            <input type="text" id="sectionSearch" placeholder="Search this section&hellip;" autocomplete="off" oninput="filterCards(this.value)">
+        </div>
+
+        <div class="full-grid" id="cardGrid">
+            <a href="admin.html" class="full-card"><div class="word">Admin</div><div class="tag" style="color:#F59E0B;font-weight:700;">Neutral</div></a>
+            <a href="adopt-me.html" class="full-card"><div class="word">Adopt Me</div><div class="tag" style="color:#F97316;font-weight:700;">Examine</div></a>
+            <a href="among-us.html" class="full-card"><div class="word">Among Us</div><div class="tag" style="color:#F97316;font-weight:700;">Examine</div></a>
+            <a href="backrooms.html" class="full-card"><div class="word">Backrooms</div><div class="tag" style="color:#F97316;font-weight:700;">Examine</div></a>
+            <a href="bacon-hair.html" class="full-card"><div class="word">Bacon Hair</div><div class="tag" style="color:#F97316;font-weight:700;">Examine</div></a>
+            <a href="banned.html" class="full-card"><div class="word">Banned</div><div class="tag" style="color:#F59E0B;font-weight:700;">Neutral</div></a>
+            <a href="battle-pass.html" class="full-card"><div class="word">Battle Pass</div><div class="tag" style="color:#F97316;font-weight:700;">Examine</div></a>
+            <a href="big-back.html" class="full-card"><div class="word">Big Back</div><div class="tag" style="color:#F97316;font-weight:700;">Examine</div></a>
+            <a href="bing-chilling.html" class="full-card"><div class="word">Bing Chilling</div><div class="tag" style="color:#F59E0B;font-weight:700;">Neutral</div></a>
+            <a href="blind-box.html" class="full-card"><div class="word">Blind Box</div><div class="tag" style="color:#F97316;font-weight:700;">Examine</div></a>
+            <a href="blox-fruits.html" class="full-card"><div class="word">Blox Fruits</div><div class="tag" style="color:#F97316;font-weight:700;">Examine</div></a>
+            <a href="bluey.html" class="full-card"><div class="word">Bluey</div><div class="tag" style="color:#10B981;font-weight:700;">Redeemable</div></a>
+            <a href="bot.html" class="full-card"><div class="word">Bot</div><div class="tag" style="color:#F97316;font-weight:700;">Examine</div></a>
+            <a href="boxed-slang.html" class="full-card"><div class="word">Boxed</div><div class="tag" style="color:#F59E0B;font-weight:700;">Neutral</div></a>
+            <a href="bro-thinks-hes.html" class="full-card"><div class="word">Bro Thinks He&rsquo;s</div><div class="tag" style="color:#F97316;font-weight:700;">Examine</div></a>
+            <a href="brookhaven.html" class="full-card"><div class="word">Brookhaven</div><div class="tag" style="color:#F97316;font-weight:700;">Examine</div></a>
+            <a href="canthal-tilt.html" class="full-card"><div class="word">Canthal Tilt</div><div class="tag" style="color:#EF4444;font-weight:700;">Reject</div></a>
+            <a href="chicken-jockey.html" class="full-card"><div class="word">Chicken Jockey</div><div class="tag" style="color:#F97316;font-weight:700;">Examine</div></a>
+            <a href="clip-it.html" class="full-card"><div class="word">Clip It</div><div class="tag" style="color:#F97316;font-weight:700;">Examine</div></a>
+            <a href="cocomelon.html" class="full-card"><div class="word">Cocomelon</div><div class="tag" style="color:#F97316;font-weight:700;">Examine</div></a>
+            <a href="cranking-90s.html" class="full-card"><div class="word">Cranking 90s</div><div class="tag" style="color:#F59E0B;font-weight:700;">Neutral</div></a>
+            <a href="creeper.html" class="full-card"><div class="word">Creeper</div><div class="tag" style="color:#F59E0B;font-weight:700;">Neutral</div></a>
+            <a href="default.html" class="full-card"><div class="word">Default</div><div class="tag" style="color:#F97316;font-weight:700;">Examine</div></a>
+            <a href="default-dance.html" class="full-card"><div class="word">Default Dance</div><div class="tag" style="color:#F59E0B;font-weight:700;">Neutral</div></a>
+            <a href="doors-slang.html" class="full-card"><div class="word">Doors</div><div class="tag" style="color:#F97316;font-weight:700;">Examine</div></a>
+            <a href="dress-to-impress.html" class="full-card"><div class="word">Dress to Impress</div><div class="tag" style="color:#F97316;font-weight:700;">Examine</div></a>
+            <a href="edit.html" class="full-card"><div class="word">Edit</div><div class="tag" style="color:#F97316;font-weight:700;">Examine</div></a>
+            <a href="emote.html" class="full-card"><div class="word">Emote</div><div class="tag" style="color:#F59E0B;font-weight:700;">Neutral</div></a>
+            <a href="ender-dragon.html" class="full-card"><div class="word">Ender Dragon</div><div class="tag" style="color:#F97316;font-weight:700;">Examine</div></a>
+            <a href="eras-tour.html" class="full-card"><div class="word">Eras Tour</div><div class="tag" style="color:#F59E0B;font-weight:700;">Neutral</div></a>
+            <a href="fell-off.html" class="full-card"><div class="word">Fell Off</div><div class="tag" style="color:#F59E0B;font-weight:700;">Neutral</div></a>
+            <a href="fidget-spinner.html" class="full-card"><div class="word">Fidget Spinner</div><div class="tag" style="color:#F59E0B;font-weight:700;">Neutral</div></a>
+            <a href="flint-and-steel.html" class="full-card"><div class="word">Flint and Steel</div><div class="tag" style="color:#F59E0B;font-weight:700;">Neutral</div></a>
+            <a href="flopped.html" class="full-card"><div class="word">Flopped</div><div class="tag" style="color:#F59E0B;font-weight:700;">Neutral</div></a>
+            <a href="floss.html" class="full-card"><div class="word">Floss</div><div class="tag" style="color:#F59E0B;font-weight:700;">Neutral</div></a>
+            <a href="fnaf.html" class="full-card"><div class="word">FNAF</div><div class="tag" style="color:#F97316;font-weight:700;">Examine</div></a>
+            <a href="fortnite.html" class="full-card"><div class="word">Fortnite</div><div class="tag" style="color:#F97316;font-weight:700;">Examine</div></a>
+            <a href="free-robux.html" class="full-card"><div class="word">Free Robux</div><div class="tag" style="color:#EF4444;font-weight:700;">Reject</div></a>
+            <a href="friendship-bracelet.html" class="full-card"><div class="word">Friendship Bracelet</div><div class="tag" style="color:#10B981;font-weight:700;">Redeemable</div></a>
+            <a href="garten-of-banban.html" class="full-card"><div class="word">Garten of Banban</div><div class="tag" style="color:#F97316;font-weight:700;">Examine</div></a>
+            <a href="glass-skin.html" class="full-card"><div class="word">Glass Skin</div><div class="tag" style="color:#F97316;font-weight:700;">Examine</div></a>
+            <a href="goku.html" class="full-card"><div class="word">Goku</div><div class="tag" style="color:#F59E0B;font-weight:700;">Neutral</div></a>
+            <a href="goofy.html" class="full-card"><div class="word">Goofy</div><div class="tag" style="color:#F59E0B;font-weight:700;">Neutral</div></a>
+            <a href="griddy.html" class="full-card"><div class="word">Griddy</div><div class="tag" style="color:#F59E0B;font-weight:700;">Neutral</div></a>
+            <a href="griefing-slang.html" class="full-card"><div class="word">Griefing</div><div class="tag" style="color:#EF4444;font-weight:700;">Reject</div></a>
+            <a href="grimace-shake.html" class="full-card"><div class="word">Grimace Shake</div><div class="tag" style="color:#F97316;font-weight:700;">Examine</div></a>
+            <a href="grow-a-garden.html" class="full-card"><div class="word">Grow a Garden</div><div class="tag" style="color:#10B981;font-weight:700;">Redeemable</div></a>
+            <a href="hacker.html" class="full-card"><div class="word">Hacker</div><div class="tag" style="color:#F97316;font-weight:700;">Examine</div></a>
+            <a href="herobrine.html" class="full-card"><div class="word">Herobrine</div><div class="tag" style="color:#F97316;font-weight:700;">Examine</div></a>
+            <a href="huggy-wuggy.html" class="full-card"><div class="word">Huggy Wuggy</div><div class="tag" style="color:#EF4444;font-weight:700;">Reject</div></a>
+            <a href="hunter-eyes.html" class="full-card"><div class="word">Hunter Eyes</div><div class="tag" style="color:#EF4444;font-weight:700;">Reject</div></a>
+            <a href="impostor.html" class="full-card"><div class="word">Impostor</div><div class="tag" style="color:#F97316;font-weight:700;">Examine</div></a>
+            <a href="italian-brainrot.html" class="full-card"><div class="word">Italian Brainrot</div><div class="tag" style="color:#EF4444;font-weight:700;">Reject</div></a>
+            <a href="jawline.html" class="full-card"><div class="word">Jawline</div><div class="tag" style="color:#F97316;font-weight:700;">Examine</div></a>
+            <a href="l-bozo.html" class="full-card"><div class="word">L Bozo</div><div class="tag" style="color:#EF4444;font-weight:700;">Reject</div></a>
+            <a href="labubu.html" class="full-card"><div class="word">Labubu</div><div class="tag" style="color:#F97316;font-weight:700;">Examine</div></a>
+            <a href="lag.html" class="full-card"><div class="word">Lag</div><div class="tag" style="color:#F59E0B;font-weight:700;">Neutral</div></a>
+            <a href="let-them-cook.html" class="full-card"><div class="word">Let Them Cook</div><div class="tag" style="color:#F59E0B;font-weight:700;">Neutral</div></a>
+            <a href="liminal-space.html" class="full-card"><div class="word">Liminal Space</div><div class="tag" style="color:#F59E0B;font-weight:700;">Neutral</div></a>
+            <a href="literally-me.html" class="full-card"><div class="word">Literally Me</div><div class="tag" style="color:#F97316;font-weight:700;">Examine</div></a>
+            <a href="lone-wolf.html" class="full-card"><div class="word">Lone Wolf</div><div class="tag" style="color:#F97316;font-weight:700;">Examine</div></a>
+            <a href="minecraft.html" class="full-card"><div class="word">Minecraft</div><div class="tag" style="color:#10B981;font-weight:700;">Redeemable</div></a>
+            <a href="nah-id-win.html" class="full-card"><div class="word">Nah, I&rsquo;d Win</div><div class="tag" style="color:#F97316;font-weight:700;">Examine</div></a>
+            <a href="nahh-he-tweakin.html" class="full-card"><div class="word">Nahh, He Tweakin&rsquo;</div><div class="tag" style="color:#F97316;font-weight:700;">Examine</div></a>
+            <a href="netherite.html" class="full-card"><div class="word">Netherite</div><div class="tag" style="color:#F59E0B;font-weight:700;">Neutral</div></a>
+            <a href="nothing-beats-a-jet2-holiday.html" class="full-card"><div class="word">Nothing Beats a Jet2 Holiday</div><div class="tag" style="color:#F59E0B;font-weight:700;">Neutral</div></a>
+            <a href="obby.html" class="full-card"><div class="word">Obby</div><div class="tag" style="color:#10B981;font-weight:700;">Redeemable</div></a>
+            <a href="oof.html" class="full-card"><div class="word">Oof</div><div class="tag" style="color:#F59E0B;font-weight:700;">Neutral</div></a>
+            <a href="phonk.html" class="full-card"><div class="word">Phonk</div><div class="tag" style="color:#F97316;font-weight:700;">Examine</div></a>
+            <a href="pop-it.html" class="full-card"><div class="word">Pop It</div><div class="tag" style="color:#F59E0B;font-weight:700;">Neutral</div></a>
+            <a href="poppy-playtime.html" class="full-card"><div class="word">Poppy Playtime</div><div class="tag" style="color:#F97316;font-weight:700;">Examine</div></a>
+            <a href="pro.html" class="full-card"><div class="word">Pro</div><div class="tag" style="color:#F59E0B;font-weight:700;">Neutral</div></a>
+            <a href="rage-quit.html" class="full-card"><div class="word">Rage Quit</div><div class="tag" style="color:#F97316;font-weight:700;">Examine</div></a>
+            <a href="rainbow-friends.html" class="full-card"><div class="word">Rainbow Friends</div><div class="tag" style="color:#F97316;font-weight:700;">Examine</div></a>
+            <a href="red-light-green-light.html" class="full-card"><div class="word">Red Light, Green Light</div><div class="tag" style="color:#F59E0B;font-weight:700;">Neutral</div></a>
+            <a href="renegade.html" class="full-card"><div class="word">Renegade</div><div class="tag" style="color:#F97316;font-weight:700;">Examine</div></a>
+            <a href="roblox.html" class="full-card"><div class="word">Roblox</div><div class="tag" style="color:#F97316;font-weight:700;">Examine</div></a>
+            <a href="robux.html" class="full-card"><div class="word">Robux</div><div class="tag" style="color:#F97316;font-weight:700;">Examine</div></a>
+            <a href="satisfying-slang.html" class="full-card"><div class="word">Satisfying</div><div class="tag" style="color:#F59E0B;font-weight:700;">Neutral</div></a>
+            <a href="scammer.html" class="full-card"><div class="word">Scammer</div><div class="tag" style="color:#F97316;font-weight:700;">Examine</div></a>
+            <a href="sephora-kid.html" class="full-card"><div class="word">Sephora Kid</div><div class="tag" style="color:#F97316;font-weight:700;">Examine</div></a>
+            <a href="sigma-face.html" class="full-card"><div class="word">Sigma Face</div><div class="tag" style="color:#F97316;font-weight:700;">Examine</div></a>
+            <a href="siu.html" class="full-card"><div class="word">Siu</div><div class="tag" style="color:#F59E0B;font-weight:700;">Neutral</div></a>
+            <a href="skincare-routine.html" class="full-card"><div class="word">Skincare Routine</div><div class="tag" style="color:#F97316;font-weight:700;">Examine</div></a>
+            <a href="squid-game.html" class="full-card"><div class="word">Squid Game</div><div class="tag" style="color:#EF4444;font-weight:700;">Reject</div></a>
+            <a href="squishmallow.html" class="full-card"><div class="word">Squishmallow</div><div class="tag" style="color:#F59E0B;font-weight:700;">Neutral</div></a>
+            <a href="stand-proud.html" class="full-card"><div class="word">Stand Proud</div><div class="tag" style="color:#F97316;font-weight:700;">Examine</div></a>
+            <a href="stanley-cup.html" class="full-card"><div class="word">Stanley Cup</div><div class="tag" style="color:#F97316;font-weight:700;">Examine</div></a>
+            <a href="steal-a-brainrot.html" class="full-card"><div class="word">Steal a Brainrot</div><div class="tag" style="color:#F97316;font-weight:700;">Examine</div></a>
+            <a href="steve.html" class="full-card"><div class="word">Steve</div><div class="tag" style="color:#F59E0B;font-weight:700;">Neutral</div></a>
+            <a href="sturdy.html" class="full-card"><div class="word">Sturdy</div><div class="tag" style="color:#F59E0B;font-weight:700;">Neutral</div></a>
+            <a href="swiftie.html" class="full-card"><div class="word">Swiftie</div><div class="tag" style="color:#F97316;font-weight:700;">Examine</div></a>
+            <a href="tryhard.html" class="full-card"><div class="word">Tryhard</div><div class="tag" style="color:#F97316;font-weight:700;">Examine</div></a>
+            <a href="unboxing.html" class="full-card"><div class="word">Unboxing</div><div class="tag" style="color:#F97316;font-weight:700;">Examine</div></a>
+            <a href="v-bucks.html" class="full-card"><div class="word">V-Bucks</div><div class="tag" style="color:#F97316;font-weight:700;">Examine</div></a>
+            <a href="victory-royale.html" class="full-card"><div class="word">Victory Royale</div><div class="tag" style="color:#F59E0B;font-weight:700;">Neutral</div></a>
+            <a href="washed-slang.html" class="full-card"><div class="word">Washed</div><div class="tag" style="color:#F97316;font-weight:700;">Examine</div></a>
+            <a href="what-the-sigma.html" class="full-card"><div class="word">What the Sigma</div><div class="tag" style="color:#F97316;font-weight:700;">Examine</div></a>
+            <a href="ws-in-the-chat.html" class="full-card"><div class="word">Ws in the Chat</div><div class="tag" style="color:#10B981;font-weight:700;">Redeemable</div></a>
+            <a href="yikes.html" class="full-card"><div class="word">Yikes</div><div class="tag" style="color:#F59E0B;font-weight:700;">Neutral</div></a>
+        </div>
+        <p class="empty-state" id="emptyState" style="display:none;">No entries match your search.</p>
+
+    </div>
+
+    <footer>
+        <p>MOOP Dictionary &mdash; <strong style="color:var(--accent);">V6.0</strong> &middot; <a href="index.html">Full Dictionary Index</a> &middot; <a href="../index.html">Home</a></p>
+    </footer>
+
+    <script>
+    function filterCards(query) {
+        query = query.trim().toLowerCase();
+        var cards = document.querySelectorAll('#cardGrid .full-card');
+        var shown = 0;
+        cards.forEach(function(c) {
+            var word = (c.querySelector('.word')||{}).textContent || '';
+            var tag = (c.querySelector('.tag')||{}).textContent || '';
+            var hit = (word + ' ' + tag).toLowerCase().indexOf(query) !== -1;
+            c.style.display = hit ? '' : 'none';
+            if (hit) shown++;
+        });
+        document.getElementById('emptyState').style.display = shown ? 'none' : 'block';
+    }
+
+    // Theme persistence
+    (function() {
+        if (localStorage.getItem('bte-theme') === 'light') {
+            document.body.classList.add('light-mode');
+        }
+    })();
+    </script>
+    <script defer src="../assets/js/moop-tools.js"></script>
+</body>
+</html>

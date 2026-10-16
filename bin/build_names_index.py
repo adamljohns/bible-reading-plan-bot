@@ -152,6 +152,10 @@ def classify(pos, slug=''):
     is_proper = 'proper noun' in p_norm or p_norm == 'bible book'
     if not is_proper:
         return None
+    # Generational-slang proper nouns (game/show titles: Among Us, Bluey) are
+    # Decoded entries, not biblical names.
+    if 'slang)' in p_norm:
+        return None
 
     # 1. BOOKS — most distinctive
     if 'bible book' in p_norm or '/ book' in p_norm or 'book of bible' in p_norm or 'bible section' in p_norm:

@@ -42,7 +42,7 @@ STRONGS_PAT = re.compile(r'\b([HG])(\d{1,5})\b')
 ALREADY_LINKED_PAT = re.compile(r'lexicon/([HG])(\d{1,5})\.html')
 
 SPECIAL = {'index', 'names', 'doctrinal-anchors', 'biblical-order',
-           'expressly-prohibited', 'most-corrupted', 'gen-z-decoded',
+           'expressly-prohibited', 'most-corrupted', 'gen-z-decoded', 'gen-alpha-decoded',
            'millennial-decoded', 'gen-x-decoded', 'boomer-decoded',
            'changelog', 'template', 'by-topic'}
 

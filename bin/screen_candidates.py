@@ -32,7 +32,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Generated pages that are not dictionary entries (mirrors batch_pipeline.sh
 # regen-slugs and the SPECIAL set in bin/dict_integrity_audit.py).
 SPECIAL = set('index names doctrinal-anchors biblical-order '
-              'expressly-prohibited most-corrupted gen-z-decoded '
+              'expressly-prohibited most-corrupted gen-z-decoded gen-alpha-decoded '
               'millennial-decoded gen-x-decoded boomer-decoded '
               'christianese-decoded jesus-generation changelog baby-names '
               'by-topic'.split())

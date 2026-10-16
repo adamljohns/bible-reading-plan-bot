@@ -36,7 +36,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DICT = os.path.join(ROOT, 'docs/dictionary')
 
 SPECIAL = set("""index names doctrinal-anchors biblical-order expressly-prohibited
-most-corrupted gen-z-decoded millennial-decoded gen-x-decoded boomer-decoded
+most-corrupted gen-z-decoded gen-alpha-decoded millennial-decoded gen-x-decoded boomer-decoded
 christianese-decoded jesus-generation changelog baby-names by-topic""".split())
 
 STOP = set("""a an the and or but if of in on at to for with by from as is was were be

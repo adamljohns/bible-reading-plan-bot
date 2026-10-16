@@ -14,6 +14,7 @@ list (visible + hidden combined), and produces:
     docs/dictionary/expressly-prohibited.html
     docs/dictionary/most-corrupted.html
     docs/dictionary/gen-z-decoded.html
+    docs/dictionary/gen-alpha-decoded.html
     docs/dictionary/millennial-decoded.html
     docs/dictionary/gen-x-decoded.html
     docs/dictionary/boomer-decoded.html
@@ -86,6 +87,19 @@ SECTIONS = [
         'icon': 'shield-blog-quill-48.png',
         'decoder': True,
         'intro': 'Every generation speaks a new dialect. Every dialect reveals a heart. Here is what the Gen-Z (and Gen Alpha) words mean and what Scripture says about them &mdash; with each entry verdict-tagged Redeemable, Neutral, Examine, or Reject.',
+    },
+    {
+        'css_class': 'genz-section',
+        'card_class': 'genz-card',
+        'word_class': 'gzword',
+        'tag_class': 'gzverdict',
+        'slug': 'gen-alpha-decoded',
+        'title': 'Gen Alpha Decoded',
+        'accent': '#3B82F6',
+        'accent_dim': 'rgba(59,130,246,0.10)',
+        'icon': 'shield-blog-quill-48.png',
+        'decoder': True,
+        'intro': 'Gen Alpha learns its first slang in Roblox lobbies, Minecraft worlds, and the YouTube autoplay, and every one of those words carries something into a child&rsquo;s heart. Here is what the Gen Alpha words mean and what Scripture says about them &mdash; written so a father can explain each one to a five-year-old, with every entry verdict-tagged Redeemable, Neutral, Examine, or Reject.',
     },
     {
         'css_class': 'mill-section',

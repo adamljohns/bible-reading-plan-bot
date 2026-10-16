@@ -75,7 +75,7 @@ def build_inverse_index():
     """Walk dictionary, build {strong_id: [(slug, headword), ...]} map."""
     inverse = {}
     SPECIAL = {'index', 'names', 'doctrinal-anchors', 'biblical-order',
-               'expressly-prohibited', 'most-corrupted', 'gen-z-decoded',
+               'expressly-prohibited', 'most-corrupted', 'gen-z-decoded', 'gen-alpha-decoded',
                'millennial-decoded', 'gen-x-decoded', 'boomer-decoded',
                'changelog', 'template'}
     for fn in sorted(os.listdir(DICT_DIR)):

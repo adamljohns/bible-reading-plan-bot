@@ -38,7 +38,7 @@ CHAP_DIR = os.path.join(ROOT, 'docs', 'chapters')
 
 SPECIAL = {'index', 'template', 'names', 'baby-names', 'by-topic',
            'doctrinal-anchors', 'biblical-order', 'expressly-prohibited',
-           'most-corrupted', 'gen-z-decoded', 'millennial-decoded',
+           'most-corrupted', 'gen-z-decoded', 'gen-alpha-decoded', 'millennial-decoded',
            'gen-x-decoded', 'boomer-decoded', 'changelog'}
 
 # Canonical book order by chapter-file prefix.
