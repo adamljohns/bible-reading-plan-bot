@@ -1409,6 +1409,106 @@ def build_index(words, by_letter, total):
                     <a href="bogus.html" class="genx-card"><div class="xword">Bogus</div><div class="xverdict gzv-green">Redeemable</div></a>
                     <a href="boob-tube.html" class="genx-card"><div class="xword">Boob Tube</div><div class="xverdict gzv-orange">Examine</div></a>
                     <a href="kerfuffle.html" class="genx-card"><div class="xword">Kerfuffle</div><div class="xverdict gzv-yellow">Neutral</div></a>
+                    <a href="airhead.html" class="genx-card"><div class="xword">Airhead</div><div class="xverdict gzv-orange">Examine</div></a>
+                    <a href="alternative-genx.html" class="genx-card"><div class="xword">Alternative</div><div class="xverdict gzv-orange">Examine</div></a>
+                    <a href="amped.html" class="genx-card"><div class="xword">Amped</div><div class="xverdict gzv-yellow">Neutral</div></a>
+                    <a href="audi-5000.html" class="genx-card"><div class="xword">Audi 5000</div><div class="xverdict gzv-yellow">Neutral</div></a>
+                    <a href="awesome-genx.html" class="genx-card"><div class="xword">Awesome</div><div class="xverdict gzv-orange">Examine</div></a>
+                    <a href="barf-me-out.html" class="genx-card"><div class="xword">Barf Me Out</div><div class="xverdict gzv-orange">Examine</div></a>
+                    <a href="benjamins.html" class="genx-card"><div class="xword">Benjamins</div><div class="xverdict gzv-orange">Examine</div></a>
+                    <a href="big-hair.html" class="genx-card"><div class="xword">Big Hair</div><div class="xverdict gzv-yellow">Neutral</div></a>
+                    <a href="bite-me.html" class="genx-card"><div class="xword">Bite Me</div><div class="xverdict gzv-red">Reject</div></a>
+                    <a href="bodacious.html" class="genx-card"><div class="xword">Bodacious</div><div class="xverdict gzv-yellow">Neutral</div></a>
+                    <a href="boo-genx.html" class="genx-card"><div class="xword">Boo</div><div class="xverdict gzv-yellow">Neutral</div></a>
+                    <a href="boombox.html" class="genx-card"><div class="xword">Boombox</div><div class="xverdict gzv-yellow">Neutral</div></a>
+                    <a href="buggin.html" class="genx-card"><div class="xword">Buggin'</div><div class="xverdict gzv-yellow">Neutral</div></a>
+                    <a href="bunk-genx.html" class="genx-card"><div class="xword">Bunk</div><div class="xverdict gzv-yellow">Neutral</div></a>
+                    <a href="busta.html" class="genx-card"><div class="xword">Busta</div><div class="xverdict gzv-orange">Examine</div></a>
+                    <a href="channel-surfing.html" class="genx-card"><div class="xword">Channel Surfing</div><div class="xverdict gzv-orange">Examine</div></a>
+                    <a href="cheddar.html" class="genx-card"><div class="xword">Cheddar</div><div class="xverdict gzv-orange">Examine</div></a>
+                    <a href="chick-flick.html" class="genx-card"><div class="xword">Chick Flick</div><div class="xverdict gzv-orange">Examine</div></a>
+                    <a href="chill-genx.html" class="genx-card"><div class="xword">Chill</div><div class="xverdict gzv-yellow">Neutral</div></a>
+                    <a href="def.html" class="genx-card"><div class="xword">Def</div><div class="xverdict gzv-yellow">Neutral</div></a>
+                    <a href="ditz.html" class="genx-card"><div class="xword">Ditz</div><div class="xverdict gzv-orange">Examine</div></a>
+                    <a href="dont-go-there.html" class="genx-card"><div class="xword">Don't Go There</div><div class="xverdict gzv-yellow">Neutral</div></a>
+                    <a href="dont-have-a-cow.html" class="genx-card"><div class="xword">Don't Have a Cow</div><div class="xverdict gzv-yellow">Neutral</div></a>
+                    <a href="dork.html" class="genx-card"><div class="xword">Dork</div><div class="xverdict gzv-orange">Examine</div></a>
+                    <a href="dudette.html" class="genx-card"><div class="xword">Dudette</div><div class="xverdict gzv-yellow">Neutral</div></a>
+                    <a href="duh.html" class="genx-card"><div class="xword">Duh</div><div class="xverdict gzv-orange">Examine</div></a>
+                    <a href="dweeb.html" class="genx-card"><div class="xword">Dweeb</div><div class="xverdict gzv-orange">Examine</div></a>
+                    <a href="fanny-pack.html" class="genx-card"><div class="xword">Fanny Pack</div><div class="xverdict gzv-yellow">Neutral</div></a>
+                    <a href="fer-sure.html" class="genx-card"><div class="xword">Fer Sure</div><div class="xverdict gzv-yellow">Neutral</div></a>
+                    <a href="four-one-one.html" class="genx-card"><div class="xword">411</div><div class="xverdict gzv-yellow">Neutral</div></a>
+                    <a href="gag-me-with-a-spoon.html" class="genx-card"><div class="xword">Gag Me with a Spoon</div><div class="xverdict gzv-orange">Examine</div></a>
+                    <a href="game-over.html" class="genx-card"><div class="xword">Game Over</div><div class="xverdict gzv-green">Redeemable</div></a>
+                    <a href="geek.html" class="genx-card"><div class="xword">Geek</div><div class="xverdict gzv-green">Redeemable</div></a>
+                    <a href="ghetto-blaster.html" class="genx-card"><div class="xword">Ghetto Blaster</div><div class="xverdict gzv-orange">Examine</div></a>
+                    <a href="girl-power.html" class="genx-card"><div class="xword">Girl Power</div><div class="xverdict gzv-orange">Examine</div></a>
+                    <a href="goth.html" class="genx-card"><div class="xword">Goth</div><div class="xverdict gzv-orange">Examine</div></a>
+                    <a href="grody.html" class="genx-card"><div class="xword">Grody</div><div class="xverdict gzv-yellow">Neutral</div></a>
+                    <a href="grunge.html" class="genx-card"><div class="xword">Grunge</div><div class="xverdict gzv-orange">Examine</div></a>
+                    <a href="hacky-sack.html" class="genx-card"><div class="xword">Hacky Sack</div><div class="xverdict gzv-yellow">Neutral</div></a>
+                    <a href="hater.html" class="genx-card"><div class="xword">Hater</div><div class="xverdict gzv-orange">Examine</div></a>
+                    <a href="headbanger.html" class="genx-card"><div class="xword">Headbanger</div><div class="xverdict gzv-yellow">Neutral</div></a>
+                    <a href="hella.html" class="genx-card"><div class="xword">Hella</div><div class="xverdict gzv-orange">Examine</div></a>
+                    <a href="hype-genx.html" class="genx-card"><div class="xword">Hype</div><div class="xverdict gzv-orange">Examine</div></a>
+                    <a href="i-want-my-mtv.html" class="genx-card"><div class="xword">I Want My MTV</div><div class="xverdict gzv-orange">Examine</div></a>
+                    <a href="im-outtie.html" class="genx-card"><div class="xword">I'm Outtie</div><div class="xverdict gzv-yellow">Neutral</div></a>
+                    <a href="indie.html" class="genx-card"><div class="xword">Indie</div><div class="xverdict gzv-yellow">Neutral</div></a>
+                    <a href="jet-genx.html" class="genx-card"><div class="xword">Jet</div><div class="xverdict gzv-yellow">Neutral</div></a>
+                    <a href="jinx.html" class="genx-card"><div class="xword">Jinx</div><div class="xverdict gzv-orange">Examine</div></a>
+                    <a href="jock.html" class="genx-card"><div class="xword">Jock</div><div class="xverdict gzv-yellow">Neutral</div></a>
+                    <a href="just-say-no.html" class="genx-card"><div class="xword">Just Say No</div><div class="xverdict gzv-green">Redeemable</div></a>
+                    <a href="killer-genx.html" class="genx-card"><div class="xword">Killer</div><div class="xverdict gzv-orange">Examine</div></a>
+                    <a href="latchkey-kid.html" class="genx-card"><div class="xword">Latchkey Kid</div><div class="xverdict gzv-yellow">Neutral</div></a>
+                    <a href="mcjob.html" class="genx-card"><div class="xword">McJob</div><div class="xverdict gzv-orange">Examine</div></a>
+                    <a href="metalhead.html" class="genx-card"><div class="xword">Metalhead</div><div class="xverdict gzv-orange">Examine</div></a>
+                    <a href="mixtape.html" class="genx-card"><div class="xword">Mixtape</div><div class="xverdict gzv-green">Redeemable</div></a>
+                    <a href="mosh-pit.html" class="genx-card"><div class="xword">Mosh Pit</div><div class="xverdict gzv-orange">Examine</div></a>
+                    <a href="most-excellent.html" class="genx-card"><div class="xword">Most Excellent</div><div class="xverdict gzv-green">Redeemable</div></a>
+                    <a href="mtv-generation.html" class="genx-card"><div class="xword">MTV Generation</div><div class="xverdict gzv-orange">Examine</div></a>
+                    <a href="mullet.html" class="genx-card"><div class="xword">Mullet</div><div class="xverdict gzv-yellow">Neutral</div></a>
+                    <a href="new-wave.html" class="genx-card"><div class="xword">New Wave</div><div class="xverdict gzv-yellow">Neutral</div></a>
+                    <a href="nintendo.html" class="genx-card"><div class="xword">Nintendo</div><div class="xverdict gzv-yellow">Neutral</div></a>
+                    <a href="no-duh.html" class="genx-card"><div class="xword">No Duh</div><div class="xverdict gzv-orange">Examine</div></a>
+                    <a href="no-way-way.html" class="genx-card"><div class="xword">No Way! Way!</div><div class="xverdict gzv-green">Redeemable</div></a>
+                    <a href="noogie.html" class="genx-card"><div class="xword">Noogie</div><div class="xverdict gzv-yellow">Neutral</div></a>
+                    <a href="not-genx.html" class="genx-card"><div class="xword">Not!</div><div class="xverdict gzv-orange">Examine</div></a>
+                    <a href="oh-no-you-didnt.html" class="genx-card"><div class="xword">Oh No You Didn't</div><div class="xverdict gzv-orange">Examine</div></a>
+                    <a href="oh-snap.html" class="genx-card"><div class="xword">Oh Snap</div><div class="xverdict gzv-orange">Examine</div></a>
+                    <a href="pager.html" class="genx-card"><div class="xword">Pager</div><div class="xverdict gzv-yellow">Neutral</div></a>
+                    <a href="party-animal.html" class="genx-card"><div class="xword">Party Animal</div><div class="xverdict gzv-red">Reject</div></a>
+                    <a href="party-on.html" class="genx-card"><div class="xword">Party On</div><div class="xverdict gzv-orange">Examine</div></a>
+                    <a href="playa.html" class="genx-card"><div class="xword">Playa</div><div class="xverdict gzv-red">Reject</div></a>
+                    <a href="player-hater.html" class="genx-card"><div class="xword">Player Hater</div><div class="xverdict gzv-orange">Examine</div></a>
+                    <a href="preppy.html" class="genx-card"><div class="xword">Preppy</div><div class="xverdict gzv-orange">Examine</div></a>
+                    <a href="props.html" class="genx-card"><div class="xword">Props</div><div class="xverdict gzv-green">Redeemable</div></a>
+                    <a href="psyched.html" class="genx-card"><div class="xword">Psyched</div><div class="xverdict gzv-green">Redeemable</div></a>
+                    <a href="pumped.html" class="genx-card"><div class="xword">Pumped</div><div class="xverdict gzv-yellow">Neutral</div></a>
+                    <a href="punk-genx.html" class="genx-card"><div class="xword">Punk</div><div class="xverdict gzv-orange">Examine</div></a>
+                    <a href="scrub-genx.html" class="genx-card"><div class="xword">Scrub</div><div class="xverdict gzv-orange">Examine</div></a>
+                    <a href="shorty.html" class="genx-card"><div class="xword">Shorty</div><div class="xverdict gzv-orange">Examine</div></a>
+                    <a href="shotgun-genx.html" class="genx-card"><div class="xword">Shotgun</div><div class="xverdict gzv-yellow">Neutral</div></a>
+                    <a href="skater.html" class="genx-card"><div class="xword">Skater</div><div class="xverdict gzv-yellow">Neutral</div></a>
+                    <a href="space-cadet.html" class="genx-card"><div class="xword">Space Cadet</div><div class="xverdict gzv-yellow">Neutral</div></a>
+                    <a href="sucka.html" class="genx-card"><div class="xword">Sucka</div><div class="xverdict gzv-orange">Examine</div></a>
+                    <a href="take-a-chill-pill.html" class="genx-card"><div class="xword">Take a Chill Pill</div><div class="xverdict gzv-yellow">Neutral</div></a>
+                    <a href="totally-genx.html" class="genx-card"><div class="xword">Totally</div><div class="xverdict gzv-yellow">Neutral</div></a>
+                    <a href="trapper-keeper.html" class="genx-card"><div class="xword">Trapper Keeper</div><div class="xverdict gzv-yellow">Neutral</div></a>
+                    <a href="trippin.html" class="genx-card"><div class="xword">Trippin'</div><div class="xverdict gzv-yellow">Neutral</div></a>
+                    <a href="twenty-four-seven.html" class="genx-card"><div class="xword">24/7</div><div class="xverdict gzv-green">Redeemable</div></a>
+                    <a href="valley-girl.html" class="genx-card"><div class="xword">Valley Girl</div><div class="xverdict gzv-orange">Examine</div></a>
+                    <a href="veg-out.html" class="genx-card"><div class="xword">Veg Out</div><div class="xverdict gzv-orange">Examine</div></a>
+                    <a href="walkman.html" class="genx-card"><div class="xword">Walkman</div><div class="xverdict gzv-yellow">Neutral</div></a>
+                    <a href="wannabe.html" class="genx-card"><div class="xword">Wannabe</div><div class="xverdict gzv-orange">Examine</div></a>
+                    <a href="wassup.html" class="genx-card"><div class="xword">Wassup</div><div class="xverdict gzv-yellow">Neutral</div></a>
+                    <a href="wedgie.html" class="genx-card"><div class="xword">Wedgie</div><div class="xverdict gzv-orange">Examine</div></a>
+                    <a href="wimp.html" class="genx-card"><div class="xword">Wimp</div><div class="xverdict gzv-orange">Examine</div></a>
+                    <a href="wuss.html" class="genx-card"><div class="xword">Wuss</div><div class="xverdict gzv-orange">Examine</div></a>
+                    <a href="yada-yada.html" class="genx-card"><div class="xword">Yada Yada</div><div class="xverdict gzv-yellow">Neutral</div></a>
+                    <a href="yeah-right.html" class="genx-card"><div class="xword">Yeah, Right</div><div class="xverdict gzv-orange">Examine</div></a>
+                    <a href="yo.html" class="genx-card"><div class="xword">Yo</div><div class="xverdict gzv-yellow">Neutral</div></a>
+                    <a href="you-go-girl.html" class="genx-card"><div class="xword">You Go, Girl</div><div class="xverdict gzv-green">Redeemable</div></a>
                 </div>
             </details>
         </div>
