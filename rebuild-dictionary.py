@@ -993,6 +993,7 @@ def build_index(words, by_letter, total):
                     <a href="unc.html" class="genz-card"><div class="gzword">Unc</div><div class="gzverdict gzv-orange">Examine</div></a>
                     <a href="deadass.html" class="genz-card"><div class="gzword">Deadass</div><div class="gzverdict gzv-orange">Examine</div></a>
                     <a href="retardmaxxing.html" class="genz-card"><div class="gzword">Retardmaxxing</div><div class="gzverdict gzv-orange">Examine</div></a>
+                    <a href="baddie-genz.html" class="genz-card"><div class="gzword">Baddie</div><div class="gzverdict gzv-orange">Examine</div></a>
                 </div>
             </details>
         </div>
