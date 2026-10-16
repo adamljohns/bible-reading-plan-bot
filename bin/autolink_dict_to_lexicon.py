@@ -43,7 +43,7 @@ ALREADY_LINKED_PAT = re.compile(r'lexicon/([HG])(\d{1,5})\.html')
 
 SPECIAL = {'index', 'names', 'doctrinal-anchors', 'biblical-order',
            'expressly-prohibited', 'most-corrupted', 'gen-z-decoded', 'gen-alpha-decoded',
-           'millennial-decoded', 'gen-x-decoded', 'boomer-decoded',
+           'millennial-decoded', 'gen-x-decoded', 'boomer-decoded', 'silent-decoded',
            'changelog', 'template', 'by-topic'}
 
 

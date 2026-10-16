@@ -18,6 +18,7 @@ list (visible + hidden combined), and produces:
     docs/dictionary/millennial-decoded.html
     docs/dictionary/gen-x-decoded.html
     docs/dictionary/boomer-decoded.html
+    docs/dictionary/silent-decoded.html
 """
 import os, re, html as html_lib
 
@@ -139,6 +140,19 @@ SECTIONS = [
         'icon': 'shield-blog-quill-48.png',
         'decoder': True,
         'intro': 'Generation 1946&ndash;1964. The counterculture vocabulary that built modern America&rsquo;s permissive moral imagination, plus some harmless retro-flavor. Here is what held up and what did not.',
+    },
+    {
+        'css_class': 'genz-section',
+        'card_class': 'genz-card',
+        'word_class': 'gzword',
+        'tag_class': 'gzverdict',
+        'slug': 'silent-decoded',
+        'title': 'Silent Generation Decoded',
+        'accent': '#8D6E63',
+        'accent_dim': 'rgba(141,110,99,0.10)',
+        'icon': 'shield-blog-quill-48.png',
+        'decoder': True,
+        'intro': 'Generation 1928&ndash;1945. The swing-band jive, GI talk, home-front words, and soda-fountain slang your grandparents grew up on &mdash; most of it clean, some of it carrying a minced oath or a sneer they never noticed. Here is what a grandfather can hand down with a smile, and what he would do well to set down for good.',
     },
     {
         'css_class': 'christianese-section',

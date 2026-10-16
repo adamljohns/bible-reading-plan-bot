@@ -539,6 +539,7 @@ def build_index(words, by_letter, total):
                 <a href="millennial-decoded.html" class="featured-card"><div class="fword">Millennial Decoded</div><div class="ftag">Generational dialect</div></a>
                 <a href="gen-x-decoded.html" class="featured-card"><div class="fword">Gen X Decoded</div><div class="ftag">Generational dialect</div></a>
                 <a href="boomer-decoded.html" class="featured-card"><div class="fword">Boomer Decoded</div><div class="ftag">Generational dialect</div></a>
+                <a href="silent-decoded.html" class="featured-card"><div class="fword">Silent Generation Decoded</div><div class="ftag">Generational dialect</div></a>
                 <a href="jesus-generation.html" class="featured-card"><div class="fword">The Jesus Generation</div><div class="ftag">Revival &middot; the generation that unites</div></a>
             </div>
         </div>
@@ -1659,6 +1660,119 @@ def build_index(words, by_letter, total):
             </details>
         </div>
 
+        <!-- Silent Generation Decoded -->
+        <div class="genz-section" id="silentSection">
+            <h3><a href="silent-decoded.html" class="section-title-link"><img src="../assets/icons/shield-blog-quill-48.png" alt="" width="20" height="20"> Silent Generation Decoded <span class="see-all">browse all &rarr;</span></a></h3>
+            <p class="subtitle">Generation 1928&ndash;1945. The swing-band jive, GI talk, home-front words, and soda-fountain slang your grandparents grew up on &mdash; most of it clean, some of it carrying a minced oath or a sneer they never noticed. Here is what a grandfather can hand down with a smile, and what he would do well to set down for good.</p>
+            <div class="genz-grid">
+                <a href="ankle-biter.html" class="genz-card"><div class="gzword">Ankle biter</div><div class="gzverdict gzv-yellow">Neutral</div></a>
+                <a href="big-daddy.html" class="genz-card"><div class="gzword">Big daddy</div><div class="gzverdict gzv-orange">Examine</div></a>
+                <a href="blast.html" class="genz-card"><div class="gzword">Blast</div><div class="gzverdict gzv-yellow">Neutral</div></a>
+                <a href="bobby-soxer.html" class="genz-card"><div class="gzword">Bobby-soxer</div><div class="gzverdict gzv-orange">Examine</div></a>
+                <a href="burn-rubber.html" class="genz-card"><div class="gzword">Burn rubber</div><div class="gzverdict gzv-orange">Examine</div></a>
+                <a href="buy-the-farm.html" class="genz-card"><div class="gzword">Buy the farm</div><div class="gzverdict gzv-orange">Examine</div></a>
+                <a href="cats-pajamas.html" class="genz-card"><div class="gzword">Cat&rsquo;s pajamas</div><div class="gzverdict gzv-yellow">Neutral</div></a>
+                <a href="chow.html" class="genz-card"><div class="gzword">Chow</div><div class="gzverdict gzv-yellow">Neutral</div></a>
+                <a href="chrome-dome.html" class="genz-card"><div class="gzword">Chrome dome</div><div class="gzverdict gzv-red">Reject</div></a>
+                <a href="cool-it.html" class="genz-card"><div class="gzword">Cool it</div><div class="gzverdict gzv-green">Redeemable</div></a>
+                <a href="cooties.html" class="genz-card"><div class="gzword">Cooties</div><div class="gzverdict gzv-orange">Examine</div></a>
+                <a href="cop-a-squat.html" class="genz-card"><div class="gzword">Cop a squat</div><div class="gzverdict gzv-yellow">Neutral</div></a>
+            </div>
+            <details>
+                <summary><em>expand to see more</em></summary>
+                <div class="genz-grid more-grid">
+                    <a href="copacetic.html" class="genz-card"><div class="gzword">Copacetic</div><div class="gzverdict gzv-yellow">Neutral</div></a>
+                    <a href="crazy.html" class="genz-card"><div class="gzword">Crazy</div><div class="gzverdict gzv-orange">Examine</div></a>
+                    <a href="cruising.html" class="genz-card"><div class="gzword">Cruising</div><div class="gzverdict gzv-orange">Examine</div></a>
+                    <a href="cube.html" class="genz-card"><div class="gzword">Cube</div><div class="gzverdict gzv-red">Reject</div></a>
+                    <a href="cushy.html" class="genz-card"><div class="gzword">Cushy</div><div class="gzverdict gzv-orange">Examine</div></a>
+                    <a href="dibs.html" class="genz-card"><div class="gzword">Dibs</div><div class="gzverdict gzv-yellow">Neutral</div></a>
+                    <a href="dogface.html" class="genz-card"><div class="gzword">Dogface</div><div class="gzverdict gzv-yellow">Neutral</div></a>
+                    <a href="dreamboat.html" class="genz-card"><div class="gzword">Dreamboat</div><div class="gzverdict gzv-orange">Examine</div></a>
+                    <a href="drive-in.html" class="genz-card"><div class="gzword">Drive-in</div><div class="gzverdict gzv-orange">Examine</div></a>
+                    <a href="ducktail.html" class="genz-card"><div class="gzword">Ducktail</div><div class="gzverdict gzv-orange">Examine</div></a>
+                    <a href="ducky.html" class="genz-card"><div class="gzword">Ducky</div><div class="gzverdict gzv-yellow">Neutral</div></a>
+                    <a href="dungarees.html" class="genz-card"><div class="gzword">Dungarees</div><div class="gzverdict gzv-yellow">Neutral</div></a>
+                    <a href="egghead.html" class="genz-card"><div class="gzword">Egghead</div><div class="gzverdict gzv-orange">Examine</div></a>
+                    <a href="fat-city.html" class="genz-card"><div class="gzword">Fat city</div><div class="gzverdict gzv-yellow">Neutral</div></a>
+                    <a href="fink.html" class="genz-card"><div class="gzword">Fink</div><div class="gzverdict gzv-orange">Examine</div></a>
+                    <a href="flak.html" class="genz-card"><div class="gzword">Flak</div><div class="gzverdict gzv-orange">Examine</div></a>
+                    <a href="flat-top.html" class="genz-card"><div class="gzword">Flat top</div><div class="gzverdict gzv-yellow">Neutral</div></a>
+                    <a href="flick.html" class="genz-card"><div class="gzword">Flick</div><div class="gzverdict gzv-orange">Examine</div></a>
+                    <a href="flip-your-lid.html" class="genz-card"><div class="gzword">Flip your lid</div><div class="gzverdict gzv-orange">Examine</div></a>
+                    <a href="fogey.html" class="genz-card"><div class="gzword">Fogey</div><div class="gzverdict gzv-orange">Examine</div></a>
+                    <a href="frosted.html" class="genz-card"><div class="gzword">Frosted</div><div class="gzverdict gzv-orange">Examine</div></a>
+                    <a href="fuzz.html" class="genz-card"><div class="gzword">Fuzz</div><div class="gzverdict gzv-red">Reject</div></a>
+                    <a href="gas.html" class="genz-card"><div class="gzword">Gas</div><div class="gzverdict gzv-yellow">Neutral</div></a>
+                    <a href="gee-whiz.html" class="genz-card"><div class="gzword">Gee whiz</div><div class="gzverdict gzv-orange">Examine</div></a>
+                    <a href="gig.html" class="genz-card"><div class="gzword">Gig</div><div class="gzverdict gzv-green">Redeemable</div></a>
+                    <a href="go-ape.html" class="genz-card"><div class="gzword">Go ape</div><div class="gzverdict gzv-orange">Examine</div></a>
+                    <a href="going-steady.html" class="genz-card"><div class="gzword">Going steady</div><div class="gzverdict gzv-orange">Examine</div></a>
+                    <a href="goldbrick.html" class="genz-card"><div class="gzword">Goldbrick</div><div class="gzverdict gzv-red">Reject</div></a>
+                    <a href="golly.html" class="genz-card"><div class="gzword">Golly</div><div class="gzverdict gzv-orange">Examine</div></a>
+                    <a href="goof.html" class="genz-card"><div class="gzword">Goof</div><div class="gzverdict gzv-yellow">Neutral</div></a>
+                    <a href="greaser.html" class="genz-card"><div class="gzword">Greaser</div><div class="gzverdict gzv-orange">Examine</div></a>
+                    <a href="gremlin.html" class="genz-card"><div class="gzword">Gremlin</div><div class="gzverdict gzv-orange">Examine</div></a>
+                    <a href="gung-ho.html" class="genz-card"><div class="gzword">Gung-ho</div><div class="gzverdict gzv-green">Redeemable</div></a>
+                    <a href="hepcat.html" class="genz-card"><div class="gzword">Hepcat</div><div class="gzverdict gzv-orange">Examine</div></a>
+                    <a href="hick.html" class="genz-card"><div class="gzword">Hick</div><div class="gzverdict gzv-red">Reject</div></a>
+                    <a href="holy-cow.html" class="genz-card"><div class="gzword">Holy cow</div><div class="gzverdict gzv-orange">Examine</div></a>
+                    <a href="hoodlum.html" class="genz-card"><div class="gzword">Hoodlum</div><div class="gzverdict gzv-orange">Examine</div></a>
+                    <a href="hot-diggity.html" class="genz-card"><div class="gzword">Hot diggity</div><div class="gzverdict gzv-yellow">Neutral</div></a>
+                    <a href="hot-rod.html" class="genz-card"><div class="gzword">Hot rod</div><div class="gzverdict gzv-orange">Examine</div></a>
+                    <a href="hubba-hubba.html" class="genz-card"><div class="gzword">Hubba hubba</div><div class="gzverdict gzv-red">Reject</div></a>
+                    <a href="hunk-of-junk.html" class="genz-card"><div class="gzword">Hunk of junk</div><div class="gzverdict gzv-yellow">Neutral</div></a>
+                    <a href="jalopy.html" class="genz-card"><div class="gzword">Jalopy</div><div class="gzverdict gzv-green">Redeemable</div></a>
+                    <a href="jeepers.html" class="genz-card"><div class="gzword">Jeepers</div><div class="gzverdict gzv-orange">Examine</div></a>
+                    <a href="jitterbug.html" class="genz-card"><div class="gzword">Jitterbug</div><div class="gzverdict gzv-yellow">Neutral</div></a>
+                    <a href="keen.html" class="genz-card"><div class="gzword">Keen</div><div class="gzverdict gzv-green">Redeemable</div></a>
+                    <a href="killer-diller.html" class="genz-card"><div class="gzword">Killer-diller</div><div class="gzverdict gzv-yellow">Neutral</div></a>
+                    <a href="kilroy-was-here.html" class="genz-card"><div class="gzword">Kilroy was here</div><div class="gzverdict gzv-orange">Examine</div></a>
+                    <a href="knuckle-sandwich.html" class="genz-card"><div class="gzword">Knuckle sandwich</div><div class="gzverdict gzv-red">Reject</div></a>
+                    <a href="kookie.html" class="genz-card"><div class="gzword">Kookie</div><div class="gzverdict gzv-orange">Examine</div></a>
+                    <a href="lay-it-on-me.html" class="genz-card"><div class="gzword">Lay it on me</div><div class="gzverdict gzv-green">Redeemable</div></a>
+                    <a href="lousy.html" class="genz-card"><div class="gzword">Lousy</div><div class="gzverdict gzv-orange">Examine</div></a>
+                    <a href="made-in-the-shade.html" class="genz-card"><div class="gzword">Made in the shade</div><div class="gzverdict gzv-yellow">Neutral</div></a>
+                    <a href="make-the-scene.html" class="genz-card"><div class="gzword">Make the scene</div><div class="gzverdict gzv-orange">Examine</div></a>
+                    <a href="nerd.html" class="genz-card"><div class="gzword">Nerd</div><div class="gzverdict gzv-orange">Examine</div></a>
+                    <a href="nowhere.html" class="genz-card"><div class="gzword">Nowhere</div><div class="gzverdict gzv-red">Reject</div></a>
+                    <a href="on-the-nose.html" class="genz-card"><div class="gzword">On the nose</div><div class="gzverdict gzv-green">Redeemable</div></a>
+                    <a href="party-pooper.html" class="genz-card"><div class="gzword">Party pooper</div><div class="gzverdict gzv-orange">Examine</div></a>
+                    <a href="pedal-pushers.html" class="genz-card"><div class="gzword">Pedal pushers</div><div class="gzverdict gzv-yellow">Neutral</div></a>
+                    <a href="peepers.html" class="genz-card"><div class="gzword">Peepers</div><div class="gzverdict gzv-yellow">Neutral</div></a>
+                    <a href="pinned.html" class="genz-card"><div class="gzword">Pinned</div><div class="gzverdict gzv-yellow">Neutral</div></a>
+                    <a href="poodle-skirt.html" class="genz-card"><div class="gzword">Poodle skirt</div><div class="gzverdict gzv-yellow">Neutral</div></a>
+                    <a href="rag-top.html" class="genz-card"><div class="gzword">Rag top</div><div class="gzverdict gzv-yellow">Neutral</div></a>
+                    <a href="real-gone.html" class="genz-card"><div class="gzword">Real gone</div><div class="gzverdict gzv-orange">Examine</div></a>
+                    <a href="roger.html" class="genz-card"><div class="gzword">Roger</div><div class="gzverdict gzv-green">Redeemable</div></a>
+                    <a href="rosie-the-riveter.html" class="genz-card"><div class="gzword">Rosie the Riveter</div><div class="gzverdict gzv-green">Redeemable</div></a>
+                    <a href="sad-sack.html" class="genz-card"><div class="gzword">Sad sack</div><div class="gzverdict gzv-orange">Examine</div></a>
+                    <a href="scuttlebutt.html" class="genz-card"><div class="gzword">Scuttlebutt</div><div class="gzverdict gzv-red">Reject</div></a>
+                    <a href="see-you-later-alligator.html" class="genz-card"><div class="gzword">See you later, alligator</div><div class="gzverdict gzv-yellow">Neutral</div></a>
+                    <a href="shook-up.html" class="genz-card"><div class="gzword">Shook up</div><div class="gzverdict gzv-yellow">Neutral</div></a>
+                    <a href="shot-down.html" class="genz-card"><div class="gzword">Shot down</div><div class="gzverdict gzv-yellow">Neutral</div></a>
+                    <a href="skedaddle.html" class="genz-card"><div class="gzword">Skedaddle</div><div class="gzverdict gzv-yellow">Neutral</div></a>
+                    <a href="skivvies.html" class="genz-card"><div class="gzword">Skivvies</div><div class="gzverdict gzv-yellow">Neutral</div></a>
+                    <a href="smooch.html" class="genz-card"><div class="gzword">Smooch</div><div class="gzverdict gzv-yellow">Neutral</div></a>
+                    <a href="sock-hop.html" class="genz-card"><div class="gzword">Sock hop</div><div class="gzverdict gzv-yellow">Neutral</div></a>
+                    <a href="soda-jerk.html" class="genz-card"><div class="gzword">Soda jerk</div><div class="gzverdict gzv-yellow">Neutral</div></a>
+                    <a href="sounds.html" class="genz-card"><div class="gzword">Sounds</div><div class="gzverdict gzv-orange">Examine</div></a>
+                    <a href="split.html" class="genz-card"><div class="gzword">Split</div><div class="gzverdict gzv-yellow">Neutral</div></a>
+                    <a href="teenager.html" class="genz-card"><div class="gzword">Teenager</div><div class="gzverdict gzv-orange">Examine</div></a>
+                    <a href="the-most.html" class="genz-card"><div class="gzword">The most</div><div class="gzverdict gzv-yellow">Neutral</div></a>
+                    <a href="threads.html" class="genz-card"><div class="gzword">Threads</div><div class="gzverdict gzv-yellow">Neutral</div></a>
+                    <a href="tight.html" class="genz-card"><div class="gzword">Tight</div><div class="gzverdict gzv-green">Redeemable</div></a>
+                    <a href="unreal.html" class="genz-card"><div class="gzword">Unreal</div><div class="gzverdict gzv-yellow">Neutral</div></a>
+                    <a href="victory-garden.html" class="genz-card"><div class="gzword">Victory garden</div><div class="gzverdict gzv-green">Redeemable</div></a>
+                    <a href="wet-rag.html" class="genz-card"><div class="gzword">Wet rag</div><div class="gzverdict gzv-orange">Examine</div></a>
+                    <a href="whats-buzzin-cousin.html" class="genz-card"><div class="gzword">What&rsquo;s buzzin&rsquo;, cousin?</div><div class="gzverdict gzv-yellow">Neutral</div></a>
+                    <a href="wig-out.html" class="genz-card"><div class="gzword">Wig out</div><div class="gzverdict gzv-orange">Examine</div></a>
+                    <a href="word-from-the-bird.html" class="genz-card"><div class="gzword">Word from the bird</div><div class="gzverdict gzv-yellow">Neutral</div></a>
+                    <a href="zoot-suit.html" class="genz-card"><div class="gzword">Zoot suit</div><div class="gzverdict gzv-orange">Examine</div></a>
+                </div>
+            </details>
+        </div>
+
         <div class="christianese-section" id="christianeseSection">
             <h3><a href="christianese-decoded.html" class="section-title-link"><img src="../assets/icons/shield-key-scripture-48.png" alt="" width="20" height="20"> Christianese Decoded <span class="see-all">browse all &rarr;</span></a></h3>
             <p class="subtitle">Churchy talk &mdash; some sound, some sentimental, and many quietly weaponized to silence the faithful and advance another gospel. Each word weighed: is it real gold, or fool&rsquo;s gold? <span style="white-space:nowrap;"><span class="gzv-green">&#9679; Redeemable</span> &middot; <span class="gzv-yellow">&#9679; Neutral</span> &middot; <span class="gzv-orange">&#9679; Examine</span> &middot; <span class="gzv-red">&#9679; Reject</span></span></p>
@@ -2000,7 +2114,7 @@ def main():
     SPECIAL_PAGES = {'names.html', 'doctrinal-anchors.html', 'biblical-order.html',
                      'expressly-prohibited.html', 'most-corrupted.html',
                      'gen-z-decoded.html', 'gen-alpha-decoded.html', 'millennial-decoded.html',
-                     'gen-x-decoded.html', 'boomer-decoded.html',
+                     'gen-x-decoded.html', 'boomer-decoded.html', 'silent-decoded.html',
                      'christianese-decoded.html', 'jesus-generation.html',
                      'changelog.html', 'baby-names.html', 'by-topic.html'}
     total = len([w for w in words if w['file'] not in SPECIAL_PAGES])

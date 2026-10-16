@@ -76,7 +76,7 @@ def build_inverse_index():
     inverse = {}
     SPECIAL = {'index', 'names', 'doctrinal-anchors', 'biblical-order',
                'expressly-prohibited', 'most-corrupted', 'gen-z-decoded', 'gen-alpha-decoded',
-               'millennial-decoded', 'gen-x-decoded', 'boomer-decoded',
+               'millennial-decoded', 'gen-x-decoded', 'boomer-decoded', 'silent-decoded',
                'changelog', 'template'}
     for fn in sorted(os.listdir(DICT_DIR)):
         if not fn.endswith('.html'):

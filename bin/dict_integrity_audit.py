@@ -49,7 +49,7 @@ LEX_INDEX = os.path.join(ROOT, 'docs', 'lexicon.html')
 SPECIAL = {'index', 'template', 'names', 'baby-names', 'by-topic',
            'doctrinal-anchors', 'biblical-order', 'expressly-prohibited',
            'most-corrupted', 'gen-z-decoded', 'gen-alpha-decoded', 'millennial-decoded',
-           'gen-x-decoded', 'boomer-decoded', 'christianese-decoded',
+           'gen-x-decoded', 'boomer-decoded', 'silent-decoded', 'christianese-decoded',
            'jesus-generation', 'changelog'}
 
 # Merged-away slugs are no-index redirect stubs (see bin/merge_entries.py),

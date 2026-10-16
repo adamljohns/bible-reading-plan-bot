@@ -315,7 +315,7 @@ def scan_html(path: str) -> list[Finding]:
     #       reviews it instead of "fixing" the rebuttal.
     AGGREGATE = {"index", "template", "most-corrupted", "by-topic",
                  "doctrinal-anchors", "gen-z-decoded", "gen-alpha-decoded", "millennial-decoded",
-                 "gen-x-decoded", "boomer-decoded", "expressly-prohibited",
+                 "gen-x-decoded", "boomer-decoded", "silent-decoded", "expressly-prohibited",
                  "names", "baby-names", "biblical-order", "changelog"}
     if slug in AGGREGATE:
         return []

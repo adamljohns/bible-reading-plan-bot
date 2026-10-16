@@ -27,7 +27,7 @@ DICT = os.path.join(ROOT, 'docs', 'dictionary')
 SPECIAL = {'index', 'template', 'names', 'baby-names', 'by-topic', 'changelog',
            'doctrinal-anchors', 'biblical-order', 'expressly-prohibited',
            'most-corrupted', 'gen-z-decoded', 'gen-alpha-decoded', 'millennial-decoded',
-           'gen-x-decoded', 'boomer-decoded', 'christianese-decoded', 'jesus-generation'}
+           'gen-x-decoded', 'boomer-decoded', 'silent-decoded', 'christianese-decoded', 'jesus-generation'}
 REDIR = set()
 _r = os.path.join(ROOT, 'data', 'dictionary-redirects.txt')
 if os.path.exists(_r):
