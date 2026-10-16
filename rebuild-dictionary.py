@@ -1555,6 +1555,106 @@ def build_index(words, by_letter, total):
                     <a href="sock-it-to-me.html" class="boomer-card"><div class="bword">Sock It to Me</div><div class="bverdict gzv-yellow">Neutral</div></a>
                     <a href="keep-on-truckin.html" class="boomer-card"><div class="bword">Keep On Truckin&rsquo;</div><div class="bverdict gzv-green">Redeemable</div></a>
                     <a href="the-fuzz.html" class="boomer-card"><div class="bword">The Fuzz</div><div class="bverdict gzv-orange">Examine</div></a>
+                    <a href="flower-child.html" class="boomer-card"><div class="bword">Flower Child</div><div class="bverdict gzv-orange">Examine</div></a>
+                    <a href="stick-it-to-the-man.html" class="boomer-card"><div class="bword">Stick It to the Man</div><div class="bverdict gzv-orange">Examine</div></a>
+                    <a href="the-establishment.html" class="boomer-card"><div class="bword">The Establishment</div><div class="bverdict gzv-orange">Examine</div></a>
+                    <a href="peacenik.html" class="boomer-card"><div class="bword">Peacenik</div><div class="bverdict gzv-yellow">Neutral</div></a>
+                    <a href="make-love-not-war.html" class="boomer-card"><div class="bword">Make Love, Not War</div><div class="bverdict gzv-red">Reject</div></a>
+                    <a href="power-to-the-people.html" class="boomer-card"><div class="bword">Power to the People</div><div class="bverdict gzv-orange">Examine</div></a>
+                    <a href="sit-in.html" class="boomer-card"><div class="bword">Sit-In</div><div class="bverdict gzv-yellow">Neutral</div></a>
+                    <a href="love-in.html" class="boomer-card"><div class="bword">Love-In</div><div class="bverdict gzv-orange">Examine</div></a>
+                    <a href="be-in.html" class="boomer-card"><div class="bword">Be-In</div><div class="bverdict gzv-red">Reject</div></a>
+                    <a href="happening.html" class="boomer-card"><div class="bword">Happening</div><div class="bverdict gzv-yellow">Neutral</div></a>
+                    <a href="summer-of-love.html" class="boomer-card"><div class="bword">Summer of Love</div><div class="bverdict gzv-orange">Examine</div></a>
+                    <a href="yippie.html" class="boomer-card"><div class="bword">Yippie</div><div class="bverdict gzv-orange">Examine</div></a>
+                    <a href="psychedelic.html" class="boomer-card"><div class="bword">Psychedelic</div><div class="bverdict gzv-red">Reject</div></a>
+                    <a href="trippy.html" class="boomer-card"><div class="bword">Trippy</div><div class="bverdict gzv-orange">Examine</div></a>
+                    <a href="bad-trip.html" class="boomer-card"><div class="bword">Bad Trip</div><div class="bverdict gzv-orange">Examine</div></a>
+                    <a href="turn-on-tune-in-drop-out.html" class="boomer-card"><div class="bword">Turn On, Tune In, Drop Out</div><div class="bverdict gzv-red">Reject</div></a>
+                    <a href="mind-blowing.html" class="boomer-card"><div class="bword">Mind-Blowing</div><div class="bverdict gzv-yellow">Neutral</div></a>
+                    <a href="freak-out.html" class="boomer-card"><div class="bword">Freak Out</div><div class="bverdict gzv-yellow">Neutral</div></a>
+                    <a href="spaced-out.html" class="boomer-card"><div class="bword">Spaced Out</div><div class="bverdict gzv-orange">Examine</div></a>
+                    <a href="zonked.html" class="boomer-card"><div class="bword">Zonked</div><div class="bverdict gzv-yellow">Neutral</div></a>
+                    <a href="freak-flag.html" class="boomer-card"><div class="bword">Freak Flag</div><div class="bverdict gzv-orange">Examine</div></a>
+                    <a href="uptight.html" class="boomer-card"><div class="bword">Uptight</div><div class="bverdict gzv-orange">Examine</div></a>
+                    <a href="hang-up.html" class="boomer-card"><div class="bword">Hang-Up</div><div class="bverdict gzv-orange">Examine</div></a>
+                    <a href="cop-out.html" class="boomer-card"><div class="bword">Cop-Out</div><div class="bverdict gzv-yellow">Neutral</div></a>
+                    <a href="10-4-good-buddy.html" class="boomer-card"><div class="bword">10-4, Good Buddy</div><div class="bverdict gzv-green">Redeemable</div></a>
+                    <a href="breaker-breaker.html" class="boomer-card"><div class="bword">Breaker, Breaker</div><div class="bverdict gzv-green">Redeemable</div></a>
+                    <a href="whats-your-20.html" class="boomer-card"><div class="bword">What&rsquo;s Your 20?</div><div class="bverdict gzv-yellow">Neutral</div></a>
+                    <a href="smokey.html" class="boomer-card"><div class="bword">Smokey</div><div class="bverdict gzv-orange">Examine</div></a>
+                    <a href="hang-ten.html" class="boomer-card"><div class="bword">Hang Ten</div><div class="bverdict gzv-yellow">Neutral</div></a>
+                    <a href="wipe-out.html" class="boomer-card"><div class="bword">Wipe Out</div><div class="bverdict gzv-yellow">Neutral</div></a>
+                    <a href="hodad.html" class="boomer-card"><div class="bword">Hodad</div><div class="bverdict gzv-yellow">Neutral</div></a>
+                    <a href="crash.html" class="boomer-card"><div class="bword">Crash</div><div class="bverdict gzv-yellow">Neutral</div></a>
+                    <a href="crash-pad.html" class="boomer-card"><div class="bword">Crash Pad</div><div class="bverdict gzv-orange">Examine</div></a>
+                    <a href="the-pits.html" class="boomer-card"><div class="bword">The Pits</div><div class="bverdict gzv-yellow">Neutral</div></a>
+                    <a href="bummed.html" class="boomer-card"><div class="bword">Bummed</div><div class="bverdict gzv-yellow">Neutral</div></a>
+                    <a href="sellout.html" class="boomer-card"><div class="bword">Sellout</div><div class="bverdict gzv-orange">Examine</div></a>
+                    <a href="boss.html" class="boomer-card"><div class="bword">Boss</div><div class="bverdict gzv-yellow">Neutral</div></a>
+                    <a href="neat.html" class="boomer-card"><div class="bword">Neat</div><div class="bverdict gzv-green">Redeemable</div></a>
+                    <a href="primo.html" class="boomer-card"><div class="bword">Primo</div><div class="bverdict gzv-yellow">Neutral</div></a>
+                    <a href="decent.html" class="boomer-card"><div class="bword">Decent</div><div class="bverdict gzv-green">Redeemable</div></a>
+                    <a href="fab.html" class="boomer-card"><div class="bword">Fab</div><div class="bverdict gzv-orange">Examine</div></a>
+                    <a href="gear.html" class="boomer-card"><div class="bword">Gear</div><div class="bverdict gzv-yellow">Neutral</div></a>
+                    <a href="tough.html" class="boomer-card"><div class="bword">Tough</div><div class="bverdict gzv-orange">Examine</div></a>
+                    <a href="cherry.html" class="boomer-card"><div class="bword">Cherry</div><div class="bverdict gzv-yellow">Neutral</div></a>
+                    <a href="dy-no-mite.html" class="boomer-card"><div class="bword">Dy-no-mite!</div><div class="bverdict gzv-yellow">Neutral</div></a>
+                    <a href="mod.html" class="boomer-card"><div class="bword">Mod</div><div class="bverdict gzv-orange">Examine</div></a>
+                    <a href="go-go.html" class="boomer-card"><div class="bword">Go-Go</div><div class="bverdict gzv-orange">Examine</div></a>
+                    <a href="stone-fox.html" class="boomer-card"><div class="bword">Stone Fox</div><div class="bverdict gzv-orange">Examine</div></a>
+                    <a href="hunk.html" class="boomer-card"><div class="bword">Hunk</div><div class="bverdict gzv-orange">Examine</div></a>
+                    <a href="chick.html" class="boomer-card"><div class="bword">Chick</div><div class="bverdict gzv-orange">Examine</div></a>
+                    <a href="old-lady.html" class="boomer-card"><div class="bword">Old Lady</div><div class="bverdict gzv-orange">Examine</div></a>
+                    <a href="old-man.html" class="boomer-card"><div class="bword">Old Man</div><div class="bverdict gzv-yellow">Neutral</div></a>
+                    <a href="dude.html" class="boomer-card"><div class="bword">Dude</div><div class="bverdict gzv-yellow">Neutral</div></a>
+                    <a href="teenybopper.html" class="boomer-card"><div class="bword">Teenybopper</div><div class="bverdict gzv-orange">Examine</div></a>
+                    <a href="roadie.html" class="boomer-card"><div class="bword">Roadie</div><div class="bverdict gzv-green">Redeemable</div></a>
+                    <a href="jive-turkey.html" class="boomer-card"><div class="bword">Jive Turkey</div><div class="bverdict gzv-orange">Examine</div></a>
+                    <a href="soul-brother.html" class="boomer-card"><div class="bword">Soul Brother</div><div class="bverdict gzv-yellow">Neutral</div></a>
+                    <a href="yuppie.html" class="boomer-card"><div class="bword">Yuppie</div><div class="bverdict gzv-orange">Examine</div></a>
+                    <a href="me-generation.html" class="boomer-card"><div class="bword">Me Generation</div><div class="bverdict gzv-red">Reject</div></a>
+                    <a href="generation-gap.html" class="boomer-card"><div class="bword">Generation Gap</div><div class="bverdict gzv-orange">Examine</div></a>
+                    <a href="boogie.html" class="boomer-card"><div class="bword">Boogie</div><div class="bverdict gzv-yellow">Neutral</div></a>
+                    <a href="disco.html" class="boomer-card"><div class="bword">Disco</div><div class="bverdict gzv-orange">Examine</div></a>
+                    <a href="get-down.html" class="boomer-card"><div class="bword">Get Down</div><div class="bverdict gzv-orange">Examine</div></a>
+                    <a href="bump.html" class="boomer-card"><div class="bword">Bump</div><div class="bverdict gzv-orange">Examine</div></a>
+                    <a href="hustle.html" class="boomer-card"><div class="bword">Hustle</div><div class="bverdict gzv-orange">Examine</div></a>
+                    <a href="jam-session.html" class="boomer-card"><div class="bword">Jam Session</div><div class="bverdict gzv-green">Redeemable</div></a>
+                    <a href="in-the-groove.html" class="boomer-card"><div class="bword">In the Groove</div><div class="bverdict gzv-green">Redeemable</div></a>
+                    <a href="rap-session.html" class="boomer-card"><div class="bword">Rap Session</div><div class="bverdict gzv-yellow">Neutral</div></a>
+                    <a href="bogart.html" class="boomer-card"><div class="bword">Bogart</div><div class="bverdict gzv-orange">Examine</div></a>
+                    <a href="flake-out.html" class="boomer-card"><div class="bword">Flake Out</div><div class="bverdict gzv-orange">Examine</div></a>
+                    <a href="lay-a-trip-on.html" class="boomer-card"><div class="bword">Lay a Trip On</div><div class="bverdict gzv-orange">Examine</div></a>
+                    <a href="catch-my-drift.html" class="boomer-card"><div class="bword">Catch My Drift</div><div class="bverdict gzv-yellow">Neutral</div></a>
+                    <a href="leisure-suit.html" class="boomer-card"><div class="bword">Leisure Suit</div><div class="bverdict gzv-yellow">Neutral</div></a>
+                    <a href="hot-pants.html" class="boomer-card"><div class="bword">Hot Pants</div><div class="bverdict gzv-orange">Examine</div></a>
+                    <a href="mood-ring.html" class="boomer-card"><div class="bword">Mood Ring</div><div class="bverdict gzv-orange">Examine</div></a>
+                    <a href="pet-rock.html" class="boomer-card"><div class="bword">Pet Rock</div><div class="bverdict gzv-yellow">Neutral</div></a>
+                    <a href="lava-lamp.html" class="boomer-card"><div class="bword">Lava Lamp</div><div class="bverdict gzv-yellow">Neutral</div></a>
+                    <a href="8-track.html" class="boomer-card"><div class="bword">8-Track</div><div class="bverdict gzv-yellow">Neutral</div></a>
+                    <a href="sideburns.html" class="boomer-card"><div class="bword">Sideburns</div><div class="bverdict gzv-yellow">Neutral</div></a>
+                    <a href="platform-shoes.html" class="boomer-card"><div class="bword">Platform Shoes</div><div class="bverdict gzv-yellow">Neutral</div></a>
+                    <a href="tie-dye.html" class="boomer-card"><div class="bword">Tie-Dye</div><div class="bverdict gzv-yellow">Neutral</div></a>
+                    <a href="peace-sign.html" class="boomer-card"><div class="bword">Peace Sign</div><div class="bverdict gzv-orange">Examine</div></a>
+                    <a href="love-beads.html" class="boomer-card"><div class="bword">Love Beads</div><div class="bverdict gzv-orange">Examine</div></a>
+                    <a href="woodstock.html" class="boomer-card"><div class="bword">Woodstock</div><div class="bverdict gzv-orange">Examine</div></a>
+                    <a href="jesus-freak.html" class="boomer-card"><div class="bword">Jesus Freak</div><div class="bverdict gzv-green">Redeemable</div></a>
+                    <a href="one-way.html" class="boomer-card"><div class="bword">One Way</div><div class="bverdict gzv-green">Redeemable</div></a>
+                    <a href="keep-the-faith-baby.html" class="boomer-card"><div class="bword">Keep the Faith, Baby</div><div class="bverdict gzv-green">Redeemable</div></a>
+                    <a href="tell-it-like-it-is.html" class="boomer-card"><div class="bword">Tell It Like It Is</div><div class="bverdict gzv-green">Redeemable</div></a>
+                    <a href="here-come-da-judge.html" class="boomer-card"><div class="bword">Here Come da Judge</div><div class="bverdict gzv-yellow">Neutral</div></a>
+                    <a href="wheres-the-beef.html" class="boomer-card"><div class="bword">Where&rsquo;s the Beef?</div><div class="bverdict gzv-green">Redeemable</div></a>
+                    <a href="square-biz.html" class="boomer-card"><div class="bword">Square Biz</div><div class="bverdict gzv-green">Redeemable</div></a>
+                    <a href="what-it-is.html" class="boomer-card"><div class="bword">What It Is</div><div class="bverdict gzv-yellow">Neutral</div></a>
+                    <a href="age-of-aquarius.html" class="boomer-card"><div class="bword">Age of Aquarius</div><div class="bverdict gzv-red">Reject</div></a>
+                    <a href="dont-trust-anyone-over-30.html" class="boomer-card"><div class="bword">Don&rsquo;t Trust Anyone Over 30</div><div class="bverdict gzv-red">Reject</div></a>
+                    <a href="high-five.html" class="boomer-card"><div class="bword">High Five</div><div class="bverdict gzv-green">Redeemable</div></a>
+                    <a href="gimme-some-skin.html" class="boomer-card"><div class="bword">Gimme Some Skin</div><div class="bverdict gzv-yellow">Neutral</div></a>
+                    <a href="zap.html" class="boomer-card"><div class="bword">Zap</div><div class="bverdict gzv-yellow">Neutral</div></a>
+                    <a href="hacked-off.html" class="boomer-card"><div class="bword">Hacked Off</div><div class="bverdict gzv-orange">Examine</div></a>
+                    <a href="catch-you-later.html" class="boomer-card"><div class="bword">Catch You Later</div><div class="bverdict gzv-green">Redeemable</div></a>
+                    <a href="heads-up.html" class="boomer-card"><div class="bword">Heads Up</div><div class="bverdict gzv-green">Redeemable</div></a>
                 </div>
             </details>
         </div>
