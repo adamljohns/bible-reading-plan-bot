@@ -1261,6 +1261,107 @@ def build_index(words, by_letter, total):
                     <a href="spirit-animal.html" class="mill-card"><div class="mword">Spirit Animal</div><div class="mverdict gzv-red">Reject</div></a>
                     <a href="catfishing.html" class="mill-card"><div class="mword">Catfishing</div><div class="mverdict gzv-red">Reject</div></a>
                     <a href="thirst-trap.html" class="mill-card"><div class="mword">Thirst Trap</div><div class="mverdict gzv-red">Reject</div></a>
+                    <a href="jomo.html" class="mill-card"><div class="mword">JOMO</div><div class="mverdict gzv-green">Redeemable</div></a>
+                    <a href="swag.html" class="mill-card"><div class="mword">Swag</div><div class="mverdict gzv-orange">Examine</div></a>
+                    <a href="epic.html" class="mill-card"><div class="mword">Epic</div><div class="mverdict gzv-yellow">Neutral</div></a>
+                    <a href="epic-fail.html" class="mill-card"><div class="mword">Epic Fail</div><div class="mverdict gzv-orange">Examine</div></a>
+                    <a href="pwned.html" class="mill-card"><div class="mword">Pwned</div><div class="mverdict gzv-orange">Examine</div></a>
+                    <a href="noob.html" class="mill-card"><div class="mword">Noob</div><div class="mverdict gzv-orange">Examine</div></a>
+                    <a href="leet.html" class="mill-card"><div class="mword">Leet</div><div class="mverdict gzv-orange">Examine</div></a>
+                    <a href="lol.html" class="mill-card"><div class="mword">LOL</div><div class="mverdict gzv-yellow">Neutral</div></a>
+                    <a href="rofl.html" class="mill-card"><div class="mword">ROFL</div><div class="mverdict gzv-orange">Examine</div></a>
+                    <a href="omg.html" class="mill-card"><div class="mword">OMG</div><div class="mverdict gzv-red">Reject</div></a>
+                    <a href="brb.html" class="mill-card"><div class="mword">BRB</div><div class="mverdict gzv-yellow">Neutral</div></a>
+                    <a href="ttyl.html" class="mill-card"><div class="mword">TTYL</div><div class="mverdict gzv-yellow">Neutral</div></a>
+                    <a href="jk.html" class="mill-card"><div class="mword">JK</div><div class="mverdict gzv-orange">Examine</div></a>
+                    <a href="idk.html" class="mill-card"><div class="mword">IDK</div><div class="mverdict gzv-yellow">Neutral</div></a>
+                    <a href="smh.html" class="mill-card"><div class="mword">SMH</div><div class="mverdict gzv-orange">Examine</div></a>
+                    <a href="bff.html" class="mill-card"><div class="mword">BFF</div><div class="mverdict gzv-green">Redeemable</div></a>
+                    <a href="frenemy.html" class="mill-card"><div class="mword">Frenemy</div><div class="mverdict gzv-red">Reject</div></a>
+                    <a href="bromance.html" class="mill-card"><div class="mword">Bromance</div><div class="mverdict gzv-orange">Examine</div></a>
+                    <a href="man-cave.html" class="mill-card"><div class="mword">Man Cave</div><div class="mverdict gzv-orange">Examine</div></a>
+                    <a href="wingman.html" class="mill-card"><div class="mword">Wingman</div><div class="mverdict gzv-orange">Examine</div></a>
+                    <a href="friend-zone.html" class="mill-card"><div class="mword">Friend Zone</div><div class="mverdict gzv-red">Reject</div></a>
+                    <a href="cuffing-season.html" class="mill-card"><div class="mword">Cuffing Season</div><div class="mverdict gzv-red">Reject</div></a>
+                    <a href="swipe-left.html" class="mill-card"><div class="mword">Swipe Left</div><div class="mverdict gzv-orange">Examine</div></a>
+                    <a href="dtr.html" class="mill-card"><div class="mword">DTR</div><div class="mverdict gzv-green">Redeemable</div></a>
+                    <a href="turnt.html" class="mill-card"><div class="mword">Turnt</div><div class="mverdict gzv-red">Reject</div></a>
+                    <a href="turn-up.html" class="mill-card"><div class="mword">Turn Up</div><div class="mverdict gzv-orange">Examine</div></a>
+                    <a href="squad.html" class="mill-card"><div class="mword">Squad</div><div class="mverdict gzv-green">Redeemable</div></a>
+                    <a href="goals.html" class="mill-card"><div class="mword">Goals</div><div class="mverdict gzv-orange">Examine</div></a>
+                    <a href="selfie-stick.html" class="mill-card"><div class="mword">Selfie Stick</div><div class="mverdict gzv-orange">Examine</div></a>
+                    <a href="duck-face.html" class="mill-card"><div class="mword">Duck Face</div><div class="mverdict gzv-orange">Examine</div></a>
+                    <a href="photobomb.html" class="mill-card"><div class="mword">Photobomb</div><div class="mverdict gzv-yellow">Neutral</div></a>
+                    <a href="struggle-bus.html" class="mill-card"><div class="mword">Struggle Bus</div><div class="mverdict gzv-green">Redeemable</div></a>
+                    <a href="hot-mess.html" class="mill-card"><div class="mword">Hot Mess</div><div class="mverdict gzv-orange">Examine</div></a>
+                    <a href="dumpster-fire.html" class="mill-card"><div class="mword">Dumpster Fire</div><div class="mverdict gzv-yellow">Neutral</div></a>
+                    <a href="i-cant-even.html" class="mill-card"><div class="mword">I Can't Even</div><div class="mverdict gzv-orange">Examine</div></a>
+                    <a href="literally.html" class="mill-card"><div class="mword">Literally</div><div class="mverdict gzv-orange">Examine</div></a>
+                    <a href="adorbs.html" class="mill-card"><div class="mword">Adorbs</div><div class="mverdict gzv-yellow">Neutral</div></a>
+                    <a href="obvi.html" class="mill-card"><div class="mword">Obvi</div><div class="mverdict gzv-yellow">Neutral</div></a>
+                    <a href="cray.html" class="mill-card"><div class="mword">Cray</div><div class="mverdict gzv-orange">Examine</div></a>
+                    <a href="amazeballs.html" class="mill-card"><div class="mword">Amazeballs</div><div class="mverdict gzv-yellow">Neutral</div></a>
+                    <a href="whatevs.html" class="mill-card"><div class="mword">Whatevs</div><div class="mverdict gzv-orange">Examine</div></a>
+                    <a href="jelly.html" class="mill-card"><div class="mword">Jelly</div><div class="mverdict gzv-orange">Examine</div></a>
+                    <a href="werk.html" class="mill-card"><div class="mword">Werk</div><div class="mverdict gzv-orange">Examine</div></a>
+                    <a href="yas.html" class="mill-card"><div class="mword">Yas</div><div class="mverdict gzv-yellow">Neutral</div></a>
+                    <a href="receipts-slang.html" class="mill-card"><div class="mword">Receipts</div><div class="mverdict gzv-orange">Examine</div></a>
+                    <a href="extra.html" class="mill-card"><div class="mword">Extra</div><div class="mverdict gzv-orange">Examine</div></a>
+                    <a href="savage.html" class="mill-card"><div class="mword">Savage</div><div class="mverdict gzv-red">Reject</div></a>
+                    <a href="hookup-culture.html" class="mill-card"><div class="mword">Hookup Culture</div><div class="mverdict gzv-red">Reject</div></a>
+                    <a href="hipster.html" class="mill-card"><div class="mword">Hipster</div><div class="mverdict gzv-orange">Examine</div></a>
+                    <a href="man-bun.html" class="mill-card"><div class="mword">Man Bun</div><div class="mverdict gzv-orange">Examine</div></a>
+                    <a href="normcore.html" class="mill-card"><div class="mword">Normcore</div><div class="mverdict gzv-yellow">Neutral</div></a>
+                    <a href="athleisure.html" class="mill-card"><div class="mword">Athleisure</div><div class="mverdict gzv-orange">Examine</div></a>
+                    <a href="brunch.html" class="mill-card"><div class="mword">Brunch</div><div class="mverdict gzv-orange">Examine</div></a>
+                    <a href="pumpkin-spice.html" class="mill-card"><div class="mword">Pumpkin Spice</div><div class="mverdict gzv-yellow">Neutral</div></a>
+                    <a href="streak.html" class="mill-card"><div class="mword">Streak</div><div class="mverdict gzv-orange">Examine</div></a>
+                    <a href="story-slang.html" class="mill-card"><div class="mword">Story</div><div class="mverdict gzv-orange">Examine</div></a>
+                    <a href="facebook-official.html" class="mill-card"><div class="mword">Facebook Official</div><div class="mverdict gzv-orange">Examine</div></a>
+                    <a href="unfriend.html" class="mill-card"><div class="mword">Unfriend</div><div class="mverdict gzv-orange">Examine</div></a>
+                    <a href="viral.html" class="mill-card"><div class="mword">Viral</div><div class="mverdict gzv-orange">Examine</div></a>
+                    <a href="trending.html" class="mill-card"><div class="mword">Trending</div><div class="mverdict gzv-orange">Examine</div></a>
+                    <a href="meme.html" class="mill-card"><div class="mword">Meme</div><div class="mverdict gzv-orange">Examine</div></a>
+                    <a href="rickroll.html" class="mill-card"><div class="mword">Rickroll</div><div class="mverdict gzv-yellow">Neutral</div></a>
+                    <a href="lolcat.html" class="mill-card"><div class="mword">Lolcat</div><div class="mverdict gzv-yellow">Neutral</div></a>
+                    <a href="doge.html" class="mill-card"><div class="mword">Doge</div><div class="mverdict gzv-yellow">Neutral</div></a>
+                    <a href="planking.html" class="mill-card"><div class="mword">Planking</div><div class="mverdict gzv-orange">Examine</div></a>
+                    <a href="ice-bucket-challenge.html" class="mill-card"><div class="mword">Ice Bucket Challenge</div><div class="mverdict gzv-orange">Examine</div></a>
+                    <a href="dab.html" class="mill-card"><div class="mword">Dab</div><div class="mverdict gzv-yellow">Neutral</div></a>
+                    <a href="participation-trophy.html" class="mill-card"><div class="mword">Participation Trophy</div><div class="mverdict gzv-orange">Examine</div></a>
+                    <a href="snowflake.html" class="mill-card"><div class="mword">Snowflake</div><div class="mverdict gzv-orange">Examine</div></a>
+                    <a href="mansplaining.html" class="mill-card"><div class="mword">Mansplaining</div><div class="mverdict gzv-orange">Examine</div></a>
+                    <a href="gig-economy.html" class="mill-card"><div class="mword">Gig Economy</div><div class="mverdict gzv-orange">Examine</div></a>
+                    <a href="boss-babe.html" class="mill-card"><div class="mword">Boss Babe</div><div class="mverdict gzv-orange">Examine</div></a>
+                    <a href="rise-and-grind.html" class="mill-card"><div class="mword">Rise and Grind</div><div class="mverdict gzv-orange">Examine</div></a>
+                    <a href="bougie.html" class="mill-card"><div class="mword">Bougie</div><div class="mverdict gzv-orange">Examine</div></a>
+                    <a href="bye-felicia.html" class="mill-card"><div class="mword">Bye, Felicia</div><div class="mverdict gzv-red">Reject</div></a>
+                    <a href="on-point.html" class="mill-card"><div class="mword">On Point</div><div class="mverdict gzv-green">Redeemable</div></a>
+                    <a href="same.html" class="mill-card"><div class="mword">Same</div><div class="mverdict gzv-yellow">Neutral</div></a>
+                    <a href="shook-slang.html" class="mill-card"><div class="mword">Shook</div><div class="mverdict gzv-yellow">Neutral</div></a>
+                    <a href="fam.html" class="mill-card"><div class="mword">Fam</div><div class="mverdict gzv-green">Redeemable</div></a>
+                    <a href="swole.html" class="mill-card"><div class="mword">Swole</div><div class="mverdict gzv-orange">Examine</div></a>
+                    <a href="gains-slang.html" class="mill-card"><div class="mword">Gains</div><div class="mverdict gzv-orange">Examine</div></a>
+                    <a href="bucket-list.html" class="mill-card"><div class="mword">Bucket List</div><div class="mverdict gzv-orange">Examine</div></a>
+                    <a href="wanderlust.html" class="mill-card"><div class="mword">Wanderlust</div><div class="mverdict gzv-orange">Examine</div></a>
+                    <a href="digital-nomad.html" class="mill-card"><div class="mword">Digital Nomad</div><div class="mverdict gzv-orange">Examine</div></a>
+                    <a href="staycation.html" class="mill-card"><div class="mword">Staycation</div><div class="mverdict gzv-green">Redeemable</div></a>
+                    <a href="glamping.html" class="mill-card"><div class="mword">Glamping</div><div class="mverdict gzv-yellow">Neutral</div></a>
+                    <a href="foodie.html" class="mill-card"><div class="mword">Foodie</div><div class="mverdict gzv-orange">Examine</div></a>
+                    <a href="instagrammable.html" class="mill-card"><div class="mword">Instagrammable</div><div class="mverdict gzv-orange">Examine</div></a>
+                    <a href="spoiler-alert.html" class="mill-card"><div class="mword">Spoiler Alert</div><div class="mverdict gzv-yellow">Neutral</div></a>
+                    <a href="tl-dr.html" class="mill-card"><div class="mword">TL;DR</div><div class="mverdict gzv-orange">Examine</div></a>
+                    <a href="ftw.html" class="mill-card"><div class="mword">FTW</div><div class="mverdict gzv-yellow">Neutral</div></a>
+                    <a href="irl.html" class="mill-card"><div class="mword">IRL</div><div class="mverdict gzv-green">Redeemable</div></a>
+                    <a href="troll.html" class="mill-card"><div class="mword">Troll</div><div class="mverdict gzv-red">Reject</div></a>
+                    <a href="keyboard-warrior.html" class="mill-card"><div class="mword">Keyboard Warrior</div><div class="mverdict gzv-red">Reject</div></a>
+                    <a href="quarter-life-crisis.html" class="mill-card"><div class="mword">Quarter-Life Crisis</div><div class="mverdict gzv-orange">Examine</div></a>
+                    <a href="boomerang-kid.html" class="mill-card"><div class="mword">Boomerang Kid</div><div class="mverdict gzv-orange">Examine</div></a>
+                    <a href="failure-to-launch.html" class="mill-card"><div class="mword">Failure to Launch</div><div class="mverdict gzv-orange">Examine</div></a>
+                    <a href="emo.html" class="mill-card"><div class="mword">Emo</div><div class="mverdict gzv-orange">Examine</div></a>
+                    <a href="skinny-jeans.html" class="mill-card"><div class="mword">Skinny Jeans</div><div class="mverdict gzv-yellow">Neutral</div></a>
+                    <a href="side-part.html" class="mill-card"><div class="mword">Side Part</div><div class="mverdict gzv-yellow">Neutral</div></a>
+                    <a href="laughing-crying-emoji.html" class="mill-card"><div class="mword">Laughing-Crying Emoji</div><div class="mverdict gzv-yellow">Neutral</div></a>
                 </div>
             </details>
         </div>
