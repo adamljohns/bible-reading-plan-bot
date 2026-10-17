@@ -2002,10 +2002,18 @@ def build_index(words, by_letter, total):
         sr.classList.add('visible');
         var cards = document.querySelectorAll('#rangeSection .word-card');
         var hits = [];
-        cards.forEach(function(c) {{
-            var w = c.querySelector('.word');
-            if (w && w.textContent.toLowerCase().indexOf(q) !== -1) hits.push(c.cloneNode(true));
-        }});
+        var match = function(term) {{
+            cards.forEach(function(c) {{
+                var w = c.querySelector('.word');
+                if (w && w.textContent.toLowerCase().indexOf(term) !== -1) hits.push(c.cloneNode(true));
+            }});
+        }};
+        match(q);
+        // No exact hit: retry on the stem, so "polemical"/"polemics" find "Polemic".
+        if (!hits.length) {{
+            var stem = q.replace(/(ically|ical|ics|ally|ies|al|es|s)$/, '');
+            if (stem !== q && stem.length >= 4) match(stem);
+        }}
         sg.innerHTML = '';
         hits.forEach(function(c) {{ sg.appendChild(c); }});
         se.style.display = hits.length ? 'none' : 'block';

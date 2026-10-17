@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The MOOP Dictionary of the English Language</title>
     <!-- Open Graph / Twitter / SEO -->
-    <meta name="description" content="The MOOP Dictionary — 14,210 entries with biblical definition, Webster 1828, Greek/Hebrew roots, and modern corruption analysis. Doctrinal anchors, the most corrupted words of our age, and generational dialect decoded.">
+    <meta name="description" content="The MOOP Dictionary — 14,211 entries with biblical definition, Webster 1828, Greek/Hebrew roots, and modern corruption analysis. Doctrinal anchors, the most corrupted words of our age, and generational dialect decoded.">
     <meta property="og:title" content="The MOOP Dictionary of the English Language">
-    <meta property="og:description" content="Biblical definition, Webster 1828, Greek/Hebrew roots, and modern corruption analysis. Doctrinal anchors, most corrupted words, generational decoded — 14,210 entries.">
+    <meta property="og:description" content="Biblical definition, Webster 1828, Greek/Hebrew roots, and modern corruption analysis. Doctrinal anchors, most corrupted words, generational decoded — 14,211 entries.">
     <meta property="og:image" content="https://usmcmin.org/assets/icons/icon-512.png">
     <meta property="og:url" content="https://usmcmin.org/dictionary/">
     <meta property="og:type" content="website">
@@ -343,7 +343,7 @@
             <h1>The MOOP Dictionary</h1>
             <p class="subtitle">of the English Language</p>
             <p style="margin-top:20px;">Words have been stolen, redefined, and weaponized. This dictionary reclaims them &mdash; returning to the etymological roots, the biblical meaning, and the Webster 1828 definitions that shaped Western civilization, against which modern corruptions are measured.</p>
-            <p style="margin-top:10px;font-size:0.85rem;color:var(--gold);">14210 entries &middot; Proto-language roots &middot; Collapsible deep-dive sections</p>
+            <p style="margin-top:10px;font-size:0.85rem;color:var(--gold);">14211 entries &middot; Proto-language roots &middot; Collapsible deep-dive sections</p>
             <p style="margin-top:8px;font-size:0.78rem;color:var(--gray);"><strong style="color:var(--gold);">V6.0</strong> &middot; <em>Pastoral Lexicon Edition</em> &middot; section titles now open full-page browsers</p>
         </section>
 
@@ -9789,7 +9789,7 @@
                     </div>
                 </div>
                 <div class="category">
-                    <h2>P <span class="count-badge">950</span></h2>
+                    <h2>P <span class="count-badge">951</span></h2>
                     <div class="word-grid">
                         <a href="paarai.html" class="word-card"><div class="word">Paarai</div><div class="pos">n. (the Arbite, one of David's thirty mighty men)</div></a>
                         <a href="pace.html" class="word-card"><div class="word">Pace</div><div class="pos">n. (a step; the length of a stride)</div></a>
@@ -10318,6 +10318,7 @@
                         <a href="point.html" class="word-card"><div class="word">Point</div><div class="pos">n.</div></a>
                         <a href="poison.html" class="word-card"><div class="word">Poison</div><div class="pos">n.</div></a>
                         <a href="pole.html" class="word-card"><div class="word">Pole</div><div class="pos">n. (a standard or staff on which something is lifted up)</div></a>
+                        <a href="polemic.html" class="word-card"><div class="word">Polemic</div><div class="pos">n. & adj. (a refutation of error; polemics, the branch of theology that defends the truth against it)</div></a>
                         <a href="policy.html" class="word-card"><div class="word">Policy</div><div class="pos">n. (craft; cunning management; in the Authorized Version, statecraft turned to deceit)</div></a>
                         <a href="polished.html" class="word-card"><div class="word">Polished</div><div class="pos">adj. (smoothed and made to shine by working; of a shaft, of daughters, and of the appearance of glory)</div></a>
                         <a href="polity.html" class="word-card"><div class="word">Polity</div><div class="pos">noun</div></a>
@@ -16272,10 +16273,18 @@
         sr.classList.add('visible');
         var cards = document.querySelectorAll('#rangeSection .word-card');
         var hits = [];
-        cards.forEach(function(c) {
-            var w = c.querySelector('.word');
-            if (w && w.textContent.toLowerCase().indexOf(q) !== -1) hits.push(c.cloneNode(true));
-        });
+        var match = function(term) {
+            cards.forEach(function(c) {
+                var w = c.querySelector('.word');
+                if (w && w.textContent.toLowerCase().indexOf(term) !== -1) hits.push(c.cloneNode(true));
+            });
+        };
+        match(q);
+        // No exact hit: retry on the stem, so "polemical"/"polemics" find "Polemic".
+        if (!hits.length) {
+            var stem = q.replace(/(ically|ical|ics|ally|ies|al|es|s)$/, '');
+            if (stem !== q && stem.length >= 4) match(stem);
+        }
         sg.innerHTML = '';
         hits.forEach(function(c) { sg.appendChild(c); });
         se.style.display = hits.length ? 'none' : 'block';
