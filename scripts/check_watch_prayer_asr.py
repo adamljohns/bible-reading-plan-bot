@@ -21,6 +21,14 @@ MODEL = os.environ.get(
     "WHISPER_MODEL",
     os.path.expanduser("~/.openclaw/whisper_models/ggml-small.en.bin"),
 )
+# PJG-AUD-0530-2026-10-18: small.en false-failed a clearly spoken father prayer on three
+# bakes in a row (10-17 21:30 + 10-18 05:3x x2) — it never transcribed "By the power of
+# Your Holy Spirit" after the opener pause, while large-v3 heard every sentence. A watch
+# that fails on small.en gets one large-v3 second opinion before the gate refuses R2.
+SECOND_MODEL = os.environ.get(
+    "WHISPER_SECOND_MODEL",
+    os.path.expanduser("~/.openclaw/whisper_models/ggml-large-v3.bin"),
+)
 WATCHES = ("wisdom", "husband", "father", "citizen", "peace")
 # Per-day JSON keys are wisdom/first/second/third/peace.
 # MP3 stems are wisdom/husband/father/citizen/peace.
@@ -83,7 +91,7 @@ def extract_prayer(text: str) -> str:
     return "\n".join(buf).strip()
 
 
-def asr_one(mp3: Path, tail_sec: int) -> str:
+def asr_one(mp3: Path, tail_sec: int, model: str = "") -> str:
     """Transcribe the last tail_sec seconds; tail_sec <= 0 means the whole file."""
     tmp = Path(tempfile.mkdtemp(prefix="pjg-asr-"))
     wav = tmp / "prayer.wav"
@@ -96,7 +104,7 @@ def asr_one(mp3: Path, tail_sec: int) -> str:
     )
     out_prefix = tmp / "asr"
     r = subprocess.run(
-        [WHISPER, "-m", MODEL, "-f", str(wav), "-otxt", "-of", str(out_prefix),
+        [WHISPER, "-m", model or MODEL, "-f", str(wav), "-otxt", "-of", str(out_prefix),
          "-l", "en", "-nt"],
         capture_output=True, text=True,
     )
@@ -218,7 +226,12 @@ def present(needle: str, hay: str) -> bool:
     return False
 
 
-def check_watch(day: str, key: str, json_path: Path, mp3: Path) -> list[str]:
+def asr_second_opinion(mp3: Path) -> str:
+    """large-v3 over a 130s tail plus the whole file. Slower, so only run on a fail."""
+    return "\n".join(asr_one(mp3, sec, SECOND_MODEL) for sec in (130, 0))
+
+
+def check_watch(day: str, key: str, json_path: Path, mp3: Path, transcribe=None) -> list[str]:
     fails = []
     data = json.loads(json_path.read_text())
     jkey = JSON_KEY.get(key, key)
@@ -235,7 +248,7 @@ def check_watch(day: str, key: str, json_path: Path, mp3: Path) -> list[str]:
     if not mp3.is_file():
         fails.append(f"{key}: missing {mp3}")
         return fails
-    raw = asr(mp3)
+    raw = (transcribe or asr)(mp3)
     hay = norm(raw)
     # Last Father in the prayer-region tail is the listen-script opener.
     father_i = hay.rfind("father")
@@ -269,7 +282,13 @@ def main(argv: list[str]) -> int:
     fails = []
     for key in WATCHES:
         mp3 = root / "docs" / "assets" / "audio" / "readings" / f"{day}-{key}.mp3"
-        fails.extend(check_watch(day, key, js, mp3))
+        got = check_watch(day, key, js, mp3)
+        if got and Path(SECOND_MODEL).is_file() and mp3.is_file():
+            print(f"ASR-GATE {key}: small.en fail ({len(got)}) — large-v3 second opinion", flush=True)
+            got = check_watch(day, key, js, mp3, transcribe=asr_second_opinion)
+            if not got:
+                print(f"ASR-GATE {key}: PASS on large-v3 second opinion", flush=True)
+        fails.extend(got)
     if fails:
         print("ASR-GATE FAIL", day)
         for f in fails:
