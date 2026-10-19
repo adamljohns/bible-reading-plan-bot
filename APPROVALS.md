@@ -35,6 +35,7 @@ Lines that do not begin with a date are ignored, so notes and prose are safe.
 
 <!-- Add APPROVE lines here. Format: DATE | path | APPROVE (source) -->
 
+2026-10-18 | docs/blog/self-care-is-the-wrong-word.html | APPROVE (Adam via Telegram, "Alright push it live")
 2026-08-25 | docs/blog/thdb-try-harder-do-better.html | APPROVE (Adam in Claude Code session, "ship it!", after reviewing the upgraded post and the Pops explainer video)
 2026-09-04 | docs/verse/genesis-1-1.html | APPROVE (Adam via Telegram, "I'm good with the Gen 1:1 deep word study", and asked for the remaining verses built out the same way)
 2026-09-13 | docs/verse/1-corinthians-10-13.html | APPROVE (Adam in Cursor, "let's make sure it's live on our website" — quality deep studies matching Genesis 1:1)
