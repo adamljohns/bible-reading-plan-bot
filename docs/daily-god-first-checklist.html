@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Daily Checklist — God First, Then Our Response</title>
+  <link rel="stylesheet" href="/assets/css/assessment.css?v=20261020a">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js" crossorigin="anonymous"></script>
+  <script src="/assets/js/assessment-core.js?v=20260920a"></script>
+  <style>
+    .dgf-wrap { max-width: 640px; margin: 0 auto; padding: 1.25rem 1rem 3rem; flex: 1; }
+    .dgf-kicker { font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--gray); margin-bottom: 0.35rem; }
+    .dgf-lede { color: var(--gray-mid); font-size: 0.95rem; margin-bottom: 1.25rem; }
+    .dgf-progress { height: 6px; background: var(--border); border-radius: 99px; margin-bottom: 1.5rem; overflow: hidden; }
+    .dgf-progress-fill { height: 100%; background: var(--gold); width: 0%; transition: width 0.25s ease; }
+    .dgf-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--assess-radius); padding: 1.25rem; margin-bottom: 1rem; }
+    .dgf-card h2 { font-size: 1.35rem; margin-bottom: 0.75rem; }
+    .dgf-pair { margin-bottom: 1rem; }
+    .dgf-pair label { display: block; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--gold); margin-bottom: 0.35rem; }
+    .dgf-ref { font-size: 0.8rem; color: var(--gray); margin-bottom: 0.25rem; }
+    .dgf-verse { font-size: 0.92rem; line-height: 1.65; color: var(--white); }
+    .dgf-verse.collapsed { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+    .dgf-toggle { background: none; border: none; color: var(--gold); font-size: 0.8rem; cursor: pointer; padding: 0.25rem 0; margin-top: 0.25rem; }
+    .dgf-q { font-weight: 500; margin: 1rem 0 0.75rem; font-size: 0.98rem; }
+    .dgf-slider-row { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
+    .dgf-slider-row input[type=range] { flex: 1; min-width: 140px; accent-color: var(--gold); }
+    .dgf-score-pill { min-width: 2.5rem; text-align: center; font-weight: 600; color: var(--gold); font-size: 1.1rem; }
+    .dgf-scale-hint { font-size: 0.75rem; color: var(--gray); width: 100%; display: flex; justify-content: space-between; margin-top: 0.25rem; }
+    .dgf-note { width: 100%; margin-top: 0.75rem; padding: 0.65rem 0.75rem; border-radius: var(--assess-radius-sm); border: 1px solid var(--border); background: var(--bg-card2); color: var(--white); font-family: inherit; font-size: 0.9rem; resize: vertical; min-height: 2.5rem; }
+    .dgf-check { display: flex; align-items: flex-start; gap: 0.5rem; margin-top: 0.75rem; font-size: 0.88rem; color: var(--gray-mid); cursor: pointer; }
+    .dgf-check input { margin-top: 0.2rem; accent-color: var(--gold); }
+    .dgf-nav { display: flex; gap: 0.75rem; margin-top: 1.25rem; flex-wrap: wrap; }
+    .dgf-nav .btn { flex: 1; min-width: 120px; }
+    .dgf-hidden { display: none !important; }
+    .dgf-results-chart { max-width: 320px; margin: 1rem auto; }
+    .dgf-weakest { border-left: 3px solid var(--gold); padding-left: 0.75rem; margin: 0.75rem 0; font-size: 0.9rem; }
+    .dgf-attrib { text-align: center; font-size: 0.78rem; color: var(--gray); margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+    .dgf-toolbar { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+    .dgf-toolbar .btn { font-size: 0.85rem; padding: 0.45rem 0.75rem; }
+    .dgf-date { font-size: 0.85rem; color: var(--gray); }
+  </style>
+</head>
+<body>
+<script>if(localStorage.getItem('bte-theme')==='light')document.body.classList.add('light-mode');</script>
+
+<div class="dgf-wrap">
+  <p class="dgf-kicker">Private daily self-assessment · unlisted</p>
+  <h1>Daily Checklist 2.0</h1>
+  <p class="dgf-lede">What God did first — then our response. Rate today honestly (1 = barely, 10 = clearly lived it). Saved on this device only.</p>
+
+  <div class="dgf-toolbar">
+    <button type="button" class="btn btn-ghost" id="btn-theme">Theme</button>
+    <button type="button" class="btn btn-ghost" id="btn-copy">Copy summary</button>
+    <button type="button" class="btn btn-ghost" id="btn-reset">Reset today</button>
+  </div>
+  <p class="dgf-date" id="today-label"></p>
+  <div class="dgf-progress" aria-hidden="true"><div class="dgf-progress-fill" id="progress-fill"></div></div>
+
+  <div id="wizard"></div>
+
+  <section id="results" class="dgf-hidden">
+    <div class="dgf-card">
+      <h2>Today&apos;s picture</h2>
+      <p class="dgf-lede" style="margin-bottom:0.5rem">Average: <strong id="avg-score">—</strong> · Weakest lanes need your response, not guilt — God already moved first.</p>
+      <div class="dgf-results-chart"><canvas id="radar" width="300" height="300"></canvas></div>
+      <div id="weakest-list"></div>
+    </div>
+    <div class="dgf-nav">
+      <button type="button" class="btn btn-ghost" id="btn-edit">Review answers</button>
+      <button type="button" class="btn btn-primary" id="btn-restart">New check-in</button>
+    </div>
+  </section>
+</div>
+
+<p class="dgf-attrib">Framework from Jason&apos;s Daily Checklist 2.0 · Scripture ESV (Colossians 3:12 NIV) · Adapted for interactive self-assessment · Not linked from public site menus</p>
+
+<script>
+(function () {
+  'use strict';
+
+  var STORAGE_KEY = 'dailyGodFirstChecklist-v1';
+  var sections = [
+    {
+      id: 'loved',
+      title: 'He Loved First',
+      godRef: '1 John 4:10',
+      godText: 'In this is love, not that we have loved God but that he loved us and sent his Son to be the propitiation for our sins.',
+      respRef: '1 John 4:19',
+      respText: 'We love because he first loved us.',
+      question: 'Today, did I receive God\'s initiating love before trying to perform — and love others from that overflow?'
+    },
+    {
+      id: 'body',
+      title: 'Formed / Body',
+      godRef: 'Psalm 139:13–14',
+      godText: 'For you formed my inward parts; you knitted me together in my mother\'s womb. I praise you, for I am fearfully and wonderfully made. Wonderful are your works, and my soul knows it very well.',
+      respRef: 'Romans 12:1',
+      respText: 'I appeal to you therefore, brothers, by the mercies of God, to present your bodies as a living sacrifice, holy and acceptable to God, which is your spiritual worship.',
+      question: 'Did I steward this body as worship — sleep, food, movement, and purity — not as mine to waste?'
+    },
+    {
+      id: 'breath',
+      title: 'Breath',
+      godRef: 'Genesis 2:7',
+      godText: 'Then the LORD God formed the man of dust from the ground and breathed into his nostrils the breath of life, and the man became a living creature.',
+      respRef: 'Psalm 150:6',
+      respText: 'Let everything that has breath praise the LORD. Praise the LORD!',
+      question: 'Did I use the breath he gave me to praise him — not only to complain or consume?'
+    },
+    {
+      id: 'bread',
+      title: 'Bread',
+      godRef: 'John 6:35',
+      godText: 'Jesus said to them, "I am the bread of life; whoever comes to me shall not hunger, and whoever believes in me shall never thirst."',
+      respRef: 'Acts 2:46',
+      respText: 'And day by day, attending the temple together and breaking bread in their homes, they received their food with glad and generous hearts.',
+      question: 'Did I receive daily provision with gratitude and/or share table and fellowship gladly?'
+    },
+    {
+      id: 'water',
+      title: 'Living Water',
+      godRef: 'John 4:14',
+      godText: 'But whoever drinks of the water that I will give him will never be thirsty again. The water that I will give him will become in him a spring of water welling up to eternal life.',
+      respRef: 'John 7:37',
+      respText: 'On the last day of the feast, the great day, Jesus stood up and cried out, "If anyone thirsts, let him come to me and drink."',
+      question: 'When I was thirsty (stress, appetite, escape), did I come to Jesus first?'
+    },
+    {
+      id: 'clothing',
+      title: 'Clothing',
+      godRef: 'Isaiah 61:10',
+      godText: 'I will greatly rejoice in the LORD; my soul shall exult in my God, for he has clothed me with the garments of salvation; he has covered me with the robe of righteousness…',
+      respRef: 'Colossians 3:12',
+      respText: 'Therefore, as God\'s chosen people, holy and dearly loved, clothe yourselves with compassion, kindness, humility, gentleness and patience.',
+      question: 'Did I put on Christlike character toward at least one person today?'
+    },
+    {
+      id: 'armor',
+      title: 'Armor',
+      godRef: 'Psalm 144:1',
+      godText: 'Blessed be the LORD, my rock, who trains my hands for war, and my fingers for battle.',
+      respRef: 'Ephesians 6:10–18',
+      respText: 'Finally, be strong in the Lord and in the strength of his might. Put on the whole armor of God… praying at all times in the Spirit, with all prayer and supplication. To that end, keep alert with all perseverance, making supplication for all the saints.',
+      longResp: true,
+      question: 'Did I stand in truth, faith, and prayer — not bare-knuckle worry or passivity?'
+    },
+    {
+      id: 'citizenship',
+      title: 'Citizenship',
+      godRef: 'Ephesians 2:19',
+      godText: 'So then you are no longer strangers and aliens, but you are fellow citizens with the saints and members of the household of God.',
+      respRef: 'Philippians 3:20',
+      respText: 'But our citizenship is in heaven, and from it we await a Savior, the Lord Jesus Christ.',
+      question: 'Did my choices today look like a citizen of heaven — not merely of this age?'
+    },
+    {
+      id: 'day',
+      title: 'The Day',
+      godRef: 'Psalm 118:24',
+      godText: 'This is the day that the LORD has made; let us rejoice and be glad in it.',
+      respRef: 'Psalm 118:24',
+      respText: 'This is the day that the LORD has made; let us rejoice and be glad in it.',
+      question: 'Did I treat this day as his gift — rejoicing where I could, not only enduring?'
+    },
+    {
+      id: 'shelter',
+      title: 'Shelter',
+      godRef: 'Proverbs 18:10',
+      godText: 'The name of the LORD is a strong tower; the righteous man runs into it and is safe.',
+      respRef: 'Psalm 91:2',
+      respText: 'I will say to the LORD, "My refuge and my fortress, my God, in whom I trust."',
+      question: 'When pressure came, did I run to the Lord as refuge — not only to distraction?'
+    }
+  ];
+
+  var step = 0;
+  var state = loadState();
+  var chart = null;
+
+  function todayISO() {
+    return new Date().toISOString().slice(0, 10);
+  }
+
+  function loadState() {
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      var data = raw ? JSON.parse(raw) : null;
+      if (!data || data.date !== todayISO()) {
+        return freshState();
+      }
+      return data;
+    } catch (e) {
+      return freshState();
+    }
+  }
+
+  function freshState() {
+    var answers = {};
+    sections.forEach(function (s) {
+      answers[s.id] = { score: 5, note: '', stepNamed: false };
+    });
+    return { date: todayISO(), answers: answers, completed: false };
+  }
+
+  function saveState() {
+    state.date = todayISO();
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }
+
+  function bibleLink(ref) {
+    if (window.AssessmentCore && AssessmentCore.bibleHref) return AssessmentCore.bibleHref(ref);
+    return 'bible.html?ref=' + encodeURIComponent(ref);
+  }
+
+  function renderWizard() {
+    var w = document.getElementById('wizard');
+    var s = sections[step];
+    var a = state.answers[s.id];
+    var pct = ((step + (state.completed ? 1 : 0)) / sections.length) * 100;
+    document.getElementById('progress-fill').style.width = pct + '%';
+    document.getElementById('today-label').textContent = 'Check-in for ' + state.date;
+
+    var respClass = s.longResp ? 'dgf-verse collapsed' : 'dgf-verse';
+    var toggle = s.longResp ? '<button type="button" class="dgf-toggle" data-toggle>Read full passage</button>' : '';
+
+    w.innerHTML =
+      '<div class="dgf-card" data-step="' + step + '">' +
+        '<h2>' + escapeHtml(s.title) + '</h2>' +
+        '<div class="dgf-pair"><label>God first</label>' +
+          '<p class="dgf-ref"><a href="' + bibleLink(s.godRef) + '">' + escapeHtml(s.godRef) + '</a></p>' +
+          '<p class="dgf-verse">' + escapeHtml(s.godText) + '</p></div>' +
+        '<div class="dgf-pair"><label>Our response</label>' +
+          '<p class="dgf-ref"><a href="' + bibleLink(s.respRef) + '">' + escapeHtml(s.respRef) + '</a></p>' +
+          '<p class="' + respClass + '" id="resp-verse">' + escapeHtml(s.respText) + '</p>' + toggle + '</div>' +
+        '<p class="dgf-q">' + escapeHtml(s.question) + '</p>' +
+        '<div class="dgf-slider-row">' +
+          '<span class="dgf-score-pill" id="score-pill">' + a.score + '</span>' +
+          '<input type="range" min="1" max="10" step="1" id="score-range" value="' + a.score + '" aria-label="Score 1 to 10">' +
+        '</div>' +
+        '<div class="dgf-scale-hint"><span>1 · drift</span><span>10 · aligned</span></div>' +
+        '<textarea class="dgf-note" id="note-field" placeholder="Optional: one line — what would tomorrow look like?" rows="2">' + escapeHtml(a.note) + '</textarea>' +
+        '<label class="dgf-check"><input type="checkbox" id="step-check" ' + (a.stepNamed ? 'checked' : '') + '> I named one concrete step for tomorrow in this lane</label>' +
+        '<div class="dgf-nav">' +
+          (step > 0 ? '<button type="button" class="btn btn-ghost" id="btn-back">Back</button>' : '') +
+          '<button type="button" class="btn btn-primary" id="btn-next">' + (step === sections.length - 1 ? 'See results' : 'Next') + '</button>' +
+        '</div></div>';
+
+    var range = document.getElementById('score-range');
+    var pill = document.getElementById('score-pill');
+    range.addEventListener('input', function () {
+      a.score = parseInt(range.value, 10);
+      pill.textContent = a.score;
+      saveState();
+    });
+    document.getElementById('note-field').addEventListener('change', function (e) {
+      a.note = e.target.value.trim();
+      saveState();
+    });
+    document.getElementById('step-check').addEventListener('change', function (e) {
+      a.stepNamed = e.target.checked;
+      saveState();
+    });
+    var back = document.getElementById('btn-back');
+    if (back) back.addEventListener('click', function () { step--; renderWizard(); });
+    document.getElementById('btn-next').addEventListener('click', function () {
+      if (step < sections.length - 1) { step++; renderWizard(); }
+      else { finishResults(); }
+    });
+    var tg = document.querySelector('[data-toggle]');
+    if (tg) {
+      tg.addEventListener('click', function () {
+        var v = document.getElementById('resp-verse');
+        v.classList.toggle('collapsed');
+        tg.textContent = v.classList.contains('collapsed') ? 'Read full passage' : 'Show less';
+      });
+    }
+  }
+
+  function escapeHtml(str) {
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function finishResults() {
+    state.completed = true;
+    saveState();
+    document.getElementById('wizard').classList.add('dgf-hidden');
+    document.getElementById('results').classList.remove('dgf-hidden');
+    document.getElementById('progress-fill').style.width = '100%';
+
+    var scores = sections.map(function (s) { return state.answers[s.id].score; });
+    var avg = scores.reduce(function (a, b) { return a + b; }, 0) / scores.length;
+    document.getElementById('avg-score').textContent = avg.toFixed(1);
+
+    var indexed = sections.map(function (s, i) {
+      return { title: s.title, score: scores[i], respRef: s.respRef, id: s.id };
+    }).sort(function (a, b) { return a.score - b.score; });
+
+    var weakHtml = '<p class="dgf-kicker" style="margin-top:1rem">Focus lanes (lowest two)</p>';
+    indexed.slice(0, 2).forEach(function (w) {
+      var note = state.answers[w.id].note;
+      weakHtml += '<div class="dgf-weakest"><strong>' + escapeHtml(w.title) + '</strong> (' + w.score + '/10)<br>Anchor: ' +
+        escapeHtml(w.respRef) + (note ? '<br><em>Your note:</em> ' + escapeHtml(note) : '') + '</div>';
+    });
+    document.getElementById('weakest-list').innerHTML = weakHtml;
+
+    var ctx = document.getElementById('radar');
+    if (chart) chart.destroy();
+    var isLight = document.body.classList.contains('light-mode');
+    chart = new Chart(ctx, {
+      type: 'radar',
+      data: {
+        labels: sections.map(function (s) { return s.title.replace(' / ', '\n'); }),
+        datasets: [{
+          label: 'Today',
+          data: scores,
+          backgroundColor: 'rgba(212, 175, 55, 0.2)',
+          borderColor: '#D4AF37',
+          pointBackgroundColor: '#D4AF37'
+        }]
+      },
+      options: {
+        scales: {
+          r: {
+            min: 0,
+            max: 10,
+            ticks: { stepSize: 2, color: isLight ? '#666' : '#888' },
+            grid: { color: isLight ? '#ddd' : '#2a2a2a' },
+            angleLines: { color: isLight ? '#ccc' : '#333' },
+            pointLabels: { font: { size: 10 } }
+          }
+        },
+        plugins: { legend: { display: false } }
+      }
+    });
+  }
+
+  function showWizardFromResults() {
+    document.getElementById('results').classList.add('dgf-hidden');
+    document.getElementById('wizard').classList.remove('dgf-hidden');
+    state.completed = false;
+    saveState();
+    renderWizard();
+  }
+
+  function buildSummary() {
+    var lines = ['Daily Checklist 2.0 — ' + state.date, ''];
+    sections.forEach(function (s) {
+      var a = state.answers[s.id];
+      lines.push(s.title + ': ' + a.score + '/10' + (a.stepNamed ? ' ✓ step named' : ''));
+      if (a.note) lines.push('  → ' + a.note);
+    });
+    var scores = sections.map(function (s) { return state.answers[s.id].score; });
+    var avg = scores.reduce(function (x, y) { return x + y; }, 0) / scores.length;
+    lines.push('', 'Average: ' + avg.toFixed(1), '', 'https://usmcmin.org/daily-god-first-checklist.html');
+    return lines.join('\n');
+  }
+
+  document.getElementById('btn-copy').addEventListener('click', function () {
+    var text = buildSummary();
+    navigator.clipboard.writeText(text).then(function () {
+      alert('Summary copied.');
+    }).catch(function () {
+      prompt('Copy:', text);
+    });
+  });
+
+  document.getElementById('btn-reset').addEventListener('click', function () {
+    if (!confirm('Clear today\'s check-in on this device?')) return;
+    state = freshState();
+    step = 0;
+    saveState();
+    document.getElementById('results').classList.add('dgf-hidden');
+    document.getElementById('wizard').classList.remove('dgf-hidden');
+    renderWizard();
+  });
+
+  document.getElementById('btn-theme').addEventListener('click', function () {
+    if (window.AssessmentCore && AssessmentCore.toggleTheme) AssessmentCore.toggleTheme(chart);
+    else document.body.classList.toggle('light-mode');
+  });
+
+  document.getElementById('btn-edit').addEventListener('click', function () {
+    step = 0;
+    showWizardFromResults();
+  });
+
+  document.getElementById('btn-restart').addEventListener('click', function () {
+    state = freshState();
+    step = 0;
+    saveState();
+    document.getElementById('results').classList.add('dgf-hidden');
+    document.getElementById('wizard').classList.remove('dgf-hidden');
+    renderWizard();
+  });
+
+  if (state.completed) finishResults();
+  else renderWizard();
+})();
+</script>
+</body>
+</html>
