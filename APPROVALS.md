@@ -310,3 +310,4 @@ scope. Retroactively flagging it would bury the handful that actually matter.
 2026-10-07 | docs/verse/acts-18-26.html | APPROVE (Adam via Telegram to Max, relayed as a Preacher John subagent task 2026-10-07 08:01 ET — condition: one verified Calvin witness per study, Acts heading must not assume a home setting; not witnessed directly by the recording session)
 2026-10-19 | docs/blog/self-care-is-the-wrong-word.html (humanized revision) | APPROVE (Adam via Telegram 16:54, "revise and finalize please")
 2026-10-19 | docs/blog/self-care-is-the-wrong-word.html (add SgtMaj Mac audio player) | APPROVE (Adam via Telegram 21:24, "good with publishing the update. Use SgtMaj Mac’s voice for the audio")
+2026-10-20 | docs/blog/self-care-is-the-wrong-word.html (Pops audio, video, infographic, slides) | APPROVE (Adam via Telegram 07:15, "upload the slides, the infographic, and the video embedded into the blog post")
