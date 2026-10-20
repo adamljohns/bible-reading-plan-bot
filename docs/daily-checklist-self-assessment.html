@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daily Checklist Self-Assessment | U.S.M.C. Ministries</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="description" content="A private interactive self-assessment adapted from Jason's Daily Checklist 2.0.">
+  <link rel="stylesheet" href="/assets/css/assessment.css?v=20261020a">
+  <link rel="stylesheet" href="/assets/css/light-icons.css">
+  <link rel="stylesheet" href="/assets/css/print.css" media="print">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js" crossorigin="anonymous"></script>
+  <script src="/assets/js/assessment-core.js?v=20261004b"></script>
+  <script src="/assets/js/assessment-mission.js?v=20261006a"></script>
+  <script src="/assets/js/assessment-template.js?v=20261004d"></script>
+</head>
+<body>
+  <script>
+  if(localStorage.getItem('bte-theme')==='light')document.body.classList.add('light-mode');
+  </script>
+  <noscript>
+    <div class="assess-static">
+      <p>This private self-assessment follows Jason's Daily Checklist 2.0: God acts first, then we respond. Enable JavaScript to score and save it.</p>
+    </div>
+  </noscript>
+  <div id="share-modal" class="share-modal" role="dialog" aria-label="Share results">
+    <div class="share-panel">
+      <h2>Share Your Results</h2>
+      <p>Copy this summary for a brother, pastor, or mentor.</p>
+      <textarea readonly id="share-text"></textarea>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="copyShareText(event)">Copy to Clipboard</button>
+        <button class="btn btn-ghost" onclick="closeShareModal()">Close</button>
+      </div>
+    </div>
+  </div>
+  <script>
+  const ASSESSMENT_DATA = {
+    id: 'dailyChecklist',
+    title: 'Daily Checklist Self-Assessment',
+    subtitle: 'What God did first — then our response',
+    badge: 'Private Draft',
+    tagline: 'Adapted from Jason\'s Daily Checklist 2.0. God acts first. We answer honestly.',
+    navTitle: 'Daily Checklist',
+    chartTitle: 'Daily Response Radar',
+    shareTitle: 'DAILY CHECKLIST',
+    shareUrl: 'https://usmcmin.org/daily-checklist-self-assessment.html',
+    sharePartner: 'Brother',
+    axes: [
+      {letter:'L',word:'Loved First',subword:'Receiving, then loving',summary:'Did love begin with God today?',text:'God loved us and sent His Son before we loved Him. Did you receive that love today, and did it become love for God and people?',scripture:'1 John 4:10, 19',questions:['Did you begin with God\'s love rather than your own effort?','Did that love reach a person, not merely remain a thought?'],formation:{habit:'Name one person and show God\'s prior love in a concrete act.',prayer:'Father, I love because You loved me first.',convo:'Brother, where did my love today start with me instead of Christ?',memory:'1 John 4:19 — "We love because he first loved us."',memRef:'1+John+4:19'},rubrics:[{range:'1–3',text:'I tried to produce love without receiving Christ\'s love first.'},{range:'4–5',text:'I remembered His love, but my response was thin.'},{range:'6–7',text:'His love shaped a real response today.'},{range:'8–10',text:'I received His love and let it govern my dealings with people.'}]},
+      {letter:'F',word:'Formed Body',subword:'A living sacrifice',summary:'Did I offer the body God formed?',text:'God formed you in the womb. Did you present your body to Him today as a living sacrifice, or treat it as yours alone?',scripture:'Psalm 139:13–14; Romans 12:1',questions:['Did your body serve worship rather than appetite?','Was there one concrete act of bodily obedience?'],formation:{habit:'Offer one bodily choice—sleep, food, work, or restraint—to God before making it.',prayer:'Lord, this body is Yours. Make it a living sacrifice.',convo:'Brother, where am I still treating my body as my own?',memory:'Romans 12:1 — present your bodies as a living sacrifice.',memRef:'Romans+12:1'},rubrics:[{range:'1–3',text:'I used my body without reference to the God who formed it.'},{range:'4–5',text:'I intended surrender, but appetite won several choices.'},{range:'6–7',text:'I offered real bodily obedience today.'},{range:'8–10',text:'My body was consciously presented for worship.'}]},
+      {letter:'B',word:'Breath',subword:'Praise with every breath',summary:'Did breath return as praise?',text:'The Lord breathed life into man. Did the breath He gave return to Him as praise today?',scripture:'Genesis 2:7; Psalm 150:6',questions:['Did praise happen out loud or in prayer, not only in theory?','Did complaint consume breath that belonged to praise?'],formation:{habit:'Speak one sentence of praise before the first complaint.',prayer:'Lord, let every breath You gave return as praise.',convo:'Brother, what stole my praise today?',memory:'Psalm 150:6 — let everything that has breath praise the Lord.',memRef:'Psalm+150:6'},rubrics:[{range:'1–3',text:'I spent the breath God gave without praise.'},{range:'4–5',text:'Praise was brief and easily crowded out.'},{range:'6–7',text:'I returned real praise to the Lord.'},{range:'8–10',text:'Praise marked the day, not merely a moment.'}]},
+      {letter:'R',word:'Bread',subword:'Christ, then daily bread',summary:'Did I come to the Bread of Life?',text:'Jesus is the Bread of Life. Did you come to Him before chasing what merely fills you, and receive daily bread with gratitude?',scripture:'John 6:35; Acts 2:46',questions:['Did Scripture or prayer come before ordinary appetite?','Did you receive food with gladness rather than entitlement?'],formation:{habit:'Read or hear John 6:35 before the first meal.',prayer:'Lord Jesus, You are the Bread of Life. Feed me first.',convo:'Brother, what appetite replaced Christ today?',memory:'John 6:35 — "I am the bread of life."',memRef:'John+6:35'},rubrics:[{range:'1–3',text:'I fed the body and neglected the Bread of Life.'},{range:'4–5',text:'I came to Christ briefly, then lived by appetite.'},{range:'6–7',text:'Christ and gratitude both had a real place.'},{range:'8–10',text:'I sought Christ first and received daily bread gladly.'}]},
+      {letter:'W',word:'Living Water',subword:'Come and drink',summary:'Did I come to Christ for living water?',text:'Jesus gives water that ends thirst. When you were dry, restless, or empty, did you come to Him and drink?',scripture:'John 4:14; John 7:37',questions:['Did you bring thirst to Christ instead of a substitute?','Did you actually pray, or only notice the thirst?'],formation:{habit:'When thirst or restlessness rises, stop and pray before reaching for a substitute.',prayer:'Lord Jesus, I thirst. Give me living water.',convo:'Brother, what substitute did I drink from today?',memory:'John 7:37 — "If anyone thirsts, let him come to me and drink."',memRef:'John+7:37'},rubrics:[{range:'1–3',text:'I took my thirst everywhere except to Christ.'},{range:'4–5',text:'I knew the thirst but delayed coming to Him.'},{range:'6–7',text:'I came to Christ and drank in prayer or Scripture.'},{range:'8–10',text:'Christ was my first answer to spiritual thirst.'}]},
+      {letter:'C',word:'Clothing',subword:'Salvation, then character',summary:'Did I wear what God supplied?',text:'God clothes His people in salvation and righteousness. Did you then clothe yourself with compassion, kindness, humility, gentleness, and patience?',scripture:'Isaiah 61:10; Colossians 3:12',questions:['Which fruit was visibly absent today?','Did you put on one missing virtue after noticing it?'],formation:{habit:'Choose the weakest virtue and practice it once before noon.',prayer:'Lord, You clothed me in salvation. Clothe my conduct as well.',convo:'Brother, which virtue did my conduct deny today?',memory:'Colossians 3:12 — clothe yourselves with compassion, kindness, humility, gentleness, and patience.',memRef:'Colossians+3:12'},rubrics:[{range:'1–3',text:'My conduct denied the clothing God gave me.'},{range:'4–5',text:'Some virtues showed, but one failure dominated.'},{range:'6–7',text:'I consciously put on godly character.'},{range:'8–10',text:'Salvation and righteous conduct were both visible.'}]},
+      {letter:'A',word:'Armor',subword:'Trained, then standing',summary:'Did I put on God\'s armor?',text:'The Lord trains His people for battle. Did you put on His whole armor and stand alert in prayer, or enter the day unprotected?',scripture:'Psalm 144:1; Ephesians 6:10–18',questions:['Which piece was missing: truth, righteousness, readiness, faith, salvation, Scripture, or prayer?','Did you pray for another saint, not only yourself?'],formation:{habit:'Name one piece of armor and practice it before checking messages.',prayer:'Lord, train my hands and arm me with Your strength.',convo:'Brother, where did I stand in my own strength today?',memory:'Ephesians 6:11 — put on the whole armor of God.',memRef:'Ephesians+6:11'},rubrics:[{range:'1–3',text:'I entered the day unarmed and unalert.'},{range:'4–5',text:'I remembered the battle but wore little armor.'},{range:'6–7',text:'I consciously stood in truth, faith, Scripture, or prayer.'},{range:'8–10',text:'I armed myself and prayed with perseverance.'}]},
+      {letter:'Z',word:'Citizenship',subword:'Heaven before earth',summary:'Did heaven govern my loyalties?',text:'God made believers fellow citizens of His household. Did your heavenly citizenship govern your earthly loyalties and hopes today?',scripture:'Ephesians 2:19; Philippians 3:20',questions:['Did any earthly loyalty outrank Christ?','Did you wait for Christ or merely manage the day?'],formation:{habit:'Name one loyalty and place it explicitly under Christ.',prayer:'Lord, my citizenship is in heaven. Order my earthly loyalties.',convo:'Brother, what earthly identity tried to rule me today?',memory:'Philippians 3:20 — our citizenship is in heaven.',memRef:'Philippians+3:20'},rubrics:[{range:'1–3',text:'Earthly identity governed me.'},{range:'4–5',text:'I affirmed heaven but lived by earthly pressure.'},{range:'6–7',text:'Heavenly citizenship corrected a real loyalty.'},{range:'8–10',text:'I lived as a citizen of heaven while faithful on earth.'}]},
+      {letter:'D',word:'The Day',subword:'Receive and rejoice',summary:'Did I receive this day from the Lord?',text:'This day is the Lord\'s gift. Did you receive it with rejoicing, or treat it as an obstacle to endure?',scripture:'Psalm 118:24',questions:['Did gratitude come before grievance?','Did you rejoice in the Lord, not merely in favorable circumstances?'],formation:{habit:'Before planning, say aloud that this is the day the Lord has made.',prayer:'Lord, I receive this day from Your hand and rejoice in it.',convo:'Brother, what grievance displaced gratitude today?',memory:'Psalm 118:24 — this is the day that the Lord has made.',memRef:'Psalm+118:24'},rubrics:[{range:'1–3',text:'I resented or merely endured the day.'},{range:'4–5',text:'Gratitude appeared, but grievance led.'},{range:'6–7',text:'I received the day from the Lord with real rejoicing.'},{range:'8–10',text:'Joy in the Lord\'s gift governed the day.'}]},
+      {letter:'S',word:'Shelter',subword:'Run to the strong tower',summary:'Did I run to God for refuge?',text:'The name of the Lord is a strong tower. When pressure, fear, or temptation came, did you run to Him or seek another shelter?',scripture:'Proverbs 18:10; Psalm 91:2',questions:['What pressure exposed your real refuge?','Did you call God your refuge in prayer, not only in theory?'],formation:{habit:'At the first pressure, pray Psalm 91:2 before seeking another escape.',prayer:'Lord, You are my refuge and fortress. I run to You.',convo:'Brother, what false shelter did I trust today?',memory:'Proverbs 18:10 — the name of the Lord is a strong tower.',memRef:'Proverbs+18:10'},rubrics:[{range:'1–3',text:'I ran to a refuge other than the Lord.'},{range:'4–5',text:'I knew the strong tower but ran there late.'},{range:'6–7',text:'I brought real pressure to God and found refuge.'},{range:'8–10',text:'God was my first and settled refuge.'}]}
+    ],
+    scoring: { type: 'single', defaultScore: 5 },
+    formationCount: 3,
+    questionHeader: 'God First, Then Our Response',
+    questionSub: 'Read what God has already done. Score only today\'s response.',
+    chartSub: 'Rate today, not your intention and not your best day.',
+    framingNote: 'God acted first. Score the response you actually made today.',
+    historyEmpty: 'No saved checks on this device.',
+    formationSubtitle: 'Your three weakest responses, with one habit, prayer, conversation, and verse for each.',
+    historySub: 'A daily record of honest response.',
+    tierNames: [[9,'Answered', '#27ae60'],[7,'Receiving','#2ecc71'],[4,'Awake','#D4AF37'],[0,'Unanswered','#c0392b']],
+    weakLabel: 'THREE RESPONSES TO RECOVER:',
+    shareLinkLabel: 'Private assessment:'
+  };
+  AssessmentTemplate.render(ASSESSMENT_DATA);
+  </script>
+</body>
+</html>
