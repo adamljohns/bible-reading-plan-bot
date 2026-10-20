@@ -311,3 +311,4 @@ scope. Retroactively flagging it would bury the handful that actually matter.
 2026-10-19 | docs/blog/self-care-is-the-wrong-word.html (humanized revision) | APPROVE (Adam via Telegram 16:54, "revise and finalize please")
 2026-10-19 | docs/blog/self-care-is-the-wrong-word.html (add SgtMaj Mac audio player) | APPROVE (Adam via Telegram 21:24, "good with publishing the update. Use SgtMaj Mac’s voice for the audio")
 2026-10-20 | docs/blog/self-care-is-the-wrong-word.html (Pops audio, video, infographic, slides) | APPROVE (Adam via Telegram 07:15, "upload the slides, the infographic, and the video embedded into the blog post")
+2026-10-20 | docs/blog/cheap-answers-are-not-a-trained-mind.html | APPROVE (Adam via Telegram 12:35 ET, “Let’s review the blog ProfX wrote for me and push it live today.”)
