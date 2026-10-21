@@ -17,8 +17,6 @@
       "html.read-scroll-on .read-scroll-dock{display:flex}",
       ".read-scroll-slower,.read-scroll-faster,.read-scroll-stop{min-height:36px;min-width:36px;padding:6px 10px;border-radius:999px;border:1px solid #D4AF37;background:#111;color:#D4AF37;font-family:Inter,system-ui,sans-serif;font-size:.85rem;font-weight:700}",
       ".read-scroll-dock-name{color:#D4AF37;font-size:.75rem;font-weight:700;min-width:52px;text-align:center}",
-      ".read-scroll-guide{display:none;position:fixed;left:12px;right:12px;height:2px;background:#D4AF37;opacity:.55;z-index:30;pointer-events:none}",
-      "html.read-scroll-on .read-scroll-guide{display:block}",
       ".read-scroll-toggle,.read-scroll-follow{appearance:none;-webkit-appearance:none;min-height:44px;padding:8px 14px;border-radius:999px;border:1px solid #333;background:#111;color:#888;font-family:Inter,system-ui,sans-serif;font-size:.85rem;font-weight:600}",
       ".read-scroll-toggle.is-on,.read-scroll-follow.is-on{background:#D4AF37;color:#000;border-color:#D4AF37}",
       ".read-scroll-speed{display:flex;flex-direction:column;gap:4px;min-width:180px;flex:1 1 180px;color:#888;font-size:.75rem}",
@@ -95,20 +93,12 @@
   var fasterBtn = dock.querySelector(".read-scroll-faster");
   var dockName = dock.querySelector(".read-scroll-dock-name");
   var stopBtn = dock.querySelector(".read-scroll-stop");
-  var guide = document.createElement("div");
-  guide.className = "read-scroll-guide";
-  guide.setAttribute("aria-hidden", "true");
-  document.body.appendChild(guide);
 
   function guideY() {
     var tabs = document.querySelector(".watch-tabs");
     var floor = tabs ? tabs.getBoundingClientRect().bottom + 36 : 140;
     return Math.max(floor + 48, Math.round(window.innerHeight * 0.46));
   }
-  function placeGuide() {
-    guide.style.top = guideY() + "px";
-  }
-
   function activeSection() {
     var hash = (location.hash || "").replace("#", "");
     if (hash && hash !== "all") {
@@ -204,7 +194,6 @@
     if (!last) last = now;
     var dt = Math.min(64, Math.max(0, now - last));
     last = now;
-    placeGuide();
     if (now > userHoldUntil && !followVoice()) {
       var max = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
       pendingPx += (currentSpeed().px * dt) / 1000;
@@ -235,7 +224,6 @@
     slider.setAttribute("aria-valuetext", speed.label);
     speedName.textContent = speed.label;
     dockName.textContent = speed.label;
-    placeGuide();
     document.documentElement.classList.toggle("read-scroll-on", pref.on);
   }
   function centerReadingLine() {
