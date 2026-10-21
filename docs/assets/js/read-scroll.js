@@ -13,8 +13,12 @@
     style.textContent = [
       ".read-scroll-bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:0 0 16px;position:relative;z-index:25;background:#000;padding:8px 0}",
       "html.read-scroll-on .read-scroll-bar{position:absolute;width:1px;height:1px;margin:0;padding:0;overflow:hidden;clip:rect(0 0 0 0);opacity:0;pointer-events:none}",
-      ".read-scroll-stop{display:none;position:fixed;top:max(8px,env(safe-area-inset-top));right:10px;z-index:40;min-height:36px;padding:6px 12px;border-radius:999px;border:1px solid #D4AF37;background:#111;color:#D4AF37;font-family:Inter,system-ui,sans-serif;font-size:.8rem;font-weight:700}",
-      "html.read-scroll-on .read-scroll-stop{display:inline-flex;align-items:center}",
+      ".read-scroll-dock{display:none;position:fixed;top:max(8px,env(safe-area-inset-top));right:10px;z-index:40;gap:6px;align-items:center}",
+      "html.read-scroll-on .read-scroll-dock{display:flex}",
+      ".read-scroll-slower,.read-scroll-faster,.read-scroll-stop{min-height:36px;min-width:36px;padding:6px 10px;border-radius:999px;border:1px solid #D4AF37;background:#111;color:#D4AF37;font-family:Inter,system-ui,sans-serif;font-size:.85rem;font-weight:700}",
+      ".read-scroll-dock-name{color:#D4AF37;font-size:.75rem;font-weight:700;min-width:52px;text-align:center}",
+      ".read-scroll-guide{display:none;position:fixed;left:12px;right:12px;height:2px;background:#D4AF37;opacity:.55;z-index:30;pointer-events:none}",
+      "html.read-scroll-on .read-scroll-guide{display:block}",
       ".read-scroll-toggle,.read-scroll-follow{appearance:none;-webkit-appearance:none;min-height:44px;padding:8px 14px;border-radius:999px;border:1px solid #333;background:#111;color:#888;font-family:Inter,system-ui,sans-serif;font-size:.85rem;font-weight:600}",
       ".read-scroll-toggle.is-on,.read-scroll-follow.is-on{background:#D4AF37;color:#000;border-color:#D4AF37}",
       ".read-scroll-speed{display:flex;flex-direction:column;gap:4px;min-width:180px;flex:1 1 180px;color:#888;font-size:.75rem}",
@@ -83,12 +87,27 @@
   var slider = speedLabel.querySelector("input");
   var speedName = bar.querySelector(".read-scroll-speed-name");
   var followBtn = bar.querySelector(".read-scroll-follow");
-  var stopBtn = document.createElement("button");
-  stopBtn.type = "button";
-  stopBtn.className = "read-scroll-stop";
-  stopBtn.textContent = "Stop";
-  stopBtn.setAttribute("aria-label", "Stop scrolling");
-  document.body.appendChild(stopBtn);
+  var dock = document.createElement("div");
+  dock.className = "read-scroll-dock";
+  dock.innerHTML = '<button type="button" class="read-scroll-slower" aria-label="Slower">\u2212</button><span class="read-scroll-dock-name">Steady</span><button type="button" class="read-scroll-faster" aria-label="Faster">+</button><button type="button" class="read-scroll-stop">Stop</button>';
+  document.body.appendChild(dock);
+  var slowerBtn = dock.querySelector(".read-scroll-slower");
+  var fasterBtn = dock.querySelector(".read-scroll-faster");
+  var dockName = dock.querySelector(".read-scroll-dock-name");
+  var stopBtn = dock.querySelector(".read-scroll-stop");
+  var guide = document.createElement("div");
+  guide.className = "read-scroll-guide";
+  guide.setAttribute("aria-hidden", "true");
+  document.body.appendChild(guide);
+
+  function guideY() {
+    var tabs = document.querySelector(".watch-tabs");
+    var floor = tabs ? tabs.getBoundingClientRect().bottom + 36 : 140;
+    return Math.max(floor + 48, Math.round(window.innerHeight * 0.46));
+  }
+  function placeGuide() {
+    guide.style.top = guideY() + "px";
+  }
 
   function activeSection() {
     var hash = (location.hash || "").replace("#", "");
@@ -159,8 +178,23 @@
     var word = mine[i];
     word.classList.add("is-hot");
     var top = word.getBoundingClientRect().top;
-    if (Math.abs(top - 72) > 28) window.scrollBy(0, top - 72);
+    var dy = top - guideY();
+    if (Math.abs(dy) > 16) window.scrollBy(0, Math.max(-18, Math.min(18, dy)));
     return true;
+  }
+  function markGuideWord() {
+    var y = guideY();
+    var best = null;
+    var bestD = 1e9;
+    for (var i = 0; i < words.length; i++) {
+      var r = words[i].getBoundingClientRect();
+      if (r.bottom < 0 || r.top > window.innerHeight) continue;
+      var d = Math.abs(r.top - y);
+      if (d < bestD) { bestD = d; best = words[i]; }
+    }
+    clearHot();
+    if (best) best.classList.add("is-hot");
+    return best;
   }
   function currentSpeed() {
     return SPEEDS[speedIndex(pref.speed)] || SPEEDS[1];
@@ -170,6 +204,7 @@
     if (!last) last = now;
     var dt = Math.min(64, Math.max(0, now - last));
     last = now;
+    placeGuide();
     if (now > userHoldUntil && !followVoice()) {
       var max = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
       pendingPx += (currentSpeed().px * dt) / 1000;
@@ -179,7 +214,9 @@
         window.scrollBy(0, step);
       } else if (window.scrollY >= max - 2 && max > 40) {
         stop(false);
+        return;
       }
+      markGuideWord();
     }
     raf = requestAnimationFrame(tick);
   }
@@ -197,7 +234,15 @@
     slider.setAttribute("aria-valuenow", String(idx));
     slider.setAttribute("aria-valuetext", speed.label);
     speedName.textContent = speed.label;
+    dockName.textContent = speed.label;
+    placeGuide();
     document.documentElement.classList.toggle("read-scroll-on", pref.on);
+  }
+  function centerReadingLine() {
+    var word = markGuideWord();
+    if (!word) return;
+    var dy = word.getBoundingClientRect().top - guideY();
+    if (Math.abs(dy) > 12) window.scrollBy(0, dy);
   }
   function start() {
     pref.on = true;
@@ -207,6 +252,7 @@
     pendingPx = 0;
     cancelAnimationFrame(raf);
     raf = requestAnimationFrame(tick);
+    centerReadingLine();
   }
   function stop(clear) {
     pref.on = false;
@@ -224,6 +270,16 @@
     ev.stopPropagation();
     stop(true);
   });
+  function bump(dir) {
+    var i = Math.max(0, Math.min(SPEEDS.length - 1, speedIndex(pref.speed) + dir));
+    pref.speed = SPEEDS[i].id;
+    last = 0;
+    pendingPx = 0;
+    writePref(pref);
+    paint();
+  }
+  slowerBtn.addEventListener("click", function (ev) { ev.stopPropagation(); bump(-1); });
+  fasterBtn.addEventListener("click", function (ev) { ev.stopPropagation(); bump(1); });
   slider.addEventListener("input", function () {
     pref.speed = SPEEDS[Number(slider.value) || 0].id;
     last = 0;
@@ -238,7 +294,10 @@
     paint();
   });
   ["wheel", "touchstart"].forEach(function (name) {
-    window.addEventListener(name, function () { userHoldUntil = performance.now() + 2500; }, { passive: true });
+    window.addEventListener(name, function (ev) {
+      if (ev.target && ev.target.closest && ev.target.closest(".read-scroll-dock, .read-scroll-bar")) return;
+      userHoldUntil = performance.now() + 2500;
+    }, { passive: true });
   });
 
   paint();
