@@ -11,7 +11,10 @@
     var style = document.createElement("style");
     style.id = "read-scroll-css";
     style.textContent = [
-      ".read-scroll-bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:0 0 16px;position:sticky;top:72px;z-index:25;background:#000;padding:8px 0}",
+      ".read-scroll-bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:0 0 16px;position:relative;z-index:25;background:#000;padding:8px 0}",
+      "html.read-scroll-on .read-scroll-bar{position:absolute;width:1px;height:1px;margin:0;padding:0;overflow:hidden;clip:rect(0 0 0 0);opacity:0;pointer-events:none}",
+      ".read-scroll-stop{display:none;position:fixed;top:max(8px,env(safe-area-inset-top));right:10px;z-index:40;min-height:36px;padding:6px 12px;border-radius:999px;border:1px solid #D4AF37;background:#111;color:#D4AF37;font-family:Inter,system-ui,sans-serif;font-size:.8rem;font-weight:700}",
+      "html.read-scroll-on .read-scroll-stop{display:inline-flex;align-items:center}",
       ".read-scroll-toggle,.read-scroll-follow{appearance:none;-webkit-appearance:none;min-height:44px;padding:8px 14px;border-radius:999px;border:1px solid #333;background:#111;color:#888;font-family:Inter,system-ui,sans-serif;font-size:.85rem;font-weight:600}",
       ".read-scroll-toggle.is-on,.read-scroll-follow.is-on{background:#D4AF37;color:#000;border-color:#D4AF37}",
       ".read-scroll-speed{display:flex;flex-direction:column;gap:4px;min-width:180px;flex:1 1 180px;color:#888;font-size:.75rem}",
@@ -80,6 +83,12 @@
   var slider = speedLabel.querySelector("input");
   var speedName = bar.querySelector(".read-scroll-speed-name");
   var followBtn = bar.querySelector(".read-scroll-follow");
+  var stopBtn = document.createElement("button");
+  stopBtn.type = "button";
+  stopBtn.className = "read-scroll-stop";
+  stopBtn.textContent = "Stop";
+  stopBtn.setAttribute("aria-label", "Stop scrolling");
+  document.body.appendChild(stopBtn);
 
   function activeSection() {
     var hash = (location.hash || "").replace("#", "");
@@ -150,7 +159,7 @@
     var word = mine[i];
     word.classList.add("is-hot");
     var top = word.getBoundingClientRect().top;
-    if (Math.abs(top - 118) > 28) window.scrollBy(0, top - 118);
+    if (Math.abs(top - 72) > 28) window.scrollBy(0, top - 72);
     return true;
   }
   function currentSpeed() {
@@ -210,6 +219,10 @@
   toggle.addEventListener("click", function () {
     if (pref.on) stop(true);
     else start();
+  });
+  stopBtn.addEventListener("click", function (ev) {
+    ev.stopPropagation();
+    stop(true);
   });
   slider.addEventListener("input", function () {
     pref.speed = SPEEDS[Number(slider.value) || 0].id;
