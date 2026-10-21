@@ -35,6 +35,17 @@ def resolve_audio_asset(audio_dir: Path, date: str, watch_key: str):
     return None
 
 
+WORD_FOLLOW_SRC = "/assets/js/read-scroll.js"
+
+
+def require_word_follow(html: str, date: str):
+    """A reading rebuild that drops the spoken-word follow is a failed page."""
+    if WORD_FOLLOW_SRC not in html:
+        raise RuntimeError(
+            f"word-follow gate failed for {date}: page is missing {WORD_FOLLOW_SRC}"
+        )
+
+
 def validate_audio_render(audio_dir: Path, date: str, watch_keys, html: str):
     """Fail closed when existing watch audio is omitted from generated HTML."""
     expected = sum(
@@ -47,6 +58,7 @@ def validate_audio_render(audio_dir: Path, date: str, watch_keys, html: str):
             f"audio render gate failed for {date}: {expected} existing watch assets "
             f"but {rendered} audio players rendered"
         )
+    require_word_follow(html, date)
 
 
 def validate_advertised_page(repo: Path, date: str, expected_count: int = 5):
