@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Five Fathers &amp; Family Eval · TACC</title>
+<link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-touch-icon.png">
+<!-- Edge-gated: usmcmin-site Worker (PROTECTED_STATIC_KEYS) requires the server-side PIN session before this page or its data file is served. POP-1023-FO. -->
+<style>
+:root{--page:#f9f9f7;--surface:#fcfcfb;--ink:#0b0b0b;--ink2:#52514e;--muted:#8a8984;--grid:#e6e5e0;--track:#eeede8;
+--good:#0ca30c;--warning:#fab219;--critical:#d03b3b;--never:#8a8984;
+--s1:#2a78d6;--s2:#eb6834;--s3:#1baf7a;--s4:#eda100}
+@media (prefers-color-scheme:dark){:root{--page:#0d0d0d;--surface:#1a1a19;--ink:#f0efec;--ink2:#c3c2b7;--muted:#8f8e86;--grid:#2c2c2a;--track:#262624;
+--s1:#3987e5;--s2:#d95926;--s3:#199e70;--s4:#c98500}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--page);color:var(--ink);font:15px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+main{max-width:860px;margin:0 auto;padding:22px 16px 48px}
+h1{font-size:1.45rem;margin:0}
+.sub{color:var(--ink2);font-size:.88rem;margin:4px 0 18px}
+section{background:var(--surface);border:1px solid var(--grid);border-radius:12px;padding:16px 16px 12px;margin-bottom:18px}
+h2{font-size:1.05rem;margin:0 0 2px}
+.cap{color:var(--ink2);font-size:.84rem;margin:0 0 12px}
+.tiles{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.tile{flex:1;min-width:130px;border:1px solid var(--grid);border-radius:10px;padding:8px 12px}
+.tile b{display:block;font-size:1.6rem;line-height:1.1}
+.tile span{color:var(--ink2);font-size:.8rem}
+.row{display:grid;grid-template-columns:150px 1fr 104px;gap:10px;align-items:center;padding:7px 4px;border-radius:8px;cursor:default}
+.row:hover,.row:focus{background:var(--track);outline:none}
+.who b{display:block;font-size:.95rem}.who small{color:var(--muted);font-size:.75rem}
+.track{position:relative;height:14px;background:var(--track);border-radius:4px}
+.bar{position:absolute;left:0;top:0;bottom:0;border-radius:0 4px 4px 0;min-width:4px}
+.days{font-size:.85rem;color:var(--ink);text-align:right;white-space:nowrap}
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:.75rem;color:var(--ink2)}
+.dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+.detail{grid-column:1/-1;font-size:.82rem;color:var(--ink2);padding:0 4px 2px;display:none}
+.row.open .detail{display:block}
+.axis{display:grid;grid-template-columns:150px 1fr 104px;gap:10px;font-size:.72rem;color:var(--muted);padding:0 4px}
+.axis div:nth-child(2){display:flex;justify-content:space-between}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.8rem;color:var(--ink2);margin:4px 0 8px}
+.legend i{display:inline-block;width:14px;height:3px;border-radius:2px;vertical-align:middle;margin-right:5px}
+#chart{position:relative}
+svg text{fill:var(--muted);font-size:11px}
+.tip{position:absolute;pointer-events:none;background:var(--surface);border:1px solid var(--grid);border-radius:8px;padding:6px 9px;font-size:.8rem;box-shadow:0 4px 14px rgba(0,0,0,.12);display:none;white-space:nowrap;z-index:2}
+.empty{border:1.5px dashed var(--grid);border-radius:10px;padding:22px 16px;text-align:center;color:var(--ink2);font-size:.9rem}
+details{margin-top:10px;font-size:.85rem}
+table{border-collapse:collapse;width:100%;margin-top:6px;font-size:.84rem}
+th,td{border-bottom:1px solid var(--grid);padding:5px 6px;text-align:left}
+th{color:var(--ink2);font-weight:600}
+.foot{color:var(--muted);font-size:.75rem;text-align:center}
+@media (max-width:560px){main{padding:16px 10px 40px}.row,.axis{grid-template-columns:96px 1fr 66px;gap:8px}.who small{display:none}.tile{min-width:0}.tile b{font-size:1.3rem}section{padding:14px 10px 10px}}
+html,body{overflow-x:hidden}
+</style>
+</head>
+<body>
+<main>
+<h1>Five Fathers &amp; Family Eval</h1>
+<div class="sub" id="updated">Loading…</div>
+
+<section aria-labelledby="h-fathers">
+  <h2 id="h-fathers">Five Fathers: days since last touch</h2>
+  <p class="cap">Shorter is better. Green ≤ 7 days · amber 8–21 · red over 21 or never. Tap a row for what's next.</p>
+  <div class="tiles" id="tiles"></div>
+  <div id="fathers"></div>
+  <div class="axis"><div></div><div><span>0</span><span>30</span><span>60</span><span>90+ days</span></div><div></div></div>
+  <details><summary>Table view</summary><table id="ftable"></table></details>
+</section>
+
+<section aria-labelledby="h-eval">
+  <h2 id="h-eval">Monthly family eval: how am I doing?</h2>
+  <p class="cap" id="evalcap">Average score per person per month, 1–10.</p>
+  <div class="legend" id="legend"></div>
+  <div id="chart"></div>
+  <details><summary>Table view</summary><table id="etable"></table></details>
+</section>
+
+<p class="foot">Pops (Desk B) keeps this current from the Obsidian Father Outreach log. Private: behind the site PIN.</p>
+</main>
+<script>
+(async function(){
+  const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  let d;
+  try{ const r=await fetch('/assets/father-outreach-data.json',{credentials:'same-origin',cache:'no-store'}); if(!r.ok) throw new Error(r.status); d=await r.json(); }
+  catch(e){ document.getElementById('updated').textContent='Could not load data ('+e.message+').'; return; }
+  const today=new Date(); today.setHours(0,0,0,0);
+  const up=new Date(d.updated);
+  document.getElementById('updated').textContent='Updated '+up.toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})+' by '+d.updated_by;
+  const MAX=90;
+  const status=days=>days==null?{k:'never',label:'Never',c:css('--never')}:days<=7?{k:'good',label:'On track',c:css('--good')}:days<=21?{k:'warning',label:'Due',c:css('--warning')}:{k:'critical',label:'Overdue',c:css('--critical')};
+  const rows=d.fathers.map(f=>{const days=f.last_touch_date?Math.round((today-new Date(f.last_touch_date+'T00:00:00'))/864e5):null;return {...f,days,st:status(days)}});
+  const inWeek=rows.filter(r=>r.days!=null&&r.days<=6).length;
+  const overdue=rows.filter(r=>r.days==null||r.days>21).length;
+  document.getElementById('tiles').innerHTML=
+    `<div class="tile"><b>${inWeek} of ${rows.length}</b><span>touched in the last 7 days</span></div>`+
+    `<div class="tile"><b>${overdue}</b><span>overdue or never</span></div>`;
+  const box=document.getElementById('fathers');
+  rows.forEach(r=>{
+    const w=r.days==null?100:Math.min(r.days,MAX)/MAX*100;
+    const el=document.createElement('div'); el.className='row'; el.tabIndex=0;
+    el.innerHTML=`<div class="who"><b>${r.name}</b><small>${r.day} · ${r.last_touch}</small></div>
+      <div class="track"><div class="bar" style="width:${w}%;background:${r.st.c};${r.days==null?'opacity:.35':''}"></div></div>
+      <div class="days">${r.days==null?'—':r.days===0?'today':r.days+' d'}<br><span class="badge"><span class="dot" style="background:${r.st.c}"></span>${r.st.label}</span></div>
+      <div class="detail"><b>Waiting on:</b> ${r.waiting}<br><b>Next:</b> ${r.next}</div>`;
+    el.title=`${r.name}: ${r.days==null?'no touch logged':r.days+' days since '+r.last_touch_date}`;
+    el.addEventListener('click',()=>el.classList.toggle('open'));
+    el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();el.classList.toggle('open')}});
+    box.appendChild(el);
+  });
+  document.getElementById('ftable').innerHTML='<tr><th>Man</th><th>Last touch</th><th>Days</th><th>Status</th><th>Next</th></tr>'+
+    rows.map(r=>`<tr><td>${r.name}</td><td>${r.last_touch_date||'—'}</td><td>${r.days??'—'}</td><td>${r.st.label}</td><td>${r.next}</td></tr>`).join('');
+
+  // Family eval
+  const E=d.eval, ppl=E.people, cols=[css('--s1'),css('--s2'),css('--s3'),css('--s4')];
+  document.getElementById('legend').innerHTML=ppl.map((p,i)=>`<span><i style="background:${cols[i]}"></i>${p}</span>`).join('');
+  document.getElementById('evalcap').textContent='Average score per person per month, 1–10. '+(E.shiloh_note||'');
+  const chart=document.getElementById('chart');
+  const M=E.months||[];
+  if(!M.length){
+    chart.innerHTML=`<div class="empty"><b>No sheets logged yet.</b><br>${d.next_eval||''}<br>Snap a photo of each filled sheet and send it to Pops. The scores land here.</div>`;
+    document.getElementById('etable').innerHTML='<tr><td>No data yet.</td></tr>';
+    return;
+  }
+  const W=Math.max(chart.clientWidth,320),H=240,pad={l:28,r:64,t:12,b:26};
+  const x=i=>pad.l+(M.length===1?(W-pad.l-pad.r)/2:i*(W-pad.l-pad.r)/(M.length-1));
+  const y=v=>pad.t+(10-v)/9*(H-pad.t-pad.b);
+  const lab=m=>new Date(m.month+'-01T00:00:00').toLocaleString('en-US',{month:'short'});
+  let s=`<svg width="${W}" height="${H}" role="img" aria-label="Monthly family eval scores">`;
+  [1,4,7,10].forEach(v=>{s+=`<line x1="${pad.l}" x2="${W-pad.r}" y1="${y(v)}" y2="${y(v)}" stroke="${css('--grid')}"/><text x="${pad.l-6}" y="${y(v)+4}" text-anchor="end">${v}</text>`});
+  M.forEach((m,i)=>{s+=`<text x="${x(i)}" y="${H-8}" text-anchor="middle">${lab(m)}</text>`});
+  const ends=[];
+  ppl.forEach((p,pi)=>{
+    const pts=M.map((m,i)=>m.scores&&m.scores[p]!=null?[x(i),y(m.scores[p]),m.scores[p]]:null);
+    const segs=pts.filter(Boolean);
+    if(segs.length>1) s+=`<polyline fill="none" stroke="${cols[pi]}" stroke-width="2" stroke-linejoin="round" points="${segs.map(q=>q[0]+','+q[1]).join(' ')}"/>`;
+    segs.forEach(q=>{s+=`<circle cx="${q[0]}" cy="${q[1]}" r="4.5" fill="${cols[pi]}" stroke="${css('--surface')}" stroke-width="2"/>`});
+    const last=segs[segs.length-1]; if(last) ends.push({p,x:last[0],y:last[1],v:last[2]});
+  });
+  ends.sort((a,b)=>a.y-b.y); for(let i=1;i<ends.length;i++){ if(ends[i].y-ends[i-1].y<13) ends[i].y=ends[i-1].y+13; }
+  ends.forEach(e=>{s+=`<text x="${e.x+9}" y="${e.y+4}" style="fill:${css('--ink2')}">${e.p} ${e.v.toFixed(1)}</text>`});
+  s+=`<line id="xh" y1="${pad.t}" y2="${H-pad.b}" stroke="${css('--muted')}" stroke-dasharray="3 3" style="display:none"/><rect x="0" y="0" width="${W}" height="${H}" fill="transparent" id="hit"/></svg><div class="tip" id="tip"></div>`;
+  chart.innerHTML=s;
+  const hit=document.getElementById('hit'),xh=document.getElementById('xh'),tip=document.getElementById('tip');
+  hit.addEventListener('mousemove',e=>{
+    const bx=chart.getBoundingClientRect(),mx=e.clientX-bx.left;
+    let bi=0,bd=1e9; M.forEach((m,i)=>{const dd=Math.abs(x(i)-mx); if(dd<bd){bd=dd;bi=i}});
+    xh.setAttribute('x1',x(bi)); xh.setAttribute('x2',x(bi)); xh.style.display='';
+    tip.innerHTML=`<b>${lab(M[bi])} ${M[bi].month.slice(0,4)}</b><br>`+ppl.map((p,pi)=>`<span class="dot" style="background:${cols[pi]}"></span> ${p}: ${M[bi].scores&&M[bi].scores[p]!=null?M[bi].scores[p].toFixed(1):'—'}`).join('<br>');
+    tip.style.display='block'; tip.style.left=Math.min(x(bi)+12,W-150)+'px'; tip.style.top='10px';
+  });
+  hit.addEventListener('mouseleave',()=>{xh.style.display='none';tip.style.display='none'});
+  document.getElementById('etable').innerHTML='<tr><th>Month</th>'+ppl.map(p=>`<th>${p}</th>`).join('')+'</tr>'+
+    M.map(m=>`<tr><td>${m.month}</td>${ppl.map(p=>`<td>${m.scores&&m.scores[p]!=null?m.scores[p].toFixed(1):'—'}</td>`).join('')}</tr>`).join('');
+})();
+</script>
+</body>
+</html>
