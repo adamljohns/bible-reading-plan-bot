@@ -24,7 +24,7 @@
       ".read-scroll-ticks{display:flex;justify-content:space-between;color:#888}",
       ".watch-word.is-hot{background:#D4AF37;color:#000;border-radius:3px}",
       ".read-word-line{display:none;position:fixed;height:2px;background:#D4AF37;pointer-events:none;z-index:26}",
-      "html.read-line-on .read-word-line{display:block}",
+      "html.read-line-on .read-word-line.is-live{display:block}",
       ".read-follow-dock{display:flex;position:fixed;top:max(8px,env(safe-area-inset-top));left:10px;z-index:40;gap:6px}",
       ".read-follow-word,.read-follow-line,.read-follow-screen{min-height:32px;padding:4px 8px;border-radius:999px;border:1px solid #333;background:#111;color:#888;font-family:Inter,system-ui,sans-serif;font-size:.72rem;font-weight:700}",
       ".read-follow-word.is-on,.read-follow-line.is-on,.read-follow-screen.is-on{background:#D4AF37;color:#000;border-color:#D4AF37}",
@@ -103,10 +103,20 @@
   followDock.className = "read-follow-dock";
   followDock.innerHTML = '<button type="button" class="read-follow-word">Word</button><button type="button" class="read-follow-line">Line</button><button type="button" class="read-follow-screen">Page</button>';
   document.body.appendChild(followDock);
-  var lineEl = document.createElement("div");
-  lineEl.className = "read-word-line";
-  lineEl.setAttribute("aria-hidden", "true");
-  document.body.appendChild(lineEl);
+  /* Sentence underline: one 2px rule per wrapped line of the spoken sentence.
+     Pool of fixed divs; unused ones stay hidden. (Principal, 2026-10-30:
+     highlight the word, underline the sentence.) */
+  var linePool = [];
+  function lineAt(i) {
+    while (linePool.length <= i) {
+      var el = document.createElement("div");
+      el.className = "read-word-line";
+      el.setAttribute("aria-hidden", "true");
+      document.body.appendChild(el);
+      linePool.push(el);
+    }
+    return linePool[i];
+  }
 
   function guideY() {
     var tabs = document.querySelector(".watch-tabs");
@@ -154,14 +164,39 @@
         span.textContent = part;
         frag.appendChild(span);
         words.push(span);
+        span.__block = blockOf(node.parentElement);
       });
       node.parentNode.replaceChild(frag, node);
     });
   }
+  function blockOf(el) {
+    while (el && el !== document.body) {
+      var d = window.getComputedStyle(el).display;
+      if (d === "block" || d === "list-item" || d === "table-cell" || d === "flex") return el;
+      el = el.parentElement;
+    }
+    return document.body;
+  }
   Array.prototype.forEach.call(document.querySelectorAll("section.watch"), wrapWords);
 
+  /* Group word spans into sentences: a sentence ends at a word that closes with
+     . ! ? (plus any trailing quote/bracket) or at a block boundary (heading,
+     paragraph, list item). Each span gets __sent = [firstIndex, lastIndex]. */
+  (function groupSentences() {
+    var start = 0;
+    for (var i = 0; i < words.length; i++) {
+      var txt = words[i].textContent;
+      var ends = /[.!?][\"'”’)\]]*$/.test(txt) && !/^[0-9]+[.:]$/.test(txt) && !/^[A-Za-z]\.$/.test(txt);
+      var nextBlock = i + 1 < words.length ? words[i + 1].__block : null;
+      if (ends || nextBlock !== words[i].__block || i === words.length - 1) {
+        for (var k = start; k <= i; k++) words[k].__sent = [start, i];
+        start = i + 1;
+      }
+    }
+  })();
+
   function norm(s) {
-    return String(s || "").toLowerCase().replace(/[^a-z0-9']/g, "");
+    return String(s || "").toLowerCase().replace(/[’']/g, "").replace(/[^a-z0-9]/g, "");
   }
   function clearHot() {
     Array.prototype.forEach.call(document.querySelectorAll(".watch-word.is-hot"), function (el) {
@@ -170,29 +205,55 @@
   }
   function hideLine() {
     document.documentElement.classList.remove("read-line-on");
+    linePool.forEach(function (el) { el.classList.remove("is-live"); });
   }
   function playingAudio() {
     return Array.prototype.slice.call(document.querySelectorAll("audio")).find(function (a) {
       return !a.paused && !a.ended && a.currentTime > 0;
     }) || null;
   }
+  /* Forward aligner. A match that skips ahead of the cursor must be confirmed
+     by the next spoken word landing within three spans of it, or it is a
+     false jump (2026-10-30: "wisdom"/"friends" repeats threw a whole watch
+     off for 100+ s). After six straight misses the window widens to 60 and
+     accepts an unconfirmed match so the follow can re-find its place. */
   function alignSection(section, spoken) {
     var spans = words.filter(function (w) { return section.contains(w); });
-    var si = 0;
-    var pairs = [];
+    var keys = spans.map(function (s) { return norm(s.textContent); });
+    var el = [];
     (spoken || []).forEach(function (sp) {
-      var target = norm(sp.w);
-      if (target.length < 3) return;
-      var found = -1;
-      var limit = Math.min(spans.length, si + 18);
-      for (var j = si; j < limit; j++) {
-        if (norm(spans[j].textContent) === target) { found = j; break; }
-      }
-      if (found >= 0) {
-        pairs.push({ t: sp.t, el: spans[found] });
-        si = found + 1;
-      }
+      var k = norm(sp.w);
+      if (k.length >= 3) el.push({ t: sp.t, k: k });
     });
+    var si = 0;
+    var miss = 0;
+    var pairs = [];
+    for (var i = 0; i < el.length; i++) {
+      var target = el[i].k;
+      var next = i + 1 < el.length ? el[i + 1].k : null;
+      var win = miss >= 6 ? 60 : 18;
+      var limit = Math.min(keys.length, si + win);
+      var found = -1;
+      var loose = -1;
+      for (var j = si; j < limit; j++) {
+        if (keys[j] !== target) continue;
+        if (j === si) { found = j; break; }
+        var ok = false;
+        if (next) {
+          for (var c = j + 1; c < Math.min(keys.length, j + 4); c++) if (keys[c] === next) { ok = true; break; }
+        }
+        if (ok) { found = j; break; }
+        if (loose < 0) loose = j;
+      }
+      if (found < 0 && miss >= 6 && loose >= 0) found = loose;
+      if (found >= 0) {
+        pairs.push({ t: el[i].t, el: spans[found] });
+        si = found + 1;
+        miss = 0;
+      } else {
+        miss++;
+      }
+    }
     aligned[section.id] = pairs;
   }
   function alignAll() {
@@ -211,15 +272,44 @@
     }
     return best ? best.el : null;
   }
+  /* Underline the whole sentence that holds the spoken word: one rule per
+     visual line the sentence occupies, from its first word to its last. */
   function placeLine(el) {
     if (!pref.line || !el) { hideLine(); return; }
+    var sent = el.__sent || null;
+    var first = sent ? words[sent[0]] : el;
+    var last = sent ? words[sent[1]] : el;
     var range = document.createRange();
-    range.selectNodeContents(el);
-    var rects = range.getClientRects();
-    var rect = rects.length ? rects[0] : el.getBoundingClientRect();
-    lineEl.style.left = Math.max(8, rect.left) + "px";
-    lineEl.style.width = Math.max(8, rect.width) + "px";
-    lineEl.style.top = Math.round(rect.bottom - 1) + "px";
+    range.setStartBefore(first);
+    range.setEndAfter(last);
+    var rects = Array.prototype.slice.call(range.getClientRects());
+    var rows = [];
+    rects.forEach(function (r) {
+      if (r.width < 2 || r.height < 2) return;
+      var row = null;
+      for (var i = 0; i < rows.length; i++) {
+        if (Math.abs(rows[i].bottom - r.bottom) < 4) { row = rows[i]; break; }
+      }
+      if (row) {
+        row.left = Math.min(row.left, r.left);
+        row.right = Math.max(row.right, r.right);
+      } else {
+        rows.push({ left: r.left, right: r.right, bottom: r.bottom });
+      }
+    });
+    if (!rows.length) {
+      var rect = el.getBoundingClientRect();
+      rows.push({ left: rect.left, right: rect.right, bottom: rect.bottom });
+    }
+    rows.forEach(function (row, i) {
+      var ln = lineAt(i);
+      var left = Math.max(8, row.left);
+      ln.style.left = left + "px";
+      ln.style.width = Math.max(8, row.right - left) + "px";
+      ln.style.top = Math.round(row.bottom - 1) + "px";
+      ln.classList.add("is-live");
+    });
+    for (var k = rows.length; k < linePool.length; k++) linePool[k].classList.remove("is-live");
     document.documentElement.classList.add("read-line-on");
   }
   function followVoice() {
@@ -382,6 +472,19 @@
       var section = document.getElementById(sectionId);
       var el = section ? spokenEl(section, time) : null;
       return el ? el.textContent : "";
+    },
+    alignedCount: function (sectionId) { return (aligned[sectionId] || []).length; },
+    sentenceAt: function (sectionId, time) {
+      var section = document.getElementById(sectionId);
+      var el = section ? spokenEl(section, time) : null;
+      if (!el) return null;
+      var s = el.__sent || null;
+      placeLine(el);
+      return {
+        word: el.textContent,
+        sentence: s ? words.slice(s[0], s[1] + 1).map(function (w) { return w.textContent; }).join(" ") : el.textContent,
+        rules: linePool.filter(function (l) { return l.classList.contains("is-live"); }).length
+      };
     },
     tickFor: function (ms) {
       var startY = window.scrollY;
