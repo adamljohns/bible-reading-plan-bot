@@ -34,9 +34,16 @@ for (const c of d.churches) {
   // Sanity: rough continental-US + AK + HI bounds
   if (c.latitude < 17 || c.latitude > 72) continue;
   if (c.longitude < -180 || c.longitude > -65) continue;
-  const m = (c.address || '').match(/,\s*([A-Z]{2})\b/);
-  const state = m ? m[1] : '';
-  if (state) stateCount[state] = (stateCount[state] || 0) + 1;
+  // Prefer the structured state field; fall back to the LAST ", XX" in the
+  // address (the first match misreads "PO Box" / "US Minor Outlying" as codes).
+  let state = String(c.state || '').trim().toUpperCase();
+  if (!/^[A-Z]{2}$/.test(state)) {
+    const ms = [...(c.address || '').matchAll(/,\s*([A-Z]{2})\b/g)];
+    state = ms.length ? ms[ms.length - 1][1] : '';
+  }
+  const cc = String(c.country_code || 'US').toUpperCase();
+  const key = state ? (cc === 'US' ? state : `${cc}:${state}`) : '';
+  if (key) stateCount[key] = (stateCount[key] || 0) + 1;
   // Prefer image_thumb (apple-touch-icon, square) for popup; fall back to image_url (rectangular OG)
   const popupImg = c.image_thumb || c.image_url || '';
   points.push({
@@ -54,7 +61,25 @@ for (const c of d.churches) {
 }
 
 console.log(`Geocoded points: ${points.length}`);
-console.log(`States with at least one point: ${Object.keys(stateCount).length}`);
+// Geography breakdown: 50 states + DC + US territories, other countries,
+// and anything unrecognised (reported, never silently dropped).
+const US_STATES = new Set('AL AK AZ AR CA CO CT DE FL GA HI ID IL IN IA KS KY LA ME MD MA MI MN MS MO MT NE NV NH NJ NM NY NC ND OH OK OR PA RI SC SD TN TX UT VT VA WA WV WI WY'.split(' '));
+const US_TERRITORIES = { PR: 'Puerto Rico', GU: 'Guam', VI: 'U.S. Virgin Islands', AS: 'American Samoa', MP: 'Northern Mariana Islands' };
+const geo = { states: 0, dc: 0, territories: [], foreign: 0, foreignCountries: new Set(), invalid: [] };
+for (const k of Object.keys(stateCount)) {
+  if (US_STATES.has(k)) geo.states++;
+  else if (k === 'DC') geo.dc = stateCount[k];
+  else if (US_TERRITORIES[k]) geo.territories.push(US_TERRITORIES[k]);
+  else if (k.includes(':')) { geo.foreign += stateCount[k]; geo.foreignCountries.add(k.split(':')[0]); }
+  else geo.invalid.push(`${k} (${stateCount[k]})`);
+}
+const geoParts = [`${geo.states} state${geo.states === 1 ? '' : 's'}`];
+if (geo.dc) geoParts.push('DC');
+if (geo.territories.length) geoParts.push(geo.territories.join(', '));
+if (geo.foreign) geoParts.push(`${geo.foreign} outside the US (${[...geo.foreignCountries].map(c => c === 'CA' ? 'Canada' : c).join(', ')})`);
+const geoLabel = geoParts.length > 1 ? geoParts.slice(0, -1).join(', ') + ' and ' + geoParts[geoParts.length - 1] : geoParts[0];
+console.log(`Geography: ${geoLabel}`);
+if (geo.invalid.length) console.log(`WARNING unrecognised state codes: ${geo.invalid.join(', ')}`);
 Object.entries(stateCount).sort((a,b) => b[1]-a[1]).slice(0,10).forEach(([s,n]) => console.log(`  ${n} ${s}`));
 
 // Write the data JSON the map will fetch
@@ -86,9 +111,9 @@ const html = `<!DOCTYPE html>
   <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-touch-icon.png">
   <link rel="manifest" href="/manifest.json">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Interactive geographic map of the MOOP Church Directory — every doctrinally-vetted US church plotted by location, color-coded by rubric rating. Phase 1 covers Virginia (${fmt(focusCount)} geocoded churches); the rest of the country follows.">
+  <meta name="description" content="Interactive geographic map of the MOOP Church Directory — churches in the directory with a mapped location, color-coded by our editorial rubric. ${fmt(points.length)} churches mapped across ${geoLabel}. Many listings are still awaiting full editorial review.">
   <meta property="og:title" content="Church Map | MOOP Church Directory | USMC Ministries">
-  <meta property="og:description" content="See every vetted church in your area at a glance — color-coded by rubric rating, with one-click access to each church's profile page.">
+  <meta property="og:description" content="See directory churches in your area at a glance — color-coded by rubric rating, with one-click access to each church's profile page.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://usmcmin.org/directory-map.html">
   <meta property="og:image" content="https://usmcmin.org/assets/icons/icon-512.png">
@@ -186,7 +211,7 @@ const html = `<!DOCTYPE html>
   <div class="hero">
     <div class="breadcrumb"><a href="/">USMC Ministries</a> &middot; <a href="/churches.html">Church Directory</a> &middot; Map</div>
     <h1>Church Map</h1>
-    <p class="subtitle">Every doctrinally-vetted church in the directory, plotted by location and color-coded by our editorial rubric. <strong style="color:var(--gold-light);">${fmt(points.length)}</strong> churches geocoded across <strong style="color:var(--gold-light);">${Object.keys(stateCount).length}</strong> states and growing. Switch between dark, streets, and satellite views with the layer control; zoom in to break clusters apart down to individual churches.</p>
+    <p class="subtitle">Churches in the directory with a mapped location, color-coded by our editorial rubric. Many listings are still awaiting full editorial review. <strong style="color:var(--gold-light);">${fmt(points.length)}</strong> churches mapped across <strong style="color:var(--gold-light);">${geoLabel}</strong>. Switch between dark, streets, and satellite views with the layer control; zoom in to break clusters apart down to individual churches.</p>
   </div>
 
   <div class="controls">
@@ -201,7 +226,7 @@ const html = `<!DOCTYPE html>
   <div id="map"></div>
 
   <div class="footer-strip">
-    Tiles via <a href="https://www.esri.com/" rel="noopener">Esri</a> on <a href="https://www.openstreetmap.org/copyright" rel="noopener">OpenStreetMap</a> data. Geocoding via the free <a href="https://geocoding.geo.census.gov" rel="noopener">US Census Geocoder</a>. ${fmt(points.length)} church${points.length===1?'':'es'} plotted across ${Object.keys(stateCount).length} state${Object.keys(stateCount).length===1?'':'s'}. Generated ${TODAY}.
+    Tiles via <a href="https://www.esri.com/" rel="noopener">Esri</a> on <a href="https://www.openstreetmap.org/copyright" rel="noopener">OpenStreetMap</a> data. Geocoding via the free <a href="https://geocoding.geo.census.gov" rel="noopener">US Census Geocoder</a>. ${fmt(points.length)} church${points.length===1?'':'es'} plotted across ${geoLabel}${geo.invalid.length ? ` (plus ${geo.invalid.length} unrecognised location code${geo.invalid.length===1?'':'s'} under review)` : ''}. Generated ${TODAY}.
     <br>
     <a href="/directory-methodology.html">How the rubric works</a> &middot; <a href="/directory-drift.html">Drift watchlist</a> &middot; <a href="/churches.html">Browse all ${fmt(total)} churches</a>
   </div>
