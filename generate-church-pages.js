@@ -725,6 +725,27 @@ const FONTS = `
 `;
 
 function buildPage(church) {
+  // Pastor display fallback (2026-10-31): some records carry the verified name only in
+  // senior_pastor / lead_pastor / current_pastor while `pastor` is a placeholder, so the
+  // page showed "Verify on church website". Use that field instead. Records whose
+  // `pastor` is already a real name are untouched (no override, no conflict resolution).
+  const PASTOR_PH = /^(see website|verify.*|various|not published|unknown|tbd)?$/i;
+  if (!church.pastor || PASTOR_PH.test(String(church.pastor).trim())) {
+    const alt = ['senior_pastor', 'lead_pastor', 'current_pastor'].map(k => church[k])
+      .find(v => typeof v === 'string' && v.trim() && !PASTOR_PH.test(v.trim()));
+    if (alt) church = { ...church, pastor: alt.trim() };
+  }
+  // Roster lead check: the roster block assumes pastors[0] is the person in the main
+  // pastor slot and lists only pastors.slice(1). When pastors[0] is someone else, that
+  // dropped a verified name and attached pastors[0].role to the wrong person.
+  const normName = v => String(v || '').toLowerCase().replace(/[^a-z]/g, '');
+  const roster = Array.isArray(church.pastors) ? church.pastors : [];
+  const lead0 = roster[0] && typeof roster[0] === 'object' ? normName(roster[0].name) : '';
+  const pastorNorm = normName(church.pastor);
+  const rosterLeadMismatch = !!(lead0 && pastorNorm && !lead0.includes(pastorNorm) && !pastorNorm.includes(lead0));
+  const rosterExtra = rosterLeadMismatch
+    ? roster.filter(p => p && typeof p === 'object' && p.name && normName(p.name) !== pastorNorm)
+    : roster.slice(1);
   const rubricMap = {};
   data.rubric.forEach(r => rubricMap[r.id] = r);
 
@@ -931,12 +952,12 @@ ${(() => {
           church.website && String(church.website).startsWith('http') && church.pastor && church.pastor !== 'See website' && church.pastor !== 'Verify'
             ? `<a href="${escapeHtml(church.website)}" target="_blank" rel="noopener" style="color:var(--gold);text-decoration:none;border-bottom:1px dashed var(--gold);" title="Visit church website to learn more about the pastor">${escapeHtml(church.pastor)}</a>`
             : escapeHtml(church.pastor || 'Unknown')
-        }${Array.isArray(church.pastors) && church.pastors.length && church.pastors[0] && church.pastors[0].role ? ` <span style="font-size:0.72rem;color:var(--gray);font-style:italic;">— ${escapeHtml(church.pastors[0].role)}</span>` : ''}</span>${
+        }${!rosterLeadMismatch && Array.isArray(church.pastors) && church.pastors.length && church.pastors[0] && church.pastors[0].role ? ` <span style="font-size:0.72rem;color:var(--gray);font-style:italic;">— ${escapeHtml(church.pastors[0].role)}</span>` : ''}</span>${
           // Multi-pastor roster block. NOTE: when pastors[] is absent this MUST render
           // as the empty string with no added whitespace, so pages without a roster stay
           // byte-identical and the write-if-changed regen doesn't churn all 28.5k pages.
-          Array.isArray(church.pastors) && church.pastors.length > 1 ? `
-        <span style="display:block;margin-top:7px;font-size:0.78rem;color:var(--gray-light);line-height:1.6;">${church.pastors.slice(1).map(p => escapeHtml(p.name) + (p.role ? ' <span style="color:var(--gray);font-style:italic;">— ' + escapeHtml(p.role) + '</span>' : '')).join('<br>')}</span>` : ''
+          rosterExtra.length ? `
+        <span style="display:block;margin-top:7px;font-size:0.78rem;color:var(--gray-light);line-height:1.6;">${rosterExtra.map(p => escapeHtml(p.name) + (p.role ? ' <span style="color:var(--gray);font-style:italic;">— ' + escapeHtml(p.role) + '</span>' : '')).join('<br>')}</span>` : ''
         }${
           // Pastor-role annotation (2026-10-07): empty string when absent, so pages
           // without it stay byte-identical.
