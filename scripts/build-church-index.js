@@ -96,6 +96,9 @@ function loadZcta() {
 }
 const round3 = n => Math.round(parseFloat(n) * 1000) / 1000;
 function churchLatLng(c) {
+  // Identity-held records (_identity_hold: the pin/phone may belong to another
+  // church) get no ll, so they cannot appear in ?near= radius results.
+  if (c._identity_hold) return null;
   if (isFinite(parseFloat(c.latitude)) && isFinite(parseFloat(c.longitude))) {
     return [round3(c.latitude), round3(c.longitude)];
   }
