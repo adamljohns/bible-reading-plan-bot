@@ -47,8 +47,22 @@ function main() {
     const identityError = validateSourceIdentity(c, r);
     if (identityError) {
       if (identityError === 'missing source postal identity evidence') {
-        // Old JSONL rows lack identity evidence. Ignore them without mutating
-        // canonical state; a fresh scrape can supply the source postal code.
+        // Old JSONL rows (no sbc_detail_fetched_at) lack identity evidence; ignore
+        // them without mutating canonical state. A FRESH scrape that still cannot
+        // supply a source postal code (PR / non-US-format source pages) is a real
+        // strike: without it the same records re-entered source-recovery every
+        // round forever (2026-10-29..31: 420 rounds, 0 fields, 5 records).
+        if (r.sbc_detail_fetched_at) {
+          const failedAt = r.sbc_detail_fetched_at;
+          if (c.sbc_detail_failed_at !== failedAt) {
+            c._sbc_detail_failures = Number(c._sbc_detail_failures || 0) + 1;
+          }
+          c.sbc_detail_failed_at = failedAt;
+          c.sbc_detail_error = `IDENTITY: ${identityError}`;
+          errored++;
+          applied++;
+          continue;
+        }
         identitySkipped++;
         continue;
       }

@@ -87,15 +87,23 @@ function persistEmptyStreaks(streaks, root) {
   } catch (_) { /* grind-stats mirror is best-effort */ }
 }
 
+// A cold lane thaws after COLD_THAW_HOURS so retry/social get ONE re-test per
+// day instead of being parked forever (2026-10-31: 2,167 retry + 1,783 social
+// sat cold while the selector spun on 5 dead source-recovery records).
+const COLD_THAW_HOURS = Number(process.env.GRIND_COLD_THAW_HOURS || 24);
 function isApplyLaneCold(lane, streaks) {
-  return (streaks[lane] || 0) >= EMPTY_STREAK_SKIP;
+  if ((streaks[lane] || 0) < EMPTY_STREAK_SKIP) return false;
+  const at = Date.parse(streaks[`${lane}_last_empty_at`] || '');
+  // No timestamp (legacy store) = unknown age: allow one re-test, which stamps it.
+  if (!Number.isFinite(at)) return false;
+  return Date.now() - at < COLD_THAW_HOURS * 3600 * 1000;
 }
 
 function recordLaneHop(lane, appliedCount, root) {
   if (!APPLY_LANES.includes(lane)) return loadEmptyStreaks(root);
   const streaks = loadEmptyStreaks(root);
-  if (appliedCount > 0) streaks[lane] = 0;
-  else streaks[lane] = (streaks[lane] || 0) + 1;
+  if (appliedCount > 0) { streaks[lane] = 0; delete streaks[`${lane}_last_empty_at`]; }
+  else { streaks[lane] = (streaks[lane] || 0) + 1; streaks[`${lane}_last_empty_at`] = new Date().toISOString(); }
   persistEmptyStreaks(streaks, root);
   return streaks;
 }
