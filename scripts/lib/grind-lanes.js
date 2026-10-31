@@ -146,6 +146,10 @@ function chooseLane(counts, lastMode, streaksIn) {
   // Cold apply lanes fall through. Do not delete retry/social; just stop
   // selecting them after EMPTY_STREAK_SKIP consecutive empties.
   if (counts.source_recovery > 0) return 'source-recovery';
+  // Website discovery creates NEW fresh pool (siteless churches). Free local
+  // SearXNG backend since 2026-10-31, so it runs whenever the apply lanes are
+  // cold instead of parking 3,600 churches behind a Brave quota.
+  if ((counts.website_discovery || 0) > 0) return 'website-discovery';
   const anyApplyEligible = applyOrder.some(([, n]) => n > 0);
   if (anyApplyEligible) return 'nothing-to-grind';
   return 'monitoring';

@@ -21,7 +21,12 @@ LANE=$(printf '%s' "$STATUS" | node -e 'let b="";process.stdin.on("data",d=>b+=d
 
 # Brave is quota-bounded. Once today's allowance is used, source recovery keeps
 # the pipeline moving; no API key is spent beyond the configured ceiling.
-if [ "$LANE" = "website-discovery" ]; then
+SEARCH_BACKEND="${SEARCH_BACKEND:-searx}"; export SEARCH_BACKEND
+if [ "$LANE" = "website-discovery" ] && [ "$SEARCH_BACKEND" = "searx" ]; then
+  # Local SearXNG: no vendor quota. Still bounded per round.
+  BRAVE_BATCH="${SEARX_DISCOVERY_BATCH:-25}"
+  curl -s -m 8 -o /dev/null "${SEARX_URL:-http://127.0.0.1:8888}/" || { say "SearXNG not answering — website-discovery skipped this round"; LANE="monitoring"; }
+elif [ "$LANE" = "website-discovery" ]; then
   TODAY=$(date -u +%F)
   USED=$(awk -F '\t' -v t="$TODAY" '$1==t{n++}END{print n+0}' "$BRAVE_LEDGER" 2>/dev/null || echo 0)
   LEFT=$((BRAVE_DAILY_LIMIT - USED))

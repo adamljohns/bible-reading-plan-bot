@@ -16,6 +16,11 @@ const path = require('path');
 const http = require('http');
 const https = require('https');
 const { braveSearch } = require('./lib/brave.js');
+const { searxSearch } = require('./lib/searx.js');
+// Backend: SEARCH_BACKEND=brave|searx (default searx = local, free, no quota; Principal 2026-10-31).
+const BACKEND = (process.env.SEARCH_BACKEND || 'searx').toLowerCase() === 'brave' ? 'brave' : 'searx';
+const webSearch = BACKEND === 'brave' ? braveSearch : searxSearch;
+const ENGINE = BACKEND === 'brave' ? 'Brave' : 'SearXNG';
 const { makeWriter } = require('./lib/format-preserving-write.js');
 const lanes = require('./lib/grind-lanes.js');
 
@@ -86,7 +91,7 @@ const eligible = d.churches.filter(c => lanes.websiteDiscoveryEligible(c)
   && (!STATES_F.length || STATES_F.includes(String(c.state || '').toUpperCase())))
   .sort((a, b) => String(a.id).localeCompare(String(b.id))).slice(0, COUNT);
 
-console.log(`${APPLY ? 'APPLYING' : 'DRY RUN'} — website search for ${eligible.length} siteless churches (Brave)\n`);
+console.log(`${APPLY ? 'APPLYING' : 'DRY RUN'} — website search for ${eligible.length} siteless churches (${ENGINE})\n`);
 let found = 0, none = 0;
 
 (async () => {
@@ -95,8 +100,8 @@ let found = 0, none = 0;
     const qName = String(c.name).replace(/,?\s*(inc\.?|incorporated|llc)\b/gi, '').replace(/\([^)]*\)/g, '').trim();
     let results = [];
     if (ATTEMPT_LOG) fs.appendFileSync(ATTEMPT_LOG, `${TODAY}\t${c.id}\n`);
-    try { results = await braveSearch(`${qName} ${city} ${st} church website`, { count: 8 }); }
-    catch (e) { console.log(`  ! ${c.id}: Brave error ${e.message.slice(0, 60)}`); await sleep(1200); continue; }
+    try { results = await webSearch(`${qName} ${city} ${st} church website`, { count: 10 }); }
+    catch (e) { console.log(`  ! ${c.id}: ${ENGINE} error ${e.message.slice(0, 60)}`); await sleep(BACKEND === 'brave' ? 1200 : 300); continue; }
 
     // HIGH-PRECISION rule: accept ONLY a non-aggregator result whose DOMAIN carries a
     // DISTINCTIVE church-name token. Aggregator/directory domains never contain the
@@ -122,17 +127,41 @@ let found = 0, none = 0;
     // AR vs NC) can cross-match. Homepage geo-verification proved unreliable both ways
     // (homepages omit their own city; church pages mention other states in bios/missions),
     // so we DON'T gate on it — Chaps' QA cron + human review catch the rare wrong site.
-    if (!hit) { none++; if (APPLY) c._website_searched = TODAY; console.log(`  – ${c.id}: no distinctive-domain match`); await sleep(1200); continue; }
+    if (!hit) {
+      // No own-domain site. A Facebook PAGE whose path carries a distinctive name token
+      // is recorded as social presence (c.facebook), never as the website. Groups/posts
+      // are skipped. (Principal 2026-10-31: "as long as they have social media or some
+      // kind of online presence".)
+      if (dist.length && !c.facebook) {
+        for (const r of results) {
+          const url = String(r.url || '');
+          const m = url.match(/^https?:\/\/(?:www\.|m\.)?facebook\.com\/([A-Za-z0-9._-]{3,})\/?(?:\?.*)?$/i);
+          if (!m) continue;
+          const slug = m[1].toLowerCase();
+          if (/^(groups|events|pages|profile\.php|people|watch|marketplace|share|hashtag|login|public)$/.test(slug)) continue;
+          if (dist.some(t => slug.includes(t))) {
+            if (APPLY) {
+              c.facebook = `https://www.facebook.com/${m[1]}`;
+              const note = `[${TODAY}] Facebook page discovered via ${ENGINE} (slug-match): ${c.facebook}`;
+              c.enrichment_notes = c.enrichment_notes ? c.enrichment_notes + '\n' + note : note;
+            }
+            console.log(`  ~ ${c.id} → facebook ${m[1]} [slug-match]`);
+            break;
+          }
+        }
+      }
+      none++; if (APPLY) c._website_searched = TODAY; console.log(`  – ${c.id}: no distinctive-domain match`); await sleep(BACKEND === 'brave' ? 1200 : 300); continue;
+    }
 
     found++;
     if (APPLY) {
       c.website = hit.url; c._website_searched = TODAY;
       c.engagement = c.engagement || {}; c.engagement.researched_website = true;
-      const note = `[${TODAY}] Website discovered via Brave (${hit.how}): ${hit.url}`;
+      const note = `[${TODAY}] Website discovered via ${ENGINE} (${hit.how}): ${hit.url}`;
       c.enrichment_notes = c.enrichment_notes ? c.enrichment_notes + '\n' + note : note;
     }
     console.log(`  ✓ ${c.id} → ${hit.url} [${hit.how}]`);
-    await sleep(1200); // Brave rate limit
+    await sleep(BACKEND === 'brave' ? 1200 : 300); // Brave 1 q/s; SearXNG is local
   }
 
   if (APPLY && (found || none)) { write(d); }
