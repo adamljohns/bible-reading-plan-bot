@@ -32,9 +32,13 @@ for (const c of d.churches) {
   if (c._identity_hold) continue; // wrong-identity hold: keep off the map, as in build-church-index.js churchLatLng()
   if (typeof c.latitude !== 'number' || typeof c.longitude !== 'number') continue;
   if (!isFinite(c.latitude) || !isFinite(c.longitude)) continue;
-  // Sanity: rough continental-US + AK + HI bounds
-  if (c.latitude < 17 || c.latitude > 72) continue;
-  if (c.longitude < -180 || c.longitude > -65) continue;
+  // Sanity: rough US bounds. Main box = continental US + AK + HI + PR + USVI
+  // (USVI sits at ~-64.6 lng). Second box = Guam / Northern Mariana Islands
+  // (east of the antimeridian, positive lng). Anything else (e.g. a flipped
+  // longitude sign) stays off the map.
+  const inMain = c.latitude >= 17 && c.latitude <= 72 && c.longitude >= -180 && c.longitude <= -64;
+  const inMarianas = c.latitude >= 13 && c.latitude <= 21 && c.longitude >= 144 && c.longitude <= 146.5;
+  if (!inMain && !inMarianas) continue;
   // Prefer the structured state field; fall back to the LAST ", XX" in the
   // address (the first match misreads "PO Box" / "US Minor Outlying" as codes).
   let state = String(c.state || '').trim().toUpperCase();
@@ -65,7 +69,7 @@ console.log(`Geocoded points: ${points.length}`);
 // Geography breakdown: 50 states + DC + US territories, other countries,
 // and anything unrecognised (reported, never silently dropped).
 const US_STATES = new Set('AL AK AZ AR CA CO CT DE FL GA HI ID IL IN IA KS KY LA ME MD MA MI MN MS MO MT NE NV NH NJ NM NY NC ND OH OK OR PA RI SC SD TN TX UT VT VA WA WV WI WY'.split(' '));
-const US_TERRITORIES = { PR: 'Puerto Rico', GU: 'Guam', VI: 'U.S. Virgin Islands', AS: 'American Samoa', MP: 'Northern Mariana Islands' };
+const US_TERRITORIES = { PR: 'Puerto Rico', VI: 'the U.S. Virgin Islands', GU: 'Guam', AS: 'American Samoa', MP: 'Northern Mariana Islands' };
 const geo = { states: 0, dc: 0, territories: [], foreign: 0, foreignCountries: new Set(), invalid: [] };
 for (const k of Object.keys(stateCount)) {
   if (US_STATES.has(k)) geo.states++;
@@ -76,7 +80,9 @@ for (const k of Object.keys(stateCount)) {
 }
 const geoParts = [`${geo.states} state${geo.states === 1 ? '' : 's'}`];
 if (geo.dc) geoParts.push('DC');
-if (geo.territories.length) geoParts.push(geo.territories.join(', '));
+// Fixed territory order (PR, USVI, Guam, ...) so the label does not depend on record order.
+geo.territories.sort((a, b) => Object.values(US_TERRITORIES).indexOf(a) - Object.values(US_TERRITORIES).indexOf(b));
+if (geo.territories.length) geoParts.push(...geo.territories);
 if (geo.foreign) geoParts.push(`${geo.foreign} outside the US (${[...geo.foreignCountries].map(c => c === 'CA' ? 'Canada' : c).join(', ')})`);
 const geoLabel = geoParts.length > 1 ? geoParts.slice(0, -1).join(', ') + ' and ' + geoParts[geoParts.length - 1] : geoParts[0];
 console.log(`Geography: ${geoLabel}`);
