@@ -29,6 +29,7 @@ const d = JSON.parse(fs.readFileSync(CHURCHES, 'utf8'));
 const points = [];
 const stateCount = {};
 for (const c of d.churches) {
+  if (c._identity_hold) continue; // wrong-identity hold: keep off the map, as in build-church-index.js churchLatLng()
   if (typeof c.latitude !== 'number' || typeof c.longitude !== 'number') continue;
   if (!isFinite(c.latitude) || !isFinite(c.longitude)) continue;
   // Sanity: rough continental-US + AK + HI bounds
