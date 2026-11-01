@@ -20,12 +20,14 @@ test('SBC detail merge applies only postal-corroborated results', () => {
       { id: 'legacy', address: 'Beaumont, MS 39423' },
       { id: 'match', address: 'Beaumont, MS 39423-2437' },
       { id: 'error', address: 'Beaumont, MS 39423' },
+      { id: 'fresh-nopostal', address: 'Beaumont, MS 39423' },
     ] };
     fs.writeFileSync(path.join(root, 'docs', 'data', 'churches.json'), JSON.stringify(churches));
     const jsonl = path.join(root, 'results.jsonl');
     fs.writeFileSync(jsonl, [
       { id: 'mismatch', sbc_detail_source_postal: '39479', website: 'https://wrong.example', latitude: 31.56, longitude: -89.49, phone: '601-555-0000', sbc_detail_fetched_at: '2026-10-10T08:04:14.080Z' },
-      { id: 'legacy', website: 'https://unproven.example', sbc_detail_fetched_at: '2026-10-10T08:04:14.080Z' },
+      { id: 'legacy', website: 'https://unproven.example' },
+      { id: 'fresh-nopostal', website: 'https://unproven-fresh.example', phone: '601-555-9999', sbc_detail_fetched_at: '2026-10-10T08:04:14.080Z' },
       { id: 'match', sbc_detail_source_postal: '39423', website: 'https://right.example', latitude: 31.20, longitude: -89.01, phone: '601-555-1212', sbc_detail_fetched_at: '2026-10-10T08:04:14.080Z' },
       { id: 'error', sbc_detail_error: 'TIMEOUT', sbc_detail_failed_at: '2026-10-10T08:05:00.000Z' },
     ].map(JSON.stringify).join('\n') + '\n');
@@ -36,10 +38,20 @@ test('SBC detail merge applies only postal-corroborated results', () => {
     const byId = Object.fromEntries(merged.map(c => [c.id, c]));
 
     assert.strictEqual(byId.mismatch.website, undefined);
+    assert.strictEqual(byId.mismatch.phone, undefined);
+    assert.strictEqual(byId.mismatch.latitude, undefined);
+    assert.strictEqual(byId.mismatch.longitude, undefined);
     assert.strictEqual(byId.mismatch._hold_review, 'sbc-source-identity-mismatch');
     assert.match(byId.mismatch.sbc_detail_error, /postal mismatch/);
     assert.strictEqual(byId.legacy.website, undefined);
     assert.strictEqual(byId.legacy._hold_review, undefined);
+    // A fresh scrape with no source postal is a strike (2e56487), never an apply.
+    assert.strictEqual(byId['fresh-nopostal'].website, undefined);
+    assert.strictEqual(byId['fresh-nopostal'].phone, undefined);
+    assert.strictEqual(byId['fresh-nopostal']._hold_review, undefined);
+    assert.strictEqual(byId['fresh-nopostal']._sbc_detail_failures, 1, 're-merging one fresh no-postal row must be idempotent');
+    assert.match(byId['fresh-nopostal'].sbc_detail_error, /missing source postal identity evidence/);
+    assert.strictEqual(byId.legacy._sbc_detail_failures, undefined);
     assert.strictEqual(byId.match.website, 'https://right.example');
     assert.strictEqual(byId.match.geocode_source, 'sbc.net');
     assert.strictEqual(byId.match.phone, '601-555-1212');
