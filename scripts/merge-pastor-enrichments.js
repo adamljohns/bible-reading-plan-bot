@@ -19,7 +19,11 @@ const fs = require('fs');
 const path = require('path');
 const { makeWriter } = require('./lib/format-preserving-write.js');
 
-const CHURCHES = path.join(__dirname, '..', 'docs', 'data', 'churches.json');
+const CHURCHES = process.env.MERGE_CHURCHES_PATH || path.join(__dirname, '..', 'docs', 'data', 'churches.json');
+// A timeout is transient; one slow fetch is not a dead site. Only this many
+// CONSECUTIVE timeout verdicts stamp _dead_site (2026-10-31: the FXBG Phase 3
+// grind stamped 13 live sites dead after a single timeout each).
+const TIMEOUT_STRIKES_FOR_DEAD = 2;
 const TODAY = new Date().toISOString().slice(0, 10);
 
 // A pastor field is a PLACEHOLDER (safe to overwrite with a researched name) when it's
@@ -174,7 +178,21 @@ for (const c of d.churches) {
   // (small churches often use Facebook or other social instead of a website).
   // Note the issue + keep needs_review for follow-up social-channel research,
   // but DO NOT downgrade the overall rating.
-  if (e.website_status && /404|timeout|ssl_error|redirect_loop|not_a_church/.test(e.website_status)) {
+  const brokenVerdict = e.website_status && /404|timeout|ssl_error|redirect_loop|not_a_church/.test(e.website_status);
+  const timeoutOnly = brokenVerdict && !/404|ssl_error|redirect_loop|not_a_church/.test(e.website_status);
+  if (timeoutOnly) {
+    const strikes = (Number(c._site_timeout_strikes) || 0) + 1;
+    if (strikes < TIMEOUT_STRIKES_FOR_DEAD) {
+      c._site_timeout_strikes = strikes;
+      const tNote = `[${TODAY}] Live fetch timed out (strike ${strikes}/${TIMEOUT_STRIKES_FOR_DEAD}); not marked dead on one timeout.`;
+      if (!String(c.enrichment_notes || '').includes(tNote)) {
+        c.enrichment_notes = c.enrichment_notes ? c.enrichment_notes + '\n' + tNote : tNote;
+      }
+      continue;
+    }
+  }
+  if (!brokenVerdict && c._site_timeout_strikes) delete c._site_timeout_strikes; // a good fetch breaks the run
+  if (brokenVerdict) {
     brokenSites++;
     // One note per distinct verdict — a dead site stays dead; re-observations
     // must not stack duplicate lines (one church collected 8 identical notes).
@@ -194,6 +212,7 @@ for (const c of d.churches) {
     // Dated rather than boolean so a future pass can re-check sites that may
     // have come back up.
     c._dead_site = TODAY;
+    delete c._site_timeout_strikes;
     continue;
   }
 
