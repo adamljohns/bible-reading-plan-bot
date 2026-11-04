@@ -23,7 +23,7 @@
       ".read-scroll-speed input{width:100%;accent-color:#D4AF37;min-height:44px}",
       ".read-scroll-ticks{display:flex;justify-content:space-between;color:#888}",
       ".watch-word.is-hot{background:#D4AF37;color:#000;border-radius:3px}",
-      ".read-word-line{display:none;position:fixed;height:2px;background:#D4AF37;pointer-events:none;z-index:26}",
+      ".read-word-line{display:none;position:absolute;height:2px;background:#D4AF37;pointer-events:none;z-index:26}",
       "html.read-line-on .read-word-line.is-live{display:block}",
       ".read-follow-dock{display:flex;position:fixed;top:max(8px,env(safe-area-inset-top));left:10px;z-index:40;gap:6px}",
       ".read-follow-word,.read-follow-line,.read-follow-screen{min-height:32px;padding:4px 8px;border-radius:999px;border:1px solid #333;background:#111;color:#888;font-family:Inter,system-ui,sans-serif;font-size:.72rem;font-weight:700}",
@@ -104,8 +104,11 @@
   followDock.innerHTML = '<button type="button" class="read-follow-word">Word</button><button type="button" class="read-follow-line">Line</button><button type="button" class="read-follow-screen">Page</button>';
   document.body.appendChild(followDock);
   /* Sentence underline: one 2px rule per wrapped line of the spoken sentence.
-     Pool of fixed divs; unused ones stay hidden. (Principal, 2026-10-30:
-     highlight the word, underline the sentence.) */
+     Pool of divs anchored to the document, not the window, so a rule rides with
+     its text while the page scrolls. A fixed rule stays put between audio ticks
+     and the text slides up through it, which reads as a strikethrough.
+     Unused ones stay hidden. (Principal, 2026-10-30: highlight the word,
+     underline the sentence.) */
   var linePool = [];
   var followRaf = 0;
   var followLast = 0;
@@ -306,9 +309,12 @@
     rows.forEach(function (row, i) {
       var ln = lineAt(i);
       var left = Math.max(8, row.left);
-      ln.style.left = left + "px";
+      var top = Math.round(row.bottom - 1 + window.scrollY);
+      var held = parseFloat(ln.style.top);
+      ln.style.left = left + window.scrollX + "px";
       ln.style.width = Math.max(8, row.right - left) + "px";
-      ln.style.top = Math.round(row.bottom - 1) + "px";
+      /* Rounding can flip a pixel between measures. Move only on a real change. */
+      if (!ln.classList.contains("is-live") || isNaN(held) || Math.abs(held - top) > 1) ln.style.top = top + "px";
       ln.classList.add("is-live");
     });
     for (var k = rows.length; k < linePool.length; k++) linePool[k].classList.remove("is-live");
