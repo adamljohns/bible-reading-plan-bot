@@ -107,6 +107,8 @@
      Pool of fixed divs; unused ones stay hidden. (Principal, 2026-10-30:
      highlight the word, underline the sentence.) */
   var linePool = [];
+  var followRaf = 0;
+  var followLast = 0;
   function lineAt(i) {
     while (linePool.length <= i) {
       var el = document.createElement("div");
@@ -324,11 +326,39 @@
     if (pref.word) el.classList.add("is-hot");
     if (pref.line) placeLine(el);
     else hideLine();
-    if (pref.screen && performance.now() > userHoldUntil) {
-      var dy = el.getBoundingClientRect().top - guideY();
-      if (Math.abs(dy) > 28) window.scrollBy(0, Math.max(-20, Math.min(20, dy)));
-    }
+    /* Scroll lives in followTick, not here. timeupdate fires in bursts,
+       and a snap on each burst is what made the page jump. */
+    ensureFollow();
     return true;
+  }
+  function followStep(now, prev) {
+    if (!pref.screen || now < userHoldUntil) return;
+    var hot = document.querySelector(".watch-word.is-hot");
+    if (!hot) return;
+    var dy = hot.getBoundingClientRect().top - guideY();
+    if (Math.abs(dy) <= 8) return;
+    var dt = prev ? Math.min(48, Math.max(8, now - prev)) : 16;
+    /* ~0.42 of the gap per 16ms, capped, so a sentence change glides. */
+    var step = dy * (1 - Math.pow(0.58, dt / 16));
+    if (step > 11) step = 11;
+    if (step < -11) step = -11;
+    window.scrollBy(0, step);
+  }
+  function followTick(now) {
+    var prev = followLast;
+    followLast = now;
+    var audio = playingAudio();
+    if (!audio || !pref.screen) {
+      followRaf = 0;
+      followLast = 0;
+      return;
+    }
+    followStep(now, prev);
+    followRaf = requestAnimationFrame(followTick);
+  }
+  function ensureFollow() {
+    if (followRaf || !pref.screen || !playingAudio()) return;
+    followRaf = requestAnimationFrame(followTick);
   }
   function currentSpeed() {
     return SPEEDS[speedIndex(pref.speed)] || SPEEDS[1];
