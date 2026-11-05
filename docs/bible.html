@@ -282,6 +282,16 @@
         body.light-mode .crossref-preview { color: #555; }
         .crossref-section { margin: 16px 0 12px; padding-bottom: 8px; }
         .crossref-toggle { color: var(--gold) !important; }
+        .confess-item { margin: 10px 0; }
+        .confess-label { color: var(--gold); font-weight: 600; font-size: 0.85rem; text-decoration: none; }
+        .confess-q { color: #b0b0b0; font-size: 0.85rem; font-style: italic; margin-top: 2px; }
+        .confess-text { color: #d8d8d8; font-size: 0.9rem; line-height: 1.5; margin-top: 2px; }
+        body.light-mode .confess-text { color: #333; }
+        body.light-mode .confess-q { color: #555; }
+        .confess-source { color: #888; font-size: 0.72rem; margin-top: 10px; }
+        .confess-source a { color: var(--gold); }
+        .confess-mark { background: none; color: inherit; border-bottom: 2px solid var(--gold); }
+        body.light-mode .confess-mark { background: none; }
         .crossref-more { display: inline-block; margin-top: 4px; font-size: 0.8rem; opacity: 0.85; border-bottom: none !important; color: var(--gold); }
         .share-toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: var(--gold); color: #000; padding: 10px 24px; border-radius: 8px; font-weight: 600; font-size: 0.95rem; z-index: 9999; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
         .share-toast.show { opacity: 1; }
@@ -1533,6 +1543,77 @@
                     var preview = t.length > 80 ? t.slice(0, 80).replace(/\s+\S*$/, '') + '…' : t;
                     span.textContent = ' — ' + preview;
                 }).catch(function(){});
+            });
+        }
+
+        // What the Confessions Say (Principal 2026-11-05). Data: symbolics.dev, CC0, built by
+        // bin/build-confession-proofs.py. Quotes only the segment printed against the verse.
+        var CONFESS_SHOW = 2;
+        var confessCache = {};
+        var confessSeq = 0;
+        function buildConfessionSlot(bookId, verseKeys) {
+            if (!bookId || !verseKeys || !verseKeys.length) return '';
+            return '<div class="confess-slot" data-book="' + bookId + '" data-verses="' + verseKeys.join(',') + '"></div>';
+        }
+        function confessEsc(s) {
+            return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+        function fetchConfessions(bookId) {
+            if (!confessCache[bookId]) {
+                confessCache[bookId] = fetch('/assets/confessions/proofs/' + bookId + '.json')
+                    .then(function(r) { return r.ok ? r.json() : null; })
+                    .catch(function() { return null; });
+            }
+            return confessCache[bookId];
+        }
+        function hydrateConfessions() {
+            document.querySelectorAll('.confess-slot:not([data-done])').forEach(function(slot) {
+                slot.setAttribute('data-done', '1');
+                var keys = slot.getAttribute('data-verses').split(',');
+                fetchConfessions(slot.getAttribute('data-book')).then(function(data) {
+                    if (!data) return;
+                    var multi = keys.length > 1;
+                    var total = 0, groups = '';
+                    keys.forEach(function(vk) {
+                        var list = data.v[vk];
+                        if (!list || !list.length) return;
+                        total += list.length;
+                        var extra = 'confess-extra-' + (++confessSeq);
+                        var items = '';
+                        list.forEach(function(entry, i) {
+                            var u = data.u[entry[0]];
+                            if (!u) return;
+                            var hidden = i >= CONFESS_SHOW;
+                            var ext = /^https?:/.test(u[1]) ? ' target="_blank" rel="noopener"' : '';
+                            // Whole paragraph or answer, with the words printed against this verse marked.
+                            var t = u[3], s = entry[1], e = entry[2], body;
+                            if (s >= 0 && e > s && e <= t.length) {
+                                body = confessEsc(t.slice(0, s)) + '<mark class="confess-mark">' + confessEsc(t.slice(s, e)) + '</mark>' + confessEsc(t.slice(e));
+                            } else {
+                                body = confessEsc(t);
+                            }
+                            items += '<div class="confess-item' + (hidden ? ' ' + extra + '" style="display:none;">' : '">') +
+                                '<a class="confess-label" href="' + confessEsc(u[1]) + '"' + ext + '>' + confessEsc(u[0]) + '</a>' +
+                                (u[2] ? '<div class="confess-q">' + confessEsc(u[2]) + '</div>' : '') +
+                                '<div class="confess-text">' + body + '</div></div>';
+                        });
+                        if (list.length > CONFESS_SHOW) {
+                            items += '<div style="margin-top:4px;"><span class="strongs-show-more" onclick="(function(el){document.querySelectorAll(\'.' + extra + '\').forEach(function(e){e.style.display=\'block\';});el.style.display=\'none\';})(this)" style="cursor:pointer;color:var(--gold);font-size:0.85rem;user-select:none;">Show more <span class="usmc-tri usmc-tri-right" aria-hidden="true"></span> (' + (list.length - CONFESS_SHOW) + ' more)</span></div>';
+                        }
+                        groups += '<div class="crossref-verse-group">' + (multi ? '<div class="crossref-verse-label">On ' + vk + '</div>' : '') + items + '</div>';
+                    });
+                    if (!total) return;
+                    var panelId = 'bte-confess-' + (++confessSeq);
+                    slot.innerHTML = '<div class="crossref-section confess-section">' +
+                        '<div class="crossref-header" onclick="toggleCrossRef(\'' + panelId + '\', this)">' +
+                        '<h4><img src="assets/icons/shield-bible.png" class="site-icon" alt="book" width="18" height="18"> What the Confessions Say</h4>' +
+                        '<span class="crossref-count">(' + total + ')</span>' +
+                        '<span class="crossref-toggle open usmc-tri usmc-tri-right" aria-hidden="true"></span>' +
+                        '</div>' +
+                        '<div class="crossref-body open" id="' + panelId + '">' + groups +
+                        '<div class="confess-source">1689 Confession, Westminster Confession and Catechisms, Baptist Catechism, Heidelberg Catechism. Public domain, via <a href="https://symbolics.dev/" target="_blank" rel="noopener">symbolics.dev</a>.</div>' +
+                        '</div></div>';
+                });
             });
         }
 
@@ -4013,6 +4094,8 @@
             if (crossRefResult.html) {
                 html += crossRefResult.html;
             }
+            // What the Confessions Say: filled after render from /assets/confessions/proofs/<book>.json
+            html += buildConfessionSlot(ref.bookId, allVerses.map(function(v) { return (v.chapter || ref.chapter) + ':' + v.num; }));
 
             // Clarity Notes (after cross-refs)
             if (limitedClarity.length) {
@@ -4077,6 +4160,7 @@
             try { enrichDictionaryLinks(ref.bookId); } catch(e){}
             // BTE v7.1: fill inline cross-ref preview snippets (chapter mode)
             try { hydrateCrossRefPreviews(); } catch(e){}
+            try { hydrateConfessions(); } catch(e){}
             updateNavBoundaries();
             document.getElementById('searchBtn').disabled = false;
             if (document.body.classList.contains('paragraph-mode')) applyParagraphBreaks();
