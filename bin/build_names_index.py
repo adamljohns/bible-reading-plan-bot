@@ -503,10 +503,10 @@ def main():
             print(f'  SKIP {fname}: {e}')
             continue
         slug = fname[:-5]  # strip .html
-        cat = classify(pos, slug)
+        # An override also pulls in a page whose label is missing (galatians-book).
+        cat = overrides.get(slug, classify(pos, slug))
         if cat is None:
             continue
-        cat = overrides.get(slug, cat)
         buckets[cat].append({'file': fname, 'word': word, 'pos': pos})
 
     for cat in buckets:
