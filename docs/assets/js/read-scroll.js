@@ -236,7 +236,10 @@
     for (var i = 0; i < el.length; i++) {
       var target = el[i].k;
       var next = i + 1 < el.length ? el[i + 1].k : null;
-      var win = miss >= 6 ? 60 : 18;
+      /* After 20 straight misses (a stretch the transcript dropped or the page
+         holds unspoken text) look up to 300 spans ahead, but only take a
+         confirmed match that far out. */
+      var win = miss >= 20 ? 300 : miss >= 6 ? 60 : 18;
       var limit = Math.min(keys.length, si + win);
       var found = -1;
       var loose = -1;
@@ -248,7 +251,7 @@
           for (var c = j + 1; c < Math.min(keys.length, j + 4); c++) if (keys[c] === next) { ok = true; break; }
         }
         if (ok) { found = j; break; }
-        if (loose < 0) loose = j;
+        if (loose < 0 && j - si < 60) loose = j;
       }
       if (found < 0 && miss >= 6 && loose >= 0) found = loose;
       if (found >= 0) {
@@ -337,18 +340,61 @@
     ensureFollow();
     return true;
   }
+  /* Teleprompter scroll (Principal 2026-11-05: "smooth like the guitar tab
+     app"). Each visual line gets a keyframe: the time its first spoken word
+     starts and its page position. The target slides between keyframes at a
+     steady rate, so the page moves continuously instead of waiting for a gap
+     and then catching up. Keyframes rebuild when the layout changes. */
+  var lineKeys = {};
+  var followY = null;
+  function layoutKey() {
+    return window.innerWidth + "x" + document.documentElement.scrollHeight;
+  }
+  function keyframesFor(section) {
+    var cached = lineKeys[section.id];
+    var lk = layoutKey();
+    if (cached && cached.lk === lk) return cached.frames;
+    var frames = [];
+    (aligned[section.id] || []).forEach(function (pair) {
+      var y = pair.el.getBoundingClientRect().top + window.scrollY;
+      var last = frames[frames.length - 1];
+      if (!last || Math.abs(y - last.y) > 4) frames.push({ t: pair.t, y: y });
+    });
+    lineKeys[section.id] = { lk: lk, frames: frames };
+    return frames;
+  }
+  function targetY(section, time) {
+    var f = keyframesFor(section);
+    if (!f.length) return null;
+    if (time <= f[0].t) return f[0].y;
+    for (var i = 0; i < f.length - 1; i++) {
+      if (time < f[i + 1].t) {
+        var span = f[i + 1].t - f[i].t;
+        var k = span > 0 ? (time - f[i].t) / span : 1;
+        return f[i].y + (f[i + 1].y - f[i].y) * k;
+      }
+    }
+    return f[f.length - 1].y;
+  }
   function followStep(now, prev) {
-    if (!pref.screen || now < userHoldUntil) return;
-    var hot = document.querySelector(".watch-word.is-hot");
-    if (!hot) return;
-    var dy = hot.getBoundingClientRect().top - guideY();
-    if (Math.abs(dy) <= 8) return;
-    var dt = prev ? Math.min(48, Math.max(8, now - prev)) : 16;
-    /* ~0.42 of the gap per 16ms, capped, so a sentence change glides. */
-    var step = dy * (1 - Math.pow(0.58, dt / 16));
-    if (step > 11) step = 11;
-    if (step < -11) step = -11;
-    window.scrollBy(0, step);
+    if (!pref.screen || now < userHoldUntil) { followY = null; return; }
+    var audio = playingAudio();
+    var section = audio && audio.closest("section.watch");
+    if (!section) return;
+    var y = targetY(section, audio.currentTime);
+    if (y === null) return;
+    var want = Math.max(0, y - guideY());
+    /* Keep our own fractional position so slow motion is not lost to whole-pixel
+       rounding; resync if anything else moved the page. */
+    if (followY === null || Math.abs(window.scrollY - followY) > 3) followY = window.scrollY;
+    var gap = want - followY;
+    if (Math.abs(gap) > window.innerHeight) {
+      followY = want; /* seek or tab change: go straight there */
+    } else {
+      var dt = prev ? Math.min(48, Math.max(8, now - prev)) : 16;
+      followY += gap * (1 - Math.pow(0.9, dt / 16));
+    }
+    window.scrollTo({ left: window.scrollX, top: followY, behavior: "instant" });
   }
   function followTick(now) {
     var prev = followLast;
