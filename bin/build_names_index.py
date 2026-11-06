@@ -13,6 +13,8 @@ Usage:
     python3 bin/build_names_index.py
 """
 
+import html
+import json
 import os
 import re
 from collections import defaultdict
@@ -40,6 +42,8 @@ CATEGORIES = [
         'Tribes of Israel, surrounding nations, and named people-groups.'),
     ('divine',  'Divine Names & Christ Titles', f'{_icon("shield-alpha-omega-48.png")}Divine Names &amp; Christ Titles',
         'Names of God revealed in Scripture — YHWH-compounds, El-titles, and Messianic / Christ-titles.'),
+    ('history', 'Church History',     f'{_icon("shield-about-person-48.png")}Church History',
+        'Fathers, reformers, pastors, and missionaries after the close of Scripture.'),
     ('other',   'Other Proper Nouns', f'{_icon("shield-star.png")}Other Proper Nouns',
         'Proper nouns that don’t fall into the categories above — feasts, armor, events, miscellaneous.'),
 ]
@@ -131,6 +135,13 @@ def extract_word_info(filepath):
     h1_m = re.search(r'<h1[^>]*>(.*?)</h1>', content, re.DOTALL)
     word = h1_m.group(1).strip() if h1_m else ''
     word = re.sub(r'<[^>]+>', '', word).strip()
+    if not word:
+        # Many entry pages carry the name only in <title>, e.g. "A. A. Hodge — The MOOP
+        # Dictionary". The slug is a last resort: it turned that into "Aa Hodge".
+        t_m = re.search(r'<title>(.*?)</title>', content, re.DOTALL)
+        if t_m:
+            t = html.unescape(t_m.group(1))
+            word = re.split(r'\s+[—–|-]\s+', t, maxsplit=1)[0].strip()
     if not word:
         word = os.path.basename(filepath).replace('.html', '').replace('-', ' ').title()
     pos_m = re.search(r'class=["\']pos["\'][^>]*>(.*?)</[^>]+>', content, re.DOTALL)
@@ -458,11 +469,30 @@ def build_html(buckets, total):
 </html>'''
 
 
+OVERRIDES_FILE = os.path.join(ROOT, 'data', 'dictionary-names', 'category-overrides.json')
+
+
+def load_overrides():
+    """Hand-checked slug -> category corrections. A bare "proper noun" label used to
+    default every town, month, and chapter into People; these win over the guess."""
+    try:
+        with open(OVERRIDES_FILE, encoding='utf-8') as f:
+            data = json.load(f).get('slugs', {})
+    except FileNotFoundError:
+        return {}
+    valid = {c[0] for c in CATEGORIES}
+    bad = {s: c for s, c in data.items() if c not in valid}
+    if bad:
+        raise SystemExit(f'unknown categories in {OVERRIDES_FILE}: {bad}')
+    return data
+
+
 def main():
     files = sorted(
         f for f in os.listdir(DICT_DIR)
         if f.endswith('.html') and f not in SKIP
     )
+    overrides = load_overrides()
 
     buckets = defaultdict(list)
     for fname in files:
@@ -476,6 +506,7 @@ def main():
         cat = classify(pos, slug)
         if cat is None:
             continue
+        cat = overrides.get(slug, cat)
         buckets[cat].append({'file': fname, 'word': word, 'pos': pos})
 
     for cat in buckets:
