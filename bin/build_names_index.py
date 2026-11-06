@@ -143,7 +143,7 @@ def extract_word_info(filepath):
             t = html.unescape(t_m.group(1))
             word = re.split(r'\s+[—–|-]\s+', t, maxsplit=1)[0].strip()
     if not word:
-        word = os.path.basename(filepath).replace('.html', '').replace('-', ' ').title()
+        word = re.sub(r' Book$', '', os.path.basename(filepath).replace('.html', '').replace('-', ' ').title())
     pos_m = re.search(r'class=["\']pos["\'][^>]*>(.*?)</[^>]+>', content, re.DOTALL)
     pos = pos_m.group(1).strip() if pos_m else ''
     pos = re.sub(r'<[^>]+>', '', pos).strip()
