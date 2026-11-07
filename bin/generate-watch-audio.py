@@ -99,7 +99,9 @@ FILE_KEY = {"wisdom": "wisdom", "first": "husband", "second": "father",
 # Household-name lexicon (misaki inline phoneme markup).
 LEXICON = {
     "Maria":  "[Maria](/məɹˈiə/)",
-    "Boaz":   "[Boaz](/bˈOæz/)",
+    # Principal 2026-11-07: boh-AZ, light first syllable, weight on AZ. British voices
+    # take Q (əʊ); American voices take O (oʊ). See BOAZ_BY_LANG.
+    "Boaz":   "[Boaz](/bˌOˈæz/)",
     "Shiloh": "[Shiloh](/ʃˈIlO/)",
     "Gideon": "[Gideon](/ɡˈɪdiən/)",
 }
@@ -479,12 +481,17 @@ def speak_acronyms(text):
     return DOTTED_ACRONYM.sub(_sub, text)
 
 
-def apply_lexicon(text):
+BOAZ_BY_LANG = {"b": "[Boaz](/bˌQˈæz/)", "a": "[Boaz](/bˌOˈæz/)"}
+
+
+def apply_lexicon(text, lang=None):
     text = speak_acronyms(text)
     text = speak_refs(text)
     text = apply_bow_homage(text)
     text = apply_homograph_context(text)
-    for word, marked in LEXICON.items():
+    lex = dict(LEXICON)
+    lex["Boaz"] = BOAZ_BY_LANG.get(lang or NARRATOR_LANG, LEXICON["Boaz"])
+    for word, marked in lex.items():
         text = re.sub(rf"\b{word}\b", marked, text)
     text = force_declarative_amen(text)
     return text
@@ -818,7 +825,7 @@ def segment_watch(text, by_name):
     segs = []
     if pre_t:
         segs.append(NARR_SEG + (apply_lexicon(pre_t),))
-    segs.append((sv, sl, se, ssp, apply_lexicon(pas_t)))
+    segs.append((sv, sl, se, ssp, apply_lexicon(pas_t, sl)))
     had_prayer = append_post(segs, post)
     tag_extra = "+adam-prayer" if had_prayer else ""
     return segs, (entry["name"], sv, tag_extra)
