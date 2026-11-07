@@ -76,7 +76,7 @@ def extract_prayer(text: str) -> str:
     lines = text.splitlines()
     buf, st = [], "before"
     hdr = re.compile(r"^🙏?\s*Prayer\b", re.I)
-    charge = re.compile(r"^(⚓|🛡️)?\s*(Helm Command|Watch Charge|The Charge|Rudder Steer)\b", re.I)
+    charge = re.compile(r"^(⚓|🛡️|🔑|🕊️?)?\s*(Helm Command|Watch Charge|The Charge|Rudder Steer|Wisdom Key|Wise Takeaway|Key to Wisdom|Word to the Wise|Wisdom to Carry|Prompt for Peace|Peaceful Focus|Evening Reminder|Rest in This|Peace to Carry)\b", re.I)
     amen = re.compile(r"\bAmen\.?\s*$", re.I)
     for line in lines:
         if st == "before" and hdr.match(line.strip()):
@@ -250,15 +250,20 @@ def check_watch(day: str, key: str, json_path: Path, mp3: Path, transcribe=None)
         return fails
     raw = (transcribe or asr)(mp3)
     hay = norm(raw)
-    # Last Father in the prayer-region tail is the listen-script opener.
-    father_i = hay.rfind("father")
+    # The prayer's own address is the listen-script opener. Prayers no longer all
+    # open "Father," (Principal 2026-11-07: vary Dear Lord / Heavenly Father /
+    # God on High / Father God), so take it from the published text.
+    opener = norm(re.split(r"[,.!]", sents[0], maxsplit=1)[0]).strip() or "father"
+    father_i = hay.rfind(opener)
+    if father_i < 0 and opener.split():
+        father_i = hay.rfind(opener.split()[-1])
     if father_i < 0:
-        fails.append(f"{key}: ASR never said Father")
+        fails.append(f"{key}: ASR never said the prayer's opening {opener!r}")
     else:
         prefix = hay[:father_i]
         for s in STRAY:
             if s in prefix:
-                fails.append(f"{key}: stray narration before Father, ({s!r})")
+                fails.append(f"{key}: stray narration before {opener!r} ({s!r})")
     for sent in sents:
         if not present(sent, hay):
             fails.append(f"{key}: missing sentence {sent[:80]!r}")

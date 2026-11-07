@@ -65,7 +65,7 @@ PRAYER_BANS = [
 
 WATCH_SPLIT = re.compile(r"\n(?=🌅|🕖|🕚|🕒|🌙)")
 PRAYER_BLOCK = re.compile(
-    r"🙏[^\n]*\n([\s\S]*?)(?=\n(?:🛡️ Watch Charge|⚓|⸻|---|🌅|🕖|🕚|🕒|🌙)|\Z)"
+    r"🙏[^\n]*\n([\s\S]*?)(?=\n(?:🛡️ Watch Charge|🔑|🕊|⚓|⸻|---|🌅|🕖|🕚|🕒|🌙)|\Z)"
 )
 APP_BULLET = re.compile(r"^[•\-\*]\s+\S", re.M)
 

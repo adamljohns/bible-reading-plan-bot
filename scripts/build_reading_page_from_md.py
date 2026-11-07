@@ -120,7 +120,7 @@ SECTION_PATTERNS = [
     ("application",    rf"{P}Personal\s+Application\b"),
     ("prayer",         rf"{P}Prayer(?:\s+from\s+the\s+\w+)?\s*$"),                 # heading line, not prose
     ("prayer_alt",     r"^\s*🙏\s*(?:\*\*)?\s*Prayer"),                            # belt-and-suspenders
-    ("helm",           r"^\s*[⚓🛡]️?\s*(?:\*\*)?\s*(?:Watch Charge|The Charge|Helm Command|Rudder Steer|Set Sail|Course Correction|Steady As She Goes|Night Orders)\b"),
+    ("helm",           r"^\s*[⚓🛡🔑🕊]️?\s*(?:\*\*)?\s*(?:Watch Charge|The Charge|Helm Command|Rudder Steer|Set Sail|Course Correction|Steady As She Goes|Night Orders|Wisdom Key|Wise Takeaway|Key to Wisdom|Word to the Wise|Wisdom to Carry|Prompt for Peace|Peaceful Focus|Evening Reminder|Rest in This|Peace to Carry)\b"),
 ]
 SECTION_REGEX = [(key, re.compile(rx, re.IGNORECASE)) for key, rx in SECTION_PATTERNS]
 
@@ -388,7 +388,7 @@ def render_helm(marker_line, content_lines):
     """Helm Command / Rudder Steer line — may wrap to additional content lines.
     Always concatenate marker_line tail + content_lines for full command text."""
     s = marker_line.strip()
-    m = re.match(r"^\s*[⚓🛡]️?\s*(?:\*\*)?\s*(Watch Charge|The Charge|Helm Command|Rudder Steer|Set Sail|Course Correction|Steady As She Goes|Night Orders)\s*(?:\*\*)?\s*[:\-—]?\s*(.*)$",
+    m = re.match(r"^\s*[⚓🛡🔑🕊]️?\s*(?:\*\*)?\s*(Watch Charge|The Charge|Helm Command|Rudder Steer|Set Sail|Course Correction|Steady As She Goes|Night Orders|Wisdom Key|Wise Takeaway|Key to Wisdom|Word to the Wise|Wisdom to Carry|Prompt for Peace|Peaceful Focus|Evening Reminder|Rest in This|Peace to Carry)\s*(?:\*\*)?\s*[:\-—]?\s*(.*)$",
                  s, re.IGNORECASE)
     if m:
         raw_label = m.group(1)
@@ -400,7 +400,7 @@ def render_helm(marker_line, content_lines):
         tail = m.group(2).strip()
     else:
         label = "Watch Charge"
-        tail = s.lstrip("⚓🛡️").strip()
+        tail = s.lstrip("⚓🛡️🔑🕊").strip()
     # Always join continuation lines so wrapped commands aren't truncated.
     # Filter out separator lines (⸻ runs, ---) that belong between watches, not
     # inside the command itself.
@@ -417,7 +417,13 @@ def render_helm(marker_line, content_lines):
     # Strip trailing separator runs that may have hitched onto the last line
     command = re.sub(r"\s*[⸻\-—]{3,}\s*$", "", command)
     command = command.strip().strip("*").strip()
-    return f'<div class="helm"><span class="helm-icon">🛡️</span> <span class="helm-label">{escape(label)}:</span> {escape(command)}</div>'
+    # Morning Wisdom and Evening Peace close with their own labels (Principal 2026-11-07).
+    icon = "🛡️"
+    if re.match(r"(?i)wis|key|word to", label):
+        icon = "🔑"
+    elif re.match(r"(?i)prompt for peace|peace|evening|rest", label):
+        icon = "🕊️"
+    return f'<div class="helm"><span class="helm-icon">{icon}</span> <span class="helm-label">{escape(label)}:</span> {escape(command)}</div>'
 
 
 def render_audio_slot(date, watch_key):

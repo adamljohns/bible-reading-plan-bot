@@ -387,9 +387,9 @@ SCRIPTURE_HDR = re.compile(r"^Scripture\s*[—\-]\s*(.+?)\s*$")
 SECTION_HDR = re.compile(
     r"^(Context Summary|Briefing Summary|Field Notes|Situation Report|Reflection\b.*|"
     r"Personal Application\b.*|Prayer\b.*|Helm Command\b.*|Watch Charge\b.*|"
-    r"The Charge\b.*|Rudder Steer\b.*)")
+    r"The Charge\b.*|Rudder Steer\b.*|(?:Wisdom Key|Wise Takeaway|Key to Wisdom|Word to the Wise|Wisdom to Carry|Prompt for Peace|Peaceful Focus|Evening Reminder|Rest in This|Peace to Carry)\b.*)")
 PRAYER_HDR = re.compile(r"^Prayer\b.*", re.I)
-CHARGE_HDR = re.compile(r"^(Helm Command|Watch Charge|The Charge|Rudder Steer)\b.*", re.I)
+CHARGE_HDR = re.compile(r"^(Helm Command|Watch Charge|The Charge|Rudder Steer|Wisdom Key|Wise Takeaway|Key to Wisdom|Word to the Wise|Wisdom to Carry|Prompt for Peace|Peaceful Focus|Evening Reminder|Rest in This|Peace to Carry)\b.*", re.I)
 
 
 def load_voice_map():
