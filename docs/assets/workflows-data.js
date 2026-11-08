@@ -2,7 +2,7 @@
 // and archive.html (retired items). Single source of truth; edit here only.
 // Globals: WORKFLOWS_DEFAULT, CATEGORIES, STATUS_LABELS.
 
-const WORKFLOWS_SYNCED = '2026-11-06';  // written by workflows-page-build.py from workflows-state.json
+const WORKFLOWS_SYNCED = '2026-11-08';  // written by workflows-page-build.py from workflows-state.json
 
 const WORKFLOWS_DEFAULT = [
     {
