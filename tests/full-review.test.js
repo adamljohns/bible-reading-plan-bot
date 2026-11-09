@@ -46,7 +46,10 @@ const obs = { model: 'test', observations: [
   { id: 'aff', name: 'St. A', status: 'reviewed', source_kind: 'website', final_url: 'https://a.example/',
     pages: [page('https://a.example/about', 'St. A Episcopal Church, 1 Main St, Townville. The Rev. Sam Jones is our Rector. We celebrate Pride Sunday every June. Our service meets on Sundays at 10:30 AM.'),
       page('https://a.example/about/clergy', 'Clergy. The Rev. Jane Roe is our Associate Rector. She leads Morning Prayer.'),
-      page('https://a.example/ministries', 'Young Adult Ministry with Bethel Episcopal Church meets monthly, led by Fr. Sam or Fr. James Rickenbaker.')],
+      page('https://a.example/ministries', 'Young Adult Ministry with Bethel Episcopal Church meets monthly, led by Fr. Sam or Fr. James Rickenbaker.'),
+      page('https://a.example/leadership', 'Our Rector. Before coming to St. A, Sam is currently serving at Clinton United Methodist Church. Other leadership roles include serving as president of the United Methodist Men.')],
+    socials: { youtube: 'https://www.youtube.com/channel/UCabc' },
+    socials_ev: { youtube: { url: 'https://www.youtube.com/channel/UCabc', kind: 'site-config', quote: '"profileUrl":"https://www.youtube.com/channel/UCabc","iconEnabled":true', page: 'https://a.example/' } },
     identity: { status: 'confirmed', matched: ['city:Townville'], stored: { city: 'Townville', state: 'VA' } },
     signals: { affiliation: [{ quote: 'St. A Episcopal Church, 1 Main St, Townville.', url: 'https://a.example/about' }] },
     llm: { lead_pastor: { name: 'Sam Jones', role: 'Rector', pronoun: 'he', quote: 'The Rev. Sam Jones is our Rector.', url: 'https://a.example/about' },
@@ -98,6 +101,13 @@ const team = ch('aff', 'pastors').new;
 assert.deepStrictEqual(team.map(p => p.name), ['Sam Jones', 'Jane Roe']);
 assert.strictEqual(team[1].role, 'Associate Rector');
 assert.ok(/Sam Jones/.test(ch('aff', 'pastors').evidence.quote));
+// scope gate: a men's ministry in the rector's bio about another church is not this church's
+assert.ok(!ch('aff', 'has_mens_ministry'), 'bio about another church must not fill has_mens_ministry');
+assert.ok(get('aff').scope_dropped.some(x => x.field === 'has_mens_ministry'));
+// site-config social: typed, quoted as the config snippet, held
+assert.strictEqual(ch('aff', 'youtube').evidence.evidence_type, 'site-config');
+assert.ok(!/<a /.test(ch('aff', 'youtube').evidence.quote));
+assert.strictEqual(ch('aff', 'youtube').gate, 'hold');
 assert.ok(get('aff').roster.excluded.some(x => x.name === 'James Rickenbaker' && /Bethel/.test(x.why)));
 assert.strictEqual(ch('aff', 'pastor').new, 'Sam Jones');
 assert.strictEqual(ch('aff', 'pastor').gate, 'auto');

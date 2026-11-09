@@ -165,13 +165,18 @@ function quality(q, url, prefer = []) {
 }
 // Sentence boundaries that are not abbreviations ("St. Mary's", "The Rev. Jay").
 const ABBR = /\b(St|Rev|Dr|Mr|Mrs|Ms|Fr|Jr|Sr|Mt|Ft|Hon|Msgr|Ave|Rd|Blvd|Inc|[A-Z])$/;
-function isBoundary(text, i) { return /[.!?]/.test(text[i]) && text[i + 1] === ' ' && !(text[i] === '.' && ABBR.test(text.slice(Math.max(0, i - 5), i))); }
+function isBoundary(text, i) { return /[.!?]/.test(text[i]) && text[i + 1] === ' ' && /[A-Z0-9"“‘'(\u2014-]/.test(text[i + 2] || 'A') && !(text[i] === '.' && (ABBR.test(text.slice(Math.max(0, i - 5), i)) || /\b[ap]\.m$/i.test(text.slice(Math.max(0, i - 4), i)))); }
 function prevBoundary(text, from) { for (let i = from - 1; i >= 0; i--) if (isBoundary(text, i)) return i; return -1; }
 function nextBoundary(text, from) { for (let i = from; i < text.length - 1; i++) if (isBoundary(text, i)) return i; return -1; }
 // Verbatim, word-bounded, roughly sentence-bounded window around [start,end).
 function sentenceAt(text, start, end, cap = 280) {
   const back = prevBoundary(text, start);
   let a = back >= 0 && start - back <= cap ? back + 2 : start;
+  if (a === start) {
+    const look = text.slice(Math.max(0, start - 160), start);
+    const ops = [...look.matchAll(/(?:^|\s)(Please|Join us|We |Our |Services|Worship|Every |Each |Come |All are|You are)/g)];
+    if (ops.length) a = start - look.length + ops[ops.length - 1].index + (ops[ops.length - 1][0].length - ops[ops.length - 1][1].length);
+  }
   if (a === start) { // nav/menu text has no sentence boundary: keep only a leading title word or two
     const pre = text.slice(Math.max(0, start - 40), start).match(/((?:(?:Meet|Our|The|Senior|Lead|Pastor|Rev\.?|Reverend|Fr\.|Father|Mother|Rector|Dr\.|St\.|Saint)\s+){1,3})$/);
     if (pre) a = start - pre[1].length;
@@ -192,7 +197,7 @@ function scan(o, rx, prefer = []) {
     let m, n = 0;
     while ((m = g.exec(p.text)) && n++ < 25) {
       const q = sentenceAt(p.text, m.index, m.index + m[0].length);
-      if (!out.some(x => x.quote === q)) out.push({ quote: q, url: p.url, match: m[0] });
+      if (!out.some(x => x.quote === q)) out.push({ quote: q, url: p.url, match: m[0], at: m.index });
       if (!m[0].length) g.lastIndex++;
     }
   }
@@ -313,6 +318,8 @@ function rosterTie(o, c, person, isLead) {
       const quote = sentenceAt(p.text, m.index, m.index + name.length);
       const foreign = [...win.matchAll(CHURCH_PHRASE_RX)].map(x => x[1]).filter(ph => !toks.some(t => ph.includes(t)) && !/Diocese/.test(ph));
       if (foreign.length || GUEST_RX.test(quote)) { cands.push({ bad: foreign.length ? `named alongside ${foreign[0]}` : 'guest/partner/former context', url: p.url }); continue; }
+      // the roster is the CURRENT clergy: history pages and dated past mentions ("In 1859 … a new rector") do not count
+      if (/histor|timeline|archive|heritage|our-story/i.test(urlPath(p.url)) || /\b(in|from|until|by)\s+1[5-9]\d\d\b/i.test(quote)) { cands.push({ bad: 'historical mention, not current clergy', url: p.url }); continue; }
       // The role phrase attached to THIS name: "Name – Associate Rector", "Name, Pastor",
       // or "Associate Rector Name" — but not the previous person's role in a
       // "Name – Role Name – Role" list (a role right after a dash belongs to the name before it).
@@ -347,15 +354,19 @@ function rosterTie(o, c, person, isLead) {
 // value, never the page sentence.
 const DAYS = [['Sun', /^sun/i], ['Mon', /^mon/i], ['Tue', /^tue/i], ['Wed', /^wed/i], ['Thu', /^thu/i], ['Fri', /^fri/i], ['Sat', /^sat/i]];
 const NOT_WORSHIP = /^\s*[-–—:]?\s*(\(?[a-z ]{0,12}\)?\s*)?(sunday school|school|fellowship|class|classes|bible study|study|coffee|breakfast|office|hours|choir|rehearsal|adult ed|education|youth|nursery|meeting|lunch|dinner|potluck)/i;
+const ORD = { first: '1st', second: '2nd', third: '3rd', fourth: '4th', fifth: '5th', last: 'last', '1st': '1st', '2nd': '2nd', '3rd': '3rd', '4th': '4th', '5th': '5th' };
 function parseServiceTimes(str) {
   const s = String(str || '');
+  const ordRx = /\b((?:first|second|third|fourth|fifth|last|1st|2nd|3rd|4th|5th)(?:\s*(?:,|and|&)\s*(?:first|second|third|fourth|fifth|last|1st|2nd|3rd|4th|5th))*)\s+(sun|mon|tue|wed|thu|fri|sat)/gi;
+  const ordFor = {}; let om;
+  while ((om = ordRx.exec(s))) ordFor[om.index + om[0].length - om[2].length] = om[1].toLowerCase().split(/\s*(?:,|and|&)\s*/).map(w => ORD[w]).join(' and ');
   const toks = new Set();
   const rx = /\b(sun(?:day)?s?|mon(?:day)?s?|tue(?:s(?:day)?)?s?|wed(?:nesday)?s?|thu(?:r(?:s(?:day)?)?)?s?|fri(?:day)?s?|sat(?:urday)?s?)\b|\b(noon)\b|\b(\d{1,2})(?::(\d{2}))?\s*(a\.?\s?m\.?|p\.?\s?m\.?)?(?![\d/])/gi;
   let day = null, m;
   const anyDay = /\b(sun|mon|tue|wed|thu|fri|sat)/i.test(s);
   const worshipy = /worship|service|eucharist|mass|liturg|rite|prayer|celebrat/i.test(s);
   while ((m = rx.exec(s))) {
-    if (m[1]) { day = (DAYS.find(([, r]) => r.test(m[1])) || [null])[0]; continue; }
+    if (m[1]) { day = (DAYS.find(([, r]) => r.test(m[1])) || [null])[0]; if (day && ordFor[m.index]) day = `${ordFor[m.index]} ${day}`; continue; }
     let h, mi = '00', ap;
     if (m[2]) { h = 12; ap = 'PM'; }
     else {
@@ -372,13 +383,64 @@ function parseServiceTimes(str) {
   return toks;
 }
 const DAY_ORDER = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
-const tmin = t => { const [, hm, ap] = t.split(' '); let [h, m] = hm.split(':').map(Number); if (ap === 'PM' && h !== 12) h += 12; if (ap === 'AM' && h === 12) h = 0; return h * 60 + m; };
+const tmin = t => { const [hm, ap] = t.split(' ').slice(-2); let [h, m] = hm.split(':').map(Number); if (ap === 'PM' && h !== 12) h += 12; if (ap === 'AM' && h === 12) h = 0; return h * 60 + m; };
 function formatServiceTimes(set) {
   const by = {};
-  for (const t of set) { const d = t.split(' ')[0]; (by[d] = by[d] || []).push(t); }
-  return Object.keys(by).sort((a, b) => DAY_ORDER[a] - DAY_ORDER[b]).map(d => `${d} ` + by[d].sort((a, b) => tmin(a) - tmin(b)).map(t => t.split(' ').slice(1).join(' ')).join(', ')).join('; ');
+  const dayOf = t => t.split(' ').slice(0, -2).join(' ');
+  for (const t of set) { const d = dayOf(t); (by[d] = by[d] || []).push(t); }
+  const dk = d => DAY_ORDER[d.split(' ').pop()] * 10 + (d.includes(' ') ? 1 : 0);
+  return Object.keys(by).sort((a, b) => dk(a) - dk(b)).map(d => `${d} ` + by[d].sort((a, b) => tmin(a) - tmin(b)).map(t => t.split(' ').slice(-2).join(' ')).join(', ')).join('; ');
 }
 const sameSet = (a, b) => a.size === b.size && [...a].every(x => b.has(x));
+
+// ── congregation scope: a fill's quote must be about THIS congregation ───────
+// Same idea as the roster rule. A passage is out of scope when it sits in a bio
+// describing the pastor's other or previous churches, or in a partner/joint
+// ministry section, or when the surrounding section names another church.
+const DENOM_ONLY = new Set(['the', 'of', 'in', 'episcopal', 'united', 'methodist', 'lutheran', 'evangelical', 'presbyterian', 'catholic', 'anglican', 'baptist', 'church', 'parish', 'chapel', 'america', 'usa', 'u.s.a.', 'southern', 'american', 'reformed', 'umc', 'cathedral', 'national', 'world', 'worldwide', 'global']);
+function foreignChurches(text, c) {
+  const toks = ourTokens(c).map(t => t.toLowerCase());
+  return [...String(text).matchAll(CHURCH_PHRASE_RX)].map(x => x[1].trim())
+    .filter(ph => !/Diocese|Conference|Synod|Presbytery/.test(ph))
+    .filter(ph => ph.split(/\s+/).some(w => !DENOM_ONLY.has(w.toLowerCase().replace(/['’]s$/, ''))))
+    .filter(ph => !toks.some(t => ph.toLowerCase().includes(t)));
+}
+const BIO_OTHER_RX = /\b(currently serving at|currently serves at|previously served|has served (at|as)|served at|formerly (at|of|served)|prior to (coming|joining|serving)|other leadership roles|his (previous|prior|last) (church|appointment|call)|her (previous|prior|last) (church|appointment|call)|before coming to|was appointed to)\b/i;
+const PARTNER_RX = /\b(partner(ship|ing)? (church|congregation|with)|joint(ly)? (ministry|service|with)|in partnership with|co-?sponsored|hosted (at|by)|together with)\b/i;
+const BIO_LIST_RX = /\bserv(ing|ed) as (president|chair\w*|coordinator|director|leader|treasurer|secretary|member)\b/i;
+function scopeAt(p, c, at, len) {
+  // the quote's own sentence and the one before it: where another church or a partner would be named
+  const s0 = prevBoundary(p.text, at), s1 = s0 > 0 ? prevBoundary(p.text, s0 - 1) : -1;
+  const near = p.text.slice(Math.max(0, s1 >= 0 ? s1 + 1 : at - 160, at - 400), Math.min(p.text.length, at + len + 80));
+  // a staff/leadership bio runs long: look further back for "currently serving at …"
+  const bioBack = p.text.slice(Math.max(0, at - (PAGE_KIND(p.url) === 'staff' ? 1200 : 320)), Math.min(p.text.length, at + len + 40));
+  if (BIO_OTHER_RX.test(bioBack) && (BIO_LIST_RX.test(near) || /\b(he|she|his|her)\b/i.test(near))) return `pastor-bio passage about other churches ("${clip(BIO_OTHER_RX.exec(bioBack)[0], 40)}")`;
+  if (PARTNER_RX.test(near)) return 'partner / joint-ministry passage';
+  const f = foreignChurches(near, c);
+  if (f.length) return `passage names another church (${f[0]})`;
+  return null;
+}
+function scopeCheck(o, c, e) {
+  if (!e || !e.quote || !e.url) return { ok: false, why: 'no evidence' };
+  const p = ((o && o.pages) || []).find(x => x.url === e.url && x.text);
+  if (!p) return { ok: true };                      // html_link / site-config / redirect: checked elsewhere
+  const key = String(e.quote).trim().slice(0, 40);
+  const ats = Number.isInteger(e.at) ? [e.at] : [];
+  if (!ats.length) { let i = -1; const lt = p.text.toLowerCase(), k = key.toLowerCase(); while ((i = lt.indexOf(k, i + 1)) >= 0 && ats.length < 10) ats.push(i); }
+  if (!ats.length) return { ok: true };
+  const whys = ats.map(at => scopeAt(p, c, at, String(e.quote).length));
+  return whys.some(w => !w) ? { ok: true } : { ok: false, why: whys[0] };   // in scope if any occurrence is
+}
+
+// ── multi-church sites (one parish site, several sanctuaries) ────────────────
+const MULTI_RX = /\b(two|three|four|five|2|3|4|5)\s+(sanctuaries|campuses|worship sites|worship locations|congregations)\b|\bour\s+(two|three|four|five)\s+churches\b|\bmulti-?(point|site|campus)\b|\b(two|three|four)-point (charge|parish)\b|\byoked (parish|congregations|churches)\b/i;
+function multiChurch(o, c) {
+  const pages = ((o && o.pages) || []).filter(p => p.text && /^(home|about)$/.test(PAGE_KIND(p.url)) && !/histor/i.test(p.url));
+  const m = pages.map(p => ({ p, m: MULTI_RX.exec(p.text) })).find(x => x.m);
+  if (m) return { quote: sentenceAt(m.p.text, m.m.index, m.m.index + m.m[0].length), url: m.p.url };
+  return null;
+}
+const ownSubpage = (u, c) => { const path = urlPath(u); return ourTokens(c).some(t => t.length >= 4 && path.includes(t.toLowerCase().replace(/['’]/g, ''))); };
 
 // ── per-church review ────────────────────────────────────────────────────────
 function review(o) {
@@ -611,38 +673,81 @@ function review(o) {
   }
 
   // ── 3. profile fill ───────────────────────────────────────────────────────
-  const st = L.service_times;
-  if (st) {
-    const have = c.service_times || (typeof c.services === 'string' ? c.services : '');
-    const placeholder = !have || /see website|verify|^sunday morning \(see/i.test(have);
-    const pageSet = parseServiceTimes(st.quote), haveSet = parseServiceTimes(have);
-    out.service_times = { stored: have || null, stored_tokens: [...haveSet], page_tokens: [...pageSet] };
-    if (pageSet.size && (placeholder || !haveSet.size || !sameSet(pageSet, haveSet))) {
-      const value = formatServiceTimes(pageSet);
-      if (placeholder || !have) add({ field: 'service_times', op: 'fill', old: have || null, new: value, confidence: 'high', reason: `times read from the church site: {${[...pageSet].join(', ')}}`, evidence: ev(st.quote, st.url) });
-      else add({ field: 'service_times', op: 'replace', old: have, new: value, confidence: 'medium', hold_reasons: [haveSet.size ? `stored {${[...haveSet].join(', ')}} != site {${[...pageSet].join(', ')}}` : 'stored value has no parseable day+time'], reason: 'site lists a different set of service times', evidence: ev(st.quote, st.url) });
+  // Every fill passes the congregation-scope gate; on a multi-church site a fill
+  // that is not from this congregation's own subpage is HOLD.
+  out.scope_dropped = [];
+  const multi = multiChurch(src, c);
+  if (multi) out.multi_church = { evidence: ev(multi.quote, multi.url), own_pages: ((src.pages || []).filter(p => ownSubpage(p.url, c))).map(p => p.url) };
+  const fillGate = (field, e) => {
+    if (!e) return null;
+    const sc = scopeCheck(src, c, e);
+    if (!sc.ok) { out.scope_dropped.push({ field, quote: clip(e.quote, 140), url: e.url, why: sc.why }); return null; }
+    return multi && !ownSubpage(e.url, c) ? ["multi-church site: not from this congregation's own page"] : [];
+  };
+  const TIME_RX = /\b\d{1,2}(:\d{2})?\s*(a\.?\s?m\.?|p\.?\s?m\.?)|\bnoon\b|\b\d{1,2}:\d{2}\b/i;
+  {
+    const ownTimes = multi ? scan({ pages: (src.pages || []).filter(p => ownSubpage(p.url, c)) }, TIME_RX, [[/worship|service|eucharist|mass|join us/i, 3]])
+      .filter(x => parseServiceTimes(x.quote).size) : [];
+    const st = ownTimes[0] || L.service_times;
+    const gate = st && parseServiceTimes(st.quote).size ? fillGate('service_times', st) : null;
+    if (st && gate) {
+      const have = c.service_times || (typeof c.services === 'string' ? c.services : '');
+      const placeholder = !have || /see website|verify|^sunday morning \(see/i.test(have);
+      const pageSet = parseServiceTimes(st.quote), haveSet = parseServiceTimes(have);
+      out.service_times = { stored: have || null, stored_tokens: [...haveSet], page_tokens: [...pageSet], from: st.url };
+      const reasons = [...gate, ...(multi ? ['service times on a multi-church site never auto-apply'] : [])];
+      if (placeholder || !haveSet.size || !sameSet(pageSet, haveSet)) {
+        const value = formatServiceTimes(pageSet);
+        if (placeholder || !have) add({ field: 'service_times', op: 'fill', old: have || null, new: value, confidence: reasons.length ? 'medium' : 'high', hold_reasons: reasons, reason: `times read from the church site: {${[...pageSet].join(', ')}}`, evidence: ev(st.quote, st.url) });
+        else add({ field: 'service_times', op: 'replace', old: have, new: value, confidence: 'medium', hold_reasons: [haveSet.size ? `stored {${[...haveSet].join(', ')}} != site {${[...pageSet].join(', ')}}` : 'stored value has no parseable day+time', ...reasons], reason: 'site lists a different set of service times', evidence: ev(st.quote, st.url) });
+      }
     }
   }
   const sig = k => firstSignal(src, k);
-  const fd = L.founded || (sig('founded') ? { quote: sig('founded').quote, url: sig('founded').url, year: +((sig('founded').match.match(/\d{4}/) || [])[0]) } : null);
-  if (fd && fd.year) {
-    const have = String(c.founded || '');
-    if (!have || /see website|unknown|verify/i.test(have)) add({ field: 'founded', op: 'fill', old: have || null, new: String(fd.year), confidence: 'high', reason: 'founding year stated on site', evidence: ev(fd.quote, fd.url) });
-    else if (!have.includes(String(fd.year))) add({ field: 'founded', op: 'replace', old: have, new: String(fd.year), confidence: 'medium', hold_reasons: ['replaces existing founded value'], reason: 'site states a different year', evidence: ev(fd.quote, fd.url) });
+  {
+    // A founding verb is required ("built in 1757" or "a movement began in 1856" is not a founding date),
+    // and the quote is re-read as a whole sentence from the page.
+    // the subject must be the church itself ("St. Mary's is a congregation that was founded in 1911"),
+    // not a person or a fund ("… established at his death in 1874 …").
+    const FOUNDED_RX = /\b(church|congregation|parish|chapel|mission|fellowship|we|our)\b[^.]{0,80}?\b(founded|established|organized|organised|chartered|constituted|planted|incorporated)\b[^.]{0,40}?\b(1[6-9]\d\d|20[0-2]\d)\b|\b(church|congregation|parish|rooted|faith)\b[^.]{0,80}?\b(since|founded in) (1[6-9]\d\d|20[0-2]\d)\b/i;
+    const yr = q => +((String(q).match(FOUNDED_RX) || [])[0] || '').replace(/\D/g, '').slice(-4) || null;
+    const PERSONAL = /\b(serving|served|serves|clergy|rector|pastor|priest|joined|called|ordained|his|her|he|she)\b/i; // a person's tenure, not the church's founding
+    const cands = [L.founded && FOUNDED_RX.test(L.founded.quote) ? { ...L.founded, year: yr(L.founded.quote) } : null,
+      ...scan(src, FOUNDED_RX).map(x => ({ ...x, year: yr(x.quote) }))].filter(x => x && x.year && !PERSONAL.test(x.quote));
+    for (const fd of cands) {
+      const gate = fillGate('founded', fd);
+      if (!gate) continue;
+      const have = String(c.founded || '');
+      if (!have || /see website|unknown|verify/i.test(have)) add({ field: 'founded', op: 'fill', old: have || null, new: String(fd.year), confidence: gate.length ? 'medium' : 'high', hold_reasons: gate, reason: 'founding year stated on site', evidence: ev(fd.quote, fd.url) });
+      else if (!have.includes(String(fd.year))) add({ field: 'founded', op: 'replace', old: have, new: String(fd.year), confidence: 'medium', hold_reasons: ['replaces existing founded value', ...gate], reason: 'site states a different year', evidence: ev(fd.quote, fd.url) });
+      break;
+    }
   }
   for (const [field, q, rx] of [['has_mens_ministry', L.mens_ministry, MENS_RX], ['has_kids_ministry', L.kids_ministry, KIDS_RX]]) {
-    const e = best([q && rx.test(q.quote) ? q : null, ...scan(src, rx)].filter(Boolean), [[rx, 1]]);
-    if (e && c[field] !== true) add({ field, op: 'set', old: c[field] ?? null, new: true, confidence: 'high', reason: 'ministry named on the church site', evidence: ev(e.quote, e.url) });
+    if (c[field] === true) continue;
+    const ranked = [q && rx.test(q.quote) ? q : null, ...scan(src, rx)].filter(Boolean)
+      .map(x => ({ ...x, score: quality(x.quote, x.url, [[rx, 1]]) + (multi && ownSubpage(x.url, c) ? 5 : 0) })).sort((a, b) => b.score - a.score);
+    for (const e of ranked) {
+      const gate = fillGate(field, e);
+      if (!gate) continue;
+      add({ field, op: 'set', old: c[field] ?? null, new: true, confidence: gate.length ? 'medium' : 'high', hold_reasons: gate, reason: 'ministry named on the church site', evidence: ev(e.quote, e.url) });
+      break;
+    }
   }
-  const homeUrl = src.final_url || (src.pages && src.pages[0] && src.pages[0].url);
+  // Socials: the evidence must be literally what the page carries — the exact
+  // <a href> tag, or (when the link exists only in page config/JSON) the exact
+  // config snippet, typed "site-config" and always HOLD.
   for (const k of ['facebook', 'instagram', 'youtube']) {
     const v = (src.socials || {})[k];
-    if (!v) continue;
-    // harvest junk: numeric post/photo ids and share widgets are not an account
+    const sev = (src.socials_ev || {})[k];
+    if (!v || !sev) continue;
     const seg = urlPath(v).split('/').filter(Boolean)[0] || '';
     if (/^\d{1,6}$/.test(seg) || /^(sharer|share|plugins|tr|dialog|groups|events|watch)$/i.test(seg)) continue;
-    if (!c[k]) add({ field: k, op: 'fill', old: null, new: v, confidence: 'high', reason: 'link published on the church site', evidence: ev(`<a href="${v}">`, homeUrl, { evidence_type: 'html_link' }) });
-    else if (hostOf(c[k]) === hostOf(v) && urlPath(c[k]) !== urlPath(v) && !/facebook\.com\/(people|pages)\//i.test(v)) add({ field: k, op: 'replace', old: c[k], new: v, confidence: 'medium', hold_reasons: ['replaces existing social link'], reason: 'site links a different account', evidence: ev(`<a href="${v}">`, homeUrl, { evidence_type: 'html_link' }) });
+    const isCfg = sev.kind !== 'href';
+    const e = ev(sev.quote, sev.page, { evidence_type: isCfg ? 'site-config' : 'html_link' });
+    const reasons = [...(isCfg ? ['link found only in site config/JSON, not in the page HTML'] : []), ...(multi ? ['multi-church site: parish-wide link'] : [])];
+    if (!c[k]) add({ field: k, op: 'fill', old: null, new: v, confidence: reasons.length ? 'medium' : 'high', hold_reasons: reasons, reason: isCfg ? 'link in the site\'s own config data' : 'link published on the church site', evidence: e });
+    else if (hostOf(c[k]) === hostOf(v) && urlPath(c[k]) !== urlPath(v) && !/facebook\.com\/(people|pages)\//i.test(v)) add({ field: k, op: 'replace', old: c[k], new: v, confidence: 'medium', hold_reasons: ['replaces existing social link', ...reasons], reason: 'site links a different account', evidence: e });
   }
   if (src === o && o.final_url && hostOf(o.final_url) && hostOf(c.website) && hostOf(o.final_url) !== hostOf(c.website) && !/wix|squarespace/.test(hostOf(o.final_url))) {
     add({ field: 'website', op: 'replace', old: c.website, new: o.final_url, confidence: 'medium', hold_reasons: ['site redirects to a new domain'], reason: 'stored site redirects here', evidence: ev(`redirect ${c.website} -> ${o.final_url}`, o.final_url, { evidence_type: 'http_redirect' }) });
@@ -781,7 +886,15 @@ fs.copyFileSync(INPUT, path.join(roundDir, 'observations.json'));
 const QP = path.join(OUT, 'hold-queue.json');
 let q = { note: 'Full-review HOLD queue. Chaps QA sets qa_status to approved|rejected (+ qa_by, qa_note). apply-full-review-patch.js applies approved rows only. Rows with dry_run=true came from a dry run and are never applied.', holds: [] };
 try { q = JSON.parse(fs.readFileSync(QP, 'utf8')); } catch (_) { }
-q.holds = (q.holds || []).filter(h => h.round !== ROUND).concat(holds);
+// Latest round per church only: a re-reviewed church's older rows leave the queue
+// (history stays in data/full-review/rounds/<round>/hold.json). A QA decision that
+// was approved but never applied is kept, marked superseded, so it is not lost.
+const reviewedNow = new Set(results.map(r => r.id));
+q.holds = (q.holds || []).filter(h => h.round !== ROUND).flatMap(h => {
+  if (!reviewedNow.has(h.church_id)) return [h];
+  if (h.qa_status === 'approved' && !h.dry_run) return [{ ...h, superseded_by: ROUND }];
+  return [];
+}).concat(holds);
 q.updated = new Date().toISOString();
 fs.writeFileSync(QP, JSON.stringify(q, null, 1));
 

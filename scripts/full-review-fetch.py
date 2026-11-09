@@ -168,9 +168,18 @@ SKIP_PATH = re.compile(r"\.(pdf|jpe?g|png|gif|svg|webp|mp[34]|css|js|ico|xml|zip
 FALLBACK_PATHS = ["/about", "/about-us", "/staff", "/leadership", "/our-staff", "/clergy", "/beliefs", "/what-we-believe", "/ministries", "/worship"]
 
 
-def discover(raw, base):
+NAME_STOP = {"st", "saint", "church", "the", "of", "chapel", "umc", "parish", "united", "methodist", "episcopal",
+             "lutheran", "presbyterian", "baptist", "and", "memorial", "first", "community", "fellowship"}
+
+
+def name_tokens(name):
+    return [w for w in re.findall(r"[a-z0-9]+", re.sub(r"['\u2019]", "", str(name or "").lower())) if len(w) >= 4 and w not in NAME_STOP]
+
+
+def discover(raw, base, own_tokens=()):
     host = host_of(base)
     buckets = {k: [] for k, _ in PRIORITY}
+    own = []
     seen = set()
     for m in HREF_RE.finditer(raw):
         u = urllib.parse.urljoin(base, m.group(1).strip()).split("#")[0].split("?")[0].rstrip("/")
@@ -180,11 +189,15 @@ def discover(raw, base):
         if SKIP_PATH.search(pu.path) or u in seen:
             continue
         seen.add(u)
+        # a page named for THIS congregation (e.g. /emmanuel on a three-church parish site)
+        if own_tokens and any(t in pu.path.lower() for t in own_tokens):
+            own.append(u)
+            continue
         for k, rx in PRIORITY:
             if rx.search(pu.path):
                 buckets[k].append(u)
                 break
-    ordered = []
+    ordered = own[:2]
     # round-robin across buckets so one menu section can't eat the budget
     for i in range(6):
         for k, _ in PRIORITY:
@@ -193,23 +206,49 @@ def discover(raw, base):
     return ordered
 
 
+def harvest_socials_ev(raw, page_url, found, ev):
+    """Like lpe.harvest_socials, but records WHERE each link was found: the exact
+    <a ... href=...> tag when the HTML links it, else the exact surrounding snippet
+    of page config/JSON ("site-config"). A site-config find is never presented as
+    an <a href>, and an <a href> anywhere beats a config-only find."""
+    for k, rx in lpe.SOCIAL_RE.items():
+        for m in rx.finditer(raw):
+            u = m.group(0).rstrip('/&"\'')
+            if lpe.BAD_SOCIAL.search(u):
+                continue
+            clean = u.split("?")[0].split("#")[0]
+            seg = urllib.parse.urlparse(clean).path.strip("/").split("/")[0]
+            if re.fullmatch(r"\d{1,6}", seg or ""):
+                continue  # xmlns:fb="http://www.facebook.com/2008/fbml" and post ids are not accounts
+            lt, gt = raw.rfind("<", 0, m.start()), raw.find(">", m.end())
+            tag = raw[lt:gt + 1] if lt >= 0 and gt >= 0 and raw.rfind(">", 0, m.start()) < lt else ""
+            is_href = bool(re.match(r"<a\b", tag, re.I)) and re.search(r"href\s*=\s*[\"']?" + re.escape(m.group(0)[:40]), tag, re.I)
+            kind = "href" if is_href else "site-config"
+            quote = tag[:300] if is_href else raw[max(0, m.start() - 70):min(len(raw), m.end() + 30)]
+            prev = ev.get(k)
+            if prev and (prev["kind"] == "href" or kind == "site-config"):
+                continue
+            found[k] = clean
+            ev[k] = {"url": clean, "kind": kind, "quote": quote, "page": page_url}
+
+
 SOCIAL_HOST = re.compile(r"facebook\.com|youtube\.com|youtu\.be|instagram\.com|twitter\.com|x\.com|linktr\.ee", re.I)
 
 
-def collect_site(start_url):
+def collect_site(start_url, church_name=None):
     """Fetch homepage + prioritized internal pages. Returns dict."""
-    res = {"start_url": start_url, "final_url": None, "pages": [], "attempts": [], "socials": {}}
+    res = {"start_url": start_url, "final_url": None, "pages": [], "attempts": [], "socials": {}, "socials_ev": {}}
     final, status, raw = polite_fetch(start_url)
     res["attempts"].append({"url": start_url, "status": status})
     if not raw:
         return res
     res["final_url"] = final
     base = final.rstrip("/")
-    lpe.harvest_socials(raw, res["socials"])
+    harvest_socials_ev(raw, final, res["socials"], res["socials_ev"])
     txt = page_text(raw)
     if len(txt) > 200:
         res["pages"].append({"url": final, "text": txt, "norm": nrm(txt), "kind": "home"})
-    queue = discover(raw, base) or []
+    queue = discover(raw, base, name_tokens(church_name)) or []
     queue += [base + p for p in FALLBACK_PATHS if (base + p) not in queue]
     tried = {start_url.rstrip("/"), final.rstrip("/")}
     for u in queue:
@@ -222,7 +261,7 @@ def collect_site(start_url):
         res["attempts"].append({"url": u, "status": st2})
         if not raw2:
             continue
-        lpe.harvest_socials(raw2, res["socials"])
+        harvest_socials_ev(raw2, f2, res["socials"], res["socials_ev"])
         t2 = page_text(raw2)
         if len(t2) > 200 and not any(nrm(t2) == p["norm"] for p in res["pages"]):
             res["pages"].append({"url": f2, "text": t2, "norm": nrm(t2), "kind": "inner"})
@@ -557,7 +596,8 @@ def review_pages(base, model, c, site):
     # Page text rides along (capped) so the patch builder and the independent
     # verifier can re-check every quote without re-fetching the church's site.
     obs = {"pages": [{"url": p["url"], "kind": p["kind"], "chars": len(p["text"]), "text": p["text"][:20000]} for p in pages],
-           "attempts": site["attempts"], "final_url": site["final_url"], "socials": site["socials"]}
+           "attempts": site["attempts"], "final_url": site["final_url"], "socials": site["socials"],
+           "socials_ev": site.get("socials_ev", {})}
     if not pages:
         return obs, pages
     obs["identity"] = identity_check(c, pages)
@@ -601,7 +641,7 @@ def main():
             rec["website_is_social"] = site_url
             site_url = ""
         if site_url:
-            site = collect_site(site_url)
+            site = collect_site(site_url, c.get("name"))
             rec["source_kind"] = "website"
         elif c.get("facebook"):
             site = collect_facebook(c["facebook"])
@@ -617,7 +657,7 @@ def main():
         if (idst == "contradicted" or rec["source_kind"] != "website" or not pages) and c.get("name"):
             recov = recover_site(c, host_of(site_url) if site_url else None)
             if recov.get("site"):
-                site2 = collect_site(recov["site"])
+                site2 = collect_site(recov["site"], c.get("name"))
                 obs2, pages2 = review_pages_safe(model, base, c, site2)
                 recov["review"] = obs2
             rec["recovery"] = recov
