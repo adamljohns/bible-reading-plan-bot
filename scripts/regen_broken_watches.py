@@ -53,7 +53,7 @@ def regen_one(ds, wk, passage):
             continue
         body = G.clean_watch(raw, w["header"])
         body = G.normalize_prayer_header(body, w["prayer"])
-        if G.watch_valid(body, w):
+        if G.watch_valid(body, w, dt):  # PJG-1109-HIST1 date-scoped gate
             return body
         print(f"    [{wk}] attempt {attempt} invalid, retrying", flush=True)
     return None

@@ -10,6 +10,8 @@ produce a concrete findings report across four refinement dimensions:
      (formulaic repetition), especially Helm/Rudder closers and prayer lines.
   C. Application sharpness — application bullets duplicated across days, and
      bullets that share no content word with their own passage/reflection.
+  E. (PJG-1109-HIST1) Third Watch missing the "🦅 This Day in American History —"
+     block on days >= 2026-11-10 (override with --gate-from); exits 1 if any.
   D. History facts — every "This Day in American History" event extracted
      (date, year, claim) for downstream verification.
 
@@ -45,6 +47,9 @@ SEP_RE = re.compile(r"^\s*⸻+\s*$")
 BULLET_RE = re.compile(r"^\s*•\s+(.*\S)\s*$")
 HELM_RE = re.compile(r"^\s*⚓\s*(?:Helm Command|Rudder Steer)\s*[:：]\s*(.+?)\s*$")
 HIST_HDR_RE = re.compile(r"🦅\s*This Day in American History")
+# PJG-1109-HIST1: Third Watch must end with this block from the gate date on.
+HIST_BLOCK_MARK = "🦅 This Day in American History —"
+HIST_GATE_FROM = date(2026, 11, 10)
 HIST_EVENT_RE = re.compile(r"^\s*•\s*(\d{3,4})\s*[—\-–]\s*(.+?)\s*$")
 REFLECTION_HDR_RE = re.compile(r"Reflection for\b|Reflection\s*[—-]\s*Man at Home", re.I)
 SECTION_HDR_RE = re.compile(r"^(?:⛏️|🙏|⚓|🦅|🧭|🗺️|🛰️|🌾|🛡️|❤️|👨)")
@@ -194,7 +199,13 @@ def ref_to_keys(ref):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--limit", type=int, default=0)
+    ap.add_argument("--dates", nargs="+", metavar="YYYY-MM-DD",
+                    help="audit only these days (report files are not rewritten)")
+    ap.add_argument("--gate-from", default=HIST_GATE_FROM.isoformat(),
+                    help="E gate start date (default %(default)s); days before it are not gated")
     args = ap.parse_args()
+    gate_from = date.fromisoformat(args.gate_from)
+    e_missing = []  # PJG-1109-HIST1: third watch lacks the history block
 
     vc = json.loads(VERSE_CACHE.read_text())
 
@@ -214,6 +225,8 @@ def main():
         days.append(cur.isoformat()); cur += timedelta(days=1)
     if args.limit:
         days = days[:args.limit]
+    if args.dates:
+        days = sorted(args.dates)
 
     n_watches = 0
     for ds in days:
@@ -221,7 +234,10 @@ def main():
         if not p.exists():
             continue
         md = p.read_text()
-        for wk, wtext in split_watches(md).items():
+        watches = split_watches(md)
+        if date.fromisoformat(ds) >= gate_from and HIST_BLOCK_MARK not in watches.get("third", ""):
+            e_missing.append(ds)
+        for wk, wtext in watches.items():
             n_watches += 1
             w = parse_watch(wtext)
             scrip = w["scripture"]
@@ -306,7 +322,18 @@ def main():
             "duplicate_bullets": c_dupe_bullets,
         },
         "D_history_events": d_history,
+        "E_third_watch_missing_history": {"gate_from": gate_from.isoformat(),
+                                          "dates": e_missing},
     }
+    if args.dates:
+        # Spot audit: report to stdout only so the committed full reports stay whole.
+        print(f"Spot audit: {len(days)} day(s), {n_watches} watches; gate from {gate_from}")
+        for ds in days:
+            print(f"  {ds}: {'MISSING history block' if ds in e_missing else 'ok'}")
+        if e_missing:
+            print(f"FAIL E: third watch lacks '{HIST_BLOCK_MARK}' on {', '.join(e_missing)}")
+            return 1
+        return 0
     OUT_JSON.write_text(json.dumps(findings, ensure_ascii=False, indent=1))
 
     # Human report
@@ -351,8 +378,13 @@ def main():
     print(f"  B repeated helms: {len(b_top_helms)}  repeated intros: {len(b_top_sentences)}")
     print(f"  C duplicate bullets: {len(c_dupe_bullets)}")
     print(f"  D history events: {len(d_history)}")
+    print(f"  E third watch missing history (>= {gate_from}): {len(e_missing)}")
     print(f"  -> {OUT_JSON.name}, {OUT_MD.name}")
+    if e_missing:
+        print(f"FAIL E: third watch lacks '{HIST_BLOCK_MARK}' on {', '.join(e_missing)}")
+        return 1
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

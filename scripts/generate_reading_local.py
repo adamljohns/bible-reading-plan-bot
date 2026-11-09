@@ -468,7 +468,20 @@ def enforce_canonical_scripture(body, ref):
     return new_body
 
 
-def watch_valid(text, w):
+# PJG-1109-HIST1: the Third Watch must carry the history block. Scoped to dates
+# on/after the gate so older days authored without it do not start failing.
+HIST_BLOCK_MARK = "🦅 This Day in American History —"
+HIST_GATE_FROM = date(2026, 11, 10)
+
+
+def third_watch_missing_history(text, on_date):
+    return on_date is not None and on_date >= HIST_GATE_FROM and HIST_BLOCK_MARK not in text
+
+
+def watch_valid(text, w, on_date=None):
+    if w["key"] == "third" and third_watch_missing_history(text, on_date):
+        print("  ⚠ third watch lacks '🦅 This Day in American History —' (PJG-1109-HIST1)", flush=True)
+        return False
     # Reject obvious instruction-text leaks so the watch retries instead of
     # shipping the prompt skeleton as content (e.g. "A one-sentence intro").
     leaks = ["A one-sentence intro", "do NOT echo", "write the actual sentence",
@@ -607,7 +620,7 @@ def main():
             cand = normalize_prayer_header(cand, w["prayer"])
             cand = enforce_canonical_scripture(cand, ref)
             cand = enforce_watch_opening(cand, w["key"], dt)
-            if watch_valid(cand, w):
+            if watch_valid(cand, w, dt):
                 body = cand
                 print(f"  ✓ {w['key']} ({len(cand):,} chars, attempt {attempt})", flush=True)
                 break
@@ -649,7 +662,7 @@ def main():
             body = normalize_prayer_header(body, w["prayer"])
             body = enforce_canonical_scripture(body, ref)
             body = enforce_watch_opening(body, w["key"], dt)
-            if watch_valid(body, w):
+            if watch_valid(body, w, dt):
                 sections.append(body)
                 print(f"  ✓ {w['key']} ({len(body):,} chars, attempt {attempt})", flush=True)
                 ok = True
@@ -659,6 +672,10 @@ def main():
             sys.exit(f"  ABORT: {w['key']} failed after 3 attempts — file not written")
 
     out = ("\n\n" + SEP + "\n\n").join(sections) + "\n"
+    third_sec = next((s for s in sections if s.lstrip().startswith("🕒")), "")
+    if third_watch_missing_history(third_sec, dt):
+        sys.exit("  ABORT: third watch lacks '🦅 This Day in American History —' "
+                 "(PJG-1109-HIST1) — file not written")
     dest = READINGS / f"{args.date}.md"
     dest.write_text(out)
 
