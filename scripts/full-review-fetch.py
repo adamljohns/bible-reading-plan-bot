@@ -478,11 +478,56 @@ def searx(query):
         return []
 
 
+def name_slugs(name):
+    """'Calvary Memorial Church' -> ['calvarymemorial', 'calvarymemorialchurch']."""
+    t = re.sub(r"['\u2019]", "", str(name or "").lower())
+    t = re.sub(r"\bst\.?\s", "st ", t)
+    toks = [w for w in re.findall(r"[a-z0-9]+", t) if w not in ("the", "of", "and", "inc")]
+    core = [w for w in toks if w != "church"]
+    out = []
+    for v in ("".join(core), "".join(toks)):
+        if 4 <= len(v) <= 40 and v not in out:
+            out.append(v)
+    return out
+
+
+def strong_identity(c, pages):
+    """Stored city plus street, ZIP or phone on the page — a city alone is too weak."""
+    idc = identity_check(c, pages)
+    strong = [m for m in idc["matched"] if not m.startswith("city:")]
+    return idc, idc["status"] == "confirmed" and bool(strong) and any(m.startswith("city:") for m in idc["matched"])
+
+
+def probe_name_domains(c, exclude_host, rec):
+    """Free, no search budget: the church's name as .com/.org/.church, accepted only
+    when the page carries the stored address (city + street/ZIP/phone)."""
+    for slug in name_slugs(c.get("name")):
+        for tld in ("com", "org", "church"):
+            home = f"https://www.{slug}.{tld}/"
+            if host_of(home) == exclude_host:
+                continue
+            final, status, raw = polite_fetch(home, timeout=10)
+            txt = page_text(raw) if raw else ""
+            pages = [{"url": final, "text": txt, "norm": nrm(txt)}] if txt else []
+            if not pages:
+                rec["candidates"].append({"url": home, "via": "name-domain probe", "status": status, "identity": "unreachable", "matched": []})
+                continue
+            idc, ok = strong_identity(c, pages)
+            rec["candidates"].append({"url": final, "via": "name-domain probe", "status": status, "identity": idc["status"], "matched": idc["matched"]})
+            if ok:
+                return final
+    return None
+
+
 def recover_site(c, exclude_host):
     st = parse_stored_address(c)
     q = f"\"{c['name']}\" {st['city'] or ''} {st['state']}".strip()
+    rec = {"query": q, "engine": "name-domain probe, then searxng-local", "candidates": [], "site": None}
+    found = probe_name_domains(c, exclude_host, rec)
+    if found:
+        rec["site"] = found
+        return rec
     urls = searx(q)
-    rec = {"query": q, "engine": "searxng-local", "candidates": [], "site": None}
     if urls is None:
         rec["skipped"] = "round search cap reached"
         return rec
@@ -496,11 +541,9 @@ def recover_site(c, exclude_host):
         final, status, raw = polite_fetch(home)
         txt = page_text(raw) if raw else ""
         pages = [{"url": final, "text": txt, "norm": nrm(txt)}] if txt else []
-        idc = identity_check(c, pages) if pages else {"status": "unreachable", "matched": []}
-        rec["candidates"].append({"url": home, "status": status, "identity": idc["status"], "matched": idc["matched"]})
-        # need the stored city AND (street or zip or phone) — a city alone is too weak
-        strong = [m for m in idc["matched"] if not m.startswith("city:")]
-        if idc["status"] == "confirmed" and strong and any(m.startswith("city:") for m in idc["matched"]):
+        idc, ok = strong_identity(c, pages) if pages else ({"status": "unreachable", "matched": []}, False)
+        rec["candidates"].append({"url": home, "via": "searxng", "status": status, "identity": idc["status"], "matched": idc["matched"]})
+        if ok:
             rec["site"] = home
             break
         if len(rec["candidates"]) >= 3:

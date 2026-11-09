@@ -34,7 +34,7 @@ assert.ok(!lanes.fullReviewEligible({ ...base, full_review_hold: '2026-11-08' })
 // builder gates on synthetic data
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'fr-test-'));
 const churches = { churches: [
-  { id: 'aff', name: 'St. A', address: '1 Main St, Townville, VA 22401', state: 'VA', denomination: 'The Episcopal Church', pastor: '', overall_rating: 'yellow', scores: {} },
+  { id: 'aff', name: 'St. A', service_times: 'SUNDAY WORSHIP (Traditional) 10:30 AM', address: '1 Main St, Townville, VA 22401', state: 'VA', denomination: 'The Episcopal Church', pastor: '', overall_rating: 'yellow', scores: {} },
   { id: 'fem', name: 'B Church', address: '2 Oak St, Townville, VA 22401', state: 'VA', denomination: 'Independent', pastor: 'John Old', overall_rating: 'green', scores: { gender: 'green' } },
   { id: 'nameonly', name: 'D Church', address: '4 Ash St, Townville, VA 22401', state: 'VA', denomination: 'Independent', pastor: '', overall_rating: 'yellow', scores: {} },
   { id: 'wrong', name: 'C Church', address: '3 Elm St, Farcity, IL 60301', state: 'IL', denomination: 'EFCA', pastor: 'Pat Other', website: 'https://c.example', overall_rating: 'yellow', scores: {} },
@@ -44,11 +44,15 @@ fs.writeFileSync(CJ, JSON.stringify(churches, null, 2)); // canonical shape for 
 const page = (url, text) => ({ url, kind: 'inner', chars: text.length, text });
 const obs = { model: 'test', observations: [
   { id: 'aff', name: 'St. A', status: 'reviewed', source_kind: 'website', final_url: 'https://a.example/',
-    pages: [page('https://a.example/about', 'St. A Episcopal Church, 1 Main St, Townville. The Rev. Sam Jones is our Rector. We celebrate Pride Sunday every June.')],
+    pages: [page('https://a.example/about', 'St. A Episcopal Church, 1 Main St, Townville. The Rev. Sam Jones is our Rector. We celebrate Pride Sunday every June. Our service meets on Sundays at 10:30 AM.'),
+      page('https://a.example/about/clergy', 'Clergy. The Rev. Jane Roe is our Associate Rector. She leads Morning Prayer.'),
+      page('https://a.example/ministries', 'Young Adult Ministry with Bethel Episcopal Church meets monthly, led by Fr. Sam or Fr. James Rickenbaker.')],
     identity: { status: 'confirmed', matched: ['city:Townville'], stored: { city: 'Townville', state: 'VA' } },
     signals: { affiliation: [{ quote: 'St. A Episcopal Church, 1 Main St, Townville.', url: 'https://a.example/about' }] },
     llm: { lead_pastor: { name: 'Sam Jones', role: 'Rector', pronoun: 'he', quote: 'The Rev. Sam Jones is our Rector.', url: 'https://a.example/about' },
       lgbt_affirming: { quote: 'We celebrate Pride Sunday every June.', url: 'https://a.example/about' },
+      service_times: { quote: 'Our service meets on Sundays at 10:30 AM.', url: 'https://a.example/about' },
+      roster: [{ name: 'Sam Jones', role: 'Rector' }, { name: 'Jane Roe', role: 'The Rev.' }, { name: 'James Rickenbaker', role: 'Fr.' }],
       // a rubric lean with no URL must never become a change
       rubric: { mission: { lean: 'green', quote: 'unsourced', url: null },
         preaching: { lean: 'yellow', quote: 'The Rev. Sam Jones is our Rector.', url: 'https://a.example/about' } } } },
@@ -87,6 +91,14 @@ assert.ok(get('aff').rulings.some(r => r.title === 'needs-ruling: model suggests
 assert.ok(!get('aff').changes.some(x => x.new === 'black'), 'no BLACK without a published rule');
 assert.ok(!ch('aff', 'scores.preaching'), 'off-topic quote must not score preaching');
 assert.ok(!ch('aff', 'scores.scripture'), 'denomination rule does not score scripture');
+// same service-time SET in different words: no change
+assert.ok(!ch('aff', 'service_times'), 'same {Sun 10:30 AM} set must not propose a change');
+// roster: real role (not an honorific), joint-ministry name excluded, lead cited by full name
+const team = ch('aff', 'pastors').new;
+assert.deepStrictEqual(team.map(p => p.name), ['Sam Jones', 'Jane Roe']);
+assert.strictEqual(team[1].role, 'Associate Rector');
+assert.ok(/Sam Jones/.test(ch('aff', 'pastors').evidence.quote));
+assert.ok(get('aff').roster.excluded.some(x => x.name === 'James Rickenbaker' && /Bethel/.test(x.why)));
 assert.strictEqual(ch('aff', 'pastor').new, 'Sam Jones');
 assert.strictEqual(ch('aff', 'pastor').gate, 'auto');
 assert.ok(!ch('aff', 'scores.mission'), 'unsourced lean must not become a change');

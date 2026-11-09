@@ -281,6 +281,105 @@ function nameAffiliation(o, c, rx) {
   return out.sort((x, y) => y.score - x.score)[0] || null;
 }
 
+// ── roster: only people the page ties to THIS church, with a real role ───────
+// A role is an office (Rector, Associate Rector, Senior Pastor, Youth Pastor),
+// never an honorific (Rev., Dr., Fr.). A name counts only with its surname on
+// the cited page, only where the page ties it to this church (staff/clergy page,
+// or prose naming the role here), and never in a joint-ministry, guest or
+// partner context ("… with Aquia Episcopal Church … led by Fr. James …").
+const ROLE_RX = /\b((?:senior|lead|associate|assistant|executive|youth|children['’]?s|student|worship|music|family|interim|teaching|discipleship|outreach|care|pastoral|parish)\s+)?(pastor|rector|vicar|priest[- ]in[- ]charge|priest|curate|deacon|minister|elder|chaplain)\b/i;
+const HONORIFIC_ONLY = /^\s*(the\s+)?((very|right)\s+)?(rev\.?|reverend|dr\.?|fr\.?|father|mother|mtr\.?|pastor|bishop|mr\.?|mrs\.?|ms\.?)(\s+(dr\.?|rev\.?))?\s*\.?\s*$/i;
+const NONCLERGY_RX = /\b(administrat\w*|assistant(?!\s+(pastor|rector|minister|priest|vicar))|director|coordinator|secretary|leader|treasurer|custodian|sexton|organist|pianist|accompanist|attendant|chair(man|woman|person)?|president|clerk|bookkeeper|manager|warden|vestry|music|staff member|volunteer)\b/i;
+const GUEST_RX = /\b(guest|visiting|partner(ship)?|joint(ly)?|co-?host(ed)?|hosted by|special speaker|preacher from|formerly|former|retired|emerit\w*|in memory|memorial service)\b/i;
+const CHURCH_PHRASE_RX = /\b(?:with|from|at|of|or)\s+(?:the\s+)?((?:[A-Z][\w'’.-]*\s+){1,5}(?:Church|Parish|Cathedral|Chapel|UMC))\b/g;
+const titleCase = s => s.toLowerCase().replace(/\b[a-z]/g, m => m.toUpperCase()).replace(/\bIn\b/g, 'in');
+function roleFrom(s) { const m = ROLE_RX.exec(String(s || '')); return m ? titleCase(m[0].replace(/\s+/g, ' ')) : null; }
+function ourTokens(c) {
+  return String(c.name || '').replace(/[’]/g, "'").replace(/\b(st\.?|saint|church|the|of|chapel|umc|parish|united|methodist|episcopal|lutheran|presbyterian|baptist)\b/gi, ' ').split(/\s+/).filter(t => t.length >= 3);
+}
+function rosterTie(o, c, person, isLead) {
+  const name = String(person.name || '').trim();
+  const k = nameKey(name);
+  if (!k || name.split(/\s+/).length < 2) return { ok: false, why: 'no surname' };
+  const toks = ourTokens(c);
+  const cands = [];
+  for (const p of (o && o.pages) || []) {
+    if (!p.text) continue;
+    const g = new RegExp(`\\b${esc(name)}\\b`, 'g');
+    let m, n = 0;
+    while ((m = g.exec(p.text)) && n++ < 10) {
+      // the section around the name (a joint-ministry heading can sit a paragraph above it)
+      const win = p.text.slice(Math.max(0, m.index - 420), Math.min(p.text.length, m.index + name.length + 220));
+      const quote = sentenceAt(p.text, m.index, m.index + name.length);
+      const foreign = [...win.matchAll(CHURCH_PHRASE_RX)].map(x => x[1]).filter(ph => !toks.some(t => ph.includes(t)) && !/Diocese/.test(ph));
+      if (foreign.length || GUEST_RX.test(quote)) { cands.push({ bad: foreign.length ? `named alongside ${foreign[0]}` : 'guest/partner/former context', url: p.url }); continue; }
+      // The role phrase attached to THIS name: "Name – Associate Rector", "Name, Pastor",
+      // or "Associate Rector Name" — but not the previous person's role in a
+      // "Name – Role Name – Role" list (a role right after a dash belongs to the name before it).
+      const after = p.text.slice(m.index + name.length, m.index + name.length + 80);
+      const am = after.match(/^\s*(?:[,–—:|]|-\s|\s-)?\s*(?:the\s+)?((?:[A-Z][\w'’]*|of|and|&)(?:\s+(?:[A-Z][\w'’]*|of|and|&)){0,5})/);
+      const afterPhrase = am ? am[1] : '';
+      const before = p.text.slice(Math.max(0, m.index - 45), m.index).replace(/((the\s+)?(rev\.?|reverend|dr\.?|fr\.?|father|mother)\s*)+$/i, '');
+      const bm = before.match(new RegExp(`(${ROLE_RX.source})\\s+$`, 'i'));
+      const beforeRole = bm && !/[–—-]\s*$/.test(before.slice(0, before.length - bm[0].length)) ? bm[1] : null;
+      const roleProse = new RegExp(`\\b${esc(name)}\\b[^.]{0,80}\\b(is|serves as|was called (to be |as )?|became|has served as|joined us as)\\s+(our|the|an?)?\\s*${ROLE_RX.source}`, 'i').test(quote);
+      const phrase = [afterPhrase, beforeRole, roleProse ? quote : null, !HONORIFIC_ONLY.test(person.role || '') ? person.role : null].find(x => x && (ROLE_RX.test(x) || NONCLERGY_RX.test(x)));
+      const rawRole = phrase ? (ROLE_RX.test(phrase) && !(NONCLERGY_RX.test(phrase) && NONCLERGY_RX.exec(phrase).index < ROLE_RX.exec(phrase).index) ? roleFrom(phrase) : null) : null;
+      const nonClergy = phrase && (!rawRole || /^(music|worship)\b/i.test(rawRole)) ? (phrase.match(NONCLERGY_RX) || [rawRole])[0] : null;
+      if (nonClergy) { cands.push({ bad: `non-clergy role ("${clip(phrase, 40)}")`, nonclergy: true, url: p.url }); continue; }
+      const role = rawRole;
+      const tied = PAGE_KIND(p.url) === 'staff' || roleProse || (role && PAGE_KIND(p.url) !== 'other');
+      if (!tied) { cands.push({ bad: 'not tied to this church on the page (no staff page, no role here)', url: p.url }); continue; }
+      cands.push({ ok: true, name, role, quote, url: p.url, score: quality(quote, p.url, [[ROLE_RX, 2], [new RegExp(esc(name)), 1]]) + (role ? 2 : 0) });
+    }
+  }
+  const good = cands.filter(x => x.ok).sort((a, b) => b.score - a.score);
+  if (!good.length) return { ok: false, why: ((cands.find(x => /named alongside|guest/.test(x.bad || '')) || cands.find(x => x.nonclergy) || cands.find(x => x.bad)) || {}).bad || 'full name not on any fetched page' };
+  const g0 = good[0];
+  const role = g0.role || good.map(x => x.role).find(Boolean) || null;
+  if (!role) return { ok: false, why: 'no pastoral role stated (non-clergy or unknown)', nonclergy: true };
+  return { ok: true, name, role, quote: g0.quote, url: g0.url };
+}
+
+// ── service times as a SET of day+time tokens ("Sun 10:30 AM") ───────────────
+// A page sentence and a stored value that list the same services are the same
+// value; only a different SET is a change, and the change writes the structured
+// value, never the page sentence.
+const DAYS = [['Sun', /^sun/i], ['Mon', /^mon/i], ['Tue', /^tue/i], ['Wed', /^wed/i], ['Thu', /^thu/i], ['Fri', /^fri/i], ['Sat', /^sat/i]];
+const NOT_WORSHIP = /^\s*[-–—:]?\s*(\(?[a-z ]{0,12}\)?\s*)?(sunday school|school|fellowship|class|classes|bible study|study|coffee|breakfast|office|hours|choir|rehearsal|adult ed|education|youth|nursery|meeting|lunch|dinner|potluck)/i;
+function parseServiceTimes(str) {
+  const s = String(str || '');
+  const toks = new Set();
+  const rx = /\b(sun(?:day)?s?|mon(?:day)?s?|tue(?:s(?:day)?)?s?|wed(?:nesday)?s?|thu(?:r(?:s(?:day)?)?)?s?|fri(?:day)?s?|sat(?:urday)?s?)\b|\b(noon)\b|\b(\d{1,2})(?::(\d{2}))?\s*(a\.?\s?m\.?|p\.?\s?m\.?)?(?![\d/])/gi;
+  let day = null, m;
+  const anyDay = /\b(sun|mon|tue|wed|thu|fri|sat)/i.test(s);
+  const worshipy = /worship|service|eucharist|mass|liturg|rite|prayer|celebrat/i.test(s);
+  while ((m = rx.exec(s))) {
+    if (m[1]) { day = (DAYS.find(([, r]) => r.test(m[1])) || [null])[0]; continue; }
+    let h, mi = '00', ap;
+    if (m[2]) { h = 12; ap = 'PM'; }
+    else {
+      h = +m[3]; mi = m[4] || '00'; ap = m[5] ? (/p/i.test(m[5]) ? 'PM' : 'AM') : null;
+      if (!m[4] && !m[5]) continue;                 // a bare number is not a time
+      if (h < 1 || h > 12 || +mi > 59) continue;
+      if (!ap) ap = h >= 7 && h <= 11 ? 'AM' : 'PM';
+    }
+    if (NOT_WORSHIP.test(s.slice(m.index + m[0].length, m.index + m[0].length + 30))) continue;
+    const d = day || (!anyDay && worshipy ? 'Sun' : null);
+    if (!d) continue;
+    toks.add(`${d} ${h}:${mi} ${ap}`);
+  }
+  return toks;
+}
+const DAY_ORDER = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
+const tmin = t => { const [, hm, ap] = t.split(' '); let [h, m] = hm.split(':').map(Number); if (ap === 'PM' && h !== 12) h += 12; if (ap === 'AM' && h === 12) h = 0; return h * 60 + m; };
+function formatServiceTimes(set) {
+  const by = {};
+  for (const t of set) { const d = t.split(' ')[0]; (by[d] = by[d] || []).push(t); }
+  return Object.keys(by).sort((a, b) => DAY_ORDER[a] - DAY_ORDER[b]).map(d => `${d} ` + by[d].sort((a, b) => tmin(a) - tmin(b)).map(t => t.split(' ').slice(1).join(' ')).join(', ')).join('; ');
+}
+const sameSet = (a, b) => a.size === b.size && [...a].every(x => b.has(x));
+
 // ── per-church review ────────────────────────────────────────────────────────
 function review(o) {
   const c = byId.get(o.id);
@@ -315,9 +414,21 @@ function review(o) {
       detail: `Stored website ${c.website} describes a congregation outside ${o.identity.stored.city}, ${o.identity.stored.state}; nothing on it names the stored city, street or ZIP.` });
     const rec = o.recovery || {};
     const recovered = rec.site && rec.review && (rec.review.identity || {}).status === 'confirmed' ? rec.review : null;
-    add({ field: 'website', op: recovered ? 'replace' : 'research', old: c.website || null, new: recovered ? rec.site : null,
-      confidence: 'low', reason: recovered ? `local search found a site naming ${o.identity.stored.city}` : 'stored site is another church; real site not found by local search',
-      evidence: e, evidence_more: recovered ? [{ quote: (rec.review.identity.matched || []).join(', '), url: rec.site }] : [{ quote: `search: ${rec.query || 'n/a'}`, url: 'http://127.0.0.1:8888 (SearXNG, local)' }] });
+    // A recovered site is proposed with the quote that carries the stored street
+    // address on it (always HOLD; a new website is an identity change).
+    const stA = o.identity.stored || {};
+    const addrQ = recovered && stA.street_no && stA.street_word
+      ? best(scan(recovered, new RegExp(`\\b${esc(stA.street_no)}\\s+${esc(stA.street_word)}`, 'i')), [[new RegExp(esc(stA.city || '#'), 'i'), 3]]) : null;
+    const via = recovered ? ((rec.candidates || []).find(x => x.url === rec.site) || {}).via || 'search' : null;
+    if (recovered && addrQ) {
+      add({ field: 'website', op: 'replace', old: c.website || null, new: rec.site, confidence: 'low',
+        reason: `${via} found a site that prints the stored address (${(rec.review.identity.matched || []).join(', ')})`,
+        evidence: ev(addrQ.quote, addrQ.url), evidence_more: e ? [{ ...e, why: 'stored website describes another church' }] : [] });
+    } else {
+      add({ field: 'website', op: 'research', old: c.website || null, new: null, confidence: 'low',
+        reason: 'stored site is another church; no candidate site (name-domain probe, local search) prints the stored address',
+        evidence: e, evidence_more: [{ quote: `tried: ${(rec.candidates || []).map(x => x.url).join(', ') || 'none'}; search: ${rec.query || 'n/a'}`, url: 'http://127.0.0.1:8888 (SearXNG, local)' }] });
+    }
     holdAll.push('identity_mismatch');
     // Stored pastor/roster that came off the wrong site.
     const wrongLead = L.lead_pastor;
@@ -360,9 +471,10 @@ function review(o) {
     // Strongest quote naming the lead: a staff/about sentence beats nav text.
     // For a female lead the pronoun bio is the better pastor evidence (it carries name, role and gender).
     const gq = femaleLead && !genderPerson.stored && /pastor|rector|priest|minister|vicar/i.test(femaleLead.g.quote) ? { quote: femaleLead.g.quote, url: femaleLead.g.url } : null;
-    const leadQ = best([gq, lead.quote ? { quote: lead.quote, url: lead.url } : null,
-      ...scan(src, new RegExp(`\\b${esc(lead.name)}\\b`))], [[/pastor|rector|priest|minister|vicar|senior|lead/i, 2]]) || { quote: lead.name, url: lead.url };
-    const e = ev(leadQ.quote, leadQ.url);
+    const hasName = x => x && nrm(x.quote).includes(nrm(lead.name));
+    const leadQ = best([lead.quote ? { quote: lead.quote, url: lead.url } : null,
+      ...scan(src, new RegExp(`\\b${esc(lead.name)}\\b`))].filter(hasName), [[/pastor|rector|priest|minister|vicar|senior|lead/i, 2]]) || { quote: lead.name, url: lead.url };
+    const e = ev(leadQ.quote, leadQ.url, gq && !nrm(leadQ.quote).includes(nrm(gq.quote)) ? { bio_quote: gq.quote, bio_url: gq.url } : {});
     const leadRole = LEAD_ROLE.test(lead.role || '') && !NONLEAD_ROLE.test(lead.role || '');
     const unconfirmedFemale = rulings.some(r => r.type === 'unconfirmed');
     if (c.pastor && !isPlaceholderPastor(c.pastor) && sameName(lead.name, c.pastor)) {
@@ -384,13 +496,19 @@ function review(o) {
       add({ field: 'pastor_source', op: 'set', old: c.pastor_source || null, new: leadQ.url, confidence: high ? 'high' : 'medium', hold_reasons: high ? [] : ['rides with pastor change'], reason: 'source of the pastor value', evidence: e, rides_with: 'pastor' });
       add({ field: 'pastor_fetched_at', op: 'set', old: c.pastor_fetched_at || null, new: TODAY, confidence: high ? 'high' : 'medium', hold_reasons: high ? [] : ['rides with pastor change'], reason: 'stamp', evidence: e, rides_with: 'pastor' });
     }
-    const roster = (L.roster || []).filter(p => !sameName(p.name, lead.name));
-    if (roster.length) {
-      const team = [{ name: lead.name, role: (lead.role || 'Lead Pastor').slice(0, 60) }, ...roster.slice(0, 8).map(p => ({ name: p.name, role: (p.role || 'Pastor').slice(0, 60) }))];
+    const leadTie = rosterTie(src, c, lead, true);
+    const tied = [], excluded = [];
+    for (const p of (L.roster || []).filter(p => !sameName(p.name, lead.name)).slice(0, 12)) {
+      const t = rosterTie(src, c, p, false);
+      if (t.ok) tied.push(t); else excluded.push({ name: p.name, model_role: p.role || null, why: t.why });
+    }
+    out.roster = { kept: tied.map(t => ({ name: t.name, role: t.role, url: t.url })), excluded };
+    if (tied.length && leadTie.ok) {
+      const team = [{ name: lead.name, role: (leadTie.role || roleFrom(lead.role) || 'Pastor').slice(0, 60) }, ...tied.slice(0, 8).map(t => ({ name: t.name, role: t.role.slice(0, 60) }))];
       const cur = Array.isArray(c.pastors) ? c.pastors : [];
       const same = cur.length === team.length && cur.every((p, i) => sameName(p.name, team[i].name));
-      const wins = roster.slice(0, 8).map(p => best(scan(src, new RegExp(`\\b${esc(p.name)}\\b`)), [[/pastor|rector|priest|elder|deacon|minister/i, 2]])).filter(Boolean);
-      if (!same && wins.length) add({ field: 'pastors', op: cur.length ? 'replace' : 'set', old: cur, new: team, confidence: 'medium', reason: 'roster as listed on the church site', hold_reasons: [], evidence: ev(wins[0].quote, wins[0].url), evidence_more: wins.slice(1).map(w => ev(w.quote, w.url)), rides_with: 'pastor' });
+      if (!same) add({ field: 'pastors', op: cur.length ? 'replace' : 'set', old: cur, new: team, confidence: 'medium', reason: 'clergy roster as the church site lists it (each name tied to this church with a role)', hold_reasons: [],
+        evidence: ev(leadQ.quote, leadQ.url), evidence_more: tied.slice(0, 8).map(t => ev(t.quote, t.url, { name: t.name, role: t.role })), rides_with: 'pastor' });
     }
   }
 
@@ -472,7 +590,7 @@ function review(o) {
       note: `No published rule maps this evidence to BLACK (the only BLACK rule is "${RULES.prosperity.text}"). Highest level a rule supports: ${(supported || 'none').toUpperCase()}. Chaps and Adam decide; if they rule, publish the rule on the methodology page.` });
   }
   const womenQ = [L.women_in_office && FEMALE_MARK.test(L.women_in_office.quote) ? L.women_in_office : null];
-  for (const p of (L.roster || []).filter(p => PASTORAL_ROLE.test(p.role || '') && !/deacon/i.test(p.role || ''))) {
+  for (const p of ((out.roster || {}).kept || []).filter(p => !/deacon/i.test(p.role || ''))) {
     const g = genderEvidence(src, p.name);
     if (g && g.verdict === 'female') womenQ.push({ quote: g.quote, url: g.url, who: p.name });
     else if (!g && looksFemaleFirstName(p.name)) {
@@ -497,8 +615,13 @@ function review(o) {
   if (st) {
     const have = c.service_times || (typeof c.services === 'string' ? c.services : '');
     const placeholder = !have || /see website|verify|^sunday morning \(see/i.test(have);
-    if (placeholder) add({ field: 'service_times', op: 'fill', old: have || null, new: st.quote, confidence: 'high', reason: 'times quoted from the church site', evidence: ev(st.quote, st.url) });
-    else if (nrm(have) !== nrm(st.quote) && !nrm(st.quote).includes(nrm(have).slice(0, 20))) add({ field: 'service_times', op: 'replace', old: have, new: st.quote, confidence: 'medium', hold_reasons: ['replaces existing times'], reason: 'site lists different times', evidence: ev(st.quote, st.url) });
+    const pageSet = parseServiceTimes(st.quote), haveSet = parseServiceTimes(have);
+    out.service_times = { stored: have || null, stored_tokens: [...haveSet], page_tokens: [...pageSet] };
+    if (pageSet.size && (placeholder || !haveSet.size || !sameSet(pageSet, haveSet))) {
+      const value = formatServiceTimes(pageSet);
+      if (placeholder || !have) add({ field: 'service_times', op: 'fill', old: have || null, new: value, confidence: 'high', reason: `times read from the church site: {${[...pageSet].join(', ')}}`, evidence: ev(st.quote, st.url) });
+      else add({ field: 'service_times', op: 'replace', old: have, new: value, confidence: 'medium', hold_reasons: [haveSet.size ? `stored {${[...haveSet].join(', ')}} != site {${[...pageSet].join(', ')}}` : 'stored value has no parseable day+time'], reason: 'site lists a different set of service times', evidence: ev(st.quote, st.url) });
+    }
   }
   const sig = k => firstSignal(src, k);
   const fd = L.founded || (sig('founded') ? { quote: sig('founded').quote, url: sig('founded').url, year: +((sig('founded').match.match(/\d{4}/) || [])[0]) } : null);
@@ -515,6 +638,9 @@ function review(o) {
   for (const k of ['facebook', 'instagram', 'youtube']) {
     const v = (src.socials || {})[k];
     if (!v) continue;
+    // harvest junk: numeric post/photo ids and share widgets are not an account
+    const seg = urlPath(v).split('/').filter(Boolean)[0] || '';
+    if (/^\d{1,6}$/.test(seg) || /^(sharer|share|plugins|tr|dialog|groups|events|watch)$/i.test(seg)) continue;
     if (!c[k]) add({ field: k, op: 'fill', old: null, new: v, confidence: 'high', reason: 'link published on the church site', evidence: ev(`<a href="${v}">`, homeUrl, { evidence_type: 'html_link' }) });
     else if (hostOf(c[k]) === hostOf(v) && urlPath(c[k]) !== urlPath(v) && !/facebook\.com\/(people|pages)\//i.test(v)) add({ field: k, op: 'replace', old: c[k], new: v, confidence: 'medium', hold_reasons: ['replaces existing social link'], reason: 'site links a different account', evidence: ev(`<a href="${v}">`, homeUrl, { evidence_type: 'html_link' }) });
   }
@@ -531,6 +657,14 @@ function review(o) {
     }
   }
 
+  // A recovered site that names the current pastor supersedes the plain "clear"
+  // of the wrong-church name: keep one pastor change, carrying both pieces of evidence.
+  const rep = out.changes.find(x => x.field === 'pastor' && x.op !== 'clear');
+  const clr = out.changes.find(x => x.field === 'pastor' && x.op === 'clear');
+  if (rep && clr) {
+    rep.evidence_more = dedupeEv([...(rep.evidence_more || []), { ...clr.evidence, why: 'stored pastor is listed on the other church\'s site' }], rep.evidence);
+    out.changes = out.changes.filter(x => x !== clr);
+  }
   finishGates(out, c, holdAll);
   dupFlags(out, c, src);
   return out;
