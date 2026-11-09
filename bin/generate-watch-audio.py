@@ -483,12 +483,32 @@ def speak_acronyms(text):
 
 BOAZ_BY_LANG = {"b": "[Boaz](/bˌQˈæz/)", "a": "[Boaz](/bˌOˈæz/)"}
 
+# Principal 2026-11-08 (John 4:37 "One sows and another reaps"): misaki's POS
+# tagger read "sows" as the noun (female pig, /saʊz/). Seed-sowing rhymes with
+# "so". Force the verb unless an article sits right before it (2 Pet 2:22 "a sow").
+# British voices take Q (əʊ); American voices take O (oʊ).
+SOW_VOWEL_BY_LANG = {"b": "Q", "a": "O"}
+SOW_RE = re.compile(r"(?<!\[)\b([Ss])ow(s?)\b(?!\]\()")
+SOW_PIG_BEFORE = re.compile(r"\b(?:a|the)\s+$", re.I)
+
+
+def apply_sow_verb(text, lang=None):
+    v = SOW_VOWEL_BY_LANG.get(lang or NARRATOR_LANG, "O")
+
+    def _sub(m):
+        if SOW_PIG_BEFORE.search(text[max(0, m.start() - 6):m.start()]):
+            return m.group(0)
+        return f"[{m.group(1)}ow{m.group(2)}](/sˈ{v}{'z' if m.group(2) else ''}/)"
+
+    return SOW_RE.sub(_sub, text)
+
 
 def apply_lexicon(text, lang=None):
     text = speak_acronyms(text)
     text = speak_refs(text)
     text = apply_bow_homage(text)
     text = apply_homograph_context(text)
+    text = apply_sow_verb(text, lang)
     lex = dict(LEXICON)
     lex["Boaz"] = BOAZ_BY_LANG.get(lang or NARRATOR_LANG, LEXICON["Boaz"])
     for word, marked in lex.items():
