@@ -131,6 +131,20 @@ EMOJI_RE = re.compile(
 )
 
 
+# PJG-1109-EAR1 phoneme locks: respell words the TTS mispronounces.
+# Gentiles = JEN-tiles (rhymes with tile), Principal ear-QA 2026-11-09.
+PRONOUNCE_LEXICON = [
+    (r"\bGentiles\b", "Jen-tiles"),
+    (r"\bGentile\b", "Jen-tile"),
+]
+
+
+def apply_pronounce_lexicon(text):
+    for pat, rep in PRONOUNCE_LEXICON:
+        text = re.sub(pat, rep, text)
+    return text
+
+
 def watch_text_for_tts(body):
     """Convert one watch's markdown body into clean spoken-word text."""
     out_lines = []
@@ -176,6 +190,7 @@ def watch_text_for_tts(body):
     # Collapse multiple blank lines, then join
     text = "\n".join(out_lines)
     text = re.sub(r"\n{3,}", "\n\n", text).strip()
+    text = apply_pronounce_lexicon(text)
     return text
 
 

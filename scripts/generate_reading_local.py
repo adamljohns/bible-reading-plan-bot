@@ -333,7 +333,10 @@ def build_watch_messages(w, ref, month, daynum, on_date: date):
         f"BANNED stock line (1 Cor 15:58 may be the scripture of the day; it is not a closer): "
         f"'labor in the Lord is not in vain' and close variants. Do not use it in reflection, application, or prayer."
     )
-    parts.append(f"12. A final line beginning '{w['close']}' with a one-line charge imperative (not Helm/Rudder/Course Set).")
+    parts.append(f"12. A final line beginning '{w['close']}' with a one-line charge imperative (not Helm/Rudder/Course Set). "
+                 "PJG-1109-EAR1: the charge OPENS with the directive verb (command first, ground second), never a description "
+                 "(bad: 'Christ dwells in Maria too. Speak well of her'; good: 'Speak well of Maria ... Christ dwells in her too.'). "
+                 "Never write 'God's energy' / 'Your energy' / 'His energy' anywhere; say His working / His power.")
     if w["extra"]:
         extra = (w["extra"]
                  .replace("{MD}", f"{month} {daynum}")
@@ -462,7 +465,12 @@ def watch_valid(text, w):
         r"\bCourse Set\b",
         r"Prayer from the (?:Stateroom|Wardroom|Bridge)",
         r"As the head of your home,\s*Maria",
+        r"\b(?:God's|Your|His|divine) energy\b",  # PJG-1109-EAR1
     ]
+    # PJG-1109-EAR1: Watch Charge must open with a directive, not a description.
+    ch_m = re.search(r"Watch Charge:\s*(\S+)", text)
+    if ch_m and ch_m.group(1).lower().strip(",.") in {"christ","god","the","he","his","this","there","it","your","you","we","a","an","our"}:
+        return False
     for pat in ban_res:
         if re.search(pat, text, re.I):
             return False
