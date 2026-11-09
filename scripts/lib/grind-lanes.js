@@ -44,6 +44,26 @@ const sourceRecoveryExhausted = c => isSbcSource(c) &&
   Number(c._sbc_detail_failures || 0) >= 3;
 const pastorExhausted = c => pastorFetchable(c) && !c._hold_review && alreadyAttempted(c) && noPastorStrikes(c) >= 2;
 
+// ── Full-review lane (2026-11-08, Chaps ticket) ─────────────────────────────
+// A full review re-reads a church's own site end to end: existence, the CURRENT
+// pastor (real imported names included — the fresh/retry lanes only ever see
+// placeholders), all ten rubric categories, profile fields, duplicates. It
+// writes a review patch + HOLD queue, never churches.json directly.
+// Eligible = US + English name + something to read (website or Facebook) +
+// not fully reviewed in the last FULL_REVIEW_COOLDOWN_DAYS + no QA hold already
+// pending from an earlier full review.
+const FULL_REVIEW_COOLDOWN_DAYS = Number(process.env.FULL_REVIEW_COOLDOWN_DAYS || 180);
+const hasFacebook = c => typeof c.facebook === 'string' && /facebook\.com\//i.test(c.facebook);
+function fullReviewEligible(c, now = Date.now()) {
+  if (!c || !c.id || c.defunct) return false;
+  if (!isEnglish(c.name) || !isUS(c)) return false;
+  if (!hasWebsite(c) && !hasFacebook(c)) return false;
+  if (c.full_review_hold) return false;
+  const at = Date.parse(c.full_review_at || '');
+  if (Number.isFinite(at) && now - at < FULL_REVIEW_COOLDOWN_DAYS * 86400e3) return false;
+  return true;
+}
+
 function grindStatsPath(root) {
   return path.join(root || path.join(__dirname, '..', '..'), 'docs/data/grind-stats.json');
 }
@@ -161,4 +181,5 @@ module.exports = {
   noPastorStrikes, pastorFetchable, freshEligible, retryEligible, socialEligible,
   websiteDiscoveryEligible, isSbcSource, sourceRecoveryEligible, sourceRecoveryExhausted, pastorExhausted,
   countLanes, chooseLane, loadEmptyStreaks, persistEmptyStreaks, recordLaneHop, isApplyLaneCold,
+  FULL_REVIEW_COOLDOWN_DAYS, hasFacebook, fullReviewEligible,
 };

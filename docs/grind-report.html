@@ -48,6 +48,10 @@
   <div class="bars" id="bars"></div>
   <h2>Recent rounds</h2>
   <div style="overflow-x:auto"><table id="rounds"><thead><tr><th>When (UTC)</th><th>Mode</th><th>Attempted</th><th>Pastors</th><th>Content fields</th><th>Records updated</th><th>Pool left</th><th>Total pastors</th><th>Socials</th></tr></thead><tbody></tbody></table></div>
+  <h2>Full review rounds <span style="font-size:.7rem;color:var(--gray);font-weight:400">(pastor re-check · 10-category rubric · profile fill · duplicates — every change cites a quote + URL)</span></h2>
+  <div class="cards" id="fr-cards"><div class="card"><div class="label">Loading…</div></div></div>
+  <div style="overflow-x:auto"><table id="fr-rounds"><thead><tr><th>Round</th><th>Kind</th><th>Reviewed</th><th>Unreachable / JS-only</th><th>Wrong-church</th><th>Changed</th><th>Auto</th><th>Held</th><th>Applied</th></tr></thead><tbody></tbody></table></div>
+  <div class="note" id="fr-note">Proposals that move a church to RED or BLACK, move it off GREEN, or are below high confidence wait in the HOLD queue for Chaps QA before anything reaches a church page. Dry runs are shown for transparency and never apply.</div>
   <h2>Newest verified finds (QA sample — what Chaps audits)</h2>
   <div class="finds" id="finds"></div>
   <div class="note">Every name shown was verified to appear verbatim on the fetched church page before it could land; the merge layer additionally rejects junk-shaped names and holds typically-female-named leads for manual rubric review. Chaps re-audits the newest finds every 3 days and reports to Adam's Telegram.</div>
@@ -160,6 +164,28 @@
   } catch (e) {
     $('cards').innerHTML = '<div class="err">Report failed to render. ' + (e && e.message ? e.message : e) + '</div>';
   }
+})();
+// Full-review counts (2026-11-08). Separate series file so the yield gate and the
+// pastor-lane charts above never mistake a review round for an enrichment hop.
+(async function () {
+  const $ = id => document.getElementById(id);
+  let fr;
+  try { fr = await (await fetch('/data/full-review-stats.json', {cache:'no-store'})).json(); }
+  catch (e) { $('fr-cards').innerHTML = '<div class="err">No full-review rounds recorded yet.</div>'; return; }
+  const rows = fr.series || [];
+  const live = rows.filter(r => !r.dry_run);
+  const sum = (rs, k) => rs.reduce((a, r) => a + (r[k] || 0), 0);
+  const pending = fr.pending_holds || 0;
+  const card = (label, val, sub) => `<div class="card"><div class="label">${label}</div><div class="big">${Number(val).toLocaleString()}</div>${sub ? `<div class="base">${sub}</div>` : ''}</div>`;
+  const dry = rows.filter(r => r.dry_run);
+  $('fr-cards').innerHTML =
+    card('Churches reviewed', sum(live, 'reviewed'), `${live.length} live round(s)` + (dry.length ? ` · ${sum(dry, 'reviewed')} more in ${dry.length} dry run(s)` : '')) +
+    card('Churches changed', sum(live, 'changed'), `${sum(live, 'changes_total')} cited field changes proposed` + (dry.length ? ` · dry runs: ${sum(dry, 'changed')}` : '')) +
+    card('Held for QA', sum(live, 'held'), `${pending} pending in the queue` + (dry.length ? ` · dry runs: ${sum(dry, 'held')}` : '')) +
+    card('Applied', sum(live, 'applied') + sum(live, 'applied_holds'), `${sum(live, 'applied')} auto · ${sum(live, 'applied_holds')} QA-approved`);
+  $('fr-rounds').querySelector('tbody').innerHTML = rows.slice(-15).reverse().map(r =>
+    `<tr><td>${r.round}</td><td>${r.dry_run ? 'dry run' : 'live'}</td><td class="num">${r.reviewed ?? ''}</td><td>${(r.unreachable ?? 0) + (r.unreadable_js ?? 0)}</td><td>${r.identity_mismatch ?? ''}</td><td class="num">${r.changed ?? ''}</td><td class="num">${r.auto ?? ''}</td><td class="num">${r.held ?? ''}</td><td class="num">${r.dry_run ? '—' : ((r.applied || 0) + (r.applied_holds || 0))}</td></tr>`).join('')
+    || '<tr><td colspan="9">No rounds yet.</td></tr>';
 })();
 </script>
 </body>

@@ -16,6 +16,8 @@
  *
  * Usage:
  *   node scripts/select-enrichment-batch.js [--count 60] [--batches 3] [--out /tmp]
+ *   node scripts/select-enrichment-batch.js --full-review [--count 25] [--include id1,id2] [--out /tmp]
+ *     (full-review mode writes <out>/full-review-batch.json; see full-review-round.sh)
  *
  * Writes <out>/enrich-batch-1.json .. -<batches>.json (deterministic id-sorted,
  * round-robin split) — each an array of {id,name,city,state,website,denomination}.
@@ -84,6 +86,84 @@ const inScope = c => {
   if (regionRe && !regionRe.test([c.name, c.city, c.address, c.id].filter(Boolean).join(' '))) return false;
   return true;
 };
+
+// --full-review (2026-11-08, Chaps ticket): select for a FULL review round —
+// pastor re-check (real names included), all ten rubric categories, profile
+// fill, duplicate/identity flags. Output goes to scripts/full-review-fetch.py,
+// whose findings become a review patch + HOLD queue (never a direct write).
+// Selection order (lexicographic):
+//   (a) denomination ordains women (affirming mainline first: TEC, ELCA,
+//       PCUSA, UCC, UMC, Disciples, RCA, MCUSA; then ABC-USA, CBF, ...)
+//   (b) within FULL_REVIEW_RADIUS_MI (25) of Fredericksburg, VA
+//   (c) yellow / assessment pending, oldest review first
+//   (d) everything else, oldest review first
+//   --count N (default 25, max 60)   --include id1,id2 (forced to the front)
+if (args.includes('--full-review')) {
+  const { denomPrior } = require('./lib/denomination-priors.js');
+  const FXBG = [38.3032, -77.4605];
+  const RADIUS = Number(process.env.FULL_REVIEW_RADIUS_MI || 25);
+  const N = Math.max(1, Math.min(60, parseInt(opt('--count', '25'), 10) || 25));
+  const include = opt('--include', '').split(',').map(s => s.trim()).filter(Boolean);
+  const miles = (a, b) => {
+    const R = 3958.8, rad = x => x * Math.PI / 180;
+    const dLa = rad(b[0] - a[0]), dLo = rad(b[1] - a[1]);
+    const h = Math.sin(dLa / 2) ** 2 + Math.cos(rad(a[0])) * Math.cos(rad(b[0])) * Math.sin(dLo / 2) ** 2;
+    return 2 * R * Math.asin(Math.sqrt(h));
+  };
+  const nearFxbg = c => {
+    const la = parseFloat(c.latitude), lo = parseFloat(c.longitude);
+    if (Number.isFinite(la) && Number.isFinite(lo)) return miles(FXBG, [la, lo]) <= RADIUS;
+    return c.region === 'fxbg';
+  };
+  const pending = c => c.overall_rating === 'yellow' || /assessment pending|not yet reviewed|needs local evaluation/i.test(String(c.overall_label || ''));
+  // "Oldest" = the most recent review-ish date we hold; none on file = oldest of all.
+  const reviewedAt = c => {
+    const ds = [c.last_reviewed, c.pastor_fetched_at, c.full_review_at]
+      .map(v => Date.parse(v || '')).filter(Number.isFinite);
+    return ds.length ? Math.max(...ds) : 0;
+  };
+  // Churches with a PENDING hold from an earlier (not yet applied) full review
+  // stay out until Chaps clears them, exactly like _hold_review in the pastor lanes.
+  const heldIds = new Set();
+  try {
+    const hq = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'full-review', 'hold-queue.json'), 'utf8'));
+    (hq.holds || []).filter(h => h.qa_status === 'pending' && !h.dry_run).forEach(h => heldIds.add(h.church_id));
+  } catch (_) { /* no queue yet */ }
+  const now = Date.now();
+  const pool = churches.filter(c => lanes.fullReviewEligible(c, now) && !heldIds.has(c.id) && inScope(c));
+  const key = c => {
+    const d = denomPrior(c);
+    const a = d && d.ordains_women ? (d.affirming ? 0 : 1) : 2;
+    return [a, nearFxbg(c) ? 0 : 1, pending(c) ? 0 : 1, reviewedAt(c)];
+  };
+  const cmp = (x, y) => { for (let i = 0; i < x.k.length; i++) if (x.k[i] !== y.k[i]) return x.k[i] - y.k[i]; return String(x.c.id).localeCompare(String(y.c.id)); };
+  const ranked = pool.map(c => ({ c, k: key(c) })).sort(cmp);
+  const byId = new Map(churches.map(c => [c.id, c]));
+  const forced = include.map(id => byId.get(id)).filter(Boolean);
+  const missing = include.filter(id => !byId.has(id));
+  const pick = [...forced, ...ranked.map(r => r.c).filter(c => !include.includes(c.id))].slice(0, N);
+  const tierOf = c => { const k = key(c); return k[0] < 2 ? 'a-ordains-women' : k[1] === 0 ? 'b-fxbg-25mi' : k[2] === 0 ? 'c-yellow-pending' : 'd-rest'; };
+  const rich = c => ({
+    id: c.id, name: c.name, city: c.city || null, state: c.state, address: c.address || null,
+    website: hasWebsiteStr(c.website) ? c.website : null, facebook: c.facebook || null,
+    denomination: c.denomination || c.denomination_family || null, denomination_family: c.denomination_family || null,
+    pastor: c.pastor || null, overall_rating: c.overall_rating || null,
+    latitude: c.latitude ?? null, longitude: c.longitude ?? null,
+    selection_tier: include.includes(c.id) ? 'forced (--include)' : tierOf(c),
+  });
+  const tiers = {};
+  ranked.forEach(r => { const t = tierOf(r.c); tiers[t] = (tiers[t] || 0) + 1; });
+  // Same line shape as the other modes so shell callers can size the round.
+  console.log(`Eligible pool (FULL-REVIEW, pastor-fetchable): ${pool.length}`);
+  console.log(`  tiers: ${Object.entries(tiers).sort().map(([k, v]) => `${k}=${v}`).join(' ')}`);
+  if (missing.length) console.log(`  WARNING --include ids not found: ${missing.join(', ')}`);
+  const f = path.join(OUT, 'full-review-batch.json');
+  fs.writeFileSync(f, JSON.stringify(pick.map(rich), null, 2));
+  console.log(`  wrote ${f}: ${pick.length} churches`);
+  console.log(`Selected ${pick.length} of ${pool.length} eligible (full review).`);
+  process.exit(0);
+}
+function hasWebsiteStr(w) { return typeof w === 'string' && /^https?:\/\/[^/\s]/i.test(w); }
 
 const laneEligible = churches.filter(c =>
   SOCIAL ? socialEligible(c)
