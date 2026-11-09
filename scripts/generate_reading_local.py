@@ -66,6 +66,48 @@ PRAYER_CLOSES = {
     "peace": "For the sake of Christ our King, I pray. Amen.",
 }
 
+# PJG-1109-PRAY2 — Principal 2026-11-09: vary opening address, Spirit line and close
+# per Watch. Rotated by day of year (deterministic on rerun). One Christ title per close.
+PRAYER_CLOSE_POOLS = {
+    "wisdom": ["In Jesus' name, I pray. Amen.",
+               "In the name of Christ, who is made unto us wisdom, I pray. Amen.",
+               "In Jesus' name. Amen."],
+    "first": ["In the name of Jesus Christ, I pray. Amen.",
+              "In the name of Christ, who loved the church, I pray. Amen.",
+              "For the glory of Christ, I pray. Amen."],
+    "second": ["Through Christ my Savior, I pray. Amen.",
+               "Through Jesus Christ, Your Son, I pray. Amen.",
+               "In Jesus' name, I pray. Amen."],
+    "third": ["In the name of the risen Lord Jesus, I pray. Amen.",
+              "In the name of Christ the King, I pray. Amen.",
+              "In the name of Jesus, who reigns, I pray. Amen."],
+    "peace": ["For the sake of Christ our King, I pray. Amen.",
+              "In the name of Jesus, my Shepherd, I pray. Amen.",
+              "Resting in Christ, I pray in His name. Amen."],
+}
+PRAYER_OPENINGS = {
+    "wisdom": ["Lord God, giver of wisdom", "Father of lights",
+               "O LORD, who gives wisdom to all who ask", "Lord"],
+    "first": ["Lord God, who made us male and female",
+              "Lord Jesus, who loved the church and gave Yourself for her", "Father", "Lord"],
+    "second": ["Dear Heavenly Father", "Our Father in heaven", "Abba, Father", "Father of mercies"],
+    "third": ["God on high", "Mighty King", "Sovereign Lord",
+              "King of kings and Lord of lords", "Judge of all the earth"],
+    "peace": ["Lord of peace", "Shepherd of my soul", "O LORD, my keeper", "Faithful God"],
+}
+SPIRIT_LINE_EXAMPLES = [
+    "By the power of Your Holy Spirit, ...",
+    "Let Your Holy Spirit strengthen me to ...",
+    "Thank You for the Spirit's prompting; make me quick to obey it when ...",
+    "Fill me with Your Spirit, that I may ...",
+    "Holy Spirit, work in me to ...",
+    "Let the Spirit who raised Christ from the dead give me strength to ...",
+]
+
+
+def prayer_pick(pool, on_date):
+    return pool[on_date.timetuple().tm_yday % len(pool)]
+
 # PJG-1001-INTRO1 — the three relational watches open from their named station,
 # not with an interchangeable devotional sentence. Keep the generated,
 # passage-specific sentence after this fixed opening instead of replacing it.
@@ -170,7 +212,7 @@ WATCHES = [
      "refl": "🌾 Reflection for a Man of God",
      "traitset": None,
      "prayer": "🙏 Prayer", "close": "🛡️ Watch Charge:",
-     "extra": "PJG-0824-PEACE1: header exactly '🌾 Reflection for a Man of God'. Reflection is pastor-to-the-man: you/your only — ban I/me/my/mine as the reflection speaker. Prayer stays first person (I/me/my) to God; one complete sentence per line; last line exactly 'For the sake of Christ our King, I pray. Amen.' No summary block and no Personal Application bullets. After the scripture and a ⸻ rule, write the 🌾 reflection weaving the three roles in three short paragraphs (one each beginning 'As a HAPPY husband,', 'As a FULFILLED father,', 'As a RESOLUTE citizen,'), then the prayer, then the Watch Charge. Diction = what Adam / a pastor would say aloud. Ban comic-book 'the Avenger' and do not repeat 'the avenger' in the reflection (say enemy/foe). Ban 'O the LORD' — write 'O LORD, our Lord'."},
+     "extra": "PJG-0824-PEACE1: header exactly '🌾 Reflection for a Man of God'. Reflection is pastor-to-the-man: you/your only — ban I/me/my/mine as the reflection speaker. Prayer stays first person (I/me/my) to God; one complete sentence per line; last line exactly the close line given in item 11 No summary block and no Personal Application bullets. After the scripture and a ⸻ rule, write the 🌾 reflection weaving the three roles in three short paragraphs (one each beginning 'As a HAPPY husband,', 'As a FULFILLED father,', 'As a RESOLUTE citizen,'), then the prayer, then the Watch Charge. Diction = what Adam / a pastor would say aloud. Ban comic-book 'the Avenger' and do not repeat 'the avenger' in the reflection (say enemy/foe). Ban 'O the LORD' — write 'O LORD, our Lord'."},
 ]
 
 VOICE = (
@@ -249,7 +291,8 @@ def build_watch_messages(w, ref, month, daynum, on_date: date):
     g_age = age_on("Gideon", on_date)
     b_age = age_on("Boaz", on_date)
     s_age = age_on("Shiloh", on_date)
-    close_line = PRAYER_CLOSES[w["key"]]
+    close_line = prayer_pick(PRAYER_CLOSE_POOLS[w["key"]], on_date)
+    open_addr = prayer_pick(PRAYER_OPENINGS[w["key"]], on_date)
     parts = []
     parts.append(f"Write ONE watch of a daily Bible reading. Output ONLY its markdown, starting with the exact header line below and ending with the {w['close']} line.\n")
     parts.append("EXACT SECTION ORDER:")
@@ -326,7 +369,10 @@ def build_watch_messages(w, ref, month, daynum, on_date: date):
         f"never we/us/our as the praying subject; never 'Brother Adam' or any self-vocative; never 'this father'). "
         f"The praying man is ONE man: heir, not heirs; head, not heads; a husband, a father, and a citizen, "
         f"never husbands/fathers/citizens. "
-        f"Open to 'Father', include a line beginning 'By the power of Your Holy Spirit', write ONE complete sentence per line "
+        f"Open the prayer addressing God exactly as '{open_addr},' (then continue the sentence). "
+        f"Include ONE line asking the Holy Spirit's help, worded freshly for today's text in the spirit of these "
+        f"examples (do NOT copy one verbatim): {' | '.join(SPIRIT_LINE_EXAMPLES)}. "
+        f"Never 'activate', 'tap into', 'channel', or 'Your energy' about God or the Spirit. Write ONE complete sentence per line "
         f"(item 9 — do not glue sentences), and close with EXACTLY: "
         f"'{close_line}' — one Christ title only, last line. BANNED closes: 'my Lord Jesus Christ', 'my Lord and Commander', "
         f"any double full Christ title stack, 'we pray'. "
@@ -509,7 +555,8 @@ def watch_valid(text, w):
             return False
     return (w["header"][:6] in text
             and "📖 Scripture" in text
-            and "By the power of Your Holy Spirit" in text
+            and re.search(r"\bSpirit\b", text.split("🙏", 1)[-1]) is not None
+            and not re.search(r"\b(?:activate|tap into|channel)\b", text.split("🙏", 1)[-1], re.I)
             and "Amen." in text
             and ("🛡️ Watch Charge:" in text or "Watch Charge:" in text)
             and "Yahweh" not in text)
@@ -616,7 +663,7 @@ def main():
     dest.write_text(out)
 
     wh = sum(out.count(h["header"][:6]) for h in WATCHES)
-    tri = out.count("By the power of Your Holy Spirit")
+    tri = sum(1 for sec in sections if re.search(r"\bSpirit\b", sec.split("🙏", 1)[-1]))
     print(f"  ✓ wrote {dest.name}: {out.count(chr(10))+1} lines, {len(out):,} chars; "
           f"watch_headers={wh}/5 trinity={tri}/5 LORD={out.count('LORD')}")
     if wh < 5 or tri < 5:
