@@ -111,6 +111,176 @@ function around(o, name, url) {
 }
 function onPages(o, needle) { const n = nrm(needle); return n.length > 3 && pagesText(o).some(p => p.norm.includes(n)); }
 
+// ── published rules (docs/directory-methodology.html) ────────────────────────
+// Ratings follow WRITTEN rules only. A category score or overall rating is
+// proposed only when one of these rules — whose text must appear verbatim on the
+// methodology page at build time — maps the evidence to that level. The rule's
+// own text is cited next to the church-page quote. Anything the model or a
+// keyword signal suggests beyond what a rule supports becomes a separate HOLD
+// item ("needs-ruling: …") for Chaps and Adam, never a proposed score.
+// To let the engine score something new (e.g. a men's-ministry GREEN), publish
+// the rule on the methodology page first, then add it here.
+const METH_PATH = path.join(ROOT, 'docs', 'directory-methodology.html');
+const METH_TEXT = (() => { try { return nrm(fs.readFileSync(METH_PATH, 'utf8').replace(/<[^>]+>/g, ' ').replace(/&amp;/g, '&').replace(/&rarr;/g, '→')); } catch (_) { return ''; } })();
+const RULES = {
+  female_senior: { text: 'Female senior pastor → RED minimum.', context: 'The directory holds a complementarian position on the church office of elder / pastor.',
+    level: 'red', dims: ['gender', 'leadership'], short: 'female senior pastor' },
+  affirming_denom: { text: 'LGBTQ-affirming denomination → RED minimum.', context: METHODOLOGY_QUOTE.replace(/^LGBTQ-affirming denomination → RED minimum\.\s*/, ''),
+    level: 'red', dims: ['denominational'], short: 'LGBTQ-affirming denomination' },
+  prosperity: { text: 'Prosperity gospel → BLACK.', context: null, level: 'black', dims: [], short: 'prosperity gospel' },
+};
+for (const [k, r] of Object.entries(RULES)) {
+  r.key = k;
+  r.published = !!METH_TEXT && METH_TEXT.includes(nrm(r.text)) && (!r.context || METH_TEXT.includes(nrm(r.context)));
+  if (!r.published) console.error(`WARNING: rule "${r.text}" not found verbatim on ${METH_PATH} — rule disabled`);
+}
+const ruleCite = r => ({ text: r.text, context: r.context, url: METHODOLOGY_URL });
+
+// A category score needs an on-topic quote: one that actually addresses it.
+const TOPIC = {
+  scripture: /scripture|bible|word of god|inerran|infallib|inspired|authority/i,
+  christology: /jesus|christ|son of god|savio|trinity|deity|incarnat/i,
+  gender: /\b(wom[ae]n|m[ae]n|male|female|she|her|husband|wife|spouse|gender|sexual|orientation|lgbt\w*|marriage|ordain\w*|complementarian|egalitarian)\b/i,
+  soteriology: /salvation|saved|grace|faith alone|justif|redeem|atone|forgive|\bsin/i,
+  preaching: /preach|sermon|homil|exposit|pulpit|verse.by.verse/i,
+  cultural: /justice|diversity|equity|inclusi|orientation|lgbt|pride|gender|racial|affirming|prosperity|wealth/i,
+  leadership: /pastor|elder|rector|priest|vicar|minister|vestry|deacon|bishop|leader|board|session|council|staff/i,
+  mission: /mission|gospel|evangel|great commission|disciple|nations|outreach|share/i,
+  mens_discipleship: /(^|[^A-Za-z])men(['’]s)?\b|brotherhood/i,
+  denominational: /denominat|diocese|conference|synod|presbytery|convention|association|network|episcopal|methodist|lutheran|presbyterian|baptist|anglican|united church|communion/i,
+};
+const onTopic = (d, q) => !!(TOPIC[d] && TOPIC[d].test(String(q || '').replace(/wom[ae]n['’]?s?/gi, d === 'mens_discipleship' ? ' ' : '$&')));
+
+// ── evidence ranking: prefer staff/about prose over menu and nav lines ───────
+const PAGE_KIND = u => { const p = urlPath(u); if (/staff|leader|clergy|team|rector|pastor|priest|who-we-are|meet|elder|our-priest/.test(p)) return 'staff'; if (/about|history|story|believ|faith|mission|welcome|new/.test(p)) return 'about'; return p === '' ? 'home' : 'other'; };
+function navLike(q) { const w = String(q).split(/\s+/).filter(Boolean); const caps = w.filter(x => /^[A-Z&|]/.test(x)).length; return w.length >= 6 && caps / w.length > 0.55 && !/[a-z][.!?]["'”’)]?(\s|$)/.test(q); }
+function quality(q, url, prefer = []) {
+  let s = ({ staff: 3, about: 2, home: 0, other: 1 })[PAGE_KIND(url)];
+  if (/[a-z][.!?]["'”’)]?(\s|$)/.test(q)) s += 2;
+  if (navLike(q)) s -= 5;
+  if (/send email|\(\d{3}\)\s?\d{3}-\d{4}|menu|log ?in|member area/i.test(q)) s -= 2;
+  if (q.length >= 30 && q.length <= 280) s += 1;
+  for (const [rx, w] of prefer) if (rx.test(q)) s += w;
+  return s;
+}
+// Sentence boundaries that are not abbreviations ("St. Mary's", "The Rev. Jay").
+const ABBR = /\b(St|Rev|Dr|Mr|Mrs|Ms|Fr|Jr|Sr|Mt|Ft|Hon|Msgr|Ave|Rd|Blvd|Inc|[A-Z])$/;
+function isBoundary(text, i) { return /[.!?]/.test(text[i]) && text[i + 1] === ' ' && !(text[i] === '.' && ABBR.test(text.slice(Math.max(0, i - 5), i))); }
+function prevBoundary(text, from) { for (let i = from - 1; i >= 0; i--) if (isBoundary(text, i)) return i; return -1; }
+function nextBoundary(text, from) { for (let i = from; i < text.length - 1; i++) if (isBoundary(text, i)) return i; return -1; }
+// Verbatim, word-bounded, roughly sentence-bounded window around [start,end).
+function sentenceAt(text, start, end, cap = 280) {
+  const back = prevBoundary(text, start);
+  let a = back >= 0 && start - back <= cap ? back + 2 : start;
+  if (a === start) { // nav/menu text has no sentence boundary: keep only a leading title word or two
+    const pre = text.slice(Math.max(0, start - 40), start).match(/((?:(?:Meet|Our|The|Senior|Lead|Pastor|Rev\.?|Reverend|Fr\.|Father|Mother|Rector|Dr\.|St\.|Saint)\s+){1,3})$/);
+    if (pre) a = start - pre[1].length;
+  }
+  const nb = nextBoundary(text, end);
+  let b = nb >= 0 ? nb + 1 : text.length;
+  if (b - end > cap) b = Math.min(text.length, end + 120);
+  if (b - a > cap + 120) { a = Math.max(a, start - 120); b = Math.min(b, end + 160); }
+  while (a > 0 && /\S/.test(text[a - 1])) a--;
+  while (b < text.length && /\S/.test(text[b])) b++;
+  return text.slice(a, b).trim();
+}
+function scan(o, rx, prefer = []) {
+  const out = [];
+  for (const p of (o && o.pages) || []) {
+    if (!p.text) continue;
+    const g = new RegExp(rx.source, rx.flags.includes('g') ? rx.flags : rx.flags + 'g');
+    let m, n = 0;
+    while ((m = g.exec(p.text)) && n++ < 25) {
+      const q = sentenceAt(p.text, m.index, m.index + m[0].length);
+      if (!out.some(x => x.quote === q)) out.push({ quote: q, url: p.url, match: m[0] });
+      if (!m[0].length) g.lastIndex++;
+    }
+  }
+  return out.map(x => ({ ...x, score: quality(x.quote, x.url, prefer) })).sort((a, b) => b.score - a.score);
+}
+function best(cands, prefer = []) {
+  return cands.filter(x => x && x.quote && x.url).map(x => ({ ...x, score: quality(x.quote, x.url, prefer) })).sort((a, b) => b.score - a.score)[0] || null;
+}
+// Drop evidence that repeats (or merely wraps) a quote already cited.
+function dedupeEv(list, primary) {
+  const seen = primary ? [nrm(primary.quote)] : [];
+  return (list || []).filter(Boolean).filter(e => { const q = nrm(e.quote); if (!q || seen.some(x => x.includes(q) || q.includes(x))) return false; seen.push(q); return true; });
+}
+const esc = s => String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+// Gender must rest on page evidence: pronouns or a spouse in the person's own
+// bio. A first-name list alone is never enough (it goes to HOLD "unconfirmed").
+const FEM_RX = /\b(she|her|hers|herself)\b/gi, MASC_RX = /\b(he|him|his|himself)\b/gi;
+function genderEvidence(o, name) {
+  const k = nameKey(name);
+  if (!k) return null;
+  const parts = String(name).replace(/\(.*?\)/g, ' ').replace(TITLE_RE, ' ').trim().split(/\s+/);
+  const first = parts[0], last = parts[parts.length - 1];
+  const needles = [name, `${first} ${last}`, /^[A-Z][a-z]{2,}$/.test(first) ? first : null].filter(Boolean);
+  const found = [];
+  for (const p of (o && o.pages) || []) {
+    if (!p.text) continue;
+    for (const nd of new Set(needles)) {
+      const g = new RegExp(`\\b${esc(nd)}\\b`, 'g');
+      let m, n = 0;
+      while ((m = g.exec(p.text)) && n++ < 10) {
+        const win = p.text.slice(m.index, m.index + 420);
+        // stop the bio window at the next titled person who is not this one
+        const nextP = win.slice(nd.length).search(/\b(Pastor|Rev\.?|Reverend|Fr\.|Father|Mother|Deacon|Elder)\s+(?!${esc(first)}\b|${esc(last)}\b)[A-Z][a-z]+/);
+        const bio = nextP > 0 ? win.slice(0, nd.length + nextP) : win;
+        const fem = (bio.match(FEM_RX) || []).length, masc = (bio.match(MASC_RX) || []).length;
+        const verdict = fem > masc ? 'female' : masc > fem ? 'male' : null;
+        if (!verdict) continue;
+        const mk = (verdict === 'female' ? /\b(she|her|hers|herself)\b/i : /\b(he|him|his|himself)\b/i).exec(bio);
+        const mAbs = m.index + mk.index;
+        const sb = nextBoundary(p.text, mAbs);
+        const qEnd = sb >= 0 && sb - mAbs < 240 ? sb + 1 : Math.min(p.text.length, mAbs + 120);
+        const titled = p.text.slice(Math.max(0, m.index - 20), m.index).match(/((?:Pastor|Rev\.?|Reverend|Fr\.|Father|Mother|Dr\.|The)\s+)+$/);
+        let quote = p.text.slice(m.index - (titled ? titled[0].length : 0), qEnd).trim();
+        let more = [];
+        if (quote.length > 420) { quote = sentenceAt(p.text, mAbs, mAbs + mk[0].length); more = [{ quote: sentenceAt(p.text, m.index, m.index + nd.length), url: p.url }]; }
+        const sp = /\b(husband|wife|spouse|partner)\b/i.exec(bio);
+        const spouse = sp ? { quote: sentenceAt(p.text, m.index + sp.index, m.index + sp.index + sp[0].length), url: p.url } : null;
+        found.push({ verdict, fem, masc, quote, url: p.url, evidence_more: more, spouse, score: quality(quote, p.url) + Math.abs(fem - masc) - (mAbs - m.index) / 60 });
+      }
+    }
+  }
+  return found.sort((a, b) => b.score - a.score)[0] || null;
+}
+const FEMALE_MARK = /\b(she|her|hers|wife|woman|women|mother|mrs\.?|ms\.?|female|sister)\b/i;
+const LGBT_RX = /open and affirming|reconciling (congregation|ministries|community|church)|more light (presbyterian|congregation)|reconciling in christ|\blgbtq?i?a?\+?|\bpride (month|sunday|service|celebration|parade|flag)|all sexual orientations|regardless of (your |their )?(sexual orientation|gender identity)|\bhis husband\b|\bher wife\b|marriage equality|\b(inclusive of|regardless of)\b[^.]{0,60}\b(sexual )?orientation/i;
+const PROSPERITY_RX = /prosperity gospel|seed[- ]faith|sow (a|your) seed|word of faith|name it and claim it|hundred-?fold return/i;
+const MENS_RX = /(?<![A-Za-z])men['’]?s (ministry|ministries|bible study|breakfast|group|fellowship|retreat|prayer|discipleship|small group)|\bbrotherhood\b|united methodist men|episcopal church men|\bmen of (faith|god|valor|the word|honor|grace)\b/i;
+const KIDS_RX = /children['’]?s (ministry|ministries|church|chapel|programs?)|kids['’]? ?(ministry|church|zone|club)|sunday school|\bnursery\b|vacation bible school|\bvbs\b|\bawana\b|youth group|youth ministry/i;
+const BIO_PENALTY = [/\b(served|serving) as\b|\bordain|seminary|graduat|\bpastor for\b|his wife|her husband|married|members at|call(ed)? to (ministry|serve)|appointed|degree|school for/i, -4];
+// The church's own name as printed on its site, e.g. "St. Mary's Episcopal Church":
+// the cleanest affiliation evidence there is.
+function nameAffiliation(o, c, rx) {
+  const toks = String(c.name || '').replace(/[’]/g, "'").replace(/\b(st\.?|saint|church|the|of|chapel|umc|parish|united|methodist|episcopal|lutheran|presbyterian)\b/gi, ' ').trim().split(/\s+/).filter(t => t.length >= 3);
+  if (!toks.length) return null;
+  const out = [];
+  for (const p of (o && o.pages) || []) {
+    if (!p.text) continue;
+    const g = new RegExp(rx.source, rx.flags.includes('g') ? rx.flags : rx.flags + 'g');
+    let m, n = 0;
+    while ((m = g.exec(p.text)) && n++ < 30) {
+      const w0 = Math.max(0, m.index - 50);
+      const win = p.text.slice(w0, m.index + m[0].length).replace(/[’]/g, "'");
+      const hitsT = [...win.matchAll(new RegExp(`\\b${esc(toks[0])}\\b`, 'g'))];
+      if (!hitsT.length) continue;
+      let a = w0 + hitsT[hitsT.length - 1].index;
+      const pre = p.text.slice(Math.max(0, a - 20), a).match(/((?:St\.|Saint|The|Church of the)\s+)$/);
+      if (pre) a -= pre[1].length;
+      let b = m.index + m[0].length;
+      const tail = p.text.slice(b).match(/^(\s+(Church|Parish|Chapel))\b/);
+      if (tail) b += tail[1].length;
+      const q = p.text.slice(a, b).trim();
+      if (q.length <= 90 && !out.some(x => x.quote === q)) out.push({ quote: q, url: p.url, score: 6 + ({ about: 1, staff: 0, home: 1, other: 0 })[PAGE_KIND(p.url)] });
+    }
+  }
+  return out.sort((x, y) => y.score - x.score)[0] || null;
+}
+
 // ── per-church review ────────────────────────────────────────────────────────
 function review(o) {
   const c = byId.get(o.id);
@@ -166,14 +336,37 @@ function review(o) {
 
   // ── 1. pastor + roster ────────────────────────────────────────────────────
   const lead = L.lead_pastor;
-  let femaleLead = null;
+  const rulings = out.rulings = [];
+  const ruling = r => { if (r.evidence && r.evidence.quote && r.evidence.url) rulings.push(r); };
+  let femaleLead = null;          // { name, g } — confirmed by page evidence
+  let genderPerson = null;        // the lead (or stored pastor) whose gender we test
+  if (lead && lead.name) genderPerson = { name: lead.name, url: lead.url };
+  else if (c.pastor && !isPlaceholderPastor(c.pastor)) {
+    const bare = c.pastor.replace(/\(.*?\)/g, ' ').replace(TITLE_RE, ' ').replace(/\s+/g, ' ').trim();
+    if (onPages(src, bare)) genderPerson = { name: bare, url: null, stored: true };
+  }
+  if (genderPerson) {
+    const g = genderEvidence(src, genderPerson.name);
+    if (g && g.verdict === 'female') femaleLead = { name: genderPerson.name, g };
+    else if (!g && (looksFemaleFirstName(genderPerson.name) || (lead && lead.pronoun === 'she' && !genderPerson.stored))) {
+      const nq = best(scan(src, new RegExp(`\\b${esc(genderPerson.name)}\\b`), [[/pastor|rector|priest|minister|vicar/i, 2]]));
+      ruling({ type: 'unconfirmed', title: `unconfirmed: female lead pastor "${genderPerson.name}" (first-name list only; no pronoun, spouse or explicit role on the page)`,
+        suggested: 'red', supported: null, evidence: nq ? ev(nq.quote, nq.url) : null,
+        note: 'No rating is proposed from a name list. QA: confirm from the church (bio, photo, phone) before any RED.' });
+    }
+    if (g) genderPerson.g = g;
+  }
   if (lead && lead.name) {
-    const isFemale = lead.pronoun === 'she' || looksFemaleFirstName(lead.name);
-    if (isFemale) femaleLead = lead;
-    const e = ev(lead.quote || lead.name, lead.url);
+    // Strongest quote naming the lead: a staff/about sentence beats nav text.
+    // For a female lead the pronoun bio is the better pastor evidence (it carries name, role and gender).
+    const gq = femaleLead && !genderPerson.stored && /pastor|rector|priest|minister|vicar/i.test(femaleLead.g.quote) ? { quote: femaleLead.g.quote, url: femaleLead.g.url } : null;
+    const leadQ = best([gq, lead.quote ? { quote: lead.quote, url: lead.url } : null,
+      ...scan(src, new RegExp(`\\b${esc(lead.name)}\\b`))], [[/pastor|rector|priest|minister|vicar|senior|lead/i, 2]]) || { quote: lead.name, url: lead.url };
+    const e = ev(leadQ.quote, leadQ.url);
     const leadRole = LEAD_ROLE.test(lead.role || '') && !NONLEAD_ROLE.test(lead.role || '');
+    const unconfirmedFemale = rulings.some(r => r.type === 'unconfirmed');
     if (c.pastor && !isPlaceholderPastor(c.pastor) && sameName(lead.name, c.pastor)) {
-      add({ field: 'pastor_source', op: 'confirm', old: c.pastor_source || null, new: lead.url, confidence: 'high', reason: `stored pastor "${c.pastor}" confirmed on the church's own site`, evidence: e });
+      add({ field: 'pastor_source', op: 'confirm', old: c.pastor_source || null, new: leadQ.url, confidence: 'high', reason: `stored pastor "${c.pastor}" confirmed on the church's own site`, evidence: e });
       add({ field: 'pastor_fetched_at', op: 'confirm', old: c.pastor_fetched_at || null, new: TODAY, confidence: 'high', reason: 'stamp', evidence: e });
     } else {
       const placeholder = isPlaceholderPastor(c.pastor);
@@ -181,13 +374,14 @@ function review(o) {
       const reasons = [];
       if (!lead.quote) reasons.push('no role sentence quoted');
       if (!leadRole) reasons.push(`role "${lead.role || '?'}" not clearly senior/lead`);
-      if (isFemale) reasons.push('female senior/lead pastor -> RED minimum; QA');
+      if (femaleLead) reasons.push('female senior/lead pastor (page evidence) -> RED minimum; QA');
+      if (unconfirmedFemale) reasons.push('female lead unconfirmed (first-name list only)');
       if (storedStillListed) reasons.push(`stored "${c.pastor}" still appears on the site`);
       const high = !reasons.length;
       add({ field: 'pastor', op: placeholder ? 'set' : 'replace', old: c.pastor || '', new: lead.name, role: lead.role || null,
         confidence: high ? 'high' : 'medium', reason: high ? (placeholder ? 'lead named verbatim with role on own site' : `stored "${c.pastor}" not on the site; current lead named verbatim with role`) : reasons.join('; '),
         hold_reasons: high ? [] : reasons, evidence: e });
-      add({ field: 'pastor_source', op: 'set', old: c.pastor_source || null, new: lead.url, confidence: high ? 'high' : 'medium', hold_reasons: high ? [] : ['rides with pastor change'], reason: 'source of the pastor value', evidence: e, rides_with: 'pastor' });
+      add({ field: 'pastor_source', op: 'set', old: c.pastor_source || null, new: leadQ.url, confidence: high ? 'high' : 'medium', hold_reasons: high ? [] : ['rides with pastor change'], reason: 'source of the pastor value', evidence: e, rides_with: 'pastor' });
       add({ field: 'pastor_fetched_at', op: 'set', old: c.pastor_fetched_at || null, new: TODAY, confidence: high ? 'high' : 'medium', hold_reasons: high ? [] : ['rides with pastor change'], reason: 'stamp', evidence: e, rides_with: 'pastor' });
     }
     const roster = (L.roster || []).filter(p => !sameName(p.name, lead.name));
@@ -195,96 +389,107 @@ function review(o) {
       const team = [{ name: lead.name, role: (lead.role || 'Lead Pastor').slice(0, 60) }, ...roster.slice(0, 8).map(p => ({ name: p.name, role: (p.role || 'Pastor').slice(0, 60) }))];
       const cur = Array.isArray(c.pastors) ? c.pastors : [];
       const same = cur.length === team.length && cur.every((p, i) => sameName(p.name, team[i].name));
-      // Evidence is a verbatim window around each listed name (one per member).
-      const wins = roster.slice(0, 8).map(p => around(src, p.name, p.url)).filter(Boolean);
-      if (!same && wins.length) add({ field: 'pastors', op: cur.length ? 'replace' : 'set', old: cur, new: team, confidence: 'medium', reason: 'roster as listed on the church site', hold_reasons: [], evidence: ev(wins[0].quote, wins[0].url), evidence_more: wins.slice(1), rides_with: 'pastor' });
+      const wins = roster.slice(0, 8).map(p => best(scan(src, new RegExp(`\\b${esc(p.name)}\\b`)), [[/pastor|rector|priest|elder|deacon|minister/i, 2]])).filter(Boolean);
+      if (!same && wins.length) add({ field: 'pastors', op: cur.length ? 'replace' : 'set', old: cur, new: team, confidence: 'medium', reason: 'roster as listed on the church site', hold_reasons: [], evidence: ev(wins[0].quote, wins[0].url), evidence_more: wins.slice(1).map(w => ev(w.quote, w.url)), rides_with: 'pastor' });
     }
   }
 
-  // ── 2. rubric ─────────────────────────────────────────────────────────────
-  const cand = Object.fromEntries(DIMS.map(d => [d, []]));
-  const put = (dims, rating, strength, basis, e) => { if (!e) return; for (const d of dims) cand[d].push({ rating, strength, basis, evidence: e }); };
-  const sig = k => firstSignal(src, k);
-  const lgbt = L.lgbt_affirming || sig('lgbt_affirming');
-  if (lgbt) put(['gender', 'cultural'], 'black', 3, 'LGBT-affirming statement on the church\'s own site', ev(lgbt.quote, lgbt.url));
-  if (femaleLead) put(['gender', 'leadership'], 'red', 3, `female senior/lead pastor (${femaleLead.name})`, ev(femaleLead.quote || femaleLead.name, femaleLead.url));
-  const womenRoster = (L.roster || []).find(p => PASTORAL_ROLE.test(p.role || '') && !/deacon/i.test(p.role || '') && looksFemaleFirstName(p.name));
-  const rosterQuote = womenRoster ? (around(src, womenRoster.name, womenRoster.url) || { quote: womenRoster.name, url: womenRoster.url }) : null;
-  const women = L.women_in_office || sig('women_ordained') || (womenRoster ? { ...rosterQuote, role: womenRoster.role } : null);
-  if (women) put(['gender', 'leadership'], 'red', 3, womenRoster && women.role ? `woman listed in pastoral office (${womenRoster.name}, ${womenRoster.role})` : 'women in pastoral/elder office', ev(women.quote, women.url));
-  const comp = L.complementarian || sig('complementarian');
-  if (comp) put(['gender', 'leadership'], 'green', 2, 'pastor/elder office limited to men', ev(comp.quote, comp.url));
-  const conf = L.confession || sig('confession');
-  if (conf) {
-    const nm = conf.name || conf.match || 'confession';
-    put(['scripture', 'soteriology', 'christology'], 'green', 2, `confessional standard (${nm})`, ev(conf.quote, conf.url));
-    if (/baptist faith (and|&) message|bf&m/i.test(nm + ' ' + conf.quote) && /2000/.test(nm + ' ' + conf.quote)) put(['gender'], 'green', 2, 'BFM 2000: office of pastor limited to men', ev(conf.quote, conf.url));
+  // ── 2. rubric: written rules only ─────────────────────────────────────────
+  const hits = []; // { rule, evidence, evidence_more, basis }
+  if (femaleLead && RULES.female_senior.published) {
+    const g = femaleLead.g;
+    hits.push({ rule: RULES.female_senior, basis: `female senior/lead pastor (${femaleLead.name}); the site's own bio uses "${g.fem > 0 ? 'she/her' : ''}"`,
+      evidence: ev(g.quote, g.url), evidence_more: dedupeEv([...(g.evidence_more || []), g.spouse].filter(Boolean).map(x => ev(x.quote, x.url)), g) });
   }
-  const mens = L.mens_ministry || sig('mens_ministry');
-  if (mens) put(['mens_discipleship'], 'green', 2, "men's ministry", ev(mens.quote, mens.url));
-  const prosperity = sig('prosperity');
-  if (prosperity) put(['cultural'], 'black', 2, 'prosperity-gospel language', ev(prosperity.quote, prosperity.url));
-  // Denomination prior — only when the church's OWN site confirms the affiliation.
   const prior = denomPrior(c);
-  let priorFired = null;
-  if (prior && prior.affirming) {
-    const affQuotes = [L.denomination_affiliation, ...(((src.signals || {}).affiliation) || [])].filter(Boolean);
+  if (prior && prior.affirming && RULES.affirming_denom.published) {
+    // Affiliation from the church's own name/about text, not a pastor's bio.
+    const nameTok = String(c.name || '').replace(/\b(st\.?|saint|church|the|of|chapel|umc|parish)\b/gi, ' ').trim().split(/\s+/).filter(t => t.length >= 3)[0];
+    const prefer = [[/\b(our (church|parish|congregation)|we are|is (a|an) (member|part|parish|congregation)|part of the|member of)\b/i, 2], BIO_PENALTY];
+    if (nameTok) prefer.push([new RegExp(`\\b${esc(nameTok)}`, 'i'), 3]);
     const rx = AFFILIATION_RE[prior.key];
-    const conf2 = rx && affQuotes.find(a => rx.test(a.quote));
-    if (conf2) {
-      priorFired = { prior, affiliation: conf2 };
-      const e = ev(METHODOLOGY_QUOTE, METHODOLOGY_URL, { affiliation_quote: clip(conf2.quote, 200), affiliation_url: conf2.url });
-      put(['gender', 'leadership', 'scripture', 'cultural', 'denominational'], 'red', 1.5, `${prior.label} is officially LGBT-affirming (denominational prior; congregation states the affiliation)`, e);
+    const named = rx && nameAffiliation(src, c, rx);
+    const aff = named || (rx && best([L.denomination_affiliation && rx.test(L.denomination_affiliation.quote) ? L.denomination_affiliation : null, ...scan(src, rx, prefer)], prefer));
+    if (aff && (named || quality(aff.quote, aff.url, prefer) > -2)) {
+      hits.push({ rule: RULES.affirming_denom, basis: `${prior.label} (stated on the church's own site) is on the published LGBTQ-affirming list`, evidence: ev(aff.quote, aff.url), evidence_more: [] });
     }
   }
-  for (const [d, r] of Object.entries(L.rubric || {})) put([d], r.lean, 1, 'local-model reading of the quoted passage', ev(r.quote, r.url));
+  const pros = RULES.prosperity.published ? scan(src, PROSPERITY_RX)[0] : null;
+  if (pros) hits.push({ rule: RULES.prosperity, basis: 'prosperity-gospel language on the church site', evidence: ev(pros.quote, pros.url), evidence_more: [] });
 
+  // Category scores: only from a rule that names that category, with an on-topic quote.
   for (const d of DIMS) {
-    const list = cand[d];
-    if (!list.length) continue;
-    const top = Math.max(...list.map(x => x.strength));
-    const best = list.filter(x => x.strength === top).sort((a, b) => SEV[b.rating] - SEV[a.rating])[0];
-    const curR = (c.scores || {})[d] || null;
-    out.rubric[d] = { current: curR, proposed: best.rating, basis: best.basis, strength: best.strength, note: `${LABEL[d]}: ${best.basis} — "${clip(best.evidence.quote, 160)}"`, evidence: best.evidence };
-    if (curR !== best.rating) {
-      const reasons = [];
-      if (SEV[best.rating] >= 2) reasons.push(`category to ${best.rating.toUpperCase()}`);
-      if (curR === 'green') reasons.push('category off GREEN');
-      if (best.strength < 2) reasons.push(best.strength === 1 ? 'local-model reading only (no deterministic signal)' : 'denominational prior only');
-      add({ field: `scores.${d}`, op: curR ? 'replace' : 'set', old: curR, new: best.rating, confidence: reasons.length ? 'medium' : 'high', hold_reasons: reasons, reason: best.basis, evidence: best.evidence, also_sets: { [`score_notes.${d}`]: out.rubric[d].note, [`score_sources.${d}`]: best.evidence.url } });
+    const cur = (c.scores || {})[d] || null;
+    const hs = hits.filter(h => h.rule.dims.includes(d) && h.evidence && onTopic(d, h.evidence.quote)).sort((a, b) => SEV[b.rule.level] - SEV[a.rule.level]);
+    const model = (L.rubric || {})[d];
+    const modelInfo = model ? { level: model.lean, quote: model.quote, url: model.url, on_topic: onTopic(d, model.quote) } : null;
+    if (!hs.length) {
+      out.rubric[d] = { current: cur, proposed: null, reason: 'no published rule maps the evidence to a level', model_suggested: modelInfo };
+      continue;
+    }
+    const h = hs[0];
+    const note = `${LABEL[d]}: ${h.rule.text} — "${clip(h.evidence.quote, 150)}"`;
+    out.rubric[d] = { current: cur, proposed: h.rule.level, rule: ruleCite(h.rule), basis: h.basis, evidence: h.evidence, note, model_suggested: modelInfo };
+    if (cur !== h.rule.level && SEV[h.rule.level] > SEV[cur || 'green'] - (cur ? 0 : 99)) {
+      add({ field: `scores.${d}`, op: cur ? 'replace' : 'set', old: cur, new: h.rule.level, confidence: 'medium',
+        hold_reasons: [`category to ${h.rule.level.toUpperCase()}`, ...(cur === 'green' ? ['category off GREEN'] : [])], reason: h.basis,
+        rule: ruleCite(h.rule), evidence: h.evidence, evidence_more: h.evidence_more,
+        also_sets: { [`score_notes.${d}`]: note, [`score_sources.${d}`]: h.evidence.url } });
     }
   }
 
-  // Overall per the legend: black > red > green > yellow.
-  const R = d => (out.rubric[d] || {}).proposed || (c.scores || {})[d] || null;
-  const strongOf = (d, rating) => (cand[d] || []).some(x => x.rating === rating && x.strength >= 2);
-  let rating = 'yellow'; const drivers = []; let ovEvidence = null;
-  if (DIMS.some(d => (out.rubric[d] || {}).proposed === 'black')) {
-    rating = 'black';
-    if (lgbt) { drivers.push('LGBT-affirming statement on parish site'); ovEvidence = ev(lgbt.quote, lgbt.url); }
-    if (prosperity) { drivers.push('prosperity-gospel language'); ovEvidence = ovEvidence || ev(prosperity.quote, prosperity.url); }
-  } else if (femaleLead || women || (priorFired && !strongOf('gender', 'green'))) {
-    rating = 'red';
-    if (femaleLead) { drivers.push(`female senior/lead pastor (${femaleLead.name})`); ovEvidence = ev(femaleLead.quote || femaleLead.name, femaleLead.url); }
-    else if (women) { drivers.push('women in pastoral/elder office'); ovEvidence = ev(women.quote, women.url); }
-  } else if (['gender', 'scripture', 'soteriology'].every(d => R(d) === 'green') && !DIMS.some(d => SEV[R(d)] >= 2)) {
-    rating = 'green';
-    drivers.push('gender, Scripture and soteriology green with no red category');
-    ovEvidence = (conf && ev(conf.quote, conf.url)) || (comp && ev(comp.quote, comp.url)) || (out.rubric.scripture || {}).evidence;
-  }
-  if (priorFired) { drivers.push(`${priorFired.prior.label} is officially LGBT-affirming`); ovEvidence = ovEvidence || ev(METHODOLOGY_QUOTE, METHODOLOGY_URL); }
-  if (femaleLead && rating === 'black') drivers.push(`female senior/lead pastor (${femaleLead.name})`);
+  // Overall: the highest level any fired rule supports. No rule, no change.
   const curO = c.overall_rating || null;
-  if (rating !== curO && (rating !== 'yellow' || drivers.length)) {
-    const reasons = [];
-    if (rating === 'red' || rating === 'black') reasons.push(`moves to ${rating.toUpperCase()}`);
-    if (curO === 'green') reasons.push('moves off GREEN');
-    if (rating === 'green' && !(conf || comp)) reasons.push('green without a confessional or complementarian statement');
-    const label = `${rating.toUpperCase()} — ${drivers.join('; ')}. Evidence: "${clip(ovEvidence && ovEvidence.quote, 140)}" (${ovEvidence && ovEvidence.url}). Full review ${TODAY}.`;
-    out.proposed_overall = { current: curO, proposed: rating, label, drivers, evidence: ovEvidence };
-    add({ field: 'overall_rating', op: 'replace', old: curO, new: rating, confidence: reasons.length ? 'medium' : 'high', hold_reasons: reasons, reason: drivers.join('; '), evidence: ovEvidence, also_sets: { overall_label: label } });
+  const ovHits = hits.filter(h => h.evidence).sort((a, b) => SEV[b.rule.level] - SEV[a.rule.level]);
+  const supported = ovHits.length ? ovHits[0].rule.level : null;
+  if (supported && SEV[supported] > SEV[curO || 'green'] - (curO ? 0 : 99) && supported !== curO) {
+    const top = ovHits[0];
+    const label = `${supported.toUpperCase()} — ${ovHits.map(h => h.rule.short).filter((v, i, a) => a.indexOf(v) === i).join('; ')}. Rule: "${top.rule.text}" (${METHODOLOGY_URL}). Evidence: "${clip(top.evidence.quote, 140)}" (${top.evidence.url}). Full review ${TODAY}.`;
+    out.proposed_overall = { current: curO, proposed: supported, label, rules: ovHits.map(h => ruleCite(h.rule)), drivers: ovHits.map(h => h.basis), evidence: top.evidence };
+    add({ field: 'overall_rating', op: 'replace', old: curO, new: supported, confidence: 'medium',
+      hold_reasons: [`moves to ${supported.toUpperCase()}`, ...(curO === 'green' ? ['moves off GREEN'] : [])], reason: ovHits.map(h => h.basis).join('; '),
+      rule: ruleCite(top.rule), evidence: top.evidence,
+      evidence_more: dedupeEv(ovHits.slice(1).map(h => ({ ...h.evidence, rule: h.rule.text })).concat(top.evidence_more || []), top.evidence),
+      also_sets: { overall_label: label } });
   } else {
-    out.proposed_overall = { current: curO, proposed: curO, label: null, drivers, note: drivers.length ? 'evidence agrees with current rating' : 'no decisive evidence; rating unchanged' };
+    out.proposed_overall = { current: curO, proposed: curO, label: null, rules: ovHits.map(h => ruleCite(h.rule)), note: ovHits.length ? 'published rules agree with the current rating' : 'no published rule fired; rating unchanged' };
+  }
+
+  // Needs-ruling: what the model or a keyword signal suggests beyond the rules.
+  const lgbtCands = [L.lgbt_affirming, ...scan(src, LGBT_RX)].filter(x => x && x.quote);
+  const gp = genderPerson && genderPerson.g;
+  const sameSexSpouse = gp && gp.verdict === 'male' && gp.spouse && (/\bhusband\b/i.test(gp.spouse.quote) ||
+    (/\bspouse,?\s+([A-Z][a-z]+)/.test(gp.spouse.quote) && !looksFemaleFirstName(/\bspouse,?\s+([A-Z][a-z]+)/.exec(gp.spouse.quote)[1] + ' X')));
+  if (lgbtCands.length || sameSexSpouse) {
+    const lb = best(lgbtCands, [[/affirming|lgbt|pride|reconciling|husband|wife/i, 2]]);
+    const evid = lb ? ev(lb.quote, lb.url) : ev(gp.spouse.quote, gp.spouse.url);
+    const more = [];
+    if (sameSexSpouse && lb) more.push({ ...ev(gp.spouse.quote, gp.spouse.url), why: `the ${genderPerson.stored ? 'stored pastor' : 'lead pastor'} (${genderPerson.name}, referred to as "he") has a spouse named on the page` });
+    lgbtCands.filter(x => x !== lb && nrm(x.quote).replace(/^st\.? /, '') !== nrm(lb && lb.quote).replace(/^st\.? /, '') && !nrm(lb && lb.quote).includes(nrm(x.quote)) && !nrm(x.quote).includes(nrm(lb && lb.quote)))
+      .slice(0, 2).forEach(x => more.push(ev(x.quote, x.url)));
+    if (SEV.black > SEV[supported || 'yellow']) ruling({ type: 'needs-ruling', title: 'needs-ruling: model suggests BLACK', suggested: 'black', supported: supported || null,
+      dims: ['overall', 'gender', 'cultural'], evidence: evid, evidence_more: more.filter(Boolean),
+      note: `No published rule maps this evidence to BLACK (the only BLACK rule is "${RULES.prosperity.text}"). Highest level a rule supports: ${(supported || 'none').toUpperCase()}. Chaps and Adam decide; if they rule, publish the rule on the methodology page.` });
+  }
+  const womenQ = [L.women_in_office && FEMALE_MARK.test(L.women_in_office.quote) ? L.women_in_office : null];
+  for (const p of (L.roster || []).filter(p => PASTORAL_ROLE.test(p.role || '') && !/deacon/i.test(p.role || ''))) {
+    const g = genderEvidence(src, p.name);
+    if (g && g.verdict === 'female') womenQ.push({ quote: g.quote, url: g.url, who: p.name });
+    else if (!g && looksFemaleFirstName(p.name)) {
+      const nq = best(scan(src, new RegExp(`\\b${esc(p.name)}\\b`)));
+      ruling({ type: 'unconfirmed', title: `unconfirmed: "${p.name}" (${p.role}) read as a woman in pastoral office from the first-name list only`, suggested: 'red', supported: null, dims: ['gender', 'leadership'], evidence: nq ? ev(nq.quote, nq.url) : null, note: 'No rating proposed from a name list.' });
+    }
+  }
+  const wq = best(womenQ.filter(Boolean));
+  if (wq && !femaleLead) ruling({ type: 'needs-ruling', title: 'needs-ruling: women in pastoral office (not the senior pastor) — model suggests gender/leadership RED', suggested: 'red', supported: null,
+    dims: ['gender', 'leadership'], evidence: ev(wq.quote, wq.url), note: `The published rule covers a female SENIOR pastor only ("${RULES.female_senior.text}"). Chaps and Adam decide whether women in other pastoral offices map to RED.` });
+  // model leans of RED/BLACK on-topic, in a category no rule scored
+  for (const d of DIMS) {
+    const r = out.rubric[d];
+    const m = r && r.model_suggested;
+    if (!m || r.proposed || !m.on_topic || SEV[m.level] < 2) continue;
+    if (rulings.some(x => (x.dims || []).includes(d))) continue;
+    ruling({ type: 'needs-ruling', title: `needs-ruling: model suggests ${LABEL[d]} ${m.level.toUpperCase()}`, suggested: m.level, supported: null, dims: [d], evidence: ev(m.quote, m.url), note: 'Local-model reading; no published rule maps it.' });
   }
 
   // ── 3. profile fill ───────────────────────────────────────────────────────
@@ -295,14 +500,15 @@ function review(o) {
     if (placeholder) add({ field: 'service_times', op: 'fill', old: have || null, new: st.quote, confidence: 'high', reason: 'times quoted from the church site', evidence: ev(st.quote, st.url) });
     else if (nrm(have) !== nrm(st.quote) && !nrm(st.quote).includes(nrm(have).slice(0, 20))) add({ field: 'service_times', op: 'replace', old: have, new: st.quote, confidence: 'medium', hold_reasons: ['replaces existing times'], reason: 'site lists different times', evidence: ev(st.quote, st.url) });
   }
+  const sig = k => firstSignal(src, k);
   const fd = L.founded || (sig('founded') ? { quote: sig('founded').quote, url: sig('founded').url, year: +((sig('founded').match.match(/\d{4}/) || [])[0]) } : null);
   if (fd && fd.year) {
     const have = String(c.founded || '');
     if (!have || /see website|unknown|verify/i.test(have)) add({ field: 'founded', op: 'fill', old: have || null, new: String(fd.year), confidence: 'high', reason: 'founding year stated on site', evidence: ev(fd.quote, fd.url) });
     else if (!have.includes(String(fd.year))) add({ field: 'founded', op: 'replace', old: have, new: String(fd.year), confidence: 'medium', hold_reasons: ['replaces existing founded value'], reason: 'site states a different year', evidence: ev(fd.quote, fd.url) });
   }
-  for (const [field, q, sigKey] of [['has_mens_ministry', L.mens_ministry, 'mens_ministry'], ['has_kids_ministry', L.kids_ministry, 'kids_ministry']]) {
-    const e = q || sig(sigKey);
+  for (const [field, q, rx] of [['has_mens_ministry', L.mens_ministry, MENS_RX], ['has_kids_ministry', L.kids_ministry, KIDS_RX]]) {
+    const e = best([q && rx.test(q.quote) ? q : null, ...scan(src, rx)].filter(Boolean), [[rx, 1]]);
     if (e && c[field] !== true) add({ field, op: 'set', old: c[field] ?? null, new: true, confidence: 'high', reason: 'ministry named on the church site', evidence: ev(e.quote, e.url) });
   }
   const homeUrl = src.final_url || (src.pages && src.pages[0] && src.pages[0].url);
@@ -382,7 +588,13 @@ for (const r of results) {
   for (const ch of r.changes.filter(x => x.gate === 'hold')) {
     holds.push({ hold_id: ch.change_id, round: ROUND, dry_run: DRY, church_id: r.id, church_name: r.name, page: r.page, kind: 'change',
       field: ch.field, old: ch.old, new: ch.new, also_sets: ch.also_sets || null, hold_reasons: ch.hold_reasons, reason: ch.reason,
-      evidence: ch.evidence, evidence_more: ch.evidence_more || [], qa_status: 'pending', qa_by: null, qa_note: null });
+      rule: ch.rule || null, evidence: ch.evidence, evidence_more: ch.evidence_more || [], qa_status: 'pending', qa_by: null, qa_note: null });
+  }
+  // Rulings never apply. They ask Chaps/Adam for a decision (and, if ruled, a published rule).
+  for (const [i, x] of (r.rulings || []).entries()) {
+    holds.push({ hold_id: `${ROUND}:${r.id}:ruling${i + 1}`, round: ROUND, dry_run: DRY, church_id: r.id, church_name: r.name, page: r.page,
+      kind: x.type === 'unconfirmed' ? 'unconfirmed' : 'ruling', field: null, title: x.title, suggested: x.suggested, supported_by_rule: x.supported,
+      dims: x.dims || null, note: x.note || null, evidence: x.evidence, evidence_more: x.evidence_more || [], qa_status: 'pending', qa_by: null, qa_note: null });
   }
   for (const [i, f] of r.flags.filter(x => x.gate === 'hold').entries()) {
     holds.push({ hold_id: `${ROUND}:${r.id}:flag${i + 1}`, round: ROUND, dry_run: DRY, church_id: r.id, church_name: r.name, page: r.page, kind: 'flag',
@@ -404,6 +616,9 @@ const summary = {
   changes_auto: results.reduce((a, r) => a + r.changes.filter(c => c.gate === 'auto').length, 0),
   changes_held: holds.filter(h => h.kind === 'change').length,
   flags_held: holds.filter(h => h.kind === 'flag').length,
+  rulings_held: holds.filter(h => h.kind === 'ruling').length,
+  unconfirmed_held: holds.filter(h => h.kind === 'unconfirmed').length,
+  ratings_proposed: Object.fromEntries(['red', 'black', 'green', 'yellow'].map(l => [l, results.filter(r => (r.changes || []).some(c => c.field === 'overall_rating' && c.new === l)).length])),
   pastor_changes: results.reduce((a, r) => a + r.changes.filter(c => c.field === 'pastor').length, 0),
   overall_changes: results.reduce((a, r) => a + r.changes.filter(c => c.field === 'overall_rating').length, 0),
 };
@@ -416,7 +631,10 @@ const patch = {
   churches_json_sha256: SHA_BEFORE, churches_json_sha256_after_build: SHA_AFTER,
   gates: {
     evidence: 'every change carries evidence.quote + evidence.url; anything without both was dropped',
-    hold: 'to RED/BLACK, off GREEN, medium/low confidence, unconfirmed identity, wrong-church data, duplicates',
+    ratings: 'a category score or overall rating is proposed only when a rule published on docs/directory-methodology.html maps the evidence to that level; the rule text is cited (change.rule) next to the page quote (change.evidence). Anything beyond the rules is a needs-ruling HOLD item.',
+    on_topic: 'a category score needs a quote that addresses that category; otherwise the score stays null',
+    gender: 'female clergy only from page evidence (pronouns, spouse, explicit role); a first-name match alone is an unconfirmed HOLD item',
+    hold: 'to RED/BLACK, off GREEN, medium/low confidence, unconfirmed identity, wrong-church data, duplicates, needs-ruling, unconfirmed',
     auto: 'high confidence only: verbatim quote on the church\'s own identity-confirmed site; fills of empty fields; pastor set/replace with explicit lead role',
   },
   summary, churches: results,
@@ -440,7 +658,7 @@ s.series = (s.series || []).filter(r => r.round !== ROUND);
 s.series.push({ round: ROUND, ts: new Date().toISOString().slice(0, 16), dry_run: DRY, reviewed: summary.churches_total - summary.unreachable - summary.unreadable_js,
   reachable_reviewed: summary.reviewed, identity_mismatch: summary.identity_mismatch, unreachable: summary.unreachable, unreadable_js: summary.unreadable_js,
   changed: summary.churches_with_changes, changes_total: summary.changes_total, auto: summary.changes_auto,
-  held: summary.changes_held + summary.flags_held, held_churches: summary.churches_with_holds, applied: 0, applied_holds: 0 });
+  held: summary.changes_held + summary.flags_held + summary.rulings_held + summary.unconfirmed_held, needs_ruling: summary.rulings_held, unconfirmed: summary.unconfirmed_held, held_churches: summary.churches_with_holds, applied: 0, applied_holds: 0 });
 s.pending_holds = q.holds.filter(h => h.qa_status === 'pending' && !h.dry_run).length;
 s.updated = new Date().toISOString();
 fs.writeFileSync(STATS, JSON.stringify(s, null, 1));

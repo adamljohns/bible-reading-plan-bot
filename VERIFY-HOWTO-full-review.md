@@ -11,13 +11,14 @@ Do not edit `docs/data/churches.json` here or in `~/bible-reading-plan-bot`. Rea
 
 | What | Path (relative to the worktree) |
 |---|---|
-| Review patch (every proposal, per church) | `data/full-review/rounds/fr-20261108-2220/review-patch.json` |
-| This round's HOLD items | `data/full-review/rounds/fr-20261108-2220/hold.json` |
+| Review patch (every proposal, per church) | `data/full-review/rounds/fr-20261108-2250/review-patch.json` |
+| This round's HOLD items | `data/full-review/rounds/fr-20261108-2250/hold.json` |
 | Cumulative HOLD queue (same rows, `dry_run: true`) | `data/full-review/hold-queue.json` |
-| Fetcher output: pages read + cached page text | `data/full-review/rounds/fr-20261108-2220/observations.json` (git-ignored) |
+| Fetcher output: pages read + cached page text | `data/full-review/rounds/fr-20261108-2250/observations.json` (git-ignored) |
 | Public dashboard counts | `docs/data/full-review-stats.json` (rendered in `docs/grind-report.html`) |
-| Round log | `~/Library/Logs/full-review-round.log` and `/tmp/cfr/dryrun.log` |
-| churches.json checksums | `/tmp/cfr/sha-before.txt` vs `shasum -a 256 docs/data/churches.json` |
+| Round log | `~/Library/Logs/full-review-round.log` and `/tmp/cfr/dryrun2.log` |
+| Previous round (first verify, 8/10) | `data/full-review/rounds/fr-20261108-2220/` — superseded, kept for comparison |
+| churches.json checksums | `/tmp/cfr/sha-before-2.txt` vs `shasum -a 256 docs/data/churches.json` |
 
 ## How a proposed change maps to its evidence
 
@@ -45,12 +46,21 @@ To check one change:
 3. Judge whether the quote supports `field: old -> new`, and whether the `gate` is correct under
    the ticket's rules: to RED/BLACK or off GREEN must be `hold`; only high confidence may be `auto`.
 
+Ratings (round fr-20261108-2250 onward) follow written rules only. Every `scores.*` and
+`overall_rating` change carries `rule` = `{text, context, url}`: the rule's own text as published
+on https://usmcmin.org/directory-methodology.html. Check that `rule.text` is on that page and that
+it maps `evidence.quote` (a church-page quote) to `new`. Judgments no published rule covers are not
+changes. They are HOLD rows with `kind: "ruling"` (title `needs-ruling: …`, e.g. "needs-ruling: model
+suggests BLACK") or `kind: "unconfirmed"` (female clergy by first-name list only). Each has its own
+`evidence` and `evidence_more`. They never apply; Chaps and Adam decide them.
+
 Three evidence types are not plain page quotes. Check them like this:
 - `evidence.evidence_type: "html_link"` (social links): the quote is `<a href="...">`. Check that the
   church's page at `evidence.url` links that account (view source, or look in the header/footer).
-- `evidence.url = https://usmcmin.org/directory-methodology.html` (denomination prior): the quote is
-  the directory's own published rule. Also check `evidence.affiliation_quote` at
-  `evidence.affiliation_url`: the church's own site must state the affiliation.
+- Denomination rule (`rule.text` = "LGBTQ-affirming denomination → RED minimum."): `evidence` is the
+  church's own printed name or about text stating the affiliation (e.g. "St. Mary's Episcopal
+  Church"); the rule itself is in `rule`. (In the superseded round fr-20261108-2220 the rule text sat
+  in `evidence` and the affiliation in `evidence.affiliation_quote`.)
 - `evidence.evidence_type: "http_redirect"`: request the stored website and confirm it redirects to
   `evidence.url`.
 
@@ -62,12 +72,12 @@ the site's own location statement.
 
 ```
 cd /Users/moop_bot_pro/worktrees/church-full-review
-node -e 'const p=require("./data/full-review/rounds/fr-20261108-2220/review-patch.json");
+node -e 'const p=require("./data/full-review/rounds/fr-20261108-2250/review-patch.json");
 for (const c of p.churches) for (const x of c.changes)
   console.log([x.change_id, x.gate, x.field, JSON.stringify(x.old), "->", JSON.stringify(x.new), x.evidence.url, JSON.stringify(x.evidence.quote)].join(" | "))'
 ```
 
-Suggested spread for the 10: the St. Mary's pastor and overall rating
+Suggested spread for the 10: the St. Mary's pastor, overall rating and needs-ruling item
 (`st-mary-s-church-colonial-beach`), the Calvary Memorial wrong-church flag and pastor clear
 (`calvary-memorial-church-oak-park-il`), at least two other pastor changes, two rubric category
 changes, one profile fill (service times / founded / ministry flag), and one social link.

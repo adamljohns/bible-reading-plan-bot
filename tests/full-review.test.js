@@ -36,6 +36,7 @@ const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'fr-test-'));
 const churches = { churches: [
   { id: 'aff', name: 'St. A', address: '1 Main St, Townville, VA 22401', state: 'VA', denomination: 'The Episcopal Church', pastor: '', overall_rating: 'yellow', scores: {} },
   { id: 'fem', name: 'B Church', address: '2 Oak St, Townville, VA 22401', state: 'VA', denomination: 'Independent', pastor: 'John Old', overall_rating: 'green', scores: { gender: 'green' } },
+  { id: 'nameonly', name: 'D Church', address: '4 Ash St, Townville, VA 22401', state: 'VA', denomination: 'Independent', pastor: '', overall_rating: 'yellow', scores: {} },
   { id: 'wrong', name: 'C Church', address: '3 Elm St, Farcity, IL 60301', state: 'IL', denomination: 'EFCA', pastor: 'Pat Other', website: 'https://c.example', overall_rating: 'yellow', scores: {} },
 ] };
 const CJ = path.join(tmp, 'churches.json');
@@ -49,7 +50,12 @@ const obs = { model: 'test', observations: [
     llm: { lead_pastor: { name: 'Sam Jones', role: 'Rector', pronoun: 'he', quote: 'The Rev. Sam Jones is our Rector.', url: 'https://a.example/about' },
       lgbt_affirming: { quote: 'We celebrate Pride Sunday every June.', url: 'https://a.example/about' },
       // a rubric lean with no URL must never become a change
-      rubric: { mission: { lean: 'green', quote: 'unsourced', url: null } } } },
+      rubric: { mission: { lean: 'green', quote: 'unsourced', url: null },
+        preaching: { lean: 'yellow', quote: 'The Rev. Sam Jones is our Rector.', url: 'https://a.example/about' } } } },
+  { id: 'nameonly', name: 'D Church', status: 'reviewed', source_kind: 'website', final_url: 'https://d.example/',
+    pages: [page('https://d.example/staff', 'Townville. Pastor Mary Brown, Senior Pastor.')],
+    identity: { status: 'confirmed', matched: ['city:Townville'], stored: { city: 'Townville', state: 'VA' } },
+    llm: { lead_pastor: { name: 'Mary Brown', role: 'Senior Pastor', pronoun: 'unknown', quote: 'Pastor Mary Brown, Senior Pastor.', url: 'https://d.example/staff' } } },
   { id: 'fem', name: 'B Church', status: 'reviewed', source_kind: 'website', final_url: 'https://b.example/',
     pages: [page('https://b.example/staff', 'Townville. Rev. Mary Smith, Senior Pastor. She has served since 2020.')],
     identity: { status: 'confirmed', matched: ['city:Townville'], stored: { city: 'Townville', state: 'VA' } },
@@ -72,9 +78,15 @@ const ch = (id, f) => get(id).changes.find(x => x.field === f);
 
 // every change has quote + url
 for (const c of patch.churches) for (const x of c.changes) assert.ok(x.evidence.quote && x.evidence.url, `${x.change_id} lacks evidence`);
-// affirming parish: BLACK proposed and HELD; pastor auto at high confidence
-assert.strictEqual(ch('aff', 'overall_rating').new, 'black');
+// affirming parish: rules support RED (TEC on the published list), held; the
+// model's BLACK becomes a separate needs-ruling item; rule text is cited
+assert.strictEqual(ch('aff', 'overall_rating').new, 'red');
 assert.strictEqual(ch('aff', 'overall_rating').gate, 'hold');
+assert.ok(/RED minimum/.test(ch('aff', 'overall_rating').rule.text));
+assert.ok(get('aff').rulings.some(r => r.title === 'needs-ruling: model suggests BLACK' && /Pride Sunday/.test(r.evidence.quote)));
+assert.ok(!get('aff').changes.some(x => x.new === 'black'), 'no BLACK without a published rule');
+assert.ok(!ch('aff', 'scores.preaching'), 'off-topic quote must not score preaching');
+assert.ok(!ch('aff', 'scores.scripture'), 'denomination rule does not score scripture');
 assert.strictEqual(ch('aff', 'pastor').new, 'Sam Jones');
 assert.strictEqual(ch('aff', 'pastor').gate, 'auto');
 assert.ok(!ch('aff', 'scores.mission'), 'unsourced lean must not become a change');
@@ -82,6 +94,11 @@ assert.ok(!ch('aff', 'scores.mission'), 'unsourced lean must not become a change
 assert.strictEqual(ch('fem', 'pastor').gate, 'hold');
 assert.strictEqual(ch('fem', 'overall_rating').new, 'red');
 assert.strictEqual(ch('fem', 'overall_rating').gate, 'hold');
+assert.ok(/She has served/.test(ch('fem', 'overall_rating').evidence.quote), 'gender evidence must be the pronoun bio');
+// first-name list only: no rating, an unconfirmed HOLD item, pastor held
+assert.ok(!ch('nameonly', 'overall_rating'));
+assert.ok(get('nameonly').rulings.some(r => r.type === 'unconfirmed'));
+assert.strictEqual(ch('nameonly', 'pastor').gate, 'hold');
 // wrong-church data: flagged, everything held, nothing scored from that site
 assert.ok(get('wrong').flags.some(f => f.type === 'data_belongs_to_other_church'));
 assert.ok(get('wrong').changes.every(x => x.gate === 'hold'));

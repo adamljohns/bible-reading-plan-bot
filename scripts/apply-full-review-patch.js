@@ -83,7 +83,7 @@ for (const r of patch.churches || []) {
     // Notes render on public pages: keep the URL, redact contact details of
     // private individuals that a quote may carry (the patch keeps the verbatim quote).
     const redact = q => String(q).replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi, '[email]').replace(/\(?\d{3}\)?[-.\s]\d{3}[-.\s]\d{4}/g, '[phone]');
-    const cite = `"${redact(ch.evidence.quote).slice(0, 160)}" (${ch.evidence.url})`;
+    const cite = `"${redact(ch.evidence.quote).slice(0, 160)}" (${ch.evidence.url})` + (ch.rule ? `; rule: "${ch.rule.text}" (${ch.rule.url})` : '');
     if (ch.op === 'research') {
       // Identity problem approved by QA: keep every value, flag the record for research.
       c._identity_hold = TODAY; c.needs_review = true;
