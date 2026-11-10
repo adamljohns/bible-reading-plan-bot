@@ -136,6 +136,10 @@ EMOJI_RE = re.compile(
 PRONOUNCE_LEXICON = [
     (r"\bGentiles\b", "Jen-tiles"),
     (r"\bGentile\b", "Jen-tile"),
+    (r"\b[Rr]eveille\b", "Rev-uh-lee"),
+    # PJG-1110-EAR2: past-tense "read" said as "red", not "reed".
+    (r"\b((?:have|has|had|having|I've|you've|we've|they've|was|were|been|being|is|are|got|gets)\s+)read\b", r"\1red"),
+    (r"\b(\w+(?:ed|ung|en)),\s+read\b", r"\1, red"),
 ]
 
 
