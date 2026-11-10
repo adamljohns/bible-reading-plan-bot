@@ -63,8 +63,16 @@
 
   const s = stats.series || [];
   if (!s.length) { $('cards').innerHTML = '<div class="err">No data rows yet.</div>'; return; }
-  const base = s[0], last = s[s.length - 1];
-  const pastorRows = s.filter(r => ['fresh','retry','social'].includes(r.mode));
+  try {
+  // Zero-content hops are folded in as pending stubs with no pastor or pool
+  // fields. Treating one of those as the latest row throws on toLocaleString
+  // and leaves LOADING, the chart, the rounds, and the QA sample blank.
+  const fullRows = s.filter(r => r && r.real_pastors != null && !r.pending);
+  const base = fullRows[0] || s[0];
+  const last = fullRows.length ? fullRows[fullRows.length - 1] : s[s.length - 1];
+  const newest = s[s.length - 1];
+  const n = v => { const x = Number(v); return Number.isFinite(x) ? x : 0; };
+  const pastorRows = fullRows.filter(r => ['fresh','retry','social'].includes(r.mode));
   const attempted = pastorRows.reduce((a, r) => a + (r.attempted || 0), 0);
   const found = pastorRows.reduce((a, r) => a + (r.found || 0), 0);
   const contentApplied = s.reduce((a, r) => a + (r.applied || 0), 0);
@@ -76,7 +84,7 @@
   // days and the outage was spotted by eye, not by the dashboard. A report that
   // cannot say "I am stale" is worse than no report.
   (function () {
-    const ts = last && last.ts;
+    const ts = (newest && newest.ts) || (last && last.ts);
     if (!ts) return;
     // Rows are recorded in UTC (the Recent-rounds header says so) but carry no
     // zone suffix, so new Date() would read them as local — a 4–5 hour error
@@ -114,13 +122,13 @@
       `<strong>${level === 'continuing' ? 'CURRENT PASS EXHAUSTED / CONTINUING' : level === 'ok' ? 'Current' : level === 'warn' ? 'Stale' : 'STALLED'}</strong> · ${msg}${fix}</div>`;
   })();
   const card = (label, val, delta, baseTxt) =>
-    `<div class="card"><div class="label">${label}</div><div class="big">${val.toLocaleString()}</div>` +
-    (delta > 0 ? `<div class="delta">▲ +${delta.toLocaleString()} since baseline</div>` : '') +
+    `<div class="card"><div class="label">${label}</div><div class="big">${n(val).toLocaleString()}</div>` +
+    (n(delta) > 0 ? `<div class="delta">▲ +${n(delta).toLocaleString()} since baseline</div>` : '') +
     (baseTxt ? `<div class="base">${baseTxt}</div>` : '') + `</div>`;
   $('cards').innerHTML =
-    card('Verified pastors', last.real_pastors, last.real_pastors - base.real_pastors, 'baseline ' + base.real_pastors.toLocaleString()) +
-    card('Multi-pastor rosters', last.rosters, last.rosters - base.rosters, 'baseline ' + base.rosters) +
-    card('Churches w/ socials', last.socials_any, last.socials_any - base.socials_any, 'baseline ' + base.socials_any.toLocaleString()) +
+    card('Verified pastors', last.real_pastors, n(last.real_pastors) - n(base.real_pastors), 'baseline ' + n(base.real_pastors).toLocaleString()) +
+    card('Multi-pastor rosters', last.rosters, n(last.rosters) - n(base.rosters), 'baseline ' + n(base.rosters)) +
+    card('Churches w/ socials', last.socials_any, n(last.socials_any) - n(base.socials_any), 'baseline ' + n(base.socials_any).toLocaleString()) +
     card('Validated content applied', contentApplied, 0, recordsUpdated + ' profile records updated · pastors are one field, not the mission') +
     card('Attempted (total)', attempted, 0, found + ' pastors landed · ' + (attempted ? Math.round(100 * found / attempted) : 0) + '% hit rate') +
     card('Product backlog', last.product_backlog ?? last.enrich_remaining ?? last.pool_after ?? 0, 0,
@@ -130,9 +138,8 @@
 
   // pastors found per day
   const byDay = {};
-  for (const r of s) { if (r.mode === 'baseline') continue; const day = (r.ts || '').slice(5, 10); if (!day) continue;
-    if (r.mode === 'complete') continue;
-    byDay[day] = byDay[day] || { fresh: 0, retry: 0 }; byDay[day][r.mode === 'retry' ? 'retry' : 'fresh'] += (r.found || 0); }
+  for (const r of s) { if (r.pending || r.mode === 'baseline' || r.mode === 'complete') continue; const day = (r.ts || '').slice(5, 10); if (!day) continue;
+    byDay[day] = byDay[day] || { fresh: 0, retry: 0 }; byDay[day][r.mode === 'retry' ? 'retry' : 'fresh'] += n(r.found); }
   const days = Object.keys(byDay);
   const max = Math.max(1, ...days.map(d => byDay[d].fresh + byDay[d].retry));
   $('bars').innerHTML = days.map(d => {
@@ -143,13 +150,16 @@
   }).join('') || '<div class="err">No rounds yet.</div>';
 
   $('rounds').querySelector('tbody').innerHTML = s.slice(-20).reverse().map(r =>
-    `<tr><td>${r.ts || ''}</td><td>${r.mode || ''}</td><td>${r.attempted ?? ''}</td><td class="num">${r.pastors_applied ?? r.found ?? ''}</td><td class="num">${r.applied ?? r.found ?? ''}</td><td class="num">${r.records_updated ?? ''}</td><td>${r.pool_after ?? ''}</td><td>${(r.real_pastors || 0).toLocaleString()}</td><td>${(r.socials_any || 0).toLocaleString()}</td></tr>`).join('');
+    `<tr><td>${r.ts || ''}</td><td>${r.mode || ''}${r.pending ? ' (pending)' : ''}</td><td>${r.attempted ?? ''}</td><td class="num">${r.pastors_applied ?? r.found ?? ''}</td><td class="num">${r.applied ?? r.found ?? ''}</td><td class="num">${r.records_updated ?? ''}</td><td>${r.pool_after ?? ''}</td><td>${(r.real_pastors || 0).toLocaleString()}</td><td>${(r.socials_any || 0).toLocaleString()}</td></tr>`).join('');
 
   $('finds').innerHTML = (qa.sample || []).slice(0, 15).map(f =>
     `<div class="find"><a href="${f.page_url}" target="_blank" rel="noopener">${f.id}</a> → <strong>${f.pastor_name}</strong>` +
     (f.pastor_role ? ` <span class="role">— ${f.pastor_role}</span>` : '') +
     `<span class="src">source: ${f.pastor_source_url || 'n/a'} · ${f.extracted_at || ''} · ${f.extractor || ''}</span></div>`).join('')
     || '<div class="err">No QA sample yet.</div>';
+  } catch (e) {
+    $('cards').innerHTML = '<div class="err">Report failed to render. ' + (e && e.message ? e.message : e) + '</div>';
+  }
 })();
 </script>
 </body>

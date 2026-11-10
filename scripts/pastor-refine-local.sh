@@ -333,7 +333,9 @@ else
       let pendingRows=[]; try{pendingRows=JSON.parse(fs.readFileSync(pending,"utf8"))}catch(_){}
       if(!pendingRows.length) process.exit(0);
       let j={series:[]}; try{j=JSON.parse(fs.readFileSync(P,"utf8"))}catch(_){}
-      j.series.push(...pendingRows);
+      const carry = [...j.series].reverse().find(r => r && r.real_pastors != null && !r.pending) || {};
+      const stamped = pendingRows.map(r => Object.assign({}, carry, r, {pending:true}));
+      j.series.push(...stamped);
       fs.writeFileSync(P,JSON.stringify(j,null,1));
       fs.unlinkSync(pending);
       console.log("folded",pendingRows.length,"pending grind-stats rows");
