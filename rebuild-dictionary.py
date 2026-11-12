@@ -2124,7 +2124,8 @@ def main():
                      'gen-z-decoded.html', 'gen-alpha-decoded.html', 'millennial-decoded.html',
                      'gen-x-decoded.html', 'boomer-decoded.html', 'silent-decoded.html',
                      'christianese-decoded.html', 'jesus-generation.html',
-                     'changelog.html', 'baby-names.html', 'by-topic.html'}
+                     'changelog.html', 'baby-names.html', 'by-topic.html', 'word-origins.html',
+                     'military-language.html', 'weaponized-words.html'}
     total = len([w for w in words if w['file'] not in SPECIAL_PAGES])
     print(f'Total entries: {total}')
     for letter in sorted(by_letter.keys()):
@@ -2146,6 +2147,12 @@ def main():
     if os.path.exists(section_script):
         print('\n--- Rebuilding 8 featured-section pages ---')
         subprocess.run([sys.executable, section_script], check=True)
+
+    # Rebuild the metadata-driven Word Origins hubs.
+    origins_script = os.path.join(os.path.dirname(__file__), 'bin', 'build_word_origin_hubs.py')
+    if os.path.exists(origins_script):
+        print('\n--- Rebuilding Word Origins hubs ---')
+        subprocess.run([sys.executable, origins_script], check=True)
 
     # Rebuild the BTE dictionary manifest so newly-added entries are reachable
     # from Bible verse-text auto-linking on the next page load.

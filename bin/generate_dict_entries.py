@@ -13,6 +13,9 @@ Each record (one per dictionary entry) must include these keys:
     usage (list of three strings),
     related (list of [slug, label]).
 
+Optional Word Origins fields are validated by bin/dictionary_origin_schema.py;
+see data/dictionary-word-origins.schema.json for their published shape.
+
 Strings may contain HTML; the generator does NOT escape them.
 After running, run rebuild-dictionary.py to update the index.
 

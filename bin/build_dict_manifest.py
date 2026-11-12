@@ -29,6 +29,7 @@ import sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DICT_DIR = os.path.join(ROOT, 'docs', 'dictionary')
 OUTPUT = os.path.join(DICT_DIR, 'manifest.json')
+RESERVED_FILE = os.path.join(ROOT, 'data', 'dictionary-reserved-slugs.txt')
 
 # Stop-words and short words to skip — these would over-match verse text.
 SKIP_WORDS = {
@@ -144,6 +145,10 @@ def normalize(s):
 
 
 def main():
+    try:
+        reserved = {line.strip() for line in open(RESERVED_FILE) if line.strip() and not line.startswith('#')}
+    except FileNotFoundError:
+        reserved = set()
     tokens = {}
     phrases = []
     summaries = {}
@@ -153,6 +158,8 @@ def main():
         if not fn.endswith('.html') or fn in ('index.html', 'template.html'):
             continue
         slug = fn[:-5]
+        if slug in reserved:
+            continue
         fp = os.path.join(DICT_DIR, fn)
         with open(fp, 'r', encoding='utf-8') as f:
             html = f.read()

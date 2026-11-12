@@ -52,6 +52,11 @@ SPECIAL = {'index', 'template', 'names', 'baby-names', 'by-topic',
            'gen-x-decoded', 'boomer-decoded', 'silent-decoded', 'christianese-decoded',
            'jesus-generation', 'changelog'}
 
+_RESERVED = os.path.join(ROOT, 'data', 'dictionary-reserved-slugs.txt')
+if os.path.exists(_RESERVED):
+    SPECIAL |= {line.strip() for line in open(_RESERVED)
+                if line.strip() and not line.startswith('#')}
+
 # Merged-away slugs are no-index redirect stubs (see bin/merge_entries.py),
 # not live entries — fold the redirects registry into SPECIAL.
 _REDIR = os.path.join(os.path.dirname(__file__), '..', 'data', 'dictionary-redirects.txt')

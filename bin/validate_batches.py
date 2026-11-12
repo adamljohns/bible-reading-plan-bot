@@ -12,6 +12,7 @@ targets, roots_lines typing, and the inflection guard.
 Usage: python3 bin/validate_batches.py data/dictionary-batches/batch-6*.json
 """
 import json, re, sys, os, html.entities, importlib.util, collections
+from dictionary_origin_schema import validate_origin_fields
 
 REQ = ['slug','word','pronunciation','pos','etymology','biblical_def',
        'webster_summary','webster_full','scriptures','corruption_summary',
@@ -19,6 +20,10 @@ REQ = ['slug','word','pronunciation','pos','etymology','biblical_def',
 VALID_ENT = set(html.entities.name2codepoint) | {'amacr','emacr','imacr','omacr',
                                                  'umacr','aelig','thorn'}
 RESERVED = {'sevenfold'}
+try:
+    RESERVED |= {line.strip() for line in open('data/dictionary-reserved-slugs.txt') if line.strip() and not line.startswith('#')}
+except FileNotFoundError:
+    pass
 
 _sp = importlib.util.spec_from_file_location('kw', 'bin/kjv_wordlist.py')
 KW = importlib.util.module_from_spec(_sp); _sp.loader.exec_module(KW)
@@ -64,6 +69,8 @@ def main():
         for e in data:
             s = e.get('slug', '(missing)')
             miss = [k for k in REQ if k not in e]
+            for problem in validate_origin_fields(e):
+                errs.append(f'{b}/{s}: {problem}')
             if miss:
                 errs.append(f'{b}/{s}: missing fields {miss}')
             if s in RESERVED:

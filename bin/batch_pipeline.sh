@@ -20,6 +20,8 @@ BATCH="$1"
 echo "== pre-flight =="
 python3 - "$BATCH" <<'PY'
 import json, re, sys, os, html.entities
+sys.path.insert(0, 'bin')
+from dictionary_origin_schema import validate_origin_fields
 batch = sys.argv[1]
 raw = open(batch, encoding='utf-8').read()
 data = json.loads(raw)                      # crashes loudly on bad JSON
@@ -42,12 +44,20 @@ except FileNotFoundError:
     pass
 pages = {f[:-5] for f in os.listdir('docs/dictionary') if f.endswith('.html')}
 own = {e.get('slug') for e in data}
+try:
+    reserved = {line.strip() for line in open('data/dictionary-reserved-slugs.txt') if line.strip() and not line.startswith('#')}
+except FileNotFoundError:
+    reserved = set()
 revisions = []
 for e in data:
     s = e.get('slug', '(missing)')
     miss = [k for k in REQ if k not in e]
+    for problem in validate_origin_fields(e):
+        errs.append(f'{s}: {problem}')
     if miss:
         errs.append(f'{s}: missing fields {miss}')
+    if s in reserved:
+        errs.append(f'{s}: RESERVED slug — generated hub pages cannot be authored')
     if s in slugs and not e.get('revision'):
         errs.append(f'{s}: SLUG COLLISION — already exists; never recreate a slug. '
                     'If you MEAN to rewrite the live entry, set "revision": true on it.')
@@ -173,7 +183,7 @@ echo "== rebuild =="
 python3 rebuild-dictionary.py 2>&1 | grep "Total entries"
 echo "== regen slugs =="
 ls docs/dictionary/*.html | xargs -n1 basename | sed 's/.html$//' \
-  | grep -vxE 'index|names|doctrinal-anchors|biblical-order|expressly-prohibited|most-corrupted|gen-z-decoded|gen-alpha-decoded|millennial-decoded|gen-x-decoded|boomer-decoded|silent-decoded|christianese-decoded|jesus-generation|changelog|baby-names|by-topic' \
+  | grep -vxE 'index|names|doctrinal-anchors|biblical-order|expressly-prohibited|most-corrupted|gen-z-decoded|gen-alpha-decoded|millennial-decoded|gen-x-decoded|boomer-decoded|silent-decoded|christianese-decoded|jesus-generation|changelog|baby-names|by-topic|word-origins|military-language|weaponized-words' \
   | grep -vxFf <(awk '{print $1}' data/dictionary-redirects.txt 2>/dev/null) \
   | sort > data/dictionary-slugs.txt
 wc -l < data/dictionary-slugs.txt | xargs echo "slugs:"
