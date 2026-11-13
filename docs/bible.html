@@ -3920,7 +3920,7 @@
             var _readerOn = document.body.classList.contains('reader-mode');
             html += '<span class="reader-toggle" onclick="toggleReaderMode()" title="' + (_readerOn ? 'Show verse tools' : 'Hide tools for clean reading') + '">' + (_readerOn ? 'Show Tools' : 'Hide Tools') + '</span>';
             html += '<span style="color:var(--gold);font-weight:600;margin-right:4px;">Verse Tools:</span>';
-            html += '<span><img src="' + shareIcon + '" alt="" width="16" height="16" style="vertical-align:middle;opacity:0.5;margin-right:2px;">Share Link</span>';
+            html += '<span class="toolbar-share" role="button" tabindex="0" style="cursor:pointer;" onclick="shareCurrentQuery(this)" title="Share a link to this passage"><img src="' + shareIcon + '" alt="" width="16" height="16" style="vertical-align:middle;opacity:0.5;margin-right:2px;">Share Link</span>';
             html += '<span><img class="site-icon" src="assets/icons/shield-lock-48.png" alt="" width="16" height="16" style="vertical-align:middle;opacity:0.5;margin-right:2px;">Highlight</span>';
             html += '<span><img class="site-icon" src="assets/icons/shield-blog-quill-48.png" alt="" width="16" height="16" style="vertical-align:middle;opacity:0.5;margin-right:2px;">Add Note</span>';
             html += '<span><img src="assets/icons/shield-about-person-24.png" alt="" width="12" height="12" style="vertical-align:middle;opacity:0.5;margin-right:2px;">Copy Text</span>';
@@ -4131,6 +4131,41 @@
             'Deuteronomy 32:35': 'deuteronomy-32-35'
         };
 
+
+        // BTE v7.0 (2026-11-13): one share path for every Share button. iPhone Safari:
+        // use the native share sheet when present; otherwise clipboard; otherwise an
+        // iOS-safe textarea copy; if all fail, show the link so it can be copied by hand.
+        // Never claim "copied" unless a copy actually succeeded.
+        function bteShareUrl(url, title, onDone) {
+            var isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+            if (isTouch && navigator.share) {
+                navigator.share({ title: title, url: url }).then(function(){ onDone('shared'); }, function(err){
+                    if (err && err.name === 'AbortError') return; // user closed the sheet
+                    bteCopyUrl(url, onDone);
+                });
+                return;
+            }
+            bteCopyUrl(url, onDone);
+        }
+        function bteCopyUrl(url, onDone) {
+            function legacy() {
+                var ta = document.createElement('textarea');
+                ta.value = url; ta.setAttribute('readonly', '');
+                ta.style.position = 'fixed'; ta.style.top = '0'; ta.style.left = '0'; ta.style.opacity = '0'; ta.style.fontSize = '16px';
+                document.body.appendChild(ta);
+                ta.focus(); ta.select();
+                try { ta.setSelectionRange(0, url.length); } catch (e) {}
+                var ok = false;
+                try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+                document.body.removeChild(ta);
+                if (ok) { onDone('copied'); } else { window.prompt('Copy this link:', url); onDone('shown'); }
+            }
+            if (navigator.clipboard && navigator.clipboard.writeText && window.isSecureContext) {
+                navigator.clipboard.writeText(url).then(function(){ onDone('copied'); }, legacy);
+            } else {
+                legacy();
+            }
+        }
         function shareVerse(verseRef, btn) {
             // BTE v6.7: from a paragraph-end cluster, share the whole-paragraph range link.
             var _pk = bteParaKeys(btn);
@@ -4148,19 +4183,12 @@
             // Determine correct icon based on testament
             var isOT = btn.getAttribute('data-testament') === 'ot';
             var restoreIcon = isOT ? 'assets/icons/shield-infinity-rope-48.png' : 'assets/icons/shield-handshake.png';
-            navigator.clipboard.writeText(url).then(function() {
+            bteShareUrl(url, verseRef, function(how) {
+                if (how === 'shown') return;
                 btn.classList.add('copied');
                 btn.innerHTML = '<img src="assets/icons/shield-star.png" class="site-icon" alt="copied" width="20" height="20">';
-                showToast('Link copied: ' + verseRef);
+                showToast(how === 'shared' ? 'Shared: ' + verseRef : 'Link copied: ' + verseRef);
                 setTimeout(function() { btn.innerHTML = '<img src="' + restoreIcon + '" class="site-icon" alt="share" width="20" height="20">'; btn.classList.remove('copied'); }, 2000);
-            }).catch(function() {
-                var ta = document.createElement('textarea');
-                ta.value = url; ta.style.position = 'fixed'; ta.style.opacity = '0';
-                document.body.appendChild(ta); ta.select(); document.execCommand('copy');
-                document.body.removeChild(ta);
-                btn.innerHTML = '<img src="assets/icons/shield-star.png" class="site-icon" alt="copied" width="20" height="20">';
-                showToast('Link copied: ' + verseRef);
-                setTimeout(function() { btn.innerHTML = '<img src="' + restoreIcon + '" class="site-icon" alt="share" width="20" height="20">'; }, 2000);
             });
         }
 
@@ -4192,6 +4220,7 @@
         // ── BTE v5.5: Share & Print current results ───────────────────────
         function shareCurrentQuery(btn) {
             var q = (document.getElementById('refInput').value || '').trim();
+            if (!q) { var _h = document.querySelector('#results .result-header'); if (_h) q = (_h.textContent || '').replace(/\(.*$/, '').trim(); }
             if (!q) { showShareToast('Nothing to share yet — look up a passage first.'); return; }
             // Prefer ?refs= for multi, fall back to ?ref= for single
             var hasSemi = q.indexOf(';') !== -1;
@@ -4199,16 +4228,11 @@
             // BTE v6.9: carry the reading language so the link reopens in the same
             // language the sharer was reading (was silently sharing English).
             if (currentLang && currentLang !== 'en') url += '&lang=' + currentLang;
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(url).then(function(){
-                    flashActionBtn(btn, 'Copied!');
-                    showShareToast('Shareable link copied — ' + (hasSemi ? 'all passages included' : q));
-                }, function(){
-                    window.prompt('Copy this link:', url);
-                });
-            } else {
-                window.prompt('Copy this link:', url);
-            }
+            bteShareUrl(url, q, function(how) {
+                if (how === 'shown') return;
+                if (btn && btn.classList && btn.classList.contains('result-action-btn')) flashActionBtn(btn, how === 'shared' ? 'Shared!' : 'Copied!');
+                showShareToast(how === 'shared' ? 'Shared — ' + q : 'Shareable link copied — ' + (hasSemi ? 'all passages included' : q));
+            });
         }
         function flashActionBtn(btn, msg) {
             if (!btn) return;
