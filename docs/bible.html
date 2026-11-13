@@ -4087,11 +4087,11 @@
                 document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
 
-            // BTE v5.2 Phase 2: Track reading history
-            addToHistory(rangeStr);
+            // BTE v5.2 Phase 2: Track reading history (non-essential: never fail the lookup)
+            try { addToHistory(rangeStr); } catch (e) { console.warn('history', e); }
 
-            // BTE v5.2 Phase 4: Update reading streak
-            updateStreak();
+            // BTE v5.2 Phase 4: Update reading streak (non-essential)
+            try { updateStreak(); } catch (e) { console.warn('streak', e); }
 
             // BTE v5.2 Phase 2: Preload adjacent chapters for faster navigation
             if (currentViewMode === 'chapter') {
@@ -4101,7 +4101,7 @@
                 // BTE v7.2.5 / MBP-0901-BTE: never rethrow — Look Up already painted
                 // "Loading 12 translations..." and a throw leaves that banner forever.
                 console.error('lookupVerse failed', err);
-                try { showError('Could not load that passage. Try again, or pick a Try chip.'); } catch (e2) {}
+                try { showError('Could not load that passage. Try again, or pick a Try chip.' + (err && err.message ? ' (' + String(err.message).slice(0, 120) + ')' : '')); } catch (e2) {}
             } finally {
                 var sb = document.getElementById('searchBtn');
                 if (sb) sb.disabled = false;
@@ -5308,7 +5308,7 @@
             data.lastRead = today;
             data.longestStreak = Math.max(data.longestStreak || 0, data.streak);
             data.totalDays = (data.totalDays || 0) + 1;
-            localStorage.setItem('bte-streak', JSON.stringify(data));
+            try { localStorage.setItem('bte-streak', JSON.stringify(data)); } catch (e) {}  // Safari quota/private mode must not fail a lookup (PJG-1113-BTE1)
         }
         function renderStreakWidget() {
             var panel = document.getElementById('streakWidget');
