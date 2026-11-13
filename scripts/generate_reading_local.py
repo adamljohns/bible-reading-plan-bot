@@ -377,7 +377,14 @@ def build_watch_messages(w, ref, month, daynum, on_date: date):
         f"'{close_line}' — one Christ title only, last line. BANNED closes: 'my Lord Jesus Christ', 'my Lord and Commander', "
         f"any double full Christ title stack, 'we pray'. "
         f"BANNED stock line (1 Cor 15:58 may be the scripture of the day; it is not a closer): "
-        f"'labor in the Lord is not in vain' and close variants. Do not use it in reflection, application, or prayer."
+        f"'labor in the Lord is not in vain' and close variants. Do not use it in reflection, application, or prayer. "
+        f"TRUE TENSE (Principal 2026-11-13, HARD): the man praying is a JUSTIFIED BELIEVER. Confess his former state "
+        f"(guilty, condemned, dead in sin, no fear of God, enemy, under wrath, mouth stopped) in the PAST tense only: "
+        f"'I was guilty... You stopped my mouth... there was no fear of God before my eyes.' Present-tense confession only "
+        f"for sins a believer still commits ('I confess I still...', 'forgive me where I have...'), and never invent specific "
+        f"present sins. Standing in grace is present tense ('I am justified / forgiven / Your son'). "
+        f"BANNED: 'I stand guilty', 'I am condemned', 'I am under Your wrath', 'I am dead in sin', 'I am Your enemy', "
+        f"'my mouth is stopped', 'there is no fear of God before my eyes'."
     )
     parts.append(f"12. A final line beginning '{w['close']}' with a one-line charge imperative (not Helm/Rudder/Course Set). "
                  "PJG-1109-EAR1: the charge OPENS with the directive verb (command first, ground second), never a description "
@@ -526,6 +533,15 @@ def watch_valid(text, w, on_date=None):
         r"As the head of your home,\s*Maria",
         r"\b(?:God's|Your|His|divine) energy\b",  # PJG-1109-EAR1
     ]
+    # Principal 2026-11-13: confess in the true tense (prayer section only, fail closed).
+    _pt = re.search(r"🙏[^\n]*\n([\s\S]*?)(?=\n🛡️|\n⚓|\Z)", text)
+    if _pt:
+        for _rx in (r"\bI (?:stand|am) (?:guilty|condemned|under (?:Your )?wrath|dead in)\b",
+                    r"there is no fear of God before my eyes",
+                    r"\bI am (?:Your )?enemy\b",
+                    r"\bmy mouth (?:is )?stopped\b"):
+            if re.search(_rx, _pt.group(1), re.I):
+                return False
     # PJG-1109-EAR1: Watch Charge must open with a directive, not a description.
     ch_m = re.search(r"Watch Charge:\s*(\S+)", text)
     if ch_m and ch_m.group(1).lower().strip(",.") in {"christ","god","the","he","his","this","there","it","your","you","we","a","an","our"}:

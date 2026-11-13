@@ -72,6 +72,15 @@ else
     exit 2
   }
 fi
+  # Principal 2026-11-13: confess in the true tense (prayer section only).
+if [ "$DRY_RUN" -eq 1 ]; then
+  echo "  DRY-RUN: would run scripts/check_prayer_tense.py $DATE"
+else
+  python3 scripts/check_prayer_tense.py "$DATE" || {
+    echo "REFUSE publish: prayer tense gate failed for $DATE" >&2
+    exit 2
+  }
+fi
 
 # ─── Render ───────────────────────────────────────────────────────────────
 echo
