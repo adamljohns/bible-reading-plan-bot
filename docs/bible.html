@@ -285,6 +285,9 @@
         .crossref-more { display: inline-block; margin-top: 4px; font-size: 0.8rem; opacity: 0.85; border-bottom: none !important; color: var(--gold); }
         .share-toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: var(--gold); color: #000; padding: 10px 24px; border-radius: 8px; font-weight: 600; font-size: 0.95rem; z-index: 9999; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
         .share-toast.show { opacity: 1; }
+        .memorize-toast.show { pointer-events: auto; }
+        .memorize-toast a { color: #000; text-decoration: underline; font-weight: 700; margin-left: 6px; white-space: nowrap; }
+        .brass-link { display:inline-flex;align-items:center;gap:4px;margin-left:10px;font-size:0.75rem;color:var(--gold);text-decoration:none;border:1px solid rgba(212,175,55,0.5);border-radius:6px;padding:2px 8px; }
 
         /* BTE v5.2: Go to Chapter quick input */
         .goto-bar {
@@ -3508,6 +3511,7 @@
                 '<button class="goto-btn" onclick="gotoChapterVerse()">Go</button>' +
                 '<span style="color:var(--border);margin:0 6px;">|</span>' +
                 '<span class="bookmark-btn' + bmActive + '" onclick="toggleBookmark(\'' + bmRef.replace(/'/g, "\\'") + '\')" title="Bookmark / Memorize this passage" style="display:inline-flex;align-items:center;gap:4px;cursor:pointer;"><img src="assets/icons/' + bmIcon + '" class="site-icon" alt="bookmark" width="20" height="20"><span style="font-size:0.75rem;color:var(--gray);">' + (isBookmarked(bmRef) ? 'Saved' : 'Bookmark / Memorize') + '</span></span>' +
+                '<a class="brass-link" href="memorize.html" title="Open Brass Check, your Scripture memory deck"><img src="assets/icons/brass-check-192.png" alt="" width="16" height="16"> Brass Check</a>' +
                 '</div>';
             // BTE v5.2: Word search (chapter mode only)
             if (currentViewMode === 'chapter') {
@@ -4192,6 +4196,26 @@
             });
         }
 
+        // PJG-1115-BRASS1: after a bookmark, give a tappable way into Brass Check.
+        function showMemorizeToast(msg) {
+            var t = document.getElementById('memorizeToast');
+            if (!t) {
+                t = document.createElement('div');
+                t.id = 'memorizeToast';
+                t.className = 'share-toast memorize-toast';
+                document.body.appendChild(t);
+            }
+            t.innerHTML = '';
+            var span = document.createElement('span');
+            span.textContent = msg + ' ';
+            var a = document.createElement('a');
+            a.href = 'memorize.html';
+            a.textContent = 'Open Brass Check \u2192';
+            t.appendChild(span); t.appendChild(a);
+            t.classList.add('show');
+            clearTimeout(t._hide);
+            t._hide = setTimeout(function() { t.classList.remove('show'); }, 6000);
+        }
         function showToast(msg) {
             var toast = document.getElementById('shareToast');
             if (!toast) {
@@ -4547,7 +4571,7 @@
                 bm.unshift({ ref: ref, ts: Date.now() });
                 if (bm.length > 50) bm = bm.slice(0, 50); // cap at 50
                 var stacked = upsertMemorizeCard(ref);
-                showToast(stacked ? ('Bookmarked / memorized: ' + ref) : ('Bookmarked: ' + ref));
+                showMemorizeToast(stacked ? ('Added to Brass Check: ' + ref) : ('Bookmarked: ' + ref));
             }
             saveBookmarks(bm);
             // Re-render top nav bookmark icon
