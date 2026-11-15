@@ -23,7 +23,11 @@
  *   --ship     after --apply, commit + push via scripts/full-review-ship.sh, the
  *              path-scoped route (refuses ~/bible-reading-plan-bot; see DEPLOY-DOCTRINE.md).
  *   --accept-dry-run-patch   allow applying a patch built with --dry-run (its
- *              auto changes only; dry-run HOLD rows still never apply).
+ *              auto changes only). On apply the round is promoted to live: its
+ *              HOLD rows and stats row drop dry_run, so Chaps approvals can land.
+ *   --holds-only  after the auto apply: apply only HOLD rows Chaps approved.
+ *   --promote-holds  repair: promote an already-applied dry-run round to live
+ *              (HOLD rows + stats row) without touching churches.json.
  *
  * Usage:
  *   node scripts/apply-full-review-patch.js --patch docs/data/full-review/rounds/<round>/review-patch.json [--apply [--ship]]
@@ -43,18 +47,49 @@ const STATS = opt('--stats', path.join(ROOT, 'docs', 'data', 'full-review-stats.
 const APPLY = args.includes('--apply');
 const SHIP = args.includes('--ship');
 const ACCEPT_DRY = args.includes('--accept-dry-run-patch');
+// After the auto apply, Chaps approvals land with --holds-only: approved HOLD
+// rows only, auto changes are not re-run.
+const HOLDS_ONLY = args.includes('--holds-only');
+// One-time repair for a dry-run round applied before promotion existed.
+const PROMOTE_ONLY = args.includes('--promote-holds');
 // Local (Eastern) calendar date, not UTC — a 10 pm round must not stamp tomorrow.
 const TODAY = new Date().toLocaleDateString('en-CA');
 if (!PATCH) { console.error('usage: --patch <review-patch.json> [--apply [--ship]]'); process.exit(2); }
 
 const patch = JSON.parse(fs.readFileSync(PATCH, 'utf8'));
-if (patch.dry_run && !ACCEPT_DRY) {
+if (patch.dry_run && !ACCEPT_DRY && !PROMOTE_ONLY && !patch.promoted_live) {
   console.error(`REFUSED: ${patch.round} was built as a DRY RUN. Re-run the round live, or pass --accept-dry-run-patch after Adam's GO.`);
   process.exit(3);
 }
-if (patch.applied && APPLY) { console.error(`REFUSED: ${patch.round} already applied at ${patch.applied_at}.`); process.exit(3); }
+if (patch.applied && APPLY && !HOLDS_ONLY) { console.error(`REFUSED: ${patch.round} already applied at ${patch.applied_at}. For QA-approved holds use --holds-only.`); process.exit(3); }
+if (HOLDS_ONLY && !patch.applied) { console.error(`REFUSED: --holds-only needs ${patch.round} applied first (auto changes).`); process.exit(3); }
 let queue = { holds: [] };
 try { queue = JSON.parse(fs.readFileSync(QUEUE, 'utf8')); } catch (_) { }
+
+// A dry-run round that Adam GO'd and applied is live: its HOLD rows and its
+// stats row must stop saying dry_run, or Chaps approvals never apply and the
+// grind report shows the round as "dry run / applied 0".
+function promoteRound() {
+  let n = 0;
+  patch.promoted_live = TODAY;
+  for (const h of queue.holds || []) if (h.round === patch.round && h.dry_run) { h.dry_run = false; h.promoted_live_at = TODAY; n++; }
+  try {
+    const s = JSON.parse(fs.readFileSync(STATS, 'utf8'));
+    const row = (s.series || []).find(x => x.round === patch.round);
+    if (row && row.dry_run) { row.dry_run = false; row.promoted_from_dry_run = TODAY; }
+    s.pending_holds = (queue.holds || []).filter(h => h.qa_status === 'pending' && !h.dry_run).length;
+    fs.writeFileSync(STATS, JSON.stringify(s, null, 1));
+  } catch (_) { }
+  return n;
+}
+if (PROMOTE_ONLY) {
+  if (!patch.applied || !patch.dry_run) { console.error(`REFUSED: --promote-holds is only for an applied dry-run patch.`); process.exit(3); }
+  const n = promoteRound();
+  fs.writeFileSync(QUEUE, JSON.stringify(queue, null, 1));
+  fs.writeFileSync(PATCH, JSON.stringify(patch, null, 1));
+  console.log(`PROMOTED ${patch.round}: ${n} HOLD row(s) now live (pending Chaps QA); stats row marked live.`);
+  process.exit(0);
+}
 const approved = new Map((queue.holds || [])
   .filter(h => h.round === patch.round && h.qa_status === 'approved' && !h.dry_run && h.kind === 'change')
   .map(h => [h.hold_id, h]));
@@ -75,7 +110,7 @@ for (const r of patch.churches || []) {
   if (!c) { log.skipped.push({ church_id: r.id, reason: 'not in churches.json' }); continue; }
   let touched = 0;
   for (const ch of r.changes || []) {
-    const go = ch.gate === 'auto' || approved.has(ch.change_id);
+    const go = HOLDS_ONLY ? approved.has(ch.change_id) : (ch.gate === 'auto' || approved.has(ch.change_id));
     if (!go) continue;
     if (!ch.evidence || !ch.evidence.quote || !ch.evidence.url) { log.skipped.push({ change_id: ch.change_id, reason: 'no evidence' }); continue; }
     const cur = getP(c, ch.field);
@@ -138,15 +173,20 @@ if (approvedFlags.length) {
   j.items.push(...log.flags_queued.map(x => ({ ...x, round: patch.round, at: TODAY })));
   fs.writeFileSync(AF, JSON.stringify(j, null, 1));
 }
-patch.applied = true; patch.applied_at = new Date().toISOString();
+if (patch.dry_run && ACCEPT_DRY && !HOLDS_ONLY) promoteRound();
+if (HOLDS_ONLY) { patch.holds_applied_at = new Date().toISOString(); }
+else { patch.applied = true; patch.applied_at = new Date().toISOString(); }
 fs.writeFileSync(PATCH, JSON.stringify(patch, null, 1));
-fs.writeFileSync(path.join(path.dirname(PATCH), 'applied.json'), JSON.stringify(log, null, 1));
+fs.writeFileSync(path.join(path.dirname(PATCH), HOLDS_ONLY ? `applied-holds-${new Date().toISOString().replace(/[:.]/g, '')}.json` : 'applied.json'), JSON.stringify(log, null, 1));
 for (const h of queue.holds || []) if (approved.has(h.hold_id) && log.applied.some(a => a.change_id === h.hold_id)) h.qa_status = 'applied';
 fs.writeFileSync(QUEUE, JSON.stringify(queue, null, 1));
 try {
   const s = JSON.parse(fs.readFileSync(STATS, 'utf8'));
   const row = (s.series || []).find(x => x.round === patch.round);
-  if (row) { row.applied = log.applied.filter(a => a.via === 'auto').length; row.applied_holds = log.applied.filter(a => a.via !== 'auto').length; row.applied_at = TODAY; }
+  const nAuto = log.applied.filter(a => a.via === 'auto').length, nHolds = log.applied.filter(a => a.via !== 'auto').length;
+  if (row && HOLDS_ONLY) { row.applied_holds = (row.applied_holds || 0) + nHolds; row.holds_applied_at = TODAY; }
+  else if (row) { row.applied = nAuto; row.applied_holds = nHolds; row.applied_at = TODAY; }
+  s.pending_holds = (queue.holds || []).filter(h => h.qa_status === 'pending' && !h.dry_run).length;
   fs.writeFileSync(STATS, JSON.stringify(s, null, 1));
 } catch (_) { }
 console.log(`APPLIED ${patch.round}: churches.json written, pages regenerated, consistency GREEN.`);
