@@ -21,7 +21,9 @@ HUB_SPECS = {
 # Live entries hand-built before batch JSON existed; they can be tagged only
 # through the overlay file and take their display word from the live page.
 LEGACY_SLUGS = ("tolerance", "equity", "equality", "diversity", "inclusion", "gaslighting", "woke",
-                "privilege", "justice", "compassion", "gender", "identity", "culture-war")
+                "privilege", "justice", "compassion", "gender", "identity", "culture-war",
+                # Bible-born legacy pages tagged via overlay (Word Origins cat 1, MBP-1114-WO-PJ-RULE)
+                "scapegoat", "leviathan", "armageddon", "prodigal", "samaritan", "pharisee", "jubilee")
 OVERLAY_FIELDS = {"origin_category", "origin_label", "origin_sources", "origin_crosslist",
                   "corruption_summary", "etymology"}
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
