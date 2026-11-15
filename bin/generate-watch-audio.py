@@ -55,6 +55,12 @@ VS_HEALTH = os.environ.get("VOICESTUDIO_HEALTH", "http://127.0.0.1:3900/health")
 VS_PROFILE = os.environ.get("VOICESTUDIO_PROFILE", "9ffa357f")
 VS_SEED = int(os.environ.get("VOICESTUDIO_SEED", "848009763"))
 VS_CFG = os.path.expanduser("~/.openclaw/voice/voicestudio.json")
+# Ephemeral, exact prayer-only audio used by the refusal gate. Keeping it out
+# of the repo prevents old whole-watch narration from satisfying a missing
+# prayer sentence.
+PRAYER_AUDIT_DIR = os.path.expanduser(
+    os.environ.get("WATCH_PRAYER_AUDIT_DIR", "/tmp/pj-watch-prayer-asr")
+)
 # Prefer TCC-safe path under ~/.openclaw (Documents/ is often denied to agent/LaunchAgent).
 _F5_DEFAULT_WAV = os.path.expanduser("~/.openclaw/voice/f5tts-tests/ref-calm.wav")
 _F5_LEGACY_WAV = os.path.expanduser("~/Documents/05-Voice/f5tts-tests/ref-calm.wav")
@@ -851,29 +857,106 @@ def segment_watch(text, by_name):
     return segs, (entry["name"], sv, tag_extra)
 
 
+def voicestudio_prayer_requests(text):
+    """Return short VoiceStudio requests, one prayer sentence per request.
+
+    A final standalone Amen remains attached to the preceding close. The
+    existing audio lock forbids isolating Amen because short takes can clip it.
+    """
+    pieces = [p.strip() for p in re.split(r"(?<=[.!?])\s+", text.strip()) if p.strip()]
+    if len(pieces) > 1 and re.fullmatch(r"Amen[.!?]*", pieces[-1], flags=re.I):
+        pieces[-2] = pieces[-2].rstrip() + " " + pieces[-1]
+        pieces.pop()
+    return pieces
+
+
+def _to_24k_mono(src, dst):
+    subprocess.run(
+        ["ffmpeg", "-y", "-loglevel", "error", "-i", src,
+         "-ac", "1", "-ar", str(SAMPLE_RATE), dst],
+        check=True,
+    )
+
+
 def render_voicestudio_text(text, out_wav):
-    """Primary Adam clone via local VoiceStudio (MBP-0827). Returns True on success."""
-    script = os.path.expanduser("~/Scripts/voicestudio-speak.py")
+    """Primary Adam clone via local VoiceStudio, sentence by sentence."""
+    script = VS_SPEAK
     if not os.path.isfile(script):
         return False
     try:
-        r = subprocess.run(
-            [sys.executable, script, "--text", text, "--out", out_wav],
-            capture_output=True, text=True, timeout=240,
-        )
-        if r.returncode != 0 or not os.path.isfile(out_wav):
-            print(f"  WARN VoiceStudio prayer failed: {(r.stderr or r.stdout or '')[-300:]}", flush=True)
+        requests = voicestudio_prayer_requests(text)
+        if not requests:
             return False
-        if out_wav.lower().endswith(".wav"):
-            tmpw = out_wav + ".24k.wav"
-            subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", out_wav,
-                            "-ac", "1", "-ar", str(SAMPLE_RATE), tmpw], check=True)
-            os.replace(tmpw, out_wav)
-        print("  VoiceStudio prayer ok", flush=True)
+        with tempfile.TemporaryDirectory(prefix="vs-prayer-") as tmp:
+            parts = []
+            for i, sentence in enumerate(requests):
+                raw = os.path.join(tmp, f"sentence-{i:02d}-raw.wav")
+                wav = os.path.join(tmp, f"sentence-{i:02d}.wav")
+                r = subprocess.run(
+                    [sys.executable, script, "--text", sentence, "--out", raw],
+                    capture_output=True, text=True, timeout=240,
+                )
+                if r.returncode != 0 or not os.path.isfile(raw):
+                    print(
+                        f"  WARN VoiceStudio prayer sentence {i + 1}/{len(requests)} failed: "
+                        f"{(r.stderr or r.stdout or '')[-300:]}", flush=True,
+                    )
+                    return False
+                _to_24k_mono(raw, wav)
+                parts.append(wav)
+            if len(parts) == 1:
+                shutil.copyfile(parts[0], out_wav)
+            else:
+                sil = os.path.join(tmp, "sentence-gap.wav")
+                subprocess.run(
+                    ["ffmpeg", "-y", "-loglevel", "error", "-f", "lavfi",
+                     "-i", f"anullsrc=r={SAMPLE_RATE}:cl=mono", "-t", "0.22", sil],
+                    check=True,
+                )
+                joined = []
+                for i, wav in enumerate(parts):
+                    if i:
+                        joined.append(sil)
+                    joined.append(wav)
+                lst = os.path.join(tmp, "sentences.txt")
+                with open(lst, "w") as fh:
+                    fh.write("\n".join(f"file '{part}'" for part in joined) + "\n")
+                subprocess.run(
+                    ["ffmpeg", "-y", "-loglevel", "error", "-f", "concat",
+                     "-safe", "0", "-i", lst, "-ac", "1", "-ar", str(SAMPLE_RATE),
+                     out_wav],
+                    check=True,
+                )
+        print(f"  VoiceStudio prayer ok requests={len(requests)}", flush=True)
         return True
     except Exception as e:
+        try:
+            os.unlink(out_wav)
+        except OSError:
+            pass
         print(f"  WARN VoiceStudio prayer exception ({e})", flush=True)
         return False
+
+
+def prayer_audit_path(date, key):
+    return os.path.join(PRAYER_AUDIT_DIR, f"{date}-{FILE_KEY[key]}-prayer.wav")
+
+
+def persist_prayer_audit(date, key, wav):
+    """Atomically retain the exact, edge-faded prayer segment for ASR."""
+    path = prayer_audit_path(date, key)
+    os.makedirs(PRAYER_AUDIT_DIR, exist_ok=True)
+    tmp = path + f".tmp-{os.getpid()}.wav"
+    # render_watch applies this same filter to every speech segment before its
+    # final concat, so the audit artifact matches the prayer window actually
+    # embedded in the watch (before whole-file loudness normalization).
+    subprocess.run([
+        "ffmpeg", "-y", "-loglevel", "error", "-i", wav,
+        "-af", "afade=t=in:st=0:d=0.035,areverse,afade=t=in:st=0:d=0.05,areverse",
+        tmp,
+    ], check=True)
+    os.replace(tmp, path)
+    return path
 
 
 def render_f5_text(text, out_wav):
@@ -966,6 +1049,11 @@ def render_f5_text(text, out_wav):
 
 
 def render_watch(model, gen_audio, date, key, segs):
+    audit = prayer_audit_path(date, key)
+    try:
+        os.unlink(audit)
+    except FileNotFoundError:
+        pass
     with tempfile.TemporaryDirectory(prefix="watch-") as tmp:
         sil = os.path.join(tmp, "sil.wav")
         subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-f", "lavfi",
@@ -1002,6 +1090,9 @@ def render_watch(model, gen_audio, date, key, segs):
                     raise RuntimeError(
                         "prayer=REFUSE-narrator: VoiceStudio and F5 both failed"
                     )
+                # Exact prayer segment later concatenated into this watch. The
+                # ASR refusal gate inspects this, never the whole watch.
+                persist_prayer_audit(date, key, fw)
             else:
                 gen_audio(text=text, model=model, voice=voice, lang_code=lang,
                           output_path=seg_dir, file_prefix="p", join_audio=True,

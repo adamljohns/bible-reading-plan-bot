@@ -2,7 +2,7 @@
 """PJG-0825-PEACE1 — ASR gate vs JSON prayer sentences.
 
 Refuse R2 if any published prayer sentence (or named close) is missing from
-the prayer-region transcript, or if stray narration appears before Father,.
+the exact generated prayer segment, or if a prayer heading leaks into it.
 
 Staff proof only. Principal ear remains CLOSE.
 """
@@ -30,6 +30,9 @@ SECOND_MODEL = os.environ.get(
     os.path.expanduser("~/.openclaw/whisper_models/ggml-large-v3.bin"),
 )
 WATCHES = ("wisdom", "husband", "father", "citizen", "peace")
+PRAYER_AUDIT_DIR = Path(os.path.expanduser(
+    os.environ.get("WATCH_PRAYER_AUDIT_DIR", "/tmp/pj-watch-prayer-asr")
+))
 # Per-day JSON keys are wisdom/first/second/third/peace.
 # MP3 stems are wisdom/husband/father/citizen/peace.
 JSON_KEY = {
@@ -151,18 +154,13 @@ def asr(mp3: Path, tail_sec: int = 90) -> str:
         raise SystemExit(f"ASR-GATE: missing whisper-cli at {WHISPER}")
     if not Path(MODEL).is_file():
         raise SystemExit(f"ASR-GATE: missing model at {MODEL}")
-    # PJG-0826-AUD1: one window is brittle. Citizen has history AFTER prayer
-    # (50s = history only). Husband 90s skipped Father; 45s heard it. Union.
+    # Input is the exact prayer-only segment emitted by generate-watch-audio.py.
+    # Multiple windows still protect against a degenerate Whisper pass, but no
+    # narration or history can satisfy a dropped prayer sentence.
     parts = []
     # PJG-0907-PRAY2: extra 150s window so VoiceStudio Amen is not a 09-05 false-fail.
-    # PJG-0915-AUD16: tails alone are positional and therefore brittle. Citizen
-    # carries Watch Charge AND "This Day in American History" after the prayer;
-    # on a long history day the prayer's opening sentences fall outside even the
-    # 150s tail and read as missing while the audio is correct. The 2026-09-16
-    # bake refused R2 on exactly that. A whole-file pass makes prayer position
-    # irrelevant: if the sentence was spoken anywhere in the file, it is heard.
-    # The tails stay in the union — they are cheap and they localise the prayer
-    # region, which keeps unrelated matches from counting.
+    # Keep tails plus a whole-segment pass. They all operate only on the prayer
+    # artifact, so repeated wording elsewhere in the watch is irrelevant.
     dur = duration_sec(mp3)
     # PJG-0915-AUD16: 130 added on measurement, not taste. On 2026-09-16 citizen
     # (321s) the 130s tail transcribed 1532 chars and contained the prayer while
@@ -248,7 +246,14 @@ def check_watch(day: str, key: str, json_path: Path, mp3: Path, transcribe=None)
     if not mp3.is_file():
         fails.append(f"{key}: missing {mp3}")
         return fails
-    raw = (transcribe or asr)(mp3)
+    prayer_audio = PRAYER_AUDIT_DIR / f"{day}-{key}-prayer.wav"
+    if not prayer_audio.is_file():
+        fails.append(
+            f"{key}: missing exact prayer ASR artifact {prayer_audio}; "
+            "refuse whole-watch fallback"
+        )
+        return fails
+    raw = (transcribe or asr)(prayer_audio)
     hay = norm(raw)
     # The prayer's own address is the listen-script opener. Prayers no longer all
     # open "Father," (Principal 2026-11-07: vary Dear Lord / Heavenly Father /
