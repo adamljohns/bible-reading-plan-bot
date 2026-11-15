@@ -92,7 +92,7 @@ PRAYER_OPENINGS = {
               "Lord Jesus, who loved the church and gave Yourself for her", "Father", "Lord"],
     "second": ["Dear Heavenly Father", "Our Father in heaven", "Abba, Father", "Father of mercies"],
     "third": ["God on high", "Mighty King", "Sovereign Lord",
-              "King of kings and Lord of lords", "Judge of all the earth"],
+              "Judge of all the earth"],
     "peace": ["Lord of peace", "Shepherd of my soul", "O LORD, my keeper", "Faithful God"],
 }
 SPIRIT_LINE_EXAMPLES = [
