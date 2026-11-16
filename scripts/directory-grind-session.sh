@@ -37,7 +37,10 @@ RUNNER="$HOME/bible-reading-plan-bot-autopilot/scripts/pastor-refine-local.sh"
 SUMMARY="$HOME/bible-reading-plan-bot-autopilot/scripts/summarize-grind-session.js"
 NOTIFY="$HOME/.hermes/bin/notify-adam.sh"
 say() { echo "[$(date '+%F %T')] $*" >>"$LOG"; }
-RUN_LOG_START=$(wc -l <"$RUN_LOG" 2>/dev/null || echo 0)
+# macOS wc pads the count with spaces; without tr the case below reset it to 0,
+# so every session summarised the WHOLE runner log (cumulative totals) and
+# deployed + verified even when it ran zero rounds (CM-1116-GRINDCOUNT).
+RUN_LOG_START=$(wc -l <"$RUN_LOG" 2>/dev/null | tr -d '[:space:]')
 case "$RUN_LOG_START" in ''|*[!0-9]*) RUN_LOG_START=0 ;; esac
 CONTENT_GAIN=0; GAIN=0; SOCIAL_GAIN=0; FRONTIER_GAIN=0; OTHER_GAIN=0
 ATTEMPTED=0; PRODUCTIVE_ROUNDS=0; ZERO_ROUNDS=0; OP_CHECKPOINTS=0
