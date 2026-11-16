@@ -336,7 +336,7 @@ def build_watch_messages(w, ref, month, daynum, on_date: date):
     if w["key"] == "first":
         letter = HAPPY_WEEKDAY[on_date.weekday()]
         parts.append(
-            f"10. A line exactly: ⛏️ Personal Application — {letter}  then ONE '• ' bullet: the ONE concrete action he does HIMSELF today (PJG-1116-EAR3, Principal HARD). Optional extra bullets (at most two, never 4+ total) ONLY for tasks he can hand to someone else, each starting exactly 'Delegate: '. Never a second do-it-yourself action. "
+            f"10. A line exactly: ⛏️ Personal Application — {letter}  then THREE parts, in order (PJG-1116-EAR3 refined 16:18, Principal HARD): (1) ONE '• ' bullet: the ONE concrete action he does HIMSELF today; (2) a prayer line beginning exactly 'Pray: ' (one sentence to God tied to that action); (3) OPTIONALLY ONE '• ' bullet for ONE item he can hand to someone else, starting exactly 'Delegate: '. Never a second do-it-yourself action and never more than one Delegate. "
             "Each bullet must be rooted in a SPECIFIC image, name, command, or scene from TODAY's passage "
             "(not generic spiritual advice that could attach to any text), and name a concrete, doable step. "
             "MEN-ONLY REAL MAN GATE (rewrite-rules item 15 / PJG-0816-MEN1 — HARD from 2026-08-17): "
@@ -351,7 +351,7 @@ def build_watch_messages(w, ref, month, daynum, on_date: date):
             f"HARD PJG-0826-HAPPY1: heading letter is {letter} (weekday lock). Preach the vineyard/text UNDER that letter."
         )
     elif w["key"] != "peace":
-        parts.append("10. A line exactly: ⛏️ Personal Application — {same trait}  then ONE '• ' bullet: the ONE concrete action he does HIMSELF today (PJG-1116-EAR3, Principal HARD). Optional extra bullets (at most two, never 4+ total) ONLY for tasks he can hand to someone else, each starting exactly 'Delegate: '. Never a second do-it-yourself action. "
+        parts.append("10. A line exactly: ⛏️ Personal Application — {same trait}  then THREE parts, in order (PJG-1116-EAR3 refined 16:18, Principal HARD): (1) ONE '• ' bullet: the ONE concrete action he does HIMSELF today; (2) a prayer line beginning exactly 'Pray: ' (one sentence to God tied to that action); (3) OPTIONALLY ONE '• ' bullet for ONE item he can hand to someone else, starting exactly 'Delegate: '. Never a second do-it-yourself action and never more than one Delegate. "
                      "Each bullet must be rooted in a SPECIFIC image, name, command, or scene from TODAY's passage "
                      "(not generic spiritual advice that could attach to any text), and name a concrete, doable step. "
                      "MEN-ONLY REAL MAN GATE (rewrite-rules item 15 / PJG-0816-MEN1 — HARD from 2026-08-17): "
@@ -388,7 +388,7 @@ def build_watch_messages(w, ref, month, daynum, on_date: date):
     )
     parts.append(f"12. A final line beginning '{w['close']}' with a one-line charge imperative (not Helm/Rudder/Course Set). "
                  "PJG-1109-EAR1: the charge OPENS with the directive verb (command first, ground second), never a description "
-                 "(bad: 'Christ dwells in Maria too. Speak well of her'; good: 'Speak well of Maria ... Christ dwells in her too.'). The first word is an imperative verb (never a pronoun, article, name, 'When', 'Your', 'Freedom', 'Grace'). PJG-1116-EAR3: the Watch Charge names the SAME one action as the first Personal Application bullet. Never write 'not a looser one' (heard as 'loser'); say e.g. 'a willing subject, not a lawless one'. "
+                 "(bad: 'Christ dwells in Maria too. Speak well of her'; good: 'Speak well of Maria ... Christ dwells in her too.'). The first word is an imperative verb (never a pronoun, article, name, 'When', 'Your', 'Freedom', 'Grace'). PJG-1116-EAR3: the Watch Charge names the ONE action (the do-it-yourself Personal Application bullet). Never write 'not a looser one' (heard as 'loser'); say e.g. 'a willing subject, not a lawless one'. "
                  "Never write 'God's energy' / 'Your energy' / 'His energy' anywhere; say His working / His power.")
     if w["extra"]:
         extra = (w["extra"]
@@ -521,6 +521,18 @@ def watch_valid(text, w, on_date=None):
             return False
     if w["key"] == "second" and re.search(r"Through Christ our Savior", text):
         return False
+    # PJG-1116-EAR3 (16:18 refinement): Personal Application = ONE self action,
+    # a 'Pray: ' line, and at most ONE 'Delegate: ' bullet.
+    if w["key"] != "peace":
+        pa_m = re.search(r"Personal Application[^\n]*\n([\s\S]*?)(?=\n\s*\n|\n[^\s•\-*P]|\Z)", text)
+        if pa_m:
+            lines = [l.strip() for l in pa_m.group(1).splitlines() if l.strip()]
+            bullets = [re.sub(r"^[•\-*]\s*", "", l) for l in lines if re.match(r"^[•\-*]\s", l)]
+            delegates = [b for b in bullets if b.startswith("Delegate:")]
+            selfs = [b for b in bullets if not b.startswith(("Delegate:", "Pray:"))]
+            prayers = [l for l in lines if re.match(r"^(?:[•\-*]\s*)?Pray:", l)]
+            if len(delegates) > 1 or len(selfs) != 1 or len(prayers) < 1:
+                return False
     # PJG-0810-PRAYSWEEP1 hard bans — refuse before file write.
     ban_res = [
         r"my Lord Jesus Christ",
