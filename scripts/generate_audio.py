@@ -139,7 +139,9 @@ PRONOUNCE_LEXICON = [
     (r"\b[Rr]eveille\b", "Rev-uh-lee"),
     # PJG-1110-EAR2: past-tense "read" said as "red", not "reed".
     (r"\b((?:have|has|had|having|I've|you've|we've|they've|was|were|been|being|is|are|got|gets)\s+)read\b", r"\1red"),
-    (r"\b(\w+(?:ed|ung|en)),\s+read\b", r"\1, red"),
+    (r"\b(\w+(?:ed|ung|en)),\s+read\b", r"\1, red"),    # PJG-1116-EAR3: verb "rebel" = rih-BELL; the noun ("a rebel", "the rebels") stays REB-el.
+    (r"\b([Rr]ebel)(s?)(?=\s+against\b)", r"rih-BELL\2"),
+    (r"\b((?:I|we|you|they|men|some|others|who|that|to|will|would|may|might|can|could|not|never|often|still)\s+)rebel\b", r"\1rih-BELL"),
 ]
 
 

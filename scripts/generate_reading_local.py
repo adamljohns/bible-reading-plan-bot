@@ -336,7 +336,7 @@ def build_watch_messages(w, ref, month, daynum, on_date: date):
     if w["key"] == "first":
         letter = HAPPY_WEEKDAY[on_date.weekday()]
         parts.append(
-            f"10. A line exactly: ⛏️ Personal Application — {letter}  then EXACTLY THREE '• ' bulleted concrete actions (never 4+). "
+            f"10. A line exactly: ⛏️ Personal Application — {letter}  then ONE '• ' bullet: the ONE concrete action he does HIMSELF today (PJG-1116-EAR3, Principal HARD). Optional extra bullets (at most two, never 4+ total) ONLY for tasks he can hand to someone else, each starting exactly 'Delegate: '. Never a second do-it-yourself action. "
             "Each bullet must be rooted in a SPECIFIC image, name, command, or scene from TODAY's passage "
             "(not generic spiritual advice that could attach to any text), and name a concrete, doable step. "
             "MEN-ONLY REAL MAN GATE (rewrite-rules item 15 / PJG-0816-MEN1 — HARD from 2026-08-17): "
@@ -351,7 +351,7 @@ def build_watch_messages(w, ref, month, daynum, on_date: date):
             f"HARD PJG-0826-HAPPY1: heading letter is {letter} (weekday lock). Preach the vineyard/text UNDER that letter."
         )
     elif w["key"] != "peace":
-        parts.append("10. A line exactly: ⛏️ Personal Application — {same trait}  then EXACTLY THREE '• ' bulleted concrete actions (never 4+). "
+        parts.append("10. A line exactly: ⛏️ Personal Application — {same trait}  then ONE '• ' bullet: the ONE concrete action he does HIMSELF today (PJG-1116-EAR3, Principal HARD). Optional extra bullets (at most two, never 4+ total) ONLY for tasks he can hand to someone else, each starting exactly 'Delegate: '. Never a second do-it-yourself action. "
                      "Each bullet must be rooted in a SPECIFIC image, name, command, or scene from TODAY's passage "
                      "(not generic spiritual advice that could attach to any text), and name a concrete, doable step. "
                      "MEN-ONLY REAL MAN GATE (rewrite-rules item 15 / PJG-0816-MEN1 — HARD from 2026-08-17): "
@@ -388,7 +388,7 @@ def build_watch_messages(w, ref, month, daynum, on_date: date):
     )
     parts.append(f"12. A final line beginning '{w['close']}' with a one-line charge imperative (not Helm/Rudder/Course Set). "
                  "PJG-1109-EAR1: the charge OPENS with the directive verb (command first, ground second), never a description "
-                 "(bad: 'Christ dwells in Maria too. Speak well of her'; good: 'Speak well of Maria ... Christ dwells in her too.'). "
+                 "(bad: 'Christ dwells in Maria too. Speak well of her'; good: 'Speak well of Maria ... Christ dwells in her too.'). The first word is an imperative verb (never a pronoun, article, name, 'When', 'Your', 'Freedom', 'Grace'). PJG-1116-EAR3: the Watch Charge names the SAME one action as the first Personal Application bullet. Never write 'not a looser one' (heard as 'loser'); say e.g. 'a willing subject, not a lawless one'. "
                  "Never write 'God's energy' / 'Your energy' / 'His energy' anywhere; say His working / His power.")
     if w["extra"]:
         extra = (w["extra"]
@@ -532,6 +532,7 @@ def watch_valid(text, w, on_date=None):
         r"Prayer from the (?:Stateroom|Wardroom|Bridge)",
         r"As the head of your home,\s*Maria",
         r"\b(?:God's|Your|His|divine) energy\b",  # PJG-1109-EAR1
+        r"\bnot a looser one\b",  # PJG-1116-EAR3 (heard as "loser")
     ]
     # Principal 2026-11-13: confess in the true tense (prayer section only, fail closed).
     _pt = re.search(r"🙏[^\n]*\n([\s\S]*?)(?=\n🛡️|\n⚓|\Z)", text)
@@ -543,9 +544,16 @@ def watch_valid(text, w, on_date=None):
             if re.search(_rx, _pt.group(1), re.I):
                 return False
     # PJG-1109-EAR1: Watch Charge must open with a directive, not a description.
-    ch_m = re.search(r"Watch Charge:\s*(\S+)", text)
-    if ch_m and ch_m.group(1).lower().strip(",.") in {"christ","god","the","he","his","this","there","it","your","you","we","a","an","our"}:
-        return False
+    # PJG-1116-EAR3: shared gate — first word must be an imperative verb; phrase bans ("not a looser one").
+    try:
+        sys.path.insert(0, str(Path(__file__).resolve().parent))
+        from check_watch_charge import check_text as _charge_check
+        if _charge_check(text):
+            return False
+    except ImportError:
+        ch_m = re.search(r"Watch Charge:\s*(\S+)", text)
+        if ch_m and ch_m.group(1).lower().strip(",.") in {"christ","god","the","he","his","this","there","it","your","you","we","a","an","our"}:
+            return False
     for pat in ban_res:
         if re.search(pat, text, re.I):
             return False

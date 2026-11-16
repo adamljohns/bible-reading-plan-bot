@@ -37,6 +37,7 @@ GLOBAL_BANS = [
         r"Prayer from the (?:Stateroom|Wardroom|Bridge|Helm)")),
     ("maria_head", re.compile(r"As the head of your home,\s*Maria", re.I)),
     ("watch_charge_anchor", re.compile(r"⚓\s*Watch Charge")),
+    ("not_a_looser_one", re.compile(r"\bnot a looser one\b", re.I)),  # PJG-1116-EAR3
 ]
 
 PRAYER_BANS = [
