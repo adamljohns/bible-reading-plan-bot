@@ -28,6 +28,9 @@ case "$MAX_ROUNDS" in ''|*[!0-9]*) MAX_ROUNDS=0 ;; esac
 export GRIND_DEFER_DEPLOY=1
 export PASTOR_REFINE_BATCH="${PASTOR_REFINE_BATCH:-50}"
 DEADLINE=$(( $(date +%s) + DURATION_H*3600 ))
+# grind-stats rows carry a UTC minute stamp (append-grind-stats.js); the live
+# marker below is "a row this session wrote", so remember when the session began.
+SESSION_START_UTC=$(date -u +%FT%H:%M)
 
 LOCK="/tmp/directory-grind-session.lock"
 STOP="/tmp/directory-grind-session-stop"
@@ -98,13 +101,27 @@ publish_session_output() {
   # Pushing is not publishing. Notify only after the exact trigger commit and
   # cache-busted public endpoints verify. A failed or zero-yield session remains
   # silent; its log/dashboard carry the diagnostic instead of a false receipt.
+  # Marker = the newest grind-stats row THIS session wrote (ts >= session start,
+  # UTC minute). The old marker was today's UTC date, which false-alarmed when a
+  # session's last round landed before 00:00Z and the session closed after it
+  # (the 15:17 EST session ends at 00:17Z), and passed vacuously on any row from
+  # earlier the same day. Falls back to the date only if no row was found.
+  local marker
+  marker=$(SESSION_START_UTC="$SESSION_START_UTC" node -e '
+    try{const j=JSON.parse(require("fs").readFileSync(process.env.HOME+"/bible-reading-plan-bot-autopilot/docs/data/grind-stats.json","utf8"));
+    const ts=(j.series||[]).map(r=>String(r.ts||"")).filter(t=>t>=process.env.SESSION_START_UTC).sort();
+    console.log(ts.length?ts[ts.length-1]:"")}catch(e){console.log("")}' 2>/dev/null)
+  if [ -z "$marker" ]; then
+    marker="$(date -u +%F)T"
+    say "no grind-stats row stamped since $SESSION_START_UTC — verifying against today's date only"
+  fi
   local verifier="$HOME/Scripts/guards/publish-verify.sh"
   if [ -x "$verifier" ] && "$verifier" --lane "directory grind ($PRODUCTIVE_ROUNDS productive rounds)" \
       --repo adamljohns/bible-reading-plan-bot \
       --sha "$deploy_sha" \
       --url https://usmcmin.org/grind-report.html \
       --url https://usmcmin.org/data/grind-stats.json \
-      --expect "$(date -u +%F)T" \
+      --expect "$marker" \
       --timeout 1200; then
     say "publish verified live: sha=$deploy_sha content_fields=$CONTENT_GAIN"
     [ -x "$NOTIFY" ] && "$NOTIFY" --level info --title "Directory grind — verified live result" \
