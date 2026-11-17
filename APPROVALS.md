@@ -312,3 +312,34 @@ scope. Retroactively flagging it would bury the handful that actually matter.
 2026-10-19 | docs/blog/self-care-is-the-wrong-word.html (add SgtMaj Mac audio player) | APPROVE (Adam via Telegram 21:24, "good with publishing the update. Use SgtMaj Mac’s voice for the audio")
 2026-10-20 | docs/blog/self-care-is-the-wrong-word.html (Pops audio, video, infographic, slides) | APPROVE (Adam via Telegram 07:15, "upload the slides, the infographic, and the video embedded into the blog post")
 2026-10-20 | docs/blog/cheap-answers-are-not-a-trained-mind.html | APPROVE (Adam via Telegram 12:35 ET, “Let’s review the blog ProfX wrote for me and push it live today.”)
+
+## Voice revisions of already-published posts — Adam's authority, 17 Nov 2026
+
+Not an APPROVE line for a new post. This records why posts that were already
+public were revised in place on 17 Nov 2026 without a line each.
+
+Adam was shown five pilot rewrites of 2026 blog posts on 16 Nov. In a voice
+note on 17 Nov 2026 at 04:38 he said of them, "I looked at it real quick and I
+definitely like most of the changes," and, on changing the live posts: "the
+changes that you can make, if you wanted to make changes to the actual live
+blogs, is yes. Like you were pointing out, the choppiness, the two-word
+sentences … That needs to be codified in the brain, in the mind of all of my
+agents so that they don't write like that. And one of the words that I've
+seen used a lot by AI is 'actually'. I want to limit my use of the word
+actually. I want to use a different word. I want to use words that I use,
+from all my writings."
+
+On that authority the five pilot posts and the next ten posts on the audit's
+ranked rewrite list were revised for cadence and wording only. The limits
+kept in every one: no new fact, story, quotation or statistic; every idea,
+argument, reference and example of the published post kept; Scripture left in
+the wording he chose, with a version label added only where the words match a
+translation in the site's Bible data (his ruling of 16 Nov: "I might have
+chosen the Bible version on purpose, so version label makes sense"); bylines
+as he ruled (his own name on what he wrote; "By U.S.M.C. Ministries · drafted
+with AI assistance, reviewed by Adam Johns" on AI-drafted posts). Posts with a
+doctrine flag for the pastor desk, the six hidden directory essays and the two
+related directory posts were left alone. The open questions each revision
+raised are held for Adam and were not answered on his behalf. The rule and
+the check are in `BLOG-VOICE-GUIDE.md` (sections 0 and 0.2) and
+`bin/voice_audit_blog.py`.
