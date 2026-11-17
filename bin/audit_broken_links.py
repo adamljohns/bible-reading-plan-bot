@@ -55,7 +55,8 @@ PRIVATE_R2_ONLY = {
     'assets/contacts.json', 'drive-map.html', 'family-meeting.html', 'first-officer.html',
     'brand-assets.html', 'dev-resources.html', 'archive.html', 'ops-status.html',
     'assets/cron-status.json', 'psa-roster.html', 'tax-prep.html', 'workspace-map-v2.html',
-    'financial-command.html',
+    'financial-command.html', 'assets/simplefin-balances.json', 'father-outreach.html',
+    'assets/father-outreach-data.json',
 }
 # JS template / placeholder patterns — these are runtime-rendered, not real hrefs
 TEMPLATE_RE = re.compile(r'\$\{|\{\{|<%|\[[A-Z_]+\]')
