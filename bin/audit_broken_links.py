@@ -45,6 +45,18 @@ CUSTOM_SCHEME_RE = re.compile(r'^[a-z][a-z0-9+.-]*://', re.IGNORECASE)
 # broken-link total differ between local and CI. They are live on R2; they are
 # not broken links.
 OUT_OF_BAND_RE = re.compile(r'^/?assets/(media|video)/.*\.(mp4|m4a)$', re.IGNORECASE)
+# PIN-gated private pages are R2-only as well (2026-11-17): absent from this
+# public repo by design, live on R2 behind the Worker gate, and excluded from
+# the sync in deploy-r2.yml by these same paths. A link to one is not broken.
+# Keep this set identical to the root-anchored --exclude lines in deploy-r2.yml.
+PRIVATE_R2_ONLY = {
+    'workspace-map.html', 'boaz-formation-binder.html', 'assets/boaz-formation-binder.json',
+    'debt-tracker.html', 'account-map.html', 'contacts.html', 'assets/contacts-data.json',
+    'assets/contacts.json', 'drive-map.html', 'family-meeting.html', 'first-officer.html',
+    'brand-assets.html', 'dev-resources.html', 'archive.html', 'ops-status.html',
+    'assets/cron-status.json', 'psa-roster.html', 'tax-prep.html', 'workspace-map-v2.html',
+    'financial-command.html',
+}
 # JS template / placeholder patterns — these are runtime-rendered, not real hrefs
 TEMPLATE_RE = re.compile(r'\$\{|\{\{|<%|\[[A-Z_]+\]')
 # Bare bible.us / bible.com etc. without protocol — older posts use this form,
@@ -118,6 +130,8 @@ def main(max_broken=None):
                 href = m.group(2).strip()
                 target = resolve_link(src, href)
                 if target is None:
+                    continue
+                if os.path.relpath(target, DOCS).replace(os.sep, '/') in PRIVATE_R2_ONLY:
                     continue
                 checked += 1
                 if not os.path.exists(target):
