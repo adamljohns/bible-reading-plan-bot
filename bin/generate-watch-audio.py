@@ -487,6 +487,22 @@ def speak_acronyms(text):
     return DOTTED_ACRONYM.sub(_sub, text)
 
 
+SCOPE_LABEL = re.compile(r"\s*\((?:local|state|nation)\)", re.I)
+FOR_ME = re.compile(r"\b([Yy]ou) are for me\b")
+
+
+def apply_spoken_only_rules(text):
+    """Adjust the listen script without changing the published reading text.
+
+    Scope labels organize the Citizen reflection on the page but are not part
+    of the prose. In prayer, capitalizing FOR gives the clone the intended
+    contrast: God acts on the believer's behalf; He is not the believer's
+    possession.
+    """
+    text = SCOPE_LABEL.sub("", text)
+    return FOR_ME.sub(lambda m: f"{m.group(1)} are FOR me", text)
+
+
 BOAZ_BY_LANG = {"b": "[Boaz](/bˌQˈæz/)", "a": "[Boaz](/bˌOˈæz/)"}
 
 # Principal 2026-11-08 (John 4:37 "One sows and another reaps"): misaki's POS
@@ -510,6 +526,7 @@ def apply_sow_verb(text, lang=None):
 
 
 def apply_lexicon(text, lang=None):
+    text = apply_spoken_only_rules(text)
     text = speak_acronyms(text)
     text = speak_refs(text)
     text = apply_bow_homage(text)
@@ -530,6 +547,7 @@ def f5_prep(text):
     I pray. SOUND target stays AH-men. Isolated Amen still banned.
     Published page/JSON stays human Amen.
     """
+    text = apply_spoken_only_rules(text)
     text = text.replace("LORD", "Lord")
     text = speak_acronyms(text)
     # The clone has no misaki letter-spelling; spaced capitals keep USMC from
