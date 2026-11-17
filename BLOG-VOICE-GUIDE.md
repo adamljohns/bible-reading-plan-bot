@@ -66,6 +66,9 @@ posts dated 2026 failed on the day the check was added.
 
 ## 0.2. Adam's own words (from his 2007&ndash;2024 posts)
 
+> **How to use the lists below (Max, 2026-11-17).** The hard list is short: "actually", the staccato turns ("that is not…", "here is the…", "read that again", "the whole point", "the question is"), "quietly", "the shape of", and staff shorthand. Those are counted by the checker. Everything else in the frequency tables (toward, nobody, rather than, a single, carries, honest, a man who, and the like) is an ordinary word that the machine drafts overuse. Adam uses them too. Notice a pile-up of them; never swap one for a synonym just to satisfy the list, and never change what a sentence says to avoid one.
+
+
 Built by script on 17 Nov 2026 from the article bodies of the 146 posts
 dated 2007&ndash;2024 (about 60,500 words) set against the 90 posts dated 2026
 (about 114,600 words). Rates are per 10,000 words. Every example is verbatim

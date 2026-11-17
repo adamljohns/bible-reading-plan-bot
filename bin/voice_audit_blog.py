@@ -189,6 +189,16 @@ AVOID: list[tuple[str, str]] = [
     (r"\bread that (?:again|twice|slowly|back)\b", "cut; let the sentence stand"),
     (r"\bis exactly\b|\bthe exact\b", "cut 'exactly' / 'the same'"),
     (r"\bquietly\b", "cut"),
+    (r"\bthe shape of\b", "cut; describe it"),
+    (r"\bthe question is\b|\bthe only question\b", "ask the question"),
+    (r"\bthis desk\b|\bformation stack\b|\bdoctrine stack\b|\blocked \w+ doctrine\b", "staff shorthand; cut"),
+]
+
+# WATCH: ordinary words that the 2026 drafts lean on more than Adam does. They are
+# NOT counted and never fail a post (Max, 2026-11-17): swapping "toward" for "towards"
+# or "nobody" for "no one" to satisfy a list makes prose worse, and Adam uses these
+# words himself. Reviewers may glance at them; do not contort a sentence to avoid one.
+WATCH: list[tuple[str, str]] = [
     (r"\bhonest\b", "cut, or 'full disclosure' where he is owning something"),
     (r"\b(?:a|the) real\b", "'really' / 'true' / name the thing"),
     (r"\bwas never\b", "'wasn't' / 'isn't'"),
@@ -203,10 +213,8 @@ AVOID: list[tuple[str, str]] = [
     (r"\bis where\b", "say what happens there"),
     (r"\b(?:a|the|every) man who\b", "'I' / 'we' / 'you' / 'those who', or name the man"),
     (r"\bcarries\b", "'has' / 'holds' / 'bears'"),
-    (r"\bthe shape of\b|\bshaped\b", "cut; describe it"),
+    (r"\bshaped\b", "ordinary word; fine when literal"),
     (r"\btoward\b", "'towards' / 'to'"),
-    (r"\bthe question is\b|\bthe only question\b", "ask the question"),
-    (r"\bthis desk\b|\bformation stack\b|\bdoctrine stack\b|\blocked \w+ doctrine\b", "staff shorthand; cut"),
 ]
 
 # Fail thresholds, set from the 146 posts dated 2007-2024 (which must pass).
