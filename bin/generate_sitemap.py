@@ -53,6 +53,13 @@ SKIP_FILES = {
     'tax-prep.html',
     'drive-map.html',
     'account-map.html',  # also noindex now; family financial account map
+    # 2026-11-16 site campaign: error page, internal boards, and two pages the
+    # Worker gates (401) were listed in sitemap-main.xml.
+    '404.html',
+    'workspace-map.html',
+    'mbt-lab.html',
+    'moop-context.html',
+    'timeline.html',
 }
 
 PRIORITY_BY_PREFIX = [
