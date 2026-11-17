@@ -140,9 +140,11 @@ def page(n, d, style):
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://usmcmin.org/proverbs/{n}">
   <meta property="og:site_name" content="USMC Ministries">
+  <meta property="og:image" content="https://usmcmin.org/assets/og/og-main.png">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Proverbs {n} — REAL MAN Devotional Day {n}">
   <meta name="twitter:description" content="Day {n} of the REAL MAN Proverbs Devotional. {letter} = {qual}.">
+  <meta name="twitter:image" content="https://usmcmin.org/assets/og/og-main.png">
   <meta name="description" content="Day {n} of the REAL MAN Proverbs Devotional — Proverbs {n}, {qual}. USMC Ministries.">
 
   <!-- Structured data: breadcrumb + article in the 31-day series -->
