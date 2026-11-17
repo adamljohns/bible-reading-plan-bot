@@ -65,6 +65,34 @@ def paras(text_or_list):
     items = text_or_list if isinstance(text_or_list, list) else [text_or_list]
     return "\n      ".join(f"<p>{p}</p>" for p in items)
 
+AUDIO = os.path.join(ROOT, "docs", "assets", "audio")
+
+def audio_block(n):
+    """Listen panel. The <audio> player is emitted ONLY when the day's MP3 is in the
+    repo (docs/assets/audio/proverbs-dayNN.mp3); otherwise the panel shows the
+    "Audio coming soon" line alone, so no page carries a player that 404s."""
+    label = (f'    <!-- AUDIO PLAYER (canonical .moop-listen component — assets/css/listen.css) -->\n'
+             f'    <div class="moop-listen">\n'
+             f'      <div class="moop-listen-label">{icon("shield-headphones", 20, mr=False)} Listen — Day {n} · Read by Adam Johns</div>\n')
+    soon = '      <p id="audio-coming" class="moop-listen-soon">Audio coming soon</p>\n    </div>'
+    if not os.path.exists(os.path.join(AUDIO, f"proverbs-day{n:02d}.mp3")):
+        return label + soon
+    return label + f"""      <audio controls preload="none" id="day{n}-audio">
+        <source src="../assets/audio/proverbs-day{n:02d}.mp3" type="audio/mpeg">
+        Your browser cannot play this audio.
+      </audio>
+{soon}
+
+    <script>
+      // Hide "coming soon" text if audio file loads successfully
+      var audio = document.getElementById('day{n}-audio');
+      var notice = document.getElementById('audio-coming');
+      if (audio) {{
+        audio.addEventListener('canplay', function() {{ if(notice) notice.style.display='none'; }});
+        audio.addEventListener('error', function() {{ audio.style.display='none'; }});
+      }}
+    </script>"""
+
 def page(n, d, style):
     letter, qual = quality(n)
     wl = week_label(n)
@@ -137,7 +165,7 @@ def page(n, d, style):
     <span class="sep">·</span>
     <a href="index.html">Proverbs</a>
     <span class="sep">·</span>
-    <a href="../bible.html?ref=Proverbs%20{n}:1">Bible Training Environment</a>
+    <a href="../bible.html?ref=Proverbs%20{n}:1">Bible Translation Engine</a>
   </nav>
 
   <div class="page-wrapper">
@@ -170,7 +198,7 @@ def page(n, d, style):
         Proverbs {n} — full chapter
       </div>
       <p style="margin-bottom:0.5rem; color: var(--gray); font-size: 0.88rem;">Open the whole chapter. Don't skim. Let it land.</p>
-      <a style="display:inline-flex; align-items:center; gap:0.5rem; color:var(--accent); text-decoration:none; font-size:0.88rem;" href="../bible.html?ref=Proverbs%20{n}:1"><img src="../assets/icons/shield-bible.png" alt="" width="16" height="16" style="vertical-align:middle;margin-right:3px;"> Read Proverbs {n} in the Bible Training Environment →</a>
+      <a style="display:inline-flex; align-items:center; gap:0.5rem; color:var(--accent); text-decoration:none; font-size:0.88rem;" href="../bible.html?ref=Proverbs%20{n}:1"><img src="../assets/icons/shield-bible.png" alt="" width="16" height="16" style="vertical-align:middle;margin-right:3px;"> Read Proverbs {n} in the Bible Translation Engine →</a>
     </div>
 
     <!-- KEY VERSE -->
@@ -202,25 +230,7 @@ def page(n, d, style):
       </div>
     </div>
 
-    <!-- AUDIO PLAYER (canonical .moop-listen component — assets/css/listen.css) -->
-    <div class="moop-listen">
-      <div class="moop-listen-label">{icon("shield-headphones", 20, mr=False)} Listen — Day {n} · Read by Adam Johns</div>
-      <audio controls preload="none" id="day{n}-audio">
-        <source src="../assets/audio/proverbs-day{nn}.mp3" type="audio/mpeg">
-        Your browser cannot play this audio.
-      </audio>
-      <p id="audio-coming" class="moop-listen-soon">Audio coming soon</p>
-    </div>
-
-    <script>
-      // Hide "coming soon" text if audio file loads successfully
-      var audio = document.getElementById('day{n}-audio');
-      var notice = document.getElementById('audio-coming');
-      if (audio) {{
-        audio.addEventListener('canplay', function() {{ if(notice) notice.style.display='none'; }});
-        audio.addEventListener('error', function() {{ audio.style.display='none'; }});
-      }}
-    </script>
+{audio_block(n)}
 
     <!-- CHAPTER NAVIGATION -->
     <div class="chapter-nav">
@@ -233,7 +243,7 @@ def page(n, d, style):
 
   <!-- FOOTER -->
   <footer>
-    <p><a href="index.html">Proverbs</a> · <a href="../bible.html">Bible Training Environment</a> · <a href="https://usmcmin.org">USMC Ministries</a></p>
+    <p><a href="index.html">Proverbs</a> · <a href="../bible.html">Bible Translation Engine</a> · <a href="https://usmcmin.org">USMC Ministries</a></p>
     <p style="margin-top:0.4rem;">REAL MAN Proverbs Devotional — 31 Days of Wisdom</p>
   </footer>
 
