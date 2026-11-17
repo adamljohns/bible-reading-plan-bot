@@ -13,6 +13,13 @@ name: Deploy site to R2
 # which is where the plan overview videos live. That is why the v32 MP4 was
 # deleted on 08-22, again on 08-23 21:33, and again on 08-24 02:00 despite the
 # exclude appearing to be in place. Verified with rclone on 2026-08-23.
+#
+# PRIVATE PAGES (2026-11-17): household and internal pages are R2-ONLY. They are
+# not in this public repo, the Worker gates them by PIN, and the `--exclude`
+# lines below are what stop this sync from deleting them. Each pattern starts
+# with `/` so it matches that one file at the site root and nothing deeper.
+# The exclude must be live on main BEFORE a file leaves git. The master copies
+# and the publish script are kept outside this repo by the site owner.
 on:
   push:
     branches: [main]
@@ -190,6 +197,26 @@ jobs:
             --exclude 'assets/media/**.m4a' \
             --exclude 'assets/video/**.mp4' \
             --exclude 'assets/video/**.m4a' \
+            --exclude '/workspace-map.html' \
+            --exclude '/boaz-formation-binder.html' \
+            --exclude '/assets/boaz-formation-binder.json' \
+            --exclude '/debt-tracker.html' \
+            --exclude '/account-map.html' \
+            --exclude '/contacts.html' \
+            --exclude '/assets/contacts-data.json' \
+            --exclude '/assets/contacts.json' \
+            --exclude '/drive-map.html' \
+            --exclude '/family-meeting.html' \
+            --exclude '/first-officer.html' \
+            --exclude '/brand-assets.html' \
+            --exclude '/dev-resources.html' \
+            --exclude '/archive.html' \
+            --exclude '/ops-status.html' \
+            --exclude '/assets/cron-status.json' \
+            --exclude '/psa-roster.html' \
+            --exclude '/tax-prep.html' \
+            --exclude '/workspace-map-v2.html' \
+            --exclude '/financial-command.html' \
             --checksum --fast-list \
             --transfers 16 --checkers 64 \
             --retries 5 --low-level-retries 20 \
