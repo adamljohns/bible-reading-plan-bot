@@ -340,13 +340,21 @@ const THEME_SCRIPT =
   "        try { var t = localStorage.getItem('bte-theme'); if (t === null && (t = localStorage.getItem('moop-theme')) !== null) localStorage.setItem('bte-theme', t); if (t === 'light') document.body.classList.add('light-mode'); } catch(e){}\n" +
   '    </script>\n';
 
+// lbcf-full.html only: the page keeps ONE <h1> ("The Complete Confession"); the 32 chapter
+// titles are <h2 class="lbcf-chap-title">. These rules give that h2 the exact look
+// `.lbcf-chap-head h1` has in lbcf.css and print.css, so demoting changed nothing visible.
+const FULL_CHAP_TITLE_STYLE =
+  '        .lbcf-chap-head h2.lbcf-chap-title { font-family:"Playfair Display",serif; font-size:clamp(1.6rem,3.5vw,2.4rem); color:var(--gold-light); margin-bottom:8px; line-height:1.2; }\n' +
+  '        body.light-mode .lbcf-chap-head h2.lbcf-chap-title { color:#5a4710; }\n' +
+  '        @media print { .lbcf-chap-head h2.lbcf-chap-title { font-size:13pt !important; color:var(--print-ink) !important; margin:0 0 3pt !important; } }\n';
+
 // One chapter rendered for the full page (root-relative xref/idx links differ)
 function fullChapterSection(chapter) {
   const n = chapter.number;
   let html = '<section class="lbcf-full-chap" id="ch-' + n + '">';
   html += '<div class="lbcf-chap-head">' +
     '<div class="lbcf-chap-num">Chapter ' + n + '</div>' +
-    '<h1>' + escText(chapter.title) + '</h1>' +
+    '<h2 class="lbcf-chap-title">' + escText(chapter.title) + '</h2>' +
     (chapter.subtitle ? '<p class="lbcf-chap-sub">' + escText(chapter.subtitle) + '</p>' : '') +
     '</div>';
   html += '<div class="lbcf-body">';
@@ -372,7 +380,7 @@ function buildFullPage(meta, chapters, front) {
     'The 1689 Baptist Confession — Complete Text — Uniting, Serving, Mentoring & Counseling Ministries',
     'The complete Second London Baptist Confession of Faith (1689) on one page — all 32 chapters in modern English with linked Scripture proofs, the preface, and the signatories. Printer-friendly.',
     canonical
-  );
+  ).replace('    </style>\n</head>', FULL_CHAP_TITLE_STYLE + '    </style>\n</head>');
   h += '<body>\n' + navHtml('lbcf') + '\n    <div class="container">\n';
   // Hero
   h += '<header class="lbcf-hero"><img src="assets/icons/shield-cross.png" alt="LBCF crest">' +
