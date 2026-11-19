@@ -58,7 +58,7 @@ const BODIES = [
   { id: 'umc', name: 'United Methodist Church', short_name: 'UMC', family: 'methodist', re: /United Methodist|\bUMC\b/i,
     sub: { field: 'conference', re: /(Virginia Conference|BWC)/, map: { 'Virginia Conference': 'Virginia Annual Conference', BWC: 'Baltimore-Washington Conference' } } },
   { id: 'gmc', name: 'Global Methodist Church', short_name: 'GMC', family: 'methodist', re: /Global Methodist|\bGMC\b/i },
-  { id: 'ame', name: 'African Methodist Episcopal Church', short_name: 'AME', family: 'methodist', re: /African Methodist Episcopal|\bAMEC?\b/i },
+  { id: 'ame', name: 'African Methodist Episcopal Church', short_name: 'AME', family: 'methodist', re: /African Methodist Episcopal|\bAME\b/i }, // bare "AMEC" in this directory is the Anabaptist Alliance of Mennonite Evangelical Congregations, not the AME (CCW-1119-DIR3)
   { id: 'amez', name: 'African Methodist Episcopal Zion Church', short_name: 'AME Zion', family: 'methodist', absorbs: ['ame'], re: /AME Zion|Methodist Episcopal Zion/i },
   { id: 'cme', name: 'Christian Methodist Episcopal Church', short_name: 'CME', family: 'methodist', re: /Christian Methodist Episcopal|\bCME\b/i },
   { id: 'fmc', name: 'Free Methodist Church USA', short_name: 'Free Methodist', family: 'methodist', absorbs: ['wesleyan'], re: /Free Methodist/i },
