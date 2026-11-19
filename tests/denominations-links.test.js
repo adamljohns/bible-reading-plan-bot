@@ -21,7 +21,8 @@ vm.runInNewContext(js, { window: win });
 const DL = win.DenomLinks;
 assert.ok(DL && typeof DL.lookup === 'function' && typeof DL.html === 'function');
 const amap = D.loadAliasMap();
-const gradedPages = new Set(amap.doc.bodies.filter(b => b.graded_page).map(b => b.id));
+// Every mapped body has a page now: graded, or a "Not yet graded" stub (CCW-1119-DIR3).
+const gradedPages = new Set(amap.doc.bodies.map(b => b.id));
 for (const l of amap.doc.labels) {
   const hit = DL.lookup(l.label);
   if (l.status === 'body' && gradedPages.has(l.id)) {
@@ -33,10 +34,12 @@ for (const l of amap.doc.labels) {
     assert.ok(!DL.html(l.label).includes('<a'), `"${l.label}" must not render a link`);
   }
 }
-for (const g of ['Baptist', 'Methodist', 'Non-Denominational', 'Independent Baptist', 'Free Methodist Church', '', null, undefined])
+for (const g of ['Baptist', 'Methodist', 'Non-Denominational', 'Independent Baptist', '', null, undefined])
   assert.strictEqual(DL.lookup(g), null, `${g} must not link`);
 assert.strictEqual(DL.html('<img src=x onerror=1>'), '&lt;img src=x onerror=1&gt;', 'labels are escaped');
 assert.ok(DL.html('United Methodist Church (Virginia Conference)').includes('event.stopPropagation()'), 'card link must not toggle the card');
+// A mapped body without a grade links to its stub page (CCW-1119-DIR3).
+assert.strictEqual((DL.lookup('Free Methodist Church') || {}).id, 'fmc');
 // Loose match uses the same key as the alias map (case/spacing/punctuation).
 assert.strictEqual((DL.lookup('united methodist church  (virginia conference)') || {}).id, 'umc');
 

@@ -174,7 +174,20 @@ function scoreDenomination(denom, ledger) {
   }
   const graded = Object.values(scores).map(s => s.grade).filter(g => g !== 'unknown');
   const worst = ['black', 'red', 'yellow', 'green'].find(g => graded.includes(g)) || 'unknown';
-  return { scores, governance, context_grade: worst };
+  return { scores, governance, context_grade: worst, ...overallGrade(scores) };
+}
+
+// Overall grade shown to readers (CCW-1119-DIR3). context_grade is worst-of-
+// graded, which ignores unknowns, so 2 green categories out of 10 read "green".
+// Below MIN_GRADED graded categories the overall grade is "limited" (neutral
+// grey) with a caveat. `because` names the categories that set the grade.
+const MIN_GRADED = 5;
+function overallGrade(scores) {
+  const entries = Object.entries(scores).filter(([, s]) => s.grade !== 'unknown');
+  const worst = ['black', 'red', 'yellow', 'green'].find(g => entries.some(([, s]) => s.grade === g)) || 'unknown';
+  const because = entries.filter(([, s]) => s.grade === worst).map(([k]) => k);
+  const limited = entries.length < MIN_GRADED;
+  return { graded_count: entries.length, limited_evidence: limited, overall_grade: limited ? 'limited' : worst, because };
 }
 
 function verifyCongregations(denom, churchesById, srcDir = SRC_DIR) {
@@ -220,5 +233,5 @@ module.exports = {
   loadAliasMap, classifyDenomination, ALIAS_MAP,
   CATEGORIES, GRADES, GOVERNANCE, RULES, GOV_RULES, AFFIRMING_IDS, DATA_DIR, SRC_DIR,
   nrm, nrmCase, aliasKey, loadDenominations, aliasIndex, normalizeDenomination, loadSource, quoteInSource,
-  buildLedger, scoreDenomination, verifyCongregations,
+  buildLedger, scoreDenomination, verifyCongregations, overallGrade, MIN_GRADED,
 };

@@ -18,7 +18,8 @@ const efca = denoms.find(d => d.id === 'efca');
 for (const l of ['EFCA', 'Evangelical Free Church of America (EFCA)', 'evangelical free church of america', 'Independent Evangelical Free', 'Evangelical Free (independent Free Church)', 'E.F.C.A.'])
   assert.strictEqual(D.normalizeDenomination(l, idx), 'efca', `${l} should map to efca`);
 for (const l of ['Non-Denominational (Reformed, dispensational-leaning; EFCA-tagged)', 'Evangelical Covenant Church', 'Free Will Baptist', 'Evangelical Lutheran Church in America', '', null])
-  assert.strictEqual(D.normalizeDenomination(l, idx), null, `${l} must NOT map`);
+  // Look-alikes must not map to EFCA (other bodies may get their own pages via the grind).
+  assert.notStrictEqual(D.normalizeDenomination(l, idx), 'efca', `${l} must NOT map to efca`);
 // Alias collisions are a hard error.
 assert.throws(() => D.aliasIndex([{ id: 'a', aliases: ['X'] }, { id: 'b', aliases: ['x'] }]), /maps to both/);
 
