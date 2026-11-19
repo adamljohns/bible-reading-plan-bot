@@ -46,7 +46,7 @@ const list = Array.isArray(churches) ? churches : churches.churches;
 const links = JSON.parse(fs.readFileSync(path.join(DOCS, 'data/denominations/church-links.json'), 'utf8')).links;
 let linked = 0;
 for (const c of list) {
-  const hit = DL.lookup(c.denomination);
+  const hit = DL.lookup(c.denomination, c.id);
   assert.strictEqual(hit ? hit.id : undefined, links[c.id], `${c.id} "${c.denomination}": client and church page disagree`);
   if (hit) linked++;
 }
@@ -65,17 +65,19 @@ for (const [v, id] of fam) {
 }
 for (const g of ['Baptist', 'Methodist', 'Mainline Protestant / Methodist', 'Wesleyan / Methodist', 'Non-Denominational'])
   assert.strictEqual(DL.lookupFamily(g), null, `family "${g}" must stay plain`);
-assert.strictEqual((DL.lookupFamily('United Methodist (UMC)') || {}).id, 'umc');
+assert.strictEqual((DL.lookupFamily('Baptist (SBC)') || {}).id, 'sbc');
+// Its only two churches are the excluded former-UMC congregations (link exclusions), so it stays plain.
+assert.strictEqual(DL.lookupFamily('United Methodist (UMC)'), null);
 assert.ok(fs.readFileSync(path.join(DOCS, 'churches.html'), 'utf8').includes('updateDenomFilterLink(filters.subdenom, true)'), 'Refine filter uses family lookup');
 
 // 3. Consumer pages load the helper at its current content version and use it.
 const ver = crypto.createHash('sha256').update(js).digest('hex').slice(0, 10);
 const uses = {
-  'churches.html': ['denomHtml(church.denomination)', 'updateDenomFilterLink(filters.subdenom, true)', 'id="denom-filter-link"'],
-  'churches-fxbg.html': ['denomHtml(church.denomination)', 'updateDenomFilterLink(filters.denomination)', 'id="denom-filter-link"'],
-  'churches-virginia.html': ['denomHtml(church.denomination)', 'updateDenomFilterLink(filters.denomination)', 'id="denom-filter-link"'],
-  'churches-dc.html': ['denomHtml(church.denomination)', 'updateDenomFilterLink(filters.denomination)', 'id="denom-filter-link"'],
-  'directory-map.html': ['DenomLinks.htmlFamily(p.d)', 'DenomLinks.lookupFamily(denom)', 'id="denom-filter-link"'],
+  'churches.html': ['denomHtml(church.denomination, church.id)', 'updateDenomFilterLink(filters.subdenom, true)', 'id="denom-filter-link"'],
+  'churches-fxbg.html': ['denomHtml(church.denomination, church.id)', 'updateDenomFilterLink(filters.denomination)', 'id="denom-filter-link"'],
+  'churches-virginia.html': ['denomHtml(church.denomination, church.id)', 'updateDenomFilterLink(filters.denomination)', 'id="denom-filter-link"'],
+  'churches-dc.html': ['denomHtml(church.denomination, church.id)', 'updateDenomFilterLink(filters.denomination)', 'id="denom-filter-link"'],
+  'directory-map.html': ['DenomLinks.htmlFamily(p.d, p.id)', 'DenomLinks.lookupFamily(denom)', 'id="denom-filter-link"'],
 };
 for (const [f, needles] of Object.entries(uses)) {
   const h = fs.readFileSync(path.join(DOCS, f), 'utf8');
@@ -87,8 +89,8 @@ for (const [f, needles] of Object.entries(uses)) {
 
 // The map page is generated: its template must keep the helper and the links.
 const mapGen = fs.readFileSync(path.join(REPO, 'scripts/build-directory-map.js'), 'utf8');
-for (const n of ['denomination-links.js?v=${DENOM_JS_VER}', 'DenomLinks.htmlFamily(p.d)', 'DenomLinks.lookupFamily(denom)']) assert.ok(mapGen.includes(n), `build-directory-map.js template lost ${n}`);
-assert.ok(DL.htmlFamily('United Methodist (UMC)').startsWith('<a class="denom-link" href="/denominations/umc.html"'));
+for (const n of ['denomination-links.js?v=${DENOM_JS_VER}', 'DenomLinks.htmlFamily(p.d, p.id)', 'DenomLinks.lookupFamily(denom)']) assert.ok(mapGen.includes(n), `build-directory-map.js template lost ${n}`);
+assert.ok(DL.htmlFamily('Baptist (SBC)').startsWith('<a class="denom-link" href="/denominations/sbc.html"'));
 assert.strictEqual(DL.htmlFamily('Baptist'), 'Baptist');
 
 // 4. Church pages: the label links when (and only when) a graded page exists.
@@ -131,4 +133,23 @@ for (const f of fs.readdirSync(path.join(DOCS, 'denominations')).filter(f => f.e
   }
 }
 assert.ok(n > 5000, `link check saw only ${n} hrefs`);
+// 7. Approved exclusions (data/crosslinks/denomination-link-exclusions.json):
+// former-UMC churches never link to umc.html anywhere (CCW-1119-DIR2 Phase 4 QA).
+const EXCL = JSON.parse(fs.readFileSync(path.join(REPO, 'data/crosslinks/denomination-link-exclusions.json'), 'utf8')).exclusions;
+for (const must of ['highland-park-united-methodist-dallas-tx', 'first-united-methodist-midland-tx'])
+  assert.ok(EXCL.some(x => x.church_id === must && x.evidence.length), `${must} missing from link exclusions`);
+for (const x of EXCL) {
+  const c = list.find(r => r.id === x.church_id);
+  assert.ok(c, `exclusion ${x.church_id} not in churches.json`);
+  assert.strictEqual(links[x.church_id], undefined, `${x.church_id} still in church-links.json`);
+  assert.strictEqual(DL.lookup(c.denomination, c.id), null, `${x.church_id}: client card still links`);
+  assert.ok(!DL.html(c.denomination, '', c.id).includes('<a'), `${x.church_id}: card renders a link`);
+  assert.ok(!DL.htmlFamily(c.denomination_family || c.denomination, c.id).includes('<a'), `${x.church_id}: map popup renders a link`);
+  const page = path.join(DOCS, `churches/${x.church_id}.html`);
+  if (fs.existsSync(page)) assert.ok(!fs.readFileSync(page, 'utf8').includes(`/denominations/${x.denomination}.html`), `${x.church_id} page still links ${x.denomination}.html`);
+  assert.ok(!fs.readFileSync(path.join(DOCS, `denominations/${x.denomination}.html`), 'utf8').includes(`/churches/${x.church_id}.html`), `${x.denomination} page still lists ${x.church_id}`);
+}
+const pol = fs.readFileSync(path.join(DOCS, 'directory-politicians.html'), 'utf8');
+for (const addr of ['3300 Mockingbird Lane, Dallas', '300 N Main Street, Midland'])
+  for (const line of pol.split('\n').filter(l => l.includes(addr))) assert.ok(!line.includes('umc.html'), `politicians: ${addr} label still links umc.html`);
 console.log(`denominations-links.test.js: all assertions passed (${linked} churches linked, ${n} denomination-page hrefs resolve)`);

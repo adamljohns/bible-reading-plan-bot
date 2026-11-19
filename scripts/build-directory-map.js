@@ -323,7 +323,7 @@ const html = `<!DOCTYPE html>
       const thumb = p.img ? '<img src="' + p.img + '" alt="" style="width:48px;height:48px;object-fit:cover;border-radius:6px;float:right;margin:0 0 6px 8px;border:1px solid #333;" onerror="this.style.display=\\'none\\'">' : '';
       const html = thumb
         + '<h4>' + escapeHtml(p.n) + '</h4>'
-        + (p.d ? '<div class="denom">' + (window.DenomLinks ? DenomLinks.htmlFamily(p.d) : escapeHtml(p.d)) + '</div>' : '')
+        + (p.d ? '<div class="denom">' + (window.DenomLinks ? DenomLinks.htmlFamily(p.d, p.id) : escapeHtml(p.d)) + '</div>' : '')
         + (p.p ? '<div class="pastor">Pastor: ' + escapeHtml(p.p) + '</div>' : '')
         + (p.a ? '<div class="addr">' + escapeHtml(p.a) + '</div>' : '')
         + '<span class="rating ' + p.r + '">' + p.r.toUpperCase() + '</span>'
