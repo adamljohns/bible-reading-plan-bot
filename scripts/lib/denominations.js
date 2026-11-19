@@ -29,23 +29,28 @@ const AFFIRMING_IDS = new Set(['pcusa', 'elca', 'umc', 'tec', 'ucc', 'disciples'
 // so stricter (worse) grades are listed first.
 const RULES = {
   scripture: [
-    { grade: 'green', id: 'D-SCR-1', text: 'The official confession affirms Scripture is without error (inerrant) and the final authority → GREEN.', all: [/without error|inerran/i] },
+    { grade: 'green', id: 'D-SCR-1', text: 'The official confession affirms Scripture is without error (inerrant) and the final authority → GREEN.', all: [/without (any mixture of )?error|inerran/i] },
   ],
   christology: [
-    { grade: 'green', id: 'D-CHR-1', text: 'The official confession affirms Christ is fully God and fully man → GREEN.', all: [/fully God and fully man/i] },
+    { grade: 'green', id: 'D-CHR-1', text: 'The official confession affirms Christ is fully God and fully man (also worded "truly God and truly man" or "very God and very man") → GREEN.', all: [/fully God,? (and )?fully man|truly God and truly man|very God and very man/i] },
   ],
   soteriology: [
-    { grade: 'green', id: 'D-SOT-1', text: 'The official confession affirms justification by grace through faith alone in Christ alone → GREEN.', all: [/grace through faith alone/i] },
+    { grade: 'green', id: 'D-SOT-1', text: 'The official confession affirms justification by grace through faith alone in Christ alone (also worded "justified by faith only", not by works, or justification defined as God\'s gracious acquittal of sinners who repent and believe in Christ) → GREEN.', all: [/grace through faith alone|justified by faith,? only|only by faith in our Lord Jesus Christ|justification is God.s gracious and full acquittal/i] },
   ],
   gender: [
-    { grade: 'red', id: 'D-GEN-1', text: 'The body ordains women to pastoral office → RED minimum (same line as "Female senior pastor → RED minimum.").', all: [/\bordains? women\b(?!.*not)|ordination of women is permitted/i], none: [/does not ordain women/i] },
-    { grade: 'green', id: 'D-GEN-2', text: 'An official decision restricts ordination to qualified men → GREEN. Non-ordained ministry roles for women are noted, not penalized.', all: [/does not ordain women|qualified males/i] },
+    { grade: 'red', id: 'D-GEN-1', text: 'The body ordains women to pastoral office → RED minimum (same line as "Female senior pastor → RED minimum.").', all: [/\bordains? women\b(?!.*not)|ordination of women is permitted|women were ordained[^.]*full clergy rights|men and women respond to God.s call to ordained ministry/i], none: [/does not ordain women/i] },
+    { grade: 'green', id: 'D-GEN-2', text: 'An official decision or confession restricts ordination or the pastoral office to qualified men → GREEN. Non-ordained ministry roles for women are noted, not penalized.', all: [/does not ordain women|qualified males|office of pastor[^.]{0,30} is limited to men/i] },
+    { grade: 'yellow', id: 'D-GEN-3', text: 'The body leaves the ordination of women to each local church (it neither requires nor forbids it) → YELLOW: the church\'s own evidence decides.', all: [/ordination of women[^.]{0,60}local church matter/i] },
   ],
   leadership: [
     { grade: 'yellow', id: 'D-LDR-1', text: 'Ordination is restricted to men, but elder/leadership policy is left to each local church → YELLOW (mixed): the church\'s own evidence decides.', all: [/does not ordain women|qualified males/i, /local church is free|no official [A-Z]* ?policy for local churches/i] },
     { grade: 'green', id: 'D-LDR-2', text: 'Ordination and elder office are restricted to men by a binding rule → GREEN.', all: [/does not ordain women|qualified males/i, /elders? (must|shall) be (qualified )?men/i] },
+    { grade: 'green', id: 'D-LDR-3', text: 'The official confession limits the pastor/elder office to men → GREEN. Where the body is autonomous, each church\'s own evidence still decides.', all: [/(elder|overseer)[^.]{0,20} is limited to men/i] },
+    { grade: 'yellow', id: 'D-LDR-4', text: 'Who may be ordained or lead is left to each local church → YELLOW: the church\'s own evidence decides.', all: [/ordination of women[^.]{0,60}local church matter/i] },
+    { grade: 'red', id: 'D-LDR-5', text: 'The body ordains women to the pastoral office → RED (same line as D-GEN-1).', all: [/women were ordained[^.]*full clergy rights|men and women respond to God.s call to ordained ministry/i] },
   ],
   cultural: [
+    { grade: 'red', id: 'D-CUL-2', text: 'An official statement affirms marriage between two persons of the same sex → RED.', all: [/or two adult persons of consenting age/i] },
     { grade: 'green', id: 'D-CUL-1', text: 'An official statement defines marriage as one man and one woman → GREEN.', all: [/one man and one woman/i] },
   ],
   denominational: [
@@ -53,14 +58,15 @@ const RULES = {
     { grade: 'green', id: 'D-DEN-2', text: 'Not on the published LGBTQ-affirming list, and an official statement defines marriage as one man and one woman → GREEN.', all: [/one man and one woman/i] },
   ],
   mission: [
-    { grade: 'green', id: 'D-MIS-1', text: 'The official mission is gospel or church multiplication among all people → GREEN.', all: [/multiplying [a-z ]*churches|great commission/i] },
+    { grade: 'green', id: 'D-MIS-1', text: 'The official mission is gospel or church multiplication among all people → GREEN.', all: [/multiplying [a-z ]*churches|great commission|make disciples of (all nations|Jesus Christ)/i] },
   ],
   preaching: [],
   mens_discipleship: [],
 };
 
 const GOV_RULES = [
-  { strength: 'binding', id: 'D-GOV-1', text: 'Doctrine and practice decisions bind every congregation (hierarchical or connectional authority) → BINDING.', all: [/binding on (all|every|member) (churches|congregations)|hierarchical/i] },
+  { strength: 'binding', id: 'D-GOV-1', text: 'Doctrine and practice decisions bind every congregation (hierarchical or connectional authority) → BINDING.', all: [/binding on (all|every|member) (churches|congregations)|hierarchical|universally-binding to all|normative teaching is binding and obligatory|full legislative power over all matters that are distinctly connectional/i] },
+  { strength: 'autonomous', id: 'D-GOV-5', text: 'Each church is autonomous and the body disclaims any authority over it; its confession binds no church. Cooperation or affiliation can still require agreement with that confession → AUTONOMOUS.', all: [/autonomous/i, /never attempt to exercise any authority over|disclaims all right of exercising authority over any church|shall not be binding upon any local church/i] },
   { strength: 'mixed', id: 'D-GOV-2', text: 'Autonomous congregations united by a required common confession; practice decisions stay local → MIXED.', all: [/autonomous|self-govern|govern its own affairs/i, /united around/i] },
   { strength: 'advisory', id: 'D-GOV-3', text: 'Denominational statements are offered as guidance only → ADVISORY.', all: [/advisory|guidance only|not binding/i] },
   { strength: 'autonomous', id: 'D-GOV-4', text: 'Fully independent congregations with no required common confession → AUTONOMOUS.', all: [/autonomous|self-govern/i] },
@@ -116,7 +122,7 @@ function buildLedger(denom, srcDir = SRC_DIR) {
     return {
       id: e.id, quote: e.quote, url: e.url, supports: e.supports,
       retrieved_at: src ? src.meta.retrieved_at : null,
-      extractor: src ? src.meta.extractor : null, model: null,
+      extractor: src ? src.meta.extractor : null, model: e.model || null,
       source_sha256: src ? src.meta.sha256_text : null,
       validated: found,
       confidence: found ? 1.0 : 0,

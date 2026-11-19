@@ -56,7 +56,7 @@ function build() {
     congregations.filter(v => !v.validated).forEach(v => errors.push(`${d.id}: congregation ${v.church_id}: ${v.error}`));
     const members = Object.entries(links).filter(([, id]) => id === d.id).map(([cid]) => cid);
     out.push({ id: d.id, name: d.name, short_name: d.short_name, aliases: d.aliases, official_site: d.official_site,
-      source_policy: d.source_policy, ...scored, ledger, verified_congregations: congregations, directory_church_count: members.length,
+      source_policy: d.source_policy, nuance: d.nuance || null, ...scored, ledger, verified_congregations: congregations, directory_church_count: members.length,
       page: `/denominations/${d.id}.html` });
   }
   return { out, links, errors };
@@ -127,9 +127,14 @@ function detailHtml(d) {
       </ol>
       <p class="note">So a given EFCA church can still have women elders. Leadership is graded YELLOW (mixed) at the denomination level for that reason, and the church's own page decides it.</p>
       ${nuanceIds.map(id => ev.get(id)).filter(Boolean).map(l => `<blockquote>&ldquo;${esc(l.quote)}&rdquo; &mdash; <a href="${esc(l.url)}" rel="noopener">efca.org</a></blockquote>`).join('\n      ')}
-    </div>` : '';
+    </div>` : (d.nuance ? `
+    <h2>${esc(d.nuance.title)}</h2>
+    <div class="card">
+      ${(d.nuance.paragraphs || []).map(p => `<p>${esc(p)}</p>`).join('\n      ')}
+      ${(d.nuance.evidence || []).map(id => ev.get(id)).filter(l => l && l.validated).map(l => `<blockquote>&ldquo;${esc(l.quote)}&rdquo; &mdash; <a href="${esc(l.url)}" rel="noopener">${esc(l.url.replace(/^https?:\/\/(www\.)?/, '').split('/')[0])}</a></blockquote>`).join('\n      ')}
+    </div>` : '');
   const congs = d.verified_congregations.map(v => `<li><a href="/churches/${esc(v.church_id)}.html">${esc(v.name)}</a> (${esc([v.city, v.state].filter(Boolean).join(', '))}) &mdash; <span class="note">affiliation stated on the church's own site:</span><blockquote>&ldquo;${esc(v.quote)}&rdquo; &mdash; <a href="${esc(v.url)}" rel="noopener">${esc(v.url.replace(/^https?:\/\//, ''))}</a></blockquote></li>`).join('\n');
-  const ledgerRows = d.ledger.map(l => `<tr><td>${esc(l.id)}</td><td>&ldquo;${esc(l.quote)}&rdquo;<div class="note"><a href="${esc(l.url)}" rel="noopener">${esc(l.url)}</a></div></td><td class="note">${esc((l.retrieved_at || '').slice(0, 10))}<br>${esc(l.extractor || '')}<br>model: none<br>confidence ${l.confidence}</td></tr>`).join('\n');
+  const ledgerRows = d.ledger.map(l => `<tr><td>${esc(l.id)}</td><td>&ldquo;${esc(l.quote)}&rdquo;<div class="note"><a href="${esc(l.url)}" rel="noopener">${esc(l.url)}</a></div></td><td class="note">${esc((l.retrieved_at || '').slice(0, 10))}<br>${esc(l.extractor || '')}<br>model: ${esc(l.model || 'none')}<br>confidence ${l.confidence}</td></tr>`).join('\n');
   return pageHead(`${d.name} (${d.short_name})`, d.page, `${d.name}: MOOP denomination context, official-source evidence, governance strength.`) + `
     <div class="crumb"><a href="/churches.html">Church Directory</a> &rsaquo; <a href="/denominations/">Denominations</a> &rsaquo; ${esc(d.short_name)}</div>
     <h1>${esc(d.name)}</h1>
