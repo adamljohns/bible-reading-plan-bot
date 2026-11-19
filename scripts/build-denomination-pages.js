@@ -49,7 +49,7 @@ function build() {
     const scored = D.scoreDenomination(d, ledger);
     for (const [cat, s] of Object.entries(scored.scores)) {
       if (!D.GRADES.includes(s.grade)) errors.push(`${d.id}: ${cat} grade ${s.grade} outside schema`);
-      if (s.grade !== 'unknown' && (!s.rule || !(s.evidence || []).length) && !(s.rule && s.rule.id === 'D-DEN-1')) errors.push(`${d.id}: ${cat} graded without rule+evidence`);
+      if (s.grade !== 'unknown' && (!s.rule || !(s.evidence || []).length)) errors.push(`${d.id}: ${cat} graded without rule+evidence`);
     }
     if (scored.governance.strength && !D.GOVERNANCE.includes(scored.governance.strength)) errors.push(`${d.id}: governance outside schema`);
     const congregations = D.verifyCongregations(d, byId);
@@ -134,7 +134,7 @@ function detailHtml(d) {
       ${(d.nuance.evidence || []).map(id => ev.get(id)).filter(l => l && l.validated).map(l => `<blockquote>&ldquo;${esc(l.quote)}&rdquo; &mdash; <a href="${esc(l.url)}" rel="noopener">${esc(l.url.replace(/^https?:\/\/(www\.)?/, '').split('/')[0])}</a></blockquote>`).join('\n      ')}
     </div>` : '');
   const congs = d.verified_congregations.map(v => `<li><a href="/churches/${esc(v.church_id)}.html">${esc(v.name)}</a> (${esc([v.city, v.state].filter(Boolean).join(', '))}) &mdash; <span class="note">affiliation stated on the church's own site:</span><blockquote>&ldquo;${esc(v.quote)}&rdquo; &mdash; <a href="${esc(v.url)}" rel="noopener">${esc(v.url.replace(/^https?:\/\//, ''))}</a></blockquote></li>`).join('\n');
-  const ledgerRows = d.ledger.map(l => `<tr><td>${esc(l.id)}</td><td>&ldquo;${esc(l.quote)}&rdquo;<div class="note"><a href="${esc(l.url)}" rel="noopener">${esc(l.url)}</a></div></td><td class="note">${esc((l.retrieved_at || '').slice(0, 10))}<br>${esc(l.extractor || '')}<br>model: ${esc(l.model || 'none')}<br>confidence ${l.confidence}</td></tr>`).join('\n');
+  const ledgerRows = d.ledger.map(l => `<tr><td>${esc(l.id)}</td><td>&ldquo;${esc(l.quote)}&rdquo;<div class="note"><a href="${esc(l.url)}" rel="noopener">${esc(l.url)}</a>${l.linked_from ? ` (linked from <a href="${esc(l.linked_from)}" rel="noopener">${esc(l.linked_from.replace(/^https?:\/\//, ''))}</a>)` : ''}</div></td><td class="note">${esc((l.retrieved_at || '').slice(0, 10))}<br>${esc(l.extractor || '')}<br>checked against: ${esc(l.body_region ? 'document body (' + l.body_region + ')' : 'document body')}<br>model: ${esc(l.model || 'none')}<br>confidence ${l.confidence}</td></tr>`).join('\n');
   return pageHead(`${d.name} (${d.short_name})`, d.page, `${d.name}: MOOP denomination context, official-source evidence, governance strength.`) + `
     <div class="crumb"><a href="/churches.html">Church Directory</a> &rsaquo; <a href="/denominations/">Denominations</a> &rsaquo; ${esc(d.short_name)}</div>
     <h1>${esc(d.name)}</h1>

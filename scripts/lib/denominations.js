@@ -29,7 +29,7 @@ const AFFIRMING_IDS = new Set(['pcusa', 'elca', 'umc', 'tec', 'ucc', 'disciples'
 // so stricter (worse) grades are listed first.
 const RULES = {
   scripture: [
-    { grade: 'green', id: 'D-SCR-1', text: 'The official confession affirms Scripture is without error (inerrant) and the final authority → GREEN.', all: [/without (any mixture of )?error|inerran/i] },
+    { grade: 'green', id: 'D-SCR-1', text: 'The official confession affirms Scripture is without error (inerrant) and the final authority (also worded "supreme standard", "ultimate authority" or "only infallible rule of faith and practice") → GREEN. Both halves need a quote.', all: [/without (any mixture of )?error|inerran/i, /supreme standard|ultimate authority|final authority|inerrancy and authority|only infallible rule of faith and practice/i] },
   ],
   christology: [
     { grade: 'green', id: 'D-CHR-1', text: 'The official confession affirms Christ is fully God and fully man (also worded "truly God and truly man" or "very God and very man") → GREEN.', all: [/fully God,? (and )?fully man|truly God and truly man|very God and very man/i] },
@@ -74,6 +74,10 @@ const GOV_RULES = [
 
 const nrm = s => String(s || '').replace(/[‘’]/g, "'").replace(/[“”]/g, '"')
   .replace(/[–—]/g, '-').replace(/ /g, ' ').replace(/\s+/g, ' ').trim().toLowerCase();
+// Same normalization without case folding: quotes are checked case-sensitively
+// (BoD ¶120 "the Church" is not the umc.org footer's "the church").
+const nrmCase = s => String(s || '').replace(/[‘’]/g, "'").replace(/[“”]/g, '"')
+  .replace(/[–—]/g, '-').replace(/ /g, ' ').replace(/\s+/g, ' ').trim();
 const aliasKey = s => nrm(s).replace(/[^a-z0-9]+/g, ' ').trim();
 
 function loadDenominations(dir = DATA_DIR) {
@@ -99,17 +103,23 @@ function normalizeDenomination(label, index) {
   return index.get(aliasKey(label)) || null;
 }
 
+// A snapshot is two files: <slug>.txt (whole page, tag-stripped, kept as the
+// archive) and <slug>.body.txt (main content region only: no nav, header,
+// footer or aside; written by denominations-capture-source.py). `text` below is
+// the BODY. Quotes are validated against the body only, so a phrase found only
+// in site chrome never passes. No body snapshot = no validation.
 function loadSource(denomId, slug, srcDir = SRC_DIR) {
   const base = path.join(srcDir, denomId, slug);
-  const text = fs.readFileSync(base + '.txt', 'utf8');
   const meta = JSON.parse(fs.readFileSync(base + '.meta.json', 'utf8'));
-  const sha = crypto.createHash('sha256').update(text.replace(/\n$/, '')).digest('hex');
-  return { text, meta, sha_ok: sha === meta.sha256_text };
+  const full = fs.readFileSync(base + '.txt', 'utf8');
+  const text = fs.readFileSync(base + '.body.txt', 'utf8');
+  const h = t => crypto.createHash('sha256').update(t.replace(/\n$/, '')).digest('hex');
+  return { text, full, meta, sha_ok: !!meta.sha256_body && h(text) === meta.sha256_body && h(full) === meta.sha256_text };
 }
 
 function quoteInSource(quote, text) {
-  const q = nrm(quote).replace(/^[\s.,;:"']+|[\s.,;:"']+$/g, '');
-  return q.length >= 12 && nrm(text).includes(q);
+  const q = nrmCase(quote).replace(/^[\s.,;:"']+|[\s.,;:"']+$/g, '');
+  return q.length >= 12 && nrmCase(text).includes(q);
 }
 
 // Build the evidence ledger: each row validated against its snapshot.
@@ -123,16 +133,18 @@ function buildLedger(denom, srcDir = SRC_DIR) {
       id: e.id, quote: e.quote, url: e.url, supports: e.supports,
       retrieved_at: src ? src.meta.retrieved_at : null,
       extractor: src ? src.meta.extractor : null, model: e.model || null,
+      body_region: src ? src.meta.body_region || null : null, linked_from: src ? src.meta.linked_from || null : null,
       source_sha256: src ? src.meta.sha256_text : null,
       validated: found,
       confidence: found ? 1.0 : 0,
-      error: err || (!src ? 'no snapshot' : !src.sha_ok ? 'snapshot hash mismatch' : !urlOk ? 'url does not match snapshot' : !found ? 'quote not in source' : null),
+      error: err || (!src ? 'no snapshot' : !src.sha_ok ? 'snapshot hash mismatch' : !urlOk ? 'url does not match snapshot' : !found ? 'quote not in document body' : null),
     };
   });
 }
 
 function matchRule(rule, quotes, denomId) {
-  if (rule.listed) return AFFIRMING_IDS.has(denomId) ? { used: [] } : null;
+  // A listed rule still shows the official quotes that support the category.
+  if (rule.listed) return AFFIRMING_IDS.has(denomId) ? { used: quotes.map(q => q.id) } : null;
   if (rule.none && rule.none.some(re => quotes.some(q => re.test(q.quote)))) return null;
   const used = [];
   for (const re of rule.all || []) {
@@ -207,6 +219,6 @@ function classifyDenomination(label, map) {
 module.exports = {
   loadAliasMap, classifyDenomination, ALIAS_MAP,
   CATEGORIES, GRADES, GOVERNANCE, RULES, GOV_RULES, AFFIRMING_IDS, DATA_DIR, SRC_DIR,
-  nrm, aliasKey, loadDenominations, aliasIndex, normalizeDenomination, loadSource, quoteInSource,
+  nrm, nrmCase, aliasKey, loadDenominations, aliasIndex, normalizeDenomination, loadSource, quoteInSource,
   buildLedger, scoreDenomination, verifyCongregations,
 };

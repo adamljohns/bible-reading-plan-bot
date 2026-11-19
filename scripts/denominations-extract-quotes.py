@@ -7,7 +7,8 @@ For each snapshot in data/denominations/sources/<denom_id>/, finds passages
 that touch a MOOP category (keyword windows), asks a LOCAL model on LM Studio
 (http://127.0.0.1:1234, no cloud credits) to copy verbatim sentences stating
 the body's official position, and validates every returned quote word for
-word against the snapshot (same normalization as scripts/lib/denominations.js).
+word against the snapshot's MAIN BODY (<slug>.body.txt: no nav, header or
+footer), case-sensitively, the same check as scripts/lib/denominations.js.
 
 Writes data/denominations/proposals/<denom_id>.json. Proposals are not
 evidence: a human/rule review copies validated proposals into
@@ -35,7 +36,7 @@ NRM = [("‘", "'"), ("’", "'"), ("“", '"'), ("”", '"'), ("–", "-"), ("�
 
 def nrm(s):
     for a, b in NRM: s = s.replace(a, b)
-    return re.sub(r"\s+", " ", s).strip().lower()
+    return re.sub(r"\s+", " ", s).strip()
 
 def validated(q, text):
     q2 = re.sub(r"^[\s.,;:\"']+|[\s.,;:\"']+$", "", nrm(q))
@@ -68,25 +69,31 @@ def ask(model, body, topic, passage):
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument("denom"); ap.add_argument("--model", default="gemma-4-31b-it")
     ap.add_argument("--body", default=None)
+    ap.add_argument("--width", type=int, default=1400, help="window width in characters around each match (narrow it to target one sentence)")
     ap.add_argument("--extra", action="append", default=[], help="CATEGORY=REGEX: only run these targeted windows (for passages the default windows skipped); results are appended to the existing proposals file")
     a = ap.parse_args()
     extra = [x.split("=", 1) for x in a.extra]
     d = os.path.join(ROOT, "data", "denominations", "sources", a.denom)
     body = a.body or a.denom.upper()
     props = []
+    bodies = {}
     for f in sorted(os.listdir(d)):
-        if not f.endswith(".txt"): continue
-        slug = f[:-4]; text = open(os.path.join(d, f)).read()
+        if not f.endswith(".body.txt"): continue
+        slug = f[:-len(".body.txt")]; text = bodies[slug] = open(os.path.join(d, f)).read()
         meta = json.load(open(os.path.join(d, slug + ".meta.json")))
         jobs = [(c, CATS[c][0], rx) for c, rx in extra] if extra else [(c, t, rx) for c, (t, rx) in CATS.items()]
         for cat, topic, pat in jobs:
-            for w in windows(text, pat):
+            for w in windows(text, pat, width=a.width):
                 for q in ask(a.model, body, topic, w):
                     props.append({"source": slug, "url": meta["url"], "category": cat, "quote": q.strip(),
                                   "validated": validated(q, text), "model": a.model, "endpoint": "lmstudio-local"})
             print(f"{slug} {cat}: {sum(1 for p in props if p['source']==slug and p['category']==cat)} proposals", file=sys.stderr)
     out_file = os.path.join(ROOT, "data", "denominations", "proposals", a.denom + ".json")
-    if extra and os.path.exists(out_file): props = json.load(open(out_file))["proposals"] + props
+    if extra and os.path.exists(out_file):
+        old = json.load(open(out_file))["proposals"]
+        for p in old:  # re-check earlier proposals against the body-only snapshot
+            p["validated"] = p["source"] in bodies and validated(p["quote"], bodies[p["source"]])
+        props = old + props
     seen, uniq = set(), []
     for p in props:
         k = (p["source"], p["category"], nrm(p["quote"]))

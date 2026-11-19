@@ -46,7 +46,8 @@ for (const [id, want] of Object.entries(WANT)) {
   }
   const sc = D.scoreDenomination(d, ledger);
   for (const [k, v] of Object.entries(want.s)) assert.strictEqual(sc.scores[k].grade, v, `${id} ${k}`);
-  for (const s of Object.values(sc.scores)) if (s.grade !== 'unknown' && !(s.rule && s.rule.id === 'D-DEN-1')) assert.ok(s.rule && s.evidence.length, `${id}: graded without rule+evidence`);
+  // Every non-unknown grade carries a rule AND at least one validated quote (D-DEN-1 included).
+  for (const [k, s] of Object.entries(sc.scores)) if (s.grade !== 'unknown') assert.ok(s.rule && s.evidence.length, `${id} ${k}: graded ${s.grade} without rule+quote`);
   assert.strictEqual(sc.governance.strength, want.gov, `${id} governance`);
   assert.ok(sc.governance.evidence.length, `${id}: governance without a quote`);
   assert.strictEqual(sc.context_grade, want.ctx, `${id} context`);
