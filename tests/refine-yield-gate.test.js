@@ -53,7 +53,11 @@ function runGate(root, { streaks, store, args = [] } = {}) {
 //       apply lane and no fallback. This is the 129-wasted-batches scenario. ──
 {
   const root = makeRoot([church({ id: 'a' }), church({ id: 'b' }), church({ id: 'c' })]);
-  const r = runGate(root, { streaks: { fresh: 3, retry: 3, social: 3 } });
+  // Streaks need a fresh *_last_empty_at: since the 24h thaw, an undated streak
+  // is "unknown age" and gets one re-test (isApplyLaneCold).
+  const now = new Date().toISOString();
+  const r = runGate(root, { streaks: { fresh: 3, retry: 3, social: 3,
+    fresh_last_empty_at: now, retry_last_empty_at: now, social_last_empty_at: now } });
   assert.strictEqual(r.code, 3, `DEAD POOL MUST HALT with exit 3, got ${r.code}: ${r.stdout}${r.stderr}`);
   assert.strictEqual(r.json.verdict, 'HALT');
   assert.match(r.json.reason, /COLD after 3 consecutive \+0 batches/);
@@ -67,7 +71,9 @@ function runGate(root, { streaks, store, args = [] } = {}) {
     church({ id: 'a' }),
     church({ id: 'sbc', website: '', source_url: 'https://churches.sbc.net/church/1' }),
   ]);
-  const r = runGate(root, { streaks: { fresh: 3, retry: 3, social: 3 } });
+  const ts = new Date().toISOString();
+  const r = runGate(root, { streaks: { fresh: 3, retry: 3, social: 3,
+    fresh_last_empty_at: ts, retry_last_empty_at: ts, social_last_empty_at: ts } });
   assert.strictEqual(r.code, 0, 'source-recovery fallback must keep the run alive');
   assert.match(r.json.reason, /source-recovery/);
 }
@@ -114,6 +120,57 @@ function runGate(root, { streaks, store, args = [] } = {}) {
   assert.ok(runner.includes('refine-yield-gate.js'), 'pastor-refine-local.sh must call the yield gate');
   assert.ok(/--record"? *"?\$MODE/.test(runner) || runner.includes('--record "$MODE"'),
     'the runner must record every hop, including empty ones');
+}
+
+// ── 7. REGRESSION (2026-11-19): cold apply lanes + website-discovery pool →
+//       PROCEED. The selector returned website-discovery (2,962 eligible) while
+//       the gate only knew source-recovery and HALTED with "no fallback". ──────
+{
+  const root = makeRoot([
+    church({ id: 'r', enrichment_notes: 'Phase 6f no parseable pastor' }),
+    church({ id: 'w1', website: '' }), church({ id: 'w2', website: '' }),
+  ]);
+  const now = new Date().toISOString();
+  const r = runGate(root, { streaks: { fresh: 3, retry: 3, social: 3,
+    fresh_last_empty_at: now, retry_last_empty_at: now, social_last_empty_at: now } });
+  assert.strictEqual(r.json.selected, 'website-discovery', `selector should pick website-discovery, got ${r.json.selected}`);
+  assert.strictEqual(r.code, 0, `website-discovery fallback must PROCEED, got ${r.code}: ${r.json.reason}`);
+  assert.match(r.json.reason, /website-discovery \(2 eligible\)/);
+}
+
+// ── 8. CONTRACT: every lane chooseLane() can return is either an apply lane,
+//       a gate-approved fallback, or an explicit idle verdict. Adding a new
+//       selector lane without teaching the gate now fails here. ───────────────
+{
+  const lanes = require(path.join(REPO, 'scripts/lib/grind-lanes.js'));
+  const src = fs.readFileSync(path.join(REPO, 'scripts/lib/grind-lanes.js'), 'utf8');
+  const body = src.slice(src.indexOf('function chooseLane'), src.indexOf('module.exports'));
+  const returned = new Set([...body.matchAll(/return '([a-z-]+)'/g)].map(m => m[1]));
+  const IDLE = new Set(['nothing-to-grind', 'monitoring']);
+  for (const l of returned) {
+    assert.ok(lanes.APPLY_LANES.includes(l) || lanes.FALLBACK_LANES.includes(l) || IDLE.has(l),
+      `chooseLane can return "${l}" but the yield gate has no rule for it`);
+  }
+  for (const l of lanes.FALLBACK_LANES) {
+    assert.ok(lanes.FALLBACK_COUNT_KEY[l], `fallback ${l} needs a count key`);
+    assert.ok(returned.has(l), `gate allows ${l} but the selector never returns it`);
+  }
+  // Each fallback, when it is the only work, must PROCEED end to end.
+  const now = new Date().toISOString();
+  const cold = { fresh: 3, retry: 3, social: 3, fresh_last_empty_at: now, retry_last_empty_at: now, social_last_empty_at: now };
+  const fixtures = {
+    'source-recovery': [church({ id: 's', website: '', source_url: 'https://churches.sbc.net/church/1' })],
+    'website-discovery': [church({ id: 'w', website: '' })],
+  };
+  for (const l of lanes.FALLBACK_LANES) {
+    const r = runGate(makeRoot(fixtures[l]), { streaks: cold });
+    assert.strictEqual(r.json.selected, l);
+    assert.strictEqual(r.code, 0, `fallback ${l} must PROCEED: ${r.json.reason}`);
+  }
+  // ...and the idle verdicts still HALT.
+  const idle = runGate(makeRoot([church({ id: 'r', enrichment_notes: 'Phase 6f no parseable pastor' })]), { streaks: cold });
+  assert.strictEqual(idle.json.selected, 'nothing-to-grind');
+  assert.strictEqual(idle.code, 3, 'nothing-to-grind must still HALT');
 }
 
 console.log('refine-yield-gate: all assertions passed (incl. HALT demonstrated on a dead pool)');

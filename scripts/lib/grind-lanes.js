@@ -9,6 +9,11 @@ const FULL = new Set(['ALABAMA','ALASKA','ARIZONA','ARKANSAS','CALIFORNIA','COLO
 
 const APPLY_LANES = ['fresh', 'retry', 'social'];
 const EMPTY_STREAK_SKIP = 3;
+// Every non-apply lane chooseLane() can return that does real work. The yield
+// gate must PROCEED on each of these; a mismatch here halted the grind while the
+// selector held 2,962 website-discovery records (2026-11-19).
+const FALLBACK_LANES = ['source-recovery', 'website-discovery'];
+const FALLBACK_COUNT_KEY = { 'source-recovery': 'source_recovery', 'website-discovery': 'website_discovery' };
 
 function isPlaceholderPastor(p) {
   const s = String(p || '').trim();
@@ -176,7 +181,7 @@ function chooseLane(counts, lastMode, streaksIn) {
 }
 
 module.exports = {
-  APPLY_LANES, EMPTY_STREAK_SKIP,
+  APPLY_LANES, EMPTY_STREAK_SKIP, FALLBACK_LANES, FALLBACK_COUNT_KEY,
   isPlaceholderPastor, isUS, isEnglish, hasWebsite, notesText, alreadyAttempted,
   noPastorStrikes, pastorFetchable, freshEligible, retryEligible, socialEligible,
   websiteDiscoveryEligible, isSbcSource, sourceRecoveryEligible, sourceRecoveryExhausted, pastorExhausted,

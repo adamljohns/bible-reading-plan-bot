@@ -23,6 +23,18 @@ const path = require('path');
 })();
 
 const data = JSON.parse(fs.readFileSync(path.join(__dirname, 'docs/data/churches.json'), 'utf8'));
+// Denomination context links (scripts/build-denomination-pages.js). Context only:
+// the church's own evidence sets its grade; this just links the denomination page.
+let denomLinks = {}, denomPages = {};
+try {
+  denomLinks = JSON.parse(fs.readFileSync(path.join(__dirname, 'docs/data/denominations/church-links.json'), 'utf8')).links || {};
+  for (const d of JSON.parse(fs.readFileSync(path.join(__dirname, 'docs/data/denominations/index.json'), 'utf8')).denominations || []) denomPages[d.id] = d;
+} catch (_) { /* no denomination directory yet */ }
+function denominationContextHtml(church) {
+  const d = denomPages[denomLinks[church.id]];
+  if (!d) return '';
+  return `<span style="display:block;margin-top:4px;font-size:0.78rem;"><a href="${d.page}" style="color:var(--gold);">${escapeHtml(d.short_name)} denomination context</a> <span style="color:var(--gray);">(context only; this church's own evidence sets its rating)</span></span>`;
+}
 const outDir = path.join(__dirname, 'docs/churches');
 
 // Church-logo sidecar (scripts/harvest-church-logos.js — 2026-07-11): logos harvested
@@ -975,7 +987,7 @@ ${(() => {
       </div>
       <div class="fact-item">
         <span class="fact-label">Denomination</span>
-        <span class="fact-value">${escapeHtml(church.denomination || 'Unknown')}</span>
+        <span class="fact-value">${escapeHtml(church.denomination || 'Unknown')}</span>${denominationContextHtml(church)}
       </div>
       <div class="fact-item">
         <span class="fact-label">Service Times</span>

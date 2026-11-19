@@ -3,7 +3,7 @@
 # (Chaps / Hermes, on Adam's request; see
 # ~/.openclaw/shared-memory/context/church-directory-grind.md).
 #
-# STAGED COPY for ~/.openclaw/bin/trigger-directory-grind.sh (2026-11-08). The
+# Canonical source of ~/.openclaw/bin/trigger-directory-grind.sh (installed 2026-11-19). The
 # old call shape is unchanged; full review is a new first word.
 #
 #   trigger-directory-grind.sh [batch]                 enrichment round (as before)
@@ -23,10 +23,20 @@ if [ "${1:-}" = "full-review" ]; then
   case "$BATCH" in ''|*[!0-9]*) BATCH=25 ;; esac
   [ "$BATCH" -gt 60 ] && BATCH=60
   MODE="dry"; case " $* " in *" --live "*) MODE="live" ;; esac
+  if [ "$MODE" = "live" ]; then
+    GO_FILE="${FULL_REVIEW_STANDING_GO:-$HOME/.openclaw/shared-memory/context/full-review-standing-go.json}"
+    node "$WT/scripts/lib/full-review-go.js" "$GO_FILE" || { echo "REFUSED: --live needs a valid standing GO from Adam at $GO_FILE. Nothing started."; exit 3; }
+  fi
   RUNNER="$WT/scripts/full-review-round.sh"
-  [ -f "$RUNNER" ] || { echo "ERROR: full-review runner missing at $RUNNER (feat/church-full-review not merged yet) — tell Max."; exit 1; }
+  [ -f "$RUNNER" ] || { echo "ERROR: full-review runner missing at $RUNNER — tell Max."; exit 1; }
   [ -d "$LOCK" ] && { echo "A directory round is ALREADY running (lock held). Nothing started."; exit 0; }
-  nohup env FULL_REVIEW_BATCH="$BATCH" FULL_REVIEW_MODE="$MODE" /bin/bash "$RUNNER" >/dev/null 2>&1 &
+  # Dry runs write outside git so the grind's worktree stays clean for its rebase.
+  DRY_OUT="${FULL_REVIEW_OUT_DIR:-$HOME/Library/Logs/full-review-dry}"
+  if [ "$MODE" = "live" ]; then
+    nohup env -u FULL_REVIEW_OUT_DIR FULL_REVIEW_BATCH="$BATCH" FULL_REVIEW_MODE=live /bin/bash "$RUNNER" >/dev/null 2>&1 &
+  else
+    nohup env FULL_REVIEW_BATCH="$BATCH" FULL_REVIEW_MODE=dry FULL_REVIEW_OUT_DIR="$DRY_OUT" /bin/bash "$RUNNER" >/dev/null 2>&1 &
+  fi
   if [ "$MODE" = "live" ]; then
     echo "STARTED: full-review round (batch $BATCH, LIVE) in the background. Auto-grade changes apply and ship; RED/BLACK, off-GREEN and lower-confidence proposals wait in data/full-review/hold-queue.json for Chaps QA. No results are known yet."
   else

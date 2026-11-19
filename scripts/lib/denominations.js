@@ -1,0 +1,180 @@
+'use strict';
+// denominations.js — canonical denomination schema, alias normalization,
+// evidence-ledger validation and deterministic MOOP category scoring.
+//
+// Law of this module:
+//  * A score exists only when a WRITTEN rule (RULES below, published on every
+//    denomination page) maps evidence to it AND every quote the rule relies on
+//    is verbatim in a captured official source snapshot. Otherwise "unknown".
+//  * The denomination grade is CONTEXT for a church page, never its rating.
+//    A church's own evidence wins.
+//  * No model runs here. Validation is string matching on snapshots.
+const fs = require('fs');
+const path = require('path');
+const crypto = require('crypto');
+
+const ROOT = path.join(__dirname, '..', '..');
+const DATA_DIR = path.join(ROOT, 'data', 'denominations');
+const SRC_DIR = path.join(DATA_DIR, 'sources');
+
+const CATEGORIES = ['scripture', 'christology', 'gender', 'soteriology', 'preaching', 'cultural',
+  'leadership', 'mission', 'mens_discipleship', 'denominational'];
+const GRADES = ['green', 'yellow', 'red', 'black', 'unknown'];
+const GOVERNANCE = ['binding', 'mixed', 'advisory', 'autonomous'];
+// The published LGBTQ-affirming list (usmcmin.org/directory-methodology.html).
+const AFFIRMING_IDS = new Set(['pcusa', 'elca', 'umc', 'tec', 'ucc', 'disciples', 'rca', 'mcusa']);
+
+// Each rule: grade + id + published text + the patterns that must each be met
+// by at least one validated quote supporting that category. First match wins,
+// so stricter (worse) grades are listed first.
+const RULES = {
+  scripture: [
+    { grade: 'green', id: 'D-SCR-1', text: 'The official confession affirms Scripture is without error (inerrant) and the final authority → GREEN.', all: [/without error|inerran/i] },
+  ],
+  christology: [
+    { grade: 'green', id: 'D-CHR-1', text: 'The official confession affirms Christ is fully God and fully man → GREEN.', all: [/fully God and fully man/i] },
+  ],
+  soteriology: [
+    { grade: 'green', id: 'D-SOT-1', text: 'The official confession affirms justification by grace through faith alone in Christ alone → GREEN.', all: [/grace through faith alone/i] },
+  ],
+  gender: [
+    { grade: 'red', id: 'D-GEN-1', text: 'The body ordains women to pastoral office → RED minimum (same line as "Female senior pastor → RED minimum.").', all: [/\bordains? women\b(?!.*not)|ordination of women is permitted/i], none: [/does not ordain women/i] },
+    { grade: 'green', id: 'D-GEN-2', text: 'An official decision restricts ordination to qualified men → GREEN. Non-ordained ministry roles for women are noted, not penalized.', all: [/does not ordain women|qualified males/i] },
+  ],
+  leadership: [
+    { grade: 'yellow', id: 'D-LDR-1', text: 'Ordination is restricted to men, but elder/leadership policy is left to each local church → YELLOW (mixed): the church\'s own evidence decides.', all: [/does not ordain women|qualified males/i, /local church is free|no official [A-Z]* ?policy for local churches/i] },
+    { grade: 'green', id: 'D-LDR-2', text: 'Ordination and elder office are restricted to men by a binding rule → GREEN.', all: [/does not ordain women|qualified males/i, /elders? (must|shall) be (qualified )?men/i] },
+  ],
+  cultural: [
+    { grade: 'green', id: 'D-CUL-1', text: 'An official statement defines marriage as one man and one woman → GREEN.', all: [/one man and one woman/i] },
+  ],
+  denominational: [
+    { grade: 'red', id: 'D-DEN-1', text: 'LGBTQ-affirming denomination → RED minimum.', listed: true },
+    { grade: 'green', id: 'D-DEN-2', text: 'Not on the published LGBTQ-affirming list, and an official statement defines marriage as one man and one woman → GREEN.', all: [/one man and one woman/i] },
+  ],
+  mission: [
+    { grade: 'green', id: 'D-MIS-1', text: 'The official mission is gospel or church multiplication among all people → GREEN.', all: [/multiplying [a-z ]*churches|great commission/i] },
+  ],
+  preaching: [],
+  mens_discipleship: [],
+};
+
+const GOV_RULES = [
+  { strength: 'binding', id: 'D-GOV-1', text: 'Doctrine and practice decisions bind every congregation (hierarchical or connectional authority) → BINDING.', all: [/binding on (all|every|member) (churches|congregations)|hierarchical/i] },
+  { strength: 'mixed', id: 'D-GOV-2', text: 'Autonomous congregations united by a required common confession; practice decisions stay local → MIXED.', all: [/autonomous|self-govern|govern its own affairs/i, /united around/i] },
+  { strength: 'advisory', id: 'D-GOV-3', text: 'Denominational statements are offered as guidance only → ADVISORY.', all: [/advisory|guidance only|not binding/i] },
+  { strength: 'autonomous', id: 'D-GOV-4', text: 'Fully independent congregations with no required common confession → AUTONOMOUS.', all: [/autonomous|self-govern/i] },
+];
+
+const nrm = s => String(s || '').replace(/[‘’]/g, "'").replace(/[“”]/g, '"')
+  .replace(/[–—]/g, '-').replace(/ /g, ' ').replace(/\s+/g, ' ').trim().toLowerCase();
+const aliasKey = s => nrm(s).replace(/[^a-z0-9]+/g, ' ').trim();
+
+function loadDenominations(dir = DATA_DIR) {
+  return fs.readdirSync(dir).filter(f => f.endsWith('.json')).sort()
+    .map(f => JSON.parse(fs.readFileSync(path.join(dir, f), 'utf8')));
+}
+
+function aliasIndex(denoms) {
+  const m = new Map();
+  for (const d of denoms) {
+    for (const a of [d.id, d.name, d.short_name, ...(d.aliases || [])].filter(Boolean)) {
+      const k = aliasKey(a);
+      if (m.has(k) && m.get(k) !== d.id) throw new Error(`alias "${a}" maps to both ${m.get(k)} and ${d.id}`);
+      m.set(k, d.id);
+    }
+  }
+  return m;
+}
+
+// Exact alias match only. "Non-Denominational (... EFCA-tagged)" must NOT map.
+function normalizeDenomination(label, index) {
+  if (!label) return null;
+  return index.get(aliasKey(label)) || null;
+}
+
+function loadSource(denomId, slug, srcDir = SRC_DIR) {
+  const base = path.join(srcDir, denomId, slug);
+  const text = fs.readFileSync(base + '.txt', 'utf8');
+  const meta = JSON.parse(fs.readFileSync(base + '.meta.json', 'utf8'));
+  const sha = crypto.createHash('sha256').update(text.replace(/\n$/, '')).digest('hex');
+  return { text, meta, sha_ok: sha === meta.sha256_text };
+}
+
+function quoteInSource(quote, text) {
+  const q = nrm(quote).replace(/^[\s.,;:"']+|[\s.,;:"']+$/g, '');
+  return q.length >= 12 && nrm(text).includes(q);
+}
+
+// Build the evidence ledger: each row validated against its snapshot.
+function buildLedger(denom, srcDir = SRC_DIR) {
+  return (denom.evidence || []).map(e => {
+    let src = null, err = null;
+    try { src = loadSource(denom.id, e.source, srcDir); } catch (x) { err = x.code || x.message; }
+    const urlOk = !!src && (src.meta.url === e.url || src.meta.final_url === e.url);
+    const found = !!src && src.sha_ok && urlOk && quoteInSource(e.quote, src.text);
+    return {
+      id: e.id, quote: e.quote, url: e.url, supports: e.supports,
+      retrieved_at: src ? src.meta.retrieved_at : null,
+      extractor: src ? src.meta.extractor : null, model: null,
+      source_sha256: src ? src.meta.sha256_text : null,
+      validated: found,
+      confidence: found ? 1.0 : 0,
+      error: err || (!src ? 'no snapshot' : !src.sha_ok ? 'snapshot hash mismatch' : !urlOk ? 'url does not match snapshot' : !found ? 'quote not in source' : null),
+    };
+  });
+}
+
+function matchRule(rule, quotes, denomId) {
+  if (rule.listed) return AFFIRMING_IDS.has(denomId) ? { used: [] } : null;
+  if (rule.none && rule.none.some(re => quotes.some(q => re.test(q.quote)))) return null;
+  const used = [];
+  for (const re of rule.all || []) {
+    const hit = quotes.find(q => re.test(q.quote));
+    if (!hit) return null;
+    if (!used.includes(hit.id)) used.push(hit.id);
+  }
+  return { used };
+}
+
+function scoreDenomination(denom, ledger) {
+  const scores = {};
+  for (const cat of CATEGORIES) {
+    const quotes = ledger.filter(l => l.validated && (l.supports || []).includes(cat));
+    let out = { grade: 'unknown', rule: null, evidence: [], note: 'No validated official quote maps to a published rule.' };
+    for (const rule of RULES[cat] || []) {
+      const m = matchRule(rule, quotes, denom.id);
+      if (m) { out = { grade: rule.grade, rule: { id: rule.id, text: rule.text }, evidence: m.used, note: '' }; break; }
+    }
+    scores[cat] = out;
+  }
+  const gq = ledger.filter(l => l.validated && (l.supports || []).includes('governance'));
+  let governance = { strength: null, rule: null, evidence: [] };
+  for (const r of GOV_RULES) {
+    const m = matchRule(r, gq, denom.id);
+    if (m) { governance = { strength: r.strength, rule: { id: r.id, text: r.text }, evidence: m.used }; break; }
+  }
+  const graded = Object.values(scores).map(s => s.grade).filter(g => g !== 'unknown');
+  const worst = ['black', 'red', 'yellow', 'green'].find(g => graded.includes(g)) || 'unknown';
+  return { scores, governance, context_grade: worst };
+}
+
+function verifyCongregations(denom, churchesById, srcDir = SRC_DIR) {
+  return (denom.verified_congregations || []).map(v => {
+    const c = churchesById.get(v.church_id);
+    let ok = false, err = null, meta = null;
+    try {
+      const s = loadSource('_congregations', v.church_id, srcDir); meta = s.meta;
+      ok = s.sha_ok && quoteInSource(v.quote, s.text) && (s.meta.url === v.url || s.meta.final_url === v.url);
+      if (!ok) err = 'quote/url not validated in congregation snapshot';
+    } catch (x) { err = x.code || x.message; }
+    if (!c) { ok = false; err = 'church id not in churches.json'; }
+    return { ...v, name: c ? c.name : null, city: c ? c.city || '' : '', state: c ? c.state : '', retrieved_at: meta && meta.retrieved_at, validated: ok, error: err };
+  });
+}
+
+module.exports = {
+  CATEGORIES, GRADES, GOVERNANCE, RULES, GOV_RULES, AFFIRMING_IDS, DATA_DIR, SRC_DIR,
+  nrm, aliasKey, loadDenominations, aliasIndex, normalizeDenomination, loadSource, quoteInSource,
+  buildLedger, scoreDenomination, verifyCongregations,
+};

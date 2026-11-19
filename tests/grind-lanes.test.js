@@ -65,10 +65,12 @@ assert.strictEqual(counts.dead_site_recovery, 1);
 assert.strictEqual(counts.human_review, 1);
 assert.ok(counts.product_backlog >= 3);
 
-// Website discovery is review-only until page/geo corroboration and guarded merge exist.
+// Website discovery is a selector fallback since 2026-10-31 (free local SearXNG):
+// a siteless pool with no apply work selects website-discovery, which the yield
+// gate must also accept (see tests/refine-yield-gate.test.js §7-8).
 counts = lanes.countLanes([c({ id: 'discover-only' })]);
 assert.strictEqual(counts.website_discovery, 1);
-assert.strictEqual(lanes.chooseLane(counts, null, cleanStreaks), 'monitoring');
+assert.strictEqual(lanes.chooseLane(counts, null, cleanStreaks), 'website-discovery');
 
 const html = fs.readFileSync(path.join(ROOT, 'docs/grind-report.html'), 'utf8');
 const runner = fs.readFileSync(path.join(ROOT, 'scripts/pastor-refine-local.sh'), 'utf8');
@@ -104,13 +106,17 @@ assert.ok(tickLedgerReset >= 0 && tickScrape > tickLedgerReset,
   'each autopilot tick must scrape into a fresh ledger before merging only that batch');
 
 const cold = { fresh: 0, retry: 5, social: 5, source_recovery: 0 };
-const streaksCold = { fresh: 0, retry: 3, social: 3 };
+const NOW_ISO = new Date().toISOString();
+// Cold needs a recent *_last_empty_at since the 24h thaw (undated = one re-test).
+const streaksCold = { fresh: 0, retry: 3, social: 3, retry_last_empty_at: NOW_ISO, social_last_empty_at: NOW_ISO };
 assert.strictEqual(lanes.chooseLane(cold, null, streaksCold), 'nothing-to-grind');
 assert.strictEqual(lanes.chooseLane({ fresh: 0, retry: 5, social: 5, source_recovery: 10 }, null, streaksCold), 'source-recovery');
 assert.strictEqual(lanes.chooseLane({ fresh: 100, retry: 0, social: 0, source_recovery: 10 }, null, { fresh: 3, retry: 3, social: 3 }), 'fresh');
 const streaksThaw = { fresh: 0, retry: 3, social: 3 };
 assert.strictEqual(lanes.chooseLane({ fresh: 2, retry: 5, social: 5 }, null, streaksThaw), 'fresh');
-assert.strictEqual(lanes.chooseLane({ fresh: 0, retry: 5, social: 5 }, null, { fresh: 0, retry: 0, social: 3 }), 'retry');
+assert.strictEqual(lanes.chooseLane({ fresh: 0, retry: 5, social: 5 }, null, { fresh: 0, retry: 0, social: 3, social_last_empty_at: NOW_ISO }), 'retry');
+// An old empty streak thaws after GRIND_COLD_THAW_HOURS and is re-tested once.
+assert.strictEqual(lanes.chooseLane({ fresh: 0, retry: 5, social: 5 }, null, { fresh: 0, retry: 3, social: 3, retry_last_empty_at: '2000-01-01T00:00:00Z', social_last_empty_at: NOW_ISO }), 'retry');
 assert.ok(runner.includes('LANE-DEAD'), 'cold apply lanes must emit LANE-DEAD');
 
 const session = fs.readFileSync(path.join(ROOT, 'scripts/directory-grind-session.sh'), 'utf8');

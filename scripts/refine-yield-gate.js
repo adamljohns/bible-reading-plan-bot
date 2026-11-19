@@ -96,9 +96,9 @@ if (usable.length) {
 } else if (lanes.APPLY_LANES.includes(selected) && (counts[selected] || 0) >= 10) {
   verdict = 'PROCEED'; code = 0;
   reason = `profile lane "${selected}" selected (${counts[selected]} eligible) — a cold pastor-name streak does not abandon a real pool`;
-} else if (selected === 'source-recovery') {
+} else if (lanes.FALLBACK_LANES.includes(selected) && (counts[lanes.FALLBACK_COUNT_KEY[selected]] || 0) > 0) {
   verdict = 'PROCEED'; code = 0;
-  reason = `all apply lanes cold — falling through to source-recovery (${counts.source_recovery} eligible)`;
+  reason = `all apply lanes cold — falling through to ${selected} (${counts[lanes.FALLBACK_COUNT_KEY[selected]]} eligible)`;
 } else {
   verdict = 'HALT'; code = 3;
   reason = coldWithWork.length
