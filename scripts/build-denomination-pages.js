@@ -140,6 +140,22 @@ const pageFoot = `  </main>
 </body>
 </html>
 `;
+// Internal cross-links (CCW-1119-DIR2 Phase 4). Source: data/crosslinks/denomination-related-links.json.
+// A link whose page is not in docs/ refuses the build, so this block can never ship a 404.
+const RELATED = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'crosslinks', 'denomination-related-links.json'), 'utf8'));
+const relatedErrors = [];
+function relatedHtml(id) {
+  const links = [...(RELATED[id] || []), ...(RELATED._all || [])];
+  for (const l of links) {
+    const rel = l.href.replace(/^\//, '');
+    const file = path.join(ROOT, 'docs', rel.endsWith('/') ? rel + 'index.html' : rel);
+    if (!l.href.startsWith('/') || !fs.existsSync(file)) relatedErrors.push(`related-links ${id}: ${l.href} has no page in docs/`);
+  }
+  if (!links.length) return '';
+  return `    <h2>Related on this site</h2>
+    <ul style="margin-left:20px">${links.map(l => `<li><a href="${esc(l.href)}">${esc(l.label)}</a></li>`).join('')}</ul>
+`;
+}
 const pill = g => `<span class="pill g-${esc(g)}">${esc(g)}</span>`;
 
 function detailHtml(d) {
@@ -199,7 +215,7 @@ ${churchList || '<p class="note">None listed.</p>'}
     <table><tr><th>ID</th><th>Quote and source</th><th>Retrieved / extractor</th></tr>
 ${ledgerRows}
     </table>
-` + pageFoot;
+${relatedHtml(d.id)}` + pageFoot;
 }
 
 function indexHtml(list) {
@@ -213,7 +229,7 @@ function indexHtml(list) {
 ${rows}
     </table>
     <p class="note" style="margin-top:18px">Governance strength: <strong>binding</strong> (decisions bind every congregation), <strong>mixed</strong> (a required common confession; practice decided locally), <strong>advisory</strong> (guidance only), <strong>autonomous</strong> (no required common confession).</p>
-` + pageFoot;
+${relatedHtml('_index')}` + pageFoot;
 }
 
 const { out, links, labelLinks, familyLinks, errors } = build();
@@ -287,6 +303,7 @@ for (const d of out) {
   files[path.join(OUT_DATA, `${d.id}.json`)] = JSON.stringify(d, null, 1) + '\n';
   files[path.join(OUT_HTML, `${d.id}.html`)] = detailHtml(d);
 }
+if (relatedErrors.length) { console.error('DENOMINATION BUILD REFUSED:\n  ' + [...new Set(relatedErrors)].join('\n  ')); process.exit(1); }
 let stale = 0;
 for (const [f, body] of Object.entries(files)) {
   const cur = fs.existsSync(f) ? fs.readFileSync(f, 'utf8') : null;
