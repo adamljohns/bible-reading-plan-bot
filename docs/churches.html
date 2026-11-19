@@ -678,7 +678,7 @@
     <link rel="stylesheet" href="/assets/css/light-icons.css">
     <link rel="stylesheet" href="/assets/css/print.css" media="print">
     <link rel="stylesheet" href="/assets/css/usmc-disclosure.css?v=20261003a">
-<style>body.light-mode{--ft-dim:#666;--ft-link:#7a5c00}</style></head>
+<style>body.light-mode{--ft-dim:#666;--ft-link:#7a5c00}</style><style>.denom-link{color:var(--gold,#D4AF37);text-decoration:none;border-bottom:1px dotted currentColor}.denom-link:hover{color:var(--gold-light,#F4D470)}#denom-filter-link{display:block;font-size:.78rem;margin-top:4px;min-height:1em}</style><script src="/assets/js/denomination-links.js?v=4d341b0f24"></script></head>
 <body>
 
     <!-- ── Nav ── -->
@@ -880,6 +880,7 @@
                 <select id="filter-subdenom" onchange="applyFilters()">
                     <option value="all">All</option>
                 </select>
+                <span id="denom-filter-link"></span>
             </div>
             <div class="filter-group">
                 <label for="filter-sort">Sort by</label>
@@ -1300,10 +1301,19 @@
         return false;
     }
 
+    // Denomination links (generated /assets/js/denomination-links.js): only labels
+    // with a graded denomination page become links; generic labels stay plain text.
+    function denomHtml(d) { return window.DenomLinks ? DenomLinks.html(d) : esc(d); }
+    function updateDenomFilterLink(v, family) {
+        const el = document.getElementById('denom-filter-link'); if (!el) return;
+        const h = (v && v !== 'all' && window.DenomLinks) ? (family ? DenomLinks.lookupFamily(v) : DenomLinks.lookup(v)) : null;
+        el.innerHTML = h ? '<a class="denom-link" href="' + h.page + '">About the ' + esc(h.short_name) + ' &rarr;</a>' : '';
+    }
     function applyFilters() {
         filters.rating = document.getElementById('filter-rating').value;
         filters.denomFamily = document.getElementById('filter-denomination').value;
         filters.subdenom = document.getElementById('filter-subdenom').value;
+        updateDenomFilterLink(filters.subdenom, true);
         filters.region = document.getElementById('filter-region').value;
         filters.sort = document.getElementById('filter-sort').value;
         filters.search = document.getElementById('filter-search').value.toLowerCase().trim();
@@ -1629,7 +1639,7 @@
                         </div>
                     </div>
                     <div class="compact-meta">
-                        <div class="compact-meta-row"><span class="meta-icon"><img src="assets/icons/shield-church-48.png" alt="" width="16" height="16" style="vertical-align:middle;"></span><span>${esc(church.denomination) || 'Independent'}${foundedPart}</span></div>
+                        <div class="compact-meta-row"><span class="meta-icon"><img src="assets/icons/shield-church-48.png" alt="" width="16" height="16" style="vertical-align:middle;"></span><span>${church.denomination ? denomHtml(church.denomination) : 'Independent'}${foundedPart}</span></div>
                         <div class="compact-meta-row"><span class="meta-icon">👤</span><span>${pastorDisplay}</span></div>
                         <div class="compact-meta-row"><span class="meta-icon"><img src="assets/icons/shield-map-48.png" alt="" width="16" height="16" style="vertical-align:middle;"></span><span>${esc(address)}</span></div>
                     </div>

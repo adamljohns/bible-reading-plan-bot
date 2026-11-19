@@ -35,6 +35,13 @@ function denominationContextHtml(church) {
   if (!d) return '';
   return `<span style="display:block;margin-top:4px;font-size:0.78rem;"><a href="${d.page}" style="color:var(--gold);">${escapeHtml(d.short_name)} denomination context</a> <span style="color:var(--gray);">(context only; this church's own evidence sets its rating)</span></span>`;
 }
+// The denomination label itself links to its graded page when one exists
+// (same church-links.json decision); generic labels stay plain text.
+function denominationValueHtml(church) {
+  const label = escapeHtml(church.denomination || 'Unknown');
+  const d = denomPages[denomLinks[church.id]];
+  return d ? `<a class="denom-link" href="${d.page}" style="color:var(--gold);">${label}</a>` : label;
+}
 const outDir = path.join(__dirname, 'docs/churches');
 
 // Church-logo sidecar (scripts/harvest-church-logos.js — 2026-07-11): logos harvested
@@ -987,7 +994,7 @@ ${(() => {
       </div>
       <div class="fact-item">
         <span class="fact-label">Denomination</span>
-        <span class="fact-value">${escapeHtml(church.denomination || 'Unknown')}</span>${denominationContextHtml(church)}
+        <span class="fact-value">${denominationValueHtml(church)}</span>${denominationContextHtml(church)}
       </div>
       <div class="fact-item">
         <span class="fact-label">Service Times</span>

@@ -7,7 +7,9 @@
 //   docs/data/denominations/<id>.json         one denomination, full evidence ledger
 //   docs/data/denominations/church-links.json church_id -> denomination id (alias-normalized)
 //   docs/denominations/index.html             index page
-//   docs/denominations/<id>.html              detail page
+//   docs/denominations/<id>.html              detail page (lists its directory churches)
+//   docs/data/denominations/label-links.json  label -> graded page (alias map)
+//   docs/assets/js/denomination-links.js      DenomLinks.html(label) for cards/filters/map
 //
 // Refuses to write (exit 1) if any evidence row fails quote-in-source
 // validation, any verified congregation fails, or a value is outside the schema.
@@ -33,15 +35,49 @@ function loadChurches() {
 
 function build() {
   const denoms = D.loadDenominations();
-  const index = D.aliasIndex(denoms);
+  D.aliasIndex(denoms); // throws on any alias collision
   const churches = loadChurches();
   const byId = new Map(churches.map(c => [c.id, c]));
   const errors = [];
   const out = [];
+  // Link targets: bodies the alias map marks graded_page AND that have a ledger
+  // here (so the page is built by this script). Any other label stays plain text.
+  const graded = new Set(denoms.map(d => d.id));
+  const amap = D.loadAliasMap();
+  for (const b of amap.doc.bodies) if (b.graded_page && !graded.has(b.id)) errors.push(`alias map marks ${b.id} graded_page but data/denominations/${b.id}.json is missing`);
+  const linkable = new Set(amap.doc.bodies.filter(b => b.graded_page && graded.has(b.id)).map(b => b.id));
   const links = {};
   for (const c of churches) {
-    const id = D.normalizeDenomination(c.denomination, index);
-    if (id) links[c.id] = id;
+    const k = D.classifyDenomination(c.denomination, amap);
+    if (k.status === 'body' && linkable.has(k.id)) links[c.id] = k.id;
+  }
+  // The main directory's Refine filter groups by denomination_family (falling
+  // back to the label). A family value links only when EVERY church carrying it
+  // links to the same body; mixed or unmapped families stay plain text.
+  const famIds = new Map();
+  for (const c of churches) {
+    const v = c.denomination_family || c.denomination;
+    if (!v) continue;
+    const id = links[c.id] || null;
+    famIds.set(v, famIds.has(v) && famIds.get(v) !== id ? null : id);
+  }
+  const familyLinks = {};
+  // The value must also name the body itself (alias map says so, or it carries the
+  // body's short name) and must not be a generic family or a disputed alignment.
+  const shortOf = new Map(denoms.map(d => [d.id, d.short_name]));
+  for (const [v, id] of [...famIds].sort((a, b) => a[0].localeCompare(b[0]))) {
+    if (!id) continue;
+    const k = D.classifyDenomination(v, amap);
+    if (k.status === 'generic' || /disputed|dual|likely/i.test(v)) continue;
+    if ((k.status === 'body' && k.id === id) || new RegExp(`\\b${shortOf.get(id)}\\b`).test(v)) familyLinks[v] = id;
+  }
+  // Same decision, keyed by label, for the client-side cards, filters and map.
+  const labelLinks = { exact: {}, loose: {} };
+  for (const l of amap.doc.labels) {
+    if (l.status !== 'body' || !linkable.has(l.id)) continue;
+    labelLinks.exact[l.label] = l.id;
+    const lk = amap.loose.get(D.aliasKey(l.label));
+    if (lk && lk.status === 'body' && lk.id === l.id) labelLinks.loose[D.aliasKey(l.label)] = l.id;
   }
   for (const d of denoms) {
     const ledger = D.buildLedger(d);
@@ -55,11 +91,14 @@ function build() {
     const congregations = D.verifyCongregations(d, byId);
     congregations.filter(v => !v.validated).forEach(v => errors.push(`${d.id}: congregation ${v.church_id}: ${v.error}`));
     const members = Object.entries(links).filter(([, id]) => id === d.id).map(([cid]) => cid);
+    const memberRows = members.map(cid => byId.get(cid)).filter(c => c && fs.existsSync(path.join(ROOT, 'docs', 'churches', `${c.id}.html`)))
+      .map(c => ({ id: c.id, name: c.name, city: c.city || '', state: c.state || '', label: c.denomination }))
+      .sort((a, b) => (a.state || '~').localeCompare(b.state || '~') || a.name.localeCompare(b.name));
     out.push({ id: d.id, name: d.name, short_name: d.short_name, aliases: d.aliases, official_site: d.official_site,
       source_policy: d.source_policy, nuance: d.nuance || null, ...scored, ledger, verified_congregations: congregations, directory_church_count: members.length,
-      page: `/denominations/${d.id}.html` });
+      page: `/denominations/${d.id}.html`, churches: memberRows });
   }
-  return { out, links, errors };
+  return { out, links, labelLinks, familyLinks, errors };
 }
 
 const pageHead = (title, canonical, desc) => `<!DOCTYPE html>
@@ -135,10 +174,13 @@ function detailHtml(d) {
     </div>` : '');
   const congs = d.verified_congregations.map(v => `<li><a href="/churches/${esc(v.church_id)}.html">${esc(v.name)}</a> (${esc([v.city, v.state].filter(Boolean).join(', '))}) &mdash; <span class="note">affiliation stated on the church's own site:</span><blockquote>&ldquo;${esc(v.quote)}&rdquo; &mdash; <a href="${esc(v.url)}" rel="noopener">${esc(v.url.replace(/^https?:\/\//, ''))}</a></blockquote></li>`).join('\n');
   const ledgerRows = d.ledger.map(l => `<tr><td>${esc(l.id)}</td><td>&ldquo;${esc(l.quote)}&rdquo;<div class="note"><a href="${esc(l.url)}" rel="noopener">${esc(l.url)}</a>${l.linked_from ? ` (linked from <a href="${esc(l.linked_from)}" rel="noopener">${esc(l.linked_from.replace(/^https?:\/\//, ''))}</a>)` : ''}</div></td><td class="note">${esc((l.retrieved_at || '').slice(0, 10))}<br>${esc(l.extractor || '')}<br>checked against: ${esc(l.body_region ? 'document body (' + l.body_region + ')' : 'document body')}<br>model: ${esc(l.model || 'none')}<br>confidence ${l.confidence}</td></tr>`).join('\n');
+  const byState = new Map();
+  for (const c of d.churches) { const k = c.state || 'Other'; if (!byState.has(k)) byState.set(k, []); byState.get(k).push(c); }
+  const churchList = [...byState].map(([st, cs]) => `<details><summary><strong>${esc(st)}</strong> (${cs.length})</summary><ul style="margin:6px 0 10px 20px">${cs.map(c => `<li><a href="/churches/${esc(c.id)}.html">${esc(c.name)}</a>${c.city ? ` <span class="note">${esc(c.city)}</span>` : ''}</li>`).join('')}</ul></details>`).join('\n');
   return pageHead(`${d.name} (${d.short_name})`, d.page, `${d.name}: MOOP denomination context, official-source evidence, governance strength.`) + `
     <div class="crumb"><a href="/churches.html">Church Directory</a> &rsaquo; <a href="/denominations/">Denominations</a> &rsaquo; ${esc(d.short_name)}</div>
     <h1>${esc(d.name)}</h1>
-    <p>Context grade ${pill(d.context_grade)} &middot; Governance: <strong>${esc((gov.strength || 'unknown').toUpperCase())}</strong> &middot; ${d.directory_church_count} churches in the directory list this denomination.</p>
+    <p>Context grade ${pill(d.context_grade)} &middot; Governance: <strong>${esc((gov.strength || 'unknown').toUpperCase())}</strong> &middot; <a href="#churches">${d.directory_church_count} churches</a> in the directory list this denomination.</p>
     <div class="card note"><strong>Context only.</strong> This grade describes the denomination's official statements. It is not any church's rating. Each church page is graded from that church's own evidence, and local evidence wins. A category is "unknown" when no official quote supports it.</div>
     <h2>MOOP categories</h2>
     <table><tr><th>Category</th><th>Grade</th><th>Rule and official evidence</th></tr>
@@ -149,6 +191,9 @@ ${rows}
 ${nuance}
     <h2>Verified congregations in this directory</h2>
     <ul style="margin-left:20px">${congs || '<li class="note">None verified yet.</li>'}</ul>
+    <h2 id="churches">Churches in the directory (${d.churches.length})</h2>
+    <p class="note">Churches whose listed denomination maps to the ${esc(d.short_name)}. Listing is context only; each church page carries its own grade from its own evidence.</p>
+${churchList || '<p class="note">None listed.</p>'}
     <h2>Evidence ledger</h2>
     <p class="note">Every quote below is checked, word for word, against a snapshot of the official page taken on the date shown. ${esc(d.source_policy)}</p>
     <table><tr><th>ID</th><th>Quote and source</th><th>Retrieved / extractor</th></tr>
@@ -158,7 +203,7 @@ ${ledgerRows}
 }
 
 function indexHtml(list) {
-  const rows = list.map(d => `<tr><td><a href="${esc(d.page)}">${esc(d.name)}</a> (${esc(d.short_name)})</td><td>${pill(d.context_grade)}</td><td>${esc((d.governance.strength || 'unknown').toUpperCase())}</td><td>${d.directory_church_count}</td><td>${Object.values(d.scores).filter(s => s.grade === 'unknown').length} of ${D.CATEGORIES.length}</td></tr>`).join('\n');
+  const rows = list.map(d => `<tr><td><a href="${esc(d.page)}">${esc(d.name)}</a> (${esc(d.short_name)})</td><td>${pill(d.context_grade)}</td><td>${esc((d.governance.strength || 'unknown').toUpperCase())}</td><td><a href="${esc(d.page)}#churches">${d.directory_church_count}</a></td><td>${Object.values(d.scores).filter(s => s.grade === 'unknown').length} of ${D.CATEGORIES.length}</td></tr>`).join('\n');
   return pageHead('Denominations', '/denominations/', 'MOOP denomination directory: official-source evidence, category context grades and governance strength.') + `
     <div class="crumb"><a href="/churches.html">Church Directory</a> &rsaquo; Denominations</div>
     <h1>Denominations</h1>
@@ -171,13 +216,73 @@ ${rows}
 ` + pageFoot;
 }
 
-const { out, links, errors } = build();
+const { out, links, labelLinks, familyLinks, errors } = build();
 if (errors.length) { console.error('DENOMINATION BUILD REFUSED:\n  ' + errors.join('\n  ')); process.exit(1); }
 const files = {
   [path.join(OUT_DATA, 'index.json')]: JSON.stringify({ generated_from: 'data/denominations/*.json', schema: { categories: D.CATEGORIES, grades: D.GRADES, governance: D.GOVERNANCE }, denominations: out.map(d => ({ id: d.id, name: d.name, short_name: d.short_name, context_grade: d.context_grade, governance: d.governance.strength, page: d.page, directory_church_count: d.directory_church_count })) }, null, 1) + '\n',
   [path.join(OUT_DATA, 'church-links.json')]: JSON.stringify({ note: 'church_id -> denomination id (exact alias match). Context only; the church page grade comes from local evidence.', links }, null, 0) + '\n',
   [path.join(OUT_HTML, 'index.html')]: indexHtml(out),
 };
+// Client helper for cards, search results, filters and map popups. Generated
+// here so it can only name pages this script builds; consumer pages load it with
+// ?v=<content hash> (site assets are cached immutable), rewritten below.
+const pagesById = Object.fromEntries(out.map(d => [d.id, { page: d.page, short_name: d.short_name, name: d.name }]));
+const linksJs = `/* GENERATED by scripts/build-denomination-pages.js - do not edit. */
+(function () {
+  'use strict';
+  var EXACT = ${JSON.stringify(labelLinks.exact)};
+  var LOOSE = ${JSON.stringify(labelLinks.loose)};
+  var FAMILY = ${JSON.stringify(familyLinks)};
+  var PAGES = ${JSON.stringify(pagesById)};
+  function key(s) {
+    return String(s || '').replace(/[\\u2018\\u2019]/g, "'").replace(/[\\u201c\\u201d]/g, '"').replace(/[\\u2013\\u2014]/g, '-')
+      .replace(/\\u00a0/g, ' ').replace(/\\s+/g, ' ').trim().toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+  }
+  function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+  // Graded page for a raw directory label, or null (generic labels stay plain text).
+  function lookup(label) {
+    if (label == null || label === '') return null;
+    var s = String(label);
+    var id = Object.prototype.hasOwnProperty.call(EXACT, s) ? EXACT[s] : (Object.prototype.hasOwnProperty.call(EXACT, s.trim()) ? EXACT[s.trim()] : LOOSE[key(s)]);
+    return id && PAGES[id] ? { id: id, page: PAGES[id].page, short_name: PAGES[id].short_name, name: PAGES[id].name } : null;
+  }
+  // Refine-filter value (denomination_family or label): links only when every
+  // church carrying that value links to the same graded page.
+  function lookupFamily(value) {
+    if (value == null || value === '') return null;
+    var id = Object.prototype.hasOwnProperty.call(FAMILY, value) ? FAMILY[value] : null;
+    return id && PAGES[id] ? { id: id, page: PAGES[id].page, short_name: PAGES[id].short_name, name: PAGES[id].name } : null;
+  }
+  // Escaped label, wrapped in a link to its denomination page when one exists.
+  function html(label, fallback) {
+    var hit = lookup(label);
+    var text = esc(label || fallback || '');
+    if (!hit) return text;
+    return '<a class="denom-link" href="' + hit.page + '" title="' + esc(hit.name) + ': denomination context (context only)" onclick="event.stopPropagation()">' + text + '</a>';
+  }
+  // Same, for a denomination_family-keyed value (Refine filter, map points).
+  function htmlFamily(value) {
+    var hit = lookupFamily(value);
+    var text = esc(value || '');
+    if (!hit) return text;
+    return '<a class="denom-link" href="' + hit.page + '" title="' + esc(hit.name) + ': denomination context (context only)" onclick="event.stopPropagation()">' + text + '</a>';
+  }
+  window.DenomLinks = { lookup: lookup, lookupFamily: lookupFamily, html: html, htmlFamily: htmlFamily };
+})();
+`;
+const JS_FILE = path.join(ROOT, 'docs', 'assets', 'js', 'denomination-links.js');
+const jsVer = require('crypto').createHash('sha256').update(linksJs).digest('hex').slice(0, 10);
+files[JS_FILE] = linksJs;
+files[path.join(OUT_DATA, 'label-links.json')] = JSON.stringify({ note: 'raw directory label -> denomination id with a graded page (alias map; generic labels absent). exact first, then loose = aliasKey(label).', ...labelLinks, family: familyLinks, pages: pagesById }, null, 1) + '\n';
+const CONSUMERS = ['churches.html', 'churches-fxbg.html', 'churches-virginia.html', 'churches-dc.html', 'directory-map.html'];
+for (const name of CONSUMERS) {
+  const f = path.join(ROOT, 'docs', name);
+  const cur = fs.readFileSync(f, 'utf8');
+  const re = /<script src="\/assets\/js\/denomination-links\.js\?v=[0-9a-f]+"><\/script>/;
+  if (!re.test(cur)) { errors.push(`docs/${name} does not load /assets/js/denomination-links.js`); continue; }
+  files[f] = cur.replace(re, `<script src="/assets/js/denomination-links.js?v=${jsVer}"></script>`);
+}
+if (errors.length) { console.error('DENOMINATION BUILD REFUSED:\n  ' + errors.join('\n  ')); process.exit(1); }
 for (const d of out) {
   files[path.join(OUT_DATA, `${d.id}.json`)] = JSON.stringify(d, null, 1) + '\n';
   files[path.join(OUT_HTML, `${d.id}.html`)] = detailHtml(d);

@@ -101,6 +101,7 @@
   @media (max-width:600px) { .editorial-rail { padding:0 16px; } .editorial-rail .rail { grid-template-columns:1fr; } }
 
   </style>
+<style>.denom-link{color:var(--gold,#D4AF37);text-decoration:none;border-bottom:1px dotted currentColor}.denom-link:hover{color:var(--gold-light,#F4D470)}#denom-filter-link{display:block;font-size:.78rem;margin-top:4px;min-height:1em}</style><script src="/assets/js/denomination-links.js?v=4d341b0f24"></script>
 </head>
 <body>
   <nav>
@@ -169,7 +170,7 @@
     <label class="pill yellow-pill"><input type="checkbox" data-rating="yellow" checked> Yellow <span class="count">20,921</span></label>
     <label class="pill red-pill"><input type="checkbox" data-rating="red" checked> Red <span class="count">371</span></label>
     <label class="pill black-pill"><input type="checkbox" data-rating="black" checked> Black <span class="count">203</span></label>
-    <select id="denomFilter"><option value="">All denominations</option></select>
+    <select id="denomFilter"><option value="">All denominations</option></select><span id="denom-filter-link" style="display:inline;margin-left:8px"></span>
     <span class="visible-count" id="visibleCount">— showing —</span>
   </div>
 
@@ -260,7 +261,7 @@
       const thumb = p.img ? '<img src="' + p.img + '" alt="" style="width:48px;height:48px;object-fit:cover;border-radius:6px;float:right;margin:0 0 6px 8px;border:1px solid #333;" onerror="this.style.display=\'none\'">' : '';
       const html = thumb
         + '<h4>' + escapeHtml(p.n) + '</h4>'
-        + (p.d ? '<div class="denom">' + escapeHtml(p.d) + '</div>' : '')
+        + (p.d ? '<div class="denom">' + (window.DenomLinks ? DenomLinks.htmlFamily(p.d) : escapeHtml(p.d)) + '</div>' : '')
         + (p.p ? '<div class="pastor">Pastor: ' + escapeHtml(p.p) + '</div>' : '')
         + (p.a ? '<div class="addr">' + escapeHtml(p.a) + '</div>' : '')
         + '<span class="rating ' + p.r + '">' + p.r.toUpperCase() + '</span>'
@@ -299,6 +300,7 @@
       });
       // Also keep dead/unrated visible if green is on (they tend to indicate edge cases worth seeing)
       const denom = denomSel.value;
+      { const el = document.getElementById('denom-filter-link'); const h = denom && window.DenomLinks ? DenomLinks.lookupFamily(denom) : null; el.innerHTML = h ? '<a class="denom-link" href="' + h.page + '">About the ' + escapeHtml(h.short_name) + ' &rarr;</a>' : ''; }
       let shown = 0;
       const toAdd = [], toRemove = [];
       allMarkers.forEach(m => {
