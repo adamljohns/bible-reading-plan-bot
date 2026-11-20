@@ -148,6 +148,64 @@ function parseSource(text) {
 }
 
 /* ── rendering ────────────────────────────────────────────────────────────── */
+/* ── narration hooks ──────────────────────────────────────────────────────────
+ * Every study carries these inert attributes so bin/generate-study-audio.py can
+ * narrate it and read-scroll.js can follow it, audio or not:
+ *   data-read-follow   the follow root (its id keys the words file)
+ *   data-no-follow     on the page but not read aloud (WEB text, citations)
+ *   data-say           what an element says instead of its text
+ *   data-say-before    a spoken line before an element (quote attributions)
+ *   data-voice="book"  read in the book's Scripture voice, like the watches
+ */
+function spokenAttribution(cite) {
+  const c = String(cite || '').trim();
+  let m;
+  if ((m = c.match(/^1689 LBCF, ch\. ?(\d+)(?:\s*[—–-]\s*(.+))?$/))) {
+    return `The 1689 Confession, chapter ${m[1]}${m[2] ? ', ' + m[2].trim() + ',' : ''} says:`;
+  }
+  if (/^(The )?Baptist Catechism/i.test(c)) return 'The Baptist Catechism answers:';
+  if (/^Calvin, Institutes/.test(c)) return 'Calvin writes in the Institutes:';
+  if (/^Calvin, Commentary/.test(c)) return 'Calvin writes in his commentary:';
+  if (/^\d?\s?[A-Z][a-z]+(?: [A-Z][a-z]+)* \d+:\d+/.test(c)) return `${c} reads:`;
+  const who = c.split(',')[0].trim();
+  return who ? `${who} writes:` : 'It is written:';
+}
+
+/* The player is included only when a words file exists for the slug. That file
+ * is written by bin/generate-study-audio.py and names the R2 audio URL. */
+function audioFor(slug) {
+  const f = path.join(DOCS, 'assets', 'studies', `${slug.replace(/\.html$/, '')}-words.json`);
+  if (!fs.existsSync(f)) return null;
+  try {
+    const d = JSON.parse(fs.readFileSync(f, 'utf8'));
+    if (!d.audio || !d.duration) return null;
+    const v = (String(d.audio).match(/[?&]v=([\w-]+)/) || [])[1] || '';
+    return { audio: d.audio, duration: d.duration, words: `/assets/studies/${path.basename(f)}${v ? '?v=' + v : ''}` };
+  } catch (e) {
+    return null;
+  }
+}
+
+function fmtMin(secs) {
+  return `${Math.round(secs / 60)} min`;
+}
+
+function renderPlayer(a, ref) {
+  return `  <div class="audio-slot vs-audio" data-no-follow data-follow-player data-read-scroll-anchor>
+    <audio class="watch-audio" controls preload="metadata" style="width:100%;">
+      <source src="${escAttr(a.audio)}" type="audio/mpeg">
+      Your browser does not support audio.
+    </audio>
+    <div class="audio-speed" role="group" aria-label="Playback speed">
+      <button type="button" class="audio-speed-btn is-active" data-rate="1" aria-pressed="true">1&times;</button>
+      <button type="button" class="audio-speed-btn" data-rate="1.25" aria-pressed="false">1.25&times;</button>
+      <button type="button" class="audio-speed-btn" data-rate="1.5" aria-pressed="false">1.5&times;</button>
+      <button type="button" class="audio-speed-btn" data-rate="2" aria-pressed="false">2&times;</button>
+    </div>
+    <div class="audio-cap">Listen to this study &middot; ${esc(fmtMin(a.duration))} &middot; the words light up as they are read</div>
+  </div>`;
+}
+
 function renderWord(block, kit) {
   const hit = kit.wordStudy.find((w) => w.lexicon && w.lexicon.code === block.code);
   if (!hit) return `  <!-- @word ${esc(block.code)}: not present in this verse's Strong's tags — check the code -->\n`;
@@ -157,8 +215,9 @@ function renderWord(block, kit) {
   const lang = kit.parsed.testament === 'OT' ? 'he' : 'el';
   const def = (lx.definition || '').split(/(?<=[.?!])\s+/).slice(0, 2).join(' ');
   const notes = block.text.map((t) => `      <p>${inline(t)}</p>`).join('\n');
+  const say = `${lx.lemma}, rendered “${block.label || hit.word}”.`;
   return `    <li>
-      <div class="w"><span class="${cls}" lang="${lang}">${esc(lx.script)}</span> ${esc(lx.lemma)} <span class="strongs">· &ldquo;${esc(block.label || hit.word)}&rdquo; · <a href="${escAttr(lx.page)}">Strong&rsquo;s ${esc(lx.code)}</a>${lx.partOfSpeech ? ' · ' + esc(lx.partOfSpeech) : ''}</span></div>
+      <div class="w" data-say="${escAttr(say)}"><span class="${cls}" lang="${lang}" data-no-follow>${esc(lx.script)}</span> ${esc(lx.lemma)} <span class="strongs">· &ldquo;${esc(block.label || hit.word)}&rdquo; · <a href="${escAttr(lx.page)}">Strong&rsquo;s ${esc(lx.code)}</a>${lx.partOfSpeech ? ' · ' + esc(lx.partOfSpeech) : ''}</span></div>
       <p class="vs-def">${esc(def)}</p>
 ${notes}
     </li>`;
@@ -181,7 +240,7 @@ function renderSection(sec, kit) {
     else if (b.type === 'quote') {
       const paras = b.paras.map((p) => `    <p>${inline(p)}</p>`).join('\n');
       const cite = b.href ? `<a href="${escAttr(b.href)}">${esc(b.cite)}</a>` : esc(b.cite);
-      out.push(`  <blockquote class="vs-q">\n${paras}\n    <footer>${cite}</footer>\n  </blockquote>`);
+      out.push(`  <blockquote class="vs-q" data-say-before="${escAttr(spokenAttribution(b.cite))}">\n${paras}\n    <footer data-no-follow>${cite}</footer>\n  </blockquote>`);
     }
   });
   flushWords();
@@ -200,6 +259,15 @@ function render(doc, kit) {
   const snippet = (web || kjv).replace(/\s+/g, ' ').slice(0, 150).replace(/\s+\S*$/, '');
   const isDraft = doc.status !== 'approved';
   const packs = kit.memorizePacks.map((x) => x.name);
+  const audio = audioFor(kit.slug);
+  const FP_V = '20261120a';
+  const audioHead = audio ? `    <meta name="read-follow-words" content="${escAttr(audio.words)}">
+    <meta name="read-follow-docks" content="bottom">
+    <link rel="stylesheet" href="/assets/css/follow-player.css?v=${FP_V}">
+` : '';
+  const audioScripts = audio ? `
+<script defer src="/assets/js/follow-player.js?v=${FP_V}"></script>
+<script defer src="/assets/js/read-scroll.js?v=${FP_V}"></script>` : '';
 
   const goDeeper = `  <h2>Go Deeper</h2>
   <div class="vs-deeper">
@@ -234,7 +302,7 @@ ${isDraft ? '    <meta name="robots" content="noindex, nofollow">\n' : ''}    <m
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="${escAttr(ref + ' — Verse Study')}">
     <meta name="twitter:description" content="${escAttr(deck || snippet)}">
-${c.head}
+${audioHead}${c.head}
 ${c.style}
     <style>
 ${isDraft ? `      .vs-draft-banner { border:1px solid #b4553a; background:rgba(180,85,58,.12); color:#e39a80; border-radius:8px; padding:.55rem .9rem; font-size:.82rem; margin-bottom:1.2rem; }
@@ -251,16 +319,18 @@ ${c.nav}
 <div class="container">
 <div class="vs-wrap">
 ${isDraft ? `  <div class="vs-draft-banner">Draft — version 1. Written, not yet reviewed. Not indexed.</div>\n` : ''}  <div class="vs-eyebrow">Verse Study · ${esc(p.book)}</div>
+  <div class="vs-read" id="study" data-read-follow>
   <h1>${esc(ref)}</h1>
-${deck ? `  <p class="vs-deck">${inline(deck)}</p>\n` : ''}
-  <div class="vs-text">
+${deck ? `  <p class="vs-deck">${inline(deck)}</p>\n` : ''}${audio ? renderPlayer(audio, ref) + '\n' : ''}
+  <div class="vs-text" data-no-follow>
     <p>${esc(web)}<cite>— World English Bible (public domain)</cite></p>
   </div>
-  <div class="vs-text">
-    <p>${esc(kjv)}<cite>— King James Version (public domain)</cite></p>
+  <div class="vs-text" data-voice="book" data-say-before="The King James Version reads:">
+    <p>${esc(kjv)}<cite data-no-follow>— King James Version (public domain)</cite></p>
   </div>
 
 ${body}
+  </div>
 
 ${packs.length ? `  <p class="vs-ctx">In the ${packs.map((n) => `<strong>${esc(n)}</strong>`).join(' and ')} memorize ${packs.length > 1 ? 'packs' : 'pack'} — <a href="/memorize.html">carry it</a>.</p>\n` : ''}
 ${goDeeper}
@@ -270,7 +340,7 @@ ${goDeeper}
   </div>
 </div>
 </div>
-${c.script}
+${c.script}${audioScripts}
 </body>
 </html>
 `;

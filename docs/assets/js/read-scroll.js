@@ -1,10 +1,27 @@
 /* Daily-reading auto-scroll. Slow, Steady, Brisk, March.
    Word, Line, and Page follow the spoken word when a word-time file exists.
-   No clock-guess highlight. A finger or wheel pauses the walk. */
+   No clock-guess highlight. A finger or wheel pauses the walk.
+
+   Reusable beyond the readings (2026-11-20, first used on the deep verse
+   studies). A page opts in with:
+     [data-read-follow] + id   a follow root, like a section.watch; its id keys
+                               the words file ({"watches": {id: [{t, w}]}})
+     [data-no-follow]          text inside is not wrapped or followed
+     meta read-follow-words    URL of the words file (readings derive it from
+                               the date in the path)
+     meta read-follow-docks=bottom   docks sit at the bottom, clear of the
+                               sticky top nav; a .read-follow-host element (made
+                               by follow-player.js) holds Word/Line/Page
+     [data-read-scroll-anchor] the Scroll bar goes after this element
+     [data-follow-ui]          touches here do not pause the page follow
+   The readings pages use none of these, so they behave exactly as before. */
 (function () {
   if (window.__readScrollLoaded) return;
   window.__readScrollLoaded = true;
-  if (!document.querySelector("section.watch")) return;
+  var ROOTS = "section.watch, [data-read-follow]";
+  if (!document.querySelector(ROOTS)) return;
+  var docksMeta = document.querySelector('meta[name="read-follow-docks"]');
+  if (docksMeta && docksMeta.content === "bottom") document.documentElement.classList.add("read-docks-bottom");
 
   if (!document.getElementById("read-scroll-css")) {
     var style = document.createElement("style");
@@ -28,7 +45,17 @@
       ".read-follow-dock{display:flex;position:fixed;top:max(8px,env(safe-area-inset-top));left:10px;z-index:40;gap:6px}",
       ".read-follow-word,.read-follow-line,.read-follow-screen{min-height:32px;padding:4px 8px;border-radius:999px;border:1px solid #333;background:#111;color:#888;font-family:Inter,system-ui,sans-serif;font-size:.72rem;font-weight:700}",
       ".read-follow-word.is-on,.read-follow-line.is-on,.read-follow-screen.is-on{background:#D4AF37;color:#000;border-color:#D4AF37}",
-      "@media (prefers-reduced-motion:reduce){.read-scroll-bar{display:none}}"
+      "@media (prefers-reduced-motion:reduce){.read-scroll-bar{display:none}}",
+      /* Bottom docks (meta read-follow-docks=bottom): never under the top nav. */
+      "html.read-docks-bottom .read-scroll-dock{top:auto;bottom:calc(84px + env(safe-area-inset-bottom))}",
+      ".read-follow-host .read-follow-dock{position:static;top:auto;left:auto}",
+      /* Light mode (pages with body.light-mode; the readings pages have none). */
+      "body.light-mode .read-scroll-bar{background:transparent}",
+      "body.light-mode .read-scroll-toggle,body.light-mode .read-scroll-follow,body.light-mode .read-follow-word,body.light-mode .read-follow-line,body.light-mode .read-follow-screen,body.light-mode .read-scroll-slower,body.light-mode .read-scroll-faster,body.light-mode .read-scroll-stop{background:#FBF6EA;color:#5c4a1e;border-color:#cdbf9a}",
+      "body.light-mode .read-scroll-toggle.is-on,body.light-mode .read-scroll-follow.is-on,body.light-mode .read-follow-word.is-on,body.light-mode .read-follow-line.is-on,body.light-mode .read-follow-screen.is-on{background:#D4AF37;color:#000;border-color:#b8962a}",
+      "body.light-mode .read-scroll-speed,body.light-mode .read-scroll-ticks{color:#6b6355}",
+      "body.light-mode .read-scroll-speed-name,body.light-mode .read-scroll-dock-name{color:#8a6a1a}",
+      "body.light-mode .read-word-line{background:#8a6a1a}"
     ].join("");
     document.head.appendChild(style);
   }
@@ -79,7 +106,7 @@
     '<input type="range" min="0" max="3" step="1" value="1" aria-label="Scroll speed" aria-valuemin="0" aria-valuemax="3" aria-valuetext="Steady">' +
     '<span class="read-scroll-ticks"><span>Slow</span><span>Steady</span><span>Brisk</span><span>March</span></span></label>' +
     '<button type="button" class="read-scroll-follow" aria-pressed="true" hidden>Follow voice</button>';
-  var copyBar = document.querySelector(".copy-bar");
+  var copyBar = document.querySelector(".copy-bar, [data-read-scroll-anchor]");
   if (copyBar) copyBar.insertAdjacentElement("afterend", bar);
   else {
     var box = document.querySelector(".container") || document.body;
@@ -102,7 +129,7 @@
   var followDock = document.createElement("div");
   followDock.className = "read-follow-dock";
   followDock.innerHTML = '<button type="button" class="read-follow-word">Word</button><button type="button" class="read-follow-line">Line</button><button type="button" class="read-follow-screen">Page</button>';
-  document.body.appendChild(followDock);
+  (document.querySelector(".read-follow-host") || document.body).appendChild(followDock);
   /* Sentence underline: one 2px rule per wrapped line of the spoken sentence.
      Pool of divs anchored to the document, not the window, so a rule rides with
      its text while the page scrolls. A fixed rule stays put between audio ticks
@@ -134,7 +161,7 @@
       var hashed = document.getElementById(hash);
       if (hashed) return hashed;
     }
-    var sections = Array.prototype.slice.call(document.querySelectorAll("section.watch"));
+    var sections = Array.prototype.slice.call(document.querySelectorAll(ROOTS));
     var mark = window.innerHeight * 0.28;
     var best = sections[0];
     sections.forEach(function (s) {
@@ -149,7 +176,7 @@
       acceptNode: function (node) {
         if (!node.nodeValue || !node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
         var p = node.parentElement;
-        if (!p || p.closest("button, audio, script, style, .read-scroll-bar, .audio-speed")) return NodeFilter.FILTER_REJECT;
+        if (!p || p.closest("button, audio, script, style, .read-scroll-bar, .audio-speed, [data-no-follow]")) return NodeFilter.FILTER_REJECT;
         if (p.classList && p.classList.contains("watch-word")) return NodeFilter.FILTER_REJECT;
         return NodeFilter.FILTER_ACCEPT;
       }
@@ -182,7 +209,7 @@
     }
     return document.body;
   }
-  Array.prototype.forEach.call(document.querySelectorAll("section.watch"), wrapWords);
+  Array.prototype.forEach.call(document.querySelectorAll(ROOTS), wrapWords);
 
   /* Group word spans into sentences: a sentence ends at a word that closes with
      . ! ? (plus any trailing quote/bracket) or at a block boundary (heading,
@@ -266,7 +293,7 @@
   }
   function alignAll() {
     if (!marks || !marks.watches) return;
-    Array.prototype.forEach.call(document.querySelectorAll("section.watch"), function (section) {
+    Array.prototype.forEach.call(document.querySelectorAll(ROOTS), function (section) {
       alignSection(section, marks.watches[section.id] || []);
     });
   }
@@ -327,7 +354,7 @@
     var audio = playingAudio();
     document.documentElement.classList.toggle("read-audio-on", !!audio);
     if (!audio) { clearHot(); hideLine(); return false; }
-    var section = audio.closest("section.watch");
+    var section = audio.closest(ROOTS);
     if (!section) return false;
     var el = spokenEl(section, audio.currentTime);
     if (!el) { clearHot(); hideLine(); return false; }
@@ -379,7 +406,7 @@
   function followStep(now, prev) {
     if (!pref.screen || now < userHoldUntil) { followY = null; return; }
     var audio = playingAudio();
-    var section = audio && audio.closest("section.watch");
+    var section = audio && audio.closest(ROOTS);
     if (!section) return;
     var y = targetY(section, audio.currentTime);
     if (y === null) return;
@@ -524,16 +551,18 @@
       });
     });
   });
+  var wordsMeta = document.querySelector('meta[name="read-follow-words"]');
   var day = (location.pathname || "").match(/(\d{4}-\d{2}-\d{2})/);
-  if (day) {
-    fetch("/assets/readings/" + day[1] + "-words.json")
+  var wordsUrl = wordsMeta && wordsMeta.content ? wordsMeta.content : day ? "/assets/readings/" + day[1] + "-words.json" : "";
+  if (wordsUrl) {
+    fetch(wordsUrl)
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (data) { marks = data; alignAll(); })
       .catch(function () {});
   }
   ["wheel", "touchstart"].forEach(function (name) {
     window.addEventListener(name, function (ev) {
-      if (ev.target && ev.target.closest && ev.target.closest(".read-scroll-dock, .read-scroll-bar")) return;
+      if (ev.target && ev.target.closest && ev.target.closest(".read-scroll-dock, .read-scroll-bar, [data-follow-ui]")) return;
       userHoldUntil = performance.now() + 2500;
     }, { passive: true });
   });

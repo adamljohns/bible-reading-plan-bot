@@ -1,0 +1,79 @@
+/* follow-player.css — narration player for pages that use read-scroll.js word
+   follow outside the daily readings (first: the deep verse studies, 2026-11-20).
+   The inline slot copies the readings player (native controls + 1/1.25/1.5/2x
+   chips). The mini bar (follow-player.js) keeps play/pause, time, seek, speed
+   and Word/Line/Page in reach at the bottom while the page follows the voice,
+   clear of the sticky top nav that site-nav.js hides on scroll.
+   Dark is the default; body.light-mode is the site's light theme. */
+.audio-slot[data-follow-player] {
+  margin: 14px 0 18px;
+  padding: 12px 14px;
+  background: rgba(212, 175, 55, .05);
+  border-radius: 8px;
+  border: 1px dashed var(--border, #333);
+}
+.audio-slot[data-follow-player] audio { display: block; width: 100%; }
+.audio-slot[data-follow-player] .audio-cap { font-size: .8rem; color: var(--gray, #888); margin-top: 6px; }
+.audio-slot[data-follow-player] .audio-speed { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; align-items: center; }
+.audio-slot[data-follow-player] .audio-speed-btn {
+  min-width: 48px; min-height: 40px; padding: 8px 12px; border-radius: 999px;
+  border: 1px solid var(--border, #333); background: var(--bg-card, #111); color: var(--gray, #888);
+  font-family: 'Inter', system-ui, sans-serif; font-size: .85rem; font-weight: 600; letter-spacing: .02em;
+  cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+}
+.audio-slot[data-follow-player] .audio-speed-btn:hover,
+.audio-slot[data-follow-player] .audio-speed-btn:focus-visible { border-color: var(--gold, #D4AF37); color: var(--white, #fff); outline: none; }
+.audio-slot[data-follow-player] .audio-speed-btn.is-active {
+  background: linear-gradient(135deg, var(--gold, #D4AF37), var(--gold-light, #F4D470));
+  border-color: var(--gold, #D4AF37); color: #111;
+}
+body.light-mode .audio-slot[data-follow-player] { background: rgba(138, 106, 26, .06); border-color: #cdbf9a; }
+body.light-mode .audio-slot[data-follow-player] .audio-cap { color: #6b6355; }
+body.light-mode .audio-slot[data-follow-player] .audio-speed-btn { background: #FBF6EA; border-color: #cdbf9a; color: #5c4a1e; }
+body.light-mode .audio-slot[data-follow-player] .audio-speed-btn:hover,
+body.light-mode .audio-slot[data-follow-player] .audio-speed-btn:focus-visible { color: #1a1a1a; border-color: #8a6a1a; }
+body.light-mode .audio-slot[data-follow-player] .audio-speed-btn.is-active { color: #111; border-color: #b8962a; }
+
+/* ── mini bar ──────────────────────────────────────────────────────────── */
+.follow-mini {
+  position: fixed; left: 50%; bottom: 0; z-index: 90;
+  width: 100%; max-width: 760px;
+  transform: translate(-50%, 110%); transition: transform .25s ease;
+  background: #0a0a0a; border: 1px solid #333; border-bottom: 0;
+  border-radius: 12px 12px 0 0; box-shadow: 0 -6px 24px rgba(0, 0, 0, .45);
+  padding: 0 10px env(safe-area-inset-bottom);
+  font-family: 'Inter', system-ui, sans-serif; color: #ddd;
+}
+html.follow-mini-on .follow-mini { transform: translate(-50%, 0); }
+html.follow-mini-on body { padding-bottom: calc(84px + env(safe-area-inset-bottom)); }
+.follow-mini-scrub {
+  display: block; width: 100%; height: 22px; margin: 2px 0 0; padding: 0;
+  accent-color: #D4AF37; background: transparent; cursor: pointer;
+}
+.follow-mini-row { display: flex; align-items: center; gap: 8px; min-height: 52px; padding-bottom: 6px; }
+.follow-mini-play {
+  flex: 0 0 auto; width: 44px; height: 44px; border-radius: 50%;
+  border: 1px solid #D4AF37; background: #D4AF37; color: #000;
+  display: inline-flex; align-items: center; justify-content: center;
+  cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+}
+.follow-mini-play svg { width: 18px; height: 18px; fill: currentColor; }
+.follow-mini-time { flex: 0 0 auto; font-size: .74rem; font-variant-numeric: tabular-nums; color: #aaa; min-width: 74px; }
+.follow-mini-rate {
+  flex: 0 0 auto; min-width: 44px; min-height: 32px; padding: 4px 8px; border-radius: 999px;
+  border: 1px solid #333; background: #111; color: #D4AF37;
+  font: 700 .74rem 'Inter', system-ui, sans-serif; cursor: pointer; touch-action: manipulation;
+}
+.follow-mini .read-follow-host { margin-left: auto; display: flex; }
+.follow-mini .read-follow-dock { gap: 4px; }
+.follow-mini .read-follow-word, .follow-mini .read-follow-line, .follow-mini .read-follow-screen { min-height: 32px; padding: 4px 9px; }
+@media (max-width: 360px) { .follow-mini-time { min-width: 0; font-size: .68rem; } .follow-mini-row { gap: 5px; } }
+@media (prefers-reduced-motion: reduce) { .follow-mini { transition: none; } }
+
+body.light-mode .follow-mini { background: #FBF6EA; border-color: #cdbf9a; color: #2a2418; box-shadow: 0 -6px 20px rgba(60, 45, 10, .15); }
+body.light-mode .follow-mini-scrub { accent-color: #8a6a1a; }
+body.light-mode .follow-mini-play { background: #8a6a1a; border-color: #8a6a1a; color: #fff; }
+body.light-mode .follow-mini-time { color: #5c4a1e; }
+body.light-mode .follow-mini-rate { background: #FBF6EA; border-color: #cdbf9a; color: #8a6a1a; }
+
+@media print { .follow-mini, .audio-slot[data-follow-player] { display: none !important; } }
