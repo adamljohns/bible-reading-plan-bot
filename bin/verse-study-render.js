@@ -71,7 +71,7 @@ function chrome() {
     style: abs(grab(/<style>[\s\S]*?<\/style>/)),
     nav: abs(grab(/<nav[\s\S]*?<\/nav>/)),
     head: abs(grab(/<link rel="preconnect"[\s\S]*?<link rel="stylesheet" href="\/assets\/css\/print\.css" media="print">/)),
-    script: [...s.matchAll(/<script>[\s\S]*?<\/script>/g)].map((m) => m[0]).join('\n').replace(/(href|src)="\.\.\//g, '$1="/'),
+    script: [...s.matchAll(/<script(?:\s+defer)?(?:\s+src="[^"]*")?>[\s\S]*?<\/script>/g)].map((m) => m[0]).join('\n').replace(/(href|src)="\.\.\//g, '$1="/'),
   };
 }
 

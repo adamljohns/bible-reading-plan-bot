@@ -44,7 +44,7 @@ function chromeFromExemplar() {
   const style = (s.match(/<style>[\s\S]*?<\/style>/) || [])[0] || '';
   const nav = (s.match(/<nav[\s\S]*?<\/nav>/) || [])[0] || '';
   const head = (s.match(/<link rel="preconnect"[\s\S]*?<link rel="stylesheet" href="\/assets\/css\/print\.css" media="print">/) || [])[0] || '';
-  const script = [...s.matchAll(/<script>[\s\S]*?<\/script>/g)].map((m) => m[0]).join('\n');
+  const script = [...s.matchAll(/<script(?:\s+defer)?(?:\s+src="[^"]*")?>[\s\S]*?<\/script>/g)].map((m) => m[0]).join('\n');
   // Rewrite ../ to root-absolute so the same markup works at docs/drafts/verse/
   // and, once approved, at docs/verse/ — no link rot on promotion.
   const abs = (x) => x.replace(/(href|src)="\.\.\//g, '$1="/');
