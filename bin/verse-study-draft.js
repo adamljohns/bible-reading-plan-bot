@@ -15,7 +15,8 @@
  * something a mind selected, not something a regex did.
  *
  * Drafts are written to drafts/verse/ with study-status=draft and robots=noindex,
- * so an unreviewed draft cannot leak into the live index or search results.
+ * so an unreviewed draft cannot leak into search results. The public verse index
+ * lists it, labelled "Draft study" (Adam 2026-11-20).
  *
  * Usage:
  *   node bin/verse-study-draft.js /tmp/vs-kits/romans-8-1.json
@@ -24,13 +25,17 @@
 'use strict';
 const fs = require('fs');
 const path = require('path');
+// Adam 2026-11-20: drafts may be listed on the public index (labelled, noindex on
+// the page); draft note is yellow at the bottom, never red.
+const { DRAFT_NOTE_CSS, DRAFT_NOTE_HTML } = require('./verse-study-draft-note.js');
 
 const ROOT = path.resolve(__dirname, '..');
 const DOCS = path.join(ROOT, 'docs');
 const EXEMPLAR = path.join(DOCS, 'verse', 'genesis-1-1.html');
-/* Drafts live under docs/ so Adam can open one on his phone, but they carry
- * noindex+nofollow, are disallowed in robots.txt, and are linked from nothing.
- * Reachable by URL, invisible to search, absent from the verse index. */
+/* Drafts live under docs/ so Adam can open one on his phone. They carry
+ * noindex+nofollow and are disallowed in robots.txt, so search never indexes
+ * them; bin/add-verse-page.js lists them on the verse index with a "Draft study"
+ * label, at Adam's call. */
 const OUT_DIR = path.join(DOCS, 'drafts', 'verse');
 
 const esc = (s) => String(s == null ? '' : s)
@@ -178,12 +183,10 @@ ${c.style}
       /* Draft-only chrome. All of it disappears when the study is finished:
          the banner and the [WRITE] slots are removed, and the gate refuses an
          approved page that still contains a vs-todo. */
-      .vs-draft-banner { border:1px solid #b4553a; background:rgba(180,85,58,.12); color:#e39a80; border-radius:8px; padding:.55rem .9rem; font-size:.82rem; letter-spacing:.02em; margin-bottom:1.2rem; }
-      .vs-todo { border-left:3px solid #b4553a; background:rgba(180,85,58,.07); padding:.5rem .85rem; margin:.5rem 0 1rem; color:#d99a83; font-size:.9rem; font-style:italic; }
+${DRAFT_NOTE_CSS}      .vs-todo { border-left:3px solid #b4553a; background:rgba(180,85,58,.07); padding:.5rem .85rem; margin:.5rem 0 1rem; color:#d99a83; font-size:.9rem; font-style:italic; }
       .vs-ctx { color:var(--gray); font-size:.94rem; border-left:2px solid rgba(212,175,55,.25); padding-left:.9rem; margin-bottom:.7rem; }
       .vs-grk { direction:ltr; font-family:'Times New Roman',serif; }
       .vs-words .grk { font-family:'Times New Roman',serif; font-size:1.2rem; margin-right:.35rem; }
-      body.light-mode .vs-draft-banner { color:#8a3c22; }
       body.light-mode .vs-todo { color:#8a3c22; }
     </style>
 </head>
@@ -191,7 +194,6 @@ ${c.style}
 ${c.nav}
 <div class="container">
 <div class="vs-wrap">
-  <div class="vs-draft-banner">Draft — version 1. Not reviewed, not indexed, not linked from the verse index.</div>
   <div class="vs-eyebrow">Verse Study · ${esc(p.book)}</div>
   <h1>${esc(ref)}</h1>
 ${TODO('the deck — one or two sentences that give the reader the point of this verse before they read a word of exposition. Model: "Seven words in Hebrew. Everything else in Scripture stands on them."')}
@@ -231,7 +233,7 @@ ${packs.length ? `  <p>This verse is in the ${packs.map((n) => `<strong>${esc(n)
   <div class="vs-foot">
     <p>Scripture shown in the World English Bible and the King James Version, both public domain. Free to copy, quote, and share.</p>
   </div>
-</div>
+${DRAFT_NOTE_HTML}</div>
 </div>
 ${sourceCandidatesComment(k)}
 ${c.script}

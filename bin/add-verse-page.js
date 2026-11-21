@@ -79,9 +79,12 @@ function rebuildIndex() {
     const ka = sortKey(a.ref), kb = sortKey(b.ref);
     return ka[0] - kb[0] || ka[1] - kb[1] || ka[2] - kb[2];
   });
-  // Drafts are listed too, at Adam's call — clearly badged and pointing at
-  // /drafts/verse/. The draft pages carry their own noindex, so linking them
-  // from an indexed page exposes them to readers without exposing them to search.
+  // Adam 2026-11-20: drafts may be listed on the public index (labelled, noindex on
+  // the page); draft note is yellow at the bottom, never red. Do not drop these
+  // "Draft study" lines from a commit — they are meant to ship.
+  // Drafts are listed clearly badged and pointing at /drafts/verse/. The draft
+  // pages carry their own noindex, so linking them from an indexed page exposes
+  // them to readers without exposing them to search.
   const draftDir = path.join(ROOT, 'docs', 'drafts', 'verse');
   if (fs.existsSync(draftDir)) {
     fs.readdirSync(draftDir).filter((f) => f.endsWith('.html') && f !== 'index.html').forEach((f) => {

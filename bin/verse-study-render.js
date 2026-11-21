@@ -40,6 +40,9 @@
 const fs = require('fs');
 const path = require('path');
 const { buildKit, slugFor } = require('./verse-study-scaffold.js');
+// Adam 2026-11-20: drafts may be listed on the public index (labelled, noindex on
+// the page); draft note is yellow at the bottom, never red.
+const { DRAFT_NOTE_CSS, DRAFT_NOTE_HTML } = require('./verse-study-draft-note.js');
 
 const ROOT = path.resolve(__dirname, '..');
 const DOCS = path.join(ROOT, 'docs');
@@ -305,9 +308,7 @@ ${isDraft ? '    <meta name="robots" content="noindex, nofollow">\n' : ''}    <m
 ${audioHead}${c.head}
 ${c.style}
     <style>
-${isDraft ? `      .vs-draft-banner { border:1px solid #b4553a; background:rgba(180,85,58,.12); color:#e39a80; border-radius:8px; padding:.55rem .9rem; font-size:.82rem; margin-bottom:1.2rem; }
-      body.light-mode .vs-draft-banner { color:#8a3c22; }
-` : ''}      .vs-ctx { color:var(--gray); font-size:.94rem; border-left:2px solid rgba(212,175,55,.25); padding-left:.9rem; margin-bottom:.7rem; }
+${isDraft ? DRAFT_NOTE_CSS : ''}      .vs-ctx { color:var(--gray); font-size:.94rem; border-left:2px solid rgba(212,175,55,.25); padding-left:.9rem; margin-bottom:.7rem; }
       .vs-def { color:var(--gray); font-size:.92rem; }
       .vs-words .grk { font-family:'Times New Roman',serif; font-size:1.2rem; margin-right:.35rem; }
       .vs-words .w a { color:inherit; text-decoration:none; }
@@ -318,7 +319,7 @@ ${isDraft ? `      .vs-draft-banner { border:1px solid #b4553a; background:rgba(
 ${c.nav}
 <div class="container">
 <div class="vs-wrap">
-${isDraft ? `  <div class="vs-draft-banner">Draft — version 1. Written, not yet reviewed. Not indexed.</div>\n` : ''}  <div class="vs-eyebrow">Verse Study · ${esc(p.book)}</div>
+  <div class="vs-eyebrow">Verse Study · ${esc(p.book)}</div>
   <div class="vs-read" id="study" data-read-follow>
   <h1>${esc(ref)}</h1>
 ${deck ? `  <p class="vs-deck">${inline(deck)}</p>\n` : ''}${audio ? renderPlayer(audio, ref) + '\n' : ''}
@@ -338,7 +339,7 @@ ${goDeeper}
   <div class="vs-foot">
     <p>Every quotation on this page is checked verbatim against the source cited before it ships. Scripture shown in the World English Bible and the King James Version, both public domain. Free to copy, quote, and share.</p>
   </div>
-</div>
+${isDraft ? DRAFT_NOTE_HTML : ''}</div>
 </div>
 ${c.script}${audioScripts}
 </body>

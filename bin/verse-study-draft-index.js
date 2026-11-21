@@ -1,9 +1,14 @@
 #!/usr/bin/env node
 /* verse-study-draft-index.js — a private contents page for the draft studies.
  *
+ * Adam 2026-11-20: drafts may be listed on the public index (labelled, noindex on
+ * the page); draft note is yellow at the bottom, never red.
+ *
  * Adam reviews on a phone, so the drafts need one URL that lists them all with
  * an honest state next to each: what is written, what is still scaffolding.
- * noindex, nofollow, disallowed in robots.txt, linked from nothing.
+ * This page itself is noindex, nofollow, disallowed in robots.txt and linked
+ * from nothing. The source-backed drafts are also listed on the public verse
+ * index (bin/add-verse-page.js), labelled "Draft study".
  *
  * Usage: node bin/verse-study-draft-index.js
  */
@@ -69,7 +74,7 @@ function main() {
   .wrap{max-width:760px;margin:0 auto}
   h1{font-family:Georgia,serif;color:#D4AF37;font-size:1.7rem;margin-bottom:.3rem}
   .lede{color:#888;font-size:.94rem;margin-bottom:.5rem}
-  .banner{border:1px solid #b4553a;background:rgba(180,85,58,.12);color:#e39a80;border-radius:8px;padding:.6rem .9rem;font-size:.84rem;margin:1rem 0 1.4rem}
+  .banner{border:1px solid rgba(212,175,55,.45);background:#2a2410;color:#D4AF37;border-radius:8px;padding:.6rem .9rem;font-size:.84rem;margin:1rem 0 1.4rem}
   ol{list-style:none;counter-reset:n}
   li{counter-increment:n;border-bottom:1px solid #222;padding:.7rem 0 .7rem 2.1rem;position:relative}
   li::before{content:counter(n);position:absolute;left:0;top:.75rem;color:#555;font-size:.78rem}
@@ -86,7 +91,7 @@ function main() {
 <div class="wrap">
   <h1>Verse Study Drafts</h1>
   <p class="lede">The ${rows.length} verses in the memorize app. ${written} written, ${rows.length - written} still scaffolding.</p>
-  <div class="banner">Private working page. Not indexed, not linked from the site, disallowed in robots.txt. Nothing here has been reviewed — a "scaffold" page has real Scripture, word study and confession text, but its prose slots are still empty and marked in red.</div>
+  <div class="banner">Private working page. Not indexed, not linked from the site, disallowed in robots.txt; the draft studies themselves are listed on the verse index, labelled as drafts. Nothing here has been reviewed — a "scaffold" page has real Scripture, word study and confession text, but its prose slots are still empty and marked in red.</div>
   <ol>
 ${items}
   </ol>
