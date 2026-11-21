@@ -346,3 +346,4 @@ related directory posts were left alone. The open questions each revision
 raised are held for Adam and were not answered on his behalf. The rule and
 the check are in `BLOG-VOICE-GUIDE.md` (sections 0 and 0.2) and
 `bin/voice_audit_blog.py`.
+2026-11-20 | docs/blog/unequally-yoked-early-church-to-ballot-box.html (rewrite: cut from about 2,900 to about 2,000 words, humanized; Dallas section keeps the fault on the program and the last word, adds Psalm 2 "Kiss the Son" and 1 Corinthians 8:9, and says plainly the hall sounded like a political rally; narration re-recorded) | APPROVE (Adam via Telegram 22:27 ET)
