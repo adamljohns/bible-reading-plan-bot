@@ -280,6 +280,7 @@ function render(doc, kit) {
     <a href="/lexicon.html">Greek &amp; Hebrew Lexicon</a>
     <a href="/memorize.html">Memorize this verse</a>
     <a href="/verse/index.html">All Verse Studies</a>
+    <a href="/verse/method/">How these studies are built</a>
   </div>`;
 
   return `<!DOCTYPE html>
