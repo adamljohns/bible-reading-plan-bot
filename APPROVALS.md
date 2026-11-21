@@ -313,6 +313,7 @@ scope. Retroactively flagging it would bury the handful that actually matter.
 2026-10-20 | docs/blog/self-care-is-the-wrong-word.html (Pops audio, video, infographic, slides) | APPROVE (Adam via Telegram 07:15, "upload the slides, the infographic, and the video embedded into the blog post")
 2026-10-20 | docs/blog/cheap-answers-are-not-a-trained-mind.html | APPROVE (Adam via Telegram 12:35 ET, “Let’s review the blog ProfX wrote for me and push it live today.”)
 2026-11-20 | docs/verse/2-corinthians-6-14.html | APPROVE (Adam via Telegram 21:26 ET, message 9386, "I've reviewed this, remove the warning banner and index it with the rest.")
+2026-11-20 | docs/blog/unequally-yoked-early-church-to-ballot-box.html | APPROVE (Adam via Telegram 21:27 ET, message 9388, "Publish the blog post too…")
 
 ## Voice revisions of already-published posts — Adam's authority, 17 Nov 2026
 
