@@ -33,7 +33,7 @@ import re
 import sys
 import urllib.request
 import urllib.error
-from datetime import date
+from datetime import date, timedelta
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
@@ -108,15 +108,65 @@ SPIRIT_LINE_EXAMPLES = [
 def prayer_pick(pool, on_date):
     return pool[on_date.timetuple().tm_yday % len(pool)]
 
-# PJG-1001-INTRO1 — the three relational watches open from their named station,
-# not with an interchangeable devotional sentence. Keep the generated,
-# passage-specific sentence after this fixed opening instead of replacing it.
+# PJG-1001-INTRO1 originally fixed all three relational-watch openings. Adam's
+# 2026-11-21 ear review retired the fixed Father/Citizen formulas: "take up the
+# charge" and "stand firm" had become audible boilerplate. The Husband's Post
+# retains its station opener; Father and Citizen now begin from the passage.
 WATCH_OPENING_EFFECTIVE = date(2026, 10, 2)
 WATCH_OPENING_PREFIXES = {
     "first": "Brother, stand your post",
-    "second": "Brother, take up the charge",
-    "third": "Brother, stand firm",
 }
+
+WATCH_INTRO_RULES = {
+    "second": (
+        "Begin from this passage's own claim, image, duty, or tension. Vary the syntax across the week. "
+        "Do NOT begin with the retired stock formulas 'Brother, take up the charge' or 'Brother, stand firm'."
+    ),
+    "third": (
+        "Begin from this passage's own civic claim, image, duty, or tension. Vary the syntax across the week. "
+        "The watch title already contains 'Stand'; do NOT force 'stand firm' into the opening or repeat it."
+    ),
+}
+
+WATCH_HEADER_GLYPHS = {"second": "🕚", "third": "🕒"}
+
+
+def watch_intro(text: str, watch_key: str) -> str:
+    """Return the first nonblank line after a Father/Citizen header."""
+    glyph = WATCH_HEADER_GLYPHS.get(watch_key)
+    if not glyph:
+        return ""
+    lines = text.splitlines()
+    header_idx = next(
+        (i for i, line in enumerate(lines) if line.strip().startswith(glyph)),
+        None,
+    )
+    if header_idx is None:
+        return ""
+    return next(
+        (lines[i].strip() for i in range(header_idx + 1, len(lines)) if lines[i].strip()),
+        "",
+    )
+
+
+def intro_stem(intro: str) -> str:
+    """Normalize the opening three-word stem for a seven-day variety gate."""
+    intro = re.sub(r"^Brother(?: Adam)?,\s*", "", intro, flags=re.I)
+    words = re.findall(r"[A-Za-z]+", intro.lower())
+    return " ".join(words[:3])
+
+
+def recent_watch_openings(watch_key: str, on_date: date, days: int = 6) -> list[str]:
+    """Read the preceding six authored openings for prompt context and QA."""
+    out = []
+    for offset in range(1, days + 1):
+        path = READINGS / f"{on_date - timedelta(days=offset):%Y-%m-%d}.md"
+        if not path.exists():
+            continue
+        intro = watch_intro(path.read_text(encoding="utf-8"), watch_key)
+        if intro:
+            out.append(intro)
+    return out
 
 # Household birthdays for age math (do not hardcode stale ages).
 BIRTHDAYS = {
@@ -305,7 +355,17 @@ def build_watch_messages(w, ref, month, daynum, on_date: date):
             "rest of the sentence into a stock intro or echo this instruction text."
         )
     else:
-        parts.append("2. Then ONE original sentence introducing today's theme — write the actual sentence; do NOT echo this instruction text.")
+        intro_rule = WATCH_INTRO_RULES.get(w["key"], "")
+        parts.append(
+            "2. Then ONE original sentence introducing today's theme — write the actual sentence; "
+            "do NOT echo this instruction text. " + intro_rule
+        )
+        recent = recent_watch_openings(w["key"], on_date)
+        if recent:
+            parts.append(
+                "   SEVEN-DAY VARIETY GATE: do not reuse the opening three-word stem from any of these "
+                "recent authored introductions: " + " | ".join(recent)
+            )
     parts.append(f"3. A line exactly: 📖 Scripture — {ref}")
     parts.append(
         f"4. The scripture text of {ref} ONLY. Named passage owns Scripture. "
@@ -500,6 +560,23 @@ def watch_valid(text, w, on_date=None):
     # not treat the old formula as a default under any watch.
     if re.search(r"(?im)^\s*(?:Adam,\s*)?Brother,\s+look(?:\s+(?:at|to|closely))?\b", text):
         return False
+    # PJG-1121-AUD1: the role title already supplies the station. These fixed
+    # formulas became boilerplate and, in Citizen, produced "stand firm" twice.
+    if w["key"] == "second" and re.search(
+        r"(?im)^\s*Brother,\s+(?:take up the charge|stand firm)\b", text
+    ):
+        return False
+    if w["key"] == "third" and re.search(
+        r"(?im)^\s*Brother,\s+stand firm\s*:\s*stand firm\b", text
+    ):
+        return False
+    if w["key"] in WATCH_HEADER_GLYPHS and on_date:
+        candidate_stem = intro_stem(watch_intro(text, w["key"]))
+        recent_stems = {
+            intro_stem(intro) for intro in recent_watch_openings(w["key"], on_date)
+        }
+        if candidate_stem and candidate_stem in recent_stems:
+            return False
     # PJG-0821-FAT1: Second Watch is father-ABOUT-children, never a letter to them.
     if w["key"] == "second" and re.search(r"Dear Gideon|listen closely to your father", text, re.I):
         return False

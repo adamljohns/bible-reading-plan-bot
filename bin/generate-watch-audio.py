@@ -173,6 +173,15 @@ def apply_homograph_context(text: str) -> str:
     Kokoro honors [word](/ipa/) markup. Expand seed list as ear QA hits.
     Order matters: more specific patterns first.
     """
+    # --- possessive else: keep the /ɪz/ attached instead of a stray spoken "S" ---
+    # PJG-1121-AUD1: Kokoro split "anyone else's" into "anyone else. S."
+    # Mark only the possessive word; the published reading remains unchanged.
+    text = re.sub(
+        r"\b([Aa]ny(?:one|body))\s+else['’]s\b",
+        lambda m: f"{m.group(1)} [else's](/ˈɛlsɪz/)",
+        text,
+    )
+
     # --- live: /lɪv/ dwell/reside vs /laɪv/ alive/broadcast ---
     # PJG-0809-PRAY1: Prov 9 "Forsake foolishness and live" = dwell/lɪv (not broadcast/laɪv)
     text = re.sub(
@@ -216,7 +225,7 @@ def apply_homograph_context(text: str) -> str:
 
     # --- read: past /rɛd/ vs present /riːd/ ---
     text = re.sub(
-        r"\b([Rr])ead\b(?=\s+(?:the|this|aloud|Scripture|Word|chapter|verse|again|through|from))",
+        r"\b([Rr])ead\b(?=\s+(?:the|this|aloud|Scripture|Word|chapter|verse|again|through|from|where|what|who|how|why|when|whether))",
         lambda m: f"[{m.group(1)}ead](/riːd/)",
         text,
     )
