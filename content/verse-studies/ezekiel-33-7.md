@@ -32,7 +32,7 @@ Men in this work are always tempted to improve the mouth -- make it kinder, shar
 
 So love, in this chapter, has a sound. It sounds like a trumpet. Silence while the sword is in view is not a gentle strategy. It is the crime the office exists to prevent.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 Ezekiel 33 opens with a parable anyone in a walled city would understand. When I bring the sword on a land, and the people set a watchman, and he sees and blows, the man who ignores the trumpet dies with his own blood on his head. If the watchman sees and does not blow, the dead man still dies in his iniquity, but I will require his blood at the watchman's hand.
 

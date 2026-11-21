@@ -32,7 +32,7 @@ Across verses 14 to 16 he asks five such questions and uses a different word in 
 @word G458 | unrighteousness
 The King James has *unrighteousness*, though the word is closer to lawlessness, life without God's law, and set against righteousness it tells us what makes the two animals unlike. The ox and the ass differ in size and gait, while the believer and the unbeliever differ in law, in whose word finally settles a matter. Under one yoke that difference does not stay private. It decides which way the team turns at the end of the row.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 The paragraph runs from 6:14 to 7:1, and it sits inside an appeal. Paul has just told the Corinthians that his heart is wide open to them and theirs is cramped: *be ye also enlarged* (6:13). Then comes the command about the yoke, and in 7:2 he picks the appeal up again and asks them to make room for him. The order is not an accident, for hearts that had grown narrow toward the apostle had grown wide toward the idol world, and Paul asks for both to be put right at once.
 

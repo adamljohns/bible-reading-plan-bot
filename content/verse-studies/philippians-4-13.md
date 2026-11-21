@@ -29,7 +29,7 @@ And the power is not a technique. It is a Person, presently strengthening.
 @h3 The secret he learned
 Verse 12 says he has been *instructed* -- initiated -- into the secret of plenty and of want. Contentment in this paragraph is not a temperament. It is a learned thing, and the teacher is named in verse 13. You do not stumble into this. You are schooled in it, often by the very abasement you wanted Christ to skip.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 Philippians 4 has already given the peace that guards, the command to rejoice, the true, just, pure things to think on. Then a thank-you note. The church has sent a gift by Epaphroditus. Paul rejoices that they have revived their care. Then the refusal: not that I speak in respect of want. He is glad of the gift and will not be owned by the need.
 

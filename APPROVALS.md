@@ -347,3 +347,4 @@ raised are held for Adam and were not answered on his behalf. The rule and
 the check are in `BLOG-VOICE-GUIDE.md` (sections 0 and 0.2) and
 `bin/voice_audit_blog.py`.
 2026-11-20 | docs/blog/unequally-yoked-early-church-to-ballot-box.html (rewrite: cut from about 2,900 to about 2,000 words, humanized; Dallas section keeps the fault on the program and the last word, adds Psalm 2 "Kiss the Son" and 1 Corinthians 8:9, and says plainly the hall sounded like a political rally; narration re-recorded) | APPROVE (Adam via Telegram 22:27 ET)
+2026-11-21 | docs/verse/ecclesiastes-7-8.html | APPROVE (Adam via Telegram voice note 11:23 ET: "publish it as final, version 1.0, reviewed by Moop"; humanized redraft with Max voice pass, KJV above WEB, "The Verse in Context", share card + PDF)

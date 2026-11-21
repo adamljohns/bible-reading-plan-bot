@@ -31,7 +31,7 @@ Foreknew. Predestined. Called. Justified. Glorified. Every verb has the same sub
 
 *Foreknew* is the word the argument usually starts fighting over. In Scripture, God's knowing a people is not bare foresight of their future choices. It is the knowing of Amos 3:2 -- *you only have I known of all the families of the earth* -- covenantal, electing, personal. If it meant "those whose faith He predicted," the next verb would be redundant and the *without any other thing in the creature* of the confession would have no work to do.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 Romans 8 has been groaning for ten verses. Creation subjected to futility. Believers with the firstfruits of the Spirit, waiting for the redemption of the body. The Spirit Himself interceding with groanings that cannot be uttered. That is the weather system verse 28 walks into. It is not a poster for a good day. It is spoken over a church that does not yet see what it was saved for.
 

@@ -26,7 +26,7 @@ Notice the order. Judge them. We have no might. We do not know what to do. But o
 @word H5869 | our eyes
 *Ayin* is the eye — also a spring, a fountain. Here it is the organ of attention. The eyes are *upon* God. Not upon the company, not upon the inventory, not upon the missing plan. Attention is the one thing they still have, and they aim it. The rest of the chapter will prove whether that aiming was theater. It was not. They go out with singers, not with a new weapon.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 Chapter 20 opens with a report: a great multitude from beyond the sea, Moab and Ammon, and others with them. Jehoshaphat feared. That is the narrator's word. He set himself to seek the LORD and proclaimed a fast throughout Judah. The people gathered. The king stood in the assembly, in the house, and prayed.
 

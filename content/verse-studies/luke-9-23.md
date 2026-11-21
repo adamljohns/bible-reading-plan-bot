@@ -27,7 +27,7 @@ It is also, oddly, a mercy. A one-time cross would demand a single act of total 
 @word G190
 *Akoloutheo* is to follow on a road, to accompany. In the Gospels it becomes the technical term for discipleship, and its ordinariness is the point. After the drama of denial and crucifixion, the third command is simply: walk behind Him. The Christian life ends up looking less like a series of grand renunciations and more like a long walk in someone's tracks.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 The placement in Luke is everything. Immediately before this, Jesus asks the disciples who the crowds say He is, and then who *they* say He is. Peter answers: the Christ of God. Jesus then tells them, for the first time, that the Son of Man must suffer many things, be rejected, be killed, and be raised.
 

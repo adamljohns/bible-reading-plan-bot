@@ -27,7 +27,7 @@ The sentence is logistics on the surface. Underneath it is a doctrine of hope, o
 @h3 The man he means to send
 Verse 19 is incomplete without 20-22. No one else like-minded, who will genuinely care for their state. All seek their own, not the things of Jesus Christ. Timothy has proof: as a son with a father he served in the gospel. The hope in verse 19 is not generic optimism. It is hope attached to a tested man whose mind looks like the hymn.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 Philippians 2 has just gone as high as the New Testament goes. Have this mind in you which was also in Christ Jesus -- who emptied Himself, took a servant's form, became obedient to death, even the cross; therefore God highly exalted Him. Then: work out your salvation. Then: do all things without murmuring. Then: lights in a crooked generation, holding the word of life. Then Paul as a drink offering, and mutual joy.
 

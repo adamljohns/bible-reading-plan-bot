@@ -29,7 +29,7 @@ The smallest word in the verse and the one carrying it. *Eti* means still, yet, 
 
 Which means the love in this verse cannot be undone by a return of the condition. If it was given while you were in that state, discovering yourself in that state again is not new information to the one who gave it.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 Romans 5 opens the great turn in the letter. Chapters 1 through 3 built the indictment; chapter 4 established that Abraham was justified by faith, not works; and chapter 5 begins *therefore, being justified by faith, we have peace with God.*
 

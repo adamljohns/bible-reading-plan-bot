@@ -26,7 +26,7 @@ That is a harder teaching than the anti-intellectual reading. Solomon is not war
 @word H8172
 And here is the verse's own picture, in the verb Solomon chose for *lean*. *Shaʿan* is to lean or support oneself on something — to rest your weight on a prop. Which is why the second clause is not anti-intellectual. You will put your weight somewhere. The command is about what is underneath you when it matters.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 Proverbs 1-9 is not a list of proverbs. It is a father talking to a son at length before the short sayings start -- a sustained argument that wisdom is a person to be loved and folly is a person to be avoided, and that everything depends on which voice the young man follows.
 

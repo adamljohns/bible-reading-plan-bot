@@ -27,7 +27,7 @@ Worth being careful here, because the word gets misused. *Sarx* in Paul is not t
 @h3 A note on the longer reading
 If you carry a modern translation, you may have noticed it stops early: "There is therefore now no condemnation for those who are in Christ Jesus" -- and nothing about walking. The second half of the verse in the King James is absent from the oldest manuscripts, and most editors judge that a scribe carried it up from verse 4, where Paul says the same thing. It is worth knowing and it is worth not panicking about: the words are genuinely Paul's, they simply belong three verses later. Nothing in the doctrine moves either way. Both readings are printed above so you can see exactly what is and is not in question, rather than discovering the discrepancy alone with your study Bible and concluding someone was hiding it.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 You cannot read this verse straight if you skip what it is standing on. Romans 7 ends with a man in pieces. He knows the law is good. He wants to keep it. He watches himself not keep it, and he cries out asking who will deliver him from this body of death. That is where chapter 7 leaves you -- a believer, genuinely converted, genuinely losing fights.
 

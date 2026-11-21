@@ -23,7 +23,7 @@ The same verb names Judas handing Jesus over, and Jesus handing Himself over. Th
 
 Verses 26–27 keep the aim: that He might sanctify her, cleanse her by the word, and present her glorious, without spot. Headship that will not move toward her holiness is not this verse. It is vanity with a title.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 Ephesians 5 opens with imitating God and walking in love as Christ gave Himself (5:1–2). Then it names the uncleanness that must not even be mentioned among saints (5:3–14). Then wise walking, Spirit-filling, and mutual submission in the fear of God (5:15–21). Then the household: wives, husbands, children, fathers, slaves, masters.
 

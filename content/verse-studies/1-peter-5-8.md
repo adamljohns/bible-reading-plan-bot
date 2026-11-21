@@ -24,7 +24,7 @@ This is the sharpest word in the verse and it is usually flattened to "enemy." *
 @h3 A lion that roars
 Worth noticing what a roaring lion actually is. A hunting lion is silent; the roar comes before or after, to terrify, to scatter a herd, to drive prey toward something. Peter says the devil goes about *as* a roaring lion -- the simile is about noise and terror as much as teeth. Much of what frightens a Christian is sound designed to move him, and a man who is sober and awake is much harder to stampede.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 1 Peter is written to Christians scattered across Asia Minor and under real social pressure -- slandered, excluded, in some places worse. The letter's whole burden is how to suffer well without becoming bitter or ashamed.
 

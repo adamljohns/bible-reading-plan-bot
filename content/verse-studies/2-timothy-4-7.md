@@ -29,7 +29,7 @@ The next verse is the only reason these three do not collapse into boasting: hen
 @h3 The crown sits in the next verse
 Verse 8 is not a separate subject. The righteous Judge, the crown, that day, and *not to me only but to all who love his appearing*. The three perfects are a personal report. The crown is a shared one. If you quote verse 7 without 8 you will make Paul the hero of his own ending. He will not.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 Verse 6 is the setting and it is grim. *I am already being poured out, and the time of my departure is at hand.* The drink offering. The ship casting off. This is a cell, not a retirement banquet. Demas has gone. Others are away. Alexander did him much evil. At the first defense no one stood with him.
 

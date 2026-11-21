@@ -24,7 +24,7 @@ The pair is not "do not think." Proverbs is a book that demands hard thinking an
 @word H3474 | he shall direct
 *Yashar* is to be or make straight, level, right. The KJV's *direct* and the WEB's *make straight* are the same verb. The promise is not preview. It is not "He will show you a film of next year." It is: He will straighten what you walk. Crooked made right. That is providence, not a weather report. The paths (*orach*) are the course of a life. He governs them. You still walk.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 Proverbs 1–9 is not a list of proverbs. It is a father talking to a son at length before the short sayings start — a sustained argument that wisdom is a person to be loved and folly is a person to be avoided.
 

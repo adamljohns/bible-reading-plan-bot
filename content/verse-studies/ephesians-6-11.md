@@ -21,7 +21,7 @@ The enemy is named, and named as a slanderer rather than a monster. That matters
 @h3 The word behind "wiles"
 The Greek behind *wiles* is *methodeia* -- the word our "method" comes from. It means a scheme, a settled procedure, an approach used because it has worked before. That is a more useful picture of temptation than a random assault. You are not being attacked at random; you are being attacked along a line that has already worked on you, probably more than once. A man who knows his own methodeia knows where to reinforce.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 This paragraph is the last thing in Ephesians, and everything before it has been about what God has already done. Three chapters of doctrine: you were dead, He made you alive; you were far off, He brought you near; there is one body, one Spirit, one Lord. Then three chapters of consequence: walk worthy, put off the old self, wives and husbands, children and parents, servants and masters.
 

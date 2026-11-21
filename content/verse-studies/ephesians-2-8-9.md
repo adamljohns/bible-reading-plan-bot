@@ -29,7 +29,7 @@ If a man can still point at a contribution -- even a small one, even a spiritual
 @h3 What "that not of yourselves" is doing
 The pronoun is neuter; *grace* and *faith* are feminine. The usual and the safest reading is that Paul is pointing at the whole package, not picking one noun. Which is more severe, not less. If the entire salvation-by-grace-through-faith is not of yourselves, then the last remaining candidate for your contribution is inside the thing being denied. Verse 9 then names the most common candidate out loud: works.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 Ephesians 2 does not begin with an invitation. It begins with a coroner's report. You were dead in trespasses and sins, walking according to this world, by nature children of wrath. Then verse 4: *But God, being rich in mercy.* He made us alive together with Christ, raised us, seated us. Verse 7 says why: so that in the ages to come He might show the exceeding riches of His grace.
 

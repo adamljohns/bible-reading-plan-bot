@@ -28,7 +28,7 @@ If this word is the seat of decision, then a stony heart is not a sad feeling. I
 
 So "flesh" here is mercy. It is the opposite of ossified. Read Paul later and you will need a different contrast. Do not import that war back into Ezekiel and make the gift sound like a problem.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 The verse is not a greeting card. It is the center of a name-speech. Verse 22: I do not this for your sakes, O house of Israel, but for my holy name's sake, which you have profaned among the heathen. The new heart is not a reward for spiritual interest. It is God repairing His name in a people who had dragged it through the nations.
 

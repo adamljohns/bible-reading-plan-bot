@@ -208,7 +208,7 @@ ${origLine}
   <h2>1. The Text and Its Words</h2>
 ${TODO('open the exposition — what is this verse actually claiming, and what does the sentence assume that the reader may not have noticed')}
 ${wordStudyHtml(k)}
-  <h2>2. Where It Sits</h2>
+  <h2>2. The Verse in Context</h2>
 ${ctx.before ? `  <p class="vs-ctx"><strong>${esc(p.book)} ${p.ch}:${p.v1 - 1}</strong> — ${esc(ctx.before)}</p>\n` : ''}${ctx.after ? `  <p class="vs-ctx"><strong>${esc(p.book)} ${p.ch}:${p.v2 + 1}</strong> — ${esc(ctx.after)}</p>\n` : ''}${TODO('the argument of the surrounding paragraph, the book, and why this verse lands where it does')}
 ${crossRefsHtml(k)}
   <h2>3. What the Witnesses Saw</h2>

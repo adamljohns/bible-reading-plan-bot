@@ -26,7 +26,7 @@ Then the next line of the chapter, which this verse is built to answer: the rich
 @word H7682 | is safe
 *Sagab* is to be high, lofty, inaccessible, safely set on high. Fortresses on ridges. The margin's *set aloft* is better English for it than a vague "safe." You can be unhurt and still exposed. This verb is elevation. The run ends above the thing that was chasing you.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 Proverbs 18 is in the Solomonic sentences, not the long father-speeches of chapters 1–9. The sayings around this one are about the mouth, isolation, the fool's lips, the name of the LORD, wealth, a broken spirit, and a friend closer than a brother. Verse 10 is not a random piety dropped in. It is the safety-claim, set immediately against the rich man's wall.
 

@@ -24,7 +24,7 @@ This word appears once in the whole New Testament, here. Strong's renders it *re
 @word G1567
 Not *seek* but *seek out*. The prefix intensifies the verb. This is not the man who glances toward heaven when the doctor calls. It is the man who goes looking and keeps looking. The reward is promised to that kind of seeking.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 Hebrews 11 is usually read as a hall of fame. It is better read as an argument. Chapter 10 ends with a warning and a quotation: "Now the just shall live by faith: but if any man draw back, my soul shall have no pleasure in him." The writer is speaking to men tempted to drift back from Christ into something older and more visible. Chapter 11 is his answer. He opens with a definition -- faith is "the substance of things hoped for, the evidence of things not seen" -- and then he walks through the ancients one by one to prove that this is how God's people have always lived.
 

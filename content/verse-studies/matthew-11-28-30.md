@@ -31,7 +31,7 @@ Third: the explanation. *My yoke is easy, and my burden is light.* He does not s
 @h3 What the yoke is not
 Easy here does not mean trivial, and light does not mean imaginary. A light burden is still a burden you carry. The contrast is with the loads being tied onto people's backs in this Gospel -- heavy, and not moved with one of the teachers' fingers. Jesus' load is the one He carries with you. A double yoke has two necks in it. That is why the meekness of the other neck is the whole argument.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 Do not start this saying in a vacuum. Matthew 11 has been a hard chapter.
 

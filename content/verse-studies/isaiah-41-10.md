@@ -30,7 +30,7 @@ The *yamin*, the right hand, is the hand of power and of skill -- the working ha
 @h3 The strange phrase at the end
 *The right hand of my righteousness.* Not the right hand of My power, which is what the sentence seems to want. *Tsedek* is righteousness, justice, what is right and vindicated. So the hand holding you is specifically God's just hand — which matters, because a frightened man's deepest worry is usually not whether God is strong but whether He is obliged. Power alone could let you go and lose nothing. Righteousness is a commitment. The grip is a matter of God keeping His own word.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 Isaiah 41 is a courtroom. God summons the nations to trial -- let them bring their case, let them produce their idols and see whether those can declare what is coming. Verse 7 has the carpenter encouraging the goldsmith, one craftsman telling another the idol is coming along nicely, and then fastening it with nails so it will not topple over.
 

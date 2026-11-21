@@ -27,7 +27,7 @@ And the room did. Paul is writing to the capital of the empire about a Jewish pr
 @h3 "To the Jew first, and also to the Greek"
 The order is historical, not preferential -- the gospel came through Israel and went to the nations. But the *and also* is the explosive half. Paul is writing to a congregation with both in it, and a great deal of Romans exists to work out how they belong at the same table. The verse that opens the letter's argument already contains the problem the letter will spend sixteen chapters solving.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 The verse sits at the seam between Paul's introduction and his argument. He has spent fifteen verses on greetings and on his long-frustrated desire to visit Rome -- he has purposed to come many times and been prevented, and he is eager to preach the gospel there too.
 

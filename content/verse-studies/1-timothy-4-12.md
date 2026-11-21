@@ -29,7 +29,7 @@ The *but* is the whole method. Paul does not say, announce your office more loud
 @h3 The list is the office
 Word. Walk. Love. Spirit. Faith. Purity. Some copies of the letter do not carry *in spirit*; both public-domain texts on this page include it. Nothing in the charge hangs on the extra slot. The point of the inventory is that the example is the whole man, not a specialty. A man can be brave in the pulpit and still be ignorable in the other five. Paul will not let Timothy pick the one he is good at.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 This is not a youth-group verse. It is a field order to a man Paul left in Ephesus to stop false teachers. Chapter 1: charge some that they teach no other doctrine. Chapter 3: the qualifications of overseers, including *not a novice*. Then chapter 4: some will depart from the faith, attending to seducing spirits; Timothy is to be a good minister, nourished in the words of faith. Verse 11: these things command and teach. Then our verse. Then: until I come, attend to reading, to exhortation, to doctrine. Neglect not the gift. Take heed to yourself and to the doctrine.
 

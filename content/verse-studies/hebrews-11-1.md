@@ -29,7 +29,7 @@ Then the writer proves the sentence by a list of names. If you isolate verse 1 f
 @h3 Description, not a complete definition
 Calvin is careful here, and he is right. The apostle *accommodates* this wording to his discourse. It is not the whole doctrine of saving faith in one line. It is the heading for a catalog of people who treated the unseen as more solid than the seen. Saving faith also receives Christ, rests on Him, obeys. This verse is doing one job. Let it do that job.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 Chapter 10 has just said the just shall live by faith, and that we are not of those who shrink back to destruction, but of those who believe to the saving of the soul. Then: now faith is... The *now* is not a new topic. It is an explanation of the people who do not shrink back.
 

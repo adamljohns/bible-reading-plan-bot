@@ -27,7 +27,7 @@ The same verb Paul used of Timothy's youth. To think down on, to treat as small.
 @h3 Author and finisher
 The King James *finisher* is the pair of *author*, and the confession will use both words of Christ. He begins the faith and He brings it to its end. The race is not a human project He cheers from the chair. He is at both ends of it, and between them He is the one on the cross.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 Chapter 11 ended with a crowd who died in faith, not having received the promise, God having provided something better. Then 12:1: therefore, surrounded by this cloud, lay aside the weight and the sin, run with patience the race set before you. Our verses are the *how* of that running.
 

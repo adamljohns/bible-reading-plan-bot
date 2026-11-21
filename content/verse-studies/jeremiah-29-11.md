@@ -34,7 +34,7 @@ A cord is useless if it is not fastened. This one is fastened to verse 10: I wil
 
 That is mercy, and it is also a refusal. An expected end means this life in exile is going somewhere God knows, and it also means you are not entitled to treat the middle as if it were already the end. The false prophets offered an *acharit* of two years. God offered seventy, and then home. Only one of those was a thought of peace.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 Verse 11 is a *for.* It grounds verse 10. After seventy years at Babylon I will visit you and perform my good word toward you, in causing you to return to this place. *For* I know the thoughts... Then verses 12-14: then you will call, pray, seek with all the heart, and I will be found, and I will turn the captivity and gather you.
 

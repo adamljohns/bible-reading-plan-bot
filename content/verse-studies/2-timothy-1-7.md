@@ -31,7 +31,7 @@ The third, and nearly untranslatable. The King James has "a sound mind," modern 
 
 Which is exactly what fear does. Timidity is not only a failure of nerve; it is a disordering of judgment, in which the threat swells and everything true shrinks. What Paul says was issued against it is a mind put back in proportion.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 This is the last letter Paul wrote, and the tone is unmistakable from the opening. He longs to see Timothy, remembering his tears. He recalls the faith that lived first in Timothy's grandmother Lois and his mother Eunice.
 

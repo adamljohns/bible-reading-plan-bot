@@ -21,7 +21,7 @@ Fear that never becomes keeping is theater. Keeping that never becomes doing is 
 @word H6213 | to do them
 The copy in verse 18 matters. He does not inherit a vibe. He writes the law with his own hand from the priests' exemplar. Authority is borrowed text, not private inspiration. Then he does it.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 The chapter has already dealt with blemished sacrifice, idolatry inside the gates, and hard cases taken to the priests. Then Israel will want a king "like all the nations." The Lord permits it and immediately cages it.
 

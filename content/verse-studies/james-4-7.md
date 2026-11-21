@@ -21,7 +21,7 @@ The name is a job description. *Diabolos* is from *dia* (across) and *ballo* (to
 @word G5343
 The promise is not that he will be defeated by you; it is that he will *leave*. *Pheugo* is flight, retreat, breaking contact. It is the same verb the New Testament uses when it tells you to flee immorality -- an unheroic word, and a strategic one. James is describing a bully's response to a man who is visibly not alone.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 James 4 opens with an ugly question: where do the fights among you come from? His answer is that they come from inside -- from desires at war within you. Then he escalates. You ask and do not receive because you ask wrongly. You are friends with the world, which makes you an enemy of God. He calls his readers adulteresses. This is not a gentle chapter.
 

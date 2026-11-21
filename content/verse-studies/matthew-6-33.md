@@ -30,7 +30,7 @@ So the seeking is not a hunt for a spiritual mood. It is a hunt for the life God
 @h3 The word nobody treats as a limit
 *All these things.* In English it sounds like a vault. In the paragraph it is a pointer. Verse 31 listed the questions: what shall we eat, what shall we drink, wherewithal shall we be clothed. Verse 32 called them *all these things*. Verse 33 promises them again. The promise is as large as a Father's knowledge of what you need, and as small as a day's meals. It will not fund a life whose real god was comfort.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 Matthew 6 has already taught you to pray. The Lord's Prayer sits in this same chapter, and its second petition is *Your kingdom come*. Verse 33 is that petition turned into an order of operations. You asked for the kingdom. Now you are told to seek it first, which is what a man does when he meant the prayer.
 

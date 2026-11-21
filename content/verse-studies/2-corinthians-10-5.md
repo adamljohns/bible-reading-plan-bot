@@ -24,7 +24,7 @@ A prisoner-of-war word -- *aichmalotizo*, to take captive at spear point. The di
 @word G5218
 The target of the whole operation, and it is easy to miss. *Hypakoe* is from *hypo* (under) and *akouo* (to hear) -- hearing that places itself under what it hears. Every thought is taken captive *to the obedience of Christ*. Not to orthodoxy in the abstract, not to a correct position, but to a person, and to doing what He says.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 2 Corinthians 10 begins the most personal section of the letter. Paul's authority is under attack in Corinth by men who evidently spoke better than he did and were happy to say so. They mocked his physical presence and his speech. Paul answers that he will not fight this on their terms -- he does not war according to the flesh -- and then, precisely there, describes the weapons he *does* use.
 

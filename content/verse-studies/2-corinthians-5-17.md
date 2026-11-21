@@ -31,7 +31,7 @@ The Greek here is famously compressed — closer to *if anyone in Christ, new cr
 
 That marginal note is honest and worth seeing. The compression leaves genuine room, and it is why translations differ on whether the emphasis falls on the person ("he is a new creation") or on the situation ("there is a new creation"). Both are defensible and neither weakens the claim: something has been made new, and being in Christ is what puts you inside it.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 2 Corinthians is Paul's most personal and most bruised letter. He has defended his ministry against people who found him unimpressive in person. Chapter 4 is the one about treasure in earthen vessels — struck down but not destroyed, the outward man perishing while the inward is renewed day by day.
 

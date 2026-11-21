@@ -26,7 +26,7 @@ The verse is almost Psalm 55:22 in Christian clothes: cast your burden on the Lo
 @h3 The grammar that keeps it from being a poster
 If you lift verse 7 out of verse 6 you get a relaxation technique. Peter fastened it to humility under a mighty hand, and then fastened verse 8 to it: be sober, be vigilant, the lion is walking. The man who has thrown his anxiety is not a man who has gone off watch. He has changed who is carrying the thing that was making him useless on watch.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 The letter is to exiles. Slander, isolation, the slow heat of being the wrong kind of people in a town. Chapter 5 has just told elders how to shepherd, the younger how to submit, everyone how to put on humility, because God resists the proud and gives grace to the humble. Verse 6 is that proverb turned into an act: get under the hand, He will exalt you in due time.
 

@@ -27,7 +27,7 @@ If he had wanted symmetry he would have written *the wages of sin is death, but 
 @h3 "In Christ Jesus our Lord"
 The last phrase is not a devotional flourish, it is the location clause. The gift is not deposited into a person's general account; it is held in a place, and the place is Christ. That is the same structure as Romans 8:1 -- *no condemnation to those who are in Christ Jesus* -- and it is the reason Paul can be so absolute in both directions. Outside, wages. Inside, gift.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 Romans 6 answers an objection Paul knew was coming. He has just said that where sin abounded, grace abounded much more. The obvious retort is: then let us sin more, so grace can increase. Paul's answer opens the chapter -- God forbid; how shall we who died to sin live any longer in it?
 

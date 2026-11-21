@@ -28,7 +28,7 @@ The Greek can be rendered either way, and translations split -- the King James h
 
 That is the practical force of the sentence. Not that the Bible is inspiring, but that there is no page of it you get to discount.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 2 Timothy is almost certainly the last letter Paul wrote. He is in prison again, and this time he does not expect release -- in chapter 4 he says the time of his departure is at hand. He asks Timothy to come before winter and to bring his cloak and the books.
 

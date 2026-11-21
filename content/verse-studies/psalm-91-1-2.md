@@ -26,7 +26,7 @@ The KJV margin on *abide* is *lodge*. That is the Hebrew. Not a visit. An overni
 @word H982 | trust
 *Batach* is the strong word for trust: leaning your full weight. Proverbs 3:5 will use it. Here it closes verse 2. The speech is not complete until the weight is on Him. Refuge and fortress can be admired from outside. *Batach* is inside. You are on it, or you are not.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 Psalm 91 has no superscription in the Hebrew the way 46 does. The church has sung it as a psalm of protection: snare of the fowler, pestilence, terror by night, arrow by day, the pestilence that walks in darkness. A thousand fall at your side. It will not come nigh thee. Angels bear you up, lest you dash your foot against a stone. You shall tread on the lion and adder.
 

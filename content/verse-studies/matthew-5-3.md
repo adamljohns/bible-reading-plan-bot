@@ -23,7 +23,7 @@ Everything turns on this word, and the lexicon now carries it. Greek has two wor
 
 Jesus chose the second. Note how the King James itself renders the word elsewhere — *beggar*, *beggarly* — which settles the sense from the text rather than from a dictionary. Poor in spirit is not modesty about your spiritual attainments. It is an empty hand held out.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 Matthew 4 ends with crowds — from Galilee, the Decapolis, Jerusalem, Judea, beyond the Jordan. Jesus has been healing everyone brought to Him, and the crowd is enormous and largely there for the healings.
 

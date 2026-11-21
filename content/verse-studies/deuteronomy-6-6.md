@@ -20,7 +20,7 @@ As on Psalm 119:11, Hebrew "heart" is not the seat of feelings as opposed to the
 
 Verse 7 will talk about teaching children. Verse 6 will not let you outsource that to a curriculum you do not yourself carry. A father whose heart is empty cannot whet a blade he does not hold.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 Deuteronomy 6 is the chapter after the Ten Words, and it is aimed at a people about to inherit houses they did not build (6:10–12). The danger is not ignorance in the wilderness. The danger is fullness in the land.
 

@@ -32,7 +32,7 @@ Four clauses, each one qualifying the last. Paul is circling something he cannot
 
 That shift is not sentimentality; it is the point of application. A man can hold the doctrine of the atonement entirely and never once put himself inside it. Paul does, in the last five words, and it is the only place the verse becomes usable.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 This is not devotional writing. It is the last line of a rebuke delivered to another apostle in public.
 

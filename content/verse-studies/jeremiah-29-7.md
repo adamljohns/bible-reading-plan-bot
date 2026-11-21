@@ -29,7 +29,7 @@ That is why the command can be issued without apology. If God caused the carryin
 
 Prayer here is also a guardrail. Seeking a city's peace can turn into making the city your god. The verse sends the seeking *through* the LORD. You work for Babylon. You do not pray *to* it.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 This is a letter, not a proverb. Jeremiah writes from Jerusalem to the elders, priests, prophets, and people already taken to Babylon with Jeconiah. False hope is the air in both cities: prophets saying the exile will be short, the vessels coming back, two years and home. Chapter 28 has just had Hananiah break a yoke in public and die for the lie.
 

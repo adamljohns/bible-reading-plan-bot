@@ -33,7 +33,7 @@ That matters for the weight of the gift. God did not give one of many. He gave t
 
 And note the adverb. The Greek behind *so loved* is not primarily about quantity. It reads more naturally as *in this manner* — God loved the world *like this*, namely by giving His Son. English hears "so much." The Greek points at the method as much as the magnitude.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 This is not a sermon to a crowd. It is the back half of a night conversation with one man. Nicodemus, a Pharisee and a ruler of the Jews, comes to Jesus in the dark and opens with a compliment — we know you are a teacher come from God. Jesus does not accept the compliment. He tells him he must be born again.
 

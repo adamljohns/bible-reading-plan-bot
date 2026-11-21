@@ -29,7 +29,7 @@ And it is still a command to *work*. Paul does not spiritualize the job into a f
 @h3 What verse 24 does to this one
 The next verse is the reason: *knowing that of the Lord you shall receive the reward of the inheritance; for you serve the Lord Christ.* Inheritance is a strange word to hand a slave. Slaves did not inherit. Paul hands them the family share anyway, and then says the service is already going to Christ. Verse 23 is not a productivity hack. It is an inheritance text spoken in a kitchen.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 Colossians 3 has been putting a new man on: seek the things above, put to death what is earthly, put on compassion, let the peace of Christ rule. Then the household: wives, husbands, children, fathers. Then servants. Our verse is not a free-floating proverb about hustle. It is the word to the lowest person in that house.
 

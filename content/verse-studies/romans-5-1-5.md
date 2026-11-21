@@ -36,7 +36,7 @@ To be put to shame -- the shame of a man who trusted something that failed him i
 @word G1632
 Poured out. It is not a trickle, and it is not a measured ration. The love Paul has in mind is God's love for us, not our love for God, and he says the Holy Spirit has poured it in. The past tense matters. It is already in you.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 "Therefore" reaches back over everything before it. In chapter 3 Paul proves that "all have sinned, and come short of the glory of God," and that a man is justified by faith apart from the works of the law. In chapter 4 he proves it from Abraham, who believed God and had it counted to him for righteousness, and he ends on Christ, "who was delivered for our offences, and was raised again for our justification."
 

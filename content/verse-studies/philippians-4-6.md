@@ -26,7 +26,7 @@ The one that changes everything, and the one everybody skips. *Eucharistia* is f
 @h3 What "let your requests be made known" does not mean
 God does not need the information. Jesus says so plainly -- your Father knows what you need before you ask. So the making-known is not for His benefit. It is the ordinary way a creature relates to a Father, and it is the ordinary way a burden changes hands. The verse is not a technique for getting outcomes; it is the mechanics of dependence.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 Philippians is the letter about joy, and it is written from custody by a man who might be executed. That context is not incidental to this verse; it is what gives Paul standing to write it. He is not counselling anxiety from a comfortable chair.
 

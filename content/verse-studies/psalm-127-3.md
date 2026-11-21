@@ -23,7 +23,7 @@ Children are not a side project a man adds when the house is finished. They are 
 
 Verses 4–5 keep the military picture: arrows in a warrior's hand; a quiver; speaking with enemies in the gate. Heritage here is not nursery softness only. It is a man being given the next generation as weapons and as witnesses.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 The psalm is Solomon's, and it is aimed at the man who will build. House, city, watch, labor, sleep — then children. The argument is that anxious toil cannot secure what only the LORD gives, and that what He gives as heritage is not a distraction from the house. It is the point of the house.
 

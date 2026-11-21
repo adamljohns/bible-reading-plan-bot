@@ -22,7 +22,7 @@ The house is not a slogan and it is not only a building. It is the people under 
 
 The people then swear they will serve the LORD (24:16–18). Joshua's next sentence is not congratulations. "You cannot serve the LORD, for He is a holy God" (24:19). The plaque-reading of verse 15 that skips 24:19 has not heard the commander.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 Joshua 24 is covenant renewal at the end of the book, not a pep talk at the beginning. The land is possessed. The danger is the same danger Deuteronomy 6 named: fullness, leftover gods, a people who will talk loyalty and keep household idols.
 

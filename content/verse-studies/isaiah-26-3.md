@@ -32,7 +32,7 @@ The prophets spend a great deal of ink on *misplaced* batach -- in horses, in wa
 @h3 The margin on "mind"
 The King James also notes: *mind: or, thought, or, imagination.* The Hebrew word there is the inner framing of a man -- what he is forming and turning over -- not "mind" as a modern word for intellect as opposed to feeling. You do not need a lexicon page to take the margin seriously. What gets stayed is the thing you are *working out* in the dark: the plans, the rehearsals, the worst-case. That is what has to lean, or it will run.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 Isaiah 24-27 is a long judgment that ends in songs. Chapter 24 levels the earth. Chapter 25 praises the God who swallows death. Chapter 26 is a song to be sung *in the land of Judah* -- not in a quiet room, in a land that has just watched cities fall.
 

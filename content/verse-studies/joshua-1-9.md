@@ -25,7 +25,7 @@ The verse does not begin with a pep talk. It begins with *tsavah* — command, c
 @word H1980 | goest
 The going is not metaphorical. Joshua is about to walk into a country that is not yet his. *Wherever you go* is a map, not a slogan. Presence is promised on the actual road.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 Moses is dead. That is the first sentence of the book. Chapter 1 is God filling the vacancy. Three times Joshua is told to be strong and courageous — verse 6, verse 7, verse 9 — and the repetition is itself a diagnosis. The man is frightened, and God does not pretend otherwise.
 

@@ -27,7 +27,7 @@ Streams, channels — water that keeps coming. The tree does not carry its own w
 @word H6743 | shall prosper
 Joshua 1:8 promised prosperity after mouth, meditation, and doing. Psalm 1 says the same thing without a battlefield: fruit in season, leaf that does not wither, whatever he does prospers. Season still belongs to God. The tree does not fruit on demand. It fruits when it is time, because it was planted where it can last.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 Psalm 1 is the doorway of the Psalter. Two men, two ways, two ends. The ungodly are chaff. The LORD knows the way of the righteous. The whole book of prayers that follows assumes this fork.
 

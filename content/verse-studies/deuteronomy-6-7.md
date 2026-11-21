@@ -33,7 +33,7 @@ The last words of the day. A house that only talks of the Lord at breakfast has 
 @word H6965 | when thou risest up
 The first words of the morning. The four hours close the loophole. Sit. Walk. Lie down. Rise up. That is a whole day, not a scheduled slot.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 Deuteronomy 6 follows the Ten Words. Verse 4: one LORD. Verse 5: whole-self love. Verse 6: the words in the man's own heart. Then this. Then bind them, write them, and when the son asks what the testimonies mean, tell him the exodus (6:20–25).
 

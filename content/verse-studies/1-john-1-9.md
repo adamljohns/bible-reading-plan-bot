@@ -31,7 +31,7 @@ The second half of the promise, and the one people forget. *Katharizo* is to cle
 @h3 "All unrighteousness"
 Note the scope, and note that it is broader than what you confessed. You agree with God about the sins you can see; He cleanses from *all* unrighteousness, including what you have not noticed and could not name. That is a mercy for the scrupulous man who lies awake wondering whether he missed one.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 1 John is written against a specific error. Teachers had left the church claiming a superior spiritual knowledge, and among their claims was that sin no longer applied to the truly enlightened. John answers this in a tight sequence in chapter 1.
 

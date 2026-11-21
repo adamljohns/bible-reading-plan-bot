@@ -28,7 +28,7 @@ WEB's *calm you* puts the quiet on the people. That is not a different religion.
 
 If that embarrasses you, good. It is supposed to. A man who can only imagine God as a commander will need this verse. A man who can only imagine God as a feeling will need the *gibbor* two clauses back.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 Zephaniah is a short, hard book. Chapter 1: the Day of the LORD, a feast of sacrifice, Judah swept. Chapter 2: gather yourselves, seek meekness, it may be you shall be hid. Nations judged. Chapter 3 opens with woe on the filthy, oppressive city, her princes, her prophets, her priests. Then God in the midst as righteous judge. Then the turn.
 

@@ -20,7 +20,7 @@ The walk is *with* your God, not ahead of Him with a résumé of offerings. The 
 
 The three are not a menu. Justice without chesed becomes a club. Chesed without justice becomes sentiment. Both without the humble walk become a man improving himself in God's general direction.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 The chapter opens as covenant lawsuit, not as a poster for civic religion. Verses 6–7 are Israel trying to buy the Lord off with more religion. Verse 8 is the Lord's answer: I already told you. Verses 9–16 then name the actual charges — wicked treasure, short measure, deceitful weights, violence, lies, the statutes of Omri.
 

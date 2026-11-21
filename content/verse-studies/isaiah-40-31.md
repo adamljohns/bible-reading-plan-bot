@@ -32,7 +32,7 @@ If you preach this as "you were made to soar," you have complimented the young m
 @word H3021 | weary
 *Yaga'* is to toil until you are spent -- the labor and the exhaustion together. Verse 28 has already used it of God, in the negative: the everlasting God, the LORD, the Creator of the ends of the earth, fainteth not, neither is weary. The same word-family runs through the paragraph on purpose. God does not *yaga'.* Youths do. Waiters will run and not *yaga'.* The contrast is the doctrine. Human toil bottoms out. God's does not. The people tied to Him by *qavah* are not promised a lighter load so much as a strength that does not originate in the load-bearer.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 Isaiah 40 opens the long comfort that follows the judgment chapters. *Comfort ye, comfort ye my people.* The grass withers, the flower fades, the people are grass. Nations are a drop in a bucket. Jacob, in exile-hearing range, has a specific complaint, and verse 27 writes it out: my way is hid from the LORD, and my judgment is passed over from my God. That is the sentence verse 31 is answering. Not a poster. A protest.
 

@@ -31,7 +31,7 @@ So the sentence does not open with a claim about function. It opens with a claim
 @word G225
 *Aletheia* is truth — and John has already told us the Word became flesh, full of grace and truth. So when Jesus says He is the truth, He is not claiming to teach accurately. He is claiming that reality, in its final form, has a face.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 This is the Upper Room, hours before the arrest — the same discourse that ends with *be of good cheer, I have overcome the world.* The chapter opens with the sentence everyone reaches for at funerals: *let not your heart be troubled.*
 

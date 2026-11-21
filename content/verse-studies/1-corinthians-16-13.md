@@ -23,7 +23,7 @@ Not gym talk. A command to take strength after three other commands have already
 
 Verse 14 follows immediately: "Let all that you do be done with love." The four commands are not a license to become a faction with better posture. They are how love stands up in a church that has been acting like children.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 1 Corinthians 16 is logistics after theology. Chapter 15 has just made the resurrection non-negotiable. Chapter 16 collects money for saints, sketches Paul's route, warns that a great door is open and there are many adversaries (16:9), then tells them how to receive Timothy without contempt.
 

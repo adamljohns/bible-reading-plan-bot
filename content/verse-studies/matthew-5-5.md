@@ -20,7 +20,7 @@ Inherit is the opposite of seize. The meek do not take the earth. They are given
 
 The earth in view is not a smaller backyard spirituality. It is the same creation Genesis 1:1 said God made, now promised to men who will not try to become lords of it by force. Psalm 37 stands behind the line: the meek shall inherit the earth. Jesus is not inventing a softer ethic. He is preaching the Psalter on the mountain.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 Matthew 5:3–10 reads as one portrait deepening. Bankrupt (v. 3), grieving (v. 4), no longer asserting himself (v. 5), craving a righteousness he does not have (v. 6). Meekness is not a separate hobby for mild personalities. It is what poverty of spirit looks like when it stops grabbing.
 

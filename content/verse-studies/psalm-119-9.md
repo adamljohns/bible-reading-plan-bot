@@ -24,7 +24,7 @@ WEB's "living according to" is true enough as fruit. KJV keeps the mechanism: yo
 @word H1697 | thy word
 Verse 11 will say how the word gets inside: hidden in the heart, that I might not sin against You. Verse 9 asks the prior question. A man who will not *shamar* according to the word has nothing to hide in verse 11.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 Psalm 119 is an acrostic — twenty-two stanzas, one for each Hebrew letter, eight verses each, almost every verse naming the word of God. Beth is the second letter. The stanza moves: how can a young man cleanse his way (v. 9); with my whole heart I have sought You, do not let me wander (v. 10); I have hidden Your word in my heart (v. 11).
 

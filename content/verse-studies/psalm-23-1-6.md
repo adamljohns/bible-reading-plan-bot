@@ -24,7 +24,7 @@ David does not begin with the valley. He begins with a name and an office. The L
 @word H7291 | shall follow
 *Radaph* is to pursue, chase, persecute. The word is used of enemies running a man down. David turns it. Goodness and *chesed* do the hunting. The sheep is not dragging blessings behind him like trophies. He is being followed by a loyalty that will not quit. That is a harder comfort than "nice things will happen." It means you can stop chasing what is already chasing you in the Shepherd's name.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 Psalm 23 sits after Psalm 22. That is not trivia. Psalm 22 is the forsaken cry, the pierced hands, the divided garments. Psalm 23 is the shepherd psalm. The church has always heard them in that order: the suffering first, then the care. A man who only knows Psalm 23 has not yet read the book. A man who only knows Psalm 22 has not yet heard what the Shepherd does with the one who walked the valley.
 

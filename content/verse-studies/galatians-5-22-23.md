@@ -29,7 +29,7 @@ And it is *of the Spirit.* Not of grit, not of temperament, not of a better syst
 @h3 Why the list is not a scorecard
 Read it as diagnosis, not as nine new laws. The flesh list in verses 19-21 is what a life looks like when the Spirit is not the root. This list is what a life looks like when He is. Measuring yourself against the nine as a project will grow pride or despair, which are not on the list. Looking at the nine to see whether the Spirit is actually at work -- that is what they are for.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 Galatians has been a fight about whether Gentiles must take on the law to be finished. Chapter 5 opens: for freedom Christ set us free; do not go back under a yoke. Then the surprise: freedom is not fuel for the flesh. Through love, serve one another. The whole law is fulfilled in one word: love your neighbor.
 

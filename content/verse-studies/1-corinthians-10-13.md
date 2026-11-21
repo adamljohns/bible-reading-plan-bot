@@ -24,7 +24,7 @@ This is the picture that changes the verse. *Ekbasis* is *ek* (out of) plus a st
 @h3 What "with the temptation" is doing
 The preposition is easy to skim and it carries the weight. The way out arrives *with* the temptation, not after it. It is not issued later as a reward for holding out; it is already in the room when the pressure walks in. Which means the honest question in the moment is never "can I survive this?" It is "where is the door?" — and that question has an answer.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 1 Corinthians 10 is Paul preaching from the wilderness. Israel came out of Egypt under the cloud, through the sea, eating the same spiritual food -- every one of them baptized into Moses, every one of them a member of the covenant community -- and with most of them God was not pleased. They fell in the desert. Paul's point is that religious membership is not a force field. You can be in the congregation, in the sacraments, in good standing, and still go down.
 

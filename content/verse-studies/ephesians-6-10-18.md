@@ -27,7 +27,7 @@ Read it as one charge, not as a costume list. Strength first, and the strength i
 @h3 The objective is still standing
 Four times: able to stand, withstand, having done all to stand, stand therefore. Not take the city. Not become impressive. Still be there when the evil day has done its worst. The measure of this paragraph is not the ground you took. It is that the position you were given is still held.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 This is the last movement of Ephesians, and the order is pastoral. Three chapters of what God has done. Three chapters of walking it out -- unity, the old self, light, marriage, children, masters. Only then the devil. Paul will not start the Christian life with the enemy. He starts it with the inheritance. By the time the armor appears you already know whose you are. The fight is defense of a gift, not a hunt for an identity.
 

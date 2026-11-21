@@ -26,7 +26,7 @@ Greek scholars have argued about this for centuries, because the pronoun is neut
 
 Which, for practical purposes, settles the matter more firmly than picking one word would. If the whole thing is not of yourselves, then neither the grace nor the faith nor the arrangement that joins them originated with you. Every candidate for the thing you contributed is inside the clause being denied.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 Ephesians 2 opens with the bluntest description of the human condition in Paul: *you were dead in trespasses and sins*. Not sick, not struggling, not disadvantaged. Dead, walking according to the course of this world, by nature children of wrath.
 

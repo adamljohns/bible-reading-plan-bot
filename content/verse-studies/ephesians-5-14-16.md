@@ -29,7 +29,7 @@ The people being told to rise from the dead are already in the letter that said 
 @h3 Why the days being evil is the reason, not the excuse
 *Because the days are evil.* That clause does not license withdrawal. It is why the buying must happen now. Evil days are not a pause in discipleship. They are the market in which the hours are being sold cheap. A man who waits for a better season to walk carefully has misunderstood the sentence. The evil is the reason for the haste.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 Chapter 5 has already named the people: once darkness, now light in the Lord; walk as children of light; the fruit is goodness, righteousness, truth; have no fellowship with the unfruitful works of darkness, but expose them. Light makes things visible. Then verse 14, as the *wherefore* of that argument. If you are light, stop sleeping. If you expose darkness, do not live like it.
 

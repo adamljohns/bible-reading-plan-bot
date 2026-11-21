@@ -31,7 +31,7 @@ The order is odd if this is a sequence, since nobody confesses before believing.
 
 So the verse is not prescribing a procedure with steps. It is naming two aspects of one thing, and the pairing exists to rule out having only one of them: a silent belief that will not be owned in public, or a spoken formula with nothing behind it.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 Romans 9-11 is the most agonized stretch in the letter. Paul has just said he could wish himself accursed for the sake of his own people. Chapter 10 opens with his heart's desire and prayer for Israel — that they might be saved — and then the diagnosis: they have a zeal for God, but not according to knowledge, going about to establish their own righteousness.
 

@@ -36,7 +36,7 @@ The last phrase carries a printer's note in the KJV: *have: or, do wisely.* That
 
 So the promise is less "you will get good outcomes" and more "you will act wisely, and that will go well." The success in this verse is downstream of competence, and the competence is downstream of the book.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 Moses is dead. That is the first sentence of the book, and everything in chapter 1 is God addressing the vacancy.
 

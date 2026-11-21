@@ -29,7 +29,7 @@ Verse 20 is the next breath -- *for you were bought with a price* -- and this ve
 @h3 The question he keeps asking
 *Know ye not* is a Corinthian refrain. Paul has already used it in this letter about being a temple in chapter 3 -- there the temple is the congregation. Here it is the body. Both are true and they do not cancel. God dwells among the people, and God dwells in the person. A man can affirm the first and still live as if his own flesh were a rented room he may use as he likes. Chapter 6 will not let him.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 The paragraph is about fornication. Verse 13: the body is not for fornication, but for the Lord, and the Lord for the body. Verse 15: shall I take the members of Christ and make them members of a harlot? Verse 16: the two shall become one flesh. Then our verse, then the purchase, then *therefore glorify God in your body*.
 

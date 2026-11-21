@@ -29,7 +29,7 @@ That connection is the promise's content. *They shall be comforted* is a divine 
 
 That reticence is worth trusting. A great deal of Christian consolation goes wrong by promising the present tense — that if you have enough faith the grief lifts. Jesus is more careful. He blesses the man *in* the mourning and puts the comfort in the future, which is exactly where Revelation puts it: God shall wipe away all tears, and there shall be no more sorrow.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 The Sermon opens with Jesus seated on a mountain, disciples around Him, the crowds from four regions listening in. Matthew has spent four chapters presenting Him as the new Moses, and the first words of the new law are blessings rather than commands.
 

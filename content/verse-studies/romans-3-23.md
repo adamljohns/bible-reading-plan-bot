@@ -20,7 +20,7 @@ So what men fall short of is not a standard of behavior but a *glory* -- the hon
 @h3 The tense that is easy to miss
 "All have sinned" is past -- a completed fact about every human being. "Fall short" is present, continuous. The condition is not a historical event you can put behind you; it is an ongoing state. Paul is not describing a single bad afternoon in a garden. He is describing where humanity presently stands, all the time.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 This verse is the closing move of the longest argument in the letter. From 1:18 Paul has been building a legal case. First the pagan world: they knew God and did not honor Him, and were given over. Then, in chapter 2, the moralist who agrees with all of that and condemns it -- and Paul turns on him: you who judge do the same things. Then the Jew, entrusted with the very words of God, who has the law and breaks it.
 

@@ -39,6 +39,7 @@
 'use strict';
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 const { buildKit, slugFor } = require('./verse-study-scaffold.js');
 // Adam 2026-11-20: drafts may be listed on the public index (labelled, noindex on
 // the page); draft note is yellow at the bottom, never red.
@@ -57,6 +58,7 @@ const escAttr = (s) => esc(s).replace(/"/g, '&quot;');
  * *emphasis*, _emphasis_, and "curly quotes" get typographic treatment. */
 function inline(s) {
   let out = esc(s);
+  out = out.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
   out = out.replace(/\*([^*]+)\*/g, '<em>$1</em>').replace(/(^|\s)_([^_]+)_/g, '$1<em>$2</em>');
   out = out.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (m, t, h) => `<a href="${escAttr(h)}">${t}</a>`);
   // Straight quotes to curly, apostrophes included. Site style: typographic glyphs.
@@ -102,6 +104,9 @@ function parseSource(text) {
     switch (key) {
       case 'ref': flush(); doc.ref = rest.trim(); break;
       case 'status': flush(); doc.status = rest.trim(); break;
+      // Adam 2026-11-21: approved studies carry "Version 1.0 · Reviewed by Moop".
+      case 'version': flush(); doc.version = rest.trim(); break;
+      case 'reviewed': flush(); doc.reviewed = rest.trim(); break;
       case 'deck': flush(); cur = { kind: 'deck', blocks: [] }; doc.sections.push(cur); break;
       case 'section': flush(); cur = { kind: 'section', title: rest.trim(), blocks: [] }; doc.sections.push(cur); break;
       case 'h3': flush(); if (cur) cur.blocks.push({ type: 'h3', text: rest.trim() }); break;
@@ -250,6 +255,26 @@ function renderSection(sec, kit) {
   return out.join('\n');
 }
 
+/* Share card + PDF (Adam 2026-11-21). If docs/assets/verse-cards/<slug>.png or
+ * docs/assets/verse-pdfs/<slug>.pdf exists, the page shows it under the deck.
+ * The ?v= is a content hash so a redrawn card or reprinted PDF busts the cache. */
+function cardAndPdf(slug) {
+  const base = slug.replace(/\.html$/, '');
+  const ver = (f) => crypto.createHash('sha1').update(fs.readFileSync(f)).digest('hex').slice(0, 10);
+  const card = path.join(DOCS, 'assets', 'verse-cards', base + '.png');
+  const pdf = path.join(DOCS, 'assets', 'verse-pdfs', base + '.pdf');
+  const links = [];
+  let img = '';
+  if (fs.existsSync(card)) {
+    const u = `/assets/verse-cards/${base}.png?v=${ver(card)}`;
+    img = `    <img src="${u}" alt="${esc(base)} verse card" width="1080" height="1350">\n`;
+    links.push(`<a href="${u}" download>Save / Share PNG</a>`);
+  }
+  if (fs.existsSync(pdf)) links.push(`<a href="/assets/verse-pdfs/${base}.pdf?v=${ver(pdf)}" download>Download PDF</a>`);
+  if (!links.length) return '';
+  return `  <figure class="vs-verse-card">\n${img}    <figcaption>${links.join(' &middot; ')}</figcaption>\n  </figure>\n`;
+}
+
 function render(doc, kit) {
   const c = chrome();
   const p = kit.parsed;
@@ -323,12 +348,12 @@ ${c.nav}
   <div class="vs-eyebrow">Verse Study · ${esc(p.book)}</div>
   <div class="vs-read" id="study" data-read-follow>
   <h1>${esc(ref)}</h1>
-${deck ? `  <p class="vs-deck">${inline(deck)}</p>\n` : ''}${audio ? renderPlayer(audio, ref) + '\n' : ''}
-  <div class="vs-text" data-no-follow>
-    <p>${esc(web)}<cite>— World English Bible (public domain)</cite></p>
-  </div>
+${deck ? `  <p class="vs-deck">${inline(deck)}</p>\n` : ''}${cardAndPdf(kit.slug)}${audio ? renderPlayer(audio, ref) + '\n' : ''}
   <div class="vs-text" data-voice="book" data-say-before="The King James Version reads:">
     <p>${esc(kjv)}<cite data-no-follow>— King James Version (public domain)</cite></p>
+  </div>
+  <div class="vs-text" data-no-follow>
+    <p>${esc(web)}<cite>— World English Bible (public domain)</cite></p>
   </div>
 
 ${body}
@@ -338,7 +363,7 @@ ${packs.length ? `  <p class="vs-ctx">In the ${packs.map((n) => `<strong>${esc(n
 ${goDeeper}
 
   <div class="vs-foot">
-    <p>Every quotation on this page is checked verbatim against the source cited before it ships. Scripture shown in the World English Bible and the King James Version, both public domain. Free to copy, quote, and share.</p>
+    <p>Every quotation on this page is checked verbatim against the source cited before it ships. Scripture shown in the King James Version and the World English Bible, both public domain. Free to copy, quote, and share.</p>${doc.version || doc.reviewed ? `\n    <p class="vs-version">${[doc.version ? 'Version ' + esc(doc.version) : '', doc.reviewed ? 'Reviewed by ' + esc(doc.reviewed) : ''].filter(Boolean).join(' · ')}</p>` : ''}
   </div>
 ${isDraft ? DRAFT_NOTE_HTML : ''}</div>
 </div>

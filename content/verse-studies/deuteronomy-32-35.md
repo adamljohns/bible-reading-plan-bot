@@ -26,7 +26,7 @@ The first Hebrew word names the thing that belongs to God. The rest of the vocab
 @word H2363 | make haste
 *Chuwsh* is to hasten, to move with urgency. The psalmist uses it when he begs God to hurry. Here the haste belongs to the doom, not to the prayer. From the ground it can look slow. The verse says the things coming are already making haste. Delay is not cancellation. It is the gap in which a man still has time to stop playing God.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 This is the Song of Moses, not a proverb for a quarrel. Moses is about to die. He calls heaven and earth to hear. The Rock's work is perfect; all His ways are judgment. Then the song tells the story of a people found in a waste, kept as the apple of the eye, who grew fat and kicked. Jeshurun forsook the God who made him. They sacrificed to new gods their fathers never feared.
 

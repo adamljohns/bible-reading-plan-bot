@@ -26,7 +26,7 @@ The next verses are the proof the first verse means what it says. Therefore we w
 @word H6869 | trouble
 *Tsarah* is distress, anguish, a tight and narrow place. External hardship and the inward squeeze it makes. The word is often the backdrop of deliverance in the Psalms. Here it is not cancelled. It is the address where the help is found. A religion that needs *tsarah* to leave before God counts as present has not read this verse.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 Psalm 46 is a city psalm under siege in its images, whether or not you can name the battle. The earth moves. The waters roar. The mountains shake. Then a river whose streams make glad the city of God, the holy place of the tabernacles of the Most High. God is in the midst of her; she shall not be moved. God shall help her, and that right early.
 

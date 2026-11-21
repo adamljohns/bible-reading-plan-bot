@@ -30,7 +30,7 @@ It is not a single verse. The words are the promise God made to Joshua at the Jo
 
 That matters. The writer of Hebrews takes a promise made to a terrified man about to lead an invasion and applies it, without adjustment, to ordinary Christians worried about money. The promise was never about the size of the crisis. It was about the character of the promiser.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 Hebrews 13 is the letter's landing: a run of short, practical instructions after twelve chapters of sustained argument about Christ's superiority.
 

@@ -26,7 +26,7 @@ The words do not enter the heart as a hobby. They are commanded. Moses is not of
 @word H1696 | shalt talk
 The verb *dabar* is to speak with weight — not chatter, not a slogan on the way out the door. The words already commanded in verse 6 become speech in verse 7. Sit. Walk. Lie down. Rise up. That is a whole day. A silent house is not a peaceful house. It is an empty whetstone. A house that only talks of the Lord at a set "devotion time" has scheduled God. Moses wants the words in the ordinary traffic.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 Deuteronomy 6 is the chapter after the Ten Words. It is aimed at a people about to inherit houses they did not build, wells they did not dig, vineyards they did not plant (6:10–12). The danger is not ignorance in the wilderness. The danger is fullness in the land.
 

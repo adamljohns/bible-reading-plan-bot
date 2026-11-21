@@ -34,7 +34,7 @@ That is why verse 19 sits two lines later: as in water face answers to face, so 
 
 So the *rea* in this verse is not the man who makes you feel accompanied. He is the man whose presence puts a point on you. If your friendships have never drawn blood in the proverb's sense -- never named a lie, never refused a vanity, never made the next right thing sharper and more costly -- you have companions. You do not yet have this verse.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 Proverbs 25 opens a new collection: the proverbs of Solomon which the men of Hezekiah king of Judah copied out. Chapters 25-29 are not a father's long speech the way chapters 1-9 are. They are short sayings, clustered more tightly than they first appear. Chapter 27 is a friendship chapter before it is anything else.
 

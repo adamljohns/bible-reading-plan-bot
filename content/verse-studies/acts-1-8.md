@@ -31,7 +31,7 @@ Jerusalem, Judea, Samaria, the ends of the earth. That is not a list; it is the 
 
 Note that Samaria is in the sequence, and note who is being told. These are Jewish men, and Samaritans were the neighbors they most despised. The promise routes the gospel deliberately through the one place on the map they would have preferred to skip.
 
-@section 2. Where It Sits
+@section 2. The Verse in Context
 
 This is the last recorded conversation before the ascension. The disciples have just asked their question -- *Lord, will you at this time restore the kingdom to Israel?* -- and it is a political question about timing and national restoration.
 
