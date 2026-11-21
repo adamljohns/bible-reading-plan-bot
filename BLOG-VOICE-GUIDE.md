@@ -54,6 +54,10 @@ pairs.
   NASB, NLT, AMP or MSG are fine when they carry the point better. Label
   every quote. A full chapter of a copyrighted version needs the publisher's
   copyright credit; carry the NKJV/NASB credit line in Sources when used.
+- **PDFs** (Adam, 21 Nov 2026): every PDF offered on the site gets two
+  buttons side by side: "Read it online" (same href, `target="_blank"`, no
+  `download` attribute, opens in the browser's viewer) and the Download
+  button. Never offer a download-only PDF.
 - **Bylines.** AI-drafted posts carry "By U.S.M.C. Ministries &middot; drafted
   with AI assistance, reviewed by Adam Johns". Adam's name alone stays on
   what he wrote. No AI persona is ever named as an author, a voice or a
