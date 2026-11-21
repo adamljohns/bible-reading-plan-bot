@@ -49,6 +49,11 @@ pairs.
   a paraphrase gets no label and no quotation marks. Never quote from memory.
   Label style: `(John 15:4, NKJV)` in parentheses, `John 15:8 (NKJV):` in a
   sentence.
+- **Version for new AI-drafted posts** (Adam, 21 Nov 2026): blogs are not
+  KJV/WEB-only; that rule is for deep verse studies. Default to the NKJV.
+  NASB, NLT, AMP or MSG are fine when they carry the point better. Label
+  every quote. A full chapter of a copyrighted version needs the publisher's
+  copyright credit; carry the NKJV/NASB credit line in Sources when used.
 - **Bylines.** AI-drafted posts carry "By U.S.M.C. Ministries &middot; drafted
   with AI assistance, reviewed by Adam Johns". Adam's name alone stays on
   what he wrote. No AI persona is ever named as an author, a voice or a
