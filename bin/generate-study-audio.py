@@ -11,8 +11,19 @@
     --upload-only skip the bake; just copy the existing local master to R2
     --reuse-mp3   skip TTS; re-time the existing local master MP3 (needs the
                   .units.json written by a previous bake)
+    --blog        a blog post: page docs/blog/<slug>.html, MP3 under
+                  assets/media/blog/, words in docs/assets/blog/<slug>-words.json
 
 Built for the deep verse studies; works on any page that marks a follow root.
+
+BLOG MODE (--blog, 2026-11-20). The post marks its own follow root (the
+<article>, with data-read-follow and an id) and data-no-follow on the dateline,
+the sources list, the call-to-action box and the post nav. On top of the rules
+below, blog mode reads each <figure> as one short line, "Graphic: <alt text of
+its first image>", and skips the figure's caption; and in a <blockquote> that
+carries data-say-before, the trailing "(citation)" is not spoken, because the
+attribution was already said in front of the quotation. Raw URLs are never
+spoken (speakable() drops them).
 
 WHAT IT READS. The page itself, the same DOM the reader's follow-along JS
 (docs/assets/js/read-scroll.js) wraps word by word:
@@ -45,7 +56,8 @@ too much for git across 120 studies): master copy at
 ~/usmcmin-org-media-local/assets/media/studies/<slug>.mp3, served from
 https://usmcmin.org/assets/media/studies/<slug>.mp3. The words file goes in git
 at docs/assets/studies/<slug>-words.json; its presence is what tells the
-renderer to include the player.
+renderer to include the player. Blog posts: the same with "blog" for "studies"
+(the player markup is added to the post by hand; there is no blog renderer).
 """
 import difflib
 import hashlib
@@ -69,6 +81,18 @@ MASTER_DIR = os.path.expanduser(os.environ.get(
     "STUDY_AUDIO_MASTER", "~/usmcmin-org-media-local/" + MEDIA_REL))
 SITE = "https://usmcmin.org"
 R2_DEST = "r2:usmcmin-site/" + MEDIA_REL + "/"
+
+
+def configure_blog():
+    """--blog: same pipeline, blog paths. Study defaults above stay as they were."""
+    global WORDS_DIR, MEDIA_REL, MASTER_DIR, R2_DEST
+    WORDS_DIR = os.path.join(DOCS, "assets", "blog")
+    MEDIA_REL = "assets/media/blog"
+    MASTER_DIR = os.path.expanduser(os.environ.get(
+        "BLOG_AUDIO_MASTER", "~/usmcmin-org-media-local/" + MEDIA_REL))
+    R2_DEST = "r2:usmcmin-site/" + MEDIA_REL + "/"
+
+
 WHISPER_MODEL = os.path.expanduser(os.environ.get(
     "WHISPER_MODEL", "~/.openclaw/whisper_models/ggml-small.en.bin"))
 CHUNKED = os.path.expanduser(os.environ.get("WORDS_CHUNKED", "~/Scripts/pj-words-chunked.py"))
@@ -170,7 +194,16 @@ def raw_text(node):
     return "".join(raw_text(c) for c in node.children)
 
 
-def extract_units(follow_root):
+def attributed_quote(n):
+    """The <blockquote data-say-before> holding n, if any."""
+    while n is not None:
+        if n.tag == "blockquote":
+            return "data-say-before" in n.attrs
+        n = n.parent
+    return False
+
+
+def extract_units(follow_root, blog=False):
     """Speech units in document order: {say, dom, voice, kind}."""
     units = []
     state = {"block": None}
@@ -198,11 +231,21 @@ def extract_units(follow_root):
             if state["block"] is not b or not units or units[-1].get("closed"):
                 units.append({"say": "", "dom": [], "voice": voice_of(n),
                               "kind": b.tag if b.tag in HEADINGS else "p"})
+                if blog and attributed_quote(n):
+                    units[-1]["quote"] = True
                 state["block"] = b
             units[-1]["say"] += n.text
             units[-1]["dom"].extend(n.text.split())
             return
         if skipped(n):
+            return
+        if blog and n.tag == "figure":
+            # One line per figure: the first image's alt (dark/light twins share it).
+            img = find(n, lambda x: x.tag == "img" and (x.attrs.get("alt") or "").strip())
+            if img:
+                units.append({"say": "Graphic: " + img.attrs["alt"].strip(), "dom": [],
+                              "voice": "narrator", "kind": "cue", "closed": True})
+            state["block"] = None
             return
         before = n.attrs.get("data-say-before")
         if before:
@@ -225,6 +268,9 @@ def extract_units(follow_root):
     walk(follow_root)
     for u in units:
         u["say"] = re.sub(r"\s+", " ", u["say"]).strip()
+        if u.pop("quote", False):
+            # The attribution was spoken before the quote; drop the "(source)" after it.
+            u["say"] = re.sub(r"\s*\([^()]*\)\s*$", "", u["say"])
         u.pop("closed", None)
     return [u for u in units if re.search(r"[A-Za-z0-9]", u["say"])]
 
@@ -253,6 +299,19 @@ def speakable(text):
     t = re.sub(r"\s+([,.;:])", r"\1", t)
     t = re.sub(r"(,\s*){2,}", ", ", t)
     return re.sub(r"\s+", " ", t).strip(" ,")
+
+
+def blog_before(text):
+    """Blog-only spoken tweaks, before speakable(). Every Scripture ref in a post
+    is "(Book 1:2, KJV)"; the version tag twenty times over is noise in the ear."""
+    t = re.sub(r",\s*KJV\)", ")", text)
+    return re.sub(r"\bv\.(?=\s+[A-Z])", "versus", t)  # Roe v. Wade
+
+
+def blog_after(tts):
+    """After apply_lexicon: its prayer rule puts a period after every Amen; in
+    running prose ("We say amen to the sentence") that is a false full stop."""
+    return re.sub(r"\bAmen\.(?=\s+[a-z])", "amen", tts)
 
 
 MARKUP = re.compile(r"\[([^\]]+)\]\(/[^)]*/\)")
@@ -426,9 +485,14 @@ def build_timings(units, asr):
 
 
 # ── main ─────────────────────────────────────────────────────────────────────
-def page_for(slug, override):
+def page_for(slug, override, blog=False):
     if override:
         return override
+    if blog:
+        p = os.path.join(DOCS, "blog", slug + ".html")
+        if os.path.isfile(p):
+            return p
+        raise SystemExit(f"no blog post for {slug} (looked for {p})")
     for p in (os.path.join(DOCS, "verse", slug + ".html"),
               os.path.join(DOCS, "drafts", "verse", slug + ".html")):
         if os.path.isfile(p):
@@ -468,24 +532,30 @@ def main():
         sys.exit(2)
     slug = args[0].replace(".html", "")
     opt = lambda f: f in args
+    blog = opt("--blog")
+    if blog:
+        configure_blog()
     if opt("--upload-only"):
         upload(slug)
         return
     page_override = args[args.index("--page") + 1] if "--page" in args else None
-    page = page_for(slug, page_override)
+    page = page_for(slug, page_override, blog)
     src = open(page, encoding="utf-8").read()
     tree = Tree()
     tree.feed(src)
     root = find(tree.root, lambda n: "data-read-follow" in n.attrs)
     if root is None:
         raise SystemExit(f"{page}: no [data-read-follow] element — re-render the page first")
-    key = root.attrs.get("id") or "study"
+    key = root.attrs.get("id") or ("post" if blog else "study")
     helpers = watch_helpers()
-    book_voice = book_voice_for(src)
-    units = extract_units(root)
+    book_voice = None if blog else book_voice_for(src)
+    units = extract_units(root, blog)
     for u in units:
         lang = book_voice[1] if (u["voice"] == "book" and book_voice) else helpers.NARRATOR_LANG
-        u["tts"] = helpers.apply_lexicon(speakable(u["say"]), lang)
+        if blog:
+            u["tts"] = blog_after(helpers.apply_lexicon(speakable(blog_before(u["say"])), lang))
+        else:
+            u["tts"] = helpers.apply_lexicon(speakable(u["say"]), lang)
     n_words = sum(len(plain(u["tts"]).split()) for u in units)
     print(f"{slug}: {len(units)} units, {n_words} spoken words, narrator={helpers.NARRATOR}, "
           f"book voice={book_voice}, root=#{key}", flush=True)
