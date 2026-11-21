@@ -229,6 +229,91 @@ def asr_second_opinion(mp3: Path) -> str:
     return "\n".join(asr_one(mp3, sec, SECOND_MODEL) for sec in (130, 0))
 
 
+# PJG-1120-PEACE-IN: 2026-11-20 Evening Peace shipped a clipped extra "In" spoken
+# between two prayer sentences ("...to the Cross. In  Strengthen me..."). Every
+# sentence was present, so the presence check passed, and a whole-segment whisper
+# pass smooths a lone syllable away. So find it by sound first: a short voiced
+# burst (<= 0.6s) with quiet on both sides, mid-prayer. Transcribe a short window
+# from that burst; if what it says does not occur in the published prayer, it is
+# a stray word and the take fails. Mid-word pauses that happen to isolate a real
+# word ("Lord," "Amen") read back as prayer text and pass.
+def _frames_db(wav: Path, hop: float = 0.02) -> list[float]:
+    import math
+    import struct
+    import wave
+    with wave.open(str(wav)) as w:
+        sr = w.getframerate()
+        data = w.readframes(w.getnframes())
+    samples = struct.unpack("<%dh" % (len(data) // 2), data)
+    step = max(1, int(hop * sr))
+    out = []
+    for i in range(0, len(samples), step):
+        chunk = samples[i:i + step]
+        rms = math.sqrt(sum(x * x for x in chunk) / len(chunk)) if chunk else 0
+        out.append(20 * math.log10(rms / 32768) if rms > 0 else -120.0)
+    return out
+
+
+def junction_strays(prayer_audio: Path, prayer_text: str, model: str = "") -> list[str]:
+    hop = 0.02
+    tmp = Path(tempfile.mkdtemp(prefix="pjg-junc-"))
+    wav = tmp / "p16.wav"
+    subprocess.run(["/opt/homebrew/bin/ffmpeg", "-hide_banner", "-loglevel", "error", "-y",
+                    "-i", str(prayer_audio), "-ac", "1", "-ar", "16000", str(wav)], check=True)
+    db = _frames_db(wav, hop)
+    if not db:
+        return []
+    peak = max(db)
+    loud = [d > peak - 22 for d in db]      # speech frames, relative to this take
+    quiet = [d < peak - 28 for d in db]     # room tone between phrases
+    runs, i = [], 0
+    while i < len(loud):
+        if loud[i]:
+            j = i
+            while j < len(loud) and loud[j]:
+                j += 1
+            runs.append((i, j))
+            i = j
+        else:
+            i += 1
+    # merge runs split by < 60 ms dips (one word, not two)
+    merged = []
+    for r in runs:
+        if merged and r[0] - merged[-1][1] <= 3:
+            merged[-1] = (merged[-1][0], r[1])
+        else:
+            merged.append(r)
+    ptxt = " " + norm(prayer_text) + " "
+    out = []
+    for n, (st, en) in enumerate(merged[1:-1], start=1):
+        dur = (en - st) * hop
+        if dur > 0.6:
+            continue
+        before = merged[n - 1][1]
+        after = merged[n + 1][0]
+        if (st - before) * hop < 0.25 or (after - en) * hop < 0.25:
+            continue
+        if not all(quiet[before:st]) and not all(quiet[en:after]):
+            continue
+        t0 = max(0.0, st * hop - 0.05)
+        seg = tmp / f"w{n}.wav"
+        subprocess.run(["/opt/homebrew/bin/ffmpeg", "-hide_banner", "-loglevel", "error", "-y",
+                        "-ss", f"{t0:.2f}", "-t", "3.0", "-i", str(wav), str(seg)], check=True)
+        r = subprocess.run([WHISPER, "-m", model or MODEL, "-f", str(seg), "-l", "en", "-nt"],
+                           capture_output=True, text=True)
+        heard = norm(r.stdout).split()
+        if len(heard) < 2:
+            continue
+        probe = " " + " ".join(heard[:3]) + " "
+        if probe in ptxt or (" " + " ".join(heard[:2]) + " ") in ptxt:
+            continue
+        # tolerate whisper splitting a long word: does the window, minus its first
+        # token, start a stretch of the prayer?
+        rest = " " + " ".join(heard[1:4]) + " "
+        if rest in ptxt or (" " + " ".join(heard[1:3]) + " ") in ptxt:
+            out.append(f"stray {heard[0]!r} spoken at {t0:.1f}s before {' '.join(heard[1:5])!r}")
+    return out
+
 def check_watch(day: str, key: str, json_path: Path, mp3: Path, transcribe=None) -> list[str]:
     fails = []
     data = json.loads(json_path.read_text())
@@ -269,6 +354,10 @@ def check_watch(day: str, key: str, json_path: Path, mp3: Path, transcribe=None)
         for s in STRAY:
             if s in prefix:
                 fails.append(f"{key}: stray narration before {opener!r} ({s!r})")
+    second = transcribe is asr_second_opinion
+    if os.environ.get("PRAYER_JUNCTION_GATE", "1") != "0":
+        for f in junction_strays(prayer_audio, prayer, SECOND_MODEL if second else ""):
+            fails.append(f"{key}: {f}")
     for sent in sents:
         if not present(sent, hay):
             fails.append(f"{key}: missing sentence {sent[:80]!r}")
