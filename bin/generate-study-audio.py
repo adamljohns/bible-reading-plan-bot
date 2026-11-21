@@ -19,8 +19,8 @@ Built for the deep verse studies; works on any page that marks a follow root.
 BLOG MODE (--blog, 2026-11-20). The post marks its own follow root (the
 <article>, with data-read-follow and an id) and data-no-follow on the dateline,
 the sources list, the call-to-action box and the post nav. On top of the rules
-below, blog mode reads each <figure> as one short line, "Graphic: <alt text of
-its first image>", and skips the figure's caption; and in a <blockquote> that
+below, blog mode reads each <figure> as one short line, "Graphic: <first
+sentence of its first image's alt text>", and skips the figure's caption; and in a <blockquote> that
 carries data-say-before, the trailing "(citation)" is not spoken, because the
 attribution was already said in front of the quotation. Raw URLs are never
 spoken (speakable() drops them).
@@ -240,10 +240,13 @@ def extract_units(follow_root, blog=False):
         if skipped(n):
             return
         if blog and n.tag == "figure":
-            # One line per figure: the first image's alt (dark/light twins share it).
+            # One brief line per figure: the first sentence of the first image's
+            # alt (dark/light twins share it). The full alt stays for screen readers.
             img = find(n, lambda x: x.tag == "img" and (x.attrs.get("alt") or "").strip())
             if img:
-                units.append({"say": "Graphic: " + img.attrs["alt"].strip(), "dom": [],
+                alt = img.attrs["alt"].strip()
+                brief = re.split(r"(?<=[.!?])\s+(?=[A-Z0-9])", alt, maxsplit=1)[0]
+                units.append({"say": "Graphic: " + brief, "dom": [],
                               "voice": "narrator", "kind": "cue", "closed": True})
             state["block"] = None
             return

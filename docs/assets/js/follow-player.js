@@ -142,11 +142,13 @@
   /* Lock screen / Control Center title on iPhone. */
   if ("mediaSession" in navigator && window.MediaMetadata) {
     var h1 = document.querySelector("h1");
+    /* A blog post sets data-media-kind="Blog" on the slot; studies keep the default. */
+    var kind = slot.getAttribute("data-media-kind");
     try {
       navigator.mediaSession.metadata = new MediaMetadata({
-        title: (h1 ? h1.textContent.trim() : document.title) + " — Verse Study",
+        title: (h1 ? h1.textContent.trim() : document.title) + (kind ? "" : " — Verse Study"),
         artist: "U.S.M.C. Ministries",
-        album: "Deep Verse Studies"
+        album: kind ? "U.S.M.C. Ministries " + kind : "Deep Verse Studies"
       });
       navigator.mediaSession.setActionHandler("seekbackward", function () { audio.currentTime = Math.max(0, audio.currentTime - 15); });
       navigator.mediaSession.setActionHandler("seekforward", function () { audio.currentTime = Math.min(dur() || 1e9, audio.currentTime + 15); });
