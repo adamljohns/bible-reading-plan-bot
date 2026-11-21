@@ -1,5 +1,5 @@
 @ref 2 Corinthians 6:14
-@status draft
+@status approved
 @deck
 Paul takes a farm law and turns it on the heart: do not get into harness with a man who is pulling for another master. The command is older than the church and wider than marriage, and it has edges on both sides.
 

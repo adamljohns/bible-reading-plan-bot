@@ -30,7 +30,9 @@ function packsFor() {
 function main() {
   if (!fs.existsSync(DRAFTS)) { console.error('no drafts directory'); process.exit(1); }
   const packMap = packsFor();
-  const rows = fs.readdirSync(DRAFTS).filter((f) => f.endsWith('.html') && f !== 'index.html').map((f) => {
+  // A redirect stub left at an approved study's old draft URL is not a draft.
+  const isStub = (f) => /http-equiv="refresh"/i.test(fs.readFileSync(path.join(DRAFTS, f), 'utf8'));
+  const rows = fs.readdirSync(DRAFTS).filter((f) => f.endsWith('.html') && f !== 'index.html' && !isStub(f)).map((f) => {
     const html = fs.readFileSync(path.join(DRAFTS, f), 'utf8');
     const ref = (html.match(/<meta name="verse-ref" content="([^"]*)"/) || [])[1] || f;
     const snippet = (html.match(/<meta name="verse-snippet" content="([^"]*)"/) || [])[1] || '';
