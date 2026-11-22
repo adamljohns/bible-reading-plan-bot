@@ -270,14 +270,14 @@ function facebookSlugVerdict(c, slug) {
   if (/^(groups|events|pages|profile\.php|people|watch|marketplace|share|hashtag|login|public)$/.test(s)) return { ok: false, reason: 'not-a-page' };
   const vocab = vocabFor(c);
   const parts = s.split(/[._-]+/).filter(Boolean);
-  let counted = new Set(), hasDist = false, unknown = 0, segWords = [];
+  let counted = new Set(), hasDist = false, unknown = 0, segWords = [], segKinds = [];
   for (const p0 of parts) {
     const p = p0.replace(/[0-9]/g, '');
     if (!p) continue; // numeric page-id suffix ("...-Church-228133737209700")
     const b = segmentLabel(p, vocab);
     if (!b) return { ok: false, reason: 'slug-not-segmentable' };
     if (otherStateChunk(c, b.seg)) return { ok: false, reason: 'other-state-in-slug' };
-    segWords.push(...b.seg.map(x => x.w));
+    segWords.push(...b.seg.map(x => x.w)); segKinds.push(...b.seg.map(x => x.kind));
     for (const x of b.seg) { if (x.kind === 'dist') hasDist = true; if (!['geo', 'filler', 'unknown'].includes(x.kind)) counted.add(x.w); }
     unknown += b.unknown;
   }
@@ -285,6 +285,9 @@ function facebookSlugVerdict(c, slug) {
   if (!hasDist) return { ok: false, reason: 'no-distinctive-name-token' };
   if (counted.size < 2) return { ok: false, reason: 'fewer-than-2-whole-tokens' };
   if (familyConflict(c, segWords)) return { ok: false, reason: 'denomination-conflict' };
+  // A Facebook page cannot be fetched to verify, so the slug itself must say "church"
+  // or name the place: "simplerhythms" alone could be any business of that name.
+  if (!segKinds.some(k => k === 'church' || k === 'geo')) return { ok: false, reason: 'slug-lacks-church-or-place-word' };
   return { ok: true, reason: 'slug-ok' };
 }
 

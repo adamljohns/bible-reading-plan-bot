@@ -125,6 +125,9 @@ t('homepage: church word AND city/state required; other-state street address rej
 t('facebook slug: whole tokens, page-id suffix ignored, substring rejected', () => {
   assert.strictEqual(M.facebookSlugVerdict(rec('Delmont UMC', '1 Main St, Delmont, PA 15626', 'PA'), 'Delmont-United-Methodist-Church-228133737209700').ok, true);
   assert.strictEqual(M.facebookSlugVerdict(rec('Liberty Baptist Church', '1 Main St, Trenton, NJ 08618', 'NJ'), 'LibertyUniversity').ok, false);
+  // unverifiable page named only by brand words: needs a church or place word
+  assert.strictEqual(M.facebookSlugVerdict(rec('Simple Rhythms', '1 Heartwood Cir, Abingdon, VA 24210', 'VA'), 'simplerhythms').reason, 'slug-lacks-church-or-place-word');
+  assert.strictEqual(M.facebookSlugVerdict(rec('Shocco A.M.E. Church', '406 Popular Street, Spring Hope, NC 27882', 'NC'), 'shoccoame').ok, true);
 });
 
 console.log('callers use the checker');
