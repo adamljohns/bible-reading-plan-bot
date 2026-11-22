@@ -149,6 +149,7 @@ assert.deepStrictEqual(summary, {
   productive_rounds: 5,
   zero_content_rounds: 1,
   operational_checkpoints: 1,
+  unchecked_discovery: 0,
   other_profile_applied: 0,
 }, 'session summary must report durable structured yield instead of a stale schema snapshot');
 
