@@ -138,5 +138,21 @@ for (const f of ['scripts/find-church-websites.js', 'scripts/rediscover-dead-web
   });
 }
 
+console.log('grind accounting');
+t('summarizer counts website-discovery hits only with the checker tag', () => {
+  const { summarizeLines } = require('../scripts/summarize-grind-session.js');
+  const old = summarizeLines(['[2026-11-20 03:07:59] frontier lane done: website-discovery attempted=25 applied=20']);
+  assert.strictEqual(old.content_applied, 0); assert.strictEqual(old.unchecked_discovery, 20);
+  const now = summarizeLines([`[2026-11-23 03:07:59] frontier lane done: website-discovery attempted=25 applied=2 checker=${M.CHECKER}`]);
+  assert.strictEqual(now.content_applied, 2); assert.strictEqual(now.unchecked_discovery, 0);
+  const src = summarizeLines(['[2026-11-23 03:07:59] frontier lane done: source-recovery attempted=25 applied=4']);
+  assert.strictEqual(src.content_applied, 4, 'other frontier lanes unaffected');
+});
+t('discovery lane refuses output without the checker tag', () => {
+  const src = fs.readFileSync(path.join(repo, 'scripts/continuous-enrichment-lane.sh'), 'utf8');
+  assert.ok(/checker=church-website-match\/v\[0-9\]\+/.test(src) && /\|\| die "website-discovery ran without the whole-token website checker/.test(src));
+  assert.ok(fs.readFileSync(path.join(repo, 'scripts/find-church-websites.js'), 'utf8').includes('checker=${WM.CHECKER}'));
+});
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

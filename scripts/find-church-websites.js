@@ -117,7 +117,7 @@ let found = 0, none = 0;
   }
 
   if (APPLY && (found || none)) { write(d); }
-  console.log(`\n${found} sites found+verified, ${none} none. ${APPLY ? 'Written.' : 'Dry run — add --apply to write.'}`);
+  console.log(`\n${found} sites found+verified, ${none} none. ${APPLY ? 'Written.' : 'Dry run — add --apply to write.'} checker=${WM.CHECKER}`);
 })();
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }

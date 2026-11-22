@@ -46,7 +46,7 @@ fi
 
 # GRIND_SCOPE_STATE (same knob pastor-refine-local.sh gives the pastor lanes)
 # narrows the frontier lanes too; unset = nationwide, identical to before.
-ATTEMPTED=0; APPLIED=0
+ATTEMPTED=0; APPLIED=0; CHECKER=""
 case "$LANE" in
   website-discovery)
     OUT="$WORK/website-discovery.txt"
@@ -54,6 +54,10 @@ case "$LANE" in
     cat "$OUT" >>"$LOG"
     ATTEMPTED=$(grep -oE 'website search for [0-9]+' "$OUT" | grep -oE '[0-9]+$' | head -1); ATTEMPTED=${ATTEMPTED:-0}
     APPLIED=$(grep -oE '^[0-9]+ sites found' "$OUT" | grep -oE '^[0-9]+' | head -1); APPLIED=${APPLIED:-0}
+    # CM-1122-WEBDISC: a discovery run that did not go through the whole-token checker
+    # (scripts/lib/church-website-match.js) must never be counted or published.
+    CHECKER=$(grep -oE 'checker=church-website-match/v[0-9]+' "$OUT" | head -1)
+    [ -n "$CHECKER" ] || die "website-discovery ran without the whole-token website checker — hits not counted or published"
     ;;
   source-recovery)
     JSONL="$WORK/sbc-detail.jsonl"; OUT="$WORK/source-recovery.txt"; MERGE="$WORK/source-merge.txt"
@@ -104,4 +108,4 @@ if [ -n "$(git status --porcelain)" ]; then
     git fetch -q origin main && git rebase -q FETCH_HEAD && git push -q origin HEAD:main || die "frontier push failed after rebase"
   fi
 fi
-say "frontier lane done: $LANE attempted=$ATTEMPTED applied=$APPLIED"
+say "frontier lane done: $LANE attempted=$ATTEMPTED applied=$APPLIED${CHECKER:+ $CHECKER}"

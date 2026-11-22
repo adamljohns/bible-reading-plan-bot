@@ -13,6 +13,7 @@ function summarizeLines(lines) {
     productive_rounds: 0,
     zero_content_rounds: 0,
     operational_checkpoints: 0,
+    unchecked_discovery: 0,
   };
 
   for (const line of lines) {
@@ -28,10 +29,15 @@ function summarizeLines(lines) {
       continue;
     }
 
-    m = line.match(/frontier lane done: [\w-]+ attempted=(\d+) applied=(\d+)/);
+    m = line.match(/frontier lane done: ([\w-]+) attempted=(\d+) applied=(\d+)/);
     if (m) {
-      const attempted = Number(m[1]);
-      const applied = Number(m[2]);
+      const attempted = Number(m[2]);
+      let applied = Number(m[3]);
+      // CM-1122-WEBDISC: website-discovery hits count only when the run went through
+      // the whole-token checker. Unchecked hits are reported, never counted as a gain.
+      if (m[1] === 'website-discovery' && !/checker=church-website-match\/v\d+/.test(line)) {
+        result.unchecked_discovery += applied; applied = 0;
+      }
       result.attempted += attempted;
       result.content_applied += applied;
       result.frontier_applied += applied;

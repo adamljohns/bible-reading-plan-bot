@@ -27,6 +27,10 @@
 
 const { normalizeAddress } = require('./address-util.js');
 
+// Printed by every caller's summary line; the grind refuses to count or publish
+// website-discovery hits whose output lacks it (continuous-enrichment-lane.sh).
+const CHECKER = 'church-website-match/v1';
+
 const STATES = { AL: 'alabama', AK: 'alaska', AZ: 'arizona', AR: 'arkansas', CA: 'california', CO: 'colorado', CT: 'connecticut', DE: 'delaware', FL: 'florida', GA: 'georgia', HI: 'hawaii', ID: 'idaho', IL: 'illinois', IN: 'indiana', IA: 'iowa', KS: 'kansas', KY: 'kentucky', LA: 'louisiana', ME: 'maine', MD: 'maryland', MA: 'massachusetts', MI: 'michigan', MN: 'minnesota', MS: 'mississippi', MO: 'missouri', MT: 'montana', NE: 'nebraska', NV: 'nevada', NH: 'new hampshire', NJ: 'new jersey', NM: 'new mexico', NY: 'new york', NC: 'north carolina', ND: 'north dakota', OH: 'ohio', OK: 'oklahoma', OR: 'oregon', PA: 'pennsylvania', RI: 'rhode island', SC: 'south carolina', SD: 'south dakota', TN: 'tennessee', TX: 'texas', UT: 'utah', VT: 'vermont', VA: 'virginia', WA: 'washington', WV: 'west virginia', WI: 'wisconsin', WY: 'wyoming', DC: 'district of columbia' };
 
 // Directory / aggregator / social domains — never "the church's website".
@@ -284,4 +288,4 @@ function facebookSlugVerdict(c, slug) {
   return { ok: true, reason: 'slug-ok' };
 }
 
-module.exports = { AGG, STATES, cityOf, stateOf, distinctiveTokens, regDomain, hostOf, buildAssignedDomains, domainVerdict, pageVerdict, checkCandidate, facebookSlugVerdict, segmentLabel, vocabFor, rawText };
+module.exports = { CHECKER, AGG, STATES, cityOf, stateOf, distinctiveTokens, regDomain, hostOf, buildAssignedDomains, domainVerdict, pageVerdict, checkCandidate, facebookSlugVerdict, segmentLabel, vocabFor, rawText };
