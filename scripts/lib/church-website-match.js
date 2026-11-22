@@ -228,6 +228,7 @@ const PARKED = /domain (name )?(is )?for sale|buy this domain|this domain has ex
 const CHURCH_WORD = /\b(church|churches|worship|sermons?|pastor|pastors|ministry|ministries|congregation|gospel|jesus|christ|parish|chapel|bible|sunday school|service times|baptist|methodist|lutheran|presbyterian|episcopal|iglesia)\b/;
 const rawText = html => String(html || '')
   .replace(/<script[\s\S]*?<\/script>/gi, ' ').replace(/<style[\s\S]*?<\/style>/gi, ' ')
+  .replace(/<(script|style)\b[\s\S]*$/i, ' ') // truncated fetch: drop an unclosed block
   .replace(/<noscript[\s\S]*?<\/noscript>/gi, ' ')
   .replace(/<[^>]+>/g, ' ').replace(/&nbsp;|&#160;/gi, ' ').replace(/&amp;/gi, '&').replace(/&#0?39;|&rsquo;|&#8217;/gi, "'").replace(/&[a-z#0-9]+;/gi, ' ').replace(/\s+/g, ' ');
 const esc = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');

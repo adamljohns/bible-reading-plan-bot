@@ -18,7 +18,7 @@ function fetchText(url, depth = 0, timeoutMs = 12000) {
         }
         if (res.statusCode !== 200) { res.resume(); return fin(''); }
         let b = ''; res.setEncoding('utf8');
-        res.on('data', d => { b += d; if (b.length > 400000) { req.destroy(); fin(b); } });
+        res.on('data', d => { b += d; if (b.length > 2000000) { req.destroy(); fin(b); } });
         res.on('end', () => fin(b)); res.on('error', () => fin(b));
       });
       req.on('error', () => fin('')); req.setTimeout(timeoutMs, () => { req.destroy(); fin(''); });
