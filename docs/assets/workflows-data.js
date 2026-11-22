@@ -49,14 +49,14 @@ const WORKFLOWS_DEFAULT = [
         category: 'Operations',
         icon: '📬',
         status: 'active',
-        currentStep: 4,
+        currentStep: 5,
         steps: [
             { name: 'One morning report replaces the per-lane notices', desc: 'A single morning message replaces the separate per-lane directory notices. (DONE ✅ 21 Nov)' },
             { name: 'Built by a plain script, no model', desc: 'The numbers are computed by a plain script from the lane logs and the live site stamps. No model writes the report. (DONE ✅)' },
             { name: 'Only gains verified on the live site count', desc: 'A lane that ran but put nothing verified on the live site is reported as "ran, nothing verified live", never as a gain. (DONE ✅)' },
             { name: 'Reverts are subtracted from the gains', desc: 'When records are reverted, the digest subtracts them in the window where the revert happens and raises a blocker if a discovery run was refused. (DONE ✅ 22 Nov)' },
-            { name: 'First real delivery',     desc: 'First scheduled send is 22 Nov at 8:30 AM. Archive is written before the send; one send per day.' },
-            { name: 'Intake and efficiency lines', desc: 'Add the staged-intake counts and results per frontier call and per local minute, as counts, with no invented percentages.' },
+            { name: 'First real delivery: sent 22 Nov at 8:30 AM', desc: 'The first scheduled digest went out on time, archived before the send, one send per day. It showed the church revert as a net loss for the day instead of hiding it. (DONE ✅)' },
+            { name: 'Intake, paused-lane and efficiency lines', desc: 'Add the staged-intake counts, a line when a lane is paused, and results per frontier call and per local minute, as counts, with no invented percentages.' },
         ]
     },
     {
