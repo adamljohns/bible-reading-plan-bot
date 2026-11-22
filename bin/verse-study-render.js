@@ -270,7 +270,12 @@ function cardAndPdf(slug) {
     img = `    <img src="${u}" alt="${esc(base)} verse card" width="1080" height="1350">\n`;
     links.push(`<a href="${u}" download>Save / Share PNG</a>`);
   }
-  if (fs.existsSync(pdf)) links.push(`<a href="/assets/verse-pdfs/${base}.pdf?v=${ver(pdf)}" download>Download PDF</a>`);
+  if (fs.existsSync(pdf)) {
+    // Site rule (21 Nov 2026): never a download-only PDF. "Read it online" opens the same file in the browser.
+    const u = `/assets/verse-pdfs/${base}.pdf?v=${ver(pdf)}`;
+    links.push(`<a href="${u}" target="_blank" rel="noopener">Read it online</a>`);
+    links.push(`<a href="${u}" download>Download PDF</a>`);
+  }
   if (!links.length) return '';
   return `  <figure class="vs-verse-card">\n${img}    <figcaption>${links.join(' &middot; ')}</figcaption>\n  </figure>\n`;
 }

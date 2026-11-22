@@ -1,10 +1,112 @@
 // Shared workflow dataset for usmcmin.org — loaded by BOTH workflows.html (active board)
 // and archive.html (retired items). Single source of truth; edit here only.
-// Globals: WORKFLOWS_DEFAULT, CATEGORIES, STATUS_LABELS.
+// Globals: WORKFLOWS_SYNCED, WORKFLOWS_BOARD_UPDATED, WORKFLOWS_DEFAULT, CATEGORIES, STATUS_LABELS.
 
 const WORKFLOWS_SYNCED = '2026-11-18';  // written by workflows-page-build.py from workflows-state.json
 
+// Date the board's workflow list was last edited by hand (new cards, rewritten steps). Shown beside the sync stamp.
+const WORKFLOWS_BOARD_UPDATED = '2026-11-22';
+
 const WORKFLOWS_DEFAULT = [
+    // ── Operations: how the automated lanes run (added 2026-11-22). Public-safe: no paths, IDs or internals. ──
+    {
+        id: 'three-directory-pipeline',
+        title: 'Three-Directory Pipeline — Church · Business · Citizen',
+        category: 'Operations',
+        icon: '🧭',
+        status: 'active',
+        currentStep: 2,
+        steps: [
+            { name: 'Discover: frontier models scout bounded, cited leads', desc: 'Frontier models scout a bounded batch of new leads with a source link for each: churches Monday evening, Fredericksburg businesses Tuesday, officeholders Wednesday and Saturday. Discovery is skipped when the verified backlog is already deep. (Piloted once per directory 21 Nov ✅; not yet on a schedule.)' },
+            { name: 'Stage: every lead held as UNVERIFIED with source and date', desc: 'Every lead lands as UNVERIFIED with its source link and the date it was retrieved. A duplicate check runs before anything is staged. Nothing staged is public. (Built and tested ✅)' },
+            { name: 'Refine',    desc: 'Local models work small source bundles overnight and record the exact quote, the link and the date for each field they fill. (IN PROGRESS: the nightly lanes run on their own pools; they do not yet consume the staged leads.)' },
+            { name: 'Verify',    desc: 'Deterministic checks first: schema, the quote must be found on the source page, duplicate guard, website-match guard. Then an independent review. Anything ambiguous goes back to the frontier queue. An unresolved claim never scores and never publishes.' },
+            { name: 'Publish',   desc: 'One publisher per site, from a clean checkout. A push is not a publish: the change counts only after the live page shows it.' },
+            { name: 'Report',    desc: 'One daily digest at 8:30 AM with verified gains, backlog, freshness and blockers. Completion is reported only after an end-to-end test.' },
+            { name: 'End-to-end proof', desc: 'One real staged lead carried through refine, verify and publish, confirmed on the live page. Not done yet; nothing staged has been published.' },
+        ]
+    },
+    {
+        id: 'nightly-refinement-schedule',
+        title: 'Nightly 9-Slot Schedule (thermal-gated)',
+        category: 'Operations',
+        icon: '🌙',
+        status: 'active',
+        currentStep: 5,
+        steps: [
+            { name: 'Nine hourly slots, 10 PM to 7 AM: church, business, citizen in rotation', desc: 'One slot an hour on the hour, three per directory, rotating church, business, citizen. Live since 21 Nov. (DONE ✅)' },
+            { name: 'One heavy job at a time (a second job is refused, not queued)',  desc: 'A single lock covers all heavy local work, renders included. A second job is refused, not queued. (DONE ✅)' },
+            { name: 'Thermal gate: a warm or unreadable reading skips the slot', desc: 'The machine temperature reading is checked before each slot and every minute during it. A warm reading skips or stops the slot; an unreadable reading also skips. (DONE ✅)' },
+            { name: '25 minutes of work, then 30 minutes of rest', desc: 'Each slot works at most 25 minutes and then rests the machine 30, so a full slot never runs into the next one. (DONE ✅)' },
+            { name: 'No catch-up runs; local models only overnight', desc: 'A missed slot is skipped, never replayed. Overnight lanes use local models only, with no automatic cloud fallback. Interactive use takes priority. (DONE ✅)' },
+            { name: 'First full week',          desc: 'Run a full week and read the results. (IN PROGRESS: on the first night the church and business slots did real work and the citizen slots found nothing eligible to refine. From 22 Nov the three church slots are paused until the website-match guard finishes its dry run.)' },
+            { name: 'Yield and thermal review', desc: 'After a week, review what each slot produced and the thermal readings. Nine slots is a pilot, not a measured optimum.' },
+        ]
+    },
+    {
+        id: 'directory-daily-digest',
+        title: '8:30 Directory Digest',
+        category: 'Operations',
+        icon: '📬',
+        status: 'active',
+        currentStep: 4,
+        steps: [
+            { name: 'One morning report replaces the per-lane notices', desc: 'A single morning message replaces the separate per-lane directory notices. (DONE ✅ 21 Nov)' },
+            { name: 'Built by a plain script, no model', desc: 'The numbers are computed by a plain script from the lane logs and the live site stamps. No model writes the report. (DONE ✅)' },
+            { name: 'Only gains verified on the live site count', desc: 'A lane that ran but put nothing verified on the live site is reported as "ran, nothing verified live", never as a gain. (DONE ✅)' },
+            { name: 'Reverts are subtracted from the gains', desc: 'When records are reverted, the digest subtracts them in the window where the revert happens and raises a blocker if a discovery run was refused. (DONE ✅ 22 Nov)' },
+            { name: 'First real delivery',     desc: 'First scheduled send is 22 Nov at 8:30 AM. Archive is written before the send; one send per day.' },
+            { name: 'Intake and efficiency lines', desc: 'Add the staged-intake counts and results per frontier call and per local minute, as counts, with no invented percentages.' },
+        ]
+    },
+    {
+        id: 'website-match-guard',
+        title: 'Website-Match Guard (church directory)',
+        category: 'Operations',
+        icon: '🛡️',
+        status: 'active',
+        currentStep: 5,
+        steps: [
+            { name: 'Fault found: churches matched to unrelated sites sharing one word', desc: 'On 22 Nov the website-discovery lane was found matching churches to unrelated sites that shared one word of the name, and other lanes then copied socials and phone numbers from those sites. Church lanes paused. (DONE ✅)' },
+            { name: 'Reverted 519 wrong websites and 4 Facebook pages; 84 kept', desc: 'About 600 discoveries since 16 Nov were re-checked: 519 websites and 4 Facebook pages reverted, 84 kept. Every field copied from a wrong site went back to its earlier value. Live pages rebuilt and verified. (DONE ✅)' },
+            { name: 'Whole-word rule: the domain must be built from the church name and place', desc: 'A site is accepted only if its domain is made of whole words from the church name, church vocabulary or its place, with at least two counted words and one distinctive name word. Schools, governments, aggregators, subdomains, other-state names and any domain already on another church are rejected. (DONE ✅)' },
+            { name: 'Homepage must show a church word, the name and the right city or state', desc: 'The homepage must show a church word, the church name word and the right city or state. An empty page is a rejection. (DONE ✅)' },
+            { name: 'Lane refuses any discovery run that skipped the checker', desc: 'The lane stops if a discovery run did not go through the checker, and unchecked hits are never counted as gains. A regression suite of 58 cases covers the known bad matches. (DONE ✅)' },
+            { name: 'Dry run of 25',          desc: 'Twenty-five churches through the new checker with zero wrong matches before the lanes restart. (IN PROGRESS: 19 searched, 7 sites found, all 7 correct, 0 wrong; 6 still to search.)' },
+            { name: 'Re-check older discoveries', desc: 'Run every website discovered before 16 Nov through the same checker, and clear the placeholder social links that site builders leave in page footers.' },
+            { name: 'Restart church lanes',   desc: 'Restore the three church slots once the dry run is clean.' },
+        ]
+    },
+    {
+        id: 'pdf-read-it-online',
+        title: 'PDF Rule — Read It Online + Download',
+        category: 'Operations',
+        icon: '📄',
+        status: 'active',
+        currentStep: 4,
+        steps: [
+            { name: 'Rule: every PDF gets "Read it online" beside Download', desc: 'Every PDF offered on the site gets two buttons side by side: "Read it online", which opens the PDF in the browser, and Download. Never a download-only PDF. (Adam, 21 Nov ✅)' },
+            { name: 'Existing PDF buttons updated', desc: 'The PDF buttons already on the site were given the second button. (DONE ✅ 21 Nov)' },
+            { name: 'Rule written into the blog voice guide', desc: 'The rule is in the blog voice guide, so every new post and study follows it. (DONE ✅)' },
+            { name: 'Site-wide sweep: 45 pages checked, 1 download-only PDF fixed', desc: 'Every page that links a PDF was checked on 22 Nov. One study page offered a download only; it now has both buttons. (DONE ✅)' },
+            { name: 'Standing check on every new PDF', desc: 'The verse-study builder now writes both buttons itself. Each new post, study or handout is checked before it ships.' },
+        ]
+    },
+    {
+        id: 'blog-translation-rule',
+        title: 'Blog Scripture Translation Rule',
+        category: 'Operations',
+        icon: '📖',
+        status: 'active',
+        currentStep: 4,
+        steps: [
+            { name: 'Ruling: blogs default to the NKJV; NASB, NLT, AMP or MSG when they fit', desc: 'Blog posts are not KJV-only. Default to the NKJV; NASB, NLT, Amplified or the Message are fine when they carry the point better. (Adam, 21 Nov ✅)' },
+            { name: 'Label every quote with its translation', desc: 'Each quotation names its translation, for example (John 15:4, NKJV). A paraphrase gets no label and no quotation marks. (DONE ✅ in the guide)' },
+            { name: 'Verified text only, never from memory', desc: 'Quoted wording must match the site\'s own Bible text for that translation. Never quote from memory. (DONE ✅ in the guide)' },
+            { name: 'Publisher credit for a full copyrighted chapter', desc: 'A full chapter of a copyrighted version carries the publisher\'s credit line in Sources. (DONE ✅ in the guide)' },
+            { name: 'Verse studies stay KJV', desc: 'Deep verse studies keep their own rule: the KJV printed above the WEB. Standing check on each new study and post.' },
+        ]
+    },
     {
         id: 'real-man-devotional',
         title: 'REAL MAN: 31 Days in Proverbs — Ebook Launch',
@@ -514,7 +616,7 @@ const WORKFLOWS_DEFAULT = [
     },
 ];
 
-const CATEGORIES = ['All', 'Ministry', 'Business', 'Family', 'Personal'];
+const CATEGORIES = ['All', 'Operations', 'Ministry', 'Business', 'Family', 'Personal'];
 
 const STATUS_LABELS = {
     active:   { icon: '🟢', label: 'Active',   cls: 'status-active' },
