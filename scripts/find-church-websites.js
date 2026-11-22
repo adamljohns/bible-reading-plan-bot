@@ -4,11 +4,15 @@
 // site to fetch. A found + VERIFIED website re-opens the church to the pastor/social
 // pipeline. This is stage 1 of "go comprehensive": discovery feeds enrichment.
 //
-// HONESTY: a candidate site is applied ONLY if we fetch it and the church's name tokens
-// AND its city appear on the page (or a strong name+state match). Aggregator/listing
-// domains (churchfinder, faithstreet, yelp, facebook, ag.org, yellowpages, …) are never
-// stored as "the website". No match → leave blank + mark _website_searched so we don't
-// re-burn Brave quota. A wrong site is worse than none.
+// HONESTY: a candidate is applied ONLY when scripts/lib/church-website-match.js passes
+// it: the domain segments into WHOLE name/church/geo words (>= 2 counted tokens, >= 1
+// distinctive name token, no other state, no conflicting denomination); it is not
+// .edu/.gov/school/city/county, not a subdomain, not an aggregator, and not already
+// assigned to another church; and the fetched homepage carries a church word AND the
+// record's city or state, with no street address in another state. No match → leave
+// blank + mark _website_searched. A wrong site is worse than none.
+// (CM-1122-WEBDISC: the old substring rule `dist.some(t => dc.includes(t))` with the
+// geo-guard off wrote 519 wrong sites 2026-11-16..22 — thenorthface.com, liberty.edu…)
 //
 // Usage: node scripts/find-church-websites.js [--count 40] [--apply]
 const fs = require('fs');
@@ -23,6 +27,7 @@ const webSearch = BACKEND === 'brave' ? braveSearch : searxSearch;
 const ENGINE = BACKEND === 'brave' ? 'Brave' : 'SearXNG';
 const { makeWriter } = require('./lib/format-preserving-write.js');
 const lanes = require('./lib/grind-lanes.js');
+const WM = require('./lib/church-website-match.js');
 
 const TODAY = new Date().toISOString().slice(0, 10);
 const arg = (k, d) => { const i = process.argv.indexOf(k); return i >= 0 && process.argv[i + 1] ? process.argv[i + 1] : d; };
@@ -34,54 +39,12 @@ const CHURCHES = path.join(__dirname, '..', 'docs', 'data', 'churches.json');
 const { data: d, write } = makeWriter(CHURCHES);
 
 
-// Domains that are directories/aggregators/socials — never "the church's website".
-const AGG = /facebook\.|instagram\.|twitter\.|x\.com|yelp\.|yellowpages\.|churchfinder\.|faithstreet\.|ag\.org|sbc\.net|thegospelcoalition|9marks\.|pcaac\.|opc\.org|lcms\.org|mapquest\.|tripadvisor\.|foursquare\.|manta\.|bbb\.org|wikipedia\.|linkedin\.|youtube\.|google\.|apple\.com|eventbrite\.|patch\.com|niche\.com|uschurches\.|churchangel\.|localchurchguide|findachurch|worshiptimes|tithe\.ly|subsplash\.com|churchcenter\.com|buzzfile\.|joinmychurch\.|crossmap\.|usachurches|church-?listing|churchreport|churches-?near|placeofworship|hometownlocator|city-data|homefacts|zoominfo|dnb\.com|opencorporates|chamberofcommerce|dexknows|superpages|citysearch|nextdoor\.|glassdoor|indeed\.|instagram|tiktok\.|pinterest\.|amazonaws\.com|wixsite\.com\/?$|godaddysites|weebly\.com\/?$|unitedstateschurches|churchspot|churchupdate|ourchurch\.com|find-?a-?church|churchusa|church-?directory|churchdb|\.gov\/|\.gov$|360\.org|updateourchurch|wheree\.|hub\.biz|\.hub\.|business\.site|cmac\.ws|edan\.io|elocal\.|americantowns|bizapedia|corporationwiki|company-target|mapcarta|reformedpresbyterian\.org|opc\.org|pcanet|topchurches|churchupdate|placedigger|n49\.|cylex|brownbook|ezlocal|expressupdate/i;
-
-const cityOf = c => String(c.address || '').split(',')[0].trim() || '';
-const tokens = s => String(s || '').toLowerCase().replace(/\b(the|a|of|and|church|chapel|community|baptist|christian|fellowship|ministries|ministry)\b/g, ' ').match(/[a-z]{4,}/g) || [];
-// DISTINCTIVE tokens = ≥5-char name words that aren't generic church vocabulary — a
-// domain containing one of these is almost certainly that church's own site.
-// Generic church vocabulary + denomination words + common hagionyms. A domain matching
-// ONLY one of these does NOT pin a specific church (many churches share "All Saints",
-// "Grace", "Trinity"), so we don't trust it — only a truly-distinctive token (a place
-// name or unique name) drives a match. This is what keeps allsaints_springfield_.org
-// from being applied to the Augusta church.
-const COMMON = new Set([
-  'first', 'grace', 'community', 'church', 'christ', 'christian', 'faith', 'hope', 'bible', 'gospel', 'trinity', 'calvary', 'cornerstone', 'saint', 'saints', 'holy', 'cross', 'lighthouse', 'harvest', 'living', 'water', 'shepherd', 'covenant', 'redeemer', 'emmanuel', 'immanuel',
-  'presbyterian', 'lutheran', 'anglican', 'episcopal', 'methodist', 'reformed', 'pentecostal', 'evangelical', 'catholic', 'orthodox', 'wesleyan', 'nazarene', 'brethren', 'mennonite',
-  'souls', 'savior', 'saviour', 'bethel', 'bethlehem', 'zion', 'ebenezer', 'salem', 'sharon', 'olivet', 'canaan', 'resurrection', 'ascension', 'nativity', 'epiphany', 'advent', 'king', 'kings', 'prince', 'peace', 'love', 'mercy', 'light', 'spirit', 'father', 'lamb',
-  'chapel', 'temple', 'tabernacle', 'fellowship', 'ministries', 'assembly', 'believers', 'disciples', 'kingdom', 'victory', 'abundant', 'blessed', 'mount', 'good', 'great', 'family', 'house', 'worship', 'praise']);
-const distinctive = c => tokens(c.name).filter(t => t.length >= 5 && !COMMON.has(t));
-const domainCore = url => { try { return new URL(url).hostname.replace(/^www\./, '').split('.').slice(0, -1).join('').replace(/[^a-z]/g, ''); } catch (_) { return ''; } };
-const STATES = { AL: 'alabama', AK: 'alaska', AZ: 'arizona', AR: 'arkansas', CA: 'california', CO: 'colorado', CT: 'connecticut', DE: 'delaware', FL: 'florida', GA: 'georgia', HI: 'hawaii', ID: 'idaho', IL: 'illinois', IN: 'indiana', IA: 'iowa', KS: 'kansas', KY: 'kentucky', LA: 'louisiana', ME: 'maine', MD: 'maryland', MA: 'massachusetts', MI: 'michigan', MN: 'minnesota', MS: 'mississippi', MO: 'missouri', MT: 'montana', NE: 'nebraska', NV: 'nevada', NH: 'new hampshire', NJ: 'new jersey', NM: 'new mexico', NY: 'new york', NC: 'north carolina', ND: 'north dakota', OH: 'ohio', OK: 'oklahoma', OR: 'oregon', PA: 'pennsylvania', RI: 'rhode island', SC: 'south carolina', SD: 'south dakota', TN: 'tennessee', TX: 'texas', UT: 'utah', VT: 'vermont', VA: 'virginia', WA: 'washington', WV: 'west virginia', WI: 'wisconsin', WY: 'wyoming', DC: 'district of columbia' };
-// True only when the page mentions a DIFFERENT state's full name and NOT the church's —
-// positive evidence the domain-matched site belongs to a same-named church elsewhere.
-function stateConflict(page, st) {
-  const mine = STATES[String(st).toUpperCase()];
-  if (!mine || page.includes(mine)) return false;
-  return Object.entries(STATES).some(([ab, full]) => ab !== String(st).toUpperCase() && page.includes(full));
-}
-
-function fetchText(url, depth = 0) {
-  return new Promise(resolve => {
-    if (depth > 4) return resolve('');
-    let done = false; const fin = v => { if (!done) { done = true; resolve(v); } };
-    try {
-      const lib = url.startsWith('https') ? https : http;
-      const req = lib.get(url, { headers: { 'User-Agent': 'Mozilla/5.0 (compatible; MOOPDirectoryBot/1.0; +https://usmcmin.org)' }, rejectUnauthorized: false }, res => {
-        // Follow redirects (church sites almost always redirect http→https / →www).
-        if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
-          res.resume();
-          let next; try { next = new URL(res.headers.location, url).href; } catch (_) { return fin(''); }
-          return fetchText(next, depth + 1).then(fin);
-        }
-        if (res.statusCode !== 200) { res.resume(); return fin(''); }
-        let b = ''; res.on('data', d => { b += d; if (b.length > 300000) req.destroy(); }); res.on('end', () => fin(b));
-      });
-      req.on('error', () => fin('')); req.setTimeout(10000, () => req.destroy());
-    } catch (_) { fin(''); }
-  });
-}
+const AGG = WM.AGG;
+const cityOf = WM.cityOf;
+const distinctive = c => WM.distinctiveTokens(c);
+const fetchText = url => require('./lib/site-fetch.js').fetchText(url);
+// Every domain already on a church in the directory; a second church never gets it.
+const ASSIGNED = WM.buildAssignedDomains(d.churches);
 
 const MATCH = arg('--match', ''); // optional NAME filter (e.g. --match "first baptist")
 const matchRe = MATCH ? new RegExp(MATCH, 'i') : null;
@@ -103,30 +66,19 @@ let found = 0, none = 0;
     try { results = await webSearch(`${qName} ${city} ${st} church website`, { count: 10 }); }
     catch (e) { console.log(`  ! ${c.id}: ${ENGINE} error ${e.message.slice(0, 60)}`); await sleep(BACKEND === 'brave' ? 1200 : 300); continue; }
 
-    // HIGH-PRECISION rule: accept ONLY a non-aggregator result whose DOMAIN carries a
-    // DISTINCTIVE church-name token. Aggregator/directory domains never contain the
-    // church's own name, so this can't grab a wrong listing. Churches whose only name
-    // words are generic ("Grace Community") yield no distinctive token → skipped (honest
-    // miss beats a wrong site). Lower recall, but every hit is the church's real site.
+    // HIGH-PRECISION rule (lib/church-website-match.js): whole-token domain match +
+    // institution/shared-domain rejects + homepage church-word and city/state check.
+    // Candidates are tried in result order; the first that passes every check wins.
     const dist = distinctive(c);
-    let hit = null;
+    let hit = null; const why = [];
     if (dist.length) {
       for (const r of results) {
         const url = String(r.url || '').replace(/\/+$/, '');
-        if (!/^https?:\/\//i.test(url) || AGG.test(url) || /\/(directories|directory|listings?|profile|business|search|church|churches|congregations?|info|location|find)\//i.test(url)) continue;
-        const dc = domainCore(url);
-        if (dc && dc.length >= 5 && dist.some(t => dc.includes(t))) { hit = { url: new URL(url).origin, how: 'domain-match' }; break; }
+        const v = await WM.checkCandidate(c, url, { assigned: ASSIGNED, fetchText });
+        if (v.ok) { hit = { url: new URL(url).origin, how: `whole-token ${v.segs.join('+')}, ${v.reason}` }; break; }
+        if (v.reason !== 'aggregator' && v.reason !== 'not-http') why.push(`${WM.regDomain(url) || url}:${v.reason}`);
       }
     }
-    // Geo-guard: a distinctive token can still collide with a same-named church in
-    // another state (two "Aberdeen First Baptist"s). If the matched site fetches and its
-    // text does NOT mention this church's city, it's the wrong location → reject. (Fetch
-    // empty / no city on file → keep the domain-match; can't disprove it.)
-    // NOTE: acceptance is domain-match only (~98% precise). Residual miss: two churches
-    // sharing a distinctive token in different states (e.g. "Aberdeen First Baptist" in
-    // AR vs NC) can cross-match. Homepage geo-verification proved unreliable both ways
-    // (homepages omit their own city; church pages mention other states in bios/missions),
-    // so we DON'T gate on it — Chaps' QA cron + human review catch the rare wrong site.
     if (!hit) {
       // No own-domain site. A Facebook PAGE whose path carries a distinctive name token
       // is recorded as social presence (c.facebook), never as the website. Groups/posts
@@ -138,8 +90,7 @@ let found = 0, none = 0;
           const m = url.match(/^https?:\/\/(?:www\.|m\.)?facebook\.com\/([A-Za-z0-9._-]{3,})\/?(?:\?.*)?$/i);
           if (!m) continue;
           const slug = m[1].toLowerCase();
-          if (/^(groups|events|pages|profile\.php|people|watch|marketplace|share|hashtag|login|public)$/.test(slug)) continue;
-          if (dist.some(t => slug.includes(t))) {
+          if (WM.facebookSlugVerdict(c, slug).ok) {
             if (APPLY) {
               c.facebook = `https://www.facebook.com/${m[1]}`;
               const note = `[${TODAY}] Facebook page discovered via ${ENGINE} (slug-match): ${c.facebook}`;
@@ -150,10 +101,11 @@ let found = 0, none = 0;
           }
         }
       }
-      none++; if (APPLY) c._website_searched = TODAY; console.log(`  – ${c.id}: no distinctive-domain match`); await sleep(BACKEND === 'brave' ? 1200 : 300); continue;
+      none++; if (APPLY) c._website_searched = TODAY; console.log(`  – ${c.id}: no verified match${why.length ? ' (' + why.slice(0, 4).join(', ') + ')' : ''}`); await sleep(BACKEND === 'brave' ? 1200 : 300); continue;
     }
 
     found++;
+    { const rd = WM.regDomain(hit.url); if (!ASSIGNED.has(rd)) ASSIGNED.set(rd, new Set()); ASSIGNED.get(rd).add(c.id); }
     if (APPLY) {
       c.website = hit.url; c._website_searched = TODAY;
       c.engagement = c.engagement || {}; c.engagement.researched_website = true;

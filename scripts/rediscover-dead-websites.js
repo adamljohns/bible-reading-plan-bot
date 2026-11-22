@@ -30,10 +30,12 @@ const { makeWriter } = require('./lib/format-preserving-write.js');
 const TODAY = new Date().toISOString().slice(0, 10);
 const arg = (k, d) => { const i = process.argv.indexOf(k); return i >= 0 && process.argv[i + 1] ? process.argv[i + 1] : d; };
 const COUNT = parseInt(arg('--count', '40'), 10);
+const WM = require('./lib/church-website-match.js');
 const APPLY = process.argv.includes('--apply');
 
 const CHURCHES = path.join(__dirname, '..', 'docs', 'data', 'churches.json');
 const { data: d, write } = makeWriter(CHURCHES);
+const ASSIGNED = WM.buildAssignedDomains(d.churches);
 
 const AB = new Set('AL AK AZ AR CA CO CT DE FL GA HI ID IL IN IA KS KY LA ME MD MA MI MN MS MO MT NE NV NH NJ NM NY NC ND OH OK OR PA RI SC SD TN TX UT VT VA WA WV WI WY DC'.split(' '));
 const isUS = c => AB.has(String(c.state || '').toUpperCase().trim());
@@ -182,39 +184,29 @@ const stamp = c => { if (APPLY) c._website_rediscovered = TODAY; processed++; };
       await sleep(1200); continue;
     }
 
-    // HIGH-PRECISION candidate rule (same as find-church-websites.js): a
-    // non-aggregator result whose DOMAIN carries a DISTINCTIVE name token, and —
-    // rescue-specific — a DIFFERENT registrable domain than the dead one.
-    const dist = distinctive(c);
+    // HIGH-PRECISION candidate rule (lib/church-website-match.js, same checker as
+    // find-church-websites.js): whole-token domain match, institution / shared-domain
+    // rejects, and a homepage that names a church and this record's city or state —
+    // plus, rescue-specific, a DIFFERENT registrable domain than the dead one.
+    // (CM-1122-WEBDISC replaced the substring rule `dist.some(t => dc.includes(t))`.)
     let hit = null;
-    if (dist.length) {
-      for (const r of results) {
-        const url = String(r.url || '').replace(/\/+$/, '');
-        if (!/^https?:\/\//i.test(url) || AGG.test(url) || /\/(directories|directory|listings?|profile|business|search|church|churches|congregations?|info|location|find)\//i.test(url)) continue;
-        const nd = regDomain(url);
-        if (!nd || nd === oldDom) continue; // same domain already failed the re-check
-        const dc = domainCore(url);
-        if (dc && dc.length >= 5 && dist.some(t => dc.includes(t))) { hit = new URL(url).origin; break; }
-      }
+    for (const r of results) {
+      const url = String(r.url || '').replace(/\/+$/, '');
+      const nd = regDomain(url);
+      if (!nd || nd === oldDom) continue; // same domain already failed the re-check
+      const v = await WM.checkCandidate(c, url, { assigned: ASSIGNED, fetchText });
+      if (v.ok) { hit = new URL(url).origin; break; }
     }
 
-    // (a) — but only after the candidate ITSELF fetch-verifies: live 200, not
-    // parked, and the page TEXT mentions a distinctive name token. Replacing a
-    // recorded website is more destructive than filling a blank, so the bar is
-    // higher than discovery's. Verification fails → fall through to (c).
     if (hit) {
-      const body = await fetchText(hit);
-      const txt = body ? pageText(body) : '';
-      if (body && !PARKED.test(body) && dist.some(t => txt.includes(t))) {
-        replaced++; stamp(c);
-        if (APPLY) {
-          c.website = hit;
-          note(c, `[${TODAY}] Dead-site rescue: previous site ${oldSite} unreachable (repeated live-fetch failures); current official site ${hit} verified via Brave domain-match + live fetch.`);
-        }
-        console.log(`  ✓ ${c.id}: ${oldDom} → ${hit} [a]`);
-        await sleep(1200); continue;
+      replaced++; stamp(c);
+      { const rd = regDomain(hit); if (!ASSIGNED.has(rd)) ASSIGNED.set(rd, new Set()); ASSIGNED.get(rd).add(c.id); }
+      if (APPLY) {
+        c.website = hit;
+        note(c, `[${TODAY}] Dead-site rescue: previous site ${oldSite} unreachable (repeated live-fetch failures); current official site ${hit} verified by the whole-token website checker + live fetch.`);
       }
-      console.log(`  ~ ${c.id}: candidate ${hit} failed live/name verification — treating as not found`);
+      console.log(`  ✓ ${c.id}: ${oldDom} → ${hit} [a]`);
+      await sleep(1200); continue;
     }
 
     // (c) — nothing trustworthy found. Keep the old URL on record (deleting is
