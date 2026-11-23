@@ -157,6 +157,8 @@ function renderChapterPage(book, ch, verses, prev, next) {
   <link rel="prev" href="${prev ? prev.abbr + '-' + prev.ch + '.html' : '#'}">
   <link rel="next" href="${next ? next.abbr + '-' + next.ch + '.html' : '#'}">
   <style>
+    /* base link colour: a link with no rule of its own fell back to browser blue / visited purple (brand-link-lint) */
+    a{color:#444}
     body{font-family:Georgia,serif;max-width:42rem;margin:2rem auto;padding:0 1rem;color:#222;line-height:1.6;background:#fafafa}
     h1{font-size:1.4rem;margin:0 0 1rem}
     h1 small{font-size:.7rem;color:#888;font-weight:normal;display:block;margin-top:.15rem}
@@ -223,6 +225,8 @@ function renderIndex(allChapters, writtenSet) {
   <meta name="description" content="Static per-chapter index for the Bible Translation Engine. Internal surface for AI consumers and direct chapter access.">
   <link rel="canonical" href="../bible.html">
   <style>
+    /* base link colour: a link with no rule of its own fell back to browser blue / visited purple (brand-link-lint) */
+    a{color:#444}
     body{font-family:Georgia,serif;max-width:60rem;margin:2rem auto;padding:0 1rem;color:#222;background:#fafafa}
     h1{font-size:1.4rem;margin:0 0 .3rem}
     p.lead{color:#666;font-size:.9rem;margin:0 0 1.5rem}

@@ -47,7 +47,9 @@ def prior():
             desc[s] = re.sub(r"\s+", " ", m.group(3)).strip()
     return order, desc, label
 
-CSS = """:root{--navy:#1f3352;--gold:#a8842c;--ink:#1b1815;--gray:#6b6459;--line:#ded7cb}
+CSS = """/* base link colour: a link with no rule of its own fell back to browser blue / visited purple (brand-link-lint) */
+a{color:var(--navy)}
+:root{--navy:#1f3352;--gold:#a8842c;--ink:#1b1815;--gray:#6b6459;--line:#ded7cb}
 *{box-sizing:border-box}
 body{margin:0;padding:20px 16px 60px;font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:var(--ink);background:#fff;max-width:800px;margin-inline:auto}
 h1{font-size:1.5rem;color:var(--navy);margin:0 0 4px}

@@ -139,6 +139,8 @@ const html = `<!DOCTYPE html>
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css">
   <style>
+/* base link colour: a link with no rule of its own fell back to browser blue / visited purple (brand-link-lint) */
+a{color:var(--gold)}
     * { margin:0; padding:0; box-sizing:border-box; }
     :root { --bg:#000; --card:#111; --card2:#1a1a1a; --gold:#D4AF37; --gold-light:#F4D470; --white:#e8e8e8; --gray:#888; --border:#333; --green:#3ea14a; --yellow:#d4a437; --red:#c0392b; --black:#444; --dead:#666; }
     body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--white); min-height:100vh; line-height:1.6; }

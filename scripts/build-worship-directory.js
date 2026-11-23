@@ -98,6 +98,8 @@ function render(data) {
      docs/data/worship-listen-directory.json — do not hand-edit this file.
      Edit the JSON and re-run the generator. -->
 <style>
+/* base link colour: a link with no rule of its own fell back to browser blue / visited purple (brand-link-lint) */
+a{color:var(--gold)}
 *{box-sizing:border-box;margin:0;padding:0}
 :root{--bg:#000;--card:#111;--card2:#161616;--gold:#D4AF37;--gold2:#F4D470;--white:#fff;--gray:#888;--border:#333}
 body{font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--white);min-height:100vh;line-height:1.55}

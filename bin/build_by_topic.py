@@ -192,6 +192,8 @@ PAGE_TEMPLATE = """<!doctype html>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
     <style>
+/* base link colour: a link with no rule of its own fell back to browser blue / visited purple (brand-link-lint) */
+a{color:var(--gold)}
         :root {
             --black: #0a0a0a; --gray-darker: #161616; --gray-dark: #1f1f1f;
             --gray: #999; --gray-light: #ccc; --white: #f5f5f5;
