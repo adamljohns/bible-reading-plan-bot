@@ -176,7 +176,10 @@
       acceptNode: function (node) {
         if (!node.nodeValue || !node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
         var p = node.parentElement;
-        if (!p || p.closest("button, audio, script, style, .read-scroll-bar, .audio-speed, [data-no-follow]")) return NodeFilter.FILTER_REJECT;
+        /* .audio-slot: the "🎙️ Audio — Third Watch — …" caption is never spoken; wrapping
+           it put 10 unspoken spans between the opener and the reference, so the
+           spoken book name needed a confirm it could not get (PJG-1124-REF). */
+        if (!p || p.closest("button, audio, script, style, .read-scroll-bar, .audio-speed, .audio-slot, [data-no-follow]")) return NodeFilter.FILTER_REJECT;
         if (p.classList && p.classList.contains("watch-word")) return NodeFilter.FILTER_REJECT;
         return NodeFilter.FILTER_ACCEPT;
       }
@@ -255,14 +258,24 @@
     var el = [];
     (spoken || []).forEach(function (sp) {
       var k = norm(sp.w);
-      if (k.length >= 3) el.push({ t: sp.t, k: k });
+      /* Skip bare numbers: whisper says the reference as "2," "1-10)" while the
+         page prints "2:1-10", so a number never matches and it blocked the
+         confirm on the book name (Principal 2026-11-24: "Ephesians 2:1-10" was
+         never lit on any watch). */
+      if (k.length >= 3 && !/^[0-9]+$/.test(k)) el.push({ t: sp.t, k: k });
     });
     var si = 0;
     var miss = 0;
     var pairs = [];
     for (var i = 0; i < el.length; i++) {
       var target = el[i].k;
-      var next = i + 1 < el.length ? el[i + 1].k : null;
+      /* Confirm against the next three spoken words, not just one: the narrator
+         says "Ephesians 5, 1 through 14," and "through" is not on the page, so a
+         one-word confirm left the reference dark (PJG-1124-REF). Only within
+         three spans of the cursor: a far match confirmed by any of three common
+         words ("the", "and") is a false jump and sank a whole watch in test. */
+      var nexts = el.slice(i + 1, i + 4).map(function (e) { return e.k; });
+      var next = nexts.length ? nexts[0] : null;
       /* After 20 straight misses (a stretch the transcript dropped or the page
          holds unspoken text) look up to 300 spans ahead, but only take a
          confirmed match that far out. */
@@ -275,7 +288,7 @@
         if (j === si) { found = j; break; }
         var ok = false;
         if (next) {
-          for (var c = j + 1; c < Math.min(keys.length, j + 4); c++) if (keys[c] === next) { ok = true; break; }
+          for (var c = j + 1; c < Math.min(keys.length, j + 4); c++) if (keys[c] === next || (j - si <= 3 && nexts.indexOf(keys[c]) >= 0)) { ok = true; break; }
         }
         if (ok) { found = j; break; }
         if (loose < 0 && j - si < 60) loose = j;
