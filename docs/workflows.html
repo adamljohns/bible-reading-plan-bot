@@ -9,794 +9,934 @@
     <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-touch-icon.png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta property="og:title" content="Workflow Command Center — U.S.M.C. Ministries">
-    <meta property="og:description" content="State-machine dashboard for tracking multi-step processes across all areas of life.">
+    <title>Workflow command center | U.S.M.C. Ministries</title>
+    <meta name="description" content="Every recurring workflow across ministry, business, family and operations, with one honest status each.">
+    <meta property="og:title" content="Workflow command center | U.S.M.C. Ministries">
+    <meta property="og:description" content="Every recurring workflow across ministry, business, family and operations, with one honest status each.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://usmcmin.org/workflows.html">
-    <title>Workflow Command Center — USMC Ministries</title>
+    <meta property="og:image" content="https://usmcmin.org/assets/icons/icon-512.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Workflow command center">
+    <meta name="twitter:image" content="https://usmcmin.org/assets/icons/icon-512.png">
+    <link rel="manifest" href="/manifest.json">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
 /* base link colour: a link with no rule of its own fell back to browser blue / visited purple (brand-link-lint) */
 a{color:var(--gold)}
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        :root {
-            --bg-dark: #000000;
-            --bg-card: #111111;
-            --bg-card-hover: #1a1a1a;
-            --bg-step: #1c1c1c;
-            --gold: #D4AF37;
-            --gold-light: #F4D470;
-            --gold-dim: rgba(212,175,55,0.15);
-            --white: #FFFFFF;
-            --gray: #888888;
-            --gray-light: #aaaaaa;
-            --border: #333333;
-            --green: #4CAF50;
-            --yellow: #FFC107;
-            --red: #f44336;
-            --blue: #2196F3;
-        }
+a:visited{color:var(--gold)}
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0a0a0a; --surface:#111418; --surface-2:#0e1622; --line:#262c36;
+  --ink:#ececec; --text:#c9ced6; --muted:#939ba6;
+  --gold:#D4AF37; --gold-light:#F4D470; --navy:#1E3A5F; --navy-ink:#9bb9e0;
+  --scarlet:#CC0000; --scarlet-ink:#d9343a; --done:#7d8590;
+  --border:#262c36; --gray:#888888;
+  --font-sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  --font-serif:'Playfair Display','Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;
+}
+body.light-mode{
+  --bg:#f5f3ef; --surface:#ffffff; --surface-2:#eef2f7; --line:#d4d0c8;
+  --ink:#1a1a1a; --text:#2a2a2a; --muted:#5c5c5c;
+  --gold:#8a6a1a; --gold-light:#7a5c00; --navy-ink:#1E3A5F; --scarlet-ink:#a40000; --done:#6b6b6b;
+  --border:#d4d0c8; --gray:#666666;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-sans);background:var(--bg);color:var(--text);line-height:1.55;min-height:100vh;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:var(--font-serif);font-weight:700;color:var(--ink);line-height:1.2}
+.sprite{position:absolute;width:0;height:0;overflow:hidden}
+svg.ico{width:24px;height:24px;flex:none;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-dark);
-            color: var(--white);
-            min-height: 100vh;
-            line-height: 1.6;
-        }
+/* site nav: same bar as the other command pages */
+nav.site-nav{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;padding:14px 20px;border-bottom:1px solid var(--border);background:rgba(0,0,0,0.95);position:sticky;top:0;z-index:100}
+nav.site-nav a{color:var(--gray,#999);text-decoration:none;font-size:0.85rem;font-weight:500;padding:5px 12px;border-radius:20px;border:1px solid transparent;transition:all 0.2s;white-space:nowrap;display:inline-flex;align-items:center;gap:4px}
+nav.site-nav a:hover{color:var(--gold);border-color:var(--border)}
+.site-icon{vertical-align:middle}
+body.light-mode nav.site-nav{background:rgba(245,243,239,0.96)}
 
-        h1, h2, h3, h4 { font-family: 'Playfair Display', serif; font-weight: 700; }
+.wrap{max-width:1160px;margin:0 auto;padding:0 20px}
 
-        /* ── PIN Screen ── */
-        #pin-screen {
-            position: fixed; inset: 0;
-            background: #000;
-            display: flex; align-items: center; justify-content: center;
-            z-index: 9999;
-            flex-direction: column; gap: 24px;
-        }
-        #pin-screen.hidden { display: none; }
-        .pin-box {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 40px 48px;
-            text-align: center;
-            max-width: 340px; width: 90%;
-        }
-        .pin-box .lock-icon { font-size: 2.5rem; margin-bottom: 12px; }
-        .pin-box h2 { font-size: 1.4rem; margin-bottom: 6px; color: var(--gold); font-family: 'Playfair Display', serif; }
-        .pin-box p { color: var(--gray); font-size: 0.85rem; margin-bottom: 24px; }
-        .pin-dots {
-            display: flex; gap: 12px; justify-content: center;
-            margin-bottom: 28px;
-        }
-        .pin-dot {
-            width: 14px; height: 14px; border-radius: 50%;
-            border: 2px solid var(--border);
-            background: transparent;
-            transition: all 0.15s;
-        }
-        .pin-dot.filled { background: var(--gold); border-color: var(--gold); }
-        .pin-keypad {
-            display: grid; grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-        }
-        .pin-key {
-            background: #1a1a1a;
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            color: var(--white);
-            font-size: 1.3rem;
-            font-weight: 600;
-            padding: 16px;
-            cursor: pointer;
-            transition: all 0.15s;
-        }
-        .pin-key:hover { background: #252525; border-color: var(--gold); color: var(--gold); }
-        .pin-key.del { font-size: 1rem; color: var(--gray); }
-        .pin-error { color: var(--red); font-size: 0.85rem; margin-top: 12px; min-height: 20px; }
+/* page head */
+.page-head{background:linear-gradient(180deg,var(--surface-2) 0%,var(--bg) 100%);border-bottom:1px solid var(--line);padding:44px 0 30px}
+.eyebrow{display:flex;align-items:center;gap:10px;font-size:0.74rem;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold);margin-bottom:12px}
+.eyebrow::before{content:"";width:28px;height:3px;background:var(--scarlet);border-radius:2px}
+.page-head h1{font-size:2.3rem;margin-bottom:10px}
+.lede{max-width:66ch;font-size:1.02rem;color:var(--text)}
+.reviewed{margin-top:14px;font-size:0.86rem;color:var(--muted)}
+.reviewed strong{color:var(--ink);font-weight:600}
 
-        /* ── Main Content ── */
-        #main-content { display: block; }
+.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:26px}
+.sum{background:var(--surface);border:1px solid var(--line);border-top:3px solid var(--dot);border-radius:12px;padding:14px 16px}
+.sum .n{display:block;font-family:var(--font-serif);font-size:2rem;font-weight:700;color:var(--ink);line-height:1.1}
+.sum .l{display:block;font-size:0.8rem;font-weight:600;color:var(--ink);margin-top:2px}
+.sum .d{display:block;font-size:0.76rem;color:var(--muted);margin-top:3px;line-height:1.4}
+.sum.is-live{--dot:var(--gold)} .sum.is-progress{--dot:var(--navy-ink)} .sum.is-paused{--dot:var(--scarlet)} .sum.is-done{--dot:var(--done)}
 
-        /* ── Header ── */
-        .page-header {
-            text-align: center;
-            padding: 28px 20px 18px;
-            border-bottom: 1px solid var(--border);
-        }
-        .page-header h1 { font-size: 1.9rem; color: var(--white); margin-bottom: 4px; }
-        .page-header .subtitle { color: var(--gold); font-size: 0.9rem; }
-        .page-header .stats-row {
-            display: flex;
-            justify-content: center;
-            gap: 24px;
-            margin-top: 12px;
-            flex-wrap: wrap;
-        }
-        .stat-pill {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 5px 14px;
-            font-size: 0.8rem;
-            color: var(--gray-light);
-        }
-        .stat-pill span { color: var(--gold); font-weight: 600; }
+.jump{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
+.jump a{font-size:0.82rem;font-weight:500;color:var(--text);text-decoration:none;padding:6px 13px;border:1px solid var(--line);border-radius:20px;transition:color .2s,border-color .2s}
+.jump a:hover{color:var(--gold);border-color:var(--gold)}
+.jump .sep{flex-basis:100%;height:0}
+.jump .cmd{color:var(--gold)}
 
-        /* ── Nav Links ── */
-        .nav-links {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            padding: 12px 20px;
-            flex-wrap: wrap;
-            border-bottom: 1px solid var(--border);
-        }
-        .nav-link {
-            color: var(--gray-light);
-            text-decoration: none;
-            font-size: 0.82rem;
-            padding: 5px 12px;
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            transition: all 0.2s;
-        }
-        .nav-link:hover { color: var(--gold); border-color: var(--gold); }
+/* sections */
+main{padding:10px 0 30px}
+.area{padding-top:38px;scroll-margin-top:70px}
+.area-head{display:flex;align-items:center;gap:12px;padding-bottom:12px;border-bottom:1px solid var(--line);margin-bottom:16px;color:var(--gold)}
+.area-head h2{font-size:1.4rem;flex:none}
+.area-head .sub{font-size:0.86rem;color:var(--muted);flex:1;min-width:0}
+.area-head .count{font-size:0.78rem;color:var(--muted);white-space:nowrap}
 
-        /* ── Filter Bar ── */
-        .filter-bar {
-            display: flex;
-            gap: 8px;
-            padding: 16px 20px;
-            max-width: 960px;
-            margin: 0 auto;
-            flex-wrap: wrap;
-        }
-        .filter-btn {
-            padding: 7px 18px;
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            background: transparent;
-            color: var(--gray-light);
-            cursor: pointer;
-            font-family: 'Inter', sans-serif;
-            font-size: 0.85rem;
-            transition: all 0.2s;
-        }
-        .filter-btn:hover { border-color: var(--gold); color: var(--gold); }
-        .filter-btn.active { background: var(--gold); color: #000; border-color: var(--gold); font-weight: 600; }
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:14px}
 
-        /* ── Workflow Grid ── */
-        .workflow-grid {
-            max-width: 960px;
-            margin: 0 auto;
-            padding: 0 16px 40px;
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
-            gap: 14px;
-        }
+/* the one card pattern. Status is the is-* class on the article. */
+.wf{--dot:var(--gold);display:flex;gap:14px;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--dot);border-radius:12px;padding:16px 16px 14px;color:var(--dot)}
+.wf.is-live{--dot:var(--gold)}
+.wf.is-progress{--dot:var(--navy-ink)}
+.wf.is-paused{--dot:var(--scarlet-ink)}
+.wf.is-done{--dot:var(--done)}
+.wf .ico{margin-top:2px}
+.wf-body{flex:1;min-width:0}
+.wf-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:6px}
+.wf h3{font-size:1.04rem}
+.pill{flex:none;display:inline-flex;align-items:center;gap:6px;font-family:var(--font-sans);font-size:0.72rem;font-weight:600;letter-spacing:0.02em;color:var(--ink);border:1px solid var(--dot);border-radius:20px;padding:2px 10px 2px 8px;white-space:nowrap;margin-top:1px}
+.pill::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--dot)}
+.wf.is-done .pill::before{background:transparent;border:1.5px solid var(--dot)}
+.wf-what{font-size:0.9rem;color:var(--text)}
+.wf-now{font-size:0.86rem;color:var(--ink);margin-top:8px;padding-left:10px;border-left:2px solid var(--line)}
+.wf-meta{font-size:0.76rem;color:var(--muted);margin-top:9px}
 
-        /* ── Workflow Card ── */
-        .workflow-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 18px 20px;
-            cursor: pointer;
-            transition: all 0.25s;
-            position: relative;
-        }
-        .workflow-card:hover {
-            background: var(--bg-card-hover);
-            border-color: var(--gold);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 20px rgba(212,175,55,0.12);
-        }
-        .workflow-card.expanded {
-            border-color: var(--gold);
-            background: var(--bg-card-hover);
-        }
+.legend{margin-top:40px;padding:16px 18px;background:var(--surface);border:1px solid var(--line);border-radius:12px;font-size:0.86rem;color:var(--text)}
+.legend h2{font-size:1.05rem;margin-bottom:8px}
+.legend ul{list-style:none;display:grid;grid-template-columns:repeat(2,1fr);gap:6px 24px}
+.legend li{display:flex;gap:8px;align-items:baseline}
+.legend b{color:var(--ink);font-weight:600;white-space:nowrap}
+.legend p{margin-top:10px;color:var(--muted)}
 
-        /* Card header row */
-        .card-header {
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-            margin-bottom: 12px;
-        }
-        .card-icon { font-size: 1.6rem; line-height: 1; flex-shrink: 0; padding-top: 2px; }
-        .card-meta { flex: 1; min-width: 0; }
-        .card-title {
-            font-family: 'Playfair Display', serif;
-            color: var(--gold);
-            font-size: 1.05rem;
-            line-height: 1.2;
-            margin-bottom: 4px;
-        }
-        .card-category {
-            font-size: 0.75rem;
-            color: var(--gray);
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
-        }
-        .status-badge {
-            font-size: 0.78rem;
-            padding: 3px 10px;
-            border-radius: 12px;
-            font-weight: 600;
-            white-space: nowrap;
-            flex-shrink: 0;
-        }
-        .status-active   { background: rgba(76,175,80,0.15);  color: #6fcf74; border: 1px solid rgba(76,175,80,0.3); }
-        .status-waiting  { background: rgba(255,193,7,0.15);  color: #ffd54f; border: 1px solid rgba(255,193,7,0.3); }
-        .status-blocked  { background: rgba(244,67,54,0.15);  color: #ef9a9a; border: 1px solid rgba(244,67,54,0.3); }
-        .status-complete { background: rgba(33,150,243,0.15); color: #90caf9; border: 1px solid rgba(33,150,243,0.3); }
+details.archive{margin-top:34px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+details.archive>summary{display:flex;align-items:center;gap:12px;padding:16px 18px;color:var(--done);font-family:var(--font-serif);font-size:1.2rem;font-weight:700}
+details.archive>summary .t{color:var(--ink)}
+details.archive>summary .count{font-family:var(--font-sans);font-size:0.78rem;font-weight:400;color:var(--muted);margin-left:auto}
+details.archive .grid{padding:0 18px 18px}
+details.archive .wf{background:transparent}
 
-        /* Progress bar */
-        .progress-section { margin-bottom: 10px; }
-        .progress-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 6px;
-        }
-        .progress-label { font-size: 0.78rem; color: var(--gray); }
-        .progress-pct { font-size: 0.78rem; color: var(--gold); font-weight: 600; }
-        .progress-bar {
-            height: 5px;
-            background: var(--border);
-            border-radius: 3px;
-            overflow: hidden;
-        }
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--gold), var(--gold-light));
-            border-radius: 3px;
-            transition: width 0.4s ease;
-        }
-
-        /* Current step callout */
-        .current-step-row {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.83rem;
-            color: var(--gray-light);
-        }
-        .current-step-dot {
-            width: 7px; height: 7px;
-            border-radius: 50%;
-            background: var(--gold);
-            flex-shrink: 0;
-            box-shadow: 0 0 6px var(--gold);
-        }
-        .current-step-name { color: var(--white); font-weight: 500; }
-
-        /* Expand toggle */
-        .expand-hint {
-            text-align: right;
-            font-size: 0.72rem;
-            color: var(--gray);
-            margin-top: 10px;
-            transition: color 0.2s;
-        }
-        .workflow-card:hover .expand-hint { color: var(--gold); }
-
-        /* ── Expanded Detail ── */
-        .card-detail {
-            display: none;
-            margin-top: 18px;
-            padding-top: 18px;
-            border-top: 1px solid var(--border);
-        }
-        .workflow-card.expanded .card-detail { display: block; animation: fadeIn 0.25s ease; }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* Step list */
-        .steps-list { list-style: none; display: flex; flex-direction: column; gap: 6px; }
-        .step-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-            padding: 9px 12px;
-            border-radius: 8px;
-            background: var(--bg-step);
-            border: 1px solid transparent;
-            transition: all 0.2s;
-        }
-        .step-item.step-done {
-            opacity: 0.55;
-        }
-        .step-item.step-done .step-name { text-decoration: line-through; color: var(--gray); }
-        .step-item.step-current {
-            background: var(--gold-dim);
-            border-color: var(--gold);
-        }
-        .step-item.step-next {
-            border-color: rgba(212,175,55,0.35);
-        }
-        .step-num {
-            width: 22px; height: 22px;
-            border-radius: 50%;
-            background: var(--border);
-            color: var(--gray);
-            font-size: 0.72rem;
-            font-weight: 700;
-            display: flex; align-items: center; justify-content: center;
-            flex-shrink: 0;
-            margin-top: 1px;
-        }
-        .step-item.step-done .step-num { background: rgba(76,175,80,0.2); color: var(--green); }
-        .step-item.step-current .step-num { background: var(--gold); color: #000; }
-        .step-item.step-next .step-num { background: rgba(212,175,55,0.2); color: var(--gold); }
-        .step-body { flex: 1; min-width: 0; }
-        .step-name { font-size: 0.87rem; color: var(--white); font-weight: 500; }
-        .step-tag {
-            font-size: 0.7rem;
-            padding: 1px 7px;
-            border-radius: 8px;
-            display: inline-block;
-            margin-top: 3px;
-        }
-        .tag-current { background: rgba(212,175,55,0.2); color: var(--gold); }
-        .tag-next    { background: rgba(212,175,55,0.12); color: var(--gold-light); }
-        .tag-done    { background: rgba(76,175,80,0.15); color: #6fcf74; }
-
-        /* Action buttons */
-        .card-actions {
-            display: flex;
-            gap: 8px;
-            margin-top: 16px;
-            flex-wrap: wrap;
-        }
-        .btn-advance {
-            padding: 8px 18px;
-            background: var(--gold);
-            color: #000;
-            border: none;
-            border-radius: 8px;
-            font-weight: 700;
-            font-size: 0.83rem;
-            cursor: pointer;
-            font-family: 'Inter', sans-serif;
-            transition: background 0.2s;
-        }
-        .btn-advance:hover { background: var(--gold-light); }
-        .btn-advance:disabled { opacity: 0.4; cursor: not-allowed; }
-        .btn-back {
-            padding: 8px 14px;
-            background: transparent;
-            color: var(--gray);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            font-size: 0.83rem;
-            cursor: pointer;
-            font-family: 'Inter', sans-serif;
-            transition: all 0.2s;
-        }
-        .btn-back:hover { border-color: var(--gray-light); color: var(--white); }
-        .btn-back:disabled { opacity: 0.3; cursor: not-allowed; }
-        .btn-reset {
-            padding: 8px 14px;
-            background: transparent;
-            color: var(--red);
-            border: 1px solid rgba(244,67,54,0.3);
-            border-radius: 8px;
-            font-size: 0.83rem;
-            cursor: pointer;
-            font-family: 'Inter', sans-serif;
-            transition: all 0.2s;
-            margin-left: auto;
-        }
-        .btn-reset:hover { background: rgba(244,67,54,0.1); }
-
-        /* ── Empty state ── */
-        .empty-state {
-            grid-column: 1 / -1;
-            text-align: center;
-            padding: 60px 20px;
-            color: var(--gray);
-        }
-        .empty-state .icon { font-size: 3rem; margin-bottom: 12px; }
-
-        /* ── Responsive ── */
-        @media (max-width: 600px) {
-            .workflow-grid { grid-template-columns: 1fr; padding: 0 12px 30px; }
-            .page-header h1 { font-size: 1.5rem; }
-            .filter-bar { padding: 12px; }
-        }
+@media (max-width:820px){
+  nav.site-nav{position:static;padding:10px 12px;gap:2px}
+  nav.site-nav a{font-size:0.78rem;padding:4px 8px}
+  .page-head{padding:30px 0 24px}
+  .page-head h1{font-size:1.75rem}
+  .summary{grid-template-columns:repeat(2,1fr)}
+  .area-head{flex-wrap:wrap;gap:6px 12px}
+  .area-head .sub{flex-basis:100%;order:3}
+  .area-head .count{margin-left:auto}
+  .grid{grid-template-columns:1fr}
+  .legend ul{grid-template-columns:1fr}
+}
+@media (max-width:420px){
+  .wrap{padding:0 14px}
+  .wf{padding:14px 13px 12px;gap:11px}
+  .wf-head{flex-wrap:wrap-reverse;gap:6px}
+}
     </style>
-    <!-- Open Graph / Twitter (backfilled) -->
-    <meta name="description" content="State-machine dashboard for tracking multi-step processes across all areas of life.">
-    <meta property="og:image" content="https://usmcmin.org/assets/icons/icon-512.png">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Workflow Command Center">
-    <meta name="twitter:image" content="https://usmcmin.org/assets/icons/icon-512.png">
-    <link rel="manifest" href="/manifest.json">
-    <link rel="stylesheet" href="/assets/css/print.css" media="print">
+    <link rel="stylesheet" href="/assets/css/light-icons.css">
     <link rel="stylesheet" href="/assets/css/usmc-disclosure.css?v=20261003a">
+    <link rel="stylesheet" href="/assets/css/print.css" media="print">
+    <style>
+/* Print: white paper, charcoal ink, no dark blocks. Loaded after the shared print sheet so it wins. */
+@media print{
+  @page{size:letter;margin:0.4in}
+  html,body{background:#fff !important;color:#1a1a1a !important;font-family:Georgia,'Times New Roman',serif !important;font-size:8pt !important;line-height:1.25 !important}
+  nav.site-nav,.jump,footer img,.sprite,.wf .ico,.area-head .ico,details.archive>summary .ico,.usmc-tri{display:none !important}
+  .wrap{max-width:none !important;padding:0 !important}
+  .page-head{background:none !important;border:0 !important;border-bottom:1pt solid #8a6a1a !important;padding:0 0 4pt !important}
+  .eyebrow{color:#8a6a1a !important;font-size:6.5pt !important;margin:0 0 1pt !important}
+  .eyebrow::before{display:none !important}
+  .page-head h1{font-size:14pt !important;color:#1a1a1a !important;margin:0 0 1pt !important}
+  .lede{font-size:7.6pt !important;color:#2a2a2a !important;max-width:none !important;margin:0 !important}
+  .reviewed{font-size:7.6pt !important;color:#2a2a2a !important;margin:2pt 0 0 !important}
+  .reviewed strong{color:#1a1a1a !important}
+  .summary{display:flex !important;gap:14pt !important;margin:3pt 0 0 !important}
+  .sum{background:none !important;border:0 !important;padding:0 !important;display:flex !important;gap:3pt;align-items:baseline}
+  .sum .n{font-size:10pt !important;color:#1a1a1a !important;font-family:Georgia,serif !important}
+  .sum .l{font-size:8pt !important;color:#1a1a1a !important;margin:0 !important}
+  .sum .d{display:none !important}
+  main{padding:0 !important}
+  .area{padding-top:4pt !important;break-inside:auto}
+  .area-head{border-bottom:0.6pt solid #b8960c !important;padding-bottom:1pt !important;margin-bottom:2pt !important;break-after:avoid}
+  .area-head h2{font-size:9.5pt !important;color:#8a6a1a !important;margin:0 !important}
+  .area-head .sub{display:none !important}
+  .area-head .count{font-size:7pt !important;color:#5c5c5c !important;margin-left:auto}
+  .grid{display:grid !important;grid-template-columns:1fr 1fr !important;column-gap:16pt !important;row-gap:0 !important;align-items:start;padding:0 !important}
+  .wf{display:block !important;background:none !important;border:0 !important;border-radius:0 !important;padding:0 !important;margin:0 0 1.5pt !important;break-inside:avoid;page-break-inside:avoid;color:#1a1a1a !important}
+  .wf-head{display:block !important;margin:0 !important}
+  .wf h3{display:inline !important;font-size:7.6pt !important;font-family:Georgia,serif !important;color:#1a1a1a !important;margin:0 !important}
+  .pill{display:inline !important;border:0 !important;padding:0 !important;margin:0 0 0 3pt !important;font-size:6.5pt !important;font-family:Georgia,serif !important;font-weight:700 !important;text-transform:uppercase;letter-spacing:0.04em;color:#8a6a1a !important}
+  .pill::before{display:none !important}
+  .wf.is-paused .pill{color:#a40000 !important}
+  .wf.is-progress .pill{color:#1E3A5F !important}
+  .wf.is-done .pill{color:#5c5c5c !important}
+  .wf-what{font-size:7pt !important;line-height:1.18 !important;color:#2a2a2a !important;margin:0 !important}
+  .wf-now{font-size:7pt !important;line-height:1.18 !important;color:#1a1a1a !important;margin:0 !important;padding:0 !important;border:0 !important;font-style:italic}
+  .wf-meta{display:none !important}
+  .legend{display:none !important}
+  .legend h2{display:none !important}
+  .legend ul{display:none !important}
+  .legend li{display:inline !important;font-size:6.8pt !important;line-height:1.2 !important;margin:0 8pt 0 0 !important;color:#2a2a2a !important}
+  .legend b{color:#1a1a1a !important;margin-right:3pt}
+  .legend p{font-size:6.8pt !important;margin:1pt 0 0 !important;color:#5c5c5c !important}
+  details.archive{border:0 !important;background:none !important;margin:4pt 0 0 !important}
+  details.archive>summary{padding:0 0 1pt !important;font-size:9.5pt !important;color:#8a6a1a !important;border-bottom:0.6pt solid #b8960c !important;margin-bottom:2pt}
+  details.archive>summary .t{color:#8a6a1a !important}
+  details.archive>summary .count{font-size:7pt !important;color:#5c5c5c !important}
+  footer{border-top:0.6pt solid #d4d0c8 !important;margin-top:6pt !important;padding:3pt 0 0 !important;font-size:6.5pt !important;color:#5c5c5c !important}
+  footer p{font-size:6.5pt !important;margin:0 !important;color:#5c5c5c !important}
+  footer div{display:none !important}
+  a{color:#1a1a1a !important;text-decoration:none !important}
+}
+    </style>
 </head>
 <body>
 
-<!-- Edge-gated: usmcmin-site Worker (PROTECTED_STATIC_KEYS) requires the server-side PIN session before this page is served; client-side PIN gate removed 2026-10-08 (MBP-1008-GATES). -->
+<!-- Edge-gated: the site Worker requires the server-side PIN session before this page is served.
 
-<!-- ── Main Content (hidden until unlocked) ── -->
-<div id="main-content">
+     WEEKLY REFRESH (about 20 minutes). This page is plain static HTML. There is no data file and no build step.
+       1. Change a status: edit the is-* class on that <article class="wf ..."> (is-live, is-progress, is-paused, is-done)
+          and the word inside its <span class="pill">. The script at the bottom re-counts everything from the classes.
+       2. Update the four fallback numbers in the summary and the "Last reviewed" date.
+       3. Finished work: move the whole <article> into the Archive <details> at the bottom, set is-done, and put
+          "Closed <Month Year>" in its wf-meta line.
+       4. New workflow: copy any <article class="wf ..."> block. Pick an icon id from the <svg class="sprite"> list.
+       5. Never publish names of guests or clients, amounts, addresses, door codes, health data or credentials.
+-->
 
-    <div id="persist-warn" style="display:none; margin:12px 24px 0; padding:10px 14px; background:rgba(244,67,54,0.12); border:1px solid rgba(244,67,54,0.5); border-radius:8px; color:#ffb4ac; font-size:0.82rem;">
-        ⚠ This browser is blocking saved progress (private mode or storage full), so check-offs won't stick here. Use the same non-private browser each time, or tap <b>Copy State → MbPro</b> to hand your progress off.
-    </div>
+<svg class="sprite" aria-hidden="true" focusable="false">
+    <defs>
+        <symbol id="i-book" viewBox="0 0 24 24"><path d="M3 5.5c2.5-1 5.5-1 9 1v13c-3.5-2-6.5-2-9-1z"/><path d="M21 5.5c-2.5-1-5.5-1-9 1v13c3.5-2 6.5-2 9-1z"/></symbol>
+        <symbol id="i-sunrise" viewBox="0 0 24 24"><path d="M3 18h18"/><path d="M6.5 18a5.5 5.5 0 0 1 11 0"/><path d="M12 5v3"/><path d="M4.6 9.6l2 2"/><path d="M19.4 9.6l-2 2"/></symbol>
+        <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+        <symbol id="i-anchor" viewBox="0 0 24 24"><circle cx="12" cy="5.5" r="2.5"/><path d="M12 8v13"/><path d="M8.5 11.5h7"/><path d="M5 13a7 7 0 0 0 14 0"/></symbol>
+        <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18"/><path d="M8 3v4"/><path d="M16 3v4"/></symbol>
+        <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></symbol>
+        <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v5.5c0 4.5-3 8-7 9.5-4-1.5-7-5-7-9.5V6z"/></symbol>
+        <symbol id="i-shield-check" viewBox="0 0 24 24"><path d="M12 3l7 3v5.5c0 4.5-3 8-7 9.5-4-1.5-7-5-7-9.5V6z"/><path d="M9 12l2.2 2.2L15 10.5"/></symbol>
+        <symbol id="i-pen" viewBox="0 0 24 24"><path d="M4 20l1-4L16.5 4.5a2.1 2.1 0 0 1 3 3L8 19z"/><path d="M14.5 6.5l3 3"/></symbol>
+        <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="7.5" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.3a3.5 3.5 0 0 1 0 6.4"/><path d="M18 14.2a6.5 6.5 0 0 1 3.5 5.8"/></symbol>
+        <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"/><path d="M4.5 21a7.5 7.5 0 0 1 15 0"/></symbol>
+        <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3.5 7l8.5 6 8.5-6"/></symbol>
+        <symbol id="i-tag" viewBox="0 0 24 24"><path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1.2"/></symbol>
+        <symbol id="i-rings" viewBox="0 0 24 24"><circle cx="9" cy="14" r="5"/><circle cx="15" cy="14" r="5"/></symbol>
+        <symbol id="i-phone" viewBox="0 0 24 24"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></symbol>
+        <symbol id="i-book-closed" viewBox="0 0 24 24"><path d="M5 4h12a2 2 0 0 1 2 2v14H7a2 2 0 0 1-2-2z"/><path d="M5 18a2 2 0 0 1 2-2h12"/><path d="M9 8h6"/></symbol>
+        <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></symbol>
+        <symbol id="i-check-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.7 2.7L16 9.5"/></symbol>
+        <symbol id="i-file" viewBox="0 0 24 24"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/><path d="M10 13h6"/><path d="M10 17h6"/></symbol>
+        <symbol id="i-type" viewBox="0 0 24 24"><path d="M5 6h14"/><path d="M12 6v13"/><path d="M9 19h6"/></symbol>
+        <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></symbol>
+        <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 16V5"/><path d="M7.5 9.5L12 5l4.5 4.5"/><path d="M4 19h16"/></symbol>
+        <symbol id="i-compass" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/></symbol>
+        <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></symbol>
+        <symbol id="i-church" viewBox="0 0 24 24"><path d="M12 2v5"/><path d="M10 4h4"/><path d="M6 21V11l6-4 6 4v10z"/><path d="M10 21v-5h4v5"/></symbol>
+        <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 4v16h16"/><path d="M8 16v-5"/><path d="M12 16V8"/><path d="M16 16v-3"/></symbol>
+        <symbol id="i-broadcast" viewBox="0 0 24 24"><circle cx="12" cy="12" r="2"/><path d="M7.8 16.2a6 6 0 0 1 0-8.4"/><path d="M16.2 7.8a6 6 0 0 1 0 8.4"/><path d="M5 19a10 10 0 0 1 0-14"/><path d="M19 5a10 10 0 0 1 0 14"/></symbol>
+        <symbol id="i-scale" viewBox="0 0 24 24"><path d="M12 4v16"/><path d="M7 20h10"/><path d="M5 7h14"/><path d="M5 7l-2.5 6a3 3 0 0 0 5 0z"/><path d="M19 7l-2.5 6a3 3 0 0 0 5 0z"/></symbol>
+        <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-6.5-6-6.5-11a6.5 6.5 0 0 1 13 0c0 5-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></symbol>
+        <symbol id="i-columns" viewBox="0 0 24 24"><path d="M3 9l9-5 9 5"/><path d="M5 9v9"/><path d="M10 9v9"/><path d="M14 9v9"/><path d="M19 9v9"/><path d="M3 20h18"/></symbol>
+        <symbol id="i-news" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="14" rx="1.5"/><path d="M8 9h8"/><path d="M8 13h8"/><path d="M8 16.5h4"/></symbol>
+        <symbol id="i-key" viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="M11 12l9-9"/><path d="M16 7l3 3"/><path d="M13.5 9.5l2 2"/></symbol>
+        <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></symbol>
+        <symbol id="i-home" viewBox="0 0 24 24"><path d="M4 11l8-7 8 7"/><path d="M6 10v10h12V10"/><path d="M10 20v-6h4v6"/></symbol>
+        <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9-4.3-4.1 5.9-.8z"/></symbol>
+        <symbol id="i-switch" viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="8" rx="4"/><circle cx="15.5" cy="12" r="2.2"/></symbol>
+        <symbol id="i-building" viewBox="0 0 24 24"><path d="M5 21V4h9v17"/><path d="M14 9h5v12"/><path d="M3 21h18"/><path d="M8 8h3"/><path d="M8 12h3"/><path d="M8 16h3"/></symbol>
+        <symbol id="i-card" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/><path d="M7 15h3"/></symbol>
+        <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10" r="1.5"/><path d="M4 17l5-4 4 3 3-2.5 4 3.5"/></symbol>
+        <symbol id="i-trend" viewBox="0 0 24 24"><path d="M4 17l5-5 4 3 7-8"/><path d="M15 7h5v5"/></symbol>
+        <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3c3 3.5 3 14.5 0 18"/><path d="M12 3c-3 3.5-3 14.5 0 18"/></symbol>
+        <symbol id="i-clipboard" viewBox="0 0 24 24"><path d="M8 4h8v3H8z"/><path d="M8 5.5H6V21h12V5.5h-2"/><path d="M9 12h6"/><path d="M9 16h6"/></symbol>
+        <symbol id="i-ledger" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="1.5"/><path d="M9 8h6"/><path d="M9 12h6"/><path d="M9 16h3"/></symbol>
+        <symbol id="i-dumbbell" viewBox="0 0 24 24"><path d="M4 9v6"/><path d="M7 7v10"/><path d="M17 7v10"/><path d="M20 9v6"/><path d="M7 12h10"/></symbol>
+        <symbol id="i-pulse" viewBox="0 0 24 24"><path d="M3 12h4l2.5-6 4 12 2.5-6h5"/></symbol>
+        <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 17v-6a6 6 0 0 1 12 0v6l1.5 2h-15z"/><path d="M10 21.5h4"/></symbol>
+        <symbol id="i-drive" viewBox="0 0 24 24"><rect x="3" y="13" width="18" height="7" rx="2"/><path d="M5 13l2.5-8h9L19 13"/><path d="M11 16.5h6"/><path d="M7 16.5h.5"/></symbol>
+        <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M6 11a6 6 0 0 0 12 0"/><path d="M12 17v4"/><path d="M9 21h6"/></symbol>
+        <symbol id="i-briefcase" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5h6v2"/><path d="M3 13h18"/></symbol>
+        <symbol id="i-medal" viewBox="0 0 24 24"><circle cx="12" cy="15" r="5"/><path d="M9 3l3 7 3-7"/></symbol>
+        <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></symbol>
+        <symbol id="i-cpu" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="1.5"/><rect x="10" y="10" width="4" height="4"/><path d="M9 3v3"/><path d="M15 3v3"/><path d="M9 18v3"/><path d="M15 18v3"/><path d="M3 9h3"/><path d="M3 15h3"/><path d="M18 9h3"/><path d="M18 15h3"/></symbol>
+        <symbol id="i-inbox" viewBox="0 0 24 24"><path d="M4 13l2.5-8h11L20 13v6H4z"/><path d="M4 13h5l1 2h4l1-2h5"/></symbol>
+        <symbol id="i-layers" viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 12.5l9 5 9-5"/><path d="M3 17l9 5 9-5"/></symbol>
+        <symbol id="i-list-check" viewBox="0 0 24 24"><path d="M4 7l1.5 1.5L8 6"/><path d="M4 13l1.5 1.5L8 12"/><path d="M4 19l1.5 1.5L8 18"/><path d="M11 7h9"/><path d="M11 13h9"/><path d="M11 19h9"/></symbol>
+        <symbol id="i-archive" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="5" rx="1"/><path d="M5 9v11h14V9"/><path d="M10 13h4"/></symbol>
+        <symbol id="i-cap" viewBox="0 0 24 24"><path d="M2.5 9L12 4.5 21.5 9 12 13.5z"/><path d="M6.5 11v5c2 2 9 2 11 0v-5"/><path d="M21.5 9v5"/></symbol>
+    </defs>
+</svg>
 
-    <div class="page-header">
-        <h1><img src="assets/icons/shield-checklist-48.png" alt="" width="16" height="16" style="vertical-align:middle;margin-right:3px;"> Workflow Command Center</h1>
-        <div class="subtitle">State-machine tracker — all areas of life</div>
-        <div class="stats-row" id="stats-row"></div>
-    </div>
-
-    <nav class="nav-links">
-        <a href="tacc.html" class="nav-link">⚓ Captain's Wheelhouse</a>
-        <a href="first-officer.html" class="nav-link"><img src="assets/icons/shield-leader.png" alt="" width="16" height="16" style="vertical-align:middle;margin-right:3px;"> First Officer</a>
-        <a href="family-meeting.html" class="nav-link">👨‍👩‍👧‍👦 All Hands</a>
-        <a href="index.html" class="nav-link">🏠 Home</a>
+    <nav class="site-nav">
+        <a href="index.html"><img src="assets/icons/shield-home-48.png" class="site-icon" alt="" width="16" height="16"> U.S.M.C. Ministries Home</a>
+        <a href="watchman.html"><img src="assets/icons/shield-bible.png" class="site-icon" alt="" width="16" height="16"> Watchman Bible Plan</a>
+        <a href="bible.html"><img src="assets/icons/shield-bible-cross-48.png" class="site-icon" alt="" width="16" height="16"> Bible Translation Engine</a>
+        <a href="lexicon.html"><img src="assets/icons/shield-alpha-omega-48.png" class="site-icon" alt="" width="16" height="16"> Lexicon</a>
+        <a href="dictionary/index.html"><img src="assets/icons/shield-book-greek-48.png" class="site-icon" alt="" width="16" height="16"> Dictionary</a>
+        <a href="worship.html"><img src="assets/icons/shield-quill-note-48.png" class="site-icon" alt="" width="16" height="16"> Worship</a>
+        <a href="blog.html"><img src="assets/icons/shield-scroll-quill-48.png" class="site-icon" alt="" width="16" height="16"> Blog</a>
+        <a href="connect.html"><img src="assets/icons/shield-handshake.png" class="site-icon" alt="" width="16" height="16"> Connect</a>
     </nav>
 
-    <div class="filter-bar" id="filter-bar"></div>
-    <div style="text-align:right; padding: 0 24px 8px; opacity:0.6; font-size:0.8rem;">
-        <span id="sync-note" style="margin-right:12px; color:#8fae8f;"></span><button onclick="exportStateToClipboard()" style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.2); color:#ccc; padding:5px 14px; border-radius:6px; cursor:pointer; font-size:0.78rem;"><img src="assets/icons/shield-checklist-48.png" alt="" width="16" height="16" style="vertical-align:middle;margin-right:3px;"> Copy State → MbPro</button>
-    </div>
+    <header class="page-head">
+        <div class="wrap">
+            <p class="eyebrow">Command pages</p>
+            <h1>Workflow command center</h1>
+            <p class="lede">Every recurring workflow across ministry, business, family and operations, with one honest status each. Most of the routine work here is AI-assisted: scheduled agents run it, and a person reviews what matters.</p>
+            <p class="reviewed"><strong>Last reviewed: November 24, 2026</strong>. Reviewed weekly against the schedules, the logs, the task list and the command notebook.</p>
 
-    <div class="workflow-grid" id="workflow-grid"></div>
-
-</div>
-
-<script>
-</script>
-
-<script src="assets/workflows-data.js?v=2026-11-18-d6e95b78"></script>
-<script>
-// ─────────────────────────────────────────────
-//  WORKFLOW DATA
-// ─────────────────────────────────────────────
-
-
-// ─────────────────────────────────────────────
-//  STATE (localStorage)
-// ─────────────────────────────────────────────
-const STORAGE_KEY = 'wf-state-v1';
-// Bumped on each server deploy that bakes verified progress into WORKFLOWS_DEFAULT.
-// Surfaced in the UI so Adam can tell the page reflects a real sync, not just local clicks.
-const SEED_SYNCED = (typeof WORKFLOWS_SYNCED !== 'undefined') ? WORKFLOWS_SYNCED : '2026-07-09';
-
-function loadState() {
-    try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) return null;
-        return JSON.parse(raw);
-    } catch(e) { return null; }
-}
-
-function saveState(workflows) {
-    // Save only mutable fields
-    const slim = workflows.map(w => ({
-        id: w.id,
-        currentStep: w.currentStep,
-        status: w.status,
-        archived: !!w.archived,
-    }));
-    let ok = true;
-    try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(slim));
-    } catch(e) {
-        // Safari Private Mode / quota / storage disabled throws here. Catch it so a failed
-        // write can't abort the rest of the click handler (the re-render must still run),
-        // and surface a visible warning so a silent no-save never looks like success.
-        ok = false;
-        console.warn('workflows: state did not persist to localStorage —', e);
-        const warn = document.getElementById('persist-warn');
-        if (warn) warn.style.display = '';
-    }
-    // Also write to a visible export blob so MbPro can read it
-    try {
-        const exportData = {
-            exportedAt: new Date().toISOString(),
-            workflows: slim
-        };
-        localStorage.setItem('wf-export-latest', JSON.stringify(exportData));
-    } catch(e) {}
-    return ok;
-}
-
-function exportStateToClipboard() {
-    try {
-        const slim = workflows.map(w => ({
-            id: w.id,
-            title: w.title,
-            currentStep: w.currentStep,
-            totalSteps: w.steps.length,
-            status: w.status,
-            currentStepName: w.steps[w.currentStep] ? w.steps[w.currentStep].name : 'Complete'
-        }));
-        const exportData = JSON.stringify({ exportedAt: new Date().toISOString(), workflows: slim }, null, 2);
-        navigator.clipboard.writeText(exportData).then(() => {
-            alert('Workflow state copied to clipboard! Paste it to MbPro.');
-        });
-    } catch(e) { alert('Copy failed: ' + e); }
-}
-
-function mergeState(defaults) {
-    const saved = loadState();
-    return defaults.map(w => {
-        const base = { ...w, steps: w.steps.map(s => ({...s})) };
-        const override = saved ? saved.find(s => s.id === w.id) : null;
-        // The deployed seed (WORKFLOWS_DEFAULT) is the authoritative FLOOR for progress:
-        // it carries server-verified state and is identical on every device. A browser's
-        // saved localStorage may only ADVANCE a workflow past that floor — it can never
-        // pull it back below. This is the fix for "the page doesn't stay updated": stale
-        // local state can no longer mask a newer deployed baseline, while any steps Adam
-        // completed locally beyond the baseline are still preserved.
-        const cs = override ? Math.max(w.currentStep || 0, override.currentStep || 0) : (w.currentStep || 0);
-        // Always derive status from step count so a fully-stepped workflow can never show
-        // "100%" while still badged Active (keeps the badge + stat counts honest).
-        let status;
-        if (cs >= w.steps.length) status = 'complete';
-        else if (override && (override.status === 'blocked' || override.status === 'waiting')) status = override.status;
-        else status = w.status;
-        // Archived = seed OR local-archived, EXCEPT an explicit local un-archive (false) wins,
-        // so Adam can pull even a seed-archived item back onto the active board.
-        let archived;
-        if (override && override.archived === false) archived = false;
-        else archived = !!(w.archived || (override && override.archived));
-        return { ...base, currentStep: cs, status, archived };
-    });
-}
-
-// ─────────────────────────────────────────────
-//  RENDER
-// ─────────────────────────────────────────────
-let workflows = [];
-let activeFilter = 'All';
-let expandedId = null;
-
-function pct(w) {
-    if (w.steps.length === 0) return 0;
-    return Math.round((w.currentStep / w.steps.length) * 100);
-}
-
-function renderStats() {
-    const el = document.getElementById('stats-row');
-    const board    = workflows.filter(w => !w.archived);
-    const active   = board.filter(w => w.status === 'active').length;
-    const complete = board.filter(w => w.status === 'complete').length;
-    const waiting  = board.filter(w => w.status === 'waiting').length;
-    const blocked  = board.filter(w => w.status === 'blocked').length;
-    const archived = workflows.filter(w => w.archived).length;
-    el.innerHTML = `
-        <div class="stat-pill">Total <span>${board.length}</span></div>
-        <div class="stat-pill">🟢 Active <span>${active}</span></div>
-        <div class="stat-pill">✅ Complete <span>${complete}</span></div>
-        <div class="stat-pill">🟡 Waiting <span>${waiting}</span></div>
-        <div class="stat-pill">🔴 Blocked <span>${blocked}</span></div>
-        <a class="stat-pill" href="archive.html" style="text-decoration:none;">🗄 Archived <span>${archived}</span></a>
-    `;
-}
-
-function renderFilters() {
-    const bar = document.getElementById('filter-bar');
-    bar.innerHTML = CATEGORIES.map(cat => `
-        <button class="filter-btn ${activeFilter === cat ? 'active' : ''}"
-            onclick="setFilter('${cat}')">${cat}</button>
-    `).join('');
-}
-
-function setFilter(cat) {
-    activeFilter = cat;
-    renderFilters();
-    renderGrid();
-}
-
-function renderGrid() {
-    const grid = document.getElementById('workflow-grid');
-    const board = workflows.filter(w => !w.archived);   // archived items live on archive.html
-    const visible = activeFilter === 'All'
-        ? board
-        : board.filter(w => w.category === activeFilter);
-
-    if (!visible.length) {
-        grid.innerHTML = `<div class="empty-state"><div class="icon"><img src="assets/icons/shield-compass.png" alt="" width="16" height="16" style="vertical-align:middle;margin-right:3px;"></div><p>No workflows in this category yet.</p></div>`;
-        return;
-    }
-
-    grid.innerHTML = visible.map(w => renderCard(w)).join('');
-
-    // Re-attach event listeners
-    visible.forEach(w => {
-        const card = document.getElementById('card-' + w.id);
-        if (card) {
-            card.addEventListener('click', (e) => {
-                // Don't toggle if clicking buttons
-                if (e.target.closest('button')) return;
-                toggleExpand(w.id);
-            });
-        }
-    });
-}
-
-function renderCard(w) {
-    const st = STATUS_LABELS[w.status] || STATUS_LABELS.active;
-    const progress = pct(w);
-    const currentStepName = w.currentStep < w.steps.length
-        ? w.steps[w.currentStep].name
-        : 'Complete';
-    const stepDisplay = `Step ${w.currentStep + 1} of ${w.steps.length}`;
-    const isExpanded = expandedId === w.id;
-    const isComplete = w.currentStep >= w.steps.length;
-
-    return `
-    <div class="workflow-card ${isExpanded ? 'expanded' : ''}" id="card-${w.id}">
-        <div class="card-header">
-            <div class="card-icon">${w.icon}</div>
-            <div class="card-meta">
-                <div class="card-title">${w.title}</div>
-                <div class="card-category">${w.category}</div>
+            <div class="summary" aria-label="Status summary">
+                <div class="sum is-live"><span class="n" data-count="is-live">38</span><span class="l">Live</span><span class="d">Running on a schedule, confirmed by a log or a recent run</span></div>
+                <div class="sum is-progress"><span class="n" data-count="is-progress">16</span><span class="l">In progress</span><span class="d">Being built or worked, not finished</span></div>
+                <div class="sum is-paused"><span class="n" data-count="is-paused">8</span><span class="l">Paused</span><span class="d">Not started, or stopped for a named reason</span></div>
+                <div class="sum is-done"><span class="n" data-count="is-done">3</span><span class="l">Archived</span><span class="d">Complete, kept at the bottom for the record</span></div>
             </div>
-            <div class="status-badge ${st.cls}">${st.icon} ${st.label}</div>
-        </div>
 
-        <div class="progress-section">
-            <div class="progress-row">
-                <span class="progress-label">${isComplete ? 'Finished!' : stepDisplay}</span>
-                <span class="progress-pct">${progress}%</span>
-            </div>
-            <div class="progress-bar">
-                <div class="progress-fill" style="width:${progress}%"></div>
+            <div class="jump" aria-label="On this page">
+                <a href="#faith">Faith and ministry</a><a href="#publishing">Scripture tools and publishing</a><a href="#directories">Directories and civic</a><a href="#hospitality">Hospitality</a><a href="#desks">Finance, studio and health desks</a><a href="#family">Family and personal</a><a href="#operations">Fleet operations</a><a href="#archive">Archive</a>
+                <span class="sep"></span>
+                <a class="cmd" href="tacc.html">Captain's wheelhouse</a><a class="cmd" href="first-officer.html">First officer</a><a class="cmd" href="family-meeting.html">All hands</a>
             </div>
         </div>
+    </header>
 
-        ${!isComplete ? `
-        <div class="current-step-row">
-            <div class="current-step-dot"></div>
-            <span>Now: <span class="current-step-name">${currentStepName}</span></span>
-        </div>
-        ` : `
-        <div class="current-step-row">
-            <span style="color:var(--green);">✅ All steps complete!</span>
-        </div>
-        `}
-
-        <div class="expand-hint"><span class="usmc-tri usmc-tri-down" aria-hidden="true" style="margin-right:6px;${isExpanded ? 'transform:rotate(180deg)' : ''}"></span>${isExpanded ? 'Collapse' : 'Expand steps'}</div>
-
-        <div class="card-detail">
-            ${renderStepList(w)}
-            <div class="card-actions">
-                <button class="btn-back" onclick="stepBack('${w.id}')" ${w.currentStep <= 0 ? 'disabled' : ''}>← Back</button>
-                <button class="btn-advance" onclick="stepAdvance('${w.id}')" ${isComplete ? 'disabled' : ''}>
-                    ${w.currentStep === 0 ? 'Mark Started' : isComplete ? '✅ Done' : 'Mark Complete →'}
-                </button>
-                ${isComplete ? `<button onclick="archiveWorkflow('${w.id}')" style="background:rgba(212,175,55,0.15); border:1px solid var(--gold); color:var(--gold); border-radius:8px; padding:7px 14px; cursor:pointer; font-size:0.82rem; font-family:'Inter',sans-serif;">🗄 Archive</button>` : ''}
-                <button class="btn-reset" onclick="resetWorkflow('${w.id}')">↺ Reset</button>
-            </div>
-        </div>
-    </div>
-    `;
-}
-
-function renderStepList(w) {
-    return `<ul class="steps-list">` +
-        w.steps.map((step, i) => {
-            let cls = '';
-            let tag = '';
-            if (i < w.currentStep) {
-                cls = 'step-done';
-                tag = `<span class="step-tag tag-done">✓ Done</span>`;
-            } else if (i === w.currentStep) {
-                cls = 'step-current';
-                tag = `<span class="step-tag tag-current">▶ Current</span>`;
-            } else if (i === w.currentStep + 1) {
-                cls = 'step-next';
-                tag = `<span class="step-tag tag-next">⚡ What's Next</span>`;
-            }
-            return `
-            <li class="step-item ${cls}">
-                <div class="step-num">${i + 1}</div>
-                <div class="step-body">
-                    <div class="step-name">${step.name}</div>
-                    ${tag}
-                    ${step.desc && cls !== 'step-done' ? `<div style="font-size:0.77rem; color:var(--gray); margin-top:3px;">${step.desc}</div>` : ''}
+    <main class="wrap">
+        <section class="area" id="faith" aria-labelledby="faith-h">
+            <div class="area-head"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-book"/></svg><h2 id="faith-h">Faith and ministry</h2><span class="sub">Daily rhythm, discipleship and the ministry's own launches.</span><span class="count" data-area-count>13 workflows</span></div>
+            <div class="grid">
+            <article class="wf is-live">
+                <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-sunrise"/></svg>
+                <div class="wf-body">
+                    <div class="wf-head"><h3>Daily devotional</h3><span class="pill">Live</span></div>
+                    <p class="wf-what">A devotional is written from the day's reading and delivered every morning, with audio.</p>
+                    <p class="wf-meta">Daily, 7:37 AM</p>
                 </div>
-            </li>
-            `;
-        }).join('') +
-    `</ul>`;
-}
+            </article>
+            <article class="wf is-live">
+                <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-clock"/></svg>
+                <div class="wf-body">
+                    <div class="wf-head"><h3>Watch readings through the day</h3><span class="pill">Live</span></div>
+                    <p class="wf-what">Scripture readings with audio go out at set watches from morning to evening.</p>
+                    <p class="wf-now">A scheduler fault on November 23 was found and fixed the same day.</p>
+                    <p class="wf-meta">Daily, five watches</p>
+                </div>
+            </article>
+            <article class="wf is-live">
+                <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-anchor"/></svg>
+                <div class="wf-body">
+                    <div class="wf-head"><h3>Captain's creed</h3><span class="pill">Live</span></div>
+                    <p class="wf-what">The creed is posted every morning for memory work.</p>
+                    <p class="wf-meta">Daily, 6:55 AM</p>
+                </div>
+            </article>
+            <article class="wf is-live">
+                <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-calendar"/></svg>
+                <div class="wf-body">
+                    <div class="wf-head"><h3>Sunday reset</h3><span class="pill">Live</span></div>
+                    <p class="wf-what">Each Sunday the weekly theme changes, unfinished devotion actions are swept and the church-calendar note is prepared.</p>
+                    <p class="wf-meta">Sundays</p>
+                </div>
+            </article>
+            <article class="wf is-live">
+                <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-heart"/></svg>
+                <div class="wf-body">
+                    <div class="wf-head"><h3>Counseling follow-up sweep</h3><span class="pill">Live</span></div>
+                    <p class="wf-what">Open counseling follow-ups are reviewed once a week so nothing is dropped.</p>
+                    <p class="wf-meta">Thursdays, 5:00 PM</p>
+                </div>
+            </article>
+            <article class="wf is-progress">
+                <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-shield"/></svg>
+                <div class="wf-body">
+                    <div class="wf-head"><h3>Freedom Group: men's purity ministry</h3><span class="pill">In progress</span></div>
+                    <p class="wf-what">A twelve-week group with intake, a confidentiality agreement, resources and a written curriculum.</p>
+                    <p class="wf-now">Now: the author's review of the drafted weeks. Launch logistics and the first cohort follow.</p>
+                    <p class="wf-meta">Hand-tracked.</p>
+                </div>
+            </article>
+            <article class="wf is-progress">
+                <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-book-closed"/></svg>
+                <div class="wf-body">
+                    <div class="wf-head"><h3>REAL MAN: 31 days in Proverbs (ebook)</h3><span class="pill">In progress</span></div>
+                    <p class="wf-what">A 31-day devotional. All 31 days and three editions are drafted.</p>
+                    <p class="wf-now">Now: the author's edit pass. Still ahead: translation review, branded PDF, sales page and launch.</p>
+                    <p class="wf-meta">Hand-tracked. No change on record since May 2026.</p>
+                </div>
+            </article>
+            <article class="wf is-progress">
+                <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-user"/></svg>
+                <div class="wf-body">
+                    <div class="wf-head"><h3>Counseling service launch</h3><span class="pill">In progress</span></div>
+                    <p class="wf-what">Intake form, pricing, welcome packet and scheduling are in place.</p>
+                    <p class="wf-now">Next: the first client through the full onboarding.</p>
+                    <p class="wf-meta">Hand-tracked. No change on record since May 2026.</p>
+                </div>
+            </article>
+            <article class="wf is-progress">
+                <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-users"/></svg>
+                <div class="wf-body">
+                    <div class="wf-head"><h3>Mentoring: first client onboarding</h3><span class="pill">In progress</span></div>
+                    <p class="wf-what">A ten-step path from intake to a 90-day review.</p>
+                    <p class="wf-now">Now: reviewing the returned intake before the first session.</p>
+                    <p class="wf-meta">Hand-tracked. No change on record since May 2026.</p>
+                </div>
+            </article>
+            <article class="wf is-progress">
+                <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-mail"/></svg>
+                <div class="wf-body">
+                    <div class="wf-head"><h3>Ministry outreach contact list</h3><span class="pill">In progress</span></div>
+                    <p class="wf-what">A contact tracker for people who have asked to hear from the ministry.</p>
+                    <p class="wf-now">Now: separating personal contacts from true ministry contacts. No mailing goes out until the list is opt-in only.</p>
+                    <p class="wf-meta">Hand-tracked. No change on record since May 2026.</p>
+                </div>
+            </article>
+            <article class="wf is-progress">
+                <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-tag"/></svg>
+                <div class="wf-body">
+                    <div class="wf-head"><h3>Ministry trademark registration</h3><span class="pill">In progress</span></div>
+                    <p class="wf-what">Registering the ministry's full name as a mark.</p>
+                    <p class="wf-now">Now: the federal trademark search before filing.</p>
+                    <p class="wf-meta">Hand-tracked.</p>
+                </div>
+            </article>
+            <article class="wf is-progress">
+                <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-phone"/></svg>
+                <div class="wf-body">
+                    <div class="wf-head"><h3>Operation Watchman reading-plan app</h3><span class="pill">In progress</span></div>
+                    <p class="wf-what">The reading plan as an installable web app. The app is deployed.</p>
+                    <p class="wf-now">Still on the list: content for all four seasons, subscriber notices and a public launch.</p>
+                    <p class="wf-meta">Hand-tracked. No change on record since May 2026.</p>
+                </div>
+            </article>
+            <article class="wf is-paused">
+                <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-rings"/></svg>
+                <div class="wf-body">
+                    <div class="wf-head"><h3>Wedding officiant page</h3><span class="pill">Paused</span></div>
+                    <p class="wf-what">A page and inquiry form for wedding services.</p>
+                    <p class="wf-now">Not started.</p>
+                    <p class="wf-meta">Hand-tracked. No change on record since May 2026.</p>
+                </div>
+            </article>
+            </div>
+        </section>
+        <section class="area" id="publishing" aria-labelledby="publishing-h">
+            <div class="area-head"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-pen"/></svg><h2 id="publishing-h">Scripture tools and publishing</h2><span class="sub">The Bible tools on this site and the rules every page ships under.</span><span class="count" data-area-count>7 workflows</span></div>
+            <div class="grid">
+            <article class="wf is-live">
+                <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-check-circle"/></svg>
+                <div class="wf-body">
+                    <div class="wf-head"><h3>Publishing approval gate</h3><span class="pill">Live</span></div>
+                    <p class="wf-what">Blog posts and long verse studies wait for written approval. A weekly audit confirms nothing reached the site without it.</p>
+                    <p class="wf-meta">Audit weekly</p>
+                </div>
+            </article>
+            <article class="wf is-live">
+                <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-file"/></svg>
+                <div class="wf-body">
+                    <div class="wf-head"><h3>PDF rule: read it online and download</h3><span class="pill">Live</span></div>
+                    <p class="wf-what">Every PDF on the site gets two buttons side by side, one to read in the browser and one to download.</p>
+                    <p class="wf-now">The site-wide sweep is finished. The rule is now checked on each new post, study and handout.</p>
+                    <p class="wf-meta">Standing rule since November 21</p>
+                </div>
+            </article>
+            <article class="wf is-live">
+                <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-type"/></svg>
+                <div class="wf-body">
+                    <div class="wf-head"><h3>Blog Scripture translation rule</h3><span class="pill">Live</span></div>
+                    <p class="wf-what">Blog posts default to the NKJV, name the translation on every quote and use verified text only. Verse studies keep the KJV above the WEB.</p>
+                    <p class="wf-meta">Standing rule since November 21</p>
+                </div>
+            </article>
+            <article class="wf is-live">
+                <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-search"/></svg>
+                <div class="wf-body">
+                    <div class="wf-head"><h3>Weekly site bug hunt</h3><span class="pill">Live</span></div>
+                    <p class="wf-what">A weekly sweep of both sites for broken links and layout faults.</p>
+                    <p class="wf-meta">Saturdays</p>
+                </div>
+            </article>
+            <article class="wf is-live">
+                <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-upload"/></svg>
+                <div class="wf-body">
+                    <div class="wf-head"><h3>Deploy and verify</h3><span class="pill">Live</span></div>
+                    <p class="wf-what">A site change ships by one push, syncs in a few minutes and is then checked from outside by a smoke test and a watchdog.</p>
+                    <p class="wf-meta">On every change</p>
+                </div>
+            </article>
+            <article class="wf is-progress">
+                <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-book-closed"/></svg>
+                <div class="wf-body">
+                    <div class="wf-head"><h3>MOOP dictionary</h3><span class="pill">In progress</span></div>
+                    <p class="wf-what">A linked dictionary of biblical words. It has passed its 7,777-entry target.</p>
+                    <p class="wf-now">Now: the Word Origins pages, with one category still waiting on a redraft.</p>
+                    <p class="wf-meta">Target passed; origins in production</p>
+                </div>
+            </article>
+            <article class="wf is-progress">
+                <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-link"/></svg>
+                <div class="wf-body">
+                    <div class="wf-head"><h3>Cross-reference expansion</h3><span class="pill">In progress</span></div>
+                    <p class="wf-what">Cross-references behind the Bible tools. Both numeric targets are met: 17,777 source verses and 71,777 chain references.</p>
+                    <p class="wf-now">Continuing work is deepening Christ-centered links across all 66 books. It has no end date.</p>
+                    <p class="wf-meta">Hand-tracked. No change on record since May 2026.</p>
+                </div>
+            </article>
+            </div>
+        </section>
+        <section class="area" id="directories" aria-labelledby="directories-h">
+            <div class="area-head"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-compass"/></svg><h2 id="directories-h">Directories and civic</h2><span class="sub">The church, business and citizen directories, and local news and civic watch.</span><span class="count" data-area-count>10 workflows</span></div>
+            <div class="grid">
+            <article class="wf is-live">
+                <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-moon"/></svg>
+                <div class="wf-body">
+                    <div class="wf-head"><h3>Nightly refinement schedule</h3><span class="pill">Live</span></div>
+                    <p class="wf-what">Nine hourly slots overnight on local models, one heavy job at a time, with a temperature check before and during each slot.</p>
+                    <p class="wf-now">Business and citizen slots are running. The three church slots are paused until the website-match dry run is clean.</p>
+                    <p class="wf-meta">Nightly, 10 PM to 7 AM</p>
+                </div>
+            </article>
+            <article class="wf is-live">
+                <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-chart"/></svg>
+                <div class="wf-body">
+                    <div class="wf-head"><h3>8:30 directory digest</h3><span class="pill">Live</span></div>
+                    <p class="wf-what">One morning report of verified gains, backlog and blockers, built by a plain script with no model writing the numbers.</p>
+                    <p class="wf-meta">Daily, 8:30 AM</p>
+                </div>
+            </article>
+            <article class="wf is-live">
+                <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-church"/></svg>
+                <div class="wf-body">
+                    <div class="wf-head"><h3>Directory quality sampling</h3><span class="pill">Live</span></div>
+                    <p class="wf-what">A sample of church records is checked every three days and denominations are sampled each Monday.</p>
+                    <p class="wf-meta">Every 3 days and Mondays</p>
+                </div>
+            </article>
+            <article class="wf is-live">
+                <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-broadcast"/></svg>
+                <div class="wf-body">
+                    <div class="wf-head"><h3>RESOLUTE wire</h3><span class="pill">Live</span></div>
+                    <p class="wf-what">A morning and an afternoon news edition is drafted, reviewed and published, with a freshness check behind it.</p>
+                    <p class="wf-meta">Daily, AM and PM</p>
+                </div>
+            </article>
+            <article class="wf is-live">
+                <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-scale"/></svg>
+                <div class="wf-body">
+                    <div class="wf-head"><h3>RESOLUTE citizen scorecard</h3><span class="pill">Live</span></div>
+                    <p class="wf-what">Officeholder records are refined overnight on local models and checked in a separate quality round.</p>
+                    <p class="wf-now">Known fault: some officials carry another official's contact email. The fix is in progress.</p>
+                    <p class="wf-meta">Nightly, plus a daily quality round</p>
+                </div>
+            </article>
+            <article class="wf is-live">
+                <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-pin"/></svg>
+                <div class="wf-body">
+                    <div class="wf-head"><h3>RESOLUTE Local</h3><span class="pill">Live</span></div>
+                    <p class="wf-what">Local pages get a pass twice a week and a weekly video draft.</p>
+                    <p class="wf-meta">Mondays, Wednesdays and Fridays</p>
+                </div>
+            </article>
+            <article class="wf is-live">
+                <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-columns"/></svg>
+                <div class="wf-body">
+                    <div class="wf-head"><h3>Fredericksburg civic watch</h3><span class="pill">Live</span></div>
+                    <p class="wf-what">Council agendas, minutes and city code are tracked, with a council brief on meeting days.</p>
+                    <p class="wf-meta">Tuesdays and Thursdays, plus a daily minutes check</p>
+                </div>
+            </article>
+            <article class="wf is-live">
+                <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-news"/></svg>
+                <div class="wf-body">
+                    <div class="wf-head"><h3>Daily news and technology briefs</h3><span class="pill">Live</span></div>
+                    <p class="wf-what">A technology brief in the morning and a news brief after lunch.</p>
+                    <p class="wf-meta">Daily, 8:30 AM and 1:00 PM</p>
+                </div>
+            </article>
+            <article class="wf is-progress">
+                <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-compass"/></svg>
+                <div class="wf-body">
+                    <div class="wf-head"><h3>Three-directory pipeline</h3><span class="pill">In progress</span></div>
+                    <p class="wf-what">One path for church, business and citizen records: discover, stage, refine, verify, publish, report.</p>
+                    <p class="wf-now">Staging and checks are built. Still to do: carry one real staged lead through to the live page as proof.</p>
+                </div>
+            </article>
+            <article class="wf is-progress">
+                <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-shield-check"/></svg>
+                <div class="wf-body">
+                    <div class="wf-head"><h3>Church website-match guard</h3><span class="pill">In progress</span></div>
+                    <p class="wf-what">Wrong website matches were reverted and a whole-word checker now gates the church lane.</p>
+                    <p class="wf-now">Now: a 25-church dry run with zero wrong matches. Then older discoveries are re-checked and the church lanes restart.</p>
+                </div>
+            </article>
+            </div>
+        </section>
+        <section class="area" id="hospitality" aria-labelledby="hospitality-h">
+            <div class="area-head"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-home"/></svg><h2 id="hospitality-h">Hospitality: Bow &amp; Arrow</h2><span class="sub">Short-term rental operations.</span><span class="count" data-area-count>11 workflows</span></div>
+            <div class="grid">
+            <article class="wf is-live">
+                <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-key"/></svg>
+                <div class="wf-body">
+                    <div class="wf-head"><h3>Guest lock-code automation</h3><span class="pill">Live</span></div>
+                    <p class="wf-what">Twice each morning the day's check-ins are compared with the door-lock system, and an AI agent confirms each guest's code is in place before noon.</p>
+                    <p class="wf-now">Caveat: when the lock provider asks for a second sign-in step, a person has to finish the sign-in. That happened on November 24.</p>
+                    <p class="wf-meta">Daily, 9:00 and 11:30 AM</p>
+                </div>
+            </article>
+            <article class="wf is-live">
+                <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-chat"/></svg>
+                <div class="wf-body">
+                    <div class="wf-head"><h3>Host inbox and guest messages</h3><span class="pill">Live</span></div>
+                    <p class="wf-what">The host inbox is swept morning and afternoon, and anything that needs a person is flagged.</p>
+                    <p class="wf-meta">Daily, 8:50 AM and 4:50 PM</p>
+                </div>
+            </article>
+            <article class="wf is-live">
+                <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-calendar"/></svg>
+                <div class="wf-body">
+                    <div class="wf-head"><h3>Reservations and booking watch</h3><span class="pill">Live</span></div>
+                    <p class="wf-what">Reservations and the calendar are read each morning, and new bookings are picked up through the day.</p>
+                    <p class="wf-meta">Daily</p>
+                </div>
+            </article>
+            <article class="wf is-live">
+                <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-star"/></svg>
+                <div class="wf-body">
+                    <div class="wf-head"><h3>Guest reviews</h3><span class="pill">Live</span></div>
+                    <p class="wf-what">Reviews of finished stays are drafted every night. Low-star drafts are held for the owner to decide.</p>
+                    <p class="wf-meta">Nightly</p>
+                </div>
+            </article>
+            <article class="wf is-live">
+                <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-switch"/></svg>
+                <div class="wf-body">
+                    <div class="wf-head"><h3>Cottage minimum-stay switch</h3><span class="pill">Live</span></div>
+                    <p class="wf-what">A booking rule on the cottage is turned on each weekday morning and off each evening.</p>
+                    <p class="wf-meta">Weekdays, 7:00 AM and 5:30 PM</p>
+                </div>
+            </article>
+            <article class="wf is-live">
+                <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-building"/></svg>
+                <div class="wf-body">
+                    <div class="wf-head"><h3>Commercial property scan</h3><span class="pill">Live</span></div>
+                    <p class="wf-what">A weekly scan of commercial listings.</p>
+                    <p class="wf-meta">Mondays</p>
+                </div>
+            </article>
+            <article class="wf is-progress">
+                <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-card"/></svg>
+                <div class="wf-body">
+                    <div class="wf-head"><h3>Direct booking and payments</h3><span class="pill">In progress</span></div>
+                    <p class="wf-what">The direct-booking page and listings are live on the business site.</p>
+                    <p class="wf-now">Now: the payment account, which waits on the owner. A test booking, then promotion, follow.</p>
+                    <p class="wf-meta">Hand-tracked.</p>
+                </div>
+            </article>
+            <article class="wf is-paused">
+                <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-image"/></svg>
+                <div class="wf-body">
+                    <div class="wf-head"><h3>Listing optimization and photos</h3><span class="pill">Paused</span></div>
+                    <p class="wf-what">Titles, lead photos, descriptions and amenities, one property at a time.</p>
+                    <p class="wf-now">Not started.</p>
+                    <p class="wf-meta">Hand-tracked. No change on record since May 2026.</p>
+                </div>
+            </article>
+            <article class="wf is-paused">
+                <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-trend"/></svg>
+                <div class="wf-body">
+                    <div class="wf-head"><h3>Pricing and slow-season strategy</h3><span class="pill">Paused</span></div>
+                    <p class="wf-what">Rate comparison, length-of-stay discounts and gap-night rules for slow months.</p>
+                    <p class="wf-now">Not started.</p>
+                    <p class="wf-meta">Hand-tracked. No change on record since May 2026.</p>
+                </div>
+            </article>
+            <article class="wf is-paused">
+                <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-globe"/></svg>
+                <div class="wf-body">
+                    <div class="wf-head"><h3>Multi-platform expansion</h3><span class="pill">Paused</span></div>
+                    <p class="wf-what">Listing on more booking platforms with synced calendars.</p>
+                    <p class="wf-now">Not started.</p>
+                    <p class="wf-meta">Hand-tracked. No change on record since May 2026.</p>
+                </div>
+            </article>
+            <article class="wf is-paused">
+                <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-clipboard"/></svg>
+                <div class="wf-body">
+                    <div class="wf-head"><h3>Tenant onboarding checklist</h3><span class="pill">Paused</span></div>
+                    <p class="wf-what">Move-in date, unit preparation, welcome packet and key handoff for a mid-term tenant.</p>
+                    <p class="wf-now">Not started.</p>
+                    <p class="wf-meta">Hand-tracked. No change on record since May 2026.</p>
+                </div>
+            </article>
+            </div>
+        </section>
+        <section class="area" id="desks" aria-labelledby="desks-h">
+            <div class="area-head"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-briefcase"/></svg><h2 id="desks-h">Finance, studio and health desks</h2><span class="sub">Three desks that run on a daily schedule. No figures are shown here.</span><span class="count" data-area-count>3 workflows</span></div>
+            <div class="grid">
+            <article class="wf is-live">
+                <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-ledger"/></svg>
+                <div class="wf-body">
+                    <div class="wf-head"><h3>Finance desk daily rhythm</h3><span class="pill">Live</span></div>
+                    <p class="wf-what">A morning post, a reconciliation of the previous day, a weekday close brief and a monthly tax-deadline check.</p>
+                    <p class="wf-meta">Monday to Saturday</p>
+                </div>
+            </article>
+            <article class="wf is-live">
+                <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-dumbbell"/></svg>
+                <div class="wf-body">
+                    <div class="wf-head"><h3>Studio lead sweep</h3><span class="pill">Live</span></div>
+                    <p class="wf-what">New studio leads are swept every morning and reviewed in full each Monday.</p>
+                    <p class="wf-meta">Daily, 7:30 AM</p>
+                </div>
+            </article>
+            <article class="wf is-live">
+                <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-pulse"/></svg>
+                <div class="wf-body">
+                    <div class="wf-head"><h3>Health and training check-ins</h3><span class="pill">Live</span></div>
+                    <p class="wf-what">Wearable data is read morning, midday and evening, with a weekly training audit.</p>
+                    <p class="wf-meta">Daily, plus Mondays</p>
+                </div>
+            </article>
+            </div>
+        </section>
+        <section class="area" id="family" aria-labelledby="family-h">
+            <div class="area-head"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-users"/></svg><h2 id="family-h">Family and personal</h2><span class="sub">The household's daily rhythm and personal projects.</span><span class="count" data-area-count>12 workflows</span></div>
+            <div class="grid">
+            <article class="wf is-live">
+                <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-sunrise"/></svg>
+                <div class="wf-body">
+                    <div class="wf-head"><h3>Morning brief and evening review</h3><span class="pill">Live</span></div>
+                    <p class="wf-what">One brief each morning and one review each evening, with a short check-in between them.</p>
+                    <p class="wf-meta">Daily, 7:12 AM and 7:00 PM</p>
+                </div>
+            </article>
+            <article class="wf is-live">
+                <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-users"/></svg>
+                <div class="wf-body">
+                    <div class="wf-head"><h3>Sunday family huddle</h3><span class="pill">Live</span></div>
+                    <p class="wf-what">A huddle agenda and the family's calendar for the week are prepared every Sunday.</p>
+                    <p class="wf-meta">Sundays</p>
+                </div>
+            </article>
+            <article class="wf is-live">
+                <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-bell"/></svg>
+                <div class="wf-body">
+                    <div class="wf-head"><h3>Reminders and calendar watch</h3><span class="pill">Live</span></div>
+                    <p class="wf-what">Due reminders are sent through the day and new calendar invitations are caught as they arrive.</p>
+                    <p class="wf-meta">Every 15 minutes in waking hours</p>
+                </div>
+            </article>
+            <article class="wf is-live">
+                <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-mail"/></svg>
+                <div class="wf-body">
+                    <div class="wf-head"><h3>Weekday outreach reminder</h3><span class="pill">Live</span></div>
+                    <p class="wf-what">A weekday prompt to reach out to one man on the outreach list.</p>
+                    <p class="wf-meta">Weekdays, 9:00 AM</p>
+                </div>
+            </article>
+            <article class="wf is-live">
+                <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-medal"/></svg>
+                <div class="wf-body">
+                    <div class="wf-head"><h3>Weekly standards and veterans briefing</h3><span class="pill">Live</span></div>
+                    <p class="wf-what">A Saturday standards check and a weekly briefing on veterans' benefits.</p>
+                    <p class="wf-meta">Saturdays</p>
+                </div>
+            </article>
+            <article class="wf is-live">
+                <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-target"/></svg>
+                <div class="wf-body">
+                    <div class="wf-head"><h3>Weekly strategy note</h3><span class="pill">Live</span></div>
+                    <p class="wf-what">A strategy note and a reading list are written every Sunday evening.</p>
+                    <p class="wf-meta">Sundays</p>
+                </div>
+            </article>
+            <article class="wf is-progress">
+                <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-book-closed"/></svg>
+                <div class="wf-body">
+                    <div class="wf-head"><h3>Formation binder for a son</h3><span class="pill">In progress</span></div>
+                    <p class="wf-what">A personal formation binder. The design document is written.</p>
+                    <p class="wf-now">Now: review of the design before it is personalized and printed.</p>
+                    <p class="wf-meta">Hand-tracked. No change on record since May 2026.</p>
+                </div>
+            </article>
+            <article class="wf is-progress">
+                <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-heart"/></svg>
+                <div class="wf-body">
+                    <div class="wf-head"><h3>Personal outreach tracker</h3><span class="pill">In progress</span></div>
+                    <p class="wf-what">A tracker for staying in touch with family and friends on a set rhythm. The tracker is built.</p>
+                    <p class="wf-now">Now: replacing the sample entries with real people and rhythms.</p>
+                    <p class="wf-meta">Hand-tracked.</p>
+                </div>
+            </article>
+            <article class="wf is-progress">
+                <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-drive"/></svg>
+                <div class="wf-body">
+                    <div class="wf-head"><h3>Hard-drive organization</h3><span class="pill">In progress</span></div>
+                    <p class="wf-what">Sorting and de-duplicating years of files. Phases one and two are done.</p>
+                    <p class="wf-now">Now: the deep sort of the two largest folders.</p>
+                    <p class="wf-meta">Hand-tracked. No change on record since May 2026.</p>
+                </div>
+            </article>
+            <article class="wf is-progress">
+                <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-mic"/></svg>
+                <div class="wf-body">
+                    <div class="wf-head"><h3>BOI redemption: records and timeline</h3><span class="pill">In progress</span></div>
+                    <p class="wf-what">Gathering the files and recordings for one personal matter. Files are located.</p>
+                    <p class="wf-now">Now: transcribing seven recordings, then building the timeline.</p>
+                    <p class="wf-meta">Hand-tracked. No change on record since May 2026.</p>
+                </div>
+            </article>
+            <article class="wf is-paused">
+                <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-briefcase"/></svg>
+                <div class="wf-body">
+                    <div class="wf-head"><h3>Job search</h3><span class="pill">Paused</span></div>
+                    <p class="wf-what">A personal job search.</p>
+                    <p class="wf-now">Nothing has moved on the record since March 2026.</p>
+                    <p class="wf-meta">Hand-tracked. No change on record since May 2026.</p>
+                </div>
+            </article>
+            <article class="wf is-paused">
+                <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-anchor"/></svg>
+                <div class="wf-body">
+                    <div class="wf-head"><h3>Kings Point 25th reunion</h3><span class="pill">Paused</span></div>
+                    <p class="wf-what">Date, travel and RSVP for a class reunion.</p>
+                    <p class="wf-now">Not started.</p>
+                    <p class="wf-meta">Hand-tracked. No change on record since May 2026.</p>
+                </div>
+            </article>
+            </div>
+        </section>
+        <section class="area" id="operations" aria-labelledby="operations-h">
+            <div class="area-head"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-cpu"/></svg><h2 id="operations-h">Fleet operations</h2><span class="sub">How the AI-assisted system keeps itself running and honest.</span><span class="count" data-area-count>6 workflows</span></div>
+            <div class="grid">
+            <article class="wf is-live">
+                <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-list-check"/></svg>
+                <div class="wf-body">
+                    <div class="wf-head"><h3>Morning stand-up and self-check</h3><span class="pill">Live</span></div>
+                    <p class="wf-what">A quiet self-check before dawn, then one stand-up report of what ran, what failed and what needs a decision.</p>
+                    <p class="wf-meta">Daily, with a weekly self-audit on Saturdays</p>
+                </div>
+            </article>
+            <article class="wf is-live">
+                <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-inbox"/></svg>
+                <div class="wf-body">
+                    <div class="wf-head"><h3>Email triage rounds</h3><span class="pill">Live</span></div>
+                    <p class="wf-what">Eight inboxes are swept in rounds through the day, and a morning back-brief lists what needs a person.</p>
+                    <p class="wf-now">This replaced the earlier Email Autopilot build.</p>
+                    <p class="wf-meta">Every two hours or so</p>
+                </div>
+            </article>
+            <article class="wf is-live">
+                <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-cap"/></svg>
+                <div class="wf-body">
+                    <div class="wf-head"><h3>Newsletter and learning synthesis</h3><span class="pill">Live</span></div>
+                    <p class="wf-what">Newsletters are collected daily and distilled twice a week.</p>
+                    <p class="wf-meta">Daily, with summaries Wednesdays and Fridays</p>
+                </div>
+            </article>
+            <article class="wf is-live">
+                <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-layers"/></svg>
+                <div class="wf-body">
+                    <div class="wf-head"><h3>Second-brain upkeep</h3><span class="pill">Live</span></div>
+                    <p class="wf-what">The daily note is written each night from real evidence, the vault is synced and a weekly compile runs on Fridays.</p>
+                    <p class="wf-meta">Nightly, plus Fridays</p>
+                </div>
+            </article>
+            <article class="wf is-live">
+                <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-shield-check"/></svg>
+                <div class="wf-body">
+                    <div class="wf-head"><h3>Backups and watchdogs</h3><span class="pill">Live</span></div>
+                    <p class="wf-what">Critical files are backed up overnight. Watchdogs stay silent unless a pipeline goes stale or a service drops.</p>
+                    <p class="wf-meta">Nightly and hourly</p>
+                </div>
+            </article>
+            <article class="wf is-paused">
+                <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-list-check"/></svg>
+                <div class="wf-body">
+                    <div class="wf-head"><h3>Task snapshot into the notebook</h3><span class="pill">Paused</span></div>
+                    <p class="wf-what">A daily read of the task system into the command notebook.</p>
+                    <p class="wf-now">Paused: the task-system connection needs a one-time sign-in. Last good snapshot was November 18.</p>
+                    <p class="wf-meta">Daily, 7:47 AM when connected</p>
+                </div>
+            </article>
+            </div>
+        </section>
 
-// ─────────────────────────────────────────────
-//  ACTIONS
-// ─────────────────────────────────────────────
-function toggleExpand(id) {
-    expandedId = (expandedId === id) ? null : id;
-    renderGrid();
-}
+        <details class="archive" id="archive">
+            <summary class="usmc-summary"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-archive"/></svg><span class="t">Archive</span><span class="usmc-tri usmc-tri-down" aria-hidden="true"></span><span class="count" data-area-count>3 workflows</span></summary>
+            <div class="grid">
+                <article class="wf is-done">
+                    <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-book"/></svg>
+                    <div class="wf-body">
+                        <div class="wf-head"><h3>BTE lexicon expansion</h3><span class="pill">Complete</span></div>
+                        <p class="wf-what">The Greek and Hebrew lexicon grew from 487 pages past its 7,700-page target.</p>
+                        <p class="wf-meta">Closed by May 2026</p>
+                    </div>
+                </article>
+                <article class="wf is-done">
+                    <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-pen"/></svg>
+                    <div class="wf-body">
+                        <div class="wf-head"><h3>Blog migration</h3><span class="pill">Complete</span></div>
+                        <p class="wf-what">All 149 earlier posts were moved to this site, published to the index and linked to the Bible tools.</p>
+                        <p class="wf-meta">Closed by May 2026</p>
+                    </div>
+                </article>
+                <article class="wf is-done">
+                    <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-users"/></svg>
+                    <div class="wf-body">
+                        <div class="wf-head"><h3>Family Disney trip planning</h3><span class="pill">Complete</span></div>
+                        <p class="wf-what">Tickets, itinerary, packing and travel.</p>
+                        <p class="wf-meta">Closed by May 2026</p>
+                    </div>
+                </article>
+            </div>
+        </details>
 
-function stepAdvance(id) {
-    const w = workflows.find(w => w.id === id);
-    if (!w) return;
-    if (w.currentStep < w.steps.length) {
-        const stepText = w.steps[w.currentStep] ? (w.steps[w.currentStep].name || '') : '';
-        w.currentStep++;
-        if (w.currentStep >= w.steps.length) {
-            w.status = 'complete';
-        }
-        saveState(workflows);
-        renderStats();
-        renderGrid();
-        try {
-            let log = JSON.parse(localStorage.getItem('workflowCompletionLog') || '[]');
-            log.push({ workflow: w.title || w.id, step: stepText, date: new Date().toISOString().slice(0,10), ts: new Date().toISOString() });
-            if (log.length > 50) log = log.slice(-50);
-            localStorage.setItem('workflowCompletionLog', JSON.stringify(log));
-        } catch(e) {}
-    }
-}
+        <div class="legend">
+            <h2>How to read this page</h2>
+            <ul>
+                <li><b>Live</b><span>Runs on a schedule and was confirmed by a log or a recent run at the last review.</span></li>
+                <li><b>In progress</b><span>Being built or worked. The card says where it stands.</span></li>
+                <li><b>Paused</b><span>Not started, or stopped for the reason on the card.</span></li>
+                <li><b>Complete</b><span>Finished and moved to the archive.</span></li>
+            </ul>
+            <p>Cards marked hand-tracked are projects a person moves forward. Their status comes from the last recorded step, not from a log. The scheduled work is AI-assisted and a caveat is written on the card wherever a person still has to step in.</p>
+        </div>
+    </main>
 
-function stepBack(id) {
-    const w = workflows.find(w => w.id === id);
-    if (!w) return;
-    if (w.currentStep > 0) {
-        w.currentStep--;
-        if (w.status === 'complete') w.status = 'active';
-        saveState(workflows);
-        renderStats();
-        renderGrid();
-    }
-}
-
-function resetWorkflow(id) {
-    if (!confirm('Reset this workflow to step 1?')) return;
-    const w = workflows.find(w => w.id === id);
-    if (!w) return;
-    w.currentStep = 0;
-    w.status = 'active';
-    w.archived = false;
-    saveState(workflows);
-    renderStats();
-    renderGrid();
-}
-
-function archiveWorkflow(id) {
-    const w = workflows.find(w => w.id === id);
-    if (!w) return;
-    w.archived = true;
-    saveState(workflows);
-    renderStats();
-    renderGrid();
-}
-
-// ─────────────────────────────────────────────
-//  INIT
-// ─────────────────────────────────────────────
-function init() {
-    workflows = mergeState(WORKFLOWS_DEFAULT);
-    renderStats();
-    renderFilters();
-    renderGrid();
-    const note = document.getElementById('sync-note');
-    if (note) note.textContent = 'Server-synced ' + SEED_SYNCED + ((typeof WORKFLOWS_BOARD_UPDATED !== 'undefined') ? ' · board updated ' + WORKFLOWS_BOARD_UPDATED : '');
-}
-
-// Auto-init on load
-document.addEventListener('DOMContentLoaded', init);
-</script>
     <footer style="text-align:center; padding:28px 20px; border-top:1px solid var(--border,#333); margin-top:40px; color:var(--gray,#888); font-size:0.88rem;">
         <div style="margin-bottom:10px;"><img src="assets/icons/shield-handshake.png" alt="" width="36" height="36" style="opacity:0.6;"></div>
         <p><a href="index.html" style="color:var(--gray,#888);text-decoration:none;"><img src="assets/icons/shield-home-48.png" style="vertical-align:middle;opacity:0.8;" alt="" width="20" height="20"> Home</a> &middot;
             <a href="sitemap.html" style="color:var(--gray,#888);text-decoration:none;"><img src="assets/icons/shield-map-48.png" style="vertical-align:middle;opacity:0.8;" alt="" width="20" height="20"> Site Map</a></p>
         <p style="margin-top:8px;font-size:0.78rem;color:var(--ft-dim,#888);">Powered by MOOPbot Pro &mdash; &ldquo;Iron sharpens iron.&rdquo; &mdash; <a href="bible.html?ref=Proverbs+27:17" style="color:var(--ft-link,var(--gold,#D4AF37));text-decoration:underline;">Proverbs 27:17</a></p>
     </footer>
+<script>
+(function(){
+  try{ if(localStorage.getItem('bte-theme')==='light') document.body.classList.add('light-mode'); }catch(e){}
+  // The is-* class on each card is the source of truth. This keeps the pill word and every count in step with it.
+  var label={'is-live':'Live','is-progress':'In progress','is-paused':'Paused','is-done':'Complete'};
+  var total={'is-live':0,'is-progress':0,'is-paused':0,'is-done':0};
+  var cards=document.querySelectorAll('.wf');
+  for(var i=0;i<cards.length;i++){
+    for(var k in label){ if(cards[i].classList.contains(k)){ total[k]++; var p=cards[i].querySelector('.pill'); if(p) p.textContent=label[k]; } }
+  }
+  for(var k2 in total){ var el=document.querySelector('[data-count="'+k2+'"]'); if(el) el.textContent=total[k2]; }
+  var areas=document.querySelectorAll('[data-area-count]');
+  for(var j=0;j<areas.length;j++){
+    var box=areas[j].closest('section,details'); if(!box) continue;
+    var n=box.querySelectorAll('.wf').length;
+    areas[j].textContent=n+(n===1?' workflow':' workflows');
+  }
+  // Open the archive on paper so nothing is hidden in print.
+  var arch=document.querySelector('details.archive'), wasOpen=false;
+  window.addEventListener('beforeprint',function(){ if(arch){ wasOpen=arch.open; arch.open=true; } });
+  window.addEventListener('afterprint',function(){ if(arch){ arch.open=wasOpen; } });
+})();
+</script>
 <script>if("serviceWorker" in navigator){navigator.serviceWorker.register("/sw.js")}</script>
 </body>
 </html>
