@@ -314,6 +314,51 @@ def junction_strays(prayer_audio: Path, prayer_text: str, model: str = "") -> li
             out.append(f"stray {heard[0]!r} spoken at {t0:.1f}s before {' '.join(heard[1:5])!r}")
     return out
 
+# PJG-1124-AUD-IN: the junction check above missed every stray "In," of 11-21..12-01
+# (11-24 citizen "raised me up in Christ. In, forgive me..."; 11-26/11-28 father;
+# 11-29 citizen). It needs dead-quiet room tone on one side of the burst, and these
+# takes sit a few dB above peak-28 between sentences, so the burst was skipped before
+# whisper ever heard it. The same pass let 11-25 wisdom say "rather than as the path
+# of wisdom" twice. So also align a word-level transcript of the exact prayer take
+# against the published prayer: any run of heard words the prayer lacks (or a
+# replacement that adds 2+ words) is an inserted word and the take fails. Whisper
+# spelling variants (Saviour/savior) are replacements of equal length and pass.
+_TS = re.compile(r"\[(\d+):(\d+):(\d+\.\d+) --> [^\]]+\]\s*(.*)")
+
+
+def aligned_insertions(prayer_audio: Path, prayer_text: str, model: str = "") -> list[str]:
+    import difflib
+    tmp = Path(tempfile.mkdtemp(prefix="pjg-ins-"))
+    wav = tmp / "p16.wav"
+    subprocess.run(["/opt/homebrew/bin/ffmpeg", "-hide_banner", "-loglevel", "error", "-y",
+                    "-i", str(prayer_audio), "-ac", "1", "-ar", "16000", str(wav)], check=True)
+    r = subprocess.run([WHISPER, "-m", model or MODEL, "-f", str(wav), "-l", "en",
+                        "-ml", "1", "-sow"], capture_output=True, text=True)
+    heard = []
+    for line in r.stdout.splitlines():
+        m = _TS.match(line.strip())
+        if not m:
+            continue
+        for w in m.group(4).split():
+            nw = norm(w).replace(" ", "")
+            if nw:
+                t = int(m.group(1)) * 3600 + int(m.group(2)) * 60 + float(m.group(3))
+                heard.append((t, w, nw))
+    auth = [x for x in (norm(w).replace(" ", "") for w in prayer_text.split()) if x]
+    if not heard or not auth:
+        return []
+    sm = difflib.SequenceMatcher(None, [h[2] for h in heard], auth, autojunk=False)
+    out = []
+    for tag, i1, i2, j1, j2 in sm.get_opcodes():
+        extra = (tag == "delete") or (tag == "replace" and (i2 - i1) > (j2 - j1) + 1)
+        if not extra:
+            continue
+        said = " ".join(h[1] for h in heard[i1:i2])
+        after = " ".join(auth[max(0, j1 - 3):j1])
+        out.append(f"inserted {said!r} at {heard[i1][0]:.1f}s after {after!r}")
+    return out
+
+
 def check_watch(day: str, key: str, json_path: Path, mp3: Path, transcribe=None) -> list[str]:
     fails = []
     data = json.loads(json_path.read_text())
@@ -357,6 +402,9 @@ def check_watch(day: str, key: str, json_path: Path, mp3: Path, transcribe=None)
     second = transcribe is asr_second_opinion
     if os.environ.get("PRAYER_JUNCTION_GATE", "1") != "0":
         for f in junction_strays(prayer_audio, prayer, SECOND_MODEL if second else ""):
+            fails.append(f"{key}: {f}")
+    if os.environ.get("PRAYER_INSERT_GATE", "1") != "0":
+        for f in aligned_insertions(prayer_audio, prayer, SECOND_MODEL if second else ""):
             fails.append(f"{key}: {f}")
     for sent in sents:
         if not present(sent, hay):
