@@ -37,6 +37,11 @@ WHAT IT READS. The page itself, the same DOM the reader's follow-along JS
     attribution in front of a quotation: "The 1689 Confession says:");
   * `data-voice="book"` reads that element in the book's Scripture voice from
     data/book-voices.json, the way the daily watches hand the passage over.
+    `data-voice="book:<Book name>"` names the book (a post quotes many books),
+    and `data-voice="src:<key>"` uses a named source voice from the map's
+    "sources" (Calvin and the 1689 Confession in their own narration voice).
+    A voice change inside a paragraph starts a new unit after a short pause,
+    so an inline quotation is handed over mid-sentence (2026-11-26).
 The renderer (bin/verse-study-render.js) emits these attributes on every study.
 
 VOICE. The daily-watch narrator (data/book-voices.json "narrator", bm_george on
@@ -226,11 +231,17 @@ def extract_units(follow_root, blog=False):
     def walk(n):
         if n.tag == "#text":
             if not (n.text and n.text.strip()):
+                if n.text and units and state["block"] is not None and not units[-1].get("closed"):
+                    units[-1]["say"] += " "  # the space between two adjacent quotations
                 return
             b = block_of(n)
-            if state["block"] is not b or not units or units[-1].get("closed"):
-                units.append({"say": "", "dom": [], "voice": voice_of(n),
+            v = voice_of(n)
+            fresh = state["block"] is not b or not units or units[-1].get("closed")
+            if fresh or units[-1]["voice"] != v:
+                units.append({"say": "", "dom": [], "voice": v,
                               "kind": b.tag if b.tag in HEADINGS else "p"})
+                if not fresh:
+                    units[-1]["cont"] = True  # same paragraph, another voice
                 if blog and attributed_quote(n):
                     units[-1]["quote"] = True
                 state["block"] = b
@@ -284,7 +295,7 @@ NON_LATIN = re.compile(r"[Ͱ-Ͽἀ-῿֐-׿יִ-ﭏ]+")
 
 def speakable(text):
     """Page text -> what the narrator says. Spoken only; the page is untouched."""
-    t = NON_LATIN.sub("", text)
+    t = expand_negatives(NON_LATIN.sub("", text))
     t = re.sub(r"Strong[’']s\s+[GH]\d{1,5}\b", "", t)
     t = re.sub(r"\b[GH]\d{1,5}\b", "this word", t)
     t = re.sub(r"\bi\.e\.,?", "that is,", t)
@@ -302,6 +313,59 @@ def speakable(text):
     t = re.sub(r"\s+([,.;:])", r"\1", t)
     t = re.sub(r"(,\s*){2,}", ", ", t)
     return re.sub(r"\s+", " ", t).strip(" ,")
+
+
+NEG_IRREGULAR = {"won": "will not", "can": "cannot", "shan": "shall not"}
+NEG_RE = re.compile(r"\b(won|can|shan|do|does|did|is|are|was|were|has|have|had|would|could|"
+                    r"should|must|need)n[’']t\b", re.I)
+
+
+def expand_negatives(text):
+    """Say "would not" for "wouldn't". Kokoro can swallow the n't, and the
+    sentence then says the opposite ("the line he would cross", Principal
+    2026-11-26). Spoken only; the page keeps its contraction."""
+    def fix(m):
+        stem = m.group(1)
+        out = NEG_IRREGULAR.get(stem.lower(), stem.lower() + " not")
+        return out[0].upper() + out[1:] if stem[0].isupper() else out
+    return NEG_RE.sub(fix, text)
+
+
+# Words the Kokoro dictionary does not hold (misaki falls back to a guess) or
+# under-stresses. misaki inline phonemes, American / British vowel sets. Checked
+# against misaki's G2P 2026-11-26: every word here came back unknown, except
+# "ye", which is known but unstressed and was being dropped ("Be ye not").
+PRONOUNCE = {
+    "denieth":     ("dɪnˈIəθ", "dɪnˈIəθ"),
+    "ye":          ("jˈi", "jˈiː"),
+    "Ye":          ("jˈi", "jˈiː"),
+    "shouldest":   ("ʃˈʊdɪst", "ʃˈʊdɪst"),
+    "shoelatchet": ("ʃˈulˌæʧɪt", "ʃˈuːlˌaʧɪt"),
+    "Abram":       ("ˈAbɹəm", "ˈAbɹəm"),
+    "heterozygeo": ("hˌɛtəɹOzˈuɡAO", "hˌɛtəɹQzˈuːɡAQ"),
+    "Schaeffer":   ("ʃˈAfəɹ", "ʃˈAfə"),
+    "Cyprian":     ("sˈɪpɹiən", "sˈɪpɹiən"),
+    "Charis":      ("kˈɛɹɪs", "kˈaɹɪs"),
+    "Wommack":     ("wˈɑmək", "wˈɒmək"),
+    "Webbon":      ("wˈɛbən", "wˈɛbən"),
+    "Fuentes":     ("fwˈɛntɛs", "fwˈɛntɛs"),
+}
+RESPELL = {"stumblingblock": "stumbling block"}
+
+
+def pronounce(tts, lang, engine):
+    """After apply_lexicon. Piper takes plain text, so it gets no phoneme markup."""
+    for w, r in RESPELL.items():
+        tts = re.sub(rf"\b{w}\b", r, tts)
+    if engine != "kokoro":
+        return plain(tts)
+    # "under his lead": the bake of 2026-11-26 said it to rhyme with "made" (heard
+    # as "lade" by two whisper models). The noun after a possessive is "leed".
+    tts = re.sub(r"\b(his|their|her|my|our|your|God[’']s|Christ[’']s) lead\b(?!\]\()",
+                 lambda m: f"{m.group(1)} [lead](/lˈid/)", tts)  # the long-vowel form lˈiːd still came out "lade" on bm_george
+    for w, (us, uk) in PRONOUNCE.items():
+        tts = re.sub(rf"(?<![\[\w]){w}\b(?!\]\()", f"[{w}](/{uk if lang == 'b' else us}/)", tts)
+    return tts
 
 
 def blog_before(text):
@@ -343,11 +407,54 @@ def silence(path, secs):
                     "-c:a", "pcm_s16le", path], check=True)
 
 
+GAP_INLINE = 0.3      # a voice change inside a paragraph
+TAIL = 0.8            # silence after the last word, so no player clips it
+
+
+def voice_resolver(helpers, book_voice):
+    """voice spec on a unit -> (engine, voice, lang, speed)."""
+    narr = ("kokoro", helpers.NARRATOR, helpers.NARRATOR_LANG, 1.0)
+    data = json.load(open(os.path.join(ROOT, "data", "book-voices.json")))
+    by_name = helpers.load_voice_map()
+    cache = {}
+
+    def piper_ok(voice):
+        return os.path.isfile(os.path.join(os.path.expanduser("~"), ".piper-voices", voice + ".onnx"))
+
+    def resolve(spec):
+        if spec in cache:
+            return cache[spec]
+        r = narr
+        if spec == "book" and book_voice:
+            r = ("kokoro", book_voice[0], book_voice[1], 1.0)
+        elif spec.startswith("book:"):
+            b = by_name.get(spec[5:].strip().lower())
+            if b is None:
+                print(f"WARN voice: no book '{spec[5:]}' in the voice map; narrator reads it", flush=True)
+            else:
+                eng = b.get("engine") or "kokoro"
+                r = (eng, b["voice"], b.get("lang", "a"), float(b.get("speed") or 1.0))
+                if eng == "kokoro" and b["voice"] == helpers.NARRATOR:
+                    r = ("kokoro",) + tuple(helpers.ALT_SCRIPTURE) + (1.0,)  # keep the handoff audible
+        elif spec.startswith("src:"):
+            sv = (data.get("sources") or {}).get(spec[4:].strip())
+            if not isinstance(sv, dict):
+                print(f"WARN voice: no source '{spec[4:]}' in the voice map; narrator reads it", flush=True)
+            else:
+                r = (sv.get("engine") or "kokoro", sv["voice"], sv.get("lang", "a"),
+                     1.0 / float(sv["length_scale"]) if sv.get("length_scale") else float(sv.get("speed") or 1.0))
+        if r[0] == "piper" and not piper_ok(r[1]):
+            print(f"WARN voice: Piper model {r[1]} missing; narrator reads {spec}", flush=True)
+            r = narr
+        cache[spec] = r
+        return r
+    return resolve
+
+
 def render_units(units, helpers, book_voice, tmp):
     from mlx_audio.tts.utils import load_model
     from mlx_audio.tts.generate import generate_audio
     model = load_model(helpers.MODEL_ID)
-    narr = (helpers.NARRATOR, helpers.NARRATOR_LANG)
     parts, cursor = [], 0.0
     sil_cache = {}
 
@@ -361,15 +468,26 @@ def render_units(units, helpers, book_voice, tmp):
         cursor += ffprobe_secs(sil_cache[key])
 
     for i, u in enumerate(units):
-        voice, lang = book_voice if u["voice"] == "book" and book_voice else narr
+        engine, voice, lang, speed = u["engine"], u["voice_id"], u["lang"], u["speed"]
         if i:
-            gap(GAP_HEADING if u["kind"] in HEADINGS else
+            gap(GAP_INLINE if u.get("cont") else
+                GAP_HEADING if u["kind"] in HEADINGS else
                 GAP_AFTER_HEADING if units[i - 1]["kind"] in HEADINGS else GAP)
         seg = os.path.join(tmp, f"u{i:03d}")
         os.makedirs(seg)
-        generate_audio(text=u["tts"], model=model, voice=voice, lang_code=lang,
-                       output_path=seg, file_prefix="p", join_audio=True,
-                       audio_format="wav", verbose=False)
+        if engine == "piper":
+            # Same call as the watch generator's Piper books and the Institutes batch.
+            subprocess.run(
+                [os.path.join(os.path.expanduser("~"), ".piper-venv", "bin", "python"),
+                 "-m", "piper", "-m",
+                 os.path.join(os.path.expanduser("~"), ".piper-voices", voice + ".onnx"),
+                 "--length-scale", str(round(1.0 / (speed or 1.0), 3)),
+                 "--sentence-silence", "0.35", "-f", os.path.join(seg, "p.wav")],
+                input=u["tts"].encode(), check=True, capture_output=True)
+        else:
+            generate_audio(text=u["tts"], model=model, voice=voice, lang_code=lang,
+                           output_path=seg, file_prefix="p", join_audio=True,
+                           audio_format="wav", verbose=False)
         wavs = sorted(f for f in os.listdir(seg) if f.endswith(".wav"))
         if not wavs:
             raise SystemExit(f"FAIL no audio for unit {i}: {u['say'][:60]}")
@@ -378,10 +496,11 @@ def render_units(units, helpers, book_voice, tmp):
         subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", os.path.join(seg, wavs[0]),
                         "-ar", str(SAMPLE_RATE), "-ac", "1", "-c:a", "pcm_s16le", w], check=True)
         d = ffprobe_secs(w)
-        u["start"], u["end"], u["voice_id"] = round(cursor, 3), round(cursor + d, 3), voice
+        u["start"], u["end"] = round(cursor, 3), round(cursor + d, 3)
         parts.append(w)
         cursor += d
         print(f"  unit {i + 1}/{len(units)} {voice} {d:5.1f}s  {u['say'][:56]}", flush=True)
+    gap(TAIL)
     return parts
 
 
@@ -487,6 +606,28 @@ def build_timings(units, asr):
     return out, report
 
 
+def asr_diff(units, asr, limit=60):
+    """Listen-back: print every place whisper heard something other than the
+    script (numbers and homophones show up too; read the list, it is short).
+    This is how the dropped "n't" was found on 2026-11-26."""
+    script = [(t, units_i) for units_i, u in enumerate(units) for t in plain(u["tts"]).split() if norm(t)]
+    a = [norm(t) for t, _ in script]
+    b = [norm(w["w"]) for w in asr]
+    n = 0
+    for tag, i1, i2, j1, j2 in difflib.SequenceMatcher(None, a, b, autojunk=False).get_opcodes():
+        if tag == "equal":
+            continue
+        said = " ".join(t for t, _ in script[i1:i2])
+        heard = " ".join(w["w"] for w in asr[j1:j2])
+        if re.fullmatch(r"[\W\d]*", said) or re.sub(r"\D", "", said) and re.sub(r"\D", "", said) == re.sub(r"\D", "", heard):
+            continue  # verse numbers
+        t = asr[min(j1, len(asr) - 1)]["t"] if asr else 0
+        n += 1
+        if n <= limit:
+            print(f"ASR DIFF {int(t // 60):02d}:{int(t % 60):02d} script=[{said}] heard=[{heard}]", flush=True)
+    print(f"ASR DIFF total {n}", flush=True)
+
+
 # ── main ─────────────────────────────────────────────────────────────────────
 def page_for(slug, override, blog=False):
     if override:
@@ -553,18 +694,21 @@ def main():
     helpers = watch_helpers()
     book_voice = None if blog else book_voice_for(src)
     units = extract_units(root, blog)
+    resolve = voice_resolver(helpers, book_voice)
     for u in units:
-        lang = book_voice[1] if (u["voice"] == "book" and book_voice) else helpers.NARRATOR_LANG
+        u["engine"], u["voice_id"], u["lang"], u["speed"] = resolve(u["voice"])
+        lang = u["lang"]
         if blog:
-            u["tts"] = blog_after(helpers.apply_lexicon(speakable(blog_before(u["say"])), lang))
+            tts = blog_after(helpers.apply_lexicon(speakable(blog_before(u["say"])), lang))
         else:
-            u["tts"] = helpers.apply_lexicon(speakable(u["say"]), lang)
+            tts = helpers.apply_lexicon(speakable(u["say"]), lang)
+        u["tts"] = pronounce(tts, lang, u["engine"])
     n_words = sum(len(plain(u["tts"]).split()) for u in units)
     print(f"{slug}: {len(units)} units, {n_words} spoken words, narrator={helpers.NARRATOR}, "
           f"book voice={book_voice}, root=#{key}", flush=True)
     if opt("--dry-run"):
         for i, u in enumerate(units):
-            print(f"[{i:03d} {u['kind']:>4} {u['voice']:>8}] {plain(u['tts'])}")
+            print(f"[{i:03d} {u['kind']:>4} {u['voice_id']:>16}{'+' if u.get('cont') else ' '}] {plain(u['tts'])}")
         return
 
     os.makedirs(MASTER_DIR, exist_ok=True)
@@ -588,6 +732,7 @@ def main():
         asr = whisper_words(mp3, tmp)
         print(f"whisper {len(asr)} words in {time.time() - t1:.0f}s", flush=True)
     words, report = build_timings(units, asr)
+    asr_diff(units, asr)
     dur = ffprobe_secs(mp3)
     sha = hashlib.sha1(open(mp3, "rb").read()).hexdigest()[:10]
     # ASR check, the study's version of the watch prayer gate: a unit whose
