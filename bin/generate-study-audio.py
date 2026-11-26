@@ -13,6 +13,12 @@
                   .units.json written by a previous bake)
     --blog        a blog post: page docs/blog/<slug>.html, MP3 under
                   assets/media/blog/, words in docs/assets/blog/<slug>-words.json
+    --narrator SPEC  who reads everything that has no data-voice of its own:
+                  "src:<key>" from the voice map's "sources" (src:adam = the
+                  Principal's own cloned voice). The page can say the same with
+                  data-narrator="src:adam" on its follow root; the flag wins.
+    --trial       a listening copy only: MP3 to <slug>.trial.mp3 beside the
+                  master, word timings to /tmp. Nothing the site serves changes.
 
 Built for the deep verse studies; works on any page that marks a follow root.
 
@@ -42,6 +48,12 @@ WHAT IT READS. The page itself, the same DOM the reader's follow-along JS
     "sources" (Calvin and the 1689 Confession in their own narration voice).
     A voice change inside a paragraph starts a new unit after a short pause,
     so an inline quotation is handed over mid-sentence (2026-11-26).
+  * NARRATOR. A first-person post, or a prayer he offers, is read in the
+    Principal's own cloned voice (Principal 2026-11-26): data-narrator="src:adam"
+    on the follow root for a whole first-person post, data-voice="src:adam" on
+    a closing prayer in any other post. Engine "voicestudio" = the local
+    VoiceStudio clone (~/Scripts/voicestudio-speak.py holds its text rules),
+    asked sentence by sentence at the speed in the voice map (1.15).
 The renderer (bin/verse-study-render.js) emits these attributes on every study.
 
 VOICE. The daily-watch narrator (data/book-voices.json "narrator", bm_george on
@@ -357,6 +369,8 @@ def pronounce(tts, lang, engine):
     """After apply_lexicon. Piper takes plain text, so it gets no phoneme markup."""
     for w, r in RESPELL.items():
         tts = re.sub(rf"\b{w}\b", r, tts)
+    if engine == "voicestudio":
+        return clone_text(plain(tts))
     if engine != "kokoro":
         return plain(tts)
     # "under his lead": the bake of 2026-11-26 said it to rhyme with "made" (heard
@@ -366,6 +380,17 @@ def pronounce(tts, lang, engine):
     for w, (us, uk) in PRONOUNCE.items():
         tts = re.sub(rf"(?<![\[\w]){w}\b(?!\]\()", f"[{w}](/{uk if lang == 'b' else us}/)", tts)
     return tts
+
+
+def clone_text(t):
+    """What the cloned voice is asked to say. It reads "4:6" and "NKJV" unevenly
+    (trial bake 2026-11-26: "James 4, Voy J V"), so both are spelled out, and the
+    brackets round a citation go."""
+    t = re.sub(r"\b(\d+):(\d+) through (\d+)\b", r"\1, verses \2 through \3", t)
+    t = re.sub(r"\b(\d+):(\d+)\b", r"\1, verse \2", t)
+    t = re.sub(r"\bNKJV\b", "New King James", t)
+    t = re.sub(r"\bKJV\b", "King James", t)
+    return re.sub(r"\s+", " ", t.replace("(", "").replace(")", "")).strip()
 
 
 def blog_before(text):
@@ -407,14 +432,28 @@ def silence(path, secs):
                     "-c:a", "pcm_s16le", path], check=True)
 
 
+UNIT_MEAN_DB = -21.0  # every unit is levelled to this mean before the join
 GAP_INLINE = 0.3      # a voice change inside a paragraph
 TAIL = 0.8            # silence after the last word, so no player clips it
 
 
-def voice_resolver(helpers, book_voice):
+def source_voice(sv):
+    return (sv.get("engine") or "kokoro", sv["voice"], sv.get("lang", "a"),
+            1.0 / float(sv["length_scale"]) if sv.get("length_scale") else float(sv.get("speed") or 1.0))
+
+
+def voice_resolver(helpers, book_voice, narrator=None):
     """voice spec on a unit -> (engine, voice, lang, speed)."""
     narr = ("kokoro", helpers.NARRATOR, helpers.NARRATOR_LANG, 1.0)
     data = json.load(open(os.path.join(ROOT, "data", "book-voices.json")))
+    if narrator:
+        sv = (data.get("sources") or {}).get(narrator[4:].strip()) if narrator.startswith("src:") else None
+        if not isinstance(sv, dict):
+            raise SystemExit(f"--narrator {narrator}: no such source in data/book-voices.json")
+        narr = source_voice(sv)
+        if narr[0] == "voicestudio" and not voicestudio_up():
+            raise SystemExit("narrator is the VoiceStudio clone and VoiceStudio is not answering; "
+                             "not baking it in another voice")
     by_name = helpers.load_voice_map()
     cache = {}
 
@@ -434,21 +473,116 @@ def voice_resolver(helpers, book_voice):
             else:
                 eng = b.get("engine") or "kokoro"
                 r = (eng, b["voice"], b.get("lang", "a"), float(b.get("speed") or 1.0))
-                if eng == "kokoro" and b["voice"] == helpers.NARRATOR:
+                if eng == "kokoro" and b["voice"] == narr[1]:
                     r = ("kokoro",) + tuple(helpers.ALT_SCRIPTURE) + (1.0,)  # keep the handoff audible
         elif spec.startswith("src:"):
             sv = (data.get("sources") or {}).get(spec[4:].strip())
             if not isinstance(sv, dict):
                 print(f"WARN voice: no source '{spec[4:]}' in the voice map; narrator reads it", flush=True)
             else:
-                r = (sv.get("engine") or "kokoro", sv["voice"], sv.get("lang", "a"),
-                     1.0 / float(sv["length_scale"]) if sv.get("length_scale") else float(sv.get("speed") or 1.0))
+                r = source_voice(sv)
+                if r[0] == "voicestudio" and not voicestudio_up():
+                    print(f"WARN voice: VoiceStudio is not answering; narrator reads {spec}", flush=True)
+                    r = narr
         if r[0] == "piper" and not piper_ok(r[1]):
             print(f"WARN voice: Piper model {r[1]} missing; narrator reads {spec}", flush=True)
             r = narr
         cache[spec] = r
         return r
     return resolve
+
+
+# ── the Principal's cloned voice (VoiceStudio) ───────────────────────────────
+VS_SPEAK = os.path.expanduser("~/Scripts/voicestudio-speak.py")
+VS_CHUNK_MAX = 240     # characters; the clone drifts on long takes
+VS_GAP_SENTENCE = 0.32
+VS_GAP_CLAUSE = 0.14
+_vs = {}
+
+
+def vs_module():
+    if "m" not in _vs:
+        spec = importlib.util.spec_from_file_location("voicestudio_speak", VS_SPEAK)
+        m = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(m)
+        _vs["m"] = m
+    return _vs["m"]
+
+
+def voicestudio_up():
+    try:
+        vs_module().ensure_up()
+        return True
+    except (SystemExit, Exception):
+        return False
+
+
+def vs_chunks(text):
+    """[(chunk, gap after it)] — one sentence a take; a sentence over
+    VS_CHUNK_MAX is cut at the comma or semicolon nearest its middle."""
+    def cut(sent):
+        if len(sent) <= VS_CHUNK_MAX:
+            return [sent]
+        marks = [m.end() for m in re.finditer(r"[,;:](?=\s)", sent)]
+        marks = [k for k in marks if 40 <= k <= len(sent) - 40]
+        if not marks:
+            return [sent]
+        k = min(marks, key=lambda x: abs(x - len(sent) / 2))
+        return cut(sent[:k].strip()) + cut(sent[k:].strip())
+    out = []
+    raw = [x.strip() for x in re.split(r"(?<=[.!?…])[”\"’')\]]*\s+(?=[“\"‘(A-Z])", text) if x.strip()]
+    sents = []
+    for x in raw:  # "C. S. Lewis", "Mr. Enlightenment": not sentence ends
+        if sents and re.search(r"(?:\b[A-Z]|\b(?:Mr|Mrs|Ms|Dr|St|Rev|Sr|Jr|vs|v))\.$", sents[-1]):
+            sents[-1] += " " + x
+        else:
+            sents.append(x)
+    for sent in sents:
+        parts = cut(sent)
+        for j, c in enumerate(parts):
+            out.append((c, VS_GAP_SENTENCE if j == len(parts) - 1 else VS_GAP_CLAUSE))
+    return out
+
+
+def vs_render(text, voice, speed, seg, tmp):
+    """Clone one unit into seg/p.wav. Same request as voicestudio-speak.speak(),
+    with the speed from the voice map instead of the locked config's 1.0."""
+    m = vs_module()
+    cfg = m.load_cfg()
+    if voice != cfg.get("profile_id"):
+        raise SystemExit(f"voice map asks for clone profile {voice}; VoiceStudio is locked to {cfg.get('profile_id')}")
+    files = []
+    for k, (chunk, gap_after) in enumerate(vs_chunks(text)):
+        payload = {"model": cfg.get("engine", "omnivoice"), "input": m.prep_text(chunk)[:4096],
+                   "voice": voice, "response_format": "wav", "speed": float(speed or 1.0),
+                   "language": cfg.get("language") or "en", "instruct": cfg.get("instruct")}
+        if cfg.get("seed") is not None:
+            payload["seed"] = int(cfg["seed"])
+        status, headers, raw = m.api("POST", "/v1/audio/speech", data=payload, raw=True, timeout=240)
+        if status != 200 or raw[:1] in (b"{", b"["):
+            raise SystemExit(f"VoiceStudio synth failed: {raw[:300]!r}")
+        f = os.path.join(seg, f"c{k:02d}.raw.wav")
+        open(f, "wb").write(raw)
+        g = os.path.join(seg, f"c{k:02d}.wav")
+        # trim the take's own leading/trailing silence so the gaps are ours
+        subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", f, "-af",
+                        "silenceremove=start_periods=1:start_threshold=-45dB:start_silence=0.03,"
+                        "areverse,silenceremove=start_periods=1:start_threshold=-45dB:start_silence=0.06,areverse",
+                        "-ar", str(SAMPLE_RATE), "-ac", "1", "-c:a", "pcm_s16le", g], check=True)
+        files.append(g)
+        s = os.path.join(seg, f"c{k:02d}.gap.wav")
+        silence(s, gap_after)
+        files.append(s)
+    files = files[:-1]  # the unit gap follows; no trailing pause of our own
+    lst = os.path.join(seg, "list.txt")
+    with open(lst, "w") as fh:
+        fh.write("".join(f"file '{x}'\n" for x in files))
+    out = os.path.join(tmp, os.path.basename(seg) + ".vs.wav")
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-f", "concat", "-safe", "0", "-i", lst,
+                    "-c:a", "pcm_s16le", out], check=True)
+    for x in os.listdir(seg):
+        os.remove(os.path.join(seg, x))
+    shutil.move(out, os.path.join(seg, "p.wav"))
 
 
 def render_units(units, helpers, book_voice, tmp):
@@ -484,6 +618,8 @@ def render_units(units, helpers, book_voice, tmp):
                  "--length-scale", str(round(1.0 / (speed or 1.0), 3)),
                  "--sentence-silence", "0.35", "-f", os.path.join(seg, "p.wav")],
                 input=u["tts"].encode(), check=True, capture_output=True)
+        elif engine == "voicestudio":
+            vs_render(u["tts"], voice, speed, seg, tmp)
         else:
             generate_audio(text=u["tts"], model=model, voice=voice, lang_code=lang,
                            output_path=seg, file_prefix="p", join_audio=True,
@@ -493,7 +629,17 @@ def render_units(units, helpers, book_voice, tmp):
             raise SystemExit(f"FAIL no audio for unit {i}: {u['say'][:60]}")
         # One sample rate / layout for the concat demuxer.
         w = os.path.join(tmp, f"u{i:03d}.wav")
+        # Level each unit: the engines differ by up to 10 dB (clone -16, Kokoro
+        # -26 mean on 2026-11-26) and one loudnorm over the file keeps the jump.
+        vd = subprocess.run(["ffmpeg", "-hide_banner", "-i", os.path.join(seg, wavs[0]), "-af",
+                             "volumedetect", "-f", "null", "-"], capture_output=True, text=True).stderr
+        mean = re.search(r"mean_volume: (-?[\d.]+)", vd)
+        peak = re.search(r"max_volume: (-?[\d.]+)", vd)
+        gain = 0.0
+        if mean and peak:
+            gain = max(-12.0, min(12.0, UNIT_MEAN_DB - float(mean.group(1)), -1.0 - float(peak.group(1))))
         subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", os.path.join(seg, wavs[0]),
+                        "-af", f"volume={gain:.2f}dB",
                         "-ar", str(SAMPLE_RATE), "-ac", "1", "-c:a", "pcm_s16le", w], check=True)
         d = ffprobe_secs(w)
         u["start"], u["end"] = round(cursor, 3), round(cursor + d, 3)
@@ -694,7 +840,10 @@ def main():
     helpers = watch_helpers()
     book_voice = None if blog else book_voice_for(src)
     units = extract_units(root, blog)
-    resolve = voice_resolver(helpers, book_voice)
+    narrator = (args[args.index("--narrator") + 1] if "--narrator" in args
+                else root.attrs.get("data-narrator"))
+    resolve = voice_resolver(helpers, book_voice, narrator)
+    narr_voice = resolve("")[1]
     for u in units:
         u["engine"], u["voice_id"], u["lang"], u["speed"] = resolve(u["voice"])
         lang = u["lang"]
@@ -702,9 +851,10 @@ def main():
             tts = blog_after(helpers.apply_lexicon(speakable(blog_before(u["say"])), lang))
         else:
             tts = helpers.apply_lexicon(speakable(u["say"]), lang)
+        tts = re.sub(r"(?<=[a-z]),(?=[A-Z])", ", ", tts)  # "Peace,<br>Adam"
         u["tts"] = pronounce(tts, lang, u["engine"])
     n_words = sum(len(plain(u["tts"]).split()) for u in units)
-    print(f"{slug}: {len(units)} units, {n_words} spoken words, narrator={helpers.NARRATOR}, "
+    print(f"{slug}: {len(units)} units, {n_words} spoken words, narrator={narr_voice}, "
           f"book voice={book_voice}, root=#{key}", flush=True)
     if opt("--dry-run"):
         for i, u in enumerate(units):
@@ -713,8 +863,10 @@ def main():
 
     os.makedirs(MASTER_DIR, exist_ok=True)
     os.makedirs(WORDS_DIR, exist_ok=True)
-    mp3 = os.path.join(MASTER_DIR, slug + ".mp3")
-    units_path = os.path.join(MASTER_DIR, slug + ".units.json")
+    trial = opt("--trial")
+    stem = slug + (".trial" if trial else "")
+    mp3 = os.path.join(MASTER_DIR, stem + ".mp3")
+    units_path = os.path.join(MASTER_DIR, stem + ".units.json")
     t0 = time.time()
     with tempfile.TemporaryDirectory(prefix=f"study-audio-{slug}-") as tmp:
         if opt("--reuse-mp3"):
@@ -747,11 +899,12 @@ def main():
         "source": "whisper-small.en (pj-words-chunked) aligned to page text",
         "audio": f"{SITE}/{MEDIA_REL}/{slug}.mp3?v={sha}",
         "duration": round(dur, 2),
-        "voice": helpers.NARRATOR,
+        "voice": narr_voice,
         "generated": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
         "watches": {key: words},
     }
-    words_path = os.path.join(WORDS_DIR, slug + "-words.json")
+    words_path = (os.path.join("/tmp", slug + "-trial-words.json") if trial
+                  else os.path.join(WORDS_DIR, slug + "-words.json"))
     with open(words_path, "w", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False, separators=(",", ":"))
     dom_total = sum(1 for u in units for d in u["dom"] if len(norm(d)) >= 3)
