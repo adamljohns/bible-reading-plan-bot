@@ -58,6 +58,19 @@ pairs.
   buttons side by side: "Read it online" (same href, `target="_blank"`, no
   `download` attribute, opens in the browser's viewer) and the Download
   button. Never offer a download-only PDF.
+- **Footnote numbers** (Adam, 26 Nov 2026): a post that ends with a
+  Sources list cites it with superscript numbers that jump to the entry.
+  After the cited sentence or quotation:
+  `<sup class="fnref" data-no-follow><a href="#src-3" id="fnref-3-1" aria-label="Source 3">3</a></sup>`
+  (`fnref-<source>-<nth use>`). Sources is an `<ol>`, each entry
+  `<li id="src-3">…  <a class="fnback" href="#fnref-3-1">&#8617;</a></li>`.
+  `data-no-follow` keeps the narrator and the word-follower from reading the
+  number, so adding footnotes never needs a re-record. One number per cited
+  claim, not per sentence; Scripture already links to the reader, so the
+  version note is cited once, at the first quotation. Check every number
+  against the source it points to before publishing. CSS block: copy from
+  `docs/blog/unequally-yoked-early-church-to-ballot-box.html`
+  ("footnote numbers -> Sources").
 - **Bylines.** AI-drafted posts carry "By U.S.M.C. Ministries &middot; drafted
   with AI assistance, reviewed by Adam Johns". Adam's name alone stays on
   what he wrote. No AI persona is ever named as an author, a voice or a
